@@ -5,7 +5,7 @@ INC_DIR = ./include
 INC_SUB_NAME = cse
 INC_SUB_DIR = $(INC_DIR)/$(INC_SUB_NAME)
 PROJECT_NAME = cset
-PROJECT_TYPE = exe
+PROJECT_TYPE = lib
 
 NAMES = $(basename $(notdir $(wildcard $(SRC_DIR)/*.cpp)))
 HEADS = $(addprefix $(INC_SUB_DIR)/, $(notdir $(wildcard $(INC_SUB_DIR)/*.hpp)))
