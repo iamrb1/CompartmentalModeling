@@ -1,64 +1,33 @@
-#Team Agreement for Group 1: Stroustrup 
+# Team Agreement for Group 1: Stroustrup 
 
 Date: 1/29/25 
 
-Team Members: 
-
-Tyler Pritchett 
-
-Kollin Bartz 
-
-Jerry Chen 
-
-George Faraj 
-
-Leonardo Specht 
+Team Members: Tyler Pritchett, Kollin Bartz, Jerry Chen, George Faraj, Leonardo Specht 
 
 Preamble: 
-
 This agreement serves to outline the roles, responsibilities, and expectations of each member of our team for the duration of Spring semester 2025 in CSE 498. We, the undersigned, pledge to uphold our commitments and work collaboratively towards the successful completion of the project.  
 
 Roles & Responsibilities: 
 
-Team Member 
-
-Role Title 
-
-Responsibilities 
-
-Tyler Pritchett 
-
-Coordination Lead 
+Tyler Pritchett: Coordination Lead 
 
 Will organize a team plan to meet project milestones. Will set up team meetings, track status of goals, and help facilitate effective communication among team members. 
 
-Jerry Chen 
-
-Integration Lead 
+Jerry Chen: Integration Lead 
 
 Will take point on collaborating with other teams on the project’s overall API design; will assist with merge requests; will address questions or issues from other teams. 
 
-George Faraj 
-
-Quality Assurance Lead 
+George Faraj:Quality Assurance Lead 
 
 Will oversee the creation, execution, and maintenance of test suites; will track code quality, including functionality, performance, and security issues, and prioritize fixes. 
 
-Kollin Bartz 
-
-Documentation Lead 
+Kollin Bartz: Documentation Lead 
 
 Will ensure the team produces clear, concise, and comprehensive documentation for both end-users and other developers, as well as code that meets all style standards. 
 
-Leonardo Specht 
+Leonardo Specht: User-Experience Lead 
 
-User-Experience Lead 
-
-Will lead the effort to ensure that all C++ classes and the final application being developed are as useful and intuitive as possible to the intended audience. 
-
- 
-
- 
+Will lead the effort to ensure that all C++ classes and the final application being developed are as useful and intuitive as possible to the intended audience
 
 Team Expectations: 
 
@@ -78,12 +47,4 @@ Acknowledgment of Agreement:
 
 We, the undersigned, have mutually agreed upon the roles and responsibilities as stated above. We commit to upholding this agreement for the duration of the project and understand that any failure to do so may have consequences for our project’s success and our individual assessments.  
 
-Leonardo Specht 
-
-George Faraj 
-
-Kollin Bartz 
-
-Jerry Chen 
-
-Tyler Pritchett 
+Leonardo Specht, George Faraj, Kollin Bartz, Jerry Chen, Tyler Pritchett 
