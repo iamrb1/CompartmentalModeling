@@ -1,72 +1,20 @@
-SRC_DIR = ./src
-BUILD_DIR = target
-OBJ_DIR = artifacts
-INC_DIR = ./include
-INC_SUB_NAME = cse
-INC_SUB_DIR = $(INC_DIR)/$(INC_SUB_NAME)
-PROJECT_NAME = cset
-PROJECT_TYPE = lib
+BUILD_PROFILE=release
 
-NAMES = $(basename $(notdir $(wildcard $(SRC_DIR)/*.cpp)))
-HEADS = $(addprefix $(INC_SUB_DIR)/, $(notdir $(wildcard $(INC_SUB_DIR)/*.hpp)))
-SRCS = $(addsuffix .c, $(NAMES))
-OBJS = $(addsuffix .o, $(NAMES))
-
-CXX ?= g++
-
-CXX_FLAGS_all ?= -std=c++23 -Wextra -Wall -I$(INC_DIR)
-
-BUILD_FLAGS=
-BUILD_PREFIX=
-ifeq ($(OS),Windows_NT)
-	ifeq ($(PROJECT_TYPE),lib)
-		BUILD_FLAGS=-shared
-		BUILD_FILE_TYPE=.dll
-	else
-		BUILD_FILE_TYPE=.exe
-	endif
-else
-	ifeq ($(PROJECT_TYPE),lib)
-		BUILD_FLAGS=-shared
-		BUILD_PREFIX=lib
-		BUILD_FILE_TYPE=.so
-		CXX_FLAGS_all += -fpic
-	else
-		BUILD_FILE_TYPE=
-	endif
-endif
-
-CXX_FLAGS ?= -O2 -DNDEBUG
-CXX_FLAGS += $(CXX_FLAGS_all)
-CXX_FLAGS_debug ?= -ggdb
-CXX_FLAGS_debug += $(CXX_FLAGS_all)
-
-build: BUILD_DIR := $(BUILD_DIR)/release
-build: $(PROJECT_NAME)
-
-debug: CXX_FLAGS := $(CXX_FLAGS_debug)
-debug: BUILD_DIR := $(BUILD_DIR)/debug
-debug: $(PROJECT_NAME)
-
-.PHONY: build_dir
-
-$(PROJECT_NAME): build_dir $(OBJS)
-	$(CXX) $(CXX_FLAGS) $(BUILD_FLAGS) -o $(BUILD_DIR)/$(BUILD_PREFIX)$(PROJECT_NAME)$(BUILD_FILE_TYPE) $(addprefix $(BUILD_DIR)/$(OBJ_DIR)/, $(OBJS))
+build:
+	BUILD_PROFILE=$(BUILD_PROFILE) $(MAKE) -f Makefile.logic
+	
+debug: BUILD_PROFILE=debug
+debug: build
 
 clean:
-	rm -rf $(BUILD_DIR)
+	$(MAKE) -f Makefile.logic clean
 
-install: build
-	install -m 755 $(BUILD_DIR)/$(BUILD_PREFIX)$(PROJECT_NAME)$(BUILD_FILE_TYPE) /usr/lib/$(BUILD_PREFIX)$(PROJECT_NAME)$(BUILD_FILE_TYPE)
-	cp -rf $(INC_SUB_DIR) /usr/include
+install:
+	BUILD_PROFILE=$(BUILD_PROFILE) $(MAKE) -f Makefile.logic install
+
+install_debug: BUILD_PROFILE=debug
+install_debug: install
 
 remove:
-	rm -rf /usr/include/$(INC_SUB_NAME)
-	rm -rf /usr/lib/$(BUILD_PREFIX)$(PROJECT_NAME)$(BUILD_FILE_TYPE)
+	$(MAKE) -f Makefile.logic remove
 
-%.o: $(SRC_DIR)/%.cpp $(HEADS)
-	$(CXX) $(CXX_FLAGS) -c -o $(BUILD_DIR)/$(OBJ_DIR)/$@ $<
-
-build_dir:
-	mkdir -p $(BUILD_DIR)
-	mkdir -p $(BUILD_DIR)/$(OBJ_DIR)
