@@ -4,7 +4,8 @@ OBJ_DIR = artifacts
 INC_DIR = ./include
 INC_SUB_NAME = cse
 INC_SUB_DIR = $(INC_DIR)/$(INC_SUB_NAME)
-PROJECT_NAME = cset4
+PROJECT_NAME = cset
+PROJECT_TYPE = exe
 
 NAMES = $(basename $(notdir $(wildcard $(SRC_DIR)/*.cpp)))
 HEADS = $(addprefix $(INC_SUB_DIR)/, $(notdir $(wildcard $(INC_SUB_DIR)/*.hpp)))
@@ -13,9 +14,32 @@ OBJS = $(addsuffix .o, $(NAMES))
 
 CXX ?= g++
 
-CXX_FLAGS_all ?= -std=c++23 -Wextra -Wall -fpic -I$(INC_DIR)
-CXX_FLAGS ?= -O2 -DNDEBUG $(CXX_FLAGS_all)
-CXX_FLAGS_debug ?= -ggdb $(CXX_FLAGS_all)
+CXX_FLAGS_all ?= -std=c++23 -Wextra -Wall -I$(INC_DIR)
+
+BUILD_FLAGS=
+BUILD_PREFIX=
+ifeq ($(OS),Windows_NT)
+	ifeq ($(PROJECT_TYPE),lib)
+		BUILD_FLAGS=-shared
+		BUILD_FILE_TYPE=.dll
+	else
+		BUILD_FILE_TYPE=.exe
+	endif
+else
+	ifeq ($(PROJECT_TYPE),lib)
+		BUILD_FLAGS=-shared
+		BUILD_PREFIX=lib
+		BUILD_FILE_TYPE=.so
+		CXX_FLAGS_all += -fpic
+	else
+		BUILD_FILE_TYPE=
+	endif
+endif
+
+CXX_FLAGS ?= -O2 -DNDEBUG
+CXX_FLAGS += $(CXX_FLAGS_all)
+CXX_FLAGS_debug ?= -ggdb
+CXX_FLAGS_debug += $(CXX_FLAGS_all)
 
 build: BUILD_DIR := $(BUILD_DIR)/release
 build: $(PROJECT_NAME)
@@ -27,18 +51,18 @@ debug: $(PROJECT_NAME)
 .PHONY: build_dir
 
 $(PROJECT_NAME): build_dir $(OBJS)
-	$(CXX) $(CXX_FLAGS) -shared -o $(BUILD_DIR)/lib$(PROJECT_NAME).so $(addprefix $(BUILD_DIR)/$(OBJ_DIR)/, $(OBJS))
+	$(CXX) $(CXX_FLAGS) $(BUILD_FLAGS) -o $(BUILD_DIR)/$(BUILD_PREFIX)$(PROJECT_NAME)$(BUILD_FILE_TYPE) $(addprefix $(BUILD_DIR)/$(OBJ_DIR)/, $(OBJS))
 
 clean:
 	rm -rf $(BUILD_DIR)
 
 install: build
-	install -m 755 $(BUILD_DIR)/lib$(PROJECT_NAME).so /usr/lib/lib$(PROJECT_NAME).so
+	install -m 755 $(BUILD_DIR)/$(BUILD_PREFIX)$(PROJECT_NAME)$(BUILD_FILE_TYPE) /usr/lib/$(BUILD_PREFIX)$(PROJECT_NAME)$(BUILD_FILE_TYPE)
 	cp -rf $(INC_SUB_DIR) /usr/include
 
 remove:
 	rm -rf /usr/include/$(INC_SUB_NAME)
-	rm -rf /usr/lib/lib$(PROJECT_NAME).so
+	rm -rf /usr/lib/$(BUILD_PREFIX)$(PROJECT_NAME)$(BUILD_FILE_TYPE)
 
 %.o: $(SRC_DIR)/%.cpp $(HEADS)
 	$(CXX) $(CXX_FLAGS) -c -o $(BUILD_DIR)/$(OBJ_DIR)/$@ $<
