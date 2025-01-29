@@ -1,5 +1,5 @@
 # Spring2025
-Fogit lder for the Distribution Class
+Folder for the Distribution Class
 
 Description – Create and/or manage various distributions of values that are then used to create graphs with such distributions. Pre-calculating the distributions in order to draw the random faster. 
 
