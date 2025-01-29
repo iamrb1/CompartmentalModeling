@@ -24,10 +24,17 @@ debug: CXX_FLAGS := $(CXX_FLAGS_debug)
 debug: BUILD_DIR := $(BUILD_DIR)/debug
 debug: $(PROJECT_NAME)
 
+debug testbin: CXX_FLAGS := $(CXX_FLAGS_debug)
+debug testbin: BUILD_DIR := $(BUILD_DIR)/debug
+debug testbin: $(PROJECT_NAME)
+
 .PHONY: build_dir
 
 $(PROJECT_NAME): build_dir $(OBJS)
 	$(CXX) $(CXX_FLAGS) -shared -o $(BUILD_DIR)/lib$(PROJECT_NAME).so $(addprefix $(BUILD_DIR)/$(OBJ_DIR)/, $(OBJS))
+
+testbin:
+	$(CXX) $(CXX_FLAGS) -L$(BUILD_DIR) -l$(PROJECT_NAME) -o $(BUILD_DIR)/testbin main.cpp
 
 clean:
 	rm -rf $(BUILD_DIR)
