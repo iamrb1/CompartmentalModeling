@@ -10,7 +10,7 @@ PROJECT_TYPE = lib
 
 NAMES = $(basename $(notdir $(wildcard $(SRC_DIR)/*.cpp)))
 HEADS = $(addprefix $(INC_SUB_DIR)/, $(notdir $(wildcard $(INC_SUB_DIR)/*.hpp)))
-SRCS = $(addsuffix .c, $(NAMES))
+SRCS = $(addsuffix .cpp, $(NAMES))
 OBJS = $(addsuffix .o, $(NAMES))
 
 CXX ?= g++
@@ -66,3 +66,7 @@ $(BUILD_DIR)/$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(HEADS)
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 	mkdir -p $(BUILD_DIR)/$(OBJ_DIR)
+
+format:
+	echo $(addprefix $(SRC_DIR)/, $(SRCS)) $(HEADS) | xargs clang-format --style=Google -i
+

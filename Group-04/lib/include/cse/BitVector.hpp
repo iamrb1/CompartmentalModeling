@@ -3,12 +3,11 @@
 
 namespace cse {
 
-    class BitVector {
-    public:
-        std::vector<char> underlying = {};
+class BitVector {
+ public:
+  std::vector<char> underlying = {};
 
-        void grow();
-    };
-
+  void grow();
 };
 
+};  // namespace cse

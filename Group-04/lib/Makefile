@@ -9,6 +9,9 @@ debug: build
 clean:
 	$(MAKE) -f Makefile.logic clean
 
+format:
+	$(MAKE) -f Makefile.logic format
+
 install:
 	BUILD_PROFILE=$(BUILD_PROFILE) $(MAKE) -f Makefile.logic install
 
