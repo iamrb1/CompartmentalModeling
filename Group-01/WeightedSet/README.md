@@ -1,13 +1,27 @@
-# Distribution Class
+# WeightedSet Class
 
-Description – Create and/or manage various distributions of values that are then used to create graphs with such distributions. Pre-calculating the distributions in order to draw the random faster. 
+## Description
+A class that is a data structure similar to std::set, but each element is associated with a numerical “weight.” The total weight of all elements define a range, and elements can be efficiently accessed by indexing into this range. Indexing with a value between 0.0 and the total weight returns the corresponding element based on its cumulative weight.
 
-Similar classes – Random and WeightedSet which carry std::rand, std::set, std::map, std::unordered_map, std::vector, std::accumulate.  
+## Similar Classes
+- std::set
+- std::map, std::unordered_map 
+- std::vector
+- std::accumulate (calculating total weight)
 
-Key functions – Being able to do any distribution we would need for our graphs:  Binomial, power-law, uniform, Poisson, normal, etc. Pre-calculating the distributions will make computation time faster. 
+## Key Functions
+- An insert and delete function to add and remove items from the WeightedSet. 
+- A get function to get a specific item and a get_random function for a random index in a certain range.
 
-Error conditions – If there is a distribution we do not know. If the distribution is not within a certain range of accuracy. If there are not enough data points for any of the said distributions. 
+## Error Conditions
+- Inserting an item with a negative weight. 
+- Accessing an index out of range or the weight of an item that doesn’t exist 
+- Attempting to use any functions while the WeightedSet is empty.
 
-Expected challenges – Knowing all different distributions that are required (or helpful) for our final website currently. Making sure to catch any errors associated with it. Making sure it runs smoothly and quickly even at large sets and data requirements. 
+## Expected Challenges
+- Figuring out how to efficiently manage the WeightedSet so it can be indexed quickly even at a large size. 
+- Learning about implementing random and certain algorithms for range queries and cumulative weight management. 
 
-Other class projects – Random and WeightedSet would help inside this class in order to achieve an outline for different distributions. AnnotatedWrapper would be helpful when implementing the Random and WeightedSet classes from inside my group. 
+## Other Class Projects
+- The Random class could be used for the random indexing of the WeightedSet. 
+- The IndexSet class from Group 4 could potentially be used to hold the indices for the associated weights.
