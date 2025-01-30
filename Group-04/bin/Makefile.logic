@@ -5,8 +5,8 @@ OBJ_DIR = artifacts
 INC_DIR = ./include
 INC_SUB_NAME = cse
 INC_SUB_DIR = $(INC_DIR)/$(INC_SUB_NAME)
-PROJECT_NAME = cset
-PROJECT_TYPE = lib
+PROJECT_NAME = app
+PROJECT_TYPE = exe
 
 NAMES = $(basename $(notdir $(wildcard $(SRC_DIR)/*.cpp)))
 HEADS = $(addprefix $(INC_SUB_DIR)/, $(notdir $(wildcard $(INC_SUB_DIR)/*.hpp)))
@@ -17,18 +17,18 @@ CXX ?= g++
 
 CXX_FLAGS_all ?= -std=c++23 -Wextra -Wall -I$(INC_DIR)
 
-BUILD_FLAGS=?
+BUILD_FLAGS?=
 BUILD_PREFIX=
 ifeq ($(OS),Windows_NT)
 	ifeq ($(PROJECT_TYPE),lib)
-		BUILD_FLAGS=-shared
+		BUILD_FLAGS+=-shared
 		BUILD_FILE_TYPE=.dll
 	else
 		BUILD_FILE_TYPE=.exe
 	endif
 else
 	ifeq ($(PROJECT_TYPE),lib)
-		BUILD_FLAGS=-shared
+		BUILD_FLAGS+=-shared
 		BUILD_PREFIX=lib
 		BUILD_FILE_TYPE=.so
 		CXX_FLAGS_all += -fpic
