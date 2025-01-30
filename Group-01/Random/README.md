@@ -1,13 +1,39 @@
-# Distribution Class
+# Random Class
 
-Description – Create and/or manage various distributions of values that are then used to create graphs with such distributions. Pre-calculating the distributions in order to draw the random faster. 
+## Description
+A random number generator class that provides uniform random values across different numerical types and ranges. The class is initialized with a seed value for reproducible randomness. Its main use is for convenient methods for generating random numbers in specified ranges and probability-based boolean decisions.
 
-Similar classes – Random and WeightedSet which carry std::rand, std::set, std::map, std::unordered_map, std::vector, std::accumulate.  
+## Similar Classes
+- std::rand and std::srand for basic random number generation
+- std::uniform_real_distribution and std::uniform_int_distribution for generating uniform random numbers
+- std::mt19937 and other random number engines from the <random> library
 
-Key functions – Being able to do any distribution we would need for our graphs:  Binomial, power-law, uniform, Poisson, normal, etc. Pre-calculating the distributions will make computation time faster. 
+## Key Functions
+- Random(unsigned int seed) - Initializes the random number generator with a specified seed
+- double GetDouble(double min, double max) - Returns a uniform random double in the range [min, max]
+- int GetInt(int min, int max) - Returns a uniform random integer in the range [min, max]
+- bool P(double probability) - Returns true with the specified probability (0.0 to 1.0)
+- void SetSeed(unsigned int seed) - Allows resetting the random seed
+- template<typename T> T Get(T min, T max) - Generic version for different numeric types
 
-Error conditions – If there is a distribution we do not know. If the distribution is not within a certain range of accuracy. If there are not enough data points for any of the said distributions. 
+## Error Conditions
+- Providing max < min in any of the Get functions
+- Providing probability < 0.0 or probability > 1.0 in P()
+- Using invalid numeric types with the template Get function
 
-Expected challenges – Knowing all different distributions that are required (or helpful) for our final website currently. Making sure to catch any errors associated with it. Making sure it runs smoothly and quickly even at large sets and data requirements. 
+Recoverable Errors (Exception)
+- Overflow conditions when generating numbers near type limits
+- Memory allocation failures (if any internal buffers are needed)
 
-Other class projects – Random and WeightedSet would help inside this class in order to achieve an outline for different distributions. AnnotatedWrapper would be helpful when implementing the Random and WeightedSet classes from inside my group. 
+User Errors (Custom Return)
+- Invalid inputs
+
+## Expected Challenges
+- Maintaining uniform distribution across the entire range
+- Maintaining good random properties while allowing for reproducibility
+- Maintaining edge cases around numeric limits and type conversions
+- Learning about different random number generation algorithms 
+
+## Other Class Projects
+- StateGrid
+- ArgManager
