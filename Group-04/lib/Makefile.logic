@@ -68,5 +68,5 @@ $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)/$(OBJ_DIR)
 
 format:
-	echo $(addprefix $(SRC_DIR)/, $(SRCS)) $(HEADS) | xargs clang-format --style=Google -i
+	echo $(addprefix $(SRC_DIR)/, $(SRCS)) $(HEADS) | xargs clang-format --style=file -i
 
