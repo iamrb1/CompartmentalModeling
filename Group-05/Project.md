@@ -21,4 +21,3 @@
 A **CSV-manipulation app**.  This program would load in files in a comma-separated-values (CSV) format and allow the user to perform manipulations.  For example they might remove rows or columns, merge files, or reorder the tables. The use should be able to also write short equations (that you could process using the ExpressionParser above) to create new columns.
 
 Suggested **challenges**: Setup scripts in order to process data in a step-by-step fashion.  Alternatively, you could make a much more powerful expression parser to all for some spreadsheet-level functionality.  Python's [Pandas](https://pandas.pydata.org/docs/user_guide/index.html) library might also provide some inspiration for many more advanced features that would be useful in a system like this.
-
