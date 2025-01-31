@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 #include <vector>
 
 namespace cse {
@@ -28,12 +29,12 @@ class BitVector {
     std::byte* byte = nullptr;
     // The index of the bit within the byte ((1 << bit_off) & *byte gets the
     // specific bit)
-    unsigned char bit_off = 0;
+    uint8_t bit_off = 0;
 
    public:
     // Constructor
-    reference(BitVector* bv, std::byte* b, unsigned char o) :
-      parent(bv), byte(b), bit_off(o) {}
+    reference(BitVector* bv, std::byte* b, uint8_t o)
+        : parent(bv), byte(b), bit_off(o) {}
 
     // Set the value of this bit
     reference& operator=(bool value);
