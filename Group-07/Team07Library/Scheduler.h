@@ -1,0 +1,19 @@
+/**
+ * @file Scheduler.h
+ * @author Nathan Staniszewski
+ *
+ *
+ */
+
+#ifndef PROJECT_CSE498_SPRING2025_GROUP_07_TEAM07LIBRARY_SCHEDULER_H
+#define PROJECT_CSE498_SPRING2025_GROUP_07_TEAM07LIBRARY_SCHEDULER_H
+
+class Scheduler
+{
+private:
+
+public:
+
+};
+
+#endif //PROJECT_CSE498_SPRING2025_GROUP_07_TEAM07LIBRARY_SCHEDULER_H
