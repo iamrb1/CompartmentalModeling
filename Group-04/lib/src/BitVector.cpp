@@ -76,7 +76,7 @@ BitVector& BitVector::set(bool value) {
   for (std::byte& b : underlying) {
     b = replace;
   }
-  underlying.back() = underlying.back() >> (8 - (num_bits % 8));
+  fixup_byte(underlying.size() - 1, num_bits);
 
   return *this;
 }
@@ -98,6 +98,169 @@ BitVector& BitVector::set(size_t start, size_t count, bool value) {
   }
 
   return *this;
+}
+
+// Fix the given byte by mapping bits to zero after keep bits
+// e.g. 0b10101010 with keep 3 -> 0b00000010 (top 5 bits are cut off)
+// note: keep is modded, so don't worry about putting in too high a number
+void BitVector::fixup_byte(size_t byte, uint8_t keep) {
+  // Generate cutoff mask
+  std::byte mask = std::byte{0b11111111} >> (8 - (keep % 8));
+
+  // Get set bit diff as well as apply mask
+  int8_t diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[byte])];
+  underlying[byte] &= mask;
+  diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[byte])] - diff;
+
+  // Update num_set
+  if (diff < 0)
+    num_set -= -diff;
+  else
+    num_set += diff;
+}
+
+// AND the BitVector with another, setting the underlying to
+// the product
+BitVector& BitVector::operator&=(const BitVector& rhs) {
+  size_t i = 0;
+
+  // Main loop doing the anding
+  for (; i < underlying.size() && i < rhs.underlying.size(); i++) {
+    int8_t diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])];
+    underlying[i] &= rhs.underlying[i];
+    diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])] - diff;
+    if (diff < 0)
+      num_set -= -diff;
+    else
+      num_set += diff;
+  }
+
+  // Fixup the last byte
+  if (rhs.num_bits < num_bits)
+    fixup_byte(rhs.underlying.size() - 1, rhs.num_bits);
+  else
+    fixup_byte(i - 1, num_bits);
+
+  // If we stopped before the last byte, all the rest should be assumed zero
+  for (; i < underlying.size(); i++) {
+    uint8_t diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])];
+    underlying[i] = std::byte{0};
+    num_bits -= diff;
+  }
+
+  return *this;
+}
+
+// OR the BitVector with another, setting the underlying to
+// the product
+BitVector& BitVector::operator|=(const BitVector& rhs) {
+  size_t i = 0;
+
+  // Main loop doing the or
+  for (; i < underlying.size() - 1 && i < rhs.underlying.size() - 1; i++) {
+    int8_t diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])];
+    underlying[i] |= rhs.underlying[i];
+    diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])] - diff;
+    // diff can never be less than zero, since we don't lose bits when we or
+    num_set += diff;
+  }
+
+  // Or the last byte with a mask
+  int8_t diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])];
+  std::byte or_mask =
+      std::byte{0b11111111} >> (8 - (std::min(num_bits, rhs.num_bits) % 8));
+  underlying[i] |= (rhs.underlying[i] & or_mask);
+  diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])] - diff;
+  // diff can never be less than zero, since we don't lose bits when we or
+  num_set += diff;
+
+  return *this;
+}
+
+// XOR the BitVector with another, setting the underlying to
+// the product
+BitVector& BitVector::operator^=(const BitVector& rhs) {
+  size_t i = 0;
+
+  // Main loop doing the xor
+  for (; i < underlying.size() - 1 && i < rhs.underlying.size() - 1; i++) {
+    int8_t diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])];
+    underlying[i] ^= rhs.underlying[i];
+    diff -= BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])];
+    if (diff < 0)
+      num_set -= -diff;
+    else
+      num_set += diff;
+  }
+
+  // Xor the last byte with a mask
+  int8_t diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])];
+  std::byte or_mask =
+      std::byte{0b11111111} >> (8 - (std::min(num_bits, rhs.num_bits) % 8));
+  underlying[i] ^= (rhs.underlying[i] & or_mask);
+  diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])] - diff;
+  if (diff < 0)
+    num_set -= -diff;
+  else
+    num_set += diff;
+
+  return *this;
+}
+
+// Produce a BitVector with all bits flipped
+BitVector BitVector::operator~() const {
+  BitVector out(num_bits);
+
+  for (size_t i = 0; i < underlying.size(); i++) {
+    out.underlying[i] = underlying[i] ^ std::byte{0b11111111};
+    out.num_set += BYTE_SET_LOOKUP[std::to_integer<uint8_t>(out.underlying[i])];
+  }
+  out.fixup_byte(out.underlying.size() - 1, out.num_bits);
+
+  return out;
+}
+
+BitVector& BitVector::operator=(const BitVector& bv) {
+  underlying = bv.underlying;
+  num_bits = bv.num_bits;
+  num_set = bv.num_set;
+  return *this;
+}
+
+BitVector BitVector::operator&(const BitVector& rhs) const {
+  if (num_bits < rhs.num_bits) {
+    BitVector out = rhs;
+    out &= *this;
+    return out;
+  }
+
+  BitVector out = *this;
+  out &= rhs;
+  return out;
+}
+
+BitVector BitVector::operator|(const BitVector& rhs) const {
+  if (num_bits < rhs.num_bits) {
+    BitVector out = rhs;
+    out |= *this;
+    return out;
+  }
+
+  BitVector out = *this;
+  out |= rhs;
+  return out;
+}
+
+BitVector BitVector::operator^(const BitVector& rhs) const {
+  if (num_bits < rhs.num_bits) {
+    BitVector out = rhs;
+    out ^= *this;
+    return out;
+  }
+
+  BitVector out = *this;
+  out ^= rhs;
+  return out;
 }
 
 };  // namespace cse

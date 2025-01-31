@@ -17,6 +17,30 @@ class BitVector {
   // The number of set bits in the BitVector
   size_t num_set = 0;
 
+  // Lookup table for how many bits are 'on' in a byte
+  const int8_t BYTE_SET_LOOKUP[256] = {
+      0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,  // 0b00001111
+      1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,  // 0b00011111
+      1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,  // have
+      2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,  // 0b00111111
+      1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,  // to
+      2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,  // put
+      2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,  // these stupid comments
+      3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,  // 0b01111111
+      1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,  // here
+      2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,  // so
+      2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,  // that
+      3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,  // clang-format
+      2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,  // won't
+      3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,  // destroy
+      3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,  // my nice rectangle.
+      4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8,  // 0b11111111
+  };
+
+  // Keep the bottom "keep" bits of the given byte, discarding the rest and
+  // updating the num_set
+  void fixup_byte(size_t byte, uint8_t keep);
+
  public:
   // Author(s): Kyle Gunger
   // BitVector::reference is a reference to a single bit in the vector,
@@ -58,6 +82,13 @@ class BitVector {
     underlying.resize(bits / 8 + (bits % 8 == 0 ? 0 : 1), std::byte{0});
   }
 
+  // Copy constructor
+  BitVector(const BitVector& bv) {
+    underlying = bv.underlying;
+    num_bits = bv.num_bits;
+    num_set = bv.num_set;
+  }
+
   // Destructor
   ~BitVector() = default;
 
@@ -90,6 +121,9 @@ class BitVector {
   bool operator[](size_t idx) const;
   // Get a reference to the bit at idx
   reference operator[](size_t idx);
+
+  // Copy assignment
+  BitVector& operator=(const BitVector& bv);
 
   // Set all bits in the vector to true
   BitVector& set(bool value = true);
