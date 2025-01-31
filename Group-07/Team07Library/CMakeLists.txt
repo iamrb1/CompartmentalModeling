@@ -4,7 +4,7 @@ set(SOURCE_FILES
         AuditedArray.cpp
         AuditedArray.hpp
         DataFileManager.cpp
-        DataFileManager.hpp
+        DataFileManager.h
         OutputLog.cpp
         OutputLog.hpp
         Scheduler.cpp
