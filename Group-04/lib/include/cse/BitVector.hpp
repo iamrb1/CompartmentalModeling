@@ -22,6 +22,8 @@ class BitVector {
   // providing common bitwise operations as well as decomposing into a boolean
   class reference {
    private:
+    // A pointer to the BitVector which created this instance
+    BitVector* parent = nullptr;
     // A pointer to the byte where the bit is stored
     std::byte* byte = nullptr;
     // The index of the bit within the byte ((1 << bit_off) & *byte gets the
@@ -30,7 +32,23 @@ class BitVector {
 
    public:
     // Constructor
-    reference(std::byte* b, unsigned char o) : byte(b), bit_off(o) {}
+    reference(BitVector* bv, std::byte* b, unsigned char o) :
+      parent(bv), byte(b), bit_off(o) {}
+
+    // Set the value of this bit
+    reference& operator=(bool value);
+    // Set the value of this bit
+    reference& operator=(const reference& value);
+    // Flip the value of this bit
+    reference& flip();
+
+    // Get the value of this bit
+    operator bool() const;
+    // Get the negated value of this bit
+    bool operator~() const;
+
+    // Destructor
+    ~reference() = default;
   };
 
   // Constructor
