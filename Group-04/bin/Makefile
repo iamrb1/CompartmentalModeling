@@ -1,9 +1,9 @@
 BUILD_PROFILE=release
-CXX_FLAGS_all ?= -std=c++23 -Wextra -Wall -I$(INC_DIR) -I
+CXX_FLAGS_all ?= -std=c++23 -Wextra -Wall -I./include -I../lib/include
 
-build: BUILD_FLAGS=-L../lib/target/$(BUILD_PROFILE) -lcset
+build: BUILD_FLAGS=-L../lib/target/$(BUILD_PROFILE) -lcset -static
 build:
-	BUILD_PROFILE=$(BUILD_PROFILE) $(MAKE) -f Makefile.logic
+	BUILD_PROFILE=$(BUILD_PROFILE) CXX_FLAGS_all="$(CXX_FLAGS_all)" BUILD_FLAGS="$(BUILD_FLAGS)" $(MAKE) -f Makefile.logic
 	
 debug: BUILD_PROFILE=debug
 debug: build
