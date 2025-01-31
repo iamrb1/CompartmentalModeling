@@ -13,25 +13,25 @@ AnnotatedWrapper::~AnnotatedWrapper() {
 
 
 
-void AnnotatedWrapper::add_annotation(int key, int value) {
+void AnnotatedWrapper::addAnnotation(int key, int value) {
     annotations[key] = value;
     // Method code
 }
 
-int AnnotatedWrapper::get_annotation(int key) {
+int AnnotatedWrapper::getAnnotation(int key) {
     return annotations[key];
     // Method code
 }
 
-void AnnotatedWrapper::remove_annotation(int key) {
+void AnnotatedWrapper::removeAnnotation(int key) {
     // Method code
     annotations.erase(key);
 }
 
-void AnnotatedWrapper::list_annotations() {
+void AnnotatedWrapper::listAnnotations() {
     // Method code
 }
 
-void AnnotatedWrapper::clear_annotations() {
+void AnnotatedWrapper::clearAnnotations() {
     // Method code
 }

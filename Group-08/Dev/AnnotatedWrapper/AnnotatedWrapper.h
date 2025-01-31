@@ -13,11 +13,11 @@ public:
     ~AnnotatedWrapper();
 
     // Public methods
-    void add_annotation( int key, int value);
-    int get_annotation(int key);
-    void remove_annotation(int key);
-    void list_annotations();
-    void clear_annotations();
+    void addAnnotation( int key, int value);
+    int getAnnotation(int key);
+    void removeAnnotation(int key);
+    void listAnnotations();
+    void clearAnnotations();
 
 private:
     std::map<int, int> annotations;
