@@ -1,28 +1,27 @@
-#pragma once
+#ifndef ANNOTATEDWRAPPER_H
+#define ANNOTATEDWRAPPER_H
 
 #include <iostream>
-#include <vector>
-#include <string>
+#include <map>
 
 class AnnotatedWrapper {
-protected:
-    // Vector of tags associated with the object
-    std::vector<std::string> mTags;
-
 public:
-    // Adds a tag to the object
-    void AddTag(std::string tag);
+    // Constructor
+    AnnotatedWrapper();
 
-    // Removes a tag from the object
-    void RemoveTag(std::string tag);
+    // Destructor
+    ~AnnotatedWrapper();
 
-    // Remove all tags from the object
-    void RemoveAllTags();
+    // Public methods
+    void add_annotation( int key, int value);
+    int get_annotation(int key);
+    void remove_annotation(int key);
+    void list_annotations();
+    void clear_annotations();
 
-    // Gets all tags associated with the object
-    std::vector<std::string> GetAllTags();
-
-    // Verifies if a tag is assoicated with the object
-    bool VerifyTag(std::string tag);
+private:
+    std::map<int, int> annotations;
 
 };
+
+#endif // ANNOTATEDWRAPPER_H
