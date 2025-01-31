@@ -1,12 +1,8 @@
 #include <cse/BitVector.hpp>
 #include <iostream>
+#include <app/BVTest.hpp>
 
 int main() {
-  cse::BitVector b(1);
-  cse::BitVector::reference r = b[0];
-  std::cout << r;
-  r = true;
-  std::cout << r;
-  std::cout << std::endl;
+  test_bitvect();
   return 0;
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <iostream>
 #include <vector>
 
 namespace cse {
@@ -109,6 +110,9 @@ class BitVector {
   BitVector operator>>(size_t pos) const;
   // >>= operation on a BitVector
   BitVector& operator>>=(size_t pos);
+
+  // ostream output on bit vector
+  friend std::ostream& operator<<(std::ostream& os, const BitVector& bv);
 
   // & operation between two BitVectors
   BitVector operator&(const BitVector& rhs) const;

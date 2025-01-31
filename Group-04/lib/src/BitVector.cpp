@@ -1,5 +1,6 @@
 #include <cse/BitVector.hpp>
 #include <cstdint>
+#include <format>
 #include <iostream>
 
 namespace cse {
@@ -104,6 +105,8 @@ BitVector& BitVector::set(size_t start, size_t count, bool value) {
 // e.g. 0b10101010 with keep 3 -> 0b00000010 (top 5 bits are cut off)
 // note: keep is modded, so don't worry about putting in too high a number
 void BitVector::fixup_byte(size_t byte, uint8_t keep) {
+  // No need to cut off if keep is a multiple of 8
+  if (keep > 0 && keep % 8 == 0) return;
   // Generate cutoff mask
   std::byte mask = std::byte{0b11111111} >> (8 - (keep % 8));
 
@@ -166,13 +169,16 @@ BitVector& BitVector::operator|=(const BitVector& rhs) {
   }
 
   // Or the last byte with a mask
-  int8_t diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])];
-  std::byte or_mask =
-      std::byte{0b11111111} >> (8 - (std::min(num_bits, rhs.num_bits) % 8));
-  underlying[i] |= (rhs.underlying[i] & or_mask);
-  diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])] - diff;
-  // diff can never be less than zero, since we don't lose bits when we or
-  num_set += diff;
+  if (i < underlying.size()) {
+    int8_t diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])];
+    uint8_t mask_num = (8 - std::min(num_bits, rhs.num_bits) % 8);
+    std::byte or_mask = mask_num != 8 ? std::byte{0b11111111} >> mask_num
+                                      : std::byte{0b11111111};
+    underlying[i] |= (rhs.underlying[i] & or_mask);
+    diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])] - diff;
+    // diff can never be less than zero, since we don't lose bits when we or
+    num_set += diff;
+  }
 
   return *this;
 }
@@ -194,15 +200,19 @@ BitVector& BitVector::operator^=(const BitVector& rhs) {
   }
 
   // Xor the last byte with a mask
-  int8_t diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])];
-  std::byte or_mask =
-      std::byte{0b11111111} >> (8 - (std::min(num_bits, rhs.num_bits) % 8));
-  underlying[i] ^= (rhs.underlying[i] & or_mask);
-  diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])] - diff;
-  if (diff < 0)
-    num_set -= -diff;
-  else
-    num_set += diff;
+  if (i < underlying.size()) {
+    int8_t diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])];
+    uint8_t mask_num = (8 - std::min(num_bits, rhs.num_bits) % 8);
+    std::byte xor_mask = mask_num != 8 ? std::byte{0b11111111} >> mask_num
+                                      : std::byte{0b11111111};
+    underlying[i] ^= (rhs.underlying[i] & xor_mask);
+    diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])] - diff;
+    // diff can never be less than zero, since we don't lose bits when we or
+    if (diff < 0)
+      num_set -= -diff;
+    else
+      num_set += diff;
+  }
 
   return *this;
 }
@@ -261,6 +271,22 @@ BitVector BitVector::operator^(const BitVector& rhs) const {
   BitVector out = *this;
   out ^= rhs;
   return out;
+}
+
+// How to format when outputting to a stream
+// Current decision: groups of 8 bits space separated,
+// and with max groupings of 32 bits per line
+std::ostream& operator<<(std::ostream& os, const BitVector& bv) {
+  int byte = 0;
+  for (auto b = bv.underlying.rbegin(); b != bv.underlying.rend(); ++b) {
+    if (byte % 4 == 3)
+      os << std::format("{:0>8b}\n", std::to_integer<uint8_t>(*b));
+    else
+      os << std::format("{:0>8b} ", std::to_integer<uint8_t>(*b));
+    byte++;
+  }
+
+  return os;
 }
 
 };  // namespace cse
