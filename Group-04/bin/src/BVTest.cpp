@@ -12,44 +12,41 @@ void test_bitvect_1() {
   cse::BitVector a(8);
   cse::BitVector b(8);
 
-  std::cout << "a (uninitialized) - " << a << "\n";
-  std::cout << "b (uninitialized) - " << b << "\n";
-
   a.set();
 
-  std::cout << "a - " << a << "\n";
-  std::cout << "b - " << b << "\n";
+  std::cout << "a - " << a << " count: " << a.count() << "\n";
+  std::cout << "b - " << b << " count: " << b.count() << "\n";
 
   b |= a;
 
-  std::cout << "a - " << a << "\n";
-  std::cout << "b - " << b << "\n";
+  std::cout << "a - " << a << " count: " << a.count() << "\n";
+  std::cout << "b - " << b << " count: " << b.count() << "\n";
 
   a[5] = a[4] = a[7] = false;
 
-  std::cout << "a - " << a << "\n";
-  std::cout << "b - " << b << "\n";
+  std::cout << "a - " << a << " count: " << a.count() << "\n";
+  std::cout << "b - " << b << " count: " << b.count() << "\n";
 
   b ^= a;
   
-  std::cout << "a - " << a << "\n";
-  std::cout << "b - " << b << "\n";
+  std::cout << "a - " << a << " count: " << a.count() << "\n";
+  std::cout << "b - " << b << " count: " << b.count() << "\n";
 
   b ^= a;
   
-  std::cout << "a - " << a << "\n";
-  std::cout << "b - " << b << "\n";
+  std::cout << "a - " << a << " count: " << a.count() << "\n";
+  std::cout << "b - " << b << " count: " << b.count() << "\n";
 
   b &= a;
   
-  std::cout << "a - " << a << "\n";
-  std::cout << "b - " << b << "\n";
+  std::cout << "a - " << a << " count: " << a.count() << "\n";
+  std::cout << "b - " << b << " count: " << b.count() << "\n";
 
   b ^= b;
   a ^= a;
   
-  std::cout << "a - " << a << "\n";
-  std::cout << "b - " << b << "\n";
+  std::cout << "a - " << a << " count: " << a.count() << "\n";
+  std::cout << "b - " << b << " count: " << b.count() << "\n";
 
   std::cout << TEST_GUARD;
 }
@@ -65,18 +62,18 @@ void test_bitvect_2() {
   a.set(false);
   b.set();
 
-  std::cout << "a - " << a << "\n";
-  std::cout << "b - " << b << "\n";
+  std::cout << "a - " << a << " count: " << a.count() << "\n";
+  std::cout << "b - " << b << " count: " << b.count() << "\n";
 
   a |= b;
   
-  std::cout << "a - " << a << "\n";
-  std::cout << "b - " << b << "\n";
+  std::cout << "a - " << a << " count: " << a.count() << "\n";
+  std::cout << "b - " << b << " count: " << b.count() << "\n";
 
   b ^= a;
 
-  std::cout << "a - " << a << "\n";
-  std::cout << "b - " << b << "\n";
+  std::cout << "a - " << a << " count: " << a.count() << "\n";
+  std::cout << "b - " << b << " count: " << b.count() << "\n";
 
   std::cout << TEST_GUARD;
 }
