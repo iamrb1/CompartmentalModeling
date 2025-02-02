@@ -1,3 +1,4 @@
+#Used Professor Owen's CMake files from CSE 335 for our project
 project(Tests)
 
 set(TEST_FILES
@@ -6,6 +7,7 @@ set(TEST_FILES
         OutputLogTest.cpp
         SchedulerTest.cpp
         SerializerTest.cpp
+        gtest_main.cpp
 )
 
 # Get Google Tests
