@@ -6,6 +6,7 @@ set(TEST_FILES
         OutputLogTest.cpp
         SchedulerTest.cpp
         SerializerTest.cpp
+        gtest_main.cpp
 )
 
 # Get Google Tests
@@ -25,9 +26,6 @@ include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
 # adding the Tests_run target
 add_executable(Tests_run ${TEST_FILES})
-
-# linking Tests_run with library which will be tested and wxWidgets
-target_link_libraries(Tests_run ${APPLICATION_LIBRARY} ${wxWidgets_LIBRARIES} )
 
 # linking Tests_run with the Google Test libraries
 target_link_libraries(Tests_run gtest)
