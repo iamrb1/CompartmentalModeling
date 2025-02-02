@@ -1,10 +1,11 @@
+#Used Professor Owen's CMake files for CSE 335 for our project
 project(Team07Library)
 
 set(SOURCE_FILES
         AuditedArray.cpp
         AuditedArray.hpp
         DataFileManager.cpp
-        DataFileManager.hpp
+        DataFileManager.h
         OutputLog.cpp
         OutputLog.hpp
         Scheduler.cpp
