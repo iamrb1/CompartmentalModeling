@@ -40,7 +40,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE gtest)
 
 # Enable testing and add tests
 include(GoogleTest)
-enable_testing()
 gtest_add_tests(
     TARGET ${PROJECT_NAME}
     SOURCES ${TEST_FILES}

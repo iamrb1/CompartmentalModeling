@@ -1,6 +1,6 @@
 if (!LIBRARY_NAME)
-  # If the LIBRARY_NAME is not set, set it to the project name
-  set(LIBRARY_NAME ${PROJECT_NAME})
+  # If the LIBRARY_NAME is not set, set it to cse
+  set(LIBRARY_NAME cse)
 endif ()
 
 message(STATUS "Building Library: ${LIBRARY_NAME}")
@@ -17,16 +17,17 @@ set(
 )
 
 # Add the library target
-add_library(${LIBRARY_NAME} STATIC ${HEADER_FILES} ${SOURCE_FILES})
+if (BUILD_SHARED_LIBS)
+  # Set the export all symbols flag when building on Windows (for shared libraries)
+  # (kernel32.dll, user32.dll, etc.)
+  set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS YES CACHE BOOL "Export all symbols")
+  add_library(${LIBRARY_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
+else ()
+  add_library(${LIBRARY_NAME} STATIC ${HEADER_FILES} ${SOURCE_FILES})
+endif ()
 
-# Include the directories
+# Set the include directories
 target_include_directories(${LIBRARY_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 # Set the C++ standard to C++20
 target_compile_features(${LIBRARY_NAME} PRIVATE cxx_std_20)
-
-# source_group(
-#    TREE ${PROJECT_SOURCE_DIR}/include
-#    PREFIX "Header Files"
-#    FILES ${HEADER_FILES}
-# )

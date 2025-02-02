@@ -1,15 +1,19 @@
 # Base CMake file for cseg2 project
+
+# Set the minimum version of CMake that can be used to build the project
 cmake_minimum_required(VERSION 3.14)
 
+set(PROJECT_VERSION 0.1.0)
 project(
     cseg2
-    VERSION 0.1
+    VERSION ${PROJECT_VERSION}
     DESCRIPTION "CSE 498 Group 2 Project"
     LANGUAGES CXX
 )
 
 set(LIBRARY_NAME cse)
 set(EXECUTABLE_NAME ${PROJECT_NAME})
+set(BUILD_SHARED_LIBS OFF)
 
 # Only do these if this is the main project, and not if it is included through add_subdirectory
 if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
@@ -20,6 +24,9 @@ if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
   # Testing
   include(CTest)
+  if (BUILD_TESTING)
+    add_subdirectory(tests)
+  endif ()
 
   # Docs only available if this is the main app
   find_package(Doxygen)
@@ -44,7 +51,7 @@ endif ()
 add_subdirectory(src/cse)
 add_subdirectory(src/app)
 
-# Add the tests if this is the main project
-if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-  add_subdirectory(tests)
-endif ()
+# Output locations
+# If debug build, put binaries in build/debug
+# If release build, put binaries in build/release
+set_target_properties(${EXECUTABLE_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/)
