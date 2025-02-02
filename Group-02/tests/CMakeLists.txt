@@ -8,7 +8,6 @@ set(
     FailSafeTest.cpp
 )
 
-
 # Get google test
 include(FetchContent)
 FetchContent_Declare(
@@ -24,14 +23,25 @@ FetchContent_MakeAvailable(googletest)
 # Include Google Test directories
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
+# Adding the Google Test library (using submodules)
+# add_subdirectory(../extern/googletest ../extern/googletest/googletest/include EXCLUDE_FROM_ALL)
+
 # Adding the Test target
 add_executable(${PROJECT_NAME} ${TEST_FILES})
 
 # Set the C++ standard to C++20
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 
-# Linking Tests with cse library
+# Linking project with cse library
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBRARY_NAME})
 
-# Linking Tests with Google Test libraries
+# Linking project with Google Test libraries
 target_link_libraries(${PROJECT_NAME} PRIVATE gtest)
+
+# Enable testing and add tests
+include(GoogleTest)
+enable_testing()
+gtest_add_tests(
+    TARGET ${PROJECT_NAME}
+    SOURCES ${TEST_FILES}
+)

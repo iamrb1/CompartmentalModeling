@@ -9,7 +9,3 @@
 TEST(FailSafeTest, TestFailSafe) {
   EXPECT_EQ(1, 1);
 };
-
-TEST(FailSafeTest, TestFailSafe2) {
-  EXPECT_EQ(1, 2);
-};

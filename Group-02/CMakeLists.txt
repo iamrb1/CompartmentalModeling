@@ -18,6 +18,9 @@ if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   # -std=c++xx instead of -std=g++xx
   set(CMAKE_CXX_EXTENSIONS OFF)
 
+  # Testing
+  include(CTest)
+
   # Docs only available if this is the main app
   find_package(Doxygen)
   if (DOXYGEN_FOUND)
