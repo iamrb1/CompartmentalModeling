@@ -204,7 +204,7 @@ BitVector& BitVector::operator^=(const BitVector& rhs) {
     int8_t diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])];
     uint8_t mask_num = (8 - std::min(num_bits, rhs.num_bits) % 8);
     std::byte xor_mask = mask_num != 8 ? std::byte{0b11111111} >> mask_num
-                                      : std::byte{0b11111111};
+                                       : std::byte{0b11111111};
     underlying[i] ^= (rhs.underlying[i] & xor_mask);
     diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])] - diff;
     // diff can never be less than zero, since we don't lose bits when we or
@@ -232,18 +232,16 @@ BitVector BitVector::operator~() const {
 
 // equals operator
 bool BitVector::operator==(const BitVector& rhs) const {
-  if (rhs.num_bits != num_bits || rhs.num_set != num_set)
-    return false;
+  if (rhs.num_bits != num_bits || rhs.num_set != num_set) return false;
 
   size_t i = 0;
   for (; i < underlying.size() - 1; ++i) {
-    if (underlying[i] != rhs.underlying[i])
-      return false;
+    if (underlying[i] != rhs.underlying[i]) return false;
   }
 
   uint8_t mask_num = (8 - std::min(num_bits, rhs.num_bits) % 8);
-  std::byte mask = mask_num != 8 ? std::byte{0b11111111} >> mask_num
-                                 : std::byte{0b11111111};
+  std::byte mask =
+      mask_num != 8 ? std::byte{0b11111111} >> mask_num : std::byte{0b11111111};
 
   return (underlying[i] & mask) == (rhs.underlying[i] & mask);
 }

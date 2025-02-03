@@ -1,6 +1,6 @@
+#include <app/BVTest.hpp>
 #include <cse/BitVector.hpp>
 #include <iostream>
-#include <app/BVTest.hpp>
 
 int main() {
   test_bitvect();

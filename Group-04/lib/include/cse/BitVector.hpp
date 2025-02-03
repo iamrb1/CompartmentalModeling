@@ -106,7 +106,7 @@ class BitVector {
   bool operator==(const BitVector& rhs) const;
 
   // != operator
-  bool operator != (const BitVector& rhs) const { return !(*this == rhs); }
+  bool operator!=(const BitVector& rhs) const { return !(*this == rhs); }
 
   // << operation on a BitVector
   BitVector operator<<(size_t pos) const;
