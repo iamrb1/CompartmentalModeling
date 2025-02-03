@@ -4,6 +4,7 @@
 #include <sstream>
 #include <functional>
 #include <cstdlib>
+#include <stdexcept>
 
 namespace cse {
     /**
@@ -18,6 +19,21 @@ namespace cse {
             Warning,
             Fatal
         };
+
+        /**
+         * @brief Executes a function and displays an error if function throws during execution
+         * 
+         * @param function Function to be executed
+         * @param message Error message to be displayed if a function fails
+         * @param level Error level of a message
+         */
+        void executeAndHandleError(const std::function<void()>& function, const std::string& message="", ErrorLevel level = ErrorLevel::Info) {
+            try {
+                function();
+            } catch (const std::exception& e) {
+                printError(message, level);
+            }
+        }
         /**
          * @brief Writes a message to console with a message type at the start of a line
          * 
@@ -69,6 +85,21 @@ namespace cse {
         void enableColors(bool enabled) {
             this->colorsEnabled = enabled;
         }
+
+        /**
+         * @brief Allows to enable termination via exit() if an error of a specified type occurs
+         * 
+         * @param level The error level for which termination will be enabled or disabled
+         * @param enabled Enables or disables termination of the program
+         * @param statusCode optional parameter: specifies which status code to use for exit()
+         */
+        void enableTermination(ErrorLevel level, bool enabled, int32_t statusCode = 1) {
+            if (enabled) {
+                terminationEnabled[level] = statusCode;
+            } else {
+                terminationEnabled[level] = 0;
+            }
+        }
     private:
         bool colorsEnabled = true;
         /**
@@ -79,6 +110,12 @@ namespace cse {
             {ErrorLevel::Info, "\033[32m"},
             {ErrorLevel::Warning, "\033[33m"},
             {ErrorLevel::Fatal, "\033[31m"}
+        };
+
+        std::unordered_map<ErrorLevel, int32_t> terminationEnabled = {
+            {ErrorLevel::Info, 0},
+            {ErrorLevel::Warning, 0},
+            {ErrorLevel::Fatal, 0}
         };
 
         std::unordered_map<ErrorLevel, std::function<void()>> actions;
