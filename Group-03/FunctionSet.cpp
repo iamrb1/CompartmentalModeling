@@ -4,15 +4,8 @@
  */
 
 #include "FunctionSet.h"
-#include <utility>  // for std::forward
-#include <iostream> // just in case you need it
-#include <string>   // for std::string usage
+#include <string>
 
-//
-// 1) Provide definitions for each templated member function.
-//    * You MUST precede each with: template <typename R, typename... Args>
-//    * Then: return_type FunctionSet<R, Args...>::functionName(...) { ... }
-//
 
 /**
  * Constructor

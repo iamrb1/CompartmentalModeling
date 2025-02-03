@@ -10,7 +10,7 @@
 #include <functional>
 #include <type_traits>
 #include <stdexcept>
-#include <string> // needed if you plan to use std::string
+
 
 /**
  * @brief A container that holds multiple callable objects sharing the same signature
@@ -25,8 +25,9 @@ class FunctionSet
 public:
     using FunctionType = std::function<R(Args...)>;
 
-    // Constructor + Destructor
+    /// Constructor
     FunctionSet();
+    /// Destructor
     ~FunctionSet();
 
     /**
