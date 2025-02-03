@@ -1,7 +1,6 @@
-#include <iostream>
 #include "Graph.hpp"
+#include <iostream>
 
-int main()
-{
+int main() {
   return 0;
 }

@@ -1,25 +1,23 @@
 #pragma once
+#include <fstream>
+#include <optional>
 #include <string>
 #include <unordered_map>
-#include <optional>
 #include <vector>
-#include <fstream>
 
-#include "Vertex.hpp"
 #include "Edge.hpp"
+#include "Vertex.hpp"
 
-namespace cse498
-{
+namespace cse498 {
 
-  template <class T>
-  class Graph
-  {
+  template <class T> class Graph {
   private:
     std::unordered_map<std::string, cse498::Vertex> vertices;
     std::unordered_map<std::string, cse498::Edge> edges;
 
   public:
-    cse498::Vertex AddVertex(std::string id, T data, std::optional<double> X = std::nullopt, std::optional<double> Y = std::nullopt);
+    cse498::Vertex AddVertex(std::string id, T data, std::optional<double> X = std::nullopt,
+                             std::optional<double> Y = std::nullopt);
     cse498::Vertex RemoveVertex(std::string id);
     cse498::Vertex &GetVertex(std::string id);
 
@@ -34,4 +32,4 @@ namespace cse498
     void ToFile(std::fstream &s);
     static Graph FromFile(std::fstream &s);
   };
-}
+} // namespace cse498
