@@ -4,7 +4,7 @@
 #include <cassert>
 #include <iostream>
 #include "gtest/gtest.h"
-#include "AuditedArray.hpp"
+#include "AuditedArray.h"
 
 TEST(AuditedArrayTest, Construct) {
   AuditedArray<int, 5> arr;
