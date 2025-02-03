@@ -25,6 +25,7 @@ class EventQueue {
   std::optional<Event> remove(const Event&);
   Event pop();
   Event peek();
+  void update(const Event&);
   void print();
  private:
   std::priority_queue<Event, std::vector<Event>, EventCompare> heap;

@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include "EventQueue.h"
+#include <format>
 
 void EventQueue::add(const Event &e) {
   heap.push(e);
@@ -42,6 +43,17 @@ Event EventQueue::pop() {
 
 Event EventQueue::peek() {
   return heap.top();
+}
+
+void EventQueue::update(const Event& e) {
+  auto removed = this->remove(e);
+  if (removed.has_value()) {
+	this->add(e);
+  }
+  else {
+	auto msg = std::format("Error updating event: Event ID {} not found in EventQueue", e.getID());
+	throw std::invalid_argument(msg);
+  }
 }
 
 void EventQueue::print() {
