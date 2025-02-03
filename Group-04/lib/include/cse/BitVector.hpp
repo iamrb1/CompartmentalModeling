@@ -102,6 +102,12 @@ class BitVector {
   // ~ operation on a BitVector, produces a new BitVector
   BitVector operator~() const;
 
+  // == operator
+  bool operator==(const BitVector& rhs) const;
+
+  // != operator
+  bool operator != (const BitVector& rhs) const { return !(*this == rhs); }
+
   // << operation on a BitVector
   BitVector operator<<(size_t pos) const;
   // <<= operation on a BitVector
