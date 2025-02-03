@@ -12,34 +12,37 @@
 // traversal), and more. Also assumes Graph class initializes vertices with an ID for easy tracking/position usage.
 class Graph;
 
+namespace cse498 {
+
+template <class T>
 class GraphPosition {
 public:
     // Constructor: takes a reference to an existing Graph and a valid starting vertex ID.
-    GraphPosition(const Graph& g, int vertexStartID);
+    GraphPosition(const Graph<T>& g, std::string vertexStartID);
 
     // Returns the current vertex ID.
-    int GetCurrentVertex() const;
+    std::string GetCurrentVertex() const;
 
     // Sets the current vertex ID.
-    // (This does not change the actual Graph, it just moves the GraphPosition.)
-    void SetCurrentVertex(int vertexID);
+    void SetCurrentVertex(std::string vertexID);
 
-    // Attempts to advance to an unvisited neighbor of the current vertex.
+    // Attempts to advance to an unvisited neighbor.
     // Returns true if successful; false if no unvisited neighbor exists.
     bool AdvanceToNextNeighbor();
 
     // Returns the ordered traversal path.
-    const std::vector<int>& GetTraversalPath() const;
+    const std::vector<std::string>& GetTraversalPath() const;
 
 private:
-    const Graph& graph;               // Reference to the Graph.
-    int currentVertexID;              // Current vertex ID.
-    std::set<int> visitedVertices;    // Tracks visited vertices (by ID).
-    std::vector<int> traversalPath;   // Ordered traversal path.
-    unsigned int initialModificationCount; // Graph modification count at construction.
+    const Graph<T>& graph;             // Reference to the Graph.
+    std::string currentVertexID;       // Current vertex ID.
+    std::set<std::string> visitedVertices;  // Tracks visited vertices.
+    std::vector<std::string> traversalPath; // Ordered traversal path.
 
     // Helper function to mark a vertex as visited and record it in the path.
-    void MarkVisited(int vertexID);
+    void MarkVisited(std::string vertexID);
 };
+
+} // namespace cse498
 
 #endif // GRAPHPOSITION_HPP

@@ -1,57 +1,55 @@
 #include "GraphPosition.hpp"
 
-// Implementation of the helper function.
-void GraphPosition::MarkVisited(int vertexID) {
+namespace cse498 {
+
+template <class T>
+void GraphPosition<T>::MarkVisited(std::string vertexID) {
     visitedVertices.insert(vertexID);
     traversalPath.push_back(vertexID);
 }
 
-// Constructor implementation.
-GraphPosition::GraphPosition(const Graph& g, int vertexStartID)
-    : graph(g), currentVertexID(vertexStartID), initialModificationCount(g.GetModificationCount())
+template <class T>
+GraphPosition<T>::GraphPosition(const Graph<T>& g, std::string vertexStartID)
+    : graph(g), currentVertexID(vertexStartID)
 {
-    if (!graph.HasVertex(vertexStartID)) {
+    if (!graph.GetVertex(vertexStartID).GetID().empty()) { // Ensure vertex exists
+        MarkVisited(vertexStartID);
+    } else {
         throw std::invalid_argument("Starting vertex does not exist in the graph.");
     }
-    MarkVisited(vertexStartID);
 }
 
-// Returns the current vertex ID.
-int GraphPosition::GetCurrentVertex() const {
+template <class T>
+std::string GraphPosition<T>::GetCurrentVertex() const {
     return currentVertexID;
 }
 
-// Sets the current vertex ID and marks it as visited.
-void GraphPosition::SetCurrentVertex(int vertexID) {
-    if (!graph.HasVertex(vertexID)) {
+template <class T>
+void GraphPosition<T>::SetCurrentVertex(std::string vertexID) {
+    if (!graph.GetVertex(vertexID).GetID().empty()) {
+        currentVertexID = vertexID;
+        MarkVisited(vertexID);
+    } else {
         throw std::invalid_argument("Vertex does not exist in the graph.");
     }
-    currentVertexID = vertexID;
-    MarkVisited(vertexID);
 }
 
-// Attempts to advance to an unvisited neighbor.
-bool GraphPosition::AdvanceToNextNeighbor() {
-    // Check if the graph has been modified since traversal began.
-    if (graph.GetModificationCount() != initialModificationCount) {
-        throw std::runtime_error("Graph was modified during traversal.");
-    }
-
-    // Retrieve vertex neighbors.
-    std::vector<int> neighbors = graph.GetNeighbors(currentVertexID);
-    for (int neighborID : neighbors) {
-        // Move to the first unvisited neighbor.
+template <class T>
+bool GraphPosition<T>::AdvanceToNextNeighbor() {
+    std::vector<std::string> neighbors = graph.GetVertex(currentVertexID).GetNeighbors();
+    for (const std::string& neighborID : neighbors) {
         if (visitedVertices.find(neighborID) == visitedVertices.end()) {
             currentVertexID = neighborID;
             MarkVisited(neighborID);
             return true;
         }
     }
-    // No unvisited neighbor.
     return false;
 }
 
-// Returns the ordered traversal path.
-const std::vector<int>& GraphPosition::GetTraversalPath() const {
+template <class T>
+const std::vector<std::string>& GraphPosition<T>::GetTraversalPath() const {
     return traversalPath;
 }
+
+} // namespace cse498
