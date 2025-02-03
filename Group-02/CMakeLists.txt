@@ -50,8 +50,3 @@ endif ()
 # Add the subdirectories (libraries and executables)
 add_subdirectory(src/cse)
 add_subdirectory(src/app)
-
-# Output locations
-# If debug build, put binaries in build/debug
-# If release build, put binaries in build/release
-set_target_properties(${EXECUTABLE_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/)
