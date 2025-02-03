@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-#include "Vertex.h"
+#include "Vertex.hpp"
 
 namespace cse498
 {
