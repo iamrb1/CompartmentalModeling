@@ -230,6 +230,24 @@ BitVector BitVector::operator~() const {
   return out;
 }
 
+// equals operator
+bool BitVector::operator==(const BitVector& rhs) const {
+  if (rhs.num_bits != num_bits || rhs.num_set != num_set)
+    return false;
+
+  size_t i = 0;
+  for (; i < underlying.size() - 1; ++i) {
+    if (underlying[i] != rhs.underlying[i])
+      return false;
+  }
+
+  uint8_t mask_num = (8 - std::min(num_bits, rhs.num_bits) % 8);
+  std::byte mask = mask_num != 8 ? std::byte{0b11111111} >> mask_num
+                                 : std::byte{0b11111111};
+
+  return (underlying[i] & mask) == (rhs.underlying[i] & mask);
+}
+
 BitVector& BitVector::operator=(const BitVector& bv) {
   underlying = bv.underlying;
   num_bits = bv.num_bits;
