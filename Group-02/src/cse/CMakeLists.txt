@@ -10,12 +10,14 @@ set(
     HEADER_FILES
     ${PROJECT_SOURCE_DIR}/include/cse/ActionMap.h
     ${PROJECT_SOURCE_DIR}/include/cse/StateGrid.h
+    ${PROJECT_SOURCE_DIR}/include/cse/StateGridPosition.h
 )
 
 set(
     SOURCE_FILES
     ActionMap.cpp
     StateGrid.cpp
+    StateGridPosition.cpp
 )
 
 # Add the library target
