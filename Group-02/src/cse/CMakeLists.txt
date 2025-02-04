@@ -9,12 +9,13 @@ message(STATUS "Building Library: ${LIBRARY_NAME}")
 set(
     HEADER_FILES
     ${PROJECT_SOURCE_DIR}/include/cse/ActionMap.h
+    ${PROJECT_SOURCE_DIR}/include/cse/StateGrid.h
 )
 
 set(
     SOURCE_FILES
     ActionMap.cpp
-        StateGrid.cpp
+    StateGrid.cpp
 )
 
 # Add the library target
