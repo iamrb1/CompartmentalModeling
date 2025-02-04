@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\CSE 498 CAPTSTONE\CSE498-Spring2025\Group-07\build\CMakeFiles\b54c1dd26b85a4bc3c308910ec6f7a93\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{EDBEC14F-CF2E-3DD5-BB6E-D0B9DBCBD4A8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

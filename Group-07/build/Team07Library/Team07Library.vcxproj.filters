@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\CSE 498 CAPTSTONE\CSE498-Spring2025\Group-07\Team07Library\AuditedArray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\CSE 498 CAPTSTONE\CSE498-Spring2025\Group-07\Team07Library\DataFileManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\CSE 498 CAPTSTONE\CSE498-Spring2025\Group-07\Team07Library\OutputLog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\CSE 498 CAPTSTONE\CSE498-Spring2025\Group-07\Team07Library\Scheduler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\CSE 498 CAPTSTONE\CSE498-Spring2025\Group-07\Team07Library\Serializer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\CSE 498 CAPTSTONE\CSE498-Spring2025\Group-07\Team07Library\AuditedArray.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\CSE 498 CAPTSTONE\CSE498-Spring2025\Group-07\Team07Library\DataFileManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\CSE 498 CAPTSTONE\CSE498-Spring2025\Group-07\Team07Library\OutputLog.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\CSE 498 CAPTSTONE\CSE498-Spring2025\Group-07\Team07Library\Scheduler.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\CSE 498 CAPTSTONE\CSE498-Spring2025\Group-07\Team07Library\Serializer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\CSE 498 CAPTSTONE\CSE498-Spring2025\Group-07\Team07Library\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{F65BF948-CFB0-3D97-92A1-04B43AA836A7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{0B187BA8-EF6C-3C1D-AF2B-12A84E0309E6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

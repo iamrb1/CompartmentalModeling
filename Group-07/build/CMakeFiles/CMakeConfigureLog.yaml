@@ -1,0 +1,1576 @@
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineSystem.cmake:211 (message)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      The system is: Windows - 10.0.22631 - AMD64
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCCompiler.cmake:123 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+      Compiler:  
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      MSBuild version 17.7.2+d6990bcfa for .NET Framework
+      Build started 2/3/2025 1:38:05 PM.
+      
+      Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\3.27.4\\CompilerIdC\\CompilerIdC.vcxproj" on node 1 (default targets).
+      PrepareForBuild:
+        Creating directory "Debug\\".
+        Creating directory "Debug\\CompilerIdC.tlog\\".
+      InitializeBuildStatus:
+        Creating "Debug\\CompilerIdC.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+        Touching "Debug\\CompilerIdC.tlog\\unsuccessfulbuild".
+      ClCompile:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /nologo /W0 /WX- /diagnostics:column /Od /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\\\" /Fd"Debug\\vc143.pdb" /external:W0 /Gd /TC /FC /errorReport:queue CMakeCCompilerId.c
+        CMakeCCompilerId.c
+      Link:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:".\\CompilerIdC.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\\CompilerIdC.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\\CompilerIdC.lib" /MACHINE:X64 Debug\\CMakeCCompilerId.obj
+        CompilerIdC.vcxproj -> D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\3.27.4\\CompilerIdC\\CompilerIdC.exe
+      PostBuildEvent:
+        for %%i in (cl.exe) do @echo CMAKE_C_COMPILER=%%~$PATH:i
+        :VCEnd
+        CMAKE_C_COMPILER=C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\Hostx64\\x64\\cl.exe
+      FinalizeBuildStatus:
+        Deleting file "Debug\\CompilerIdC.tlog\\unsuccessfulbuild".
+        Touching "Debug\\CompilerIdC.tlog\\CompilerIdC.lastbuildstate".
+      Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\3.27.4\\CompilerIdC\\CompilerIdC.vcxproj" (default targets).
+      
+      Build succeeded.
+          0 Warning(s)
+          0 Error(s)
+      
+      Time Elapsed 00:00:01.39
+      
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.exe"
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.vcxproj"
+      
+      The C compiler identification is MSVC, found in:
+        D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/3.27.4/CompilerIdC/CompilerIdC.exe
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCXXCompiler.cmake:126 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+      Compiler:  
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      MSBuild version 17.7.2+d6990bcfa for .NET Framework
+      Build started 2/3/2025 1:38:06 PM.
+      
+      Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\3.27.4\\CompilerIdCXX\\CompilerIdCXX.vcxproj" on node 1 (default targets).
+      PrepareForBuild:
+        Creating directory "Debug\\".
+        Creating directory "Debug\\CompilerIdCXX.tlog\\".
+      InitializeBuildStatus:
+        Creating "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+        Touching "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild".
+      ClCompile:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /nologo /W0 /WX- /diagnostics:column /Od /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\\\" /Fd"Debug\\vc143.pdb" /external:W0 /Gd /TP /FC /errorReport:queue CMakeCXXCompilerId.cpp
+        CMakeCXXCompilerId.cpp
+      Link:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:".\\CompilerIdCXX.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\\CompilerIdCXX.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\\CompilerIdCXX.lib" /MACHINE:X64 Debug\\CMakeCXXCompilerId.obj
+        CompilerIdCXX.vcxproj -> D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\3.27.4\\CompilerIdCXX\\CompilerIdCXX.exe
+      PostBuildEvent:
+        for %%i in (cl.exe) do @echo CMAKE_CXX_COMPILER=%%~$PATH:i
+        :VCEnd
+        CMAKE_CXX_COMPILER=C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\Hostx64\\x64\\cl.exe
+      FinalizeBuildStatus:
+        Deleting file "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild".
+        Touching "Debug\\CompilerIdCXX.tlog\\CompilerIdCXX.lastbuildstate".
+      Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\3.27.4\\CompilerIdCXX\\CompilerIdCXX.vcxproj" (default targets).
+      
+      Build succeeded.
+          0 Warning(s)
+          0 Error(s)
+      
+      Time Elapsed 00:00:00.67
+      
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.exe"
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.vcxproj"
+      
+      The CXX compiler identification is MSVC, found in:
+        D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/3.27.4/CompilerIdCXX/CompilerIdCXX.exe
+      
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerABI.cmake:57 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    checks:
+      - "Detecting C compiler ABI info"
+    directories:
+      source: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-zbm37e"
+      binary: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-zbm37e"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS"
+      CMAKE_C_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "CMAKE_C_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: 'D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-zbm37e'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_fbda4.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.7.2+d6990bcfa for .NET Framework
+        Build started 2/3/2025 1:38:08 PM.
+        
+        Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-zbm37e\\cmTC_fbda4.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_fbda4.dir\\Debug\\".
+          Creating directory "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-zbm37e\\Debug\\".
+          Creating directory "cmTC_fbda4.dir\\Debug\\cmTC_fbda4.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_fbda4.dir\\Debug\\cmTC_fbda4.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_fbda4.dir\\Debug\\cmTC_fbda4.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_fbda4.dir\\Debug\\\\" /Fd"cmTC_fbda4.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCCompilerABI.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.37.32822 for x64
+          CMakeCCompilerABI.c
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_fbda4.dir\\Debug\\\\" /Fd"cmTC_fbda4.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCCompilerABI.c"
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-zbm37e\\Debug\\cmTC_fbda4.exe" /INCREMENTAL /ILK:"cmTC_fbda4.dir\\Debug\\cmTC_fbda4.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-zbm37e/Debug/cmTC_fbda4.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-zbm37e/Debug/cmTC_fbda4.lib" /MACHINE:X64  /machine:x64 cmTC_fbda4.dir\\Debug\\CMakeCCompilerABI.obj
+          cmTC_fbda4.vcxproj -> D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-zbm37e\\Debug\\cmTC_fbda4.exe
+        FinalizeBuildStatus:
+          Deleting file "cmTC_fbda4.dir\\Debug\\cmTC_fbda4.tlog\\unsuccessfulbuild".
+          Touching "cmTC_fbda4.dir\\Debug\\cmTC_fbda4.tlog\\cmTC_fbda4.lastbuildstate".
+        Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-zbm37e\\cmTC_fbda4.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:00.73
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerABI.cmake:57 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    checks:
+      - "Detecting CXX compiler ABI info"
+    directories:
+      source: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-2vozyl"
+      binary: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-2vozyl"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /EHsc"
+      CMAKE_CXX_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "CMAKE_CXX_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: 'D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-2vozyl'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_f983e.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.7.2+d6990bcfa for .NET Framework
+        Build started 2/3/2025 1:38:09 PM.
+        
+        Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-2vozyl\\cmTC_f983e.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_f983e.dir\\Debug\\".
+          Creating directory "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-2vozyl\\Debug\\".
+          Creating directory "cmTC_f983e.dir\\Debug\\cmTC_f983e.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_f983e.dir\\Debug\\cmTC_f983e.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_f983e.dir\\Debug\\cmTC_f983e.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_f983e.dir\\Debug\\\\" /Fd"cmTC_f983e.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCXXCompilerABI.cpp"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.37.32822 for x64
+          CMakeCXXCompilerABI.cpp
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_f983e.dir\\Debug\\\\" /Fd"cmTC_f983e.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCXXCompilerABI.cpp"
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-2vozyl\\Debug\\cmTC_f983e.exe" /INCREMENTAL /ILK:"cmTC_f983e.dir\\Debug\\cmTC_f983e.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-2vozyl/Debug/cmTC_f983e.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-2vozyl/Debug/cmTC_f983e.lib" /MACHINE:X64  /machine:x64 cmTC_f983e.dir\\Debug\\CMakeCXXCompilerABI.obj
+          cmTC_f983e.vcxproj -> D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-2vozyl\\Debug\\cmTC_f983e.exe
+        FinalizeBuildStatus:
+          Deleting file "cmTC_f983e.dir\\Debug\\cmTC_f983e.tlog\\unsuccessfulbuild".
+          Touching "cmTC_f983e.dir\\Debug\\cmTC_f983e.tlog\\cmTC_f983e.lastbuildstate".
+        Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-2vozyl\\cmTC_f983e.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:00.67
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CheckCSourceCompiles.cmake:52 (cmake_check_source_compiles)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:97 (CHECK_C_SOURCE_COMPILES)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:163 (_threads_check_libc)"
+      - "build/_deps/googletest-src/googletest/cmake/internal_utils.cmake:65 (find_package)"
+      - "build/_deps/googletest-src/googletest/CMakeLists.txt:93 (config_compiler_and_linker)"
+    checks:
+      - "Performing Test CMAKE_HAVE_LIBC_PTHREAD"
+    directories:
+      source: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-ririmh"
+      binary: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-ririmh"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS"
+    buildResult:
+      variable: "CMAKE_HAVE_LIBC_PTHREAD"
+      cached: true
+      stdout: |
+        Change Dir: 'D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-ririmh'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_2591c.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.7.2+d6990bcfa for .NET Framework
+        Build started 2/3/2025 1:38:18 PM.
+        
+        Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-ririmh\\cmTC_2591c.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_2591c.dir\\Debug\\".
+          Creating directory "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-ririmh\\Debug\\".
+          Creating directory "cmTC_2591c.dir\\Debug\\cmTC_2591c.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_2591c.dir\\Debug\\cmTC_2591c.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_2591c.dir\\Debug\\cmTC_2591c.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CMAKE_HAVE_LIBC_PTHREAD /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_2591c.dir\\Debug\\\\" /Fd"cmTC_2591c.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-ririmh\\src.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.37.32822 for x64
+          src.c
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CMAKE_HAVE_LIBC_PTHREAD /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_2591c.dir\\Debug\\\\" /Fd"cmTC_2591c.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-ririmh\\src.c"
+        D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-ririmh\\src.c(1,10): fatal  error C1083: Cannot open include file: 'pthread.h': No such file or directory [D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-ririmh\\cmTC_2591c.vcxproj]
+        Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-ririmh\\cmTC_2591c.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-ririmh\\cmTC_2591c.vcxproj" (default target) (1) ->
+        (ClCompile target) -> 
+          D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-ririmh\\src.c(1,10): fatal  error C1083: Cannot open include file: 'pthread.h': No such file or directory [D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-ririmh\\cmTC_2591c.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:00.56
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CheckLibraryExists.cmake:69 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:112 (CHECK_LIBRARY_EXISTS)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:175 (_threads_check_lib)"
+      - "build/_deps/googletest-src/googletest/cmake/internal_utils.cmake:65 (find_package)"
+      - "build/_deps/googletest-src/googletest/CMakeLists.txt:93 (config_compiler_and_linker)"
+    checks:
+      - "Looking for pthread_create in pthreads"
+    directories:
+      source: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-gpqjfv"
+      binary: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-gpqjfv"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS"
+    buildResult:
+      variable: "CMAKE_HAVE_PTHREADS_CREATE"
+      cached: true
+      stdout: |
+        Change Dir: 'D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-gpqjfv'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_c5f3e.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.7.2+d6990bcfa for .NET Framework
+        Build started 2/3/2025 1:38:19 PM.
+        
+        Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-gpqjfv\\cmTC_c5f3e.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_c5f3e.dir\\Debug\\".
+          Creating directory "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-gpqjfv\\Debug\\".
+          Creating directory "cmTC_c5f3e.dir\\Debug\\cmTC_c5f3e.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_c5f3e.dir\\Debug\\cmTC_c5f3e.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_c5f3e.dir\\Debug\\cmTC_c5f3e.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_c5f3e.dir\\Debug\\\\" /Fd"cmTC_c5f3e.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-gpqjfv\\CheckFunctionExists.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.37.32822 for x64
+          CheckFunctionExists.c
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_c5f3e.dir\\Debug\\\\" /Fd"cmTC_c5f3e.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-gpqjfv\\CheckFunctionExists.c"
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-gpqjfv\\Debug\\cmTC_c5f3e.exe" /INCREMENTAL /ILK:"cmTC_c5f3e.dir\\Debug\\cmTC_c5f3e.ilk" /NOLOGO pthreads.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-gpqjfv/Debug/cmTC_c5f3e.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-gpqjfv/Debug/cmTC_c5f3e.lib" /MACHINE:X64  /machine:x64 cmTC_c5f3e.dir\\Debug\\CheckFunctionExists.obj
+        LINK : fatal error LNK1104: cannot open file 'pthreads.lib' [D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-gpqjfv\\cmTC_c5f3e.vcxproj]
+        Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-gpqjfv\\cmTC_c5f3e.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-gpqjfv\\cmTC_c5f3e.vcxproj" (default target) (1) ->
+        (Link target) -> 
+          LINK : fatal error LNK1104: cannot open file 'pthreads.lib' [D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-gpqjfv\\cmTC_c5f3e.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:00.56
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CheckLibraryExists.cmake:69 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:112 (CHECK_LIBRARY_EXISTS)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:176 (_threads_check_lib)"
+      - "build/_deps/googletest-src/googletest/cmake/internal_utils.cmake:65 (find_package)"
+      - "build/_deps/googletest-src/googletest/CMakeLists.txt:93 (config_compiler_and_linker)"
+    checks:
+      - "Looking for pthread_create in pthread"
+    directories:
+      source: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-yg1ys7"
+      binary: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-yg1ys7"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS"
+    buildResult:
+      variable: "CMAKE_HAVE_PTHREAD_CREATE"
+      cached: true
+      stdout: |
+        Change Dir: 'D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-yg1ys7'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_624d7.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.7.2+d6990bcfa for .NET Framework
+        Build started 2/3/2025 1:38:19 PM.
+        
+        Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-yg1ys7\\cmTC_624d7.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_624d7.dir\\Debug\\".
+          Creating directory "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-yg1ys7\\Debug\\".
+          Creating directory "cmTC_624d7.dir\\Debug\\cmTC_624d7.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_624d7.dir\\Debug\\cmTC_624d7.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_624d7.dir\\Debug\\cmTC_624d7.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_624d7.dir\\Debug\\\\" /Fd"cmTC_624d7.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-yg1ys7\\CheckFunctionExists.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.37.32822 for x64
+          CheckFunctionExists.c
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_624d7.dir\\Debug\\\\" /Fd"cmTC_624d7.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-yg1ys7\\CheckFunctionExists.c"
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-yg1ys7\\Debug\\cmTC_624d7.exe" /INCREMENTAL /ILK:"cmTC_624d7.dir\\Debug\\cmTC_624d7.ilk" /NOLOGO pthread.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-yg1ys7/Debug/cmTC_624d7.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-yg1ys7/Debug/cmTC_624d7.lib" /MACHINE:X64  /machine:x64 cmTC_624d7.dir\\Debug\\CheckFunctionExists.obj
+        LINK : fatal error LNK1104: cannot open file 'pthread.lib' [D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-yg1ys7\\cmTC_624d7.vcxproj]
+        Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-yg1ys7\\cmTC_624d7.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-yg1ys7\\cmTC_624d7.vcxproj" (default target) (1) ->
+        (Link target) -> 
+          LINK : fatal error LNK1104: cannot open file 'pthread.lib' [D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-yg1ys7\\cmTC_624d7.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:00.53
+        
+      exitCode: 1
+...
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineSystem.cmake:211 (message)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      The system is: Windows - 10.0.22631 - AMD64
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCCompiler.cmake:123 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+      Compiler:  
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      MSBuild version 17.7.2+d6990bcfa for .NET Framework
+      Build started 2/3/2025 2:01:20 PM.
+      
+      Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\3.27.4\\CompilerIdC\\CompilerIdC.vcxproj" on node 1 (default targets).
+      PrepareForBuild:
+        Creating directory "Debug\\".
+        Creating directory "Debug\\CompilerIdC.tlog\\".
+      InitializeBuildStatus:
+        Creating "Debug\\CompilerIdC.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+        Touching "Debug\\CompilerIdC.tlog\\unsuccessfulbuild".
+      ClCompile:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /nologo /W0 /WX- /diagnostics:column /Od /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\\\" /Fd"Debug\\vc143.pdb" /external:W0 /Gd /TC /FC /errorReport:queue CMakeCCompilerId.c
+        CMakeCCompilerId.c
+      Link:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:".\\CompilerIdC.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\\CompilerIdC.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\\CompilerIdC.lib" /MACHINE:X64 Debug\\CMakeCCompilerId.obj
+        CompilerIdC.vcxproj -> D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\3.27.4\\CompilerIdC\\CompilerIdC.exe
+      PostBuildEvent:
+        for %%i in (cl.exe) do @echo CMAKE_C_COMPILER=%%~$PATH:i
+        :VCEnd
+        CMAKE_C_COMPILER=C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\Hostx64\\x64\\cl.exe
+      FinalizeBuildStatus:
+        Deleting file "Debug\\CompilerIdC.tlog\\unsuccessfulbuild".
+        Touching "Debug\\CompilerIdC.tlog\\CompilerIdC.lastbuildstate".
+      Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\3.27.4\\CompilerIdC\\CompilerIdC.vcxproj" (default targets).
+      
+      Build succeeded.
+          0 Warning(s)
+          0 Error(s)
+      
+      Time Elapsed 00:00:01.75
+      
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.exe"
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.vcxproj"
+      
+      The C compiler identification is MSVC, found in:
+        D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/3.27.4/CompilerIdC/CompilerIdC.exe
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCXXCompiler.cmake:126 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+      Compiler:  
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      MSBuild version 17.7.2+d6990bcfa for .NET Framework
+      Build started 2/3/2025 2:01:22 PM.
+      
+      Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\3.27.4\\CompilerIdCXX\\CompilerIdCXX.vcxproj" on node 1 (default targets).
+      PrepareForBuild:
+        Creating directory "Debug\\".
+        Creating directory "Debug\\CompilerIdCXX.tlog\\".
+      InitializeBuildStatus:
+        Creating "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+        Touching "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild".
+      ClCompile:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /nologo /W0 /WX- /diagnostics:column /Od /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\\\" /Fd"Debug\\vc143.pdb" /external:W0 /Gd /TP /FC /errorReport:queue CMakeCXXCompilerId.cpp
+        CMakeCXXCompilerId.cpp
+      Link:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:".\\CompilerIdCXX.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\\CompilerIdCXX.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\\CompilerIdCXX.lib" /MACHINE:X64 Debug\\CMakeCXXCompilerId.obj
+        CompilerIdCXX.vcxproj -> D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\3.27.4\\CompilerIdCXX\\CompilerIdCXX.exe
+      PostBuildEvent:
+        for %%i in (cl.exe) do @echo CMAKE_CXX_COMPILER=%%~$PATH:i
+        :VCEnd
+        CMAKE_CXX_COMPILER=C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\Hostx64\\x64\\cl.exe
+      FinalizeBuildStatus:
+        Deleting file "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild".
+        Touching "Debug\\CompilerIdCXX.tlog\\CompilerIdCXX.lastbuildstate".
+      Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\3.27.4\\CompilerIdCXX\\CompilerIdCXX.vcxproj" (default targets).
+      
+      Build succeeded.
+          0 Warning(s)
+          0 Error(s)
+      
+      Time Elapsed 00:00:00.78
+      
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.exe"
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.vcxproj"
+      
+      The CXX compiler identification is MSVC, found in:
+        D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/3.27.4/CompilerIdCXX/CompilerIdCXX.exe
+      
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerABI.cmake:57 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    checks:
+      - "Detecting C compiler ABI info"
+    directories:
+      source: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-gsc0wv"
+      binary: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-gsc0wv"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS"
+      CMAKE_C_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "CMAKE_C_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: 'D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-gsc0wv'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_ae091.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.7.2+d6990bcfa for .NET Framework
+        Build started 2/3/2025 2:01:23 PM.
+        
+        Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-gsc0wv\\cmTC_ae091.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_ae091.dir\\Debug\\".
+          Creating directory "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-gsc0wv\\Debug\\".
+          Creating directory "cmTC_ae091.dir\\Debug\\cmTC_ae091.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_ae091.dir\\Debug\\cmTC_ae091.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_ae091.dir\\Debug\\cmTC_ae091.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_ae091.dir\\Debug\\\\" /Fd"cmTC_ae091.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCCompilerABI.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.37.32822 for x64
+          CMakeCCompilerABI.c
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_ae091.dir\\Debug\\\\" /Fd"cmTC_ae091.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCCompilerABI.c"
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-gsc0wv\\Debug\\cmTC_ae091.exe" /INCREMENTAL /ILK:"cmTC_ae091.dir\\Debug\\cmTC_ae091.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-gsc0wv/Debug/cmTC_ae091.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-gsc0wv/Debug/cmTC_ae091.lib" /MACHINE:X64  /machine:x64 cmTC_ae091.dir\\Debug\\CMakeCCompilerABI.obj
+          cmTC_ae091.vcxproj -> D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-gsc0wv\\Debug\\cmTC_ae091.exe
+        FinalizeBuildStatus:
+          Deleting file "cmTC_ae091.dir\\Debug\\cmTC_ae091.tlog\\unsuccessfulbuild".
+          Touching "cmTC_ae091.dir\\Debug\\cmTC_ae091.tlog\\cmTC_ae091.lastbuildstate".
+        Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-gsc0wv\\cmTC_ae091.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:00.85
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerABI.cmake:57 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    checks:
+      - "Detecting CXX compiler ABI info"
+    directories:
+      source: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-3t96ra"
+      binary: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-3t96ra"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /EHsc"
+      CMAKE_CXX_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "CMAKE_CXX_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: 'D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-3t96ra'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_e11a8.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.7.2+d6990bcfa for .NET Framework
+        Build started 2/3/2025 2:01:25 PM.
+        
+        Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-3t96ra\\cmTC_e11a8.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_e11a8.dir\\Debug\\".
+          Creating directory "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-3t96ra\\Debug\\".
+          Creating directory "cmTC_e11a8.dir\\Debug\\cmTC_e11a8.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_e11a8.dir\\Debug\\cmTC_e11a8.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_e11a8.dir\\Debug\\cmTC_e11a8.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_e11a8.dir\\Debug\\\\" /Fd"cmTC_e11a8.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCXXCompilerABI.cpp"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.37.32822 for x64
+          CMakeCXXCompilerABI.cpp
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_e11a8.dir\\Debug\\\\" /Fd"cmTC_e11a8.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCXXCompilerABI.cpp"
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-3t96ra\\Debug\\cmTC_e11a8.exe" /INCREMENTAL /ILK:"cmTC_e11a8.dir\\Debug\\cmTC_e11a8.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-3t96ra/Debug/cmTC_e11a8.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-3t96ra/Debug/cmTC_e11a8.lib" /MACHINE:X64  /machine:x64 cmTC_e11a8.dir\\Debug\\CMakeCXXCompilerABI.obj
+          cmTC_e11a8.vcxproj -> D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-3t96ra\\Debug\\cmTC_e11a8.exe
+        FinalizeBuildStatus:
+          Deleting file "cmTC_e11a8.dir\\Debug\\cmTC_e11a8.tlog\\unsuccessfulbuild".
+          Touching "cmTC_e11a8.dir\\Debug\\cmTC_e11a8.tlog\\cmTC_e11a8.lastbuildstate".
+        Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-3t96ra\\cmTC_e11a8.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:00.71
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CheckCSourceCompiles.cmake:52 (cmake_check_source_compiles)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:97 (CHECK_C_SOURCE_COMPILES)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:163 (_threads_check_libc)"
+      - "build/_deps/googletest-src/googletest/cmake/internal_utils.cmake:65 (find_package)"
+      - "build/_deps/googletest-src/googletest/CMakeLists.txt:93 (config_compiler_and_linker)"
+    checks:
+      - "Performing Test CMAKE_HAVE_LIBC_PTHREAD"
+    directories:
+      source: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-mrjary"
+      binary: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-mrjary"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS"
+    buildResult:
+      variable: "CMAKE_HAVE_LIBC_PTHREAD"
+      cached: true
+      stdout: |
+        Change Dir: 'D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-mrjary'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_8c90b.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.7.2+d6990bcfa for .NET Framework
+        Build started 2/3/2025 2:01:30 PM.
+        
+        Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-mrjary\\cmTC_8c90b.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_8c90b.dir\\Debug\\".
+          Creating directory "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-mrjary\\Debug\\".
+          Creating directory "cmTC_8c90b.dir\\Debug\\cmTC_8c90b.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_8c90b.dir\\Debug\\cmTC_8c90b.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_8c90b.dir\\Debug\\cmTC_8c90b.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CMAKE_HAVE_LIBC_PTHREAD /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_8c90b.dir\\Debug\\\\" /Fd"cmTC_8c90b.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-mrjary\\src.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.37.32822 for x64
+          src.c
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CMAKE_HAVE_LIBC_PTHREAD /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_8c90b.dir\\Debug\\\\" /Fd"cmTC_8c90b.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-mrjary\\src.c"
+        D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-mrjary\\src.c(1,10): fatal  error C1083: Cannot open include file: 'pthread.h': No such file or directory [D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-mrjary\\cmTC_8c90b.vcxproj]
+        Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-mrjary\\cmTC_8c90b.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-mrjary\\cmTC_8c90b.vcxproj" (default target) (1) ->
+        (ClCompile target) -> 
+          D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-mrjary\\src.c(1,10): fatal  error C1083: Cannot open include file: 'pthread.h': No such file or directory [D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-mrjary\\cmTC_8c90b.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:00.57
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CheckLibraryExists.cmake:69 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:112 (CHECK_LIBRARY_EXISTS)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:175 (_threads_check_lib)"
+      - "build/_deps/googletest-src/googletest/cmake/internal_utils.cmake:65 (find_package)"
+      - "build/_deps/googletest-src/googletest/CMakeLists.txt:93 (config_compiler_and_linker)"
+    checks:
+      - "Looking for pthread_create in pthreads"
+    directories:
+      source: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-qril18"
+      binary: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-qril18"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS"
+    buildResult:
+      variable: "CMAKE_HAVE_PTHREADS_CREATE"
+      cached: true
+      stdout: |
+        Change Dir: 'D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-qril18'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_20ebb.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.7.2+d6990bcfa for .NET Framework
+        Build started 2/3/2025 2:01:31 PM.
+        
+        Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-qril18\\cmTC_20ebb.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_20ebb.dir\\Debug\\".
+          Creating directory "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-qril18\\Debug\\".
+          Creating directory "cmTC_20ebb.dir\\Debug\\cmTC_20ebb.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_20ebb.dir\\Debug\\cmTC_20ebb.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_20ebb.dir\\Debug\\cmTC_20ebb.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_20ebb.dir\\Debug\\\\" /Fd"cmTC_20ebb.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-qril18\\CheckFunctionExists.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.37.32822 for x64
+          CheckFunctionExists.c
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_20ebb.dir\\Debug\\\\" /Fd"cmTC_20ebb.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-qril18\\CheckFunctionExists.c"
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-qril18\\Debug\\cmTC_20ebb.exe" /INCREMENTAL /ILK:"cmTC_20ebb.dir\\Debug\\cmTC_20ebb.ilk" /NOLOGO pthreads.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-qril18/Debug/cmTC_20ebb.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-qril18/Debug/cmTC_20ebb.lib" /MACHINE:X64  /machine:x64 cmTC_20ebb.dir\\Debug\\CheckFunctionExists.obj
+        LINK : fatal error LNK1104: cannot open file 'pthreads.lib' [D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-qril18\\cmTC_20ebb.vcxproj]
+        Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-qril18\\cmTC_20ebb.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-qril18\\cmTC_20ebb.vcxproj" (default target) (1) ->
+        (Link target) -> 
+          LINK : fatal error LNK1104: cannot open file 'pthreads.lib' [D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-qril18\\cmTC_20ebb.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:00.64
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CheckLibraryExists.cmake:69 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:112 (CHECK_LIBRARY_EXISTS)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:176 (_threads_check_lib)"
+      - "build/_deps/googletest-src/googletest/cmake/internal_utils.cmake:65 (find_package)"
+      - "build/_deps/googletest-src/googletest/CMakeLists.txt:93 (config_compiler_and_linker)"
+    checks:
+      - "Looking for pthread_create in pthread"
+    directories:
+      source: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-pyvt8z"
+      binary: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-pyvt8z"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS"
+    buildResult:
+      variable: "CMAKE_HAVE_PTHREAD_CREATE"
+      cached: true
+      stdout: |
+        Change Dir: 'D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-pyvt8z'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_31024.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.7.2+d6990bcfa for .NET Framework
+        Build started 2/3/2025 2:01:32 PM.
+        
+        Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-pyvt8z\\cmTC_31024.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_31024.dir\\Debug\\".
+          Creating directory "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-pyvt8z\\Debug\\".
+          Creating directory "cmTC_31024.dir\\Debug\\cmTC_31024.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_31024.dir\\Debug\\cmTC_31024.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_31024.dir\\Debug\\cmTC_31024.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_31024.dir\\Debug\\\\" /Fd"cmTC_31024.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-pyvt8z\\CheckFunctionExists.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.37.32822 for x64
+          CheckFunctionExists.c
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_31024.dir\\Debug\\\\" /Fd"cmTC_31024.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-pyvt8z\\CheckFunctionExists.c"
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-pyvt8z\\Debug\\cmTC_31024.exe" /INCREMENTAL /ILK:"cmTC_31024.dir\\Debug\\cmTC_31024.ilk" /NOLOGO pthread.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-pyvt8z/Debug/cmTC_31024.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-pyvt8z/Debug/cmTC_31024.lib" /MACHINE:X64  /machine:x64 cmTC_31024.dir\\Debug\\CheckFunctionExists.obj
+        LINK : fatal error LNK1104: cannot open file 'pthread.lib' [D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-pyvt8z\\cmTC_31024.vcxproj]
+        Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-pyvt8z\\cmTC_31024.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-pyvt8z\\cmTC_31024.vcxproj" (default target) (1) ->
+        (Link target) -> 
+          LINK : fatal error LNK1104: cannot open file 'pthread.lib' [D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-pyvt8z\\cmTC_31024.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:00.64
+        
+      exitCode: 1
+...
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineSystem.cmake:211 (message)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      The system is: Windows - 10.0.22631 - AMD64
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCCompiler.cmake:123 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+      Compiler:  
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      MSBuild version 17.7.2+d6990bcfa for .NET Framework
+      Build started 2/4/2025 9:41:56 AM.
+      
+      Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\3.27.4\\CompilerIdC\\CompilerIdC.vcxproj" on node 1 (default targets).
+      PrepareForBuild:
+        Creating directory "Debug\\".
+        Creating directory "Debug\\CompilerIdC.tlog\\".
+      InitializeBuildStatus:
+        Creating "Debug\\CompilerIdC.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+        Touching "Debug\\CompilerIdC.tlog\\unsuccessfulbuild".
+      ClCompile:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /nologo /W0 /WX- /diagnostics:column /Od /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\\\" /Fd"Debug\\vc143.pdb" /external:W0 /Gd /TC /FC /errorReport:queue CMakeCCompilerId.c
+        CMakeCCompilerId.c
+      Link:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:".\\CompilerIdC.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\\CompilerIdC.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\\CompilerIdC.lib" /MACHINE:X64 Debug\\CMakeCCompilerId.obj
+        CompilerIdC.vcxproj -> D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\3.27.4\\CompilerIdC\\CompilerIdC.exe
+      PostBuildEvent:
+        for %%i in (cl.exe) do @echo CMAKE_C_COMPILER=%%~$PATH:i
+        :VCEnd
+        CMAKE_C_COMPILER=C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\Hostx64\\x64\\cl.exe
+      FinalizeBuildStatus:
+        Deleting file "Debug\\CompilerIdC.tlog\\unsuccessfulbuild".
+        Touching "Debug\\CompilerIdC.tlog\\CompilerIdC.lastbuildstate".
+      Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\3.27.4\\CompilerIdC\\CompilerIdC.vcxproj" (default targets).
+      
+      Build succeeded.
+          0 Warning(s)
+          0 Error(s)
+      
+      Time Elapsed 00:00:01.51
+      
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.exe"
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.vcxproj"
+      
+      The C compiler identification is MSVC, found in:
+        D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/3.27.4/CompilerIdC/CompilerIdC.exe
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCXXCompiler.cmake:126 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+      Compiler:  
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      MSBuild version 17.7.2+d6990bcfa for .NET Framework
+      Build started 2/4/2025 9:41:58 AM.
+      
+      Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\3.27.4\\CompilerIdCXX\\CompilerIdCXX.vcxproj" on node 1 (default targets).
+      PrepareForBuild:
+        Creating directory "Debug\\".
+        Creating directory "Debug\\CompilerIdCXX.tlog\\".
+      InitializeBuildStatus:
+        Creating "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+        Touching "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild".
+      ClCompile:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /nologo /W0 /WX- /diagnostics:column /Od /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\\\" /Fd"Debug\\vc143.pdb" /external:W0 /Gd /TP /FC /errorReport:queue CMakeCXXCompilerId.cpp
+        CMakeCXXCompilerId.cpp
+      Link:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:".\\CompilerIdCXX.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\\CompilerIdCXX.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\\CompilerIdCXX.lib" /MACHINE:X64 Debug\\CMakeCXXCompilerId.obj
+        CompilerIdCXX.vcxproj -> D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\3.27.4\\CompilerIdCXX\\CompilerIdCXX.exe
+      PostBuildEvent:
+        for %%i in (cl.exe) do @echo CMAKE_CXX_COMPILER=%%~$PATH:i
+        :VCEnd
+        CMAKE_CXX_COMPILER=C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\Hostx64\\x64\\cl.exe
+      FinalizeBuildStatus:
+        Deleting file "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild".
+        Touching "Debug\\CompilerIdCXX.tlog\\CompilerIdCXX.lastbuildstate".
+      Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\3.27.4\\CompilerIdCXX\\CompilerIdCXX.vcxproj" (default targets).
+      
+      Build succeeded.
+          0 Warning(s)
+          0 Error(s)
+      
+      Time Elapsed 00:00:00.72
+      
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.exe"
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.vcxproj"
+      
+      The CXX compiler identification is MSVC, found in:
+        D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/3.27.4/CompilerIdCXX/CompilerIdCXX.exe
+      
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerABI.cmake:57 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    checks:
+      - "Detecting C compiler ABI info"
+    directories:
+      source: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-anjqkc"
+      binary: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-anjqkc"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS"
+      CMAKE_C_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "CMAKE_C_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: 'D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-anjqkc'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_44cce.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.7.2+d6990bcfa for .NET Framework
+        Build started 2/4/2025 9:42:00 AM.
+        
+        Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-anjqkc\\cmTC_44cce.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_44cce.dir\\Debug\\".
+          Creating directory "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-anjqkc\\Debug\\".
+          Creating directory "cmTC_44cce.dir\\Debug\\cmTC_44cce.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_44cce.dir\\Debug\\cmTC_44cce.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_44cce.dir\\Debug\\cmTC_44cce.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_44cce.dir\\Debug\\\\" /Fd"cmTC_44cce.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCCompilerABI.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.37.32822 for x64
+          CMakeCCompilerABI.c
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_44cce.dir\\Debug\\\\" /Fd"cmTC_44cce.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCCompilerABI.c"
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-anjqkc\\Debug\\cmTC_44cce.exe" /INCREMENTAL /ILK:"cmTC_44cce.dir\\Debug\\cmTC_44cce.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-anjqkc/Debug/cmTC_44cce.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-anjqkc/Debug/cmTC_44cce.lib" /MACHINE:X64  /machine:x64 cmTC_44cce.dir\\Debug\\CMakeCCompilerABI.obj
+          cmTC_44cce.vcxproj -> D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-anjqkc\\Debug\\cmTC_44cce.exe
+        FinalizeBuildStatus:
+          Deleting file "cmTC_44cce.dir\\Debug\\cmTC_44cce.tlog\\unsuccessfulbuild".
+          Touching "cmTC_44cce.dir\\Debug\\cmTC_44cce.tlog\\cmTC_44cce.lastbuildstate".
+        Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-anjqkc\\cmTC_44cce.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:00.88
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerABI.cmake:57 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    checks:
+      - "Detecting CXX compiler ABI info"
+    directories:
+      source: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-qx03a8"
+      binary: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-qx03a8"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /EHsc"
+      CMAKE_CXX_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "CMAKE_CXX_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: 'D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-qx03a8'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_e6aa7.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.7.2+d6990bcfa for .NET Framework
+        Build started 2/4/2025 9:42:01 AM.
+        
+        Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-qx03a8\\cmTC_e6aa7.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_e6aa7.dir\\Debug\\".
+          Creating directory "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-qx03a8\\Debug\\".
+          Creating directory "cmTC_e6aa7.dir\\Debug\\cmTC_e6aa7.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_e6aa7.dir\\Debug\\cmTC_e6aa7.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_e6aa7.dir\\Debug\\cmTC_e6aa7.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_e6aa7.dir\\Debug\\\\" /Fd"cmTC_e6aa7.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCXXCompilerABI.cpp"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.37.32822 for x64
+          CMakeCXXCompilerABI.cpp
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_e6aa7.dir\\Debug\\\\" /Fd"cmTC_e6aa7.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCXXCompilerABI.cpp"
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-qx03a8\\Debug\\cmTC_e6aa7.exe" /INCREMENTAL /ILK:"cmTC_e6aa7.dir\\Debug\\cmTC_e6aa7.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-qx03a8/Debug/cmTC_e6aa7.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-qx03a8/Debug/cmTC_e6aa7.lib" /MACHINE:X64  /machine:x64 cmTC_e6aa7.dir\\Debug\\CMakeCXXCompilerABI.obj
+          cmTC_e6aa7.vcxproj -> D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-qx03a8\\Debug\\cmTC_e6aa7.exe
+        FinalizeBuildStatus:
+          Deleting file "cmTC_e6aa7.dir\\Debug\\cmTC_e6aa7.tlog\\unsuccessfulbuild".
+          Touching "cmTC_e6aa7.dir\\Debug\\cmTC_e6aa7.tlog\\cmTC_e6aa7.lastbuildstate".
+        Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-qx03a8\\cmTC_e6aa7.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:00.53
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CheckCSourceCompiles.cmake:52 (cmake_check_source_compiles)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:97 (CHECK_C_SOURCE_COMPILES)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:163 (_threads_check_libc)"
+      - "build/_deps/googletest-src/googletest/cmake/internal_utils.cmake:65 (find_package)"
+      - "build/_deps/googletest-src/googletest/CMakeLists.txt:93 (config_compiler_and_linker)"
+    checks:
+      - "Performing Test CMAKE_HAVE_LIBC_PTHREAD"
+    directories:
+      source: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-c4bxp3"
+      binary: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-c4bxp3"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS"
+    buildResult:
+      variable: "CMAKE_HAVE_LIBC_PTHREAD"
+      cached: true
+      stdout: |
+        Change Dir: 'D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-c4bxp3'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_4e62f.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.7.2+d6990bcfa for .NET Framework
+        Build started 2/4/2025 9:42:05 AM.
+        
+        Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-c4bxp3\\cmTC_4e62f.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_4e62f.dir\\Debug\\".
+          Creating directory "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-c4bxp3\\Debug\\".
+          Creating directory "cmTC_4e62f.dir\\Debug\\cmTC_4e62f.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_4e62f.dir\\Debug\\cmTC_4e62f.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_4e62f.dir\\Debug\\cmTC_4e62f.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CMAKE_HAVE_LIBC_PTHREAD /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_4e62f.dir\\Debug\\\\" /Fd"cmTC_4e62f.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-c4bxp3\\src.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.37.32822 for x64
+          src.c
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CMAKE_HAVE_LIBC_PTHREAD /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_4e62f.dir\\Debug\\\\" /Fd"cmTC_4e62f.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-c4bxp3\\src.c"
+        D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-c4bxp3\\src.c(1,10): fatal  error C1083: Cannot open include file: 'pthread.h': No such file or directory [D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-c4bxp3\\cmTC_4e62f.vcxproj]
+        Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-c4bxp3\\cmTC_4e62f.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-c4bxp3\\cmTC_4e62f.vcxproj" (default target) (1) ->
+        (ClCompile target) -> 
+          D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-c4bxp3\\src.c(1,10): fatal  error C1083: Cannot open include file: 'pthread.h': No such file or directory [D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-c4bxp3\\cmTC_4e62f.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:00.60
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CheckLibraryExists.cmake:69 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:112 (CHECK_LIBRARY_EXISTS)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:175 (_threads_check_lib)"
+      - "build/_deps/googletest-src/googletest/cmake/internal_utils.cmake:65 (find_package)"
+      - "build/_deps/googletest-src/googletest/CMakeLists.txt:93 (config_compiler_and_linker)"
+    checks:
+      - "Looking for pthread_create in pthreads"
+    directories:
+      source: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-kgloyt"
+      binary: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-kgloyt"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS"
+    buildResult:
+      variable: "CMAKE_HAVE_PTHREADS_CREATE"
+      cached: true
+      stdout: |
+        Change Dir: 'D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-kgloyt'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_1f1d3.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.7.2+d6990bcfa for .NET Framework
+        Build started 2/4/2025 9:42:05 AM.
+        
+        Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-kgloyt\\cmTC_1f1d3.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_1f1d3.dir\\Debug\\".
+          Creating directory "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-kgloyt\\Debug\\".
+          Creating directory "cmTC_1f1d3.dir\\Debug\\cmTC_1f1d3.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_1f1d3.dir\\Debug\\cmTC_1f1d3.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_1f1d3.dir\\Debug\\cmTC_1f1d3.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_1f1d3.dir\\Debug\\\\" /Fd"cmTC_1f1d3.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-kgloyt\\CheckFunctionExists.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.37.32822 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          CheckFunctionExists.c
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_1f1d3.dir\\Debug\\\\" /Fd"cmTC_1f1d3.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-kgloyt\\CheckFunctionExists.c"
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-kgloyt\\Debug\\cmTC_1f1d3.exe" /INCREMENTAL /ILK:"cmTC_1f1d3.dir\\Debug\\cmTC_1f1d3.ilk" /NOLOGO pthreads.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-kgloyt/Debug/cmTC_1f1d3.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-kgloyt/Debug/cmTC_1f1d3.lib" /MACHINE:X64  /machine:x64 cmTC_1f1d3.dir\\Debug\\CheckFunctionExists.obj
+        LINK : fatal error LNK1104: cannot open file 'pthreads.lib' [D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-kgloyt\\cmTC_1f1d3.vcxproj]
+        Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-kgloyt\\cmTC_1f1d3.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-kgloyt\\cmTC_1f1d3.vcxproj" (default target) (1) ->
+        (Link target) -> 
+          LINK : fatal error LNK1104: cannot open file 'pthreads.lib' [D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-kgloyt\\cmTC_1f1d3.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:01.21
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CheckLibraryExists.cmake:69 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:112 (CHECK_LIBRARY_EXISTS)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:176 (_threads_check_lib)"
+      - "build/_deps/googletest-src/googletest/cmake/internal_utils.cmake:65 (find_package)"
+      - "build/_deps/googletest-src/googletest/CMakeLists.txt:93 (config_compiler_and_linker)"
+    checks:
+      - "Looking for pthread_create in pthread"
+    directories:
+      source: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-a1vvts"
+      binary: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-a1vvts"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS"
+    buildResult:
+      variable: "CMAKE_HAVE_PTHREAD_CREATE"
+      cached: true
+      stdout: |
+        Change Dir: 'D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-a1vvts'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_54a00.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.7.2+d6990bcfa for .NET Framework
+        Build started 2/4/2025 9:42:07 AM.
+        
+        Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-a1vvts\\cmTC_54a00.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_54a00.dir\\Debug\\".
+          Creating directory "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-a1vvts\\Debug\\".
+          Creating directory "cmTC_54a00.dir\\Debug\\cmTC_54a00.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_54a00.dir\\Debug\\cmTC_54a00.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_54a00.dir\\Debug\\cmTC_54a00.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_54a00.dir\\Debug\\\\" /Fd"cmTC_54a00.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-a1vvts\\CheckFunctionExists.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.37.32822 for x64
+          CheckFunctionExists.c
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_54a00.dir\\Debug\\\\" /Fd"cmTC_54a00.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-a1vvts\\CheckFunctionExists.c"
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-a1vvts\\Debug\\cmTC_54a00.exe" /INCREMENTAL /ILK:"cmTC_54a00.dir\\Debug\\cmTC_54a00.ilk" /NOLOGO pthread.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-a1vvts/Debug/cmTC_54a00.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-a1vvts/Debug/cmTC_54a00.lib" /MACHINE:X64  /machine:x64 cmTC_54a00.dir\\Debug\\CheckFunctionExists.obj
+        LINK : fatal error LNK1104: cannot open file 'pthread.lib' [D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-a1vvts\\cmTC_54a00.vcxproj]
+        Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-a1vvts\\cmTC_54a00.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-a1vvts\\cmTC_54a00.vcxproj" (default target) (1) ->
+        (Link target) -> 
+          LINK : fatal error LNK1104: cannot open file 'pthread.lib' [D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-a1vvts\\cmTC_54a00.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:01.25
+        
+      exitCode: 1
+...
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineSystem.cmake:211 (message)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      The system is: Windows - 10.0.22631 - AMD64
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCCompiler.cmake:123 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+      Compiler:  
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      MSBuild version 17.7.2+d6990bcfa for .NET Framework
+      Build started 2/4/2025 10:09:03 AM.
+      
+      Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\3.27.4\\CompilerIdC\\CompilerIdC.vcxproj" on node 1 (default targets).
+      PrepareForBuild:
+        Creating directory "Debug\\".
+        Creating directory "Debug\\CompilerIdC.tlog\\".
+      InitializeBuildStatus:
+        Creating "Debug\\CompilerIdC.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+        Touching "Debug\\CompilerIdC.tlog\\unsuccessfulbuild".
+      ClCompile:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /nologo /W0 /WX- /diagnostics:column /Od /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\\\" /Fd"Debug\\vc143.pdb" /external:W0 /Gd /TC /FC /errorReport:queue CMakeCCompilerId.c
+        CMakeCCompilerId.c
+      Link:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:".\\CompilerIdC.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\\CompilerIdC.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\\CompilerIdC.lib" /MACHINE:X64 Debug\\CMakeCCompilerId.obj
+        CompilerIdC.vcxproj -> D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\3.27.4\\CompilerIdC\\CompilerIdC.exe
+      PostBuildEvent:
+        for %%i in (cl.exe) do @echo CMAKE_C_COMPILER=%%~$PATH:i
+        :VCEnd
+        CMAKE_C_COMPILER=C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\Hostx64\\x64\\cl.exe
+      FinalizeBuildStatus:
+        Deleting file "Debug\\CompilerIdC.tlog\\unsuccessfulbuild".
+        Touching "Debug\\CompilerIdC.tlog\\CompilerIdC.lastbuildstate".
+      Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\3.27.4\\CompilerIdC\\CompilerIdC.vcxproj" (default targets).
+      
+      Build succeeded.
+          0 Warning(s)
+          0 Error(s)
+      
+      Time Elapsed 00:00:01.14
+      
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.exe"
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.vcxproj"
+      
+      The C compiler identification is MSVC, found in:
+        D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/3.27.4/CompilerIdC/CompilerIdC.exe
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCXXCompiler.cmake:126 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+      Compiler:  
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      MSBuild version 17.7.2+d6990bcfa for .NET Framework
+      Build started 2/4/2025 10:09:04 AM.
+      
+      Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\3.27.4\\CompilerIdCXX\\CompilerIdCXX.vcxproj" on node 1 (default targets).
+      PrepareForBuild:
+        Creating directory "Debug\\".
+        Creating directory "Debug\\CompilerIdCXX.tlog\\".
+      InitializeBuildStatus:
+        Creating "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+        Touching "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild".
+      ClCompile:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /nologo /W0 /WX- /diagnostics:column /Od /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\\\" /Fd"Debug\\vc143.pdb" /external:W0 /Gd /TP /FC /errorReport:queue CMakeCXXCompilerId.cpp
+        CMakeCXXCompilerId.cpp
+      Link:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:".\\CompilerIdCXX.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\\CompilerIdCXX.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\\CompilerIdCXX.lib" /MACHINE:X64 Debug\\CMakeCXXCompilerId.obj
+        CompilerIdCXX.vcxproj -> D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\3.27.4\\CompilerIdCXX\\CompilerIdCXX.exe
+      PostBuildEvent:
+        for %%i in (cl.exe) do @echo CMAKE_CXX_COMPILER=%%~$PATH:i
+        :VCEnd
+        CMAKE_CXX_COMPILER=C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\Hostx64\\x64\\cl.exe
+      FinalizeBuildStatus:
+        Deleting file "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild".
+        Touching "Debug\\CompilerIdCXX.tlog\\CompilerIdCXX.lastbuildstate".
+      Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\3.27.4\\CompilerIdCXX\\CompilerIdCXX.vcxproj" (default targets).
+      
+      Build succeeded.
+          0 Warning(s)
+          0 Error(s)
+      
+      Time Elapsed 00:00:00.62
+      
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.exe"
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.vcxproj"
+      
+      The CXX compiler identification is MSVC, found in:
+        D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/3.27.4/CompilerIdCXX/CompilerIdCXX.exe
+      
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerABI.cmake:57 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    checks:
+      - "Detecting C compiler ABI info"
+    directories:
+      source: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-0rwedw"
+      binary: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-0rwedw"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS"
+      CMAKE_C_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "CMAKE_C_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: 'D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-0rwedw'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_84cd5.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.7.2+d6990bcfa for .NET Framework
+        Build started 2/4/2025 10:09:05 AM.
+        
+        Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-0rwedw\\cmTC_84cd5.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_84cd5.dir\\Debug\\".
+          Creating directory "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-0rwedw\\Debug\\".
+          Creating directory "cmTC_84cd5.dir\\Debug\\cmTC_84cd5.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_84cd5.dir\\Debug\\cmTC_84cd5.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_84cd5.dir\\Debug\\cmTC_84cd5.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_84cd5.dir\\Debug\\\\" /Fd"cmTC_84cd5.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCCompilerABI.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.37.32822 for x64
+          CMakeCCompilerABI.c
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_84cd5.dir\\Debug\\\\" /Fd"cmTC_84cd5.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCCompilerABI.c"
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-0rwedw\\Debug\\cmTC_84cd5.exe" /INCREMENTAL /ILK:"cmTC_84cd5.dir\\Debug\\cmTC_84cd5.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-0rwedw/Debug/cmTC_84cd5.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-0rwedw/Debug/cmTC_84cd5.lib" /MACHINE:X64  /machine:x64 cmTC_84cd5.dir\\Debug\\CMakeCCompilerABI.obj
+          cmTC_84cd5.vcxproj -> D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-0rwedw\\Debug\\cmTC_84cd5.exe
+        FinalizeBuildStatus:
+          Deleting file "cmTC_84cd5.dir\\Debug\\cmTC_84cd5.tlog\\unsuccessfulbuild".
+          Touching "cmTC_84cd5.dir\\Debug\\cmTC_84cd5.tlog\\cmTC_84cd5.lastbuildstate".
+        Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-0rwedw\\cmTC_84cd5.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:00.58
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerABI.cmake:57 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    checks:
+      - "Detecting CXX compiler ABI info"
+    directories:
+      source: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-yozo7x"
+      binary: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-yozo7x"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /EHsc"
+      CMAKE_CXX_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "CMAKE_CXX_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: 'D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-yozo7x'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_f90ff.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.7.2+d6990bcfa for .NET Framework
+        Build started 2/4/2025 10:09:06 AM.
+        
+        Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-yozo7x\\cmTC_f90ff.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_f90ff.dir\\Debug\\".
+          Creating directory "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-yozo7x\\Debug\\".
+          Creating directory "cmTC_f90ff.dir\\Debug\\cmTC_f90ff.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_f90ff.dir\\Debug\\cmTC_f90ff.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_f90ff.dir\\Debug\\cmTC_f90ff.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_f90ff.dir\\Debug\\\\" /Fd"cmTC_f90ff.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCXXCompilerABI.cpp"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.37.32822 for x64
+          CMakeCXXCompilerABI.cpp
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_f90ff.dir\\Debug\\\\" /Fd"cmTC_f90ff.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCXXCompilerABI.cpp"
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-yozo7x\\Debug\\cmTC_f90ff.exe" /INCREMENTAL /ILK:"cmTC_f90ff.dir\\Debug\\cmTC_f90ff.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-yozo7x/Debug/cmTC_f90ff.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-yozo7x/Debug/cmTC_f90ff.lib" /MACHINE:X64  /machine:x64 cmTC_f90ff.dir\\Debug\\CMakeCXXCompilerABI.obj
+          cmTC_f90ff.vcxproj -> D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-yozo7x\\Debug\\cmTC_f90ff.exe
+        FinalizeBuildStatus:
+          Deleting file "cmTC_f90ff.dir\\Debug\\cmTC_f90ff.tlog\\unsuccessfulbuild".
+          Touching "cmTC_f90ff.dir\\Debug\\cmTC_f90ff.tlog\\cmTC_f90ff.lastbuildstate".
+        Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-yozo7x\\cmTC_f90ff.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:00.55
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CheckCSourceCompiles.cmake:52 (cmake_check_source_compiles)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:97 (CHECK_C_SOURCE_COMPILES)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:163 (_threads_check_libc)"
+      - "build/_deps/googletest-src/googletest/cmake/internal_utils.cmake:65 (find_package)"
+      - "build/_deps/googletest-src/googletest/CMakeLists.txt:93 (config_compiler_and_linker)"
+    checks:
+      - "Performing Test CMAKE_HAVE_LIBC_PTHREAD"
+    directories:
+      source: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-h1a207"
+      binary: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-h1a207"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS"
+    buildResult:
+      variable: "CMAKE_HAVE_LIBC_PTHREAD"
+      cached: true
+      stdout: |
+        Change Dir: 'D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-h1a207'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_dfe5f.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.7.2+d6990bcfa for .NET Framework
+        Build started 2/4/2025 10:09:09 AM.
+        
+        Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-h1a207\\cmTC_dfe5f.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_dfe5f.dir\\Debug\\".
+          Creating directory "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-h1a207\\Debug\\".
+          Creating directory "cmTC_dfe5f.dir\\Debug\\cmTC_dfe5f.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_dfe5f.dir\\Debug\\cmTC_dfe5f.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_dfe5f.dir\\Debug\\cmTC_dfe5f.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CMAKE_HAVE_LIBC_PTHREAD /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_dfe5f.dir\\Debug\\\\" /Fd"cmTC_dfe5f.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-h1a207\\src.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.37.32822 for x64
+          src.c
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CMAKE_HAVE_LIBC_PTHREAD /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_dfe5f.dir\\Debug\\\\" /Fd"cmTC_dfe5f.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-h1a207\\src.c"
+        D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-h1a207\\src.c(1,10): fatal  error C1083: Cannot open include file: 'pthread.h': No such file or directory [D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-h1a207\\cmTC_dfe5f.vcxproj]
+        Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-h1a207\\cmTC_dfe5f.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-h1a207\\cmTC_dfe5f.vcxproj" (default target) (1) ->
+        (ClCompile target) -> 
+          D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-h1a207\\src.c(1,10): fatal  error C1083: Cannot open include file: 'pthread.h': No such file or directory [D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-h1a207\\cmTC_dfe5f.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:00.41
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CheckLibraryExists.cmake:69 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:112 (CHECK_LIBRARY_EXISTS)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:175 (_threads_check_lib)"
+      - "build/_deps/googletest-src/googletest/cmake/internal_utils.cmake:65 (find_package)"
+      - "build/_deps/googletest-src/googletest/CMakeLists.txt:93 (config_compiler_and_linker)"
+    checks:
+      - "Looking for pthread_create in pthreads"
+    directories:
+      source: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-vv45sy"
+      binary: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-vv45sy"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS"
+    buildResult:
+      variable: "CMAKE_HAVE_PTHREADS_CREATE"
+      cached: true
+      stdout: |
+        Change Dir: 'D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-vv45sy'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_772f7.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.7.2+d6990bcfa for .NET Framework
+        Build started 2/4/2025 10:09:09 AM.
+        
+        Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-vv45sy\\cmTC_772f7.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_772f7.dir\\Debug\\".
+          Creating directory "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-vv45sy\\Debug\\".
+          Creating directory "cmTC_772f7.dir\\Debug\\cmTC_772f7.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_772f7.dir\\Debug\\cmTC_772f7.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_772f7.dir\\Debug\\cmTC_772f7.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_772f7.dir\\Debug\\\\" /Fd"cmTC_772f7.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-vv45sy\\CheckFunctionExists.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.37.32822 for x64
+          CheckFunctionExists.c
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_772f7.dir\\Debug\\\\" /Fd"cmTC_772f7.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-vv45sy\\CheckFunctionExists.c"
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-vv45sy\\Debug\\cmTC_772f7.exe" /INCREMENTAL /ILK:"cmTC_772f7.dir\\Debug\\cmTC_772f7.ilk" /NOLOGO pthreads.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-vv45sy/Debug/cmTC_772f7.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-vv45sy/Debug/cmTC_772f7.lib" /MACHINE:X64  /machine:x64 cmTC_772f7.dir\\Debug\\CheckFunctionExists.obj
+        LINK : fatal error LNK1104: cannot open file 'pthreads.lib' [D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-vv45sy\\cmTC_772f7.vcxproj]
+        Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-vv45sy\\cmTC_772f7.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-vv45sy\\cmTC_772f7.vcxproj" (default target) (1) ->
+        (Link target) -> 
+          LINK : fatal error LNK1104: cannot open file 'pthreads.lib' [D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-vv45sy\\cmTC_772f7.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:00.44
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CheckLibraryExists.cmake:69 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:112 (CHECK_LIBRARY_EXISTS)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:176 (_threads_check_lib)"
+      - "build/_deps/googletest-src/googletest/cmake/internal_utils.cmake:65 (find_package)"
+      - "build/_deps/googletest-src/googletest/CMakeLists.txt:93 (config_compiler_and_linker)"
+    checks:
+      - "Looking for pthread_create in pthread"
+    directories:
+      source: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-wac5hp"
+      binary: "D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-wac5hp"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS"
+    buildResult:
+      variable: "CMAKE_HAVE_PTHREAD_CREATE"
+      cached: true
+      stdout: |
+        Change Dir: 'D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-wac5hp'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_3969d.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.7.2+d6990bcfa for .NET Framework
+        Build started 2/4/2025 10:09:10 AM.
+        
+        Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-wac5hp\\cmTC_3969d.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_3969d.dir\\Debug\\".
+          Creating directory "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-wac5hp\\Debug\\".
+          Creating directory "cmTC_3969d.dir\\Debug\\cmTC_3969d.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_3969d.dir\\Debug\\cmTC_3969d.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_3969d.dir\\Debug\\cmTC_3969d.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_3969d.dir\\Debug\\\\" /Fd"cmTC_3969d.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-wac5hp\\CheckFunctionExists.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.37.32822 for x64
+          CheckFunctionExists.c
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_3969d.dir\\Debug\\\\" /Fd"cmTC_3969d.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-wac5hp\\CheckFunctionExists.c"
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.37.32822\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-wac5hp\\Debug\\cmTC_3969d.exe" /INCREMENTAL /ILK:"cmTC_3969d.dir\\Debug\\cmTC_3969d.ilk" /NOLOGO pthread.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-wac5hp/Debug/cmTC_3969d.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/CMakeFiles/CMakeScratch/TryCompile-wac5hp/Debug/cmTC_3969d.lib" /MACHINE:X64  /machine:x64 cmTC_3969d.dir\\Debug\\CheckFunctionExists.obj
+        LINK : fatal error LNK1104: cannot open file 'pthread.lib' [D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-wac5hp\\cmTC_3969d.vcxproj]
+        Done Building Project "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-wac5hp\\cmTC_3969d.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-wac5hp\\cmTC_3969d.vcxproj" (default target) (1) ->
+        (Link target) -> 
+          LINK : fatal error LNK1104: cannot open file 'pthread.lib' [D:\\CSE 498 CAPTSTONE\\CSE498-Spring2025\\Group-07\\build\\CMakeFiles\\CMakeScratch\\TryCompile-wac5hp\\cmTC_3969d.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:00.42
+        
+      exitCode: 1
+...

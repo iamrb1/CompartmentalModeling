@@ -1,0 +1,10 @@
+# CMake generation dependency list for this directory.
+C:/Program Files/CMake/share/cmake-3.27/Modules/CheckCSourceCompiles.cmake
+C:/Program Files/CMake/share/cmake-3.27/Modules/CheckIncludeFile.cmake
+C:/Program Files/CMake/share/cmake-3.27/Modules/CheckLibraryExists.cmake
+C:/Program Files/CMake/share/cmake-3.27/Modules/FindPackageHandleStandardArgs.cmake
+C:/Program Files/CMake/share/cmake-3.27/Modules/FindPackageMessage.cmake
+C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake
+D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googlemock/CMakeLists.txt
+D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googlemock/cmake/gmock.pc.in
+D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googlemock/cmake/gmock_main.pc.in
