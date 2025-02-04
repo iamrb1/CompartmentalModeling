@@ -2,4 +2,4 @@
 build/
 
 # Ignore VSCode Setting directory
-/.vscode
+.vscode/
