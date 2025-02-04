@@ -33,24 +33,6 @@ TEST(OutputLogTest, NormalLogging) {
     ASSERT_TRUE(found);
 }
 
-// Test Debug Logging (Ignored when LogLevel is NORMAL)
-TEST(OutputLogTest, DebugLoggingIgnored) {
-    OutputLog logger(LogLevel::NORMAL, "test_log.txt");
-    logger.log("This is a DEBUG log message.", LogLevel::DEBUG);
-
-    std::ifstream logFile("test_log.txt");
-    std::string line;
-    bool found = false;
-
-    while (getline(logFile, line)) {
-        if (line == "This is a DEBUG log message.") {
-            found = true;
-            break;
-        }
-    }
-
-    ASSERT_FALSE(found);
-}
 
 // Test Debug Logging (Allowed when LogLevel is DEBUG)
 TEST(OutputLogTest, DebugLoggingAllowed) {

@@ -19,3 +19,5 @@
 21	1648	7604151878620902	Tests/CMakeFiles/Tests_run.dir/SchedulerTest.cpp.obj	55720ab381921d84
 7	1693	7604152278498901	Tests/CMakeFiles/Tests_run.dir/OutputLogTest.cpp.obj	a1f345e7614b128d
 1693	1957	7604152295350435	Tests/Tests_run.exe	fac42fed98dde7b2
+8	1923	7604155603453299	Tests/CMakeFiles/Tests_run.dir/OutputLogTest.cpp.obj	a1f345e7614b128d
+1923	2262	7604155622600619	Tests/Tests_run.exe	fac42fed98dde7b2
