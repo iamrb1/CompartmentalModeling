@@ -6,6 +6,7 @@ set(
     TEST_FILES
     gtest_main.cpp
     FailSafeTest.cpp
+        ../include/cse/StateGrid.h
 )
 
 # Get google test

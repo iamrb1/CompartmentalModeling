@@ -14,6 +14,7 @@ set(
 set(
     SOURCE_FILES
     ActionMap.cpp
+        StateGrid.cpp
 )
 
 # Add the library target
