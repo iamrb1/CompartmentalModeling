@@ -7,53 +7,61 @@
 #define CSE_SERIALIZER_H
 
 #include <iostream>
-#include <sstream>
+#include <fstream>
 #include <string>
 
 namespace cse
 {
-
     // The mode in which the serializer operates.
     enum class Mode
     {
         SAVE,
         LOAD
     };
-
     class Serializer
     {
     public:
         // Constructor: accepts a mode and a reference to an iostream.
-        Serializer(Mode mode, std::iostream &stream);
-
-        // Generic Serialize method for simple (POD) types.
+        Serializer(Mode mode);
+        // Generic Serialize and Deserialze method for simple types, based on current mode
         template <typename T>
-        void Serialize(T &data);
-
-        // Special overload for std::string.
-        void Serialize(std::string &str);
+        void Serialize(T &data, const std::string &filename);
 
     private:
         Mode mode_;
-        std::iostream &stream_;
     };
-}
+} // namespace cse
 
 namespace cse
 {
     template <typename T>
-    void Serializer::Serialize(T &data)
+    void Serializer::Serialize(T &data, const std::string &filename)
     {
         if (mode_ == Mode::SAVE)
         {
-            stream_.write(reinterpret_cast<const char *>(&data), sizeof(T));
+            std::ofstream OutFile(filename, std::ios::binary);
+            if (!OutFile)
+            {
+                std::cerr << "Error opening file for writing: " << filename << std::endl;
+                return;
+            }
+            OutFile.write(reinterpret_cast<const char *>(&data), sizeof(T));
+            OutFile.close();
         }
         else if (mode_ == Mode::LOAD)
         {
-            stream_.read(reinterpret_cast<char *>(&data), sizeof(T));
+            {
+                std::ifstream InFile(filename, std::ios::binary);
+                if (!InFile)
+                {
+                    std::cerr << "Error opening file for reading: " << filename << std::endl;
+                    return;
+                }
+                InFile.read(reinterpret_cast<char *>(&data), sizeof(T));
+                InFile.close();
+            }
         }
     }
-
-} // namespace cse
+}
 
 #endif // CSE_SERIALIZER_H

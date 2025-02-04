@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/Tests_run.dir/AuditedArrayTest.cpp.o CMakeFiles/Tests_run.dir/DataFileManagerTest.cpp.o CMakeFiles/Tests_run.dir/OutputLogTest.cpp.o CMakeFiles/Tests_run.dir/SchedulerTest.cpp.o CMakeFiles/Tests_run.dir/SerializerTest.cpp.o CMakeFiles/Tests_run.dir/gtest_main.cpp.o -o Tests_run  ../Team07Library/libTeam07Library.a ../lib/libgtestd.a 

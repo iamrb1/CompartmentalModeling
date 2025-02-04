@@ -9,9 +9,9 @@ set(SOURCE_FILES
         OutputLog.cpp
         OutputLog.hpp
         Scheduler.cpp
-        Scheduler.hpp
+        Scheduler.h
         Serializer.cpp
-        Serializer.hpp
+        Serializer.h
 )
 
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})

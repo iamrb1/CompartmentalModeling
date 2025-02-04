@@ -1,0 +1,98 @@
+[
+{
+  "directory": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/build",
+  "command": "/usr/bin/c++  -I/home/tdkduong/Projects/CSE498-Spring2025/Group-07/Team07Library -g -std=gnu++23 -o CMakeFiles/Group-07.dir/main.cpp.o -c /home/tdkduong/Projects/CSE498-Spring2025/Group-07/main.cpp",
+  "file": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/main.cpp",
+  "output": "CMakeFiles/Group-07.dir/main.cpp.o"
+},
+{
+  "directory": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/Team07Library",
+  "command": "/usr/bin/c++   -g -std=gnu++23 -o CMakeFiles/Team07Library.dir/AuditedArray.cpp.o -c /home/tdkduong/Projects/CSE498-Spring2025/Group-07/Team07Library/AuditedArray.cpp",
+  "file": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/Team07Library/AuditedArray.cpp",
+  "output": "Team07Library/CMakeFiles/Team07Library.dir/AuditedArray.cpp.o"
+},
+{
+  "directory": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/Team07Library",
+  "command": "/usr/bin/c++   -g -std=gnu++23 -o CMakeFiles/Team07Library.dir/DataFileManager.cpp.o -c /home/tdkduong/Projects/CSE498-Spring2025/Group-07/Team07Library/DataFileManager.cpp",
+  "file": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/Team07Library/DataFileManager.cpp",
+  "output": "Team07Library/CMakeFiles/Team07Library.dir/DataFileManager.cpp.o"
+},
+{
+  "directory": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/Team07Library",
+  "command": "/usr/bin/c++   -g -std=gnu++23 -o CMakeFiles/Team07Library.dir/OutputLog.cpp.o -c /home/tdkduong/Projects/CSE498-Spring2025/Group-07/Team07Library/OutputLog.cpp",
+  "file": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/Team07Library/OutputLog.cpp",
+  "output": "Team07Library/CMakeFiles/Team07Library.dir/OutputLog.cpp.o"
+},
+{
+  "directory": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/Team07Library",
+  "command": "/usr/bin/c++   -g -std=gnu++23 -o CMakeFiles/Team07Library.dir/Scheduler.cpp.o -c /home/tdkduong/Projects/CSE498-Spring2025/Group-07/Team07Library/Scheduler.cpp",
+  "file": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/Team07Library/Scheduler.cpp",
+  "output": "Team07Library/CMakeFiles/Team07Library.dir/Scheduler.cpp.o"
+},
+{
+  "directory": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/Team07Library",
+  "command": "/usr/bin/c++   -g -std=gnu++23 -o CMakeFiles/Team07Library.dir/Serializer.cpp.o -c /home/tdkduong/Projects/CSE498-Spring2025/Group-07/Team07Library/Serializer.cpp",
+  "file": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/Team07Library/Serializer.cpp",
+  "output": "Team07Library/CMakeFiles/Team07Library.dir/Serializer.cpp.o"
+},
+{
+  "directory": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/Tests",
+  "command": "/usr/bin/c++  -I/home/tdkduong/Projects/CSE498-Spring2025/Group-07/Team07Library -isystem /home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googletest/include -isystem /home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googletest -g -std=gnu++23 -o CMakeFiles/Tests_run.dir/AuditedArrayTest.cpp.o -c /home/tdkduong/Projects/CSE498-Spring2025/Group-07/Tests/AuditedArrayTest.cpp",
+  "file": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/Tests/AuditedArrayTest.cpp",
+  "output": "Tests/CMakeFiles/Tests_run.dir/AuditedArrayTest.cpp.o"
+},
+{
+  "directory": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/Tests",
+  "command": "/usr/bin/c++  -I/home/tdkduong/Projects/CSE498-Spring2025/Group-07/Team07Library -isystem /home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googletest/include -isystem /home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googletest -g -std=gnu++23 -o CMakeFiles/Tests_run.dir/DataFileManagerTest.cpp.o -c /home/tdkduong/Projects/CSE498-Spring2025/Group-07/Tests/DataFileManagerTest.cpp",
+  "file": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/Tests/DataFileManagerTest.cpp",
+  "output": "Tests/CMakeFiles/Tests_run.dir/DataFileManagerTest.cpp.o"
+},
+{
+  "directory": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/Tests",
+  "command": "/usr/bin/c++  -I/home/tdkduong/Projects/CSE498-Spring2025/Group-07/Team07Library -isystem /home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googletest/include -isystem /home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googletest -g -std=gnu++23 -o CMakeFiles/Tests_run.dir/OutputLogTest.cpp.o -c /home/tdkduong/Projects/CSE498-Spring2025/Group-07/Tests/OutputLogTest.cpp",
+  "file": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/Tests/OutputLogTest.cpp",
+  "output": "Tests/CMakeFiles/Tests_run.dir/OutputLogTest.cpp.o"
+},
+{
+  "directory": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/Tests",
+  "command": "/usr/bin/c++  -I/home/tdkduong/Projects/CSE498-Spring2025/Group-07/Team07Library -isystem /home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googletest/include -isystem /home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googletest -g -std=gnu++23 -o CMakeFiles/Tests_run.dir/SchedulerTest.cpp.o -c /home/tdkduong/Projects/CSE498-Spring2025/Group-07/Tests/SchedulerTest.cpp",
+  "file": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/Tests/SchedulerTest.cpp",
+  "output": "Tests/CMakeFiles/Tests_run.dir/SchedulerTest.cpp.o"
+},
+{
+  "directory": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/Tests",
+  "command": "/usr/bin/c++  -I/home/tdkduong/Projects/CSE498-Spring2025/Group-07/Team07Library -isystem /home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googletest/include -isystem /home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googletest -g -std=gnu++23 -o CMakeFiles/Tests_run.dir/SerializerTest.cpp.o -c /home/tdkduong/Projects/CSE498-Spring2025/Group-07/Tests/SerializerTest.cpp",
+  "file": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/Tests/SerializerTest.cpp",
+  "output": "Tests/CMakeFiles/Tests_run.dir/SerializerTest.cpp.o"
+},
+{
+  "directory": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/Tests",
+  "command": "/usr/bin/c++  -I/home/tdkduong/Projects/CSE498-Spring2025/Group-07/Team07Library -isystem /home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googletest/include -isystem /home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googletest -g -std=gnu++23 -o CMakeFiles/Tests_run.dir/gtest_main.cpp.o -c /home/tdkduong/Projects/CSE498-Spring2025/Group-07/Tests/gtest_main.cpp",
+  "file": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/Tests/gtest_main.cpp",
+  "output": "Tests/CMakeFiles/Tests_run.dir/gtest_main.cpp.o"
+},
+{
+  "directory": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-build/googlemock",
+  "command": "/usr/bin/c++  -I/home/tdkduong/Projects/CSE498-Spring2025/Group-07/Team07Library -I/home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googlemock/include -I/home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googlemock -isystem /home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googletest/include -isystem /home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googletest -g -std=c++23 -Wall -Wshadow -Werror -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -o CMakeFiles/gmock.dir/src/gmock-all.cc.o -c /home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googlemock/src/gmock-all.cc",
+  "file": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googlemock/src/gmock-all.cc",
+  "output": "_deps/googletest-build/googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.o"
+},
+{
+  "directory": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-build/googlemock",
+  "command": "/usr/bin/c++  -I/home/tdkduong/Projects/CSE498-Spring2025/Group-07/Team07Library -isystem /home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googlemock/include -isystem /home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googlemock -isystem /home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googletest/include -isystem /home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googletest -g -std=c++23 -Wall -Wshadow -Werror -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -o CMakeFiles/gmock_main.dir/src/gmock_main.cc.o -c /home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googlemock/src/gmock_main.cc",
+  "file": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googlemock/src/gmock_main.cc",
+  "output": "_deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.o"
+},
+{
+  "directory": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-build/googletest",
+  "command": "/usr/bin/c++  -I/home/tdkduong/Projects/CSE498-Spring2025/Group-07/Team07Library -I/home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googletest/include -I/home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googletest -g -std=c++23 -Wall -Wshadow -Werror -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -o CMakeFiles/gtest.dir/src/gtest-all.cc.o -c /home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googletest/src/gtest-all.cc",
+  "file": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googletest/src/gtest-all.cc",
+  "output": "_deps/googletest-build/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o"
+},
+{
+  "directory": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-build/googletest",
+  "command": "/usr/bin/c++  -I/home/tdkduong/Projects/CSE498-Spring2025/Group-07/Team07Library -isystem /home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googletest/include -isystem /home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googletest -g -std=c++23 -Wall -Wshadow -Werror -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -o CMakeFiles/gtest_main.dir/src/gtest_main.cc.o -c /home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googletest/src/gtest_main.cc",
+  "file": "/home/tdkduong/Projects/CSE498-Spring2025/Group-07/build/_deps/googletest-src/googletest/src/gtest_main.cc",
+  "output": "_deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o"
+}
+]
