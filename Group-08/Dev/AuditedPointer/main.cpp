@@ -8,9 +8,9 @@ int main()
     ptr.Delete();
 
     // Uncommenting the following lines will cause the program to terminate with an error
-    // AuditedPointer<int> ptr2 = MakeAudited<int>(100);
-    // ptr2.Delete();
-    // *ptr2; // This will cause an error in DEBUG mode
+    AuditedPointer<int> ptr2 = MakeAudited<int>(100);
+    ptr2.Delete();
+    *ptr2; // This will cause an error in DEBUG mode
 
     return 0;
 }
