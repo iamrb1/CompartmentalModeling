@@ -7,50 +7,27 @@
 // Date of ChatGPT Assistance: 2/3/2025
 #include "OutputLog.hpp"
 
-// Get current timestamp as a formatted string
-std::string OutputLog::getCurrentTime() {
-    std::time_t now = std::time(nullptr);
-    char buf[80];
-    strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
-    return std::string(buf);
-}
-
-// Constructor: Open the log file and set the log level
-OutputLog::OutputLog(LogLevel lvl, const std::string& filename) : level(lvl), logFile(filename, std::ios::app) {
-    if (!logFile.is_open()) {
-        std::cerr << "Error opening log file: " << filename << std::endl;
+OutputLog::OutputLog(LogLevel logLevel, const std::string& filename) : level(logLevel) {
+    logFile.open(filename, std::ios::app); // Open file in append mode
+    if (!logFile) {
+        std::cerr << "Error: Could not open log file!" << std::endl;
     }
 }
 
-// Destructor: Close the log file
 OutputLog::~OutputLog() {
     if (logFile.is_open()) {
         logFile.close();
     }
 }
 
-// Set the log level dynamically
-void OutputLog::setLevel(LogLevel lvl) {
-    level = lvl;
-}
-
-// Log a message if the given level is within the current logging threshold
 void OutputLog::log(const std::string& message, LogLevel msgLevel) {
-    if (msgLevel <= level) {
-        std::lock_guard<std::mutex> guard(logMutex); // Ensure thread safety
+    if (msgLevel == LogLevel::DEBUG && level != LogLevel::DEBUG) {
+        return; // Ignore DEBUG messages if logging level is NORMAL
+    }
 
-        std::string timeStr = getCurrentTime();
-        std::string levelStr = (msgLevel == LogLevel::NORMAL) ? "[NORMAL]" :
-                               (msgLevel == LogLevel::VERBOSE) ? "[VERBOSE]" :
-                               (msgLevel == LogLevel::DEBUG) ? "[DEBUG]" : "[SILENT]";
-        std::string logMessage = timeStr + " " + levelStr + " " + message;
+    std::cout << message << std::endl; // Print to console
 
-        // Print to console
-        std::cout << logMessage << std::endl;
-
-        // Write to log file
-        if (logFile.is_open()) {
-            logFile << logMessage << std::endl;
-        }
+    if (logFile.is_open()) {
+        logFile << message << std::endl; // Write to file
     }
 }

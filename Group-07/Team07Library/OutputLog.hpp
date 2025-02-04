@@ -11,32 +11,20 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <ctime>
-#include <mutex>
 
-// Logging levels
-enum class LogLevel { SILENT, NORMAL, VERBOSE, DEBUG };
+// Simple log levels
+enum class LogLevel { NORMAL, DEBUG };
 
 class OutputLog {
 private:
-    LogLevel level;         // Current logging level
-    std::ofstream logFile;  // Log file stream
-    std::mutex logMutex;    // Mutex for thread safety
-
-    // Private function to get the current timestamp
-    std::string getCurrentTime();
+    LogLevel level;
+    std::ofstream logFile;
 
 public:
-    // Constructor with log level and filename
-    OutputLog(LogLevel lvl = LogLevel::NORMAL, const std::string& filename = "log.txt");
+    OutputLog(LogLevel logLevel, const std::string& filename = "log.txt");  // Constructor
+    
+    ~OutputLog();  // Destructor
 
-    // Destructor to close the log file
-    ~OutputLog();
-
-    // Set logging level dynamically
-    void setLevel(LogLevel lvl);
-
-    // Log a message with the given log level
     void log(const std::string& message, LogLevel msgLevel);
 };
 

@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-#include <Scheduler.h>
+#include <Scheduler.hpp>
 #include "gtest/gtest.h"
 
 class SchedulerTest:public ::testing::Test
