@@ -163,6 +163,78 @@ void test_bitvect_2() {
 
   std::cout << "*** 2a - OK ***\n";
 
+  std::cout << "*** 2b - diff bit len (one byte) (all different value) ***\n";
+
+  cse::BitVector d(7);
+  cse::BitVector e(4);
+  cse::BitVector c2(4);
+  cse::BitVector c3(7);
+
+  for (uint16_t i = 0; i < 128; ++i) {
+    for (uint16_t j = 0; j < 16; j++) {
+      d.set(false);
+      e.set(false);
+      c2.set(false);
+
+      for (uint16_t k = 0; k < 7; ++k) {
+        if (((i >> k) & 1) == 1) {
+          d[k] = true;
+          c2[k] = true;
+        }
+      }
+
+      for (uint16_t k = 0; k < 4; ++k) {
+        if (((j >> k) & 1) == 1) {
+          e[k] = true;
+          c2[k] = true;
+        }
+      }
+
+      e |= d;
+
+      if (e != c2 || e.count() != c2.count()) {
+        std::cout << "d - " << d << " count: " << d.count() << "\n";
+        std::cout << "e - " << e << " count: " << e.count() << "\n";
+        std::cout << "c - " << c2 << " count: " << c2.count() << "\n";
+        std::cout << "TEST FAILED\n";
+        return;
+      }
+    }
+  }
+
+  for (uint16_t i = 0; i < 128; ++i) {
+    for (uint16_t j = 0; j < 16; j++) {
+      d.set(false);
+      e.set(false);
+      c3.set(false);
+
+      for (uint16_t k = 0; k < 7; ++k) {
+        if (((i >> k) & 1) == 1) {
+          d[k] = true;
+          c3[k] = true;
+        }
+      }
+
+      for (uint16_t k = 0; k < 4; ++k) {
+        if (((j >> k) & 1) == 1) {
+          e[k] = true;
+          c3[k] = true;
+        }
+      }
+
+      d |= e;
+
+      if (d != c3 || d.count() != c3.count()) {
+        std::cout << "d - " << d << " count: " << d.count() << "\n";
+        std::cout << "e - " << e << " count: " << e.count() << "\n";
+        std::cout << "c - " << c3 << " count: " << c3.count() << "\n";
+        std::cout << "TEST FAILED\n";
+        return;
+      }
+    }
+  }
+  std::cout << "*** 2b - OK ***\n";
+
   std::cout << TEST_GUARD;
 }
 
@@ -212,6 +284,72 @@ void test_bitvect_3() {
   }
 
   std::cout << "*** 3a - OK ***\n";
+
+  std::cout << "*** 3b - diff bit len (one byte) (all different value) ***\n";
+
+  cse::BitVector d(7);
+  cse::BitVector e(4);
+  cse::BitVector c2(4);
+  cse::BitVector c3(7);
+
+  for (uint16_t i = 0; i < 128; ++i) {
+    for (uint16_t j = 0; j < 16; j++) {
+      d.set(false);
+      e.set(false);
+      c2.set(false);
+
+      for (uint16_t k = 0; k < 7; ++k) {
+        if (((i >> k) & 1) == 1) d[k] = true;
+      }
+
+      for (uint16_t k = 0; k < 4; ++k) {
+        if (((j >> k) & 1) == 1) {
+          e[k] = true;
+          if (d[k]) c2[k] = true;
+        }
+      }
+
+      e ^= d;
+
+      if (e != c2 || e.count() != c2.count()) {
+        std::cout << "d - " << d << " count: " << d.count() << "\n";
+        std::cout << "e - " << e << " count: " << e.count() << "\n";
+        std::cout << "c - " << c2 << " count: " << c2.count() << "\n";
+        std::cout << "TEST FAILED\n";
+        return;
+      }
+    }
+  }
+
+  for (uint16_t i = 0; i < 128; ++i) {
+    for (uint16_t j = 0; j < 16; j++) {
+      d.set(false);
+      e.set(false);
+      c3.set(false);
+
+      for (uint16_t k = 0; k < 7; ++k) {
+        if (((i >> k) & 1) == 1) d[k] = true;
+      }
+
+      for (uint16_t k = 0; k < 4; ++k) {
+        if (((j >> k) & 1) == 1) {
+          e[k] = true;
+          if (d[k]) c3[k] = true;
+        }
+      }
+
+      d ^= e;
+
+      if (d != c3 || d.count() != c3.count()) {
+        std::cout << "d - " << d << " count: " << d.count() << "\n";
+        std::cout << "e - " << e << " count: " << e.count() << "\n";
+        std::cout << "c - " << c3 << " count: " << c3.count() << "\n";
+        std::cout << "TEST FAILED\n";
+        return;
+      }
+    }
+  }
+  std::cout << "*** 3b - OK ***\n";
 
   std::cout << TEST_GUARD;
 }

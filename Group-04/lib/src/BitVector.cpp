@@ -111,9 +111,9 @@ void BitVector::fixup_byte(size_t byte, uint8_t keep) {
   std::byte mask = std::byte{0b11111111} >> (8 - (keep % 8));
 
   // Get set bit diff as well as apply mask
-  int8_t diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[byte])];
+  int8_t diff = BIT_LOOKUP(underlying[byte]);
   underlying[byte] &= mask;
-  diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[byte])] - diff;
+  diff = BIT_LOOKUP(underlying[byte]) - diff;
 
   // Update num_set
   if (diff < 0)
@@ -129,9 +129,9 @@ BitVector& BitVector::operator&=(const BitVector& rhs) {
 
   // Main loop doing the anding
   for (; i < underlying.size() && i < rhs.underlying.size(); i++) {
-    int8_t diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])];
+    int8_t diff = BIT_LOOKUP(underlying[i]);
     underlying[i] &= rhs.underlying[i];
-    diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])] - diff;
+    diff = BIT_LOOKUP(underlying[i]) - diff;
     if (diff < 0)
       num_set -= -diff;
     else
@@ -146,7 +146,7 @@ BitVector& BitVector::operator&=(const BitVector& rhs) {
 
   // If we stopped before the last byte, all the rest should be assumed zero
   for (; i < underlying.size(); i++) {
-    uint8_t diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])];
+    uint8_t diff = BIT_LOOKUP(underlying[i]);
     underlying[i] = std::byte{0};
     num_bits -= diff;
   }
@@ -161,21 +161,21 @@ BitVector& BitVector::operator|=(const BitVector& rhs) {
 
   // Main loop doing the or
   for (; i < underlying.size() - 1 && i < rhs.underlying.size() - 1; i++) {
-    int8_t diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])];
+    int8_t diff = BIT_LOOKUP(underlying[i]);
     underlying[i] |= rhs.underlying[i];
-    diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])] - diff;
+    diff = BIT_LOOKUP(underlying[i]) - diff;
     // diff can never be less than zero, since we don't lose bits when we or
     num_set += diff;
   }
 
   // Or the last byte with a mask
   if (i < underlying.size()) {
-    int8_t diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])];
+    int8_t diff = BIT_LOOKUP(underlying[i]);
     uint8_t mask_num = (8 - std::min(num_bits, rhs.num_bits) % 8);
     std::byte or_mask = mask_num != 8 ? std::byte{0b11111111} >> mask_num
                                       : std::byte{0b11111111};
     underlying[i] |= (rhs.underlying[i] & or_mask);
-    diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])] - diff;
+    diff = BIT_LOOKUP(underlying[i]) - diff;
     // diff can never be less than zero, since we don't lose bits when we or
     num_set += diff;
   }
@@ -190,9 +190,9 @@ BitVector& BitVector::operator^=(const BitVector& rhs) {
 
   // Main loop doing the xor
   for (; i < underlying.size() - 1 && i < rhs.underlying.size() - 1; i++) {
-    int8_t diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])];
+    int8_t diff = BIT_LOOKUP(underlying[i]);
     underlying[i] ^= rhs.underlying[i];
-    diff -= BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])];
+    diff -= BIT_LOOKUP(underlying[i]);
     if (diff < 0)
       num_set -= -diff;
     else
@@ -201,12 +201,12 @@ BitVector& BitVector::operator^=(const BitVector& rhs) {
 
   // Xor the last byte with a mask
   if (i < underlying.size()) {
-    int8_t diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])];
+    int8_t diff = BIT_LOOKUP(underlying[i]);
     uint8_t mask_num = (8 - std::min(num_bits, rhs.num_bits) % 8);
     std::byte xor_mask = mask_num != 8 ? std::byte{0b11111111} >> mask_num
                                        : std::byte{0b11111111};
     underlying[i] ^= (rhs.underlying[i] & xor_mask);
-    diff = BYTE_SET_LOOKUP[std::to_integer<uint8_t>(underlying[i])] - diff;
+    diff = BIT_LOOKUP(underlying[i]) - diff;
     // diff can never be less than zero, since we don't lose bits when we or
     if (diff < 0)
       num_set -= -diff;
@@ -223,7 +223,7 @@ BitVector BitVector::operator~() const {
 
   for (size_t i = 0; i < underlying.size(); i++) {
     out.underlying[i] = underlying[i] ^ std::byte{0b11111111};
-    out.num_set += BYTE_SET_LOOKUP[std::to_integer<uint8_t>(out.underlying[i])];
+    out.num_set += BIT_LOOKUP(out.underlying[i]);
   }
   out.fixup_byte(out.underlying.size() - 1, out.num_bits);
 
@@ -286,6 +286,117 @@ BitVector BitVector::operator^(const BitVector& rhs) const {
 
   BitVector out = *this;
   out ^= rhs;
+  return out;
+}
+
+BitVector& BitVector::operator<<=(size_t pos) {
+  if (pos == 0)
+    return *this;
+  else if (pos >= num_bits) {
+    set(false);
+    return *this;
+  }
+
+  num_set = 0;
+  // The first byte that has information we will keep
+  size_t skip = pos / 8;
+  // The number of bits to interpolate between shift and shift+1 bytes
+  uint8_t slide = pos % 8;
+  // The index of the byte we are modifying
+  size_t i = 0;
+  size_t max = underlying.size();
+
+  if (slide == 0) {
+    // Loop where we only need to copy bytes with no tweaks
+    for (; i + skip < max; ++i) {
+      size_t idx = max - (i + 1);
+      underlying[idx] = underlying[idx - skip];
+      num_set += BIT_LOOKUP(underlying[idx]);
+    }
+  } else {
+    // Pre loop byte fixing
+    size_t idx = max - (i + 1);
+    uint8_t mask_num = (8 - (num_bits % 8));
+    std::byte mask = mask_num != 8 ? std::byte{0b11111111} >> mask_num
+                                   : std::byte{0b11111111};
+
+    underlying[idx] = underlying[idx - skip] << slide;
+    underlying[idx] |= underlying[idx - (skip + 1)] >> (8 - slide);
+    underlying[idx] &= mask;
+    num_set += BIT_LOOKUP(underlying[idx]);
+
+    ++i;
+
+    // Loop when we need to combine neighboring bytes
+    for (; i + skip < max; ++i) {
+      size_t idx = max - (i + 1);
+      underlying[idx] = underlying[idx - skip] << slide;
+      underlying[idx] |= underlying[idx - (skip + 1)] >> (8 - slide);
+      num_set += BIT_LOOKUP(underlying[idx]);
+    }
+  }
+
+  // Clear the rest of the bytes (<< fills with 0s from the right)
+  for (; i < max; ++i) {
+    underlying[max - (i + 1)] = std::byte{0};
+  }
+
+  return *this;
+}
+
+BitVector& BitVector::operator>>=(size_t pos) {
+  if (pos == 0)
+    return *this;
+  else if (pos >= num_bits) {
+    set(false);
+    return *this;
+  }
+
+  num_set = 0;
+  // The first byte that has information we will keep
+  size_t skip = pos / 8;
+  // The number of bits to interpolate between shift and shift+1 bytes
+  uint8_t slide = pos % 8;
+  // The index of the byte we are modifying
+  size_t i = 0;
+
+  if (slide == 0) {
+    // Loop where we only need to copy bytes with no tweaks
+    for (; i + skip < underlying.size(); ++i) {
+      underlying[i] = underlying[i + skip];
+      num_set += BIT_LOOKUP(underlying[i]);
+    }
+  } else {
+    // Loop when we need to combine neighboring bytes
+    for (; i + skip < underlying.size() - 1; ++i) {
+      underlying[i] = underlying[i + skip] >> slide;
+      underlying[i] |= underlying[i + skip + 1] << (8 - slide);
+      num_set += BIT_LOOKUP(underlying[i]);
+    }
+
+    // Post loop byte fixing
+    underlying[i] = underlying[i + skip] >> slide;
+    num_set += BIT_LOOKUP(underlying[i]);
+    ++i;
+  }
+
+  // Clear the rest of the bytes (>> fills with 0s from the left)
+  for (; i < underlying.size(); ++i) {
+    underlying[i] = std::byte{0};
+  }
+
+  return *this;
+}
+
+BitVector BitVector::operator<<(size_t pos) const {
+  BitVector out = *this;
+  out <<= pos;
+  return out;
+}
+
+BitVector BitVector::operator>>(size_t pos) const {
+  BitVector out = *this;
+  out >>= pos;
   return out;
 }
 

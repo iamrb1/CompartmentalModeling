@@ -152,6 +152,11 @@ class BitVector {
   size_t count() const { return num_set; }
   // Returns the number of bits contained by the BitVector
   size_t size() const { return num_bits; }
+
+  // Returns the number of bits in this std::byte
+  inline int8_t BIT_LOOKUP(std::byte b) const {
+    return BYTE_SET_LOOKUP[std::to_integer<uint8_t>(b)];
+  }
 };
 
 };  // namespace cse
