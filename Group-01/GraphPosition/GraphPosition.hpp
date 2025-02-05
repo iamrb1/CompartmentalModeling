@@ -1,5 +1,4 @@
-#ifndef GRAPHPOSITION_HPP
-#define GRAPHPOSITION_HPP
+#pragma once
 
 #include <iostream>
 #include <vector>
@@ -12,7 +11,7 @@
 // traversal), and more. Also assumes Graph class initializes vertices with an ID for easy tracking/position usage.
 class Graph;
 
-namespace cse498 {
+namespace cse {
 
 template <class T>
 class GraphPosition {
@@ -43,6 +42,4 @@ private:
     void MarkVisited(std::string vertexID);
 };
 
-} // namespace cse498
-
-#endif // GRAPHPOSITION_HPP
+} // namespace cse

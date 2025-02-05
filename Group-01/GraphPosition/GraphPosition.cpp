@@ -1,6 +1,6 @@
 #include "GraphPosition.hpp"
 
-namespace cse498 {
+namespace cse {
 
 template <class T>
 void GraphPosition<T>::MarkVisited(std::string vertexID) {
@@ -52,4 +52,4 @@ const std::vector<std::string>& GraphPosition<T>::GetTraversalPath() const {
     return traversalPath;
 }
 
-} // namespace cse498
+} // namespace cse
