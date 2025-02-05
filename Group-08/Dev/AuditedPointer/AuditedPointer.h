@@ -38,9 +38,6 @@ public:
     // Arrow operator
     T* operator->() const;
 
-    // Get the raw pointer
-    T* get() const;
-
     // Check if the pointer is null
     explicit operator bool() const;
 
@@ -51,7 +48,10 @@ public:
     static void CheckForLeaks();
 
 private:
+    // Base raw pointer
     T* ptr_;
+
+    // Set of pointers in the program to check for leaks
     static std::unordered_set<T*> trackedPointers_;
 };
 
@@ -65,13 +65,17 @@ struct LeakChecker
     ~LeakChecker();
 };
 
-extern LeakChecker leakChecker;
+LeakChecker leakChecker;
 
 // ==================== Template Implementations ====================
 
+// Allocates memory for the set of tracked pointers
 template <typename T>
 std::unordered_set<T*> AuditedPointer<T>::trackedPointers_;
 
+// Constructor
+// ex: AuditedPointer<Example> ptr(new Example()); 
+//// Creates an AuditedPointer managing a new Example object
 template <typename T>
 AuditedPointer<T>::AuditedPointer(T* ptr) : ptr_(ptr)
 {
@@ -81,6 +85,7 @@ AuditedPointer<T>::AuditedPointer(T* ptr) : ptr_(ptr)
     }
 }
 
+// Destructor
 template <typename T>
 AuditedPointer<T>::~AuditedPointer()
 {
@@ -94,6 +99,9 @@ AuditedPointer<T>::~AuditedPointer()
     delete ptr_;
 }
 
+// Copy constructor
+// ex: AuditedPointer<Example> ptr2(ptr1); 
+//// Creates a copy of `ptr1` (both manage the same Example object)
 template <typename T>
 AuditedPointer<T>::AuditedPointer(const AuditedPointer& other) : ptr_(other.ptr_)
 {
@@ -103,6 +111,9 @@ AuditedPointer<T>::AuditedPointer(const AuditedPointer& other) : ptr_(other.ptr_
     }
 }
 
+// Copy assignment operator
+// ex AuditedPointer<Example> ptr2 = ptr1; 
+//// Copies `ptr1` into `ptr2` (both manage the same Example object)
 template <typename T>
 AuditedPointer<T>& AuditedPointer<T>::operator=(const AuditedPointer& other)
 {
@@ -125,12 +136,18 @@ AuditedPointer<T>& AuditedPointer<T>::operator=(const AuditedPointer& other)
     return *this;
 }
 
+// Move constructor
+// ex: AuditedPointer<Example> ptr2(std::move(ptr1)); 
+//// Moves ownership from `ptr1` to `ptr2` (ptr1 becomes null)
 template <typename T>
 AuditedPointer<T>::AuditedPointer(AuditedPointer&& other) noexcept : ptr_(other.ptr_)
 {
     other.ptr_ = nullptr;
 }
 
+// Move assignment opoerator
+// AuditedPointer<Example> ptr2 = std::move(ptr1); 
+//// Moves ownership from `ptr1` to `ptr2` (ptr1 becomes null)
 template <typename T>
 AuditedPointer<T>& AuditedPointer<T>::operator=(AuditedPointer&& other) noexcept
 {
@@ -147,6 +164,9 @@ AuditedPointer<T>& AuditedPointer<T>::operator=(AuditedPointer&& other) noexcept
     return *this;
 }
 
+// Dereference operator
+// ex: Example obj = *ptr; 
+//// Dereferences `ptr` to access the managed Example object
 template <typename T>
 T& AuditedPointer<T>::operator*() const
 {
@@ -161,6 +181,9 @@ T& AuditedPointer<T>::operator*() const
     return *ptr_;
 }
 
+// Arrow operator
+// ex: ptr->doSomething(); 
+//// Accesses a member function or variable of the managed Example object
 template <typename T>
 T* AuditedPointer<T>::operator->() const
 {
@@ -175,18 +198,14 @@ T* AuditedPointer<T>::operator->() const
     return ptr_;
 }
 
-template <typename T>
-T* AuditedPointer<T>::get() const
-{
-    return ptr_;
-}
-
+// Checks if there is a ptr within the object
 template <typename T>
 AuditedPointer<T>::operator bool() const
 {
     return ptr_ != nullptr;
 }
 
+// Member function to delete the object
 template <typename T>
 void AuditedPointer<T>::Delete()
 {
@@ -203,6 +222,8 @@ void AuditedPointer<T>::Delete()
     ptr_ = nullptr;
 }
 
+// Function ran at runtime that checks in DEBUG mode if
+// all instances of the class are deleted
 template <typename T>
 void AuditedPointer<T>::CheckForLeaks()
 {
@@ -213,9 +234,11 @@ void AuditedPointer<T>::CheckForLeaks()
     }
 }
 
+// MakeAudited helper function to turn classes to AuditedPointers
 template <typename T, typename... Args>
 AuditedPointer<T> MakeAudited(Args&&... args)
 {
+    // std::forward ensures lvalues and rvalues and perserved
     return AuditedPointer<T>(new T(std::forward<Args>(args)...));
 }
 
@@ -224,6 +247,3 @@ LeakChecker::~LeakChecker()
 {
     AuditedPointer<int>::CheckForLeaks(); // Use int as a placeholder type
 }
-
-// Global leak checker instance
-LeakChecker leakChecker;
