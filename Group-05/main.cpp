@@ -24,9 +24,11 @@ int main() {
 
   // Update values
   d2.SetStringValue("newTest");
-  std::cout << "Should output the new string value (newTest): " << d2.GetString().value() << std::endl;
+  std::cout << "Should output the new string value (newTest): " 
+            << d2.GetString().value() << std::endl;
   d1.SetDoubleValue(987.987);
-  std::cout << "Should output the new double value (987.987): " << d1.GetDouble().value() << std::endl;
+  std::cout << "Should output the new double value (987.987): " 
+            << d1.GetDouble().value() << std::endl;
 
   std::cout << "===" << std::endl;
 
