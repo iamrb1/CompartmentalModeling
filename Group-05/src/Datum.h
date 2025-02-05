@@ -22,52 +22,49 @@ class Datum {
   /// Stores the string or double value.
   std::variant<std::string, double> mValue;
 
+  bool AreDatumsDouble(const Datum &datum) const;
+
+  bool AreDatumsStrings(const Datum &datum) const;
+
  public:
   /**
    * Constructor for a string value.
-   *
    * @param value The string value
    */
   Datum(std::string value) { mValue = value; }
 
   /**
    * Constructor for a double value.
-   *
    * @param value The double value
    */
   Datum(double value) { mValue = value; }
 
   /**
    * Checks if the current type of the Datum is a string.
-   *
    * @return true if the type is a string, false otherwise.
    */
   bool IsString() const { return std::holds_alternative<std::string>(mValue); }
 
   /**
    * Checks if the current type of the Datum is a double.
-   *
    * @return true if the type is a double, false otherwise.
    */
   bool IsDouble() const { return std::holds_alternative<double>(mValue); }
 
   /**
    * Sets the Datum to a new string value.
-   *
    * @param value The new string value.
    */
   void SetStringValue(std::string value) { mValue = value; }
 
   /**
    * Sets the Datum to a new double value.
-   *
    * @param value The new double value.
    */
   void SetDoubleValue(double value) { mValue = value; }
 
   /**
    * Returns the Datum as a variant.
-   *
    * @return the variant value.
    */
   std::variant<std::string, double> GetVariant() const { return mValue; };
@@ -79,6 +76,16 @@ class Datum {
   void AsString();
 
   void AsDouble();
+
+  Datum operator+(const Datum &datum) const;
+
+  Datum operator-(const Datum &datum) const;
+
+  Datum operator*(const Datum &datum) const;
+
+  Datum operator/(const Datum &datum) const;
+
+  bool operator==(const Datum &datum) const;
 };
 
 }  // namespace cse

@@ -71,6 +71,30 @@ int main() {
   std::cout << "NaN to String: Should have an empty string: "
             << d6.GetString().value() << std::endl;
 
+
+  cse::Datum d_add(28.421);
+  cse::Datum d_add1(38.32);
+  cse::Datum d_add2("test");
+  cse::Datum d_add3("test2");
+  cse::Datum equal_datum(28.421);
+  cse::Datum equal_datum1("test");
+
+  cse::Datum double_test = d_add + d_add1;
+  std::cout << "Adding two double Datums: " << double_test.GetDouble().value() << std::endl;
+
+  cse::Datum datum_string_test = d_add1 + d_add2;
+  std::cout << "Adding one double and one string Datum: " << datum_string_test.GetDouble().value() << std::endl;
+
+  cse::Datum string_test = d_add2 + d_add3;
+  std::cout << "Adding two string Datums: " << string_test.GetDouble().value() << std::endl;
+
+  std::cout << "Equal Check (1): " << (d_add == equal_datum) << std::endl;
+  std::cout << "Equal Check (0): " << (d_add == d_add1) << std::endl;
+  std::cout << "Equal Check (0): " << (d_add == d_add2) << std::endl;
+  std::cout << "Equal Check (0): " << (d_add2 == d_add3) << std::endl;
+  std::cout << "Equal Check (1): " << (d_add2 == equal_datum1) << std::endl;
+
+
   std::cout << "=== DataGrid Tests ===\n";
   cse::DataGrid grid;
 
