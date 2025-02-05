@@ -4,7 +4,7 @@ project(Team07Library)
 
 set(SOURCE_FILES
         AuditedArray.cpp
-        AuditedArray.hpp
+        AuditedArray.h
         DataFileManager.cpp
         DataFileManager.h
         OutputLog.cpp
@@ -12,7 +12,7 @@ set(SOURCE_FILES
         Scheduler.cpp
         Scheduler.h
         Serializer.cpp
-        Serializer.hpp
+        Serializer.h
 )
 
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
