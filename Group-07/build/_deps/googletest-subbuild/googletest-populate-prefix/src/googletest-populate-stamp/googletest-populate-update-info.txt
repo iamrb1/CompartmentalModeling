@@ -1,7 +1,0 @@
-# This is a generated file and its contents are an internal implementation detail.
-# The patch step will be re-executed if anything in this file changes.
-# No other meaning or use of this file is supported.
-
-command (connected)=C:/Program Files/CMake/bin/cmake.exe;-Dcan_fetch=YES;-P;D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/_deps/googletest-subbuild/googletest-populate-prefix/tmp/googletest-populate-gitupdate.cmake
-command (disconnected)=C:/Program Files/CMake/bin/cmake.exe;-Dcan_fetch=NO;-P;D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/_deps/googletest-subbuild/googletest-populate-prefix/tmp/googletest-populate-gitupdate.cmake
-work_dir=D:/CSE 498 CAPTSTONE/CSE498-Spring2025/Group-07/build/_deps/googletest-src
