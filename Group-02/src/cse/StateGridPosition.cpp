@@ -7,13 +7,23 @@
 
 namespace cse
 {
-    Point StateGridPosition::CalculateObjectPosition()
+Point StateGridPosition::Calculateobjectposition()
+{
+    ///Calculate the position of the object and return the point
+    Point default_object_position;
+    default_object_position.x = 0;
+    default_object_position.y = 0;
+    return default_object_position;
+}
+
+///Get the orientation of the object, 0-359 degrees
+double StateGridPosition::Getobjectorientation()
+{
+    while(object_orientation >= 360)
     {
-        ///Calculate the position of the object and return the point
-        Point defaultObjectPosition;
-        defaultObjectPosition.x = 0;
-        defaultObjectPosition.y = 0;
-        return defaultObjectPosition;
+        object_orientation -= 360;
     }
+    return object_orientation;
+}
 
 }

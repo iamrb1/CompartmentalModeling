@@ -5,50 +5,69 @@
  *
  */
 
+#include <cse/StateGrid.h>
+
 #pragma once
 
 #ifndef CSEG2_INCLUDE_CSE_STATEGRIDPOSITION_H
 #define CSEG2_INCLUDE_CSE_STATEGRIDPOSITION_H
 
-namespace cse {
-    ///Point object for the position
-    struct Point {
+namespace cse
+{
+///Point object for the position
+struct Point
+{
     ///The position of the object
     double x = 0;
     double y = 0;
 };
 
-class StateGridPosition {
+class StateGridPosition
+{
 
 private:
 
     ///The orientation in degrees
-    double mObjectOrientation = 0;
+    double object_orientation = 0;
 
-    Point mObjectPosition;
+    Point object_position;
 
-    Point mCentralPosition;
+    Point central_position;
+
+    ///The state grid this position is referring to
+    StateGrid *state_grid = nullptr;
 
 public:
-    Point createPoint(int x, int y) {
+    Point createPoint(int x, int y)
+    {
         Point p;
         p.x = x;
         p.y = y;
         return p;
     }
 
-    Point GetGridPosition() { return mCentralPosition; }
+    ///Get the stategrid this position is associated with
+    StateGrid *Getstategrid() { return state_grid; }
 
-    Point GetObjectPosition() { return mObjectPosition; }
+    ///Possibly getState, but can be done in only necessary places as well
 
-    void SetObjectPosition(double x, double y) { mObjectPosition = createPoint(x, y); }
+    ///Get central position of the stategrid
+    Point Getgridposition() { return central_position; }
 
-    double GetObjectOrientation() { return mObjectOrientation; }
+    ///Get the position of the object this stategrid is associated with
+    Point Getobjectposition() { return object_position; }
 
-    void SetObjectOrientation(double orientation) { mObjectOrientation = orientation; }
+    ///Set position of object this stategrid is associated with
+    void Setobjectposition(double x, double y) { object_position = createPoint(x, y); }
 
-    Point CalculateObjectPosition();
-    };
+    double Getobjectorientation();
+
+    ///Set the object's orientation, 0-359 degrees
+    void Setobjectorientation(double orientation) { object_orientation = orientation; }
+
+    ///Calculates the object's position, still working on specs
+    Point Calculateobjectposition();
+};
 }
 
 #endif //CSEG2_INCLUDE_CSE_STATEGRIDPOSITION_H
