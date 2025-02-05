@@ -1,4 +1,5 @@
 #Used Professor Owen's CMake files from CSE 335 for our project
+
 cmake_minimum_required(VERSION 3.20)
 project(Group-07)
 set(APPLICATION_LIBRARY Team07Library)
@@ -19,4 +20,5 @@ add_subdirectory(Tests)
 if(APPLE)
     # When building for MacOS, also copy files into the bundle resources
     set(RESOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/team07.app/Contents/Resources)
+
 endif()
