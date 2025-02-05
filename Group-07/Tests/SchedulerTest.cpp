@@ -1,5 +1,5 @@
 #include <vector>
-#include <Scheduler.h>
+#include <Scheduler.hpp>
 #include "gtest/gtest.h"
 
 TEST(SchedulerTest,Construct)
