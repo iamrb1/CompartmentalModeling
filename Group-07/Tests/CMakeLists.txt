@@ -1,3 +1,5 @@
+#Used Professor Owen's CMake files from CSE 335 for our project
+
 project(Tests)
 
 set(TEST_FILES

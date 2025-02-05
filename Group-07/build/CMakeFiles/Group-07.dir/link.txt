@@ -1,0 +1,1 @@
+/usr/bin/c++ "CMakeFiles/Group-07.dir/main.cpp.o" -o Group-07  Team07Library/libTeam07Library.a
