@@ -1,5 +1,3 @@
-// AuditedPointer.h
-
 #pragma once
 
 #include <iostream>
