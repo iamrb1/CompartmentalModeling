@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <numeric>
 
+namespace cse {
 void DataTracker::add_value(double value) {
     values.push_back(value);
 }
@@ -42,4 +43,5 @@ double DataTracker::max() const {
 
 size_t DataTracker::total() const {
     return values.size();
+}
 }
