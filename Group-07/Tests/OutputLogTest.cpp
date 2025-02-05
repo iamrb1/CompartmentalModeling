@@ -2,7 +2,7 @@
 * OutputLogTest.cpp
  */
 #include <gtest/gtest.h>
-#include "../Team07Library/OutputLog.hpp"
+#include "../Team07Library/OutputLog.h"
 #include <fstream>
 #include <cstdio>
 #include <cassert>

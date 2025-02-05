@@ -5,7 +5,7 @@
 // 
 // Some parts of this implementation were generated with the assistance of ChatGPT (OpenAI).
 // Date of ChatGPT Assistance: 2/3/2025
-#include "OutputLog.hpp"
+#include "OutputLog.h"
 
 OutputLog::OutputLog(LogLevel logLevel, const std::string& filename) : level(logLevel) {
     logFile.open(filename, std::ios::app); // Open file in append mode

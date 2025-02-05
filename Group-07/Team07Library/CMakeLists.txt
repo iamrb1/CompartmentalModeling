@@ -7,7 +7,7 @@ set(SOURCE_FILES
         DataFileManager.cpp
         DataFileManager.h
         OutputLog.cpp
-        OutputLog.hpp
+        OutputLog.h
         Scheduler.cpp
         Scheduler.hpp
         Serializer.cpp
