@@ -7,32 +7,33 @@
 
 #pragma once
 
-#include <vector>
+#include <map>
 #include <string>
+#include <vector>
 
 namespace cse {
 class StateGrid {
  private:
   ///Rows in grid
-  size_t rows = 0;
+  size_t m_rows = 0;
   ///Rows in grid
-  size_t cols = 0;
+  size_t m_cols = 0;
   ///Grid to represent game map
-  std::vector<std::vector<char>> grid;
-  ///String that represents the difficulty of the grid
-  std::string difficulty;
+  std::vector<std::string> m_grid;
 
  public:
   StateGrid(size_t rows, size_t cols, std::string& diff);
 
-  void DisplayGrid();
+  void choose_map(const std::string& diff);
 
-  void Setstate(int row, int col);
+  void display_grid();
 
-  std::string Getstate(int row, int col);
+  bool set_state(std::pair<int, int> move, std::pair<int, int> agent);
 
-  bool Validateposition(int row, int col);
+  char get_state(int row, int col);
 
-  std::string Findmoves(int row, int col);
+  bool validate_position(std::pair<int, int> move);
+
+  std::vector<std::pair<int, int>> find_moves(int row, int col);
 };
-}
+}  // namespace cse
