@@ -9,6 +9,11 @@
 #include <iostream>
 #include <stdexcept>
 
+#ifdef NDEBUG
+  template <typename T, size_t N>
+  using AuditedArray = std::array<T,N>;
+
+#else
 template <typename T, size_t Size>
 class AuditedArray {
  public:
@@ -128,4 +133,5 @@ const T* AuditedArray<T, Size>::end() const {
   return &data[Size];
 }
 
-#endif  // AUDITEDARRAY_H
+#endif // NDEBUG
+#endif //AUDITEDARRAY_H
