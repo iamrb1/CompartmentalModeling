@@ -1,4 +1,5 @@
 #Used Professor Owen's CMake files for CSE 335 for our project
+
 project(Team07Library)
 
 set(SOURCE_FILES
@@ -9,7 +10,7 @@ set(SOURCE_FILES
         OutputLog.cpp
         OutputLog.hpp
         Scheduler.cpp
-        Scheduler.hpp
+        Scheduler.h
         Serializer.cpp
         Serializer.hpp
 )

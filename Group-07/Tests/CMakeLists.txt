@@ -1,4 +1,5 @@
 #Used Professor Owen's CMake files from CSE 335 for our project
+
 project(Tests)
 
 set(TEST_FILES
@@ -29,7 +30,7 @@ include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 add_executable(Tests_run ${TEST_FILES})
 
 # linking Tests_run with library which will be tested and wxWidgets
-target_link_libraries(Tests_run ${APPLICATION_LIBRARY} ${wxWidgets_LIBRARIES} )
+target_link_libraries(Tests_run ${APPLICATION_LIBRARY})
 
 # linking Tests_run with the Google Test libraries
 target_link_libraries(Tests_run gtest)
