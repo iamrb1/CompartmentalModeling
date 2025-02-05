@@ -18,10 +18,12 @@ class StateGrid {
   ///Rows in grid
   size_t cols = 0;
   ///Grid to represent game map
-  std::vector<std::vector<std::string>> grid;
+  std::vector<std::vector<char>> grid;
+  ///String that represents the difficulty of the grid
+  std::string difficulty;
 
  public:
-  StateGrid(size_t rows, size_t cols, std::string difficulty);
+  StateGrid(size_t rows, size_t cols, std::string& diff);
 
   void DisplayGrid();
 

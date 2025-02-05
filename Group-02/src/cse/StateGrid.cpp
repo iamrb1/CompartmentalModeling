@@ -12,7 +12,12 @@ namespace cse{
  * @param rows rows in grid map
  * @param cols cols in grid map
  */
-StateGrid::StateGrid(size_t rows, size_t cols, std::string difficulty) {}
+StateGrid::StateGrid(size_t rows, size_t cols, std::string& diff) : rows(rows), cols(cols), difficulty(diff)
+{
+  std::vector<std::vector<char>> matrix;
+  matrix.resize(rows, std::vector<char>(cols,0));
+  grid = matrix;
+}
 
 
 /**
@@ -34,7 +39,7 @@ void StateGrid::Setstate(int row, int col) {}
  * @return state of (row,col) position
  */
 std::string StateGrid::Getstate(int row, int col) {
-  return std::string();
+  return "std::string()";
 }
 /**
  * @brief Validates if a position can be occupied by agent
