@@ -11,6 +11,7 @@ set(
     ${PROJECT_SOURCE_DIR}/include/cse/ActionMap.h
     ${PROJECT_SOURCE_DIR}/include/cse/StateGrid.h
     ${PROJECT_SOURCE_DIR}/include/cse/StateGridPosition.h
+    ${PROJECT_SOURCE_DIR}/include/cse/AuditedVector.h
 )
 
 set(
@@ -18,6 +19,7 @@ set(
     ActionMap.cpp
     StateGrid.cpp
     StateGridPosition.cpp
+    AuditedVector.cpp
 )
 
 # Add the library target
