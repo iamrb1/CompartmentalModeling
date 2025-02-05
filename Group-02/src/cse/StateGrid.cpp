@@ -20,7 +20,7 @@ StateGrid::StateGrid(size_t rows, size_t cols, std::string& diff) : m_rows(rows)
 
 
 /**
- * @brief Displays the grid to user
+ * @brief Displays the grid to a user
  */
 void StateGrid::display_grid() {
   for (auto line : m_grid) {
