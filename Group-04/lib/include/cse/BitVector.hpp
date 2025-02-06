@@ -143,6 +143,14 @@ class BitVector {
   // Set count bits to a specific value starting at the index start
   BitVector& set(size_t start, size_t count, bool value = true);
 
+  // Test a specific bit in the BitVector
+  bool test(size_t idx) const;
+
+  // Flip all bits in the BitVector
+  BitVector& flip();
+  // Flip a specific bit in the BitVector
+  BitVector& flip(size_t idx);
+
   // Returns true if all the bits in the BitVector are true
   bool all() const { return num_set == num_bits; }
   // Returns true if any of the bits in the BitVector are true
@@ -224,11 +232,23 @@ BitVector::reference& BitVector::reference::flip() {
 
 // Get the index as a reference
 BitVector::reference BitVector::operator[](size_t idx) {
+#ifndef NDEBUG
+  if (idx >= num_bits)
+    throw std::out_of_range(std::format(
+        "Attempt to access BitVector at index {}, number of bits is {}", idx,
+        num_bits));
+#endif
   return reference(this, &underlying[idx / 8], (uint8_t)(idx % 8));
 }
 
 // Get the index as a const bool
 bool BitVector::operator[](size_t idx) const {
+#ifndef NDEBUG
+  if (idx >= num_bits)
+    throw std::out_of_range(std::format(
+        "Attempt to access BitVector at index {}, number of bits is {}", idx,
+        num_bits));
+#endif
   const std::byte b = (std::byte{1} << (idx % 8)) & underlying[idx / 8];
   return b != std::byte{0};
 }
@@ -253,7 +273,12 @@ BitVector& BitVector::set(bool value) {
 
 // Set a bit in the vector
 BitVector& BitVector::set(size_t idx, bool value) {
-  if (idx < num_bits) (*this)[idx] = value;
+  if (idx >= num_bits)
+    throw std::out_of_range(std::format(
+        "Attempt to set BitVector at index {}, number of bits is {}", idx,
+        num_bits));
+
+  (*this)[idx] = value;
   return *this;
 }
 
@@ -266,6 +291,40 @@ BitVector& BitVector::set(size_t start, size_t count, bool value) {
   for (; start < count && start < num_bits; start++) {
     (*this)[start] = value;
   }
+
+  return *this;
+}
+
+// Test to see if a bit is set
+bool BitVector::test(size_t idx) const {
+  if (idx >= num_bits)
+    throw std::out_of_range(std::format(
+        "Attempt to test BitVector at index {}, number of bits is {}", idx,
+        num_bits));
+  return (*this)[idx];
+}
+
+// Flip all bits in the BitVector
+BitVector& BitVector::flip() {
+  num_set = 0;
+
+  for (size_t i = 0; i < underlying.size(); i++) {
+    underlying[i] = underlying[i] ^ std::byte{0b11111111};
+    num_set += BIT_LOOKUP(underlying[i]);
+  }
+  fixup_byte(underlying.size() - 1, num_bits);
+
+  return *this;
+}
+
+// Flip a specific bit in the BitVector
+BitVector& BitVector::flip(size_t idx) {
+  if (idx >= num_bits)
+    throw std::out_of_range(std::format(
+        "Attempt to flip BitVector at index {}, number of bits is {}", idx,
+        num_bits));
+
+  (*this)[idx].flip();
 
   return *this;
 }
