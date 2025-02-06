@@ -47,7 +47,7 @@ std::optional<double> Datum::GetDouble() const {
 void Datum::AsString() {
   if (GetDouble()) {
     if (std::isnan(GetDouble().value())) {
-      SetStringValue("");
+      mValue = "";
     } else {
       std::string string_numeric_value = std::to_string(GetDouble().value());
 
@@ -57,7 +57,7 @@ void Datum::AsString() {
       // string::npos indicates everything until the end of the string. So remove everything after the last 0 or .
       string_numeric_value.erase(string_numeric_value.find_last_not_of('0') + 1, std::string::npos);
       string_numeric_value.erase(string_numeric_value.find_last_not_of('.') + 1, std::string::npos);
-      SetStringValue(string_numeric_value);
+      mValue = string_numeric_value;
     }
   }
 }
@@ -69,12 +69,12 @@ void Datum::AsString() {
 void Datum::AsDouble() {
   if (GetString()) {
     try {
-      SetDoubleValue(std::stod(GetString().value()));
+      mValue = std::stod(GetString().value());
     } catch (std::invalid_argument &e) {
       // Citation: Used
       // https://stackoverflow.com/questions/16691207/c-c-nan-constant-literal
       // for NaN
-      SetDoubleValue(std::numeric_limits<double>::quiet_NaN());
+      mValue = std::numeric_limits<double>::quiet_NaN();
       std::cout << "Warning: Attempted to convert a string with no numeric "
                    "value. Replaced value with NaN."
                 << std::endl;
@@ -185,4 +185,38 @@ bool Datum::AreDatumsStrings(const Datum &datum) const {
   return false;
 }
 
+// Used https://www.geeksforgeeks.org/cpp-assignment-operator-overloading/ to help with assignment overloading
+// Used ChatGPT to help with the assignment comments
+/**
+ * Assigns a value from a different Datum into this Datum.
+ * @param datum The Datum to copy from.
+ * @return A reference to this Datum after assignment.
+ */
+Datum &Datum::operator=(const Datum &datum) {
+  // Checks if the object is not assigned to itself (From GeeksForGeeks)
+  if (this!=&datum) {
+    mValue = datum.mValue;
+  }
+  return *this;
+}
+
+/**
+ * Assigns a value from a double into this Datum.
+ * @param double_value The double
+ * @return  A reference to this Datum after assignment.
+ */
+Datum &Datum::operator=(const double &double_value) {
+  mValue = double_value;
+  return *this;
+}
+
+/**
+ * Assigns a value from a string into this Datum.
+ * @param string_value The string
+ * @return  A reference to this Datum after assignment.
+ */
+Datum &Datum::operator=(const std::string &string_value) {
+  mValue = string_value;
+  return *this;
+}
 }  // namespace cse

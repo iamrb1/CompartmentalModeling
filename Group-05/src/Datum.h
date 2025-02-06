@@ -20,7 +20,7 @@ namespace cse {
 class Datum {
  private:
   /// Stores the string or double value.
-  std::variant<std::string, double> mValue;
+  std::variant<std::string, double> mValue = 0.0;
 
   bool AreDatumsDouble(const Datum &datum) const;
 
@@ -52,18 +52,6 @@ class Datum {
   bool IsDouble() const { return std::holds_alternative<double>(mValue); }
 
   /**
-   * Sets the Datum to a new string value.
-   * @param value The new string value.
-   */
-  void SetStringValue(std::string value) { mValue = value; }
-
-  /**
-   * Sets the Datum to a new double value.
-   * @param value The new double value.
-   */
-  void SetDoubleValue(double value) { mValue = value; }
-
-  /**
    * Returns the Datum as a variant.
    * @return the variant value.
    */
@@ -86,6 +74,12 @@ class Datum {
   Datum operator/(const Datum &datum) const;
 
   bool operator==(const Datum &datum) const;
+
+  Datum &operator=(const Datum &datum);
+
+  Datum &operator=(const double &double_value);
+
+  Datum &operator=(const std::string &string_value);
 };
 
 }  // namespace cse
