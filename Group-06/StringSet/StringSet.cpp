@@ -58,7 +58,7 @@ bool cse::StringSet::empty() const
  * @param other
  * @return
  */
-StringSet cse::StringSet::Union(const StringSet& other)const
+cse::StringSet cse::StringSet::Union(const StringSet& other)const
 {
     StringSet result; //create new set result
 
@@ -81,7 +81,7 @@ StringSet cse::StringSet::Union(const StringSet& other)const
  * @param other
  * @return
  */
-StringSet cse::StringSet::Intersection(const StringSet& other)const
+cse::StringSet cse::StringSet::Intersection(const StringSet& other)const
 {
     StringSet result; // new set result
 
