@@ -3,6 +3,4 @@
 #include <format>
 #include <iostream>
 
-namespace cse {
-
-};  // namespace cse
+namespace cse {};  // namespace cse

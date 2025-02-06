@@ -179,7 +179,7 @@ void test_bitvect_2() {
       for (uint16_t k = 0; k < 7; ++k) {
         if (((i >> k) & 1) == 1) {
           d[k] = true;
-        } 
+        }
       }
 
       for (uint16_t k = 0; k < 4; ++k) {
@@ -360,8 +360,6 @@ void test_bitvect_4() {
 
   a.set();
   b.set();
-
-
 }
 
 void test_bitvect() {
@@ -370,5 +368,3 @@ void test_bitvect() {
   test_bitvect_3();
   test_bitvect_4();
 }
-
-

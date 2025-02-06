@@ -1,8 +1,8 @@
 #pragma once
 #include <cstdint>
+#include <format>
 #include <iostream>
 #include <vector>
-#include <format>
 
 namespace cse {
 
@@ -159,11 +159,11 @@ class BitVector {
     return BYTE_SET_LOOKUP[std::to_integer<uint8_t>(b)];
   }
 
-
-  // Resize the BitVector to the provided size, filling any new bits with the given value
+  // Resize the BitVector to the provided size, filling any new bits with the
+  // given value
   void resize(size_t size, bool fill = false);
   void resize(size_t size, std::byte fill);
-  
+
   // Append the given bit to the BitVector
   void append(bool value);
   // Append the provided bit vector at the end of this bit vector
@@ -598,8 +598,8 @@ void BitVector::resize(size_t size, std::byte fill) {
   uint8_t over = size % 8;
   size_t bytes = (size / 8) + (over ? 1 : 0);
 
-  if (size > num_bits){
-    if ( num_bits % 8) {
+  if (size > num_bits) {
+    if (num_bits % 8) {
       // Add bits from the pattern to the end of the last byte
       int8_t diff = BIT_LOOKUP(underlying.back());
       underlying.back() |= fill << (num_bits % 8);
@@ -610,7 +610,8 @@ void BitVector::resize(size_t size, std::byte fill) {
       fill = (fill >> (8 - (num_bits % 8))) | (fill << (num_bits % 8));
     }
 
-    // Add to num set based on the number of bytes we will be appending on to underlying
+    // Add to num set based on the number of bytes we will be appending on to
+    // underlying
     num_set += BIT_LOOKUP(fill) * (bytes - underlying.size());
   }
 
@@ -627,21 +628,18 @@ void BitVector::resize(size_t size, bool fill) {
 
 // Append a bit to this BitVector
 void BitVector::append(bool value) {
-  if (num_bits % 8 == 0)
-    underlying.push_back(std::byte{0});
+  if (num_bits % 8 == 0) underlying.push_back(std::byte{0});
   num_bits++;
   (*this)[num_bits - 1] = value;
 }
 
 // Append a BitVector to this BitVector
 void BitVector::append(const BitVector& bv) {
-  if (bv.num_bits == 0)
-    return;
+  if (bv.num_bits == 0) return;
 
   // Pack bits into the last byte if there is room
   uint8_t over = num_bits % 8;
-  if (over > 0)
-    underlying.back() |= bv.underlying[0] << over;
+  if (over > 0) underlying.back() |= bv.underlying[0] << over;
 
   // Loop to push new bytes on to the back
   for (size_t i = 0; i < bv.underlying.size() - 1; ++i) {
@@ -670,8 +668,7 @@ void BitVector::append(const BitVector& bv) {
 
 // Prepend a single bit to the BitVector
 void BitVector::prepend(bool value) {
-  if (num_bits % 8 == 0)
-    underlying.push_back(std::byte{0});
+  if (num_bits % 8 == 0) underlying.push_back(std::byte{0});
   num_bits++;
   *this <<= 1;
   (*this)[0] = value;
