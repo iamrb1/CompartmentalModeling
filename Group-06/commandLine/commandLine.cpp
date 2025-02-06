@@ -87,3 +87,26 @@ namespace cse {
     };
 
 }
+int main() {
+    cse::commandLine cmd;
+
+    // Add some commands
+    cmd.addCommand("greet", []() { std::cout << "Hello, World!" << std::endl; });
+    cmd.addCommand("farewell", []() { std::cout << "Goodbye, World!" << std::endl; });
+
+    // Execute commands
+    cmd.executeCommand("greet");
+    cmd.executeCommand("farewell");
+    cmd.executeCommand("unknown"); // This should print "Unknown command: unknown"
+
+    // Track and print history
+    cmd.trackHistory("greet");
+    cmd.trackHistory("farewell");
+    cmd.printHistory();
+
+    // Track and get state
+    cmd.trackState("active");
+    std::cout << "Current state: " << cmd.getState() << std::endl;
+
+    return 0;
+}
