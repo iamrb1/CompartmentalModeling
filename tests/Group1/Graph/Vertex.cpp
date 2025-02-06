@@ -2,7 +2,7 @@
 
 #include <vector>
 
-TEST_CASE("Test std::vector", "[base]")
+TEST_CASE("Test cse", "[base]")
 {
   std::vector<int> v{0, 1, 2, 3, 4};
 

@@ -3,14 +3,14 @@
 #include <cassert>
 #include <iostream>
 
-void cse498::Vertex::AddEdge(std::shared_ptr<cse498::Vertex> destination, std::shared_ptr<Edge> e) {
+void cse::Vertex::AddEdge(std::shared_ptr<cse::Vertex> destination, std::shared_ptr<Edge> e) {
   assert(e->IsConnected(std::make_shared<Vertex>(this), destination));
   // TODO @lspecht: Should we include a check if the edge already exist?
   edges[destination->GetId()] = e;
 }
 
 // TODO @lspecht: Move expiration logic to a single function
-bool cse498::Vertex::IsConnected(std::shared_ptr<Vertex> destination) {
+bool cse::Vertex::IsConnected(std::shared_ptr<Vertex> destination) {
   auto it = edges.find(destination->GetId());
   if (it == edges.end()) {
     return false;
@@ -24,7 +24,7 @@ bool cse498::Vertex::IsConnected(std::shared_ptr<Vertex> destination) {
   return true;
 }
 
-cse498::Edge &const cse498::Vertex::GetEdge(Vertex &const to) {
+cse::Edge &const cse::Vertex::GetEdge(Vertex &const to) {
   auto e = edges.at(to.GetId());
   if (e.expired()) {
     throw std::runtime_error("Vertex from" + id + " to " + to.GetId() + " does not exists");

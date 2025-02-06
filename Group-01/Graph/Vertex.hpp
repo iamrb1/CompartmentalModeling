@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace cse498 {
+namespace cse {
   class Vertex {
   private:
     std::string id;
@@ -17,14 +17,14 @@ namespace cse498 {
     bool IsConnected(std::shared_ptr<Vertex> destination);
 
     std::string GetId() const { return id; };
-    cse498::Edge &const GetEdge(Vertex &const to);
+    cse::Edge &const GetEdge(Vertex &const to);
 
     friend std::ostream &operator<<(std::ostream &, const Vertex &);
   };
 
-  std::ostream &operator<<(std::ostream &os, const cse498::Vertex &v) {
+  std::ostream &operator<<(std::ostream &os, const cse::Vertex &v) {
     os << "Vertex(" << v.id << ")";
     return os;
   }
 
-} // namespace cse498
+} // namespace cse
