@@ -10,7 +10,7 @@
  * add str into the set named m_elements
  * @param str
  */
-void StringSet::insert(const std::string& str)
+void cse::StringSet::insert(const std::string& str)
 {
     m_elements.insert(str);
 }
@@ -20,7 +20,7 @@ void StringSet::insert(const std::string& str)
  * erase str from m_elements
  * @param str
  */
-void StringSet::erase(const std::string &str)
+void cse::StringSet::erase(const std::string &str)
 {
     m_elements.erase(str);
 }
@@ -28,7 +28,7 @@ void StringSet::erase(const std::string &str)
 /**
  * make m_elements empty
  */
-void StringSet::clear()
+void cse::StringSet::clear()
 {
     m_elements.clear();
 }
@@ -38,7 +38,7 @@ void StringSet::clear()
  * return size of m_elements
  * @return
  */
-size_t StringSet::size() const
+size_t cse::StringSet::size() const
 {
     return m_elements.size();
 }
@@ -47,7 +47,7 @@ size_t StringSet::size() const
  * check if m_elements is empty
  * @return
  */
-bool StringSet::empty() const
+bool cse::StringSet::empty() const
 {
     return m_elements.empty();
 }
@@ -58,7 +58,7 @@ bool StringSet::empty() const
  * @param other
  * @return
  */
-StringSet StringSet::Union(const StringSet& other)const
+StringSet cse::StringSet::Union(const StringSet& other)const
 {
     StringSet result; //create new set result
 
@@ -81,7 +81,7 @@ StringSet StringSet::Union(const StringSet& other)const
  * @param other
  * @return
  */
-StringSet StringSet::Intersection(const StringSet& other)const
+StringSet cse::StringSet::Intersection(const StringSet& other)const
 {
     StringSet result; // new set result
 
