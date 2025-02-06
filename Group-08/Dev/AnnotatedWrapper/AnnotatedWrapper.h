@@ -3,24 +3,25 @@
 
 #include <iostream>
 #include <map>
+#include <any>
 
 class AnnotatedWrapper {
 public:
     // Constructor
-    AnnotatedWrapper();
+    AnnotatedWrapper() = default;
 
     // Destructor
-    ~AnnotatedWrapper();
+    ~AnnotatedWrapper() = default;
 
     // Public methods
-    void addAnnotation( int key, int value);
-    int getAnnotation(int key);
-    void removeAnnotation(int key);
+    void addAnnotation( std::string key, std::any value);
+    std::any getAnnotation(std::string key);
+    void removeAnnotation(std::string key);
     void listAnnotations();
     void clearAnnotations();
 
 private:
-    std::map<int, int> annotations;
+    std::unordered_map<std::string, std::any> annotations;
 
 };
 

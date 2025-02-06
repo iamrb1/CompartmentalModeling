@@ -1,37 +1,34 @@
 // AnnotatedWrapper.cpp
 #include "AnnotatedWrapper.h"
 
-// Constructor implementation
-AnnotatedWrapper::AnnotatedWrapper() {
-    // Initialization code
-}
-
-// Destructor implementation
-AnnotatedWrapper::~AnnotatedWrapper() {
-    // Cleanup code
-}
-
-
-
-void AnnotatedWrapper::addAnnotation(int key, int value) {
+void AnnotatedWrapper::addAnnotation(std::string key, std::any value) {
     annotations[key] = value;
     // Method code
 }
 
-int AnnotatedWrapper::getAnnotation(int key) {
-    return annotations[key];
-    // Method code
+/// used ChatGPT on this function
+std::any AnnotatedWrapper::getAnnotation(std::string key) {
+    auto it = annotations.find(key);
+    if (it != annotations.end()) {
+        return it->second;  // Return the stored std::any directly
+    }
+    return std::any{};
+    
 }
 
-void AnnotatedWrapper::removeAnnotation(int key) {
+void AnnotatedWrapper::removeAnnotation(std::string key) {
     // Method code
     annotations.erase(key);
 }
 
 void AnnotatedWrapper::listAnnotations() {
     // Method code
+    for (auto const& [key, val] : annotations) {
+        std::cout << key << " : " << std::any_cast<std::string>(val) << std::endl;
+    }
 }
 
 void AnnotatedWrapper::clearAnnotations() {
     // Method code
+    annotations.clear();
 }
