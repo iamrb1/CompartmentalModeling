@@ -2,7 +2,7 @@
 #include <iostream>
 
 int main() {
-    StringSet set1, set2;
+    cse::StringSet set1, set2;
 
     set1.insert("yellow");
     set1.insert("blue");
@@ -15,10 +15,10 @@ int main() {
     std::cout << "Size for set1: " << set1.size() << "(yellow, blue and black)" << std::endl;
     std::cout << "Size for set2: " << set2.size() << "(yellow, blue and purple)" << std::endl;
 
-    StringSet setUnion = set1.Union(set2);
+    cse::StringSet setUnion = set1.Union(set2);
     std::cout << "Size of Union Set: " << setUnion.size() << "(yellow, blue, black and purple)" << std::endl;
 
-    StringSet setIntersection = set1.Intersection(set2);
+    cse::StringSet setIntersection = set1.Intersection(set2);
     std::cout << "Size of Intersection set: " << setIntersection.size() << "(yellow and blue)" << std::endl;
 
     set1.clear();
