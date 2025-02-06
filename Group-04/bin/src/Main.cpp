@@ -1,5 +1,4 @@
 #include <app/BVTest.hpp>
-#include <cse/BitVector.hpp>
 #include <iostream>
 
 int main() {

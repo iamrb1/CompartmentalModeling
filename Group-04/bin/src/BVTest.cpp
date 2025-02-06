@@ -179,15 +179,15 @@ void test_bitvect_2() {
       for (uint16_t k = 0; k < 7; ++k) {
         if (((i >> k) & 1) == 1) {
           d[k] = true;
-          c2[k] = true;
-        }
+        } 
       }
 
       for (uint16_t k = 0; k < 4; ++k) {
         if (((j >> k) & 1) == 1) {
           e[k] = true;
           c2[k] = true;
-        }
+        } else if (d[k])
+          c2[k] = true;
       }
 
       e |= d;
@@ -354,8 +354,21 @@ void test_bitvect_3() {
   std::cout << TEST_GUARD;
 }
 
+void test_bitvect_4() {
+  cse::BitVector a(16);
+  cse::BitVector b(7);
+
+  a.set();
+  b.set();
+
+
+}
+
 void test_bitvect() {
   test_bitvect_1();
   test_bitvect_2();
   test_bitvect_3();
+  test_bitvect_4();
 }
+
+
