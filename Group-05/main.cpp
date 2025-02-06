@@ -1,6 +1,8 @@
 #include "src/DataGrid.h"
 #include "src/Datum.h"
+#include "src/CSVfile.h"
 #include <iostream>
+#include <fstream>
 #include <typeinfo>
 
 // TODO - Improve and move test cases. Will need a testing framework (Probably
@@ -127,6 +129,52 @@ int main() {
   std::cout << "\n[8] Delete Column 0\n";
   grid.DeleteColumn(0);
   std::cout << grid;
+
+  // Test: CSVFile::LoadCsv
+  std::cout << "\n[9] Testing CSVFile::LoadCsv\n";
+
+  // Create a test input CSV file
+  std::ofstream test_input("test_input.csv");
+  test_input << "Name,Age,Score\n";
+  test_input << "Alice,30,95.5\n";
+  test_input << "Bob,25,88.0\n";
+  test_input.close();
+
+  // Load the test CSV file into a DataGrid
+  cse::DataGrid grid;
+  try {
+    grid = cse::CSVFile::LoadCsv("test_input.csv");
+    std::cout << "Loaded DataGrid:\n";
+    std::cout << grid;
+  } catch (const std::exception &e) {
+    std::cerr << "Failed to load CSV: " << e.what() << std::endl;
+  }
+
+  // Test: CSVFile::ExportCsv
+  std::cout << "\n[10] Testing CSVFile::ExportCsv\n";
+
+  // Modify the grid for export testing
+  grid.GetRow(0)[0].SetStringValue("Charlie");
+  grid.GetRow(1)[2].SetDoubleValue(91.0);
+
+  // Export the modified grid to a new CSV file
+  try {
+    bool success = cse::CSVFile::ExportCsv("test_output.csv", grid);
+    if (success) {
+      std::cout << "Exported DataGrid to test_output.csv successfully.\n";
+
+      // Print the exported CSV file content
+      std::ifstream test_output("test_output.csv");
+      std::string line;
+      std::cout << "Exported CSV content:\n";
+      while (std::getline(test_output, line)) {
+        std::cout << line << "\n";
+      }
+      test_output.close();
+    }
+  } catch (const std::exception &e) {
+    std::cerr << "Failed to export CSV: " << e.what() << std::endl;
+  }
 
   return 0;
 }
