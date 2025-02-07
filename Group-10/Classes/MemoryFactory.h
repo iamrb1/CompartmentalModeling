@@ -6,19 +6,17 @@ Date: 1/31/2025
 ------------------------------------------ */
 
 #include <list>
-#include <set>
 
 #ifndef MEMORYFACTORY_H
 #define MEMORYFACTORY_H
 namespace cse {
-  /**
-   * @brief A Class designed to allocate objects in bulk in order to speed up
-   * processes
-   * @tparam Object A templated object pointing to the factory type
-   */
-  template <typename Object>
-  class MemoryFactory {
-
+/**
+ * @brief A Class designed to allocate objects in bulk in order to speed up
+ * processes
+ * @tparam Object A templated object pointing to the factory type
+ */
+template <typename Object>
+class MemoryFactory {
   /// @brief Default size of the MemoryFactory
   int allocationSize = 10;
 
@@ -29,7 +27,7 @@ namespace cse {
   typename std::list<Object*>::iterator reservedPoint = allocatedBlock.begin();
 
   /// @brief Int indicating how many free objects are left
-  int freeSpace = allocationSize;
+  int reservedObjects = 0;
 
  public:
   /**
@@ -67,29 +65,34 @@ namespace cse {
     /* TODO: Check if all space is taken by checking freeSpace before returning
      * a pointer. If so, return exception
      */
+    // TODO: Doublecheck pointer use after Allocation
     Object* currentChoice = *reservedPoint;
     reservedPoint++;
-    freeSpace--;
+    reservedObjects++;
     return currentChoice;
   }
 
   void Deallocate(Object* targetObject) {
     assert(targetObject != nullptr);
     /* Rough Idea: Save the object pointer, iterate over list to find it's
-     * location Erase the object dereference the object pointer and append it to
-     * the list if the iterator points at end() before you append, make sure it
-     * is set to the new element
+     * location.
+     * Erase the object, dereference the object pointer and append it to
+     * the list.
+     * if the iterator points at end() before you append, make sure it
+     * is set to the new element.
      * Finally, increment freeSpace */
-    for (Object& object : allocatedBlock) {
-      if (&object == targetObject) {
-        allocatedBlock.erase(object);
-        allocatedBlock.push_back(object);
+    for (auto iterator = allocatedBlock.begin();
+         iterator != allocatedBlock.end(); iterator++) {
+      if (*iterator == targetObject) {
+        allocatedBlock.erase(iterator);
+        allocatedBlock.push_back(targetObject);
         break;
       }
+      reservedObjects--;
     }
   }
 
-  int GetSpace() { return freeSpace; }
+  int GetSpace() { return allocationSize - reservedObjects; }
 };
-}
+}  // namespace cse
 #endif  // MEMORYFACTORY_H
