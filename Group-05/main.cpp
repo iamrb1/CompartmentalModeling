@@ -128,58 +128,58 @@ int main() {
   cse::DataGrid grid;
 
   std::cout << "\n[1] Insert Rows\n";
-  grid.InsertRow(0);
-  grid.InsertRow(1);
-  std::cout << grid;
+  // grid.InsertRow(0);
+  // grid.InsertRow(1);
+  // std::cout << grid;
 
-  std::cout << "\n[2] Insert Columns\n";
-  grid.InsertColumn(0);
-  grid.InsertColumn(1);
-  std::cout << grid;
+  // std::cout << "\n[2] Insert Columns\n";
+  // grid.InsertColumn(0);
+  // grid.InsertColumn(1);
+  // std::cout << grid;
 
-  std::cout << "\n[3] Modify Values (String and Double)\n";
-  grid[0][0] = cse::Datum("Hello");
-  grid[0][1] = cse::Datum(3.14);
-  grid[1][0] = cse::Datum(42);
-  grid[1][1] = cse::Datum("World");
-  std::cout << grid;
+  // std::cout << "\n[3] Modify Values (String and Double)\n";
+  // grid[0][0] = cse::Datum("Hello");
+  // grid[0][1] = cse::Datum(3.14);
+  // grid[1][0] = cse::Datum(42);
+  // grid[1][1] = cse::Datum("World");
+  // std::cout << grid;
 
-  std::cout << "\n[4] Convert Values (String to Double and Vice Versa)\n";
-  grid[0][1].AsString();
-  grid[1][0].AsString();
-  grid[0][0].AsDouble();
-  grid[1][1].AsDouble();
-  std::cout << grid;
+  // std::cout << "\n[4] Convert Values (String to Double and Vice Versa)\n";
+  // grid[0][1].AsString();
+  // grid[1][0].AsString();
+  // grid[0][0].AsDouble();
+  // grid[1][1].AsDouble();
+  // std::cout << grid;
 
-  std::cout << "\n[5] Get Row 1\n";
-  auto row = grid.GetRow(1);
-  for (const auto &datum : row) {
-    if (datum.IsString()) {
-      std::cout << datum.GetString().value() << " ";
-    } else if (datum.IsDouble()) {
-      std::cout << datum.GetDouble().value() << " ";
-    }
-  }
-  std::cout << "\n";
+  // std::cout << "\n[5] Get Row 1\n";
+  // auto row = grid.GetRow(1);
+  // for (const auto &datum : row) {
+  //   if (datum.IsString()) {
+  //     std::cout << datum.GetString().value() << " ";
+  //   } else if (datum.IsDouble()) {
+  //     std::cout << datum.GetDouble().value() << " ";
+  //   }
+  // }
+  // std::cout << "\n";
 
-  std::cout << "\n[6] Get Column 0\n";
-  auto col = grid.GetColumn(0);
-  for (const auto &datum : col) {
-    if (datum.IsString()) {
-      std::cout << datum.GetString().value() << " ";
-    } else if (datum.IsDouble()) {
-      std::cout << datum.GetDouble().value() << " ";
-    }
-  }
-  std::cout << "\n";
+  // std::cout << "\n[6] Get Column 0\n";
+  // auto col = grid.GetColumn(0);
+  // for (const auto &datum : col) {
+  //   if (datum.IsString()) {
+  //     std::cout << datum.GetString().value() << " ";
+  //   } else if (datum.IsDouble()) {
+  //     std::cout << datum.GetDouble().value() << " ";
+  //   }
+  // }
+  // std::cout << "\n";
 
-  std::cout << "\n[7] Delete Row 0\n";
-  grid.DeleteRow(0);
-  std::cout << grid;
+  // std::cout << "\n[7] Delete Row 0\n";
+  // grid.DeleteRow(0);
+  // std::cout << grid;
 
-  std::cout << "\n[8] Delete Column 0\n";
-  grid.DeleteColumn(0);
-  std::cout << grid;
+  // std::cout << "\n[8] Delete Column 0\n";
+  // grid.DeleteColumn(0);
+  // std::cout << grid;
 
   return 0;
 }
