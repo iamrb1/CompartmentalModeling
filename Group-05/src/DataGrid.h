@@ -55,6 +55,18 @@ class DataGrid {
   }
 
   /**
+ * @brief Retrieves a row from the DataGrid in a read-only manner.
+ *
+ * Allows access to a specific row without modifying the DataGrid.
+ * 
+ * @param row_index Index of the row to retrieve.
+ * @return A const reference to the indexed vector row from the DataGrid.
+ */
+const row_t& GetRow(const std::size_t row_index) const {
+  return mGrid.at(row_index);
+}
+
+  /**
    * @brief Get Datum value from DataGrid
    * @param row_index Index of the row
    * @param column_index Index of the column
