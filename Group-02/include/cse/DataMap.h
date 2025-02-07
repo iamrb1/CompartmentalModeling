@@ -10,6 +10,7 @@
 #include <any>
 #include <typeinfo>
 #include <iostream>
+#include <stdexcept>
 
 namespace cse
 {
@@ -34,23 +35,26 @@ public:
      */
     template<typename T> T get(const std::string &name)
     {
-        if(keyContain(name))
+        if(contains(name))
         {
             const std::any &val = m_map[name];
             if(val.type() == typeid(T))
             {
                 return std::any_cast<T>(m_map[name]);
             }
-            std::cerr << "Wrong Type Provided by User in DataMap.get()" << std::endl;
-            return T{};
+            throw(std::runtime_error("Wrong type requested from what is contained within DataMap for key: " + name));
         }
         set(name, T{});
         return T{};
     }
 
-    bool keyContain(const std::string &name);
+    bool contains(const std::string &name);
 
-    void delKey(const std::string &name);
+    /**
+     * Delete a key from the map
+     * @param name key to be deleted
+     */
+    void key_delete(const std::string &name) { m_map.erase(name); }
 
     /**
      * Clear the DataMap
