@@ -1,0 +1,5 @@
+This is a NORMAL log message.
+This is a DEBUG log message.
+This is a NORMAL log message.
+This is a DEBUG log message.
+Console message

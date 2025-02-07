@@ -22,11 +22,30 @@ private:
     std::ofstream logFile;
 
 public:
-    OutputLog(LogLevel logLevel, const std::string& filename = "log.txt");  // Constructor
+    OutputLog(LogLevel logLevel, const std::string& filename) : level(logLevel) {
+    logFile.open(filename, std::ios::app); // Open file in append mode
+    if (!logFile) {
+        std::cerr << "Error: Could not open log file!" << std::endl;
+    }
+}
     
-    ~OutputLog();  // Destructor
+    ~OutputLog() {
+    if (logFile.is_open()) {
+        logFile.close();
+    }
+}
 
-    void log(const std::string& message, LogLevel msgLevel);
+    void log(const std::string& message, LogLevel msgLevel) {
+    if (msgLevel == LogLevel::DEBUG && level != LogLevel::DEBUG) {
+        return; // Ignore DEBUG messages if logging level is NORMAL
+    }
+
+    std::cout << message << std::endl; // Print to console
+
+    if (logFile.is_open()) {
+        logFile << message << std::endl; // Write to file
+    }
+}
 };
 }
 #endif // OUTPUT_LOG_HPP
