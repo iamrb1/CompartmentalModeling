@@ -16,13 +16,13 @@ int main() {
 
     for (int i = 0; i < iterations; ++i) {
         std::string s = "Hello, World!";
+        std::string s_copy = s; 
+        std::string s_assigned;
+        s_assigned = s; 
 
         std::size_t pos = s.find('!');
-
         char c = s[0];
-
         std::size_t length = s.length();
-
         std::size_t size = s.size();
     }
 
@@ -37,13 +37,13 @@ int main() {
 
     for (int i = 0; i < iterations; ++i) {
         cse::StaticString<128> s("Hello, World!");
+        cse::StaticString<128> s_copy(s);
+        cse::StaticString<128> s_assigned;
+        s_assigned = s;
 
         std::size_t pos = s.find('!');
-
         char c = s[0];
-
         std::size_t length = s.length();
-
         std::size_t size = s.size();
     }
 
