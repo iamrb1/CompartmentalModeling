@@ -21,7 +21,7 @@ int main() {
 //   data_map.set("joe", std::string("p2eo"));
 //   int bob = data_map.get<int>("rahul");
 //   std::cout << "value is" << " " << bob << std::endl;
-//   auto joe = data_map.get<int>("joe");
+//   auto joe = data_map.get<gitint>("joe");
 //   std::cout << "string is" << " " << joe << std::endl;
 //
 //   data_map.erase("joe");
