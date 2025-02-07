@@ -24,7 +24,7 @@ class MemoryFactory {
   std::list<Object*> allocatedBlock;
 
   /// @brief Points to the next available Object
-  typename std::list<Object*>::iterator reservedPoint = allocatedBlock.begin();
+  typename std::list<Object*>::iterator reservedPoint;
 
   /// @brief Int indicating how many free objects are left
   int reservedObjects = 0;
@@ -35,18 +35,20 @@ class MemoryFactory {
    */
   MemoryFactory() {
     for (int i = 0; i <= allocationSize; i++) {
-      Object newObject = new Object;
+      Object* newObject = new Object;
       allocatedBlock.push_back(newObject);
     }
+    reservedPoint = allocatedBlock.begin();
   }
 
   MemoryFactory(int newAllocSize) {
     assert(newAllocSize > 0);
     allocationSize = newAllocSize;
-    for (int i = 0; i <= allocationSize; i++) {
+    for (int i = 0; i < allocationSize; i++) {
       Object* newObject = new Object;
       allocatedBlock.push_back(newObject);
     }
+    reservedPoint = allocatedBlock.begin();
   }
 
   /**
@@ -66,10 +68,10 @@ class MemoryFactory {
      * a pointer. If so, return exception
      */
     // TODO: Doublecheck pointer use after Allocation
-    Object* currentChoice = *reservedPoint;
+    Object* allocatedObject = *reservedPoint;
     reservedPoint++;
     reservedObjects++;
-    return currentChoice;
+    return allocatedObject;
   }
 
   void Deallocate(Object* targetObject) {
@@ -88,8 +90,8 @@ class MemoryFactory {
         allocatedBlock.push_back(targetObject);
         break;
       }
-      reservedObjects--;
     }
+    reservedObjects--;
   }
 
   int GetSpace() { return allocationSize - reservedObjects; }

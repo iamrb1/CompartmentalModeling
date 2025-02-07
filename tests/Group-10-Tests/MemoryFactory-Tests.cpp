@@ -12,5 +12,8 @@ TEST_CASE("Test ", "[base]")
 {
   cse::MemoryFactory<int> intFactory = cse::MemoryFactory<int>(5);
   REQUIRE(intFactory.GetSpace() == 5);
-
+  int* Test = intFactory.Allocate();
+  *Test = 5;
+  REQUIRE(intFactory.GetSpace() == 4);
+  intFactory.Deallocate(Test);
 }
