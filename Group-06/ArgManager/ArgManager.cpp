@@ -48,6 +48,7 @@ bool cse::ArgManager::Has(std::string argv)
             return true;
         }
     }
+    return false;
 }
 
 /**
@@ -64,4 +65,5 @@ std::string cse::ArgManager::GetOption(std::string argv)
             return _argv[i + 1];
         }
     }
+    return "";
 }

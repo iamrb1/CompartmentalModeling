@@ -28,10 +28,6 @@ namespace cse {
         /// List of options that have been given
         std::vector<std::string> _argv;
     };
-    void PrintHelp()
-    {
-        
-    }
 }
 
 #endif //ARGMANAGER__ARGMANAGER_H

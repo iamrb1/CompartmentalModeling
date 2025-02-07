@@ -87,6 +87,9 @@ namespace cse {
     };
 
 }
+
+// Ivan: moved this test to the main.cpp in Group-06 folder
+/*
 int main() {
     cse::CommandLine cmd;
 
@@ -109,4 +112,4 @@ int main() {
     std::cout << "Current state: " << cmd.getState() << std::endl;
 
     return 0;
-}
+}*/
