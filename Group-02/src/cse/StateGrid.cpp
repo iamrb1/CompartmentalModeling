@@ -14,7 +14,7 @@ namespace cse{
  * @param cols cols in grid map
  * @param diff string representing requested difficulty
  */
-StateGrid::StateGrid(size_t rows, size_t cols, std::string& diff) : m_rows(rows), m_cols(cols) {
+StateGrid::StateGrid(size_t rows, size_t cols, const std::string& diff) : m_rows(rows), m_cols(cols) {
   choose_map(diff);
 }
 
