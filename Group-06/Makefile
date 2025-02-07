@@ -13,7 +13,7 @@ all: clean	a.out
 a.out: $(OBJS)
 	$(CC) -g $(OBJS) -o $(OUT) $(LFLAGS)
 
-CommandLine/CommandLine.o: CommandLine/commandLine.cpp
+CommandLine/CommandLine.o: CommandLine/CommandLine.cpp
 	$(CC) $(FLAGS) CommandLine/CommandLine.cpp -o CommandLine/CommandLine.o
 
 StringSet/StringSet.o: StringSet/StringSet.cpp
