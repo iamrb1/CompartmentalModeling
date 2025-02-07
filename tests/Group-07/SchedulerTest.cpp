@@ -1,18 +1,15 @@
 #include <vector>
-#include "../../Group-07/Team07Library/Scheduler.h"
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
+#include "../../Group-07/Team07Library/Scheduler.h"
 
-
-using namespace cse;
-
-TEST_CASE("SchedulerTest", "Construct")
+TEST_CASE("SchedulerTest Construct", "[Scheduler]")
 {
-    Scheduler scheduler;
+    cse::Scheduler scheduler;
 }
 
-TEST_CASE("SchedulerTest", "Add")
+TEST_CASE("SchedulerTest Add", "[Scheduler]")
 {
-    Scheduler scheduler;
+    cse::Scheduler scheduler;
     scheduler.AddProcess(0);
     CHECK(1== scheduler.GetCurrProcesses());
     CHECK(1==scheduler.GetTotalProcesses());
@@ -29,9 +26,9 @@ TEST_CASE("SchedulerTest", "Add")
     CHECK(2== scheduler.GetUniqueProcesses());
 }
 
-TEST_CASE("SchedulerTest", "Remove")
+TEST_CASE("SchedulerTest Remove", "[Scheduler]")
 {
-    Scheduler scheduler;
+    cse::Scheduler scheduler;
 
     scheduler.RemoveProcess(0);
     CHECK(0== scheduler.GetCurrProcesses());
@@ -48,9 +45,9 @@ TEST_CASE("SchedulerTest", "Remove")
     CHECK(2== scheduler.GetUniqueProcesses());
 }
 
-TEST_CASE("SchedulerTest", "Update")
+TEST_CASE("SchedulerTest Update", "[Scheduler]")
 {
-    Scheduler scheduler;
+    cse::Scheduler scheduler;
     scheduler.UpdateProcessCount(1, 12);
     CHECK(12== scheduler.GetCurrProcesses());
     CHECK(12== scheduler.GetTotalProcesses());
@@ -73,9 +70,9 @@ TEST_CASE("SchedulerTest", "Update")
     CHECK(1== scheduler.GetUniqueProcesses());
 }
 
-TEST_CASE("SchedulerTest", "Queue")
+TEST_CASE("SchedulerTest Queue", "[Scheduler]")
 {
-    Scheduler scheduler, scheduler2, scheduler3;
+    cse::Scheduler scheduler, scheduler2, scheduler3;
     CHECK(-1== scheduler.GetNextProcess());
 
     scheduler.AddProcess(1);
