@@ -76,7 +76,7 @@ class StaticString {
     /**
      * @brief Assignment operator for Static String.
      *
-     * @param other Referance to Static String object to be assigned.
+     * @param staticString Referance to Static String object to be assigned.
      * @return StaticString& Address of Static String object.
      */
     StaticString& operator=(const StaticString& staticString) {
@@ -114,8 +114,8 @@ class StaticString {
 
     /**
      * @brief Find a character in the string.
-     *
-     * @param ch character to be searched.
+     * 
+     * @param c character to be searched.
      * @return std::size_t Position of the character or npos if not found.
      */
     std::size_t find(char c) const {
