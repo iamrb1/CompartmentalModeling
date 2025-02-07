@@ -152,6 +152,9 @@ void runCommandLine() {
 
 void runArgManager(int argc, char* argv[]) {
     cse::ArgManager args(argc, argv);  // Pass input args into manager for processing.
+    // after run, make command
+    // run "./Lamport.exe --help" this will trigger help arguments
+
     if (args.Has("-h") || args.Has("--help")) {
         args.PrintHelp();
         exit(0);

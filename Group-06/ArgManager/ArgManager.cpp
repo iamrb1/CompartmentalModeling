@@ -73,5 +73,7 @@ std::string cse::ArgManager::GetOption(std::string argv)
 */
 void cse::ArgManager::PrintHelp()
 {
-     
+    std::cout << "--help has been triggered\n";
+    std::cout << "arguments available:\n";
+    std::cout << "[placeholder]" << std::endl;
 }
