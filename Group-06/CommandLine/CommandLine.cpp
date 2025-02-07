@@ -11,7 +11,7 @@ namespace cse {
      * @brief A class for users to create their own command line interface
      * 
      */
-    class commandLine {
+    class CommandLine {
     public:
 
         /**
@@ -88,7 +88,7 @@ namespace cse {
 
 }
 int main() {
-    cse::commandLine cmd;
+    cse::CommandLine cmd;
 
     // Add some commands
     cmd.addCommand("greet", []() { std::cout << "Hello, World!" << std::endl; });
