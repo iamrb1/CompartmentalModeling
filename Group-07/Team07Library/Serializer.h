@@ -21,7 +21,7 @@ namespace cse
     class Serializer
     {
     public:
-        // Constructor: accepts a mode and a reference to an iostream.
+        // Constructor
         Serializer(Mode mode);
         // Generic Serialize and Deserialze method for simple types, based on current mode
         template <typename T>
