@@ -5,8 +5,6 @@
  *
  */
 
-#pragma once
-
 #include "FormattedText.hpp"
 
 #include <algorithm>
