@@ -3,6 +3,8 @@
 #include "src/CSVfile.h"
 #include <iostream>
 #include <fstream>
+#include "src/ReferenceVector.h"
+#include <cmath>
 #include <typeinfo>
 
 // TODO - Improve and move test cases. Will need a testing framework (Probably
@@ -25,12 +27,21 @@ int main() {
   std::cout << "===" << std::endl;
 
   // Update values
-  d2.SetStringValue("newTest");
+  d2 = "newTest";
   std::cout << "Should output the new string value (newTest)"
             << d2.GetString().value() << std::endl;
-  d1.SetDoubleValue(987.987);
+  d1 = 987.987;
   std::cout << "Should output the new double value (987.987)"
             << d1.GetDouble().value() << std::endl;
+
+  cse::Datum d_assignment_test(123);
+  cse::Datum d_assignment_test1(345);
+
+  std::cout << "Original Output (123)"
+            << d_assignment_test.GetDouble().value() << std::endl;
+  d_assignment_test = d_assignment_test1;
+  std::cout << "Output of assignment (345)"
+            << d_assignment_test.GetDouble().value() << std::endl;
 
   std::cout << "===" << std::endl;
 
@@ -63,7 +74,7 @@ int main() {
   std::cout << "Invalid string to double --> Return NaN. Should output 1"
             << std::endl;
   d5.AsDouble();
-  std::cout << isnan(d5.GetDouble().value()) << std::endl;
+  std::cout << std::isnan(d5.GetDouble().value()) << std::endl;
 
   std::cout << "===" << std::endl;
 
@@ -72,6 +83,53 @@ int main() {
   d6.AsString();
   std::cout << "NaN to String: Should have an empty string: "
             << d6.GetString().value() << std::endl;
+
+  cse::Datum d_add(28.421);
+  cse::Datum d_add1(38.32);
+  cse::Datum d_add2("test");
+  cse::Datum d_add3("test2");
+  cse::Datum equal_datum(28.421);
+  cse::Datum equal_datum1("test");
+
+  cse::Datum double_test = d_add + d_add1;
+  std::cout << "Adding two double Datums: " << double_test.GetDouble().value() << std::endl;
+
+  cse::Datum datum_string_test = d_add1 + d_add2;
+  std::cout << "Adding one double and one string Datum: " << datum_string_test.GetDouble().value() << std::endl;
+
+  cse::Datum string_test = d_add2 + d_add3;
+  std::cout << "Adding two string Datums: " << string_test.GetDouble().value() << std::endl;
+
+  std::cout << "Equal Check (1): " << (d_add==equal_datum) << std::endl;
+  std::cout << "Equal Check (0): " << (d_add==d_add1) << std::endl;
+  std::cout << "Equal Check (0): " << (d_add==d_add2) << std::endl;
+  std::cout << "Equal Check (0): " << (d_add2==d_add3) << std::endl;
+  std::cout << "Equal Check (1): " << (d_add2==equal_datum1) << std::endl;
+
+  std::cout << "===" << std::endl;
+
+  // ReferenceVector Tests
+  cse::ReferenceVector refVec;
+  refVec.push_back(d1);
+  refVec.push_back(d2);
+  refVec.push_back(d3);
+
+  std::cout << "ReferenceVector size should be 3: " << refVec.size() << std::endl;
+  std::cout << "First element should be 987.987: " << refVec.front().GetDouble().value() << std::endl;
+  std::cout << "Access to element at will, should be string newTest: " << refVec.at(1).GetString().value() << std::endl;
+  std::cout << "Last element should be the string 987: " << refVec.back().GetString().value() << std::endl;
+
+  // Modify the second element using the Proxy operator=
+  cse::Datum newDatum("UpdatedDatum");
+  refVec[1] = newDatum;
+  std::cout << "Updated second element: " << refVec.at(1).GetString().value() << std::endl;
+
+  refVec.pop_back();
+  std::cout << "ReferenceVector size after pop_back should be 2: " << refVec.size() << std::endl;
+
+  refVec.clear();
+  std::cout << "ReferenceVector size after clear should be 0: " << refVec.size() << std::endl;
+  std::cout << "ReferenceVector empty check should be 1: " << refVec.empty() << std::endl;
 
   std::cout << "=== DataGrid Tests ===\n";
   cse::DataGrid grid;
