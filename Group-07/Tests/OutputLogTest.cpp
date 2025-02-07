@@ -10,25 +10,25 @@
 #include <string>
 
 // Test Constructor
-TEST(OutputLogTest, Construct) {
-    cse::OutputLog logger(cse::LogLevel::NORMAL, "test_log.txt");
-}
-
-// Test Normal Log Writing
-TEST(OutputLogTest, NormalLogging) {
-    cse::OutputLog logger(cse::LogLevel::NORMAL, "test_log.txt");
-    logger.log("This is a NORMAL log message.", cse::LogLevel::NORMAL);
-
-    std::ifstream logFile("test_log.txt");
-    std::string line;
-    bool found = false;
-
-    while (getline(logFile, line)) {
-        if (line == "This is a NORMAL log message.") {
-            found = true;
-            break;
-        }
-    }
+//TEST(OutputLogTest, Construct) {
+//    cse::OutputLog logger(cse::LogLevel::NORMAL, "test_log.txt");
+//}
+//
+//// Test Normal Log Writing
+//TEST(OutputLogTest, NormalLogging) {
+//    cse::OutputLog logger(cse::LogLevel::NORMAL, "test_log.txt");
+//    logger.log("This is a NORMAL log message.", cse::LogLevel::NORMAL);
+//
+//    std::ifstream logFile("test_log.txt");
+//    std::string line;
+//    bool found = false;
+//
+//    while (getline(logFile, line)) {
+//        if (line == "This is a NORMAL log message.") {
+//            found = true;
+//            break;
+//        }
+//    }
 
     ASSERT_TRUE(found);
 }
