@@ -1,4 +1,4 @@
-TEST_NAMES = TestStaticVector
+TEST_NAMES = MemoryFactory-Tests TestStaticVector
 
 # Basic configuration
 FLAGS = -std=c++20 -g -pthread -Wall -Wextra -I../../ -DCATCH_CONFIG_MAIN
