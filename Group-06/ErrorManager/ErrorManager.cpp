@@ -5,6 +5,7 @@
 #include <functional>
 #include <cstdlib>
 #include <stdexcept>
+#include <cstdint>
 
 namespace cse {
     /**

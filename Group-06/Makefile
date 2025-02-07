@@ -4,7 +4,7 @@ OBJS	= ArgManager/ArgManager.o CommandLine/CommandLine.o StringSet/StringSet.o E
 SOURCE	= ArgManager/ArgManager.cpp CommandLine/CommandLine.cpp StringSet/StringSet.cpp ErrorManager.cpp main.cpp
 HEADER	= ArgManager/ArgManager.h Statis_String/StaticString.hpp StringSet/StringSet.h
 OUT	= Lamport.exe
-FLAGS	= -g -c -Wall -Wextra
+FLAGS	= -std=c++23 -g -c -Wall -Wextra
 LFLAGS	= 
 CC	= g++
 
@@ -25,8 +25,6 @@ ErrorManager/ErrorManager.o: ErrorManager/ErrorManager.cpp
 ArgManager/ArgManager.o: ArgManager/ArgManager.cpp
 	$(CC) $(FLAGS) ArgManager/ArgManager.cpp -o ArgManager/ArgManager.o
 
-StaticString/StaticString.o: StaticString/StaticString.cpp
-	$(CC) $(FLAGS) StaticString/StaticString.cpp -o  StaticString/StaticString.o
 main.o: main.cpp
 	$(CC) $(FLAGS) main.cpp
 
