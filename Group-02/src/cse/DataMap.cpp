@@ -15,7 +15,7 @@ namespace cse
  */
 bool DataMap::contains(const std::string &name)
 {
-    if(m_map.find(name) == m_map.end())
+    if((*this).find(name) == (*this).end())
     {
         return false;
     }

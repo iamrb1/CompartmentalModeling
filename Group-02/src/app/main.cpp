@@ -17,13 +17,14 @@ int main() {
   //
 //   cse::DataMap data_map;
 //   data_map.set("rahul", 20);
+//   data_map.set("rahul", 30);
 //   data_map.set("joe", std::string("p2eo"));
 //   int bob = data_map.get<int>("rahul");
 //   std::cout << "value is" << " " << bob << std::endl;
 //   auto joe = data_map.get<int>("joe");
 //   std::cout << "string is" << " " << joe << std::endl;
 //
-//   data_map.key_delete("joe");
+//   data_map.erase("joe");
 //   std::cout << data_map.contains("joe") << std::endl;
 
   // cse::AuditedVector<int> vector;

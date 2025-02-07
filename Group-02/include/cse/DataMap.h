@@ -19,14 +19,13 @@ namespace cse
 /**
  * DataMap Class
  *
+ * Inherited from std::unordered_map
+ *
  */
-class DataMap
+class DataMap : public std::unordered_map<std::string, std::any>
 {
-private:
-    std::unordered_map<std::string, std::any> m_map;
-
 public:
-    template<typename T> void set(const std::string &name, const T &val) { m_map[name] = val; }
+    template<typename T> void set(const std::string &name, const T &val) { (*this)[name] = val; }
 
     /**
      * Get the string key value from the DataMap
@@ -38,10 +37,10 @@ public:
     {
         if(contains(name))
         {
-            const std::any &val = m_map[name];
+            const std::any &val = (*this)[name];
             if(val.type() == typeid(T))
             {
-                return std::any_cast<T>(m_map[name]);
+                return std::any_cast<T>((*this)[name]);
             }
             throw(std::runtime_error("Wrong type requested from what is contained within DataMap for key: " + name));
         }
@@ -51,34 +50,7 @@ public:
 
     bool contains(const std::string &name);
 
-    /**
-     * Delete a key from the map
-     * @param name key to be deleted
-     */
-    void key_delete(const std::string &name) { m_map.erase(name); }
 
-    /**
-     * Clear the DataMap
-     */
-    void clear() { m_map.clear(); }
-
-    /**
-     * Gives the size of the map
-     * @return unsigned long map size
-     */
-    unsigned long size() { return m_map.size(); }
-
-    /**
-     * Emptys the DataMap
-     */
-    int empty() { return m_map.empty(); }
-
-    /**
-     * Returns the count of the keys within the map
-     * @param name key to be found
-     * @return unsigned long # of keys
-     */
-    unsigned long count(const std::string &name) { return m_map.count(name); }
 
 };
 }
