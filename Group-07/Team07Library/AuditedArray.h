@@ -28,7 +28,7 @@ namespace cse{
     int size() const;
     void fill(const T& value);
     bool contains(const T& value) const;
-    size_t indexOf(const T& value) const;
+    int indexOf(const T& value) const;
     T* begin();
     T* end();
     const T* begin() const;
@@ -69,7 +69,8 @@ namespace cse{
 
   template <typename T, size_t Size>
   T& AuditedArray<T, Size>::operator[](int index) {
-    if (index < 0 || index >= Size) {
+    int size_int = static_cast<int>(Size);
+    if (index < 0 || index >= size_int) {
       throw std::out_of_range("Index out of range");
     }
     return data[index];
@@ -90,14 +91,14 @@ namespace cse{
 
   template <typename T, size_t Size>
   void AuditedArray<T, Size>::fill(const T& value) {
-    for (int i = 0; i < Size; i++) {
+    for (size_t i = 0; i < Size; i++) {
       data[i] = value;
     }
   }
 
   template <typename T, size_t Size>
   bool AuditedArray<T, Size>::contains(const T& value) const {
-    for (int i = 0; i < Size; i++) {
+    for (size_t i = 0; i < Size; i++) {
       if (data[i] == value) {
         return true;
       }
@@ -106,8 +107,8 @@ namespace cse{
   }
 
   template <typename T, size_t Size>
-  size_t AuditedArray<T, Size>::indexOf(const T& value) const {
-    for (int i = 0; i < Size; i++) {
+  int AuditedArray<T, Size>::indexOf(const T& value) const {
+    for (size_t i = 0; i < Size; i++) {
       if (data[i] == value) {
         return i;
       }
