@@ -20,8 +20,10 @@ namespace cse {
  */
 class DataGrid {
  private:
+  using row_t = std::vector<Datum>;  // row_t is an alias for a vector of Datums
+
   /// A 2D vector holding datums
-  std::vector<std::vector<Datum>> mGrid;
+  std::vector<row_t> mGrid;
 
  public:
   /**
@@ -35,17 +37,11 @@ class DataGrid {
   ~DataGrid() = default;
 
   /**
-   * @brief Returns the shape of the DataGrid
-   * @return Tuple of (# of rows, # of columns)
-   */
-  std::tuple<const std::size_t, const std::size_t> Shape() const;
-
-  /**
    * @brief Index a row of the DataGrid
    * @param row_index Index of the row
    * @return Indexed vector row from DataGrid
    */
-  std::vector<Datum>& operator[](const std::size_t row_index) {
+  row_t& operator[](const std::size_t row_index) {
     return mGrid.at(row_index);
   }
 
@@ -54,16 +50,9 @@ class DataGrid {
    * @param row_index Index of the row
    * @return Indexed vector row from DataGrid
    */
-  std::vector<Datum>& GetRow(const std::size_t row_index) {
+  row_t& GetRow(const std::size_t row_index) {
     return mGrid.at(row_index);
   }
-
-  /**
-   * @brief Index a column of the DataGrid
-   * @param column_index Index of the column
-   * @return Indexed vector column from DataGrid
-   */
-  std::vector<Datum> GetColumn(std::size_t column_index) const;
 
   /**
    * @brief Get Datum value from DataGrid
@@ -85,6 +74,8 @@ class DataGrid {
     return mGrid.at(row_index).at(column_index);
   }
 
+  std::tuple<const std::size_t, const std::size_t> Shape() const;
+  std::vector<Datum> GetColumn(std::size_t column_index) const;
   void InsertRow(std::size_t row_index);
   void InsertColumn(std::size_t column_index);
   void DeleteRow(std::size_t row_index);
