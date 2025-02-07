@@ -1,14 +1,14 @@
 /**
- * Implementation of StringSet class
- *
- * created by Orhan Aydin
+ * @file StringSet.cpp
+ * @author Orhan Aydin
+ * @brief Implementation of StringSet class
  */
 
 #include "StringSet.h"
 
 /**
- * add str into the set named m_elements
- * @param str
+ * @brief Add str into the set named m_elements
+ * @param str Added to m_elements
  */
 void cse::StringSet::insert(const std::string& str)
 {
@@ -17,8 +17,8 @@ void cse::StringSet::insert(const std::string& str)
 
 
 /**
- * erase str from m_elements
- * @param str
+ * @brief Erase str from m_elements
+ * @param str Deleted from m_elements
  */
 void cse::StringSet::erase(const std::string &str)
 {
@@ -26,7 +26,7 @@ void cse::StringSet::erase(const std::string &str)
 }
 
 /**
- * make m_elements empty
+ * @brief Make m_elements empty
  */
 void cse::StringSet::clear()
 {
@@ -35,8 +35,8 @@ void cse::StringSet::clear()
 
 
 /**
- * return size of m_elements
- * @return
+ * @brief Get the size of set
+ * @return Size of m_elements
  */
 size_t cse::StringSet::size() const
 {
@@ -44,8 +44,8 @@ size_t cse::StringSet::size() const
 }
 
 /**
- * check if m_elements is empty
- * @return
+ * @brief Check if m_elements is empty
+ * @return True if the set is empty, false otherwise
  */
 bool cse::StringSet::empty() const
 {
@@ -54,42 +54,48 @@ bool cse::StringSet::empty() const
 
 
 /**
- * return a new set that contains unique elements from both sets
- * @param other
- * @return
+ * @brief Union of two sets
+ * @param other The second set
+ * @return A new set that contains unique elements from both sets
  */
 cse::StringSet cse::StringSet::Union(const StringSet& other)const
 {
-    StringSet result; //create new set result
+    // Create new set result
+    StringSet result;
 
     for(const auto& str : m_elements)
     {
-        result.insert(str); // add elements in m_elements to result
+        // Add elements in m_elements to result
+        result.insert(str);
     }
 
     for(const auto& str : other.m_elements)
     {
-        result.insert(str); // add elements in other to result
+        // Add elements in other to result
+        result.insert(str);
     }
 
-    return result; // return result
+    return result;
 }
 
 
 /**
- * return a set of common values in 2 sets
- * @param other
- * @return
+ * @brief Intersection of two sets
+ * @param other The second set
+ * @return A set of common values in 2 sets
  */
 cse::StringSet cse::StringSet::Intersection(const StringSet& other)const
 {
-    StringSet result; // new set result
+    // Create new set result
+    StringSet result;
 
-    for(const auto& str : m_elements) // iterate through every element in m_elements
+    // Iterate through every element in m_elements
+    for(const auto& str : m_elements)
     {
-        if(other.m_elements.find(str) != other.m_elements.end()) // check if we have str in other, if we don't .find
-            // returns other.end() iterator, otherwise iterator pointing
-            //to that element
+        // Check if we have str in other, if we don't .find
+        // returns other.end() iterator, otherwise iterator pointing
+        // to that element
+        if(other.m_elements.find(str) != other.m_elements.end())
         {
             result.insert(str);
         }

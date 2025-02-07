@@ -1,9 +1,10 @@
 /**
- * StringSet class created by Orhan Aydin
+ * @file StringSet.h
+ * @author Orhan Aydin
+ * @brief Header file for StringSet class
  */
 
-#ifndef PROJECTCLONE_STRINGSET_H
-#define PROJECTCLONE_STRINGSET_H
+#pragma once
 
 #include <unordered_set>
 #include <string>
@@ -12,6 +13,11 @@
 
 namespace cse{
 class StringSet {
+
+private:
+
+    /// @brief Unordered set of strings
+    std::unordered_set <std::string> m_elements;
 
 public:
 
@@ -29,10 +35,5 @@ public:
 
     StringSet Intersection(const StringSet &other) const;
 
-private:
-    std::unordered_set <std::string> m_elements;
-
 };
 }
-
-#endif //PROJECTCLONE_STRINGSET_H
