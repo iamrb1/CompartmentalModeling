@@ -2,6 +2,8 @@
 #include "Scheduler.h"
 #include "gtest/gtest.h"
 
+using namespace cse;
+
 TEST(SchedulerTest, Construct)
 {
     Scheduler scheduler;
