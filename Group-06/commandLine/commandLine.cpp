@@ -8,7 +8,7 @@
 namespace cse {
 
     /**
-     * @brief A class for managing command line operations
+     * @brief A class for users to create their own command line interface
      * 
      */
     class commandLine {
