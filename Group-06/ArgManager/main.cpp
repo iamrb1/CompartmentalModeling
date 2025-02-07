@@ -6,7 +6,7 @@
 int main(int argc, char *argv[]) {
     cse::ArgManager args(argc, argv);  // Pass input args into manager for processing.
     if (args.Has("-h") || args.Has("--help")) {
-        cse::PrintHelp();
+        args.PrintHelp();
         exit(0);
     }
     // Set a default output filename, then Test if one was specified in the

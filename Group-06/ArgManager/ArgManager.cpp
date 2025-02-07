@@ -10,8 +10,8 @@
 
 /**
  * Constructor for ArgManager
- * @param argc
- * @param argv 
+ * @param argc the amount of arguments
+ * @param argv the list of arguments
  */
 cse::ArgManager::ArgManager(int argc, char *argv[])
 {
@@ -31,13 +31,13 @@ cse::ArgManager::ArgManager(int argc, char *argv[])
  */
 void cse::ArgManager::LoadArgManager()
 {
-
+    
 }
 
 /**
  * Checks if a string is present in the input arguments
- * @param argv 
- * @return
+ * @param argv the string to check for
+ * @return if the string is present in the input arguments
  */
 bool cse::ArgManager::Has(std::string argv)
 {
@@ -53,8 +53,8 @@ bool cse::ArgManager::Has(std::string argv)
 
 /**
  * Find a string and return the next string as the value of the option
- * @param argv
- * @return
+ * @param argv the string to find
+ * @return the next string as the value of the option
  */
 std::string cse::ArgManager::GetOption(std::string argv)
 {
@@ -66,4 +66,12 @@ std::string cse::ArgManager::GetOption(std::string argv)
         }
     }
     return "";
+}
+
+/**
+* Prints help info for ArgManager
+*/
+void cse::ArgManager::PrintHelp()
+{
+     
 }

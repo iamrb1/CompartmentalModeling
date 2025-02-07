@@ -18,7 +18,8 @@ namespace cse {
         void LoadArgManager();
         bool Has(std::string argv);
         std::string GetOption(std::string argv);
-
+        void PrintHelp();
+        
     private:
         //store args
 
