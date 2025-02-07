@@ -6,7 +6,7 @@
 // Some parts of this implementation were generated with the assistance of ChatGPT (OpenAI).
 // Date of ChatGPT Assistance: 2/3/2025
 #include "OutputLog.h"
-
+namespace cse {
 OutputLog::OutputLog(LogLevel logLevel, const std::string& filename) : level(logLevel) {
     logFile.open(filename, std::ios::app); // Open file in append mode
     if (!logFile) {
@@ -30,4 +30,5 @@ void OutputLog::log(const std::string& message, LogLevel msgLevel) {
     if (logFile.is_open()) {
         logFile << message << std::endl; // Write to file
     }
+}
 }

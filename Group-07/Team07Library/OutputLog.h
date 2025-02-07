@@ -13,6 +13,7 @@
 #include <string>
 
 // Simple log levels
+namespace cse {
 enum class LogLevel { NORMAL, DEBUG };
 
 class OutputLog {
@@ -27,5 +28,5 @@ public:
 
     void log(const std::string& message, LogLevel msgLevel);
 };
-
+}
 #endif // OUTPUT_LOG_HPP
