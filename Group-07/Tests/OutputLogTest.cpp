@@ -11,13 +11,13 @@
 
 // Test Constructor
 TEST(OutputLogTest, Construct) {
-    OutputLog logger(LogLevel::NORMAL, "test_log.txt");
+    cse::OutputLog logger(cse::LogLevel::NORMAL, "test_log.txt");
 }
 
 // Test Normal Log Writing
 TEST(OutputLogTest, NormalLogging) {
-    OutputLog logger(LogLevel::NORMAL, "test_log.txt");
-    logger.log("This is a NORMAL log message.", LogLevel::NORMAL);
+    cse::OutputLog logger(cse::LogLevel::NORMAL, "test_log.txt");
+    logger.log("This is a NORMAL log message.", cse::LogLevel::NORMAL);
 
     std::ifstream logFile("test_log.txt");
     std::string line;
@@ -36,8 +36,8 @@ TEST(OutputLogTest, NormalLogging) {
 
 // Test Debug Logging (Allowed when LogLevel is DEBUG)
 TEST(OutputLogTest, DebugLoggingAllowed) {
-    OutputLog logger(LogLevel::DEBUG, "test_log.txt");
-    logger.log("This is a DEBUG log message.", LogLevel::DEBUG);
+    cse::OutputLog logger(cse::LogLevel::DEBUG, "test_log.txt");
+    logger.log("This is a DEBUG log message.", cse::LogLevel::DEBUG);
 
     std::ifstream logFile("test_log.txt");
     std::string line;
@@ -60,7 +60,7 @@ TEST(OutputLogTest, DebugLoggingAllowed) {
 TEST(OutputLogTest, DestructorClosesFile) {
     std::string filename = "test_log.txt";
     {
-        OutputLog logger(LogLevel::NORMAL, filename);
+        cse::OutputLog logger(cse::LogLevel::NORMAL, filename);
     }
     std::ifstream testFile(filename);
     ASSERT_TRUE(testFile.good());  // File should be accessible
@@ -68,13 +68,13 @@ TEST(OutputLogTest, DestructorClosesFile) {
 
 // Test Output to Console
 TEST(OutputLogTest, ConsoleOutput) {
-    OutputLog logger(LogLevel::NORMAL, "test_log.txt");
+    cse::OutputLog logger(cse::LogLevel::NORMAL, "test_log.txt");
 
     // Redirect std::cout
     std::stringstream buffer;
     std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
 
-    logger.log("Console message", LogLevel::NORMAL);
+    logger.log("Console message", cse::LogLevel::NORMAL);
 
     // Restore std::cout
     std::cout.rdbuf(oldCout);
