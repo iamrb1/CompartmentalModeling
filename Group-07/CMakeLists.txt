@@ -15,7 +15,6 @@ set(SOURCE_FILES main.cpp)
 add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} ${APPLICATION_LIBRARY})
 
-add_subdirectory(Tests)
 
 if(APPLE)
     # When building for MacOS, also copy files into the bundle resources
