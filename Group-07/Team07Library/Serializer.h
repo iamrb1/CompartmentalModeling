@@ -21,7 +21,7 @@ namespace cse
     class Serializer
     {
     public:
-        // Constructor: accepts a mode and a reference to an iostream.
+        // Constructor
         Serializer(Mode mode);
         // Generic Serialize and Deserialze method for simple types, based on current mode
         template <typename T>
@@ -34,6 +34,8 @@ namespace cse
 
 namespace cse
 {
+    Serializer::Serializer(Mode mode)
+        : mode_(mode) {}
     template <typename T>
     void Serializer::Serialize(T &data, const std::string &filename)
     {

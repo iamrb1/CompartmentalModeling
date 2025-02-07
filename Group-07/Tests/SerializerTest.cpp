@@ -66,3 +66,16 @@ TEST(SerializerTest, Load)
     ASSERT_EQ(P1.age, P2.age);
     ASSERT_EQ(P1.height, P2.height);
 }
+
+TEST(SerializerTest, Int)
+{
+    cse::Serializer Saver(cse::Mode::SAVE);
+    cse::Serializer Loader(cse::Mode::LOAD);
+    int P1 = 42;
+    std::string TestP1 = "TestP1.bin";
+    int P2 = -1;
+    Saver.Serialize(P1, TestP1);
+    ASSERT_EQ(P2, -1);
+    Loader.Serialize(P2, TestP1);
+    ASSERT_EQ(P2, 42);
+}
