@@ -2,7 +2,7 @@
  * @file main.cpp
  * @author Nitish Maindoliya
  */
-
+#include <cse/StateGrid.h>
 #include <cse/ActionMap.h>
 #include <iostream>
 #include <cse/DataMap.h>
