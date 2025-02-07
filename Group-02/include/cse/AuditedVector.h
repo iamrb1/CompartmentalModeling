@@ -66,6 +66,12 @@ namespace cse {
             return base_t::back();
         }
 
+        void pop_back() {
+            if (this->empty()) {
+                throw std::out_of_range("cse::vector: pop_back() called on empty vector");
+            }
+            base_t::pop_back();
+        }
     };
 
 #endif
