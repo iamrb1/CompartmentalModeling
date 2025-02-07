@@ -34,6 +34,8 @@ namespace cse
 
 namespace cse
 {
+    Serializer::Serializer(Mode mode)
+        : mode_(mode) {}
     template <typename T>
     void Serializer::Serialize(T &data, const std::string &filename)
     {
