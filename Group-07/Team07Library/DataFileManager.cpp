@@ -4,10 +4,12 @@
 
 namespace cse {
     // Load in path to file as a string
-    DataFileManager::DataFileManager(const std::string& path) : filePath(path) {}
-
+    // DataFileManager::DataFileManager(const std::string& path) : filePath(path) {}
+    // DataFileManager::DataFileManager(const std::string& path) : filePath(path) {
+    //    std::cout << "DataFileManager constructor called with path: " << path << std::endl;
+    // }
     // Open CSV file based on location (path variable)
-    void DataFileManager::openFile() {
+    void DataFileManager::openFile(const std::string& path) {
         // Handles CSV Case, https://en.cppreference.com/w/cpp/string/basic_string/find_last_of
         if (filePath.substr(filePath.find_last_of(".") + 1) == "csv") {
         	std::cout << "File has .csv extension." << std::endl;
