@@ -199,11 +199,11 @@ int main() {
   test_input.close();
 
   // Load the test CSV file into a DataGrid
-  cse::DataGrid grid;
+  cse::DataGrid data_grid;
   try {
-    grid = cse::CSVFile::LoadCsv("test_input.csv");
+    data_grid = cse::CSVFile::LoadCsv("test_input.csv");
     std::cout << "Loaded DataGrid:\n";
-    std::cout << grid;
+    std::cout << data_grid;
   } catch (const std::exception &e) {
     std::cerr << "Failed to load CSV: " << e.what() << std::endl;
   }
@@ -211,13 +211,13 @@ int main() {
   // Test: CSVFile::ExportCsv
   std::cout << "\n[10] Testing CSVFile::ExportCsv\n";
 
-  // Modify the grid for export testing
-  grid.GetRow(0)[0].SetStringValue("Charlie");
-  grid.GetRow(1)[2].SetDoubleValue(91.0);
+  // Modify the data_grid for export testing
+  data_grid.GetRow(0)[0] = "Charlie";
+  data_grid.GetRow(1)[2] = 91.0;
 
-  // Export the modified grid to a new CSV file
+  // Export the modified data_grid to a new CSV file
   try {
-    bool success = cse::CSVFile::ExportCsv("test_output.csv", grid);
+    bool success = cse::CSVFile::ExportCsv("test_output.csv", data_grid);
     if (success) {
       std::cout << "Exported DataGrid to test_output.csv successfully.\n";
 
