@@ -28,17 +28,17 @@ class StateGridPosition
 private:
 
     ///The orientation in degrees
-    double object_orientation = 0;
+    double m_object_orientation = 0;
 
-    Point object_position;
+    Point m_object_position;
 
-    Point central_position;
+    Point m_central_position;
 
     ///The state grid this position is referring to
-    StateGrid *state_grid = nullptr;
+    StateGrid *m_state_grid = nullptr;
 
 public:
-    Point createPoint(int x, int y)
+    Point create_point(int x, int y)
     {
         Point p;
         p.x = x;
@@ -47,26 +47,26 @@ public:
     }
 
     ///Get the stategrid this position is associated with
-    StateGrid *Getstategrid() { return state_grid; }
+    StateGrid *get_state_grid() { return m_state_grid; }
 
     ///Possibly getState, but can be done in only necessary places as well
 
     ///Get central position of the stategrid
-    Point Getgridposition() { return central_position; }
+    Point get_grid_position() { return m_central_position; }
 
     ///Get the position of the object this stategrid is associated with
-    Point Getobjectposition() { return object_position; }
+    Point get_object_position() { return m_object_position; }
 
     ///Set position of object this stategrid is associated with
-    void Setobjectposition(double x, double y) { object_position = createPoint(x, y); }
+    void set_object_position(double x, double y) { m_object_position = create_point(x, y); }
 
-    double Getobjectorientation();
+    double get_object_orientation();
 
     ///Set the object's orientation, 0-359 degrees
-    void Setobjectorientation(double orientation) { object_orientation = orientation; }
+    void set_object_orientation(double orientation) { m_object_orientation = orientation; }
 
     ///Calculates the object's position, still working on specs
-    Point Calculateobjectposition();
+    Point calculate_object_position();
 };
 }
 
