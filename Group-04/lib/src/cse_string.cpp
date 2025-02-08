@@ -12,7 +12,7 @@ String &String::operator=(const std::string &other) {
 }
 
 char &String::operator[](std::size_t pos) {
-#ifdef DEBUG
+#ifndef NDEBUG
     if (pos >= size()) {
         throw std::out_of_range("cse::String index out of range");
     }
@@ -21,7 +21,7 @@ char &String::operator[](std::size_t pos) {
 }
 
 const char &String::operator[](std::size_t pos) const {
-#ifdef DEBUG
+#ifndef NDEBUG
     if (pos >= size()) {
         throw std::out_of_range("cse::String index out of range");
     }
