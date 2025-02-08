@@ -33,19 +33,10 @@ class EventManager {
 
  public:
   EventManager() = default;
-  ~EventManager(){
-    StopQueue();
-  };
-  /********Member functions that handles event adjustments******/
-  ///Adds event_id to a set of paused ids.
+  ~EventManager(){ StopQueue();};
   bool PauseEvent(int event_id);
-  ///Removes event_id from a paused set.
   bool ResumeEvent(int event_id);
-  ///Adds event to the queue.
   bool AddEvent(cse::Event& event);
-
-
-  /********Member functions that handles queue adjustments***********/
   void StopQueue();
   void StartQueue();
   void RestartQueue();
