@@ -5,6 +5,9 @@
 #include <unordered_map>
 
 /**
+ * @author Joanna Rodriguez Zamarron
+ * @file RandomAccessSet.h
+ * 
  * RandomAccessSet: A hybrid data structure combining unique element storage (like a set)
  * with index-based access (like a vector).
  * 
