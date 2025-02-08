@@ -31,5 +31,6 @@
 *.out
 *.app
 
-# macOS system files
+# macOS system files & local settings files
 .DS_Store
+.vscode/settings.json

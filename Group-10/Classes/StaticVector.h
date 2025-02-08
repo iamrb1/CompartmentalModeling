@@ -1,3 +1,10 @@
+/* --- StaticVector.h --- */
+
+/* ------------------------------------------
+Author: Alex Mueller 
+Date: 2/7/2025
+------------------------------------------ */
+
 #ifndef STATICVECTOR_H
 #define STATICVECTOR_H
 
