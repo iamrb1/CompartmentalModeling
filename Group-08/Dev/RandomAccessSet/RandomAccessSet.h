@@ -38,11 +38,14 @@ public:
     // Retrieves an element by index
     T get(size_t index) const;
 
-    // Removes an element (not implemented yet)
+    // Removes an element
     bool remove(const T& item);
 
     // Returns the size of the set
     size_t size() const;
+
+    // Returns the index if element is known
+    size_t getIndexOf(const T& item) const;
 };
 
 #include "RandomAccessSet.cpp"

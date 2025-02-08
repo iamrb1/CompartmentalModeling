@@ -45,11 +45,42 @@ size_t RandomAccessSet<T>::size() const {
     return elements.size();
 }
 
+template <typename T>
+size_t RandomAccessSet<T>::getIndexOf(const T& item) const {
+    auto it = std::find(elements.begin(), elements.end(), item);
+
+    if (it == elements.end()) {
+        throw std::out_of_range("Item not found.");
+    }
+
+    return  it - elements.begin();
+}
+
+
 /**
- * (Not Finished Yet) Removes an element from the set.
- * - Will require reordering elements in the vector and updating the map.
+ * Removes an element from the set.
+ * - Includes a multiple step process of finding the index in the map, remove it from map, and then elements vector.
+ * - Prioritizes runtime by doing a swap instead of a direct delete and reshuffling.
  */
 template <typename T>
 bool RandomAccessSet<T>::remove(const T& item) {
-    return false; // Placeholder for now
+    auto it = indexMap.find(item);
+    
+    if (it == indexMap.end()) {
+        return false;  // Item not found
+    }
+
+    size_t index = it->second;  // Get the index of the item
+    size_t lastIndex = elements.size() - 1;  // Last element's index
+
+    if (index != lastIndex) {  // If it's not the last item, swap with the last
+        std::swap(elements[index], elements[lastIndex]);  // Swap element with the last
+        indexMap[elements[index]] = index;  // Update index in the map
+    }
+
+    elements.pop_back();  // Remove last element (which is now the unwanted one)
+    indexMap.erase(it);   // Remove from the map
+
+    return true;  // Removal successful
 }
+
