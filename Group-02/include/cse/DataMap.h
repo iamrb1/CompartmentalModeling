@@ -43,8 +43,8 @@ class DataMap {
   * @param key
   * @return
   */
-  std::any operator[](const std::string& name) {
-    return m_map[name];
+  std::any& operator[](const std::string& key) {
+    return m_map[key];
   }
 
   /**
@@ -86,7 +86,7 @@ class DataMap {
     * Gives the size of the map
     * @return unsigned long map size
     */
-  unsigned long size() {
+  size_t size() {
     return m_map.size();
   }
 
@@ -102,7 +102,7 @@ class DataMap {
     * @param name key to be found
     * @return unsigned long # of keys
     */
-  unsigned long count(const std::string& name) {
+  size_t count(const std::string& name) {
     return m_map.count(name);
   }
 };

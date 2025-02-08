@@ -12,7 +12,7 @@ set(
     ${PROJECT_SOURCE_DIR}/include/cse/StateGrid.h
     ${PROJECT_SOURCE_DIR}/include/cse/StateGridPosition.h
     ${PROJECT_SOURCE_DIR}/include/cse/AuditedVector.h
-        ${PROJECT_SOURCE_DIR}/include/cse/DataMap.h
+    ${PROJECT_SOURCE_DIR}/include/cse/DataMap.h
 )
 
 set(
@@ -21,7 +21,7 @@ set(
     StateGrid.cpp
     StateGridPosition.cpp
     AuditedVector.cpp
-        DataMap.cpp
+    DataMap.cpp
 )
 
 # Add the library target
@@ -33,6 +33,12 @@ if (BUILD_SHARED_LIBS)
 else ()
   add_library(${LIBRARY_NAME} STATIC ${HEADER_FILES} ${SOURCE_FILES})
 endif ()
+
+# Set default compile flags for GCC
+if (CMAKE_COMPILER_IS_GNUCXX)
+  message(STATUS "GCC detected, adding compile flags")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wpedantic -Wall -Wextra")
+endif (CMAKE_COMPILER_IS_GNUCXX)
 
 # Set the include directories
 target_include_directories(${LIBRARY_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)

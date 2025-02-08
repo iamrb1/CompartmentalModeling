@@ -6,7 +6,7 @@
 #include "cse/StateGrid.h"
 #include <iostream>
 #include <utility>
-namespace cse{
+namespace cse {
 
 /**
  * @brief Contructor for StateGrid object
@@ -17,7 +17,6 @@ namespace cse{
 StateGrid::StateGrid(size_t rows, size_t cols, const std::string& diff) : m_rows(rows), m_cols(cols) {
   choose_map(diff);
 }
-
 
 /**
  * @brief Displays the grid to user
@@ -94,4 +93,4 @@ void StateGrid::choose_map(const std::string& diff) {
     m_grid = maps["test"];
   }
 }
-}
+}  // namespace cse

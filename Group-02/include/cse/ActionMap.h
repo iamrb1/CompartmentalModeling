@@ -10,12 +10,24 @@
 #include <unordered_map>
 
 namespace cse {
-class ActionMap : public std::unordered_map<std::string, std::function<void()>> {
+class ActionMap {
  public:
-  void insert(const std::string& key, const std::function<void()>& value);
+  void insert(const std::string& name, const std::function<void()>& action);
 
-  void trigger(const std::string& key) const;
+  void erase(const std::string& name);
 
-  void remove(const std::string& key);
+  [[nodiscard]] bool contains(const std::string& name) const;
+
+  void clear();
+
+  void invoke(const std::string& name);
+
+  std::function<void()>& operator[](const std::string& name);
+
+  [[nodiscard]] const std::function<void()>& at(const std::string& name);
+
+ private:
+  std::unordered_map<std::string, std::function<void()>> m_actions;
 };
-}  // namespace cse
+
+};  // namespace cse
