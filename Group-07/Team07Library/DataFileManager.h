@@ -8,9 +8,21 @@
 
 namespace cse {
     class DataFileManager {
+    private:
+        std::string filePath;
+        std::string initialFileInfo;
+
+        // Easiest way to store functions is through an unordered map
+        // https://stackoverflow.com/questions/55520876/creating-an-unordered-map-of-stdfunctions-with-any-arguments
+        std::unordered_map<std::string, std::function<void()>> functionMap;
+
+        bool updateFlag = false;
     public:
-        DataFileManager(const std::string& path); // Constructor
-        void openFile();
+        // Constructors
+        DataFileManager() = default;
+        ~DataFileManager() = default;
+
+        void openFile(const std::string& path);
         void update();
         void addFunction(const std::string& name, const std::function<void()>& lambda);
 
@@ -37,15 +49,6 @@ namespace cse {
 
         void closeFile();
 
-    private:
-        std::string filePath;
-        std::string initialFileInfo;
-
-        // Easiest way to store functions is through an unordered map
-        // https://stackoverflow.com/questions/55520876/creating-an-unordered-map-of-stdfunctions-with-any-arguments
-        std::unordered_map<std::string, std::function<void()>> functionMap;
-
-        bool updateFlag = false;
     };
 }
 #endif // DATAFILEMANAGER_H
