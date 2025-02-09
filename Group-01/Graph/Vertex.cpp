@@ -5,24 +5,24 @@
 #include <iostream>
 
 namespace cse {
-  void cse::Vertex::AddEdge(std::shared_ptr<Edge> const &e, cse::Vertex const &destination) {
+  void cse::Vertex::AddEdge(std::shared_ptr<Edge> const &e, std::shared_ptr<cse::Vertex> const &destination) {
     // assert(e->IsConnected(*this, destination));
     // TODO @lspecht: Should we include a check if the edge already exist?
-    this->edges[destination.GetId()] = e;
+    this->edges[destination->GetId()] = e;
   }
 
   void cse::Vertex::AddEdge(std::shared_ptr<Edge> const &e) {
     auto &origin = e->GetFrom();
     auto &destination = e->GetTo();
     AddEdge(e, destination);
-    if (e->IsBidirectional() && !(destination.IsConnected(origin))) {
-      destination.AddEdge(e, origin);
+    if (e->IsBidirectional() && !(destination->IsConnected(origin))) {
+      destination->AddEdge(e, origin);
     }
   }
 
   // TODO @lspecht: Move expiration logic to a single function
-  bool cse::Vertex::IsConnected(cse::Vertex const &destination) {
-    auto it = edges.find(destination.GetId());
+  bool cse::Vertex::IsConnected(std::shared_ptr<cse::Vertex> const &destination) {
+    auto it = edges.find(destination->GetId());
     if (it == edges.end()) {
       return false;
     }
@@ -35,12 +35,12 @@ namespace cse {
     return true;
   }
 
-  cse::Edge const &cse::Vertex::GetEdge(Vertex const &to) {
-    auto e = edges.at(to.GetId());
+  std::shared_ptr<cse::Edge> const cse::Vertex::GetEdge(std::shared_ptr<cse::Vertex> const &to) {
+    auto e = edges.at(to->GetId());
     if (e.expired()) {
-      throw std::runtime_error("Vertex from" + id + " to " + to.GetId() + " does not exists");
+      throw std::runtime_error("Vertex from" + id + " to " + to->GetId() + " does not exists");
     }
-    return *(e.lock());
+    return e.lock();
   }
 
   std::ostream &operator<<(std::ostream &os, const cse::Vertex &v) {

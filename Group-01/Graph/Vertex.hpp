@@ -12,21 +12,21 @@ namespace cse {
     std::string id;
     double x, y = 0;
     std::map<std::string, std::weak_ptr<Edge>> edges{};
-    void AddEdge(std::shared_ptr<Edge> const &e, cse::Vertex const &destination);
+    void AddEdge(std::shared_ptr<Edge> const &e, std::shared_ptr<cse::Vertex> const &destination);
 
   public:
-    // Vertex() = delete;
+    Vertex() = delete;
     Vertex(std::string id) : id(id) {};
     Vertex(std::string id, double x, double y) : id(id), x(x), y(y) {};
 
     void AddEdge(std::shared_ptr<Edge> const &e);
-    bool IsConnected(Vertex const &destination);
+    bool IsConnected(std::shared_ptr<cse::Vertex> const &destination);
 
     std::string GetId() const { return id; };
     double GetX() const { return x; };
     double GetY() const { return y; };
 
-    cse::Edge const &GetEdge(Vertex const &to);
+    std::shared_ptr<cse::Edge> const GetEdge(std::shared_ptr<cse::Vertex> const &to);
 
     friend std::ostream &operator<<(std::ostream &, const Vertex &);
     friend bool operator==(const Vertex &lhs, const Vertex &rhs);

@@ -24,18 +24,18 @@ TEST_CASE("Test cse::Vertex", "[base]")
 
 TEST_CASE("Test cse::Vertex - Edges", "[base] - Edge")
 {
-  cse::Vertex v1("id1");
-  cse::Vertex v2("id2");
-  cse::Vertex v3("id3");
+  auto v1 = std::make_shared<cse::Vertex>("id1");
+  auto v2 = std::make_shared<cse::Vertex>("id2");
+  auto v3 = std::make_shared<cse::Vertex>("id3");
 
   // Single direction edge
   auto e1 = std::make_shared<cse::Edge>("edge1", v1, v2);
-  v1.AddEdge(e1);
-  CHECK(v1.IsConnected(v2));
-  CHECK(!v1.IsConnected(v3));
+  v1->AddEdge(e1);
+  CHECK(v1->IsConnected(v2));
+  CHECK(!v1->IsConnected(v3));
 
   std::shared_ptr<cse::Edge> e2 = std::make_shared<cse::BidirectionalEdge>("edge2", v1, v3);
-  v1.AddEdge(e2);
-  CHECK(v1.IsConnected(v3));
-  CHECK(v3.IsConnected(v1));
+  v1->AddEdge(e2);
+  CHECK(v1->IsConnected(v3));
+  CHECK(v3->IsConnected(v1));
 }

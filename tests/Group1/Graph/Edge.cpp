@@ -9,8 +9,8 @@ using Catch::Matchers::WithinAbs;
 
 TEST_CASE("Test cse::Edge", "[base]")
 {
-  cse::Vertex v1("id1");
-  cse::Vertex v2("id2");
+  auto v1 = std::make_shared<cse::Vertex>("id1");
+  auto v2 = std::make_shared<cse::Vertex>("id2");
 
   auto e1 = std::make_shared<cse::Edge>("edge1", v1, v2);
   CHECK(!e1->IsBidirectional());
