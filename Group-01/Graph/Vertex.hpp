@@ -12,6 +12,7 @@ namespace cse {
     std::string id;
     double x, y = 0;
     std::map<std::string, std::weak_ptr<Edge>> edges{};
+    void AddEdge(std::shared_ptr<Edge> const &e, cse::Vertex const &destination);
 
   public:
     // Vertex() = delete;
@@ -19,7 +20,7 @@ namespace cse {
     Vertex(std::string id, double x, double y) : id(id), x(x), y(y) {};
 
     void AddEdge(std::shared_ptr<Edge> const &e);
-    bool IsConnected(std::shared_ptr<Vertex> destination);
+    bool IsConnected(Vertex const &destination);
 
     std::string GetId() const { return id; };
     double GetX() const { return x; };

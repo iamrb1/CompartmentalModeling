@@ -17,17 +17,20 @@ namespace cse {
     Edge() = delete;
     virtual ~Edge() = default;
     Edge(std::string id, cse::Vertex &from, cse::Vertex &to) : id(id), from(from), to(to) {};
-    bool IsBidirectional() { return false; };
+    virtual bool IsBidirectional() { return false; };
     virtual bool IsConnected(cse::Vertex const &v1, cse::Vertex const &v2) { return v1 == from && v2 == to; };
 
-    cse::Vertex const &GetFrom() { return from; };
-    cse::Vertex const &GetTo() { return to; };
+    cse::Vertex &GetFrom() { return from; };
+    cse::Vertex &GetTo() { return to; };
   };
 
-  class BidirectionalEdge : cse::Edge {
+  class BidirectionalEdge : public cse::Edge {
   public:
+    BidirectionalEdge() = delete;
+    virtual ~BidirectionalEdge() = default;
+    BidirectionalEdge(std::string id, cse::Vertex &from, cse::Vertex &to) : cse::Edge(id, from, to) {};
     // TODO @lspecht: Handle GetFrom and GetTo on bidirectional case
-    bool IsBidirectional() { return true; };
+    bool IsBidirectional() override { return true; };
     bool IsConnected(cse::Vertex const &v1, cse::Vertex const &v2) override {
       return Edge::IsConnected(v1, v2) || Edge::IsConnected(v2, v1);
     };

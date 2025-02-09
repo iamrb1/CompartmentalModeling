@@ -5,16 +5,24 @@
 #include <iostream>
 
 namespace cse {
-  void cse::Vertex::AddEdge(std::shared_ptr<Edge> const &e) {
-    auto destination = e->GetTo();
-    assert(e->IsConnected(*this, destination));
+  void cse::Vertex::AddEdge(std::shared_ptr<Edge> const &e, cse::Vertex const &destination) {
+    // assert(e->IsConnected(*this, destination));
     // TODO @lspecht: Should we include a check if the edge already exist?
-    edges[destination.GetId()] = e;
+    this->edges[destination.GetId()] = e;
+  }
+
+  void cse::Vertex::AddEdge(std::shared_ptr<Edge> const &e) {
+    auto &origin = e->GetFrom();
+    auto &destination = e->GetTo();
+    AddEdge(e, destination);
+    if (e->IsBidirectional() && !(destination.IsConnected(origin))) {
+      destination.AddEdge(e, origin);
+    }
   }
 
   // TODO @lspecht: Move expiration logic to a single function
-  bool cse::Vertex::IsConnected(std::shared_ptr<Vertex> destination) {
-    auto it = edges.find(destination->GetId());
+  bool cse::Vertex::IsConnected(cse::Vertex const &destination) {
+    auto it = edges.find(destination.GetId());
     if (it == edges.end()) {
       return false;
     }
