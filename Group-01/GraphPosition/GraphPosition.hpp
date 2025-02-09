@@ -4,42 +4,32 @@
 #include <vector>
 #include <set>
 #include <stdexcept>
+#include "../Graph/Graph.hpp"
 
 // Forward declaration of Graph. 
 // Likely will have functions like GetNeighbors, HasVertex (bool if vertex exists in graph), GetModificationCount (provides
 // count of # times graph has been modified so GraphPosition can use to detect changes during 
 // traversal), and more. Also assumes Graph class initializes vertices with an ID for easy tracking/position usage.
-class Graph;
 
 namespace cse {
 
-template <class T>
 class GraphPosition {
+    private:
+    const Graph& graph;
+    std::shared_ptr<Vertex> currentVertex;
+    std::set<std::shared_ptr<Vertex>> visitedVertices;
+    std::vector<std::shared_ptr<Vertex>> traversalPath;
+
+    void MarkVisited(std::shared_ptr<Vertex> vertex);
+
+
 public:
-    // Constructor: takes a reference to an existing Graph and a valid starting vertex ID.
-    GraphPosition(const Graph<T>& g, std::string vertexStartID);
+    GraphPosition(const Graph& g, std::shared_ptr<Vertex> startVertex);
 
-    // Returns the current vertex ID.
-    std::string GetCurrentVertex() const;
-
-    // Sets the current vertex ID.
-    void SetCurrentVertex(std::string vertexID);
-
-    // Attempts to advance to an unvisited neighbor.
-    // Returns true if successful; false if no unvisited neighbor exists.
+    std::shared_ptr<Vertex> GetCurrentVertex() const;
+    void SetCurrentVertex(std::shared_ptr<Vertex> vertex);
     bool AdvanceToNextNeighbor();
-
-    // Returns the ordered traversal path.
-    const std::vector<std::string>& GetTraversalPath() const;
-
-private:
-    const Graph<T>& graph;             // Reference to the Graph.
-    std::string currentVertexID;       // Current vertex ID.
-    std::set<std::string> visitedVertices;  // Tracks visited vertices.
-    std::vector<std::string> traversalPath; // Ordered traversal path.
-
-    // Helper function to mark a vertex as visited and record it in the path.
-    void MarkVisited(std::string vertexID);
+    const std::vector<std::shared_ptr<Vertex>>& GetTraversalPath() const;
 };
 
 } // namespace cse

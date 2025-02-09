@@ -2,53 +2,51 @@
 
 namespace cse {
 
-template <class T>
-void GraphPosition<T>::MarkVisited(std::string vertexID) {
-    visitedVertices.insert(vertexID);
-    traversalPath.push_back(vertexID);
+void GraphPosition::MarkVisited(std::shared_ptr<Vertex> vertex) {
+    visitedVertices.insert(vertex);  // Store the actual vertex object
+    traversalPath.push_back(vertex);
 }
 
-template <class T>
-GraphPosition<T>::GraphPosition(const Graph<T>& g, std::string vertexStartID)
-    : graph(g), currentVertexID(vertexStartID)
-{
-    if (!graph.GetVertex(vertexStartID).GetID().empty()) { // Ensure vertex exists
-        MarkVisited(vertexStartID);
-    } else {
-        throw std::invalid_argument("Starting vertex does not exist in the graph.");
+GraphPosition::GraphPosition(const Graph& g, std::shared_ptr<Vertex> startVertex)
+    : graph(g), currentVertex(startVertex) {
+    if (!startVertex) {
+        throw std::invalid_argument("Starting vertex is null.");
     }
+    MarkVisited(startVertex);
 }
 
-template <class T>
-std::string GraphPosition<T>::GetCurrentVertex() const {
-    return currentVertexID;
+std::shared_ptr<Vertex> GraphPosition::GetCurrentVertex() const {
+    return currentVertex;
 }
 
-template <class T>
-void GraphPosition<T>::SetCurrentVertex(std::string vertexID) {
-    if (!graph.GetVertex(vertexID).GetID().empty()) {
-        currentVertexID = vertexID;
-        MarkVisited(vertexID);
-    } else {
-        throw std::invalid_argument("Vertex does not exist in the graph.");
+void GraphPosition::SetCurrentVertex(std::shared_ptr<Vertex> vertex) {
+    if (!vertex) {
+        throw std::invalid_argument("Invalid vertex: nullptr received.");
     }
+    currentVertex = vertex;
+    MarkVisited(currentVertex);
 }
 
-template <class T>
-bool GraphPosition<T>::AdvanceToNextNeighbor() {
-    std::vector<std::string> neighbors = graph.GetVertex(currentVertexID).GetNeighbors();
-    for (const std::string& neighborID : neighbors) {
-        if (visitedVertices.find(neighborID) == visitedVertices.end()) {
-            currentVertexID = neighborID;
-            MarkVisited(neighborID);
-            return true;
+bool GraphPosition::AdvanceToNextNeighbor() {
+    // Get the current vertex's edges
+    for (auto& [neighborID, weakEdge] : currentVertex->edges) {
+        if (auto edge = weakEdge.lock()) { // Lock weak_ptr to access Edge
+            std::shared_ptr<Vertex> neighbor = (edge->GetFrom() == currentVertex) ? edge->GetTo() : edge->GetFrom();
+
+            // If neighbor has not been visited, move to it
+            if (visitedVertices.find(neighbor) == visitedVertices.end()) {
+                currentVertex = neighbor;
+                MarkVisited(currentVertex);
+                return true;
+            }
         }
     }
+
+    // No unvisited neighbors found
     return false;
 }
 
-template <class T>
-const std::vector<std::string>& GraphPosition<T>::GetTraversalPath() const {
+const std::vector<std::shared_ptr<Vertex>>& GraphPosition::GetTraversalPath() const {
     return traversalPath;
 }
 
