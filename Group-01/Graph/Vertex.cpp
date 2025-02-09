@@ -5,22 +5,31 @@
 #include <iostream>
 
 namespace cse {
-  void cse::Vertex::AddEdge(std::shared_ptr<Edge> const &e, std::shared_ptr<cse::Vertex> const &destination) {
-    // assert(e->IsConnected(*this, destination));
-    // TODO @lspecht: Should we include a check if the edge already exist?
+  void cse::Vertex::AddEdge(std::weak_ptr<Edge> const &e, std::shared_ptr<cse::Vertex> const &destination) {
     this->edges[destination->GetId()] = e;
   }
 
-  void cse::Vertex::AddEdge(std::shared_ptr<Edge> const &e) {
-    auto &origin = e->GetFrom();
-    auto &destination = e->GetTo();
-    AddEdge(e, destination);
-    if (e->IsBidirectional() && !(destination->IsConnected(origin))) {
-      destination->AddEdge(e, origin);
+  void cse::Vertex::AddEdge(std::weak_ptr<Edge> const &e) {
+    if (auto edge = e.lock()) {
+      auto &origin = edge->GetFrom();
+      auto &destination = edge->GetTo();
+      AddEdge(e, destination);
+      if (edge->IsBidirectional() && !(destination->IsConnected(origin))) {
+        destination->AddEdge(e, origin);
+      }
     }
   }
 
-  // TODO @lspecht: Move expiration logic to a single function
+  void cse::Vertex::CleanupExpiredEdges() {
+    for (auto it = edges.begin(); it != edges.end();) {
+      if (it->second.expired()) {
+        it = edges.erase(it);
+      } else {
+        ++it;
+      }
+    }
+  }
+
   bool cse::Vertex::IsConnected(std::shared_ptr<cse::Vertex> const &destination) {
     auto it = edges.find(destination->GetId());
     if (it == edges.end()) {
@@ -36,11 +45,12 @@ namespace cse {
   }
 
   std::shared_ptr<cse::Edge> const cse::Vertex::GetEdge(std::shared_ptr<cse::Vertex> const &to) {
-    auto e = edges.at(to->GetId());
-    if (e.expired()) {
-      throw std::runtime_error("Vertex from" + id + " to " + to->GetId() + " does not exists");
+    CleanupExpiredEdges();
+    auto it = edges.find(to->GetId());
+    if (it == edges.end() || it->second.expired()) {
+      throw std::runtime_error("Edge from " + id + " to " + to->GetId() + " does not exist");
     }
-    return e.lock();
+    return it->second.lock();
   }
 
   std::ostream &operator<<(std::ostream &os, const cse::Vertex &v) {

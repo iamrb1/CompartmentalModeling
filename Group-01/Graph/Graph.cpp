@@ -36,7 +36,7 @@ namespace cse {
     return removedVertex;
   }
 
-  std::shared_ptr<cse::Edge> cse::Graph::AddEdge(std::string v1_id, std::string v2_id, bool bidirectional) {
+  std::weak_ptr<cse::Edge> cse::Graph::AddEdge(std::string v1_id, std::string v2_id, bool bidirectional) {
     if (vertices.find(v1_id) == vertices.end() || vertices.find(v2_id) == vertices.end()) {
       throw std::out_of_range("One or both vertices do not exist.");
     }
@@ -51,19 +51,14 @@ namespace cse {
       e = std::make_shared<cse::Edge>(edge_id, vertices[v1_id], vertices[v2_id]);
     }
 
-    // Adding bidirectional edge to one Vertex automatically adds to the second
     GetVertex(v1_id)->AddEdge(e);
     edges[edge_id] = e;
     return e;
   }
 
-  std::shared_ptr<cse::Edge> cse::Graph::AddEdge(std::shared_ptr<cse::Vertex> &v1, std::shared_ptr<cse::Vertex> &v2,
-                                                 bool bidirectional) {
+  std::weak_ptr<cse::Edge> cse::Graph::AddEdge(std::shared_ptr<cse::Vertex> &v1, std::shared_ptr<cse::Vertex> &v2,
+                                               bool bidirectional) {
     return AddEdge(v1->GetId(), v2->GetId(), bidirectional);
-  }
-
-  std::shared_ptr<cse::Edge> cse::Graph::RemoveEdge(std::shared_ptr<cse::Edge> &edge) {
-    return RemoveEdge(edge->GetId());
   }
 
   std::shared_ptr<cse::Edge> cse::Graph::RemoveEdge(std::string const &edge_id) {
@@ -71,23 +66,32 @@ namespace cse {
     if (it == edges.end()) {
       throw std::out_of_range("Edge does not exist: " + edge_id);
     }
-    auto removedEdge = it->second;
-    edges.erase(removedEdge->GetId());
-    return removedEdge;
+    auto edge = std::move(it->second);
+    edges.erase(it);
+    return edge;
   }
 
-  std::shared_ptr<cse::Edge> cse::Graph::GetEdge(std::string const &edge_id) {
+  std::shared_ptr<cse::Edge> Graph::RemoveEdge(std::weak_ptr<cse::Edge> edge) {
+    if (edge.expired()) {
+      throw std::out_of_range("Edge does not exist");
+    }
+    auto sh = edge.lock();
+    return RemoveEdge(sh->GetId());
+  }
+
+  std::weak_ptr<cse::Edge> cse::Graph::GetEdge(std::string const &edge_id) {
     if (edges.find(edge_id) == edges.end()) {
       throw std::out_of_range("Edge does not exist.");
     }
-    return edges.at(edge_id);
+    auto edge_ptr = edges.at(edge_id);
+    return edge_ptr;
   }
 
-  std::shared_ptr<cse::Edge> cse::Graph::GetEdge(std::shared_ptr<cse::Vertex> from, std::shared_ptr<cse::Vertex> to) {
+  std::weak_ptr<cse::Edge> cse::Graph::GetEdge(std::shared_ptr<cse::Vertex> from, std::shared_ptr<cse::Vertex> to) {
     return GetEdge(from->GetEdge(to)->GetId());
   }
 
-  std::shared_ptr<cse::Edge> cse::Graph::GetEdge(std::string from_id, std::string to_id) {
+  std::weak_ptr<cse::Edge> cse::Graph::GetEdge(std::string from_id, std::string to_id) {
     return GetEdge(GetVertex(from_id), GetVertex(to_id));
   }
 

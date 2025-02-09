@@ -12,14 +12,15 @@ namespace cse {
     std::string id;
     double x, y = 0;
     std::map<std::string, std::weak_ptr<Edge>> edges{};
-    void AddEdge(std::shared_ptr<Edge> const &e, std::shared_ptr<cse::Vertex> const &destination);
+    void AddEdge(std::weak_ptr<Edge> const &e, std::shared_ptr<cse::Vertex> const &destination);
+    void CleanupExpiredEdges();
 
   public:
     Vertex() = delete;
     Vertex(std::string id) : id(id) {};
     Vertex(std::string id, double x, double y) : id(id), x(x), y(y) {};
 
-    void AddEdge(std::shared_ptr<Edge> const &e);
+    void AddEdge(std::weak_ptr<Edge> const &e);
     bool IsConnected(std::shared_ptr<cse::Vertex> const &destination);
 
     std::string GetId() const { return id; };
@@ -30,6 +31,7 @@ namespace cse {
 
     friend std::ostream &operator<<(std::ostream &, const Vertex &);
     friend bool operator==(const Vertex &lhs, const Vertex &rhs);
+    friend class Graph; // Allow Graph to call RemoveEdge
   };
 
   std::ostream &operator<<(std::ostream &os, const cse::Vertex &v);

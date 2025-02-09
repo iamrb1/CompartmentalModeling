@@ -27,31 +27,43 @@ TEST_CASE("Test cse::Graph", "[base]")
   // Test adding edges
   v1 = graph.AddVertex("id1");
   auto e1 = graph.AddEdge("id1", "id2", false);
-  CHECK(e1->IsConnected(v1, v2));
-  CHECK(!e1->IsBidirectional());
-  CHECK(!e1->IsConnected(v2, v1));
+  {
+    auto e1_sh = e1.lock();
+    CHECK(e1_sh->IsConnected(v1, v2));
+    CHECK(!e1_sh->IsBidirectional());
+    CHECK(!e1_sh->IsConnected(v2, v1));
+  }
+  // Edge should only be owned by graph
+  CHECK(e1.use_count() == 1);
 
   // Testing Adding Edges by reference
   auto v4 = graph.AddVertex("id4");
   auto v5 = graph.AddVertex("id5");
   auto e2 = graph.AddEdge(v4, v5, false);
   // TODO @lspecht: Should check if nodes are connected via Graph Interface
-  CHECK(e2->IsConnected(v4, v5));
-  CHECK(!e2->IsBidirectional());
-  CHECK(!e2->IsConnected(v5, v4));
+  {
+    auto e2_sh = e2.lock();
+    CHECK(e2_sh->IsConnected(v4, v5));
+    CHECK(!e2_sh->IsBidirectional());
+    CHECK(!e2_sh->IsConnected(v5, v4));
+  }
+  CHECK(e2.use_count() == 1);
 
   // Testing removing Edges
-  CHECK(graph.GetEdge(v4->GetId(), v5->GetId()) != nullptr);
+  auto v4_v5_edge = graph.GetEdge(v4->GetId(), v5->GetId());
+  CHECK(!v4_v5_edge.expired());
   graph.RemoveEdge(e2);
-  CHECK_THROWS_AS(graph.GetEdge(v4->GetId(), v5->GetId()), std::out_of_range);
+  CHECK(v4_v5_edge.expired());
+  CHECK_THROWS_AS(graph.GetEdge(v4->GetId(), v5->GetId()), std::runtime_error);
   CHECK_THROWS_AS(graph.RemoveEdge(e2), std::out_of_range);
-
-  // TODO @lspecht: Getting a deleted edge should not work here
-  std::cout << v4->GetEdge(v5).use_count() << std::endl;
+  CHECK_THROWS_AS(v4->GetEdge(v5), std::runtime_error);
 
   // Test bidirectional edges
   auto e3 = graph.AddEdge("id1", "id2", true);
-  CHECK(e3->IsConnected(v1, v2));
-  CHECK(e3->IsConnected(v2, v1));
-  CHECK(e3->IsBidirectional());
+  {
+    auto e3_sh = e3.lock();
+    CHECK(e3_sh->IsConnected(v1, v2));
+    CHECK(e3_sh->IsConnected(v2, v1));
+    CHECK(e3_sh->IsBidirectional());
+  }
 }
