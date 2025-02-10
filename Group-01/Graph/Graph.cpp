@@ -61,22 +61,21 @@ namespace cse {
     return AddEdge(v1->GetId(), v2->GetId(), bidirectional);
   }
 
-  std::shared_ptr<cse::Edge> cse::Graph::RemoveEdge(std::string const &edge_id) {
+  void cse::Graph::RemoveEdge(std::string const &edge_id) {
     auto it = edges.find(edge_id);
     if (it == edges.end()) {
       throw std::out_of_range("Edge does not exist: " + edge_id);
     }
     auto edge = std::move(it->second);
     edges.erase(it);
-    return edge;
   }
 
-  std::shared_ptr<cse::Edge> Graph::RemoveEdge(std::weak_ptr<cse::Edge> edge) {
+  void Graph::RemoveEdge(std::weak_ptr<cse::Edge> edge) {
     if (edge.expired()) {
       throw std::out_of_range("Edge does not exist");
     }
     auto sh = edge.lock();
-    return RemoveEdge(sh->GetId());
+    RemoveEdge(sh->GetId());
   }
 
   std::weak_ptr<cse::Edge> cse::Graph::GetEdge(std::string const &edge_id) {
