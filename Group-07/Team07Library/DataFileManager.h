@@ -9,18 +9,26 @@
 namespace cse {
     class DataFileManager {
     private:
-        std::string filePath;
-        std::string initialFileInfo;
-
         // Easiest way to store functions is through an unordered map
         // https://stackoverflow.com/questions/55520876/creating-an-unordered-map-of-stdfunctions-with-any-arguments
         std::unordered_map<std::string, std::function<void()>> functionMap;
 
-        bool updateFlag = false;
+        // Track status of file and updates made
+        std::string fileOpened = "";
+        bool updateMade = false;
     public:
         // Constructors
         DataFileManager() = default;
         ~DataFileManager() = default;
+
+        // Getter and Setter for our file location
+        std::string getFile(){
+            return fileOpened;
+        }
+
+        void setFile(const std::string& path){
+            fileOpened = path;
+        }
 
         void openFile(const std::string& path);
         void update();
