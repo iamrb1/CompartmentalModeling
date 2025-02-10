@@ -1,4 +1,4 @@
-TEST_NAMES = MemoryFactory-Tests
+TEST_NAMES = TestMemoryFactory TestStaticVector
 
 # -O3	  -Wl,--stack,8388608 -ftrack-macro-expansion=0
 FLAGS = -std=c++20 -g -pthread -Wall -Wextra -I../../ -DCATCH_CONFIG_MAIN
