@@ -354,17 +354,27 @@ void test_bitvect_3() {
   std::cout << TEST_GUARD;
 }
 
-void test_bitvect_4() {
+void test_bitvect_x() {
+  std::cout << "TEST X - Custom\n";
   cse::BitVector a(16);
-  cse::BitVector b(7);
+  cse::BitVector b(13);
 
   a.set();
   b.set();
+
+  std::cout << "a - " << a << " count: " << a.count() << "\n";
+  std::cout << "b - " << b << " count: " << b.count() << "\n";
+
+  b ^= a;
+
+  std::cout << "b ^ a\n";
+  std::cout << "a - " << a << " count: " << a.count() << "\n";
+  std::cout << "b - " << b << " count: " << b.count() << "\n";
 }
 
 void test_bitvect() {
   test_bitvect_1();
   test_bitvect_2();
   test_bitvect_3();
-  test_bitvect_4();
+  test_bitvect_x();
 }

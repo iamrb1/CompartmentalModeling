@@ -259,7 +259,7 @@ BitVector& BitVector::set(bool value) {
 
   if (value == true) {
     replace = std::byte{0b11111111};
-    num_set = num_bits;
+    num_set = underlying.size() * 8;
   } else
     num_set = 0;
 
@@ -418,9 +418,9 @@ BitVector& BitVector::operator^=(const BitVector& rhs) {
 
   // Main loop doing the xor
   for (; i < underlying.size() - 1 && i < rhs.underlying.size() - 1; i++) {
-    int8_t diff = BIT_LOOKUP(underlying[i]);
+    int8_t diff = -BIT_LOOKUP(underlying[i]);
     underlying[i] ^= rhs.underlying[i];
-    diff -= BIT_LOOKUP(underlying[i]);
+    diff += BIT_LOOKUP(underlying[i]);
     if (diff < 0)
       num_set -= -diff;
     else
@@ -429,12 +429,12 @@ BitVector& BitVector::operator^=(const BitVector& rhs) {
 
   // Xor the last byte with a mask
   if (i < underlying.size()) {
-    int8_t diff = BIT_LOOKUP(underlying[i]);
+    int8_t diff = -BIT_LOOKUP(underlying[i]);
     uint8_t mask_num = (8 - std::min(num_bits, rhs.num_bits) % 8);
     std::byte xor_mask = mask_num != 8 ? std::byte{0b11111111} >> mask_num
                                        : std::byte{0b11111111};
     underlying[i] ^= (rhs.underlying[i] & xor_mask);
-    diff = BIT_LOOKUP(underlying[i]) - diff;
+    diff += BIT_LOOKUP(underlying[i]);
     // diff can never be less than zero, since we don't lose bits when we or
     if (diff < 0)
       num_set -= -diff;
