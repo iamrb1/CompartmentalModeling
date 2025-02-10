@@ -1,4 +1,4 @@
-#include "WeightedSet.h"
+#include "WeightedSet.hpp"
 #include <iostream>
 
 int main() {
