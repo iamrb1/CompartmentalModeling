@@ -1,6 +1,10 @@
 #include "src/DataGrid.h"
 #include "src/Datum.h"
+#include "src/CSVfile.h"
 #include <iostream>
+#include <fstream>
+#include "src/ReferenceVector.h"
+#include <cmath>
 #include <typeinfo>
 
 // TODO - Improve and move test cases. Will need a testing framework (Probably
@@ -102,6 +106,31 @@ int main() {
   std::cout << "Equal Check (0): " << (d_add2==d_add3) << std::endl;
   std::cout << "Equal Check (1): " << (d_add2==equal_datum1) << std::endl;
 
+  std::cout << "===" << std::endl;
+
+  // ReferenceVector Tests
+  cse::ReferenceVector refVec;
+  refVec.push_back(d1);
+  refVec.push_back(d2);
+  refVec.push_back(d3);
+
+  std::cout << "ReferenceVector size should be 3: " << refVec.size() << std::endl;
+  std::cout << "First element should be 987.987: " << refVec.front().GetDouble().value() << std::endl;
+  std::cout << "Access to element at will, should be string newTest: " << refVec.at(1).GetString().value() << std::endl;
+  std::cout << "Last element should be the string 987: " << refVec.back().GetString().value() << std::endl;
+
+  // Modify the second element using the Proxy operator=
+  cse::Datum newDatum("UpdatedDatum");
+  refVec[1] = newDatum;
+  std::cout << "Updated second element: " << refVec.at(1).GetString().value() << std::endl;
+
+  refVec.pop_back();
+  std::cout << "ReferenceVector size after pop_back should be 2: " << refVec.size() << std::endl;
+
+  refVec.clear();
+  std::cout << "ReferenceVector size after clear should be 0: " << refVec.size() << std::endl;
+  std::cout << "ReferenceVector empty check should be 1: " << refVec.empty() << std::endl;
+
   std::cout << "=== DataGrid Tests ===\n";
   cse::DataGrid grid;
 
@@ -158,6 +187,52 @@ int main() {
   std::cout << "\n[8] Delete Column 0\n";
   grid.DeleteColumn(0);
   std::cout << grid;
+
+  // Test: CSVFile::LoadCsv
+  std::cout << "\n[9] Testing CSVFile::LoadCsv\n";
+
+  // Create a test input CSV file
+  std::ofstream test_input("test_input.csv");
+  test_input << "Name,Age,Score\n";
+  test_input << "Alice,30,95.5\n";
+  test_input << "Bob,25,88.0\n";
+  test_input.close();
+
+  // Load the test CSV file into a DataGrid
+  cse::DataGrid data_grid;
+  try {
+    data_grid = cse::CSVFile::LoadCsv("test_input.csv");
+    std::cout << "Loaded DataGrid:\n";
+    std::cout << data_grid;
+  } catch (const std::exception &e) {
+    std::cerr << "Failed to load CSV: " << e.what() << std::endl;
+  }
+
+  // Test: CSVFile::ExportCsv
+  std::cout << "\n[10] Testing CSVFile::ExportCsv\n";
+
+  // Modify the data_grid for export testing
+  data_grid.GetRow(0)[0] = "Charlie";
+  data_grid.GetRow(1)[2] = 91.0;
+
+  // Export the modified data_grid to a new CSV file
+  try {
+    bool success = cse::CSVFile::ExportCsv("test_output.csv", data_grid);
+    if (success) {
+      std::cout << "Exported DataGrid to test_output.csv successfully.\n";
+
+      // Print the exported CSV file content
+      std::ifstream test_output("test_output.csv");
+      std::string line;
+      std::cout << "Exported CSV content:\n";
+      while (std::getline(test_output, line)) {
+        std::cout << line << "\n";
+      }
+      test_output.close();
+    }
+  } catch (const std::exception &e) {
+    std::cerr << "Failed to export CSV: " << e.what() << std::endl;
+  }
 
   return 0;
 }
