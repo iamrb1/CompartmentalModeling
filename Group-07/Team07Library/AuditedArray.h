@@ -21,6 +21,7 @@ namespace cse{
   public:
     AuditedArray();
     AuditedArray(const AuditedArray<T, Size>& other);
+    AuditedArray(const AuditedArray<T, Size>&& other) = default;
     ~AuditedArray() = default;
     AuditedArray<T, Size>& operator=(const AuditedArray<T, Size>& other);
     T& operator[](int index);
@@ -110,7 +111,7 @@ namespace cse{
   int AuditedArray<T, Size>::indexOf(const T& value) const {
     for (size_t i = 0; i < Size; i++) {
       if (data[i] == value) {
-        return i;
+        return static_cast<int>(i);
       }
     }
     return -1;
