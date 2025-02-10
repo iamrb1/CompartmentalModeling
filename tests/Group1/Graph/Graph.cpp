@@ -27,11 +27,13 @@ TEST_CASE("Test cse::Graph", "[base]")
   // Test adding edges
   v1 = graph.AddVertex("id1");
   auto e1 = graph.AddEdge("id1", "id2", false);
+  CHECK(graph.IsConnected(v1, v2));
+  CHECK(!graph.IsConnected(v2, v1));
+  CHECK(graph.IsConnected("id1", "id2"));
+  CHECK(!graph.IsConnected("id2", "id1"));
   {
     auto e1_sh = e1.lock();
-    CHECK(e1_sh->IsConnected(v1, v2));
     CHECK(!e1_sh->IsBidirectional());
-    CHECK(!e1_sh->IsConnected(v2, v1));
   }
   // Edge should only be owned by graph
   CHECK(e1.use_count() == 1);
@@ -41,12 +43,8 @@ TEST_CASE("Test cse::Graph", "[base]")
   auto v5 = graph.AddVertex("id5");
   auto e2 = graph.AddEdge(v4, v5, false);
   // TODO @lspecht: Should check if nodes are connected via Graph Interface
-  {
-    auto e2_sh = e2.lock();
-    CHECK(e2_sh->IsConnected(v4, v5));
-    CHECK(!e2_sh->IsBidirectional());
-    CHECK(!e2_sh->IsConnected(v5, v4));
-  }
+  CHECK(graph.IsConnected(v4, v5));
+  CHECK(!graph.IsConnected(v5, v4));
   CHECK(e2.use_count() == 1);
 
   // Testing removing Edges
@@ -60,10 +58,10 @@ TEST_CASE("Test cse::Graph", "[base]")
 
   // Test bidirectional edges
   auto e3 = graph.AddEdge("id1", "id2", true);
+  CHECK(graph.IsConnected(v1, v2));
+  CHECK(graph.IsConnected(v2, v1));
   {
     auto e3_sh = e3.lock();
-    CHECK(e3_sh->IsConnected(v1, v2));
-    CHECK(e3_sh->IsConnected(v2, v1));
     CHECK(e3_sh->IsBidirectional());
   }
 }

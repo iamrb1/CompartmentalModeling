@@ -19,7 +19,7 @@ namespace cse {
     return v;
   }
 
-  std::shared_ptr<cse::Vertex> cse::Graph::GetVertex(std::string id) {
+  std::shared_ptr<cse::Vertex> cse::Graph::GetVertex(std::string const &id) const {
     if (vertices.find(id) == vertices.end()) {
       throw std::out_of_range("Vertex does not exist: " + id);
     }
@@ -78,7 +78,7 @@ namespace cse {
     RemoveEdge(sh->GetId());
   }
 
-  std::weak_ptr<cse::Edge> cse::Graph::GetEdge(std::string const &edge_id) {
+  std::weak_ptr<cse::Edge> cse::Graph::GetEdge(std::string const &edge_id) const {
     if (edges.find(edge_id) == edges.end()) {
       throw std::out_of_range("Edge does not exist.");
     }
@@ -86,12 +86,28 @@ namespace cse {
     return edge_ptr;
   }
 
-  std::weak_ptr<cse::Edge> cse::Graph::GetEdge(std::shared_ptr<cse::Vertex> from, std::shared_ptr<cse::Vertex> to) {
+  std::weak_ptr<cse::Edge> cse::Graph::GetEdge(std::shared_ptr<cse::Vertex> const from,
+                                               std::shared_ptr<cse::Vertex> const to) const {
     return GetEdge(from->GetEdge(to)->GetId());
   }
 
   std::weak_ptr<cse::Edge> cse::Graph::GetEdge(std::string from_id, std::string to_id) {
     return GetEdge(GetVertex(from_id), GetVertex(to_id));
+  }
+
+  bool Graph::IsConnected(std::shared_ptr<cse::Vertex> const &v1, std::shared_ptr<cse::Vertex> const &v2) const {
+    try {
+      auto e = GetEdge(v1, v2);
+      auto e_sh = e.lock();
+      return e_sh->IsConnected(v1, v2);
+    } catch (std::runtime_error) {
+    }
+
+    return false;
+  }
+
+  bool Graph::IsConnected(std::string const &v1_id, std::string const &v2_id) const {
+    return IsConnected(GetVertex(v1_id), GetVertex(v2_id));
   }
 
   // void cse::Graph::ToFile(std::fstream &s) {
