@@ -41,6 +41,10 @@ TEST_CASE("Test cse::Graph", "[base]")
   // Testing Adding Edges by reference
   auto v4 = graph.AddVertex("id4");
   auto v5 = graph.AddVertex("id5");
+  CHECK(!graph.IsConnected(v1, v4));
+  CHECK(!graph.IsConnected(v4, v5));
+  CHECK(!graph.IsConnected(v4, v4));
+
   auto e2 = graph.AddEdge(v4, v5, false);
   // TODO @lspecht: Should check if nodes are connected via Graph Interface
   CHECK(graph.IsConnected(v4, v5));
