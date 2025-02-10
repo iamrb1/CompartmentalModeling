@@ -4,6 +4,7 @@
 #include <vector>
 #include <set>
 #include <stdexcept>
+#include <cassert>
 #include "../Graph/Graph.hpp"
 
 // Forward declaration of Graph. 
