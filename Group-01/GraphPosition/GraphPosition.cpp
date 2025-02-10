@@ -29,7 +29,7 @@ void GraphPosition::SetCurrentVertex(std::shared_ptr<Vertex> vertex) {
 
 bool GraphPosition::AdvanceToNextNeighbor() {
     // Get the current vertex's edges
-    for (auto& [neighborID, weakEdge] : currentVertex->edges) {
+    for (auto& [neighborID, weakEdge] : currentVertex->GetEdges()) {
         if (auto edge = weakEdge.lock()) { // Lock weak_ptr to access Edge
             std::shared_ptr<Vertex> neighbor = (edge->GetFrom() == currentVertex) ? edge->GetTo() : edge->GetFrom();
 
