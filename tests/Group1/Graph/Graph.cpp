@@ -62,10 +62,12 @@ TEST_CASE("Test cse::Graph", "[base]")
 
   // Test bidirectional edges
   auto e3 = graph.AddEdge("id1", "id2", true);
+
   CHECK(graph.IsConnected(v1, v2));
   CHECK(graph.IsConnected(v2, v1));
   {
     auto e3_sh = e3.lock();
     CHECK(e3_sh->IsBidirectional());
   }
+  auto e4 = graph.AddEdge("id1", "id2", true);
 }

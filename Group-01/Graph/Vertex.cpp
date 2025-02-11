@@ -53,6 +53,13 @@ namespace cse {
     return it->second.lock();
   }
 
+  void Vertex::ToFile(std::ostream &s, std::string const &prefix) {
+    s << prefix << "VERTEX:" << id << "\n";
+    auto p = prefix + prefix;
+    s << p << "X:" << x << "\n";
+    s << p << "Y:" << y << "\n";
+  }
+
   std::ostream &operator<<(std::ostream &os, const cse::Vertex &v) {
     os << "Vertex(" << v.id << ")";
     return os;
