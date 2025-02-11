@@ -1,4 +1,5 @@
 #include "AuditedPointer.h"
+#include <vector>
 
 int main()
 {
@@ -13,9 +14,9 @@ int main()
     // flag.
 
     // EXAMPLE 1 - Dereferencing a deleted pointer
-    Aptr<int> ptr2 = MakeAudited<int>(100);
-    ptr2.Delete();
-    *ptr2; 
+    // Aptr<int> ptr2 = MakeAudited<int>(100);
+    // ptr2.Delete();
+    // *ptr2; 
 
     // EXAMPLE 2 - Deleting a deleted pointer
     // Aptr<int> ptr3 = MakeAudited<int>(200);
@@ -23,7 +24,10 @@ int main()
     // ptr3.Delete();
 
     // EXAMPLE 3 - Not deleting all Aptrs by termination
-    // Aptr<const std::string> ptr4 = MakeAudited<const std::string>("Hello");
+    Aptr<const std::string> ptr4 = MakeAudited<const std::string>("Hello");
+    Aptr<float> ptr5 = MakeAudited<float>(3.496);
+    ptr4.Delete();
+    ptr5.Delete();
 
     return 0;
 }
