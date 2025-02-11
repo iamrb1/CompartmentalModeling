@@ -31,6 +31,11 @@ public:
     // Constructors
     IndexSet() = default;
     ~IndexSet() = default;
+    IndexSet(size_t start, size_t end)
+    {
+        ranges_.emplace_back(start, end);
+        total_size_ = 1;
+    }
 
     /**
      * @brief Adds an index to the set
@@ -56,7 +61,7 @@ public:
         }
 
         // Insert new range [index, index+1)
-        ranges_.push_back({index, index + 1});
+        ranges_.emplace_back(index, index + 1);
 
         // Merge any overlapping ranges - this will handle cases where the new index
         // is adjacent to or overlaps with existing ranges
@@ -72,6 +77,14 @@ public:
         // In this case, we need to increment the size since we added a new index
         if (total_size_ == old_total) {
             total_size_++;
+        }
+    }
+
+    void insertRange(const std::size_t start, const std::size_t end)
+    {
+        //Todo: Make real implementation
+        for (std::size_t index = start; index < end; ++index) {
+            insert(index);
         }
     }
 
@@ -214,7 +227,26 @@ public:
         return std::nullopt;
     }
 
+    void offset(const size_t offset) {
+        for (auto& [start, end] : ranges_) {
+            start += offset;
+            end += offset;
+        }
+    }
+
+    /**
+     * @brief Adds another index set to the end of this one, starting at the index
+     * @param indexSet The IndexSet to append
+     * @param index The index to start appending
+     */
+    void appendAt(const IndexSet& indexSet, const std::size_t index)
+    {
+        //TODO: Implement AppendAt
+        assert(false); //Not implemented yet.
+    }
+
     // Iterator support - to be implemented
+private: //private because not implemented yet
     iterator begin();
     iterator end();
     const_iterator begin() const;
