@@ -38,6 +38,11 @@ TEST_CASE("Pause EventManager event - valid", "[EventManager]")
   Event e3(4, 3, "Event 3\n");
   Event e4(1792, 3, "Event 3\n");
 
+  eM.AddEvent(e1);
+  eM.AddEvent(e2);
+  eM.AddEvent(e3);
+  eM.AddEvent(e4);
+
   REQUIRE(eM.getNumEvents() == 4);
   CHECK(eM.PauseEvent(1) == true);
   CHECK(eM.getNumPaused() == 1); //Add to event manager
@@ -55,14 +60,20 @@ TEST_CASE("Pause EventManager event - invalid", "[EventManager]")
   Event e3(4, 3, "Time 3 - id 4");
   Event e4(931, 3, "Id 931");
 
+  eM.AddEvent(e1);
+  eM.AddEvent(e2);
+  eM.AddEvent(e3);
+  eM.AddEvent(e4);
+
   REQUIRE(eM.getNumEvents() == 4);
   eM.PauseEvent(1);
+  eM.PauseEvent(931);
 
   CHECK(eM.PauseEvent(3) == false);
   CHECK(eM.getNumPaused() == 2);
   CHECK(eM.PauseEvent(-12) == false);
   CHECK(eM.getNumPaused() == 2);
-  CHECK(eM.PauseEvent(1) == false);
+  CHECK(eM.PauseEvent(1) == true);
 
 
 

@@ -36,14 +36,17 @@ void EventManager::TriggerEvents() {
 /**
  * @brief Adds event_id to paused_events set
  * @param event_id The event to be paused
- * @return true if successful, false if event is already paused
+ * @return true if successful, false if event does not exist in queue
  */
 bool EventManager::PauseEvent(int event_id) {
-  if (paused_events_.count(event_id)) {
-    return false; //Event is already paused
+  if (paused_events_.count(event_id) > 0) {
+    return true;
+  } else if (running_events_.count(event_id) > 0) {
+    paused_events_.insert(event_id);
+    running_events_.erase(event_id);
+    return true;
   }
-  paused_events_.insert(event_id);
-  return true;
+  return false;
 }
 
 /**
@@ -52,11 +55,12 @@ bool EventManager::PauseEvent(int event_id) {
  * @return true if successfully removed, false if event is not currently paused
  */
 bool EventManager::ResumeEvent(int event_id) {
-  if (paused_events_.count(event_id)) {
+  if (paused_events_.count(event_id) > 0) {
     paused_events_.erase(event_id);
+    running_events_.insert(event_id);
+    return true;
   }
-  return false; //Event is not paused
-
+  return false;
 }
 
 /**
@@ -65,7 +69,10 @@ bool EventManager::ResumeEvent(int event_id) {
  * @return true if successful, false if unsuccessful
  */
 bool EventManager::AddEvent(Event &event) {
+  if (paused_events_.count(event.getID()) > 0 || running_events_.count(event.getID()) > 0)
+    return false; // Event id is already in queue
   event_queue_.add(event);
+  running_events_.insert(event.getID());
   return true;
 }
 

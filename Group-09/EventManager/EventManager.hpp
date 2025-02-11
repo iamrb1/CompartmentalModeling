@@ -22,9 +22,10 @@ class EventManager {
  private:
   EventQueue event_queue_;
   int clock_time_ = 0; //Temporary to keep track of time
-  std::thread clock_thread_;
   std::atomic<bool> running_{false};
+  std::thread clock_thread_;
   std::set<int> paused_events_;
+  std::set<int> running_events_;
   void AdvanceTime();
   void TriggerEvents();
 
@@ -47,7 +48,7 @@ class EventManager {
    * @brief Get the number of events being managed
    * @return The number of events in event_queue_ as size_t
    */
-  size_t getNumEvents() const { return event_queue_.size(); }
+  size_t getNumEvents() const { return (paused_events_.size() + running_events_.size()); }
 
 };
 
