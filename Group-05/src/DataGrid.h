@@ -23,7 +23,7 @@ class DataGrid {
   using row_t = std::vector<Datum>;  // row_t is an alias for a vector of Datums
 
   /// A 2D vector holding datums
-  std::vector<row_t> mGrid;
+  std::vector<row_t> grid_;
 
  public:
   /**
@@ -38,67 +38,61 @@ class DataGrid {
 
   /**
    * @brief Index a row of the DataGrid
-   * @param row_index Index of the row
+   * @param row_index_ Index of the row
    * @return Indexed vector row from DataGrid
    */
-  row_t& operator[](const std::size_t row_index) {
-    return mGrid.at(row_index);
+  row_t& operator[](const std::size_t row_index_) {
+    return grid_.at(row_index_);
   }
 
   /**
    * @brief Index a row of the DataGrid
-   * @param row_index Index of the row
+   * @param row_index_ Index of the row
    * @return Indexed vector row from DataGrid
    */
-  row_t& GetRow(const std::size_t row_index) {
-    return mGrid.at(row_index);
+  row_t& getRow(const std::size_t row_index_) {
+    return grid_.at(row_index_);
+  }
+
+   /**
+   * @brief Retrieves a row from the DataGrid in a read-only manner.
+   *
+   * Allows access to a specific row without modifying the DataGrid.
+   *
+   * @param row_index_ Index of the row to retrieve.
+   * @return A const reference to the indexed vector row from the DataGrid.
+   */
+  const row_t& getRow(const std::size_t row_index_) const {
+    return grid_.at(row_index_);
   }
 
   /**
- * @brief Retrieves a row from the DataGrid in a read-only manner.
- *
- * Allows access to a specific row without modifying the DataGrid.
- * 
- * @param row_index Index of the row to retrieve.
- * @return A const reference to the indexed vector row from the DataGrid.
- */
-const row_t& GetRow(const std::size_t row_index) const {
-  return mGrid.at(row_index);
-}
-
-  /**
    * @brief Get Datum value from DataGrid
-   * @param row_index Index of the row
-   * @param column_index Index of the column
+   * @param row_index_ Index of the row
+   * @param column_index_ Index of the column
    * @return The Datum at the given index
    */
-  Datum& GetValue(const std::size_t row_index, const std::size_t column_index) {
-    return mGrid.at(row_index).at(column_index);
+  Datum& getValue(const std::size_t row_index_, const std::size_t column_index_) {
+    return grid_.at(row_index_).at(column_index_);
   }
 
   /**
    * @brief Get const Datum value from DataGrid (used for stream output printing)
-   * @param row_index Index of the row
-   * @param column_index Index of the column
+   * @param row_index_ Index of the row
+   * @param column_index_ Index of the column
    * @return The Datum at the given index
    */
-  const Datum& GetValue(std::size_t row_index, std::size_t column_index) const {
-    return mGrid.at(row_index).at(column_index);
+  const Datum& getValue(std::size_t row_index_, std::size_t column_index_) const {
+    return grid_.at(row_index_).at(column_index_);
   }
 
-  std::tuple<const std::size_t, const std::size_t> Shape() const;
-  std::vector<Datum> GetColumn(std::size_t column_index) const;
-  void InsertRow(std::size_t row_index);
-  void InsertColumn(std::size_t column_index);
-  void DeleteRow(std::size_t row_index);
-  void DeleteColumn(std::size_t column_index);
-
-  /**
-   * @brief Outputs DataGrid values to output stream for visualization
-   * @param os Output stream
-   * @return Output stream with formatted DataGrid values
-   */
-  std::ostream& Print(std::ostream& os) const;
+  std::tuple<const std::size_t, const std::size_t> shape() const;
+  std::vector<Datum> getColumn(std::size_t column_index_) const;
+  void insertRow(std::size_t row_index_);
+  void insertColumn(std::size_t column_index_);
+  void deleteRow(std::size_t row_index_);
+  void deleteColumn(std::size_t column_index_);
+  std::ostream& print(std::ostream& os_) const;
 };
 
 /**
@@ -108,7 +102,7 @@ const row_t& GetRow(const std::size_t row_index) const {
  * @return Output stream with DataGrid content
  */
 inline std::ostream& operator<<(std::ostream& os, const DataGrid& grid) {
-  return grid.Print(os);
+  return grid_.print(os);
 }
 
 }  // namespace cse
