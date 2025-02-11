@@ -30,7 +30,7 @@ void Distribution::BuildBinomial(std::int32_t trials, double prob){
         throw std::out_of_range("Probability not expessed as a decimal.");
     }
     if(trials < 1){
-        throw std::out_of_range("Must have at least 1 datapoint");
+        throw std::runtime_error("Must have at least 1 datapoint");
     }
     for(int i = 0; i < trials; ++i){
         probs[i] = std::tgamma(trials+1)/(std::tgamma(i+1)*std::tgamma(trials-i+1))*std::pow(prob,i)*std::pow((1-prob),trials-i);
@@ -46,7 +46,7 @@ void Distribution::BuildBinomial(std::int32_t trials, double prob){
 
 void Distribution::BuildUniform(std::int32_t trials){
     if(trials < 1){
-        throw std::out_of_range("Must have at least 1 datapoint");
+        throw std::runtime_error("Must have at least 1 datapoint");
     }
     double odds = 1.0/trials;
     probs.assign(trials, odds);
@@ -71,22 +71,23 @@ void Distribution::BuildPowerLaw(std::int32_t trials){
 
 double Distribution::getProb(std::int32_t trials){
     if(probs.empty()){
-        throw std::out_of_range("You have not built a distrubtion");
+        throw std::runtime_error("You have not built a distrubtion");
     }
     if(trials >= probs.size() || trials < 1){
-        return 0.0;
+         std::out_of_range("More trials than you listed");
     }
     return probs[trials-1];
 }
 
 double Distribution::getCumulativeProb(std::int32_t trials){
    if(cumulative_probs.empty()){
-        throw std::out_of_range("You have not built a distrubtion");
+        throw std::runtime_error("You have not built a distrubtion");
     }
     if(trials >= cumulative_probs.size() || trials < 1){
-        return 0.0;
+        std::out_of_range("More trials than you listed");
     }
     return cumulative_probs[trials-1];
 }
 
 } // namespace cse498
+
