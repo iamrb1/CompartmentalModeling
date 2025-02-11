@@ -31,13 +31,13 @@ public:
     }
 
     // Move constructor
-    Aptr(Aptr&& other) noexcept : mPtr(other.mPtr)
+    Aptr(Aptr&& other) : mPtr(other.mPtr)
     {
         other.mPtr = nullptr;
     }
 
     // Move assignment operator
-    Aptr& operator=(Aptr&& other) noexcept
+    Aptr& operator=(Aptr&& other)
     {
         if (this != &other) {
             delete mPtr;
@@ -78,8 +78,8 @@ Aptr<TYPE> MakeAudited(Args&&... args)
 
 // ==================== Debug Mode (Audited Pointer) ====================
 
-// Global counter and LeakChecker (independent of template type)
-int globalCounter = 0; // Declare global counter in the global scope
+// Global counter and LeakChecker
+int globalCounter = 0; 
 
 struct LeakChecker
 {
@@ -137,13 +137,13 @@ public:
     }
 
     // Move constructor
-    Aptr(Aptr&& other) noexcept : mPtr(other.mPtr)
+    Aptr(Aptr&& other) : mPtr(other.mPtr)
     {
         other.mPtr = nullptr;
     }
 
     // Move assignment operator
-    Aptr& operator=(Aptr&& other) noexcept
+    Aptr& operator=(Aptr&& other)
     {
         if (this != &other)
         {

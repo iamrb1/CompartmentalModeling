@@ -19,15 +19,14 @@ int main()
     // *ptr2; 
 
     // EXAMPLE 2 - Deleting a deleted pointer
-    // Aptr<int> ptr3 = MakeAudited<int>(200);
-    // ptr3.Delete();
-    // ptr3.Delete();
+    Aptr<int> ptr3 = MakeAudited<int>(200);
+    ptr3.Delete();
+    ptr3.Delete();
 
     // EXAMPLE 3 - Not deleting all Aptrs by termination
-    Aptr<const std::string> ptr4 = MakeAudited<const std::string>("Hello");
-    Aptr<float> ptr5 = MakeAudited<float>(3.496);
-    ptr4.Delete();
-    ptr5.Delete();
+    // Aptr<const std::string> ptr4 = MakeAudited<const std::string>("Hello");
+    // Aptr<float> ptr5 = MakeAudited<float>(3.496);
+    // ptr4.Delete();
 
     return 0;
 }
