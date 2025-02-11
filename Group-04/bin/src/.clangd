@@ -1,5 +1,0 @@
-CompileFlags:
-  Add:
-    - "-I../../lib/include"
-    - "-I../include"
-    - "--std=c++23"
