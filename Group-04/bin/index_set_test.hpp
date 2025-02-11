@@ -1,6 +1,7 @@
-#include "index_set.hpp"
 #include <cassert>
 #include <iostream>
+
+#include "index_set.hpp"
 
 // Helper function to print test results
 void print_test_result(const char* test_name, bool passed) {
@@ -112,7 +113,7 @@ void test_range_splitting() {
     print_test_result("Range splitting", true);
 }
 
-int main() {
+int index_set_test() {
     std::cout << "Running IndexSet tests...\n\n";
     
     test_basic_operations();
@@ -122,4 +123,4 @@ int main() {
     
     std::cout << "\nAll tests completed!\n";
     return 0;
-} 
+}

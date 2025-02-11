@@ -1,9 +1,8 @@
 BUILD_PROFILE=release
-CXX_FLAGS_all ?= -std=c++23 -Wextra -Wall -I./include -I../lib/include
 
 build:
-	BUILD_PROFILE=$(BUILD_PROFILE) CXX_FLAGS_all="$(CXX_FLAGS_all)" BUILD_FLAGS="$(BUILD_FLAGS)" $(MAKE) -f Makefile.logic
-	
+	BUILD_PROFILE=$(BUILD_PROFILE) $(MAKE) -f Makefile.logic
+
 debug: BUILD_PROFILE=debug
 debug: build
 
@@ -19,6 +18,5 @@ install:
 install_debug: BUILD_PROFILE=debug
 install_debug: install
 
-remove:
-	$(MAKE) -f Makefile.logic remove
-
+uninstall:
+	$(MAKE) -f Makefile.logic uninstall

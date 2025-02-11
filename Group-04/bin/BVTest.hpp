@@ -1,9 +1,8 @@
-#include <assert.h>
-
-#include <app/BVTest.hpp>
-#include <cse/BitVector.hpp>
+#pragma once
 #include <iostream>
 #include <string>
+
+#include "BitVector.hpp"
 
 const std::string TEST_GUARD = "****************\n";
 

@@ -1,7 +1,7 @@
 #include "catch.hpp"
 
 #define _cse_ASSERT_TEST
-#include "cse/CseAssert.hpp"
+#include "CseAssert.hpp"
 
 #define REQUIRE_ASSERT(...)                                                    \
   REQUIRE_THROWS_AS(__VA_ARGS__, cse::_assert_internal::AssertTestException)
