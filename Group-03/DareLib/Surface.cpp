@@ -1,4 +1,4 @@
-#include <Surface.h>
+#include "Surface.h"
 
 Surface::Surface(int width, int height, int sector_size) 
     : width(width), height(height), surface_size(sector_size), sector_width(width/sector_size), sector_height(height/sector_size){

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <Sector.h>
+#include "Sector.h"
 
 class Surface {
     public:

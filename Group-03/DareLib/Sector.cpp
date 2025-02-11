@@ -1,4 +1,4 @@
-#include <Sector.h>
+#include "Sector.h"
 
 Sector::Sector(int x, int y) 
     : x(x), y(y) {}
