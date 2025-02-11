@@ -50,6 +50,12 @@ class EventManager {
    */
   size_t getNumEvents() const { return (paused_events_.size() + running_events_.size()); }
 
+  /**
+   * @brief Get the current internal time
+   * @return The current time in seconds
+   */
+  int getTime() const { return clock_time_; }
+
 };
 
 }

@@ -4,6 +4,8 @@
  */
 
 #include "EventManager.hpp"
+#include <limits>
+#include <cassert>
 
 namespace cse {
 
@@ -14,7 +16,6 @@ void EventManager::AdvanceTime() {
   while (running_) {
     std::this_thread::sleep_for(std::chrono::seconds(1));
     clock_time_++;
-    std::cout << "CLOCK TIME: " << clock_time_ << std::endl;
     TriggerEvents();
   }
 }
@@ -26,6 +27,7 @@ void EventManager::TriggerEvents() {
   while ((event_queue_.size() > 0) && !paused_events_.count(event_queue_.peek().getID())
       && event_queue_.peek().getTime() <= clock_time_) {
     std::cout << event_queue_.peek().getData() << "\n"; //Placeholder for handling events
+    running_events_.erase(event_queue_.peek().getID());
     event_queue_.pop();
   }
   if (event_queue_.size() == 0) {
@@ -55,7 +57,9 @@ bool EventManager::PauseEvent(int event_id) {
  * @return true if successfully removed, false if event is not currently paused
  */
 bool EventManager::ResumeEvent(int event_id) {
-  if (paused_events_.count(event_id) > 0) {
+  if (running_events_.count(event_id) > 0) {
+    return true;
+  } else if (paused_events_.count(event_id) > 0) {
     paused_events_.erase(event_id);
     running_events_.insert(event_id);
     return true;
