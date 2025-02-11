@@ -44,3 +44,15 @@ endif ()
 # Add the subdirectories (libraries and executables)
 add_subdirectory(src/cse)
 add_subdirectory(src/app)
+
+# ========== TEST SETUP ==========
+add_subdirectory(include/third-party/Catch)
+enable_testing()
+
+file(GLOB_RECURSE TEST_FILES tests/AuditedVector/*.cpp)
+
+add_executable(AuditedVectorTest ${TEST_FILES})
+
+target_link_libraries(AuditedVectorTest PRIVATE Catch2::Catch2)
+
+add_test(NAME AuditedVectorTest COMMAND AuditedVectorTest)

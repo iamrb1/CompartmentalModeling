@@ -15,7 +15,7 @@ namespace cse {
 #ifdef NDEBUG
 // In release mode, just use std::vector.
 template <typename T, typename Allocator = std::allocator<T>>
-using vector = std::vector<T, Allocator>;
+using AuditedVector = std::vector<T, Allocator>;
 
 #else
 template <typename T, typename Allocator = std::allocator<T>>

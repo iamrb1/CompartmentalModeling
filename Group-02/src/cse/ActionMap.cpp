@@ -5,6 +5,8 @@
 
 #include <cse/ActionMap.h>
 
+#include <stdexcept>
+
 namespace cse {
 
 /**
