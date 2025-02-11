@@ -1,6 +1,5 @@
 BUILD_PROFILE?=
 BUILD_DIR = target/$(BUILD_PROFILE)
-OBJ_DIR = artifacts
 BIN_DIR = ./bin
 LIB_DIR = ./lib
 PROJECT_NAME = app
@@ -45,7 +44,7 @@ uninstall:
 	rm -rf /usr/lib/$(BUILD_PREFIX)$(PROJECT_NAME)$(BUILD_FILE_TYPE)
 
 $(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)/$(OBJ_DIR)
+	mkdir -p $(BUILD_DIR)
 
 format:
 	echo $(addprefix $(SRC_DIR)/, $(SRCS)) $(HEADS) | xargs clang-format --style=file -i
