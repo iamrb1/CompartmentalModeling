@@ -101,6 +101,7 @@ namespace cse {
       auto e_sh = e.lock();
       return e_sh->IsConnected(v1, v2);
     } catch (std::runtime_error) {
+      // If there is a runtime error, the edge does not exist
     }
 
     return false;
