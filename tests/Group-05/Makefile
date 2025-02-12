@@ -17,9 +17,10 @@ cov-%: %.cpp ../../third-party/Catch/single_include/catch2/catch.hpp
 test-prep:
 	mkdir -p temp
 
-test-%: %.cpp ../../third-party/Catch/single_include/catch2/catch.hpp
-	$(CXX) $(FLAGS) $< -o $@.out
+test-%: %.cpp ../../Group-05/src/CSVfile.cpp ../../Group-05/src/DataGrid.cpp ../../Group-05/src/Datum.cpp ../../third-party/Catch/single_include/catch2/catch.hpp
+	$(CXX) $(FLAGS) $^ -o $@.out
 	./$@.out
+
 
 # Test in debug mode without pointer tracker
 test: test-prep $(addprefix test-, $(TEST_NAMES))

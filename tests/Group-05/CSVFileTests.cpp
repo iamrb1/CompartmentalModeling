@@ -1,3 +1,11 @@
+/**
+ * @file CSVFileTests.cpp
+ *
+ * @author Muhammad Masood
+ *
+ * Tests for the CSV class.
+ */
+
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 
 #include <fstream>
@@ -7,7 +15,6 @@
 #include <vector>
 
 #include "../../Group-05/src/CSVfile.h"
-#include "../../Group-05/src/CSVfile.cpp"
 
 TEST_CASE("CSVFile LoadCsv - Valid File", "[CSVFile]") {
     // Create a temporary CSV file for testing
