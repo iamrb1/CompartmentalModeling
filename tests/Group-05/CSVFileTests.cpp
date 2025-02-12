@@ -1,14 +1,13 @@
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 
-#include "CSVfile.h"
-#include "DataGrid.h"
-#include "Datum.h"
-
 #include <fstream>
 #include <cstdio>
 #include <string>
 #include <tuple>
 #include <vector>
+
+#include "../../Group-05/src/CSVfile.h"
+#include "../../Group-05/src/CSVfile.cpp"
 
 TEST_CASE("CSVFile LoadCsv - Valid File", "[CSVFile]") {
     // Create a temporary CSV file for testing
