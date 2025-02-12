@@ -1,7 +1,7 @@
 #include <cassert>
 #include <iostream>
 
-#include "index_set.hpp"
+#include "IndexSet.hpp"
 
 // Helper function to print test results
 void print_test_result(const char* test_name, bool passed) {

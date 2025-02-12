@@ -14,7 +14,7 @@
 #include <variant>
 #include <vector>
 
-#include "index_set.hpp"
+#include "IndexSet.hpp"
 
 namespace cse {
 class RichText {
