@@ -21,7 +21,7 @@ namespace cse{
   public:
     AuditedArray();
     AuditedArray(const AuditedArray<T, Size>& other);
-    AuditedArray(const AuditedArray<T, Size>&& other) = default;
+
     ~AuditedArray() = default;
     AuditedArray<T, Size>& operator=(const AuditedArray<T, Size>& other);
     T& operator[](int index);

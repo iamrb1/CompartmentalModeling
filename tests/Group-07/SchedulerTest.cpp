@@ -45,6 +45,19 @@ TEST_CASE("SchedulerTest Remove", "[Scheduler]")
     CHECK(2== scheduler.GetUniqueProcesses());
 }
 
+
+TEST_CASE("SchedulerTest Empty", "[Scheduler]")
+{
+    cse::Scheduler scheduler;
+    CHECK(true==scheduler.empty());
+
+    scheduler.AddProcess(0);
+    CHECK(false==scheduler.empty());
+
+    scheduler.RemoveProcess(0);
+    CHECK(true==scheduler.empty());
+}
+
 TEST_CASE("SchedulerTest Update", "[Scheduler]")
 {
     cse::Scheduler scheduler;
