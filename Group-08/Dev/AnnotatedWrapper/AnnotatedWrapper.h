@@ -8,20 +8,22 @@
 class AnnotatedWrapper {
 public:
     // Constructor
-    AnnotatedWrapper() = default;
+    AnnotatedWrapper(){
+        annotations = std::unordered_map<std::string, std::string>();
+    };
 
     // Destructor
-    ~AnnotatedWrapper() = default;
+    // ~AnnotatedWrapper() = default;
 
     // Public methods
-    void addAnnotation( std::string key, std::any value);
-    std::any getAnnotation(std::string key);
-    void removeAnnotation(std::string key);
+    void addAnnotation( const std::string& key, const std::string& value);
+    std::string getAnnotation(const std::string key);
+    void removeAnnotation(const std::string key);
     void listAnnotations();
     void clearAnnotations();
 
 private:
-    std::unordered_map<std::string, std::any> annotations;
+    std::unordered_map<std::string, std::string> annotations;
 
 };
 
