@@ -22,7 +22,7 @@ class StateGrid {
   std::vector<std::string> m_grid;
 
  public:
-  StateGrid(size_t rows, size_t cols, const std::string& diff);
+  StateGrid(const std::string& diff);
 
   void choose_map(const std::string& diff);
 

@@ -5,9 +5,12 @@
  *
  */
 
-#include <cse/StateGrid.h>
 
 #pragma once
+
+#include <cse/StateGrid.h>
+//#include "../../include/cse/StateGrid.h"
+
 
 #ifndef CSEG2_INCLUDE_CSE_STATEGRIDPOSITION_H
 #define CSEG2_INCLUDE_CSE_STATEGRIDPOSITION_H
@@ -24,7 +27,7 @@ class StateGridPosition {
 
  private:
   ///The orientation in degrees
-  double m_object_orientation = 0;
+  double m_object_orientation;
 
   Point m_object_position;
 
@@ -34,7 +37,10 @@ class StateGridPosition {
   StateGrid* m_state_grid = nullptr;
 
  public:
-  Point create_point(int x, int y) {
+
+  StateGridPosition(const std::string& name);
+
+  Point create_point(double x, double y) {
     Point p;
     p.x = x;
     p.y = y;
