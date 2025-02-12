@@ -22,6 +22,8 @@ Date: 1/31/2025
  * All function definitions will be in the header since this is a templated class.
  */
 
+namespace cse {
+
 template<typename Input, typename Output>
 class MemoFunction {
  public:
@@ -67,5 +69,7 @@ class MemoFunction {
   std::function<Output(Input)> func_;
   mutable std::unordered_map<Input, Output> cache_;
 };
+
+} // namespace cse
 
 #endif  // MEMOFUNCTION_H
