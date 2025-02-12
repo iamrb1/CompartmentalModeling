@@ -3,9 +3,16 @@
 
 using Catch::Matchers::WithinAbs;
 
-TEST_CASE("Test cse498::Distribution", "[base]")
+TEST_CASE("Test cse498::Distribution", "[base]")\
 {
   cse498::Distribution distribution;
+
+  const double tolerance = 0.0001;
+  const double bin3 = 0.0081;
+  const double bin3cumulative = 0.99954;
+  const double uni3 = 0.02;
+  const double uni3cumulative = 0.6;
+
 
   // Test trying an empty distributiongi
   CHECK_THROWS_AS(distribution.getProb(2),std::runtime_error);
@@ -13,13 +20,13 @@ TEST_CASE("Test cse498::Distribution", "[base]")
   
   // Test making a uniform distribution
   distribution.BuildUniform(5);
-  CHECK(distribution.getProb(3) == 0.2);
-  CHECK(distribution.getCumulativeProb(3) == 0.6);
+  CHECK(distribution.getProb(3) == uni3);
+  CHECK(distribution.getCumulativeProb(3) == uni3cumulative);
 
   // Test making a binomial distribution
   distribution.BuildBinomial(5, .1);
-  CHECK(std::fabs(distribution.getProb(3)-0.0081)<.0001);
-  CHECK(std::fabs(distribution.getCumulativeProb(3)-0.99954)<.00001);
+  CHECK_THAT(distribution.getProb(3) == Catch::Matchers::WithinAbs(bin3, tolerance));
+  CHECK_THAT(distribution.getCumulativeProb(3) == Catch::Matchers::WithinAbs(bin3cumulative, tolerance));
 
   // Test distributions to see if you can use nonsence vals
   CHECK_THROWS_AS(distribution.BuildUniform(0),std::runtime_error);

@@ -1,4 +1,3 @@
-@ -1,93 +0,0 @@
 #pragma once
 
 #include <string>
@@ -74,8 +73,11 @@ double Distribution::getProb(std::int32_t trials){
     if(probs.empty()){
         throw std::runtime_error("You have not built a distrubtion");
     }
-    if(trials >= probs.size() || trials < 1){
-         std::out_of_range("More trials than you listed");
+    if(trials < 1){
+        std::out_of_range("More trials than you listed");
+    }
+    if(trials >= probs.size()){
+        return 0.0;
     }
     return probs[trials-1];
 }
@@ -84,11 +86,13 @@ double Distribution::getCumulativeProb(std::int32_t trials){
    if(cumulative_probs.empty()){
         throw std::runtime_error("You have not built a distrubtion");
     }
-    if(trials >= cumulative_probs.size() || trials < 1){
+    if(ttrials < 1){
         std::out_of_range("More trials than you listed");
+    }
+    if(trials >= cumulative_probs.size()){
+        return 0.0;
     }
     return cumulative_probs[trials-1];
 }
 
 } // namespace cse498
-
