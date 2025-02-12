@@ -2,7 +2,9 @@
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
+#include <stdexcept>
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
+#define exit(code) throw std::runtime_error("exit exception") // redefine exit for testing purposes
 #include "../../Group-06/ErrorManager/ErrorManager.cpp"
 
 TEST_CASE("Tests for printError messages with color", "[printError]")
@@ -162,7 +164,23 @@ TEST_CASE("Action for a specific ErrorLevel is invoked", "[setAction]") {
     std::cout.rdbuf(oldCout);
 }
 
-
 TEST_CASE("Program terminates with a specific error code", "enableTermination") {
-    // to be implemented...
+    cse::ErrorManager manager;
+    std::stringstream buffer;
+    std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
+    
+    SECTION("Program exits when a corresponding error is triggered") {
+        manager.enableTermination(cse::ErrorManager::ErrorLevel::Info, true, 228);
+        manager.enableColors(false);
+        try {
+            manager.printError("Info message", cse::ErrorManager::ErrorLevel::Info);
+            FAIL("The program did not terminate when printError was called");
+        } catch (std::runtime_error& e) {
+            REQUIRE(buffer.str() == "[Info]: Info message\n");
+            REQUIRE(std::string(e.what()) == "exit exception");
+        }
+    }
+    std::cout.rdbuf(oldCout);
 }
+
+#undef exit //undefine exit

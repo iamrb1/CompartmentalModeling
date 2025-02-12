@@ -87,8 +87,9 @@ namespace cse {
                 actions[level]();
             }
 
-            if (terminationEnabled[level] > 0) {
-                exit(terminationEnabled[level]);
+            int code = terminationEnabled[level];
+            if (code > 0) {
+                exit(code);
             }
         }
 
