@@ -1,0 +1,23 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "clang++",
+            "args": [
+                "-std=c++17",
+                "-o",
+                "${workspaceFolder}/main",
+                "${workspaceFolder}/Dev/AnnotatedWrapper/main.cpp",
+                "${workspaceFolder}/Dev/AnnotatedWrapper/AnnotatedWrapper.cpp"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"],
+            "detail": "Generated task for building the project."
+        }
+    ]
+}
