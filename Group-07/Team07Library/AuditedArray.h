@@ -48,9 +48,7 @@ namespace cse{
   template <typename T, size_t Size>
   AuditedArray<T, Size>::AuditedArray(const AuditedArray<T, Size>& other) {
     // Copy constructor
-    if (this->size() != other.size()) {
-      throw std::invalid_argument("Array sizes do not match");
-    }
+    assert (this->size() == other.size()); // Asserting that the sizes are the same
     std::copy(other.begin(), other.end(), begin());
   }
 
@@ -61,9 +59,7 @@ namespace cse{
     if (this == &other) {
       return *this;
     }
-    if (this->size() != other.size()) {
-      throw std::invalid_argument("Array sizes do not match");
-    }
+    assert (this->size() == other.size()); // Asserting that the sizes are the same
     std::copy(other.begin(), other.end(), begin());
     return *this;
   }
@@ -71,7 +67,7 @@ namespace cse{
   template <typename T, size_t Size>
   T& AuditedArray<T, Size>::operator[](int index) {
     int size_int = static_cast<int>(Size);
-    if (index < 0 || index >= size_int) {
+    if (index < 0 || index >= size_int) { // Throwing an exception if the index is out of range
       throw std::out_of_range("Index out of range");
     }
     return data[index];
@@ -79,7 +75,7 @@ namespace cse{
 
   template <typename T, size_t Size>
   const T& AuditedArray<T, Size>::operator[](int index) const {
-    if (index < 0 || index >= Size) {
+    if (index < 0 || index >= Size) { // Throwing an exception if the index is out of range
       throw std::out_of_range("Index out of range");
     }
     return data[index];
