@@ -156,7 +156,6 @@ void AND_TEST(cse::BitVector& a, cse::BitVector& b) {
 
       a &= b;
 
-      std::cout << a << " | " << b << " | " << chk << "\n";
       CHECK(a == chk);
       CHECK(a.count() == chk.count());
     }
@@ -224,42 +223,50 @@ TEST_CASE("Test OR operation on BitVectors", "[bitvector]") {
   OR_TEST(a3, b3);
 }
 
-#ifdef WHATEVER
-TEST_CASE("Test bitwise XOR on BitVectors", "[bitvector]") {
-  // Test all combos of bits from 00000000 00000000 to 11111111 11111111
-  cse::BitVector a1(8), b1(8);
-  cse::BitVector chk1(8);
 
-  for (size_t a = 0; a < ((size_t)1 << a1.size()); a++) {
-    for (size_t b = 0; b < ((size_t)1 << b1.size()); b++) {
-      a1.reset();
-      b1.reset();
+void XOR_TEST(cse::BitVector& a, cse::BitVector& b) {
+  cse::BitVector chk(a.size());
 
-      for (size_t i = 0; (a >> i) > 0; i++) {
-        if ((a >> i) & 1) {
-          a1[i] = true;
-          chk1[i] = true;
+  for (size_t i = 0; i < ((size_t)1 << a.size()); i++) {
+    for (size_t j = 0; j < ((size_t)1 << b.size()); j++) {
+      a.reset();
+      b.reset();
+      chk.reset();
+
+      for (size_t k = 0; (i >> k) > 0; k++) {
+        if ((i >> k) & 1) {
+          a[k] = true;
+          chk[k] = true;
         }
       }
 
-      for (size_t i = 0; (b >> i) > 0; i++) {
-        if ((b >> i) & 1) {
-          b1[i] = true;
-          if (a1[i])
-            chk1[i] = false;
-          else
-            chk1[i] = true;
+      for (size_t k = 0; (j >> k) > 0; k++) {
+        if ((j >> k) & 1) {
+          b[k] = true;
+          if (k < chk.size())
+            chk[k] = !chk[k];
         }
       }
-      
-      a1 ^= b1;
 
-      std::cout << a1 << "A|B " << b1 << "B|C " << chk1 << "\n";
+      a ^= b;
 
-      CHECK(a1 == chk1);
-      CHECK(a1.count() == chk1.count());
+      CHECK(a == chk);
+      CHECK(a.count() == chk.count());
     }
   }
 }
 
-#endif
+TEST_CASE("Test bitwise XOR on BitVectors", "[bitvector]") {
+  // Test all combos of bits
+  cse::BitVector a1(9), b1(9);
+  XOR_TEST(a1, b1);
+
+  // Test all combos of bits (a < b)
+  cse::BitVector a2(7), b2(9);
+  XOR_TEST(a2, b2);
+
+  // Test all combos of bits (b > a)
+  cse::BitVector a3(9), b3(7);
+  XOR_TEST(a3, b3);
+}
+

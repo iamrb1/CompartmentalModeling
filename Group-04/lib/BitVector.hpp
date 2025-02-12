@@ -3,6 +3,7 @@
 #include <format>
 #include <iostream>
 #include <vector>
+
 #include "CseAssert.hpp"
 
 namespace cse {
@@ -252,24 +253,28 @@ BitVector::reference& BitVector::reference::flip() {
 
 // Bit string constructor
 BitVector::BitVector(std::string bstr, char zero, char one) {
-    num_bits = bstr.size();
-    num_set = 0;
-    underlying.resize(num_bits / 8 + (num_bits % 8 == 0 ? 0 : 1), std::byte{0});
+  num_bits = bstr.size();
+  num_set = 0;
+  underlying.resize(num_bits / 8 + (num_bits % 8 == 0 ? 0 : 1), std::byte{0});
 
-    for (size_t i = 0; i < num_bits; ++i) {
-      size_t idx = num_bits - (i + 1);
-      if (bstr[idx] == one) {
-        (*this)[i] = true;
-      } else if (bstr[idx] != zero) {
-        throw std::invalid_argument(std::format("Unexpected character in bit string (1 = '{}') (0 = '{}'): '{}'", one, zero, bstr[idx]));
-      }
+  for (size_t i = 0; i < num_bits; ++i) {
+    size_t idx = num_bits - (i + 1);
+    if (bstr[idx] == one) {
+      (*this)[i] = true;
+    } else if (bstr[idx] != zero) {
+      throw std::invalid_argument(std::format(
+          "Unexpected character in bit string (1 = '{}') (0 = '{}'): '{}'", one,
+          zero, bstr[idx]));
     }
+  }
 }
 
 // Get the index as a reference
 BitVector::reference BitVector::operator[](size_t idx) {
 #ifndef NDEBUG
-  dbg_assert(idx < num_bits);
+  if (num_bits <= idx)
+    throw std::out_of_range(std::format(
+        "Invalid index into BitVector: idx - {}, max - {}", idx, num_bits));
 #endif
   return reference(this, &underlying[idx / 8], (uint8_t)(idx % 8));
 }
@@ -277,18 +282,24 @@ BitVector::reference BitVector::operator[](size_t idx) {
 // Get the index as a const bool
 bool BitVector::operator[](size_t idx) const {
 #ifndef NDEBUG
-  dbg_assert(idx < num_bits);
+  if (num_bits <= idx)
+    throw std::out_of_range(std::format(
+        "Invalid index into BitVector: idx - {}, max - {}", idx, num_bits));
 #endif
   const std::byte b = (std::byte{1} << (idx % 8)) & underlying[idx / 8];
   return b != std::byte{0};
 }
 
 // Set bits in a pattern
-BitVector& BitVector::pattern_set(size_t start, size_t count, std::byte pattern) {
-  if (count == 0) return *this;
+BitVector& BitVector::pattern_set(size_t start, size_t count,
+                                  std::byte pattern) {
+  if (count == 0)
+    return *this;
   else if ((start + count) > num_bits)
-    throw std::out_of_range(std::format(
-        "Invalid range to pattern_set BitVector: start: {}, count: {}, number of bits is: {}", start, count, num_bits));
+    throw std::out_of_range(
+        std::format("Invalid range to pattern_set BitVector: start: {}, count: "
+                    "{}, number of bits is: {}",
+                    start, count, num_bits));
 
   // Offset the pattern due to where the start bit is
   pattern = (pattern << (start % 8)) | (pattern >> (8 - (start % 8)));
@@ -300,7 +311,8 @@ BitVector& BitVector::pattern_set(size_t start, size_t count, std::byte pattern)
 
   // Total bits set in the new sequence
   size_t ps_total = (size_t)BIT_LOOKUP(pattern) * (count / 8);
-  ps_total += (size_t)BIT_LOOKUP(pattern & (std::byte{0b11111111} >> (8 - count % 8)));
+  ps_total +=
+      (size_t)BIT_LOOKUP(pattern & (std::byte{0b11111111} >> (8 - count % 8)));
   // Counter for the number of bytes in the old sequence
   size_t ps_before = 0;
 
@@ -326,9 +338,9 @@ BitVector& BitVector::pattern_set(size_t start, size_t count, std::byte pattern)
 
   ps_before += BIT_LOOKUP(underlying[idx] & bot_mask);
   underlying[idx] = (underlying[idx] & ~bot_mask) | (pattern & bot_mask);
-  
+
   // Loop set
-  for(++idx; (idx + 1)*8 < start + count; ++idx) {
+  for (++idx; (idx + 1) * 8 < start + count; ++idx) {
     ps_before += BIT_LOOKUP(underlying[idx]);
     underlying[idx] = pattern;
   }
@@ -362,15 +374,15 @@ BitVector& BitVector::set(size_t idx) {
 // start and ending at (start + count - 1)
 BitVector& BitVector::set(size_t start, size_t count) {
   if ((start + count) > num_bits)
-    throw std::out_of_range(std::format(
-        "Invalid range to set BitVector: start: {}, count: {}, number of bits is: {}", start, count, num_bits));
+    throw std::out_of_range(
+        std::format("Invalid range to set BitVector: start: {}, count: {}, "
+                    "number of bits is: {}",
+                    start, count, num_bits));
   return pattern_set(start, count, std::byte{0b11111111});
 }
 
 // Reset all bits in the vector
-BitVector& BitVector::reset() {
-  return pattern_set(0, num_bits, std::byte{0});
-}
+BitVector& BitVector::reset() { return pattern_set(0, num_bits, std::byte{0}); }
 
 // Reset a bit in the vector
 BitVector& BitVector::reset(size_t idx) {
@@ -386,8 +398,10 @@ BitVector& BitVector::reset(size_t idx) {
 // start and ending at (start + count - 1)
 BitVector& BitVector::reset(size_t start, size_t count) {
   if ((start + count) > num_bits)
-    throw std::out_of_range(std::format(
-        "Invalid range to reset BitVector: start: {}, count: {}, number of bits is: {}", start, count, num_bits));
+    throw std::out_of_range(
+        std::format("Invalid range to reset BitVector: start: {}, count: {}, "
+                    "number of bits is: {}",
+                    start, count, num_bits));
   return pattern_set(start, count, std::byte{0});
 }
 
@@ -472,7 +486,7 @@ BitVector& BitVector::operator&=(const BitVector& rhs) {
   for (; i < underlying.size(); i++) {
     uint8_t diff = BIT_LOOKUP(underlying[i]);
     underlying[i] = std::byte{0};
-    num_bits -= diff;
+    num_set -= diff;
   }
 
   return *this;
@@ -742,8 +756,7 @@ std::ostream& operator<<(std::ostream& os, const BitVector& bv) {
       os << std::format("{:0>8b}\n", std::to_integer<uint8_t>(*b));
     else {
       os << std::format("{:0>8b}", std::to_integer<uint8_t>(*b));
-      if (b != (bv.underlying.rend() - 1))
-        os << " ";
+      if (b != (bv.underlying.rend() - 1)) os << " ";
     }
     byte++;
   }
