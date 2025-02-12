@@ -4,8 +4,7 @@
  */
 
 #include "EventManager.hpp"
-#include <limits>
-#include <cassert>
+
 
 namespace cse {
 
@@ -41,6 +40,8 @@ void EventManager::TriggerEvents() {
  * @return true if successful, false if event does not exist in queue
  */
 bool EventManager::PauseEvent(int event_id) {
+  assert( ((paused_events_.count(event_id) > 0) ||
+    (running_events_.count(event_id) > 0)) && "Event ID must be a managed ID."  );
   if (paused_events_.count(event_id) > 0) {
     return true;
   } else if (running_events_.count(event_id) > 0) {
@@ -57,6 +58,8 @@ bool EventManager::PauseEvent(int event_id) {
  * @return true if successfully removed, false if event is not currently paused
  */
 bool EventManager::ResumeEvent(int event_id) {
+  assert( ((paused_events_.count(event_id) > 0) ||
+      (running_events_.count(event_id) > 0)) && "Event ID must be a managed ID."  );
   if (running_events_.count(event_id) > 0) {
     return true;
   } else if (paused_events_.count(event_id) > 0) {

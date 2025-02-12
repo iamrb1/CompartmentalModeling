@@ -13,6 +13,7 @@
 #include <iostream>
 #include <utility>
 #include <set>
+#include <cassert>
 #include "../Event/Event.hpp"
 #include "../EventQueue/EventQueue.hpp"
 
