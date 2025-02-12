@@ -30,6 +30,7 @@ namespace cse {
 
     std::shared_ptr<cse::Edge> const GetEdge(std::shared_ptr<cse::Vertex> const &to);
 
+    void ToFile(std::ostream &s, std::string const &prefix);
     friend std::ostream &operator<<(std::ostream &, const Vertex &);
     friend bool operator==(const Vertex &lhs, const Vertex &rhs);
     friend class Graph; // Allow Graph to call RemoveEdge
