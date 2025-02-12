@@ -9,107 +9,92 @@
 #pragma once
 
 #include <vector>
-#include <memory>
 #include <stdexcept>
 #include "Datum.h"
 
 namespace cse {
 
-/**
- * A vector class that keeps pointers to Datum instances under the hood.
- */
 class ReferenceVector {
  private:
-  /// Stores the reference vector.
+  /// Stores pointers to Datum instances.
   std::vector<Datum*> mData;
 
  public:
-  class Proxy {
-   private:
-    /// Stores a pointer to a Datum.
-    Datum* mDatum;
-
-   public:
-    /**
-    * Constructs a Proxy object for a given Datum pointer.
-    *
-    * @param datum A pointer to the Datum instance.
-    */
-    explicit Proxy(Datum* datum) : mDatum(datum) {};
-
-    Proxy& operator=(const Datum& value);
-    
-    /**
-    * Implicitly converts the Proxy object to a Datum reference.
-    *
-    * @return Datum& A reference to the underlying Datum.
-    */
-    operator Datum&() { return *mDatum; };
-
-    /**
-    * Provides pointer-like access to the underlying Datum instance.
-    *
-    * @return Datum* A pointer to the Datum instance.
-    */
-    Datum* operator->() { return mDatum; };
-  };
-
   /**
-  * Constructor for a reference vector.
-  *
-  * @param none
-  */
+   * Default constructor for ReferenceVector.
+   */
   ReferenceVector() = default;
 
   /**
-   * Pushes an element to the vector.
+   * Pushes a Datum reference into the vector.
    *
    * @param datum The reference to a Datum.
    */
-  void push_back(Datum& datum) { mData.push_back(&datum); };
+  void push_back(Datum& datum) { mData.push_back(&datum); }
 
+  /**
+   * Removes the last element in the vector.
+   */
   void pop_back();
 
   /**
-   * Returns the size of the reference vector.
+   * Returns the number of elements in the vector.
    *
-   * @return size_t The size of the reference vector.
+   * @return size_t The size of the vector.
    */
-  size_t size() const { return mData.size(); };
+  size_t size() const { return mData.size(); }
 
   /**
-   * Returns true or false if the reference vector is empty.
+   * Checks if the vector is empty.
    *
-   * @return bool The boolean of if the reference vector is empty.
+   * @return bool True if empty, otherwise false.
    */
-  bool empty() const { return mData.empty(); };
+  bool empty() const { return mData.empty(); }
 
   /**
-   * Clears the reference vector completely.
+   * Clears all elements from the vector.
    */
-  void clear() { mData.clear(); };
+  void clear() { mData.clear(); }
 
-  Proxy operator[](size_t index);
+  /**
+   * Accesses a Datum reference at the given index.
+   *
+   * @param index The position of the element.
+   * @return Datum& Reference to the Datum at the index.
+   */
+  Datum& operator[](size_t index);
 
+  /**
+   * Returns a reference to the Datum at the given index.
+   *
+   * @param index The index of the desired element.
+   * @return Datum& Reference to the Datum.
+   */
   Datum& at(size_t index);
 
+  /**
+   * Returns a reference to the first Datum in the vector.
+   *
+   * @return Datum& Reference to the first Datum.
+   */
   Datum& front();
 
+  /**
+   * Returns a reference to the last Datum in the vector.
+   *
+   * @return Datum& Reference to the last Datum.
+   */
   Datum& back();
 
   /**
-   * Returns an iterator to the beginning of the reference vector.
-   *
-   * @return std::vector<Datum*>::iterator An iterator pointing to the first element.
+   * Returns an iterator to the beginning of the vector.
    */
-  std::vector<Datum*>::iterator begin() { return mData.begin(); };
-  
+  std::vector<Datum*>::iterator begin() { return mData.begin(); }
+
   /**
-   * Returns an iterator to the end of the reference vector.
-   *
-   * @return std::vector<Datum*>::iterator An iterator pointing past the last element.
+   * Returns an iterator to the end of the vector.
    */
-  std::vector<Datum*>::iterator end() { return mData.end(); };
+  std::vector<Datum*>::iterator end() { return mData.end(); }
 };
 
-}  // namespace cse
+}  // namespace cse 
