@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <stdexcept>
 #include <cstdint>
+#include <cassert>
 
 namespace cse {
     /**
@@ -21,6 +22,11 @@ namespace cse {
             Fatal
         };
 
+        static constexpr const char* COLOR_GREEN = "\033[32m";
+        static constexpr const char* COLOR_YELLOW = "\033[33m";
+        static constexpr const char* COLOR_RED = "\033[31m";
+        static constexpr const char* COLOR_RESET = "\033[0m";
+
         /**
          * @brief Executes a function and displays an error if function throws during execution
          * 
@@ -29,6 +35,8 @@ namespace cse {
          * @param level Error level of a message
          */
         void executeAndHandleError(const std::function<void()>& function, const std::string& message="", ErrorLevel level = ErrorLevel::Info) {
+            assert(function);
+
             try {
                 function();
             } catch (const std::exception& e) {
@@ -52,9 +60,23 @@ namespace cse {
          * @param message Message to be sent to user
          * @param level Error level of a message. Defaults to "Info"
          */
-        void printError(size_t line, const std::string& message, ErrorLevel level = ErrorLevel::Info) {
+        void printError(int32_t line, const std::string& message, ErrorLevel level = ErrorLevel::Info) {
+            
+            assert(!message.empty());
+
             std::stringstream ss;
-            ss << "[" << stringColorCodes[level] << errorLevelToString(level) << "\033[0m]";
+            ss << "[";
+            if (colorsEnabled) {
+                ss << stringColorCodes[level];
+            }
+            ss << errorLevelToString(level);
+            if (colorsEnabled) {
+                ss << COLOR_RESET;
+            }
+            ss << "]";
+
+            assert(line >= 0);
+
             if (line > 0) {
                 ss << " (line " << line << ")";
             }
@@ -63,6 +85,10 @@ namespace cse {
 
             if (actions.find(level) != actions.end()) {
                 actions[level]();
+            }
+
+            if (terminationEnabled[level] > 0) {
+                exit(terminationEnabled[level]);
             }
         }
 
@@ -73,6 +99,8 @@ namespace cse {
          * @param action Function that will be called. Does not accept arguments and returns void
          */
         void setAction(ErrorLevel level, std::function<void()> action) {
+            assert(action);
+            
             actions[level] = action;
         }
 
@@ -108,9 +136,9 @@ namespace cse {
          * 
          */
         std::unordered_map<ErrorLevel, std::string> stringColorCodes = {
-            {ErrorLevel::Info, "\033[32m"},
-            {ErrorLevel::Warning, "\033[33m"},
-            {ErrorLevel::Fatal, "\033[31m"}
+            {ErrorLevel::Info, COLOR_GREEN},
+            {ErrorLevel::Warning, COLOR_YELLOW},
+            {ErrorLevel::Fatal, COLOR_RED}
         };
 
         std::unordered_map<ErrorLevel, int32_t> terminationEnabled = {
