@@ -1,22 +1,34 @@
 #include "DataTracker.h"
 #include <algorithm>
 #include <numeric>
+#include <cassert>
+
 
 namespace cse {
 void DataTracker::add_value(double value) {
+    size_t old_size = values.size();
     values.push_back(value);
+
+    assert(values.size() >= old_size && "Size did not increase");
+
 }
 
 void DataTracker::delete_value(double value) {
+    size_t old_size = values.size();
     auto it = std::find(values.begin(), values.end(), value);
     if (it != values.end()) {
         values.erase(it);
     }
+    assert(values.size() <= old_size && "Size did not decrease");
 }
 
 double DataTracker::mean() const {
     if (values.empty()) return 0.0;
-    return std::accumulate(values.begin(), values.end(), 0.0) / values.size();
+    double mean = std::accumulate(values.begin(), values.end(), 0.0) / values.size();
+
+    assert(mean >= min() && mean <= max() && "Mean should be within the range.");
+
+    return mean;
 }
 
 double DataTracker::median() const {
@@ -33,15 +45,29 @@ double DataTracker::median() const {
 
 double DataTracker::min() const {
     if (values.empty()) return 0.0;
-    return *std::min_element(values.begin(), values.end());
+    
+    double min = *std::min_element(values.begin(), values.end());
+
+    assert(std::all_of(values.begin(), values.end(), [&](double v) { return v >= min; }) && 
+           "Min value is not actually the minimum.");
+
+    return min;
 }
 
 double DataTracker::max() const {
     if (values.empty()) return 0.0;
-    return *std::max_element(values.begin(), values.end());
+
+    double max = *std::max_element(values.begin(), values.end());
+
+    assert(std::all_of(values.begin(), values.end(), [&](double v) { return v <= max; }) && 
+           "Max value is not actually the maximum.");
+
+    return max;
 }
 
 size_t DataTracker::total() const {
-    return values.size();
+    size_t size = values.size();
+    assert(size >= 0 && "Total count cannot be negative.");
+    return size;
 }
 }
