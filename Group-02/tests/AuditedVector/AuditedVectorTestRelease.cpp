@@ -1,13 +1,15 @@
 /**
- * @file AuditedVectorTestRelease.cpp
+* @file AuditedVectorTestRelease.cpp
  * @author Matthew Hawkins
+ *
+ * In release mode, our audited vector is just an alias for std::vector.
+ * Thus, we test its behavior as a normal vector.
  */
 
 #define NDEBUG
 #include <cassert>
 #include "../../include/third-party/Catch/single_include/catch2/catch.hpp"
 #include "../../include/cse/AuditedVector.h"
-
 
 TEST_CASE("AuditedVector Release: operator[] works like std::vector", "[AuditedVector][release]") {
   cse::AuditedVector<int> vec { 10, 20, 30 };
