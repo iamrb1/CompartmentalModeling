@@ -1,4 +1,4 @@
-TEST_NAMES = AuditedPointerTest
+TEST_NAMES = AuditedPointerDebugTest AuditedPointerNonDebugTest
 
 # -O3	  -Wl,--stack,8388608 -ftrack-macro-expansion=0
 FLAGS = -std=c++20 -g -pthread -Wall -Wextra -I../../ -DCATCH_CONFIG_MAIN
@@ -30,7 +30,11 @@ coverage: test-prep $(addprefix cov-, $(TEST_NAMES))
 
 # Test optimized version without debug features
 opt: FLAGS := -std=c++20 -pthread -DNDEBUG -O3 -Wno-unused-function -I../../include/ -I../../third-party/cereal/include/ -I../../ -DCATCH_CONFIG_MAIN
-opt: test-prep $(addprefix test-, $(TEST_NAMES))
+opt: test-prep
+	$(CXX) $(FLAGS) -NDEBUG AuditedPointerNonDebugTest.cpp -o test-AuditedPointerNonDebugTest.out
+	./test-AuditedPointerNonDebugTest.out
+	$(CXX) $(FLAGS) AuditedPointerDebugTest.cpp -o test-AuditedPointerDebugTest.out
+	./test-AuditedPointerDebugTest.out
 	rm -rf test*.out
 
 # Test in debug mode with pointer tracking

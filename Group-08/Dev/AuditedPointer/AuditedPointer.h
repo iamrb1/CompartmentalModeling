@@ -3,7 +3,7 @@
 #include <iostream>
 #include <memory>
 
-#ifdef DNDEBUG
+#ifdef NDEBUG
 
 // ==================== Non-Debug Mode (Raw Pointer) ====================
 
