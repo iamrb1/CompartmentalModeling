@@ -44,6 +44,15 @@ class TextBox {
       : text(config.text), width(config.width), height(config.height) {}
 
   /**
+   * @brief Compares two TextBox objects and determine if they are the same values
+   * @param text_box to compare
+   * @return true if same values
+   */
+  bool operator==(const TextBox &text_box) const {
+    return ((text_box.text == text) && (text_box.width == width) && (text_box.height == height));
+  }
+
+  /**
    * @brief Get the Text object
    *
    * @return std::string
