@@ -3,6 +3,7 @@ project(Tests)
 set(TEST_FILES
         gtest_main.cpp
         EmptyTest.cpp
+        FunctionSetTest.cpp
 )
 
 # Get Google Tests
