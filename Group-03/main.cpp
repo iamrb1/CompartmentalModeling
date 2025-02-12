@@ -2,9 +2,10 @@
  * @file main.cpp
  * @author jiang
  */
-#include <stdio.h>
+#include "pch.h"
 #include <iostream>
 
-int main(void){
+int WinMain(void){
     std::cout<<"Hello! Welcome to Dare to Run"<<std::endl;
+    return 0;
 }

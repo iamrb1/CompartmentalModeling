@@ -22,4 +22,6 @@ TEST(FunctionSetTest, IsAdded)
     eY1.addFunction([](int x){ return x + 1; });
     eY1.addFunction([](int x){ return x * 2; });
     ASSERT_EQ(eY1.countFunSet(),2U);
+
+    EXPECT_FALSE(eY1.isEmpty());
 }
