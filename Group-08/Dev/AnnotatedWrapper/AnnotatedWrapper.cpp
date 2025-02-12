@@ -42,9 +42,15 @@ void AnnotatedWrapper::removeAnnotation(const std::string key) {
 }
 
 void AnnotatedWrapper::listAnnotations() {
-    for (const auto& pair : annotations) {
-        std::cout << "Key: " << pair.first << ", Value: " << pair.second << std::endl;
+    if (annotations.empty()) {
+        std::cout << "No annotations to list" << std::endl;
+        return;
+    } else {
+        for (const auto& pair : annotations) {
+            std::cout << "Key: " << pair.first << ", Value: " << pair.second << std::endl;
+        }
     }
+    
     // Method code
     // for (auto const& [key, val] : annotations) {
     //     std::cout << key << " : " << std::any_cast<std::string>(val) << std::endl;
