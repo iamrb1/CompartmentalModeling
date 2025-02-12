@@ -295,7 +295,8 @@ BitVector& BitVector::pattern_set(size_t start, size_t count, std::byte pattern)
 
   // Masks for end bytes in the seq
   std::byte bot_mask = std::byte{0b11111111} << (start % 8);
-  std::byte top_mask = std::byte{0b11111111} >> (8 - (start + count) % 8);
+  std::byte top_mask = std::byte{0b11111111};
+  if ((start + count) % 8) top_mask >>= (8 - (start + count) % 8);
 
   // Total bits set in the new sequence
   size_t ps_total = (size_t)BIT_LOOKUP(pattern) * (count / 8);
@@ -313,7 +314,8 @@ BitVector& BitVector::pattern_set(size_t start, size_t count, std::byte pattern)
     if (count % 8 != 0) top_mask >>= (8 - (count) % 8);
 
     bot_mask &= top_mask << (start % 8);
-    ps_before += BIT_LOOKUP(underlying[idx] & bot_mask);
+    ps_before = BIT_LOOKUP(underlying[idx] & bot_mask);
+    ps_total = BIT_LOOKUP(pattern & bot_mask);
 
     underlying[idx] = (underlying[idx] & ~bot_mask) | (pattern & bot_mask);
 
@@ -326,7 +328,7 @@ BitVector& BitVector::pattern_set(size_t start, size_t count, std::byte pattern)
   underlying[idx] = (underlying[idx] & ~bot_mask) | (pattern & bot_mask);
   
   // Loop set
-  for(++idx; idx*8 < start + count; ++idx) {
+  for(++idx; (idx + 1)*8 < start + count; ++idx) {
     ps_before += BIT_LOOKUP(underlying[idx]);
     underlying[idx] = pattern;
   }
@@ -738,8 +740,11 @@ std::ostream& operator<<(std::ostream& os, const BitVector& bv) {
   for (auto b = bv.underlying.rbegin(); b != bv.underlying.rend(); ++b) {
     if (byte % 4 == 3)
       os << std::format("{:0>8b}\n", std::to_integer<uint8_t>(*b));
-    else
-      os << std::format("{:0>8b} ", std::to_integer<uint8_t>(*b));
+    else {
+      os << std::format("{:0>8b}", std::to_integer<uint8_t>(*b));
+      if (b != (bv.underlying.rend() - 1))
+        os << " ";
+    }
     byte++;
   }
 
