@@ -5,7 +5,7 @@
 #include "pch.h"
 #include <iostream>
 
-int WinMain(void){
+int main(){
     std::cout<<"Hello! Welcome to Dare to Run"<<std::endl;
     return 0;
 }
