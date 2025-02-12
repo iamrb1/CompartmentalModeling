@@ -11,6 +11,8 @@ date: 1/31/2025
 #include <iomanip>
 #include <iostream>
 
+using namespace cse;
+
 int recursiveFib(int n) {
   if (n <= 1) return n;
   return recursiveFib(n - 1) + recursiveFib(n - 2);
