@@ -25,8 +25,8 @@ TEST_CASE("Test cse498::Distribution", "[base]")\
 
   // Test making a binomial distribution
   distribution.BuildBinomial(5, .1);
-  CHECK_THAT(distribution.getProb(3) == Catch::Matchers::WithinAbs(bin3, tolerance));
-  CHECK_THAT(distribution.getCumulativeProb(3) == Catch::Matchers::WithinAbs(bin3cumulative, tolerance));
+  CHECK_THAT(distribution.getProb(3), Catch::Matchers::WithinAbs(bin3, tolerance));
+  CHECK_THAT(distribution.getCumulativeProb(3), Catch::Matchers::WithinAbs(bin3cumulative, tolerance));
 
   // Test distributions to see if you can use nonsence vals
   CHECK_THROWS_AS(distribution.BuildUniform(0),std::runtime_error);
