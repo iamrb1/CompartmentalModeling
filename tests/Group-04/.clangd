@@ -1,5 +1,0 @@
-CompileFlags:
-  Add:
-    - "-std=c++23"
-    - "-I../../third-party/Catch/single_include/catch2"
-    - "-I../../Group-04/lib/include"
