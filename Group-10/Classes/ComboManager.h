@@ -13,6 +13,8 @@ Date: 02/07/2025
 #include <stdexcept>
 #include <iterator>
 
+namespace cse {
+
 /**
  * @brief ComboManager class template.
  *
@@ -45,7 +47,7 @@ class ComboManager {
       throw std::invalid_argument("Combination size cannot be greater than the number of items in the container.");
     }
     // Precompute the total number of combinations.
-    total_combinations_ = BinomialCoefficient(n_, k_);
+    total_combinations_ = BinomialCoefficient_(n_, k_);
     // Initialize indices to the first combination: [0, 1, 2, ..., k_-1].
     indices_.resize(k_);
     for (std::size_t i = 0; i < k_; ++i) {
@@ -160,7 +162,7 @@ class ComboManager {
    * @param k Number of items per combination.
    * @return The binomial coefficient.
    */
-  static unsigned long long BinomialCoefficient(std::size_t n, std::size_t k) {
+  static unsigned long long BinomialCoefficient_(std::size_t n, std::size_t k) {
     if (k > n) {
       return 0;
     }
@@ -194,5 +196,7 @@ class ComboManager {
   // Precomputed total number of combinations.
   unsigned long long total_combinations_;
 };
+
+} // namespace cse
 
 #endif  // COMBOMANAGER_H
