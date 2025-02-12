@@ -21,5 +21,12 @@ double StateGridPosition::get_object_orientation() {
   }
   return m_object_orientation;
 }
+StateGridPosition::StateGridPosition(const std::string& name)
+{
+    m_central_position = create_point(0, 0);
+    m_object_orientation = 0;
+    m_state_grid = nullptr;
+    m_object_position = create_point(0, 0);
+}
 
 }  // namespace cse

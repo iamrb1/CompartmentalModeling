@@ -56,3 +56,14 @@ add_executable(AuditedVectorTest ${TEST_FILES})
 target_link_libraries(AuditedVectorTest PRIVATE Catch2::Catch2)
 
 add_test(NAME AuditedVectorTest COMMAND AuditedVectorTest)
+
+file(GLOB_RECURSE TEST_FILES tests/StateGridPosition/*.cpp)
+
+add_executable(StateGridPositionTest ${TEST_FILES} src/cse/StateGridPosition.cpp)
+
+target_include_directories(StateGridPositionTest PRIVATE ${PROJECT_SOURCE_DIR}/include)
+
+target_link_libraries(StateGridPositionTest PRIVATE Catch2::Catch2)
+
+add_test(NAME StateGridPositionTest COMMAND StateGridPositionTest)
+
