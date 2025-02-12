@@ -21,7 +21,8 @@ int main()
 
     aw.clearAnnotations();
 
-    std::cout << "Annotations after clearing: " <<  aw.listAnnotations() << std::endl;
+    std::cout << "Annotations after clearing: " << std::endl;
+    aw.listAnnotations();
 
     // std::cout << "Hello World" << std::endl;
     return 0;
