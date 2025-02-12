@@ -52,11 +52,15 @@ void Datum::AsString() {
       std::string string_numeric_value = std::to_string(GetDouble().value());
 
       // https://stackoverflow.com/questions/13686482/c11-stdto-stringdouble-no-trailing-zeros.
-      // Used the above link to help remove trailing 0s and . when a double converts into a string.
-      // find_last_not_of finds the last value of the indicated value (0 and .). Need to add 1 to find the first 0 or .
-      // string::npos indicates everything until the end of the string. So remove everything after the last 0 or .
-      string_numeric_value.erase(string_numeric_value.find_last_not_of('0') + 1, std::string::npos);
-      string_numeric_value.erase(string_numeric_value.find_last_not_of('.') + 1, std::string::npos);
+      // Used the above link to help remove trailing 0s and . when a double
+      // converts into a string. find_last_not_of finds the last value of the
+      // indicated value (0 and .). Need to add 1 to find the first 0 or .
+      // string::npos indicates everything until the end of the string. So
+      // remove everything after the last 0 or .
+      string_numeric_value.erase(string_numeric_value.find_last_not_of('0') + 1,
+                                 std::string::npos);
+      string_numeric_value.erase(string_numeric_value.find_last_not_of('.') + 1,
+                                 std::string::npos);
       mValue = string_numeric_value;
     }
   }
@@ -83,17 +87,20 @@ void Datum::AsDouble() {
   }
 }
 
-
 // TODO - May want to change the overloaded functions based on the specs
-//  Need to figure out how we want to do comparisons with different types(>, >=, <, <=)
-//  Also, need to test more (Will probably wait until we get a testing framework)
+//  Need to figure out how we want to do comparisons with different types(>, >=,
+//  <, <=) Also, need to test more (Will probably wait until we get a testing
+//  framework)
 
-// Used https://www.geeksforgeeks.org/operator-overloading-cpp/ to help me with operator overloading
+// Used https://www.geeksforgeeks.org/operator-overloading-cpp/ to help me with
+// operator overloading
 /**
  * Sums two Datums if they both contain doubles.
- * Otherwise, returns NaN if one Datum is a string and the other is a double, or if they are both strings.
+ * Otherwise, returns NaN if one Datum is a string and the other is a double, or
+ * if they are both strings.
  * @param datum the other Datum
- * @return A new Datum. If they are doubles, returns the sum of the Datums. Otherwise, returns NaN
+ * @return A new Datum. If they are doubles, returns the sum of the Datums.
+ * Otherwise, returns NaN
  */
 Datum Datum::operator+(const Datum &datum) const {
   if (AreDatumsDouble(datum)) {
@@ -104,9 +111,11 @@ Datum Datum::operator+(const Datum &datum) const {
 
 /**
  * Subtracts two Datums if they both contain doubles.
- * Otherwise, returns NaN if one Datum is a string and the other is a double, or if they are both strings.
+ * Otherwise, returns NaN if one Datum is a string and the other is a double, or
+ * if they are both strings.
  * @param datum the other Datum
- * @return A new Datum. If they are doubles, returns the difference between the Datums. Otherwise, returns NaN
+ * @return A new Datum. If they are doubles, returns the difference between the
+ * Datums. Otherwise, returns NaN
  */
 Datum Datum::operator-(const Datum &datum) const {
   if (AreDatumsDouble(datum)) {
@@ -117,26 +126,30 @@ Datum Datum::operator-(const Datum &datum) const {
 
 /**
  * Multiplies two Datums if they both contain doubles.
- * Otherwise, returns NaN if one Datum is a string and the other is a double, or if they are both strings.
+ * Otherwise, returns NaN if one Datum is a string and the other is a double, or
+ * if they are both strings.
  * @param datum the other Datum
- * @return A new Datum. If they are doubles, returns the products of the Datums. Otherwise, returns NaN
+ * @return A new Datum. If they are doubles, returns the products of the Datums.
+ * Otherwise, returns NaN
  */
 Datum Datum::operator*(const Datum &datum) const {
   if (AreDatumsDouble(datum)) {
-    return {GetDouble().value()*datum.GetDouble().value()};
+    return {GetDouble().value() * datum.GetDouble().value()};
   }
   return {std::numeric_limits<double>::quiet_NaN()};
 }
 
 /**
  * Divides two Datums if they both contain doubles.
- * Otherwise, returns NaN if one Datum is a string and the other is a double, or if they are both strings.
+ * Otherwise, returns NaN if one Datum is a string and the other is a double, or
+ * if they are both strings.
  * @param datum the other Datum
- * @return A new Datum. If they are doubles, returns the quotient of the Datums. Otherwise, returns NaN
+ * @return A new Datum. If they are doubles, returns the quotient of the Datums.
+ * Otherwise, returns NaN
  */
 Datum Datum::operator/(const Datum &datum) const {
   if (AreDatumsDouble(datum)) {
-    return {GetDouble().value()*datum.GetDouble().value()};
+    return {GetDouble().value() * datum.GetDouble().value()};
   }
   return {std::numeric_limits<double>::quiet_NaN()};
 }
@@ -145,13 +158,14 @@ Datum Datum::operator/(const Datum &datum) const {
  * Checks if two double or string Datums are equal.
  * Otherwise, returns false if one Datum is a string and the other is a double.
  * @param datum the other Datum
- * @return True if the Datums are the same type and equal each other. Otherwise, returns false
+ * @return True if the Datums are the same type and equal each other. Otherwise,
+ * returns false
  */
 bool Datum::operator==(const Datum &datum) const {
   if (AreDatumsDouble(datum)) {
     return std::abs(GetDouble().value() - datum.GetDouble().value()) < kEpsilon;
   } else if (AreDatumsStrings(datum)) {
-    return GetString().value()==datum.GetString().value();
+    return GetString().value() == datum.GetString().value();
   } else {
     return false;
   }
@@ -185,8 +199,9 @@ bool Datum::AreDatumsStrings(const Datum &datum) const {
   return false;
 }
 
-// Used https://www.geeksforgeeks.org/cpp-assignment-operator-overloading/ to help with assignment overloading
-// Used ChatGPT to help with the assignment comments
+// Used https://www.geeksforgeeks.org/cpp-assignment-operator-overloading/ to
+// help with assignment overloading Used ChatGPT to help with the assignment
+// comments
 /**
  * Assigns a value from a different Datum into this Datum.
  * @param datum The Datum to copy from.
@@ -194,7 +209,7 @@ bool Datum::AreDatumsStrings(const Datum &datum) const {
  */
 Datum &Datum::operator=(const Datum &datum) {
   // Checks if the object is not assigned to itself (From GeeksForGeeks)
-  if (this!=&datum) {
+  if (this != &datum) {
     mValue = datum.mValue;
   }
   return *this;
@@ -219,4 +234,4 @@ Datum &Datum::operator=(const std::string &string_value) {
   mValue = string_value;
   return *this;
 }
-}  // namespace cse
+} // namespace cse

@@ -1,10 +1,10 @@
+#include "src/CSVfile.h"
 #include "src/DataGrid.h"
 #include "src/Datum.h"
-#include "src/CSVfile.h"
-#include <iostream>
-#include <fstream>
 #include "src/ReferenceVector.h"
 #include <cmath>
+#include <fstream>
+#include <iostream>
 #include <typeinfo>
 
 // TODO - Improve and move test cases. Will need a testing framework (Probably
@@ -37,8 +37,8 @@ int main() {
   cse::Datum d_assignment_test(123);
   cse::Datum d_assignment_test1(345);
 
-  std::cout << "Original Output (123)"
-            << d_assignment_test.GetDouble().value() << std::endl;
+  std::cout << "Original Output (123)" << d_assignment_test.GetDouble().value()
+            << std::endl;
   d_assignment_test = d_assignment_test1;
   std::cout << "Output of assignment (345)"
             << d_assignment_test.GetDouble().value() << std::endl;
@@ -92,19 +92,22 @@ int main() {
   cse::Datum equal_datum1("test");
 
   cse::Datum double_test = d_add + d_add1;
-  std::cout << "Adding two double Datums: " << double_test.GetDouble().value() << std::endl;
+  std::cout << "Adding two double Datums: " << double_test.GetDouble().value()
+            << std::endl;
 
   cse::Datum datum_string_test = d_add1 + d_add2;
-  std::cout << "Adding one double and one string Datum: " << datum_string_test.GetDouble().value() << std::endl;
+  std::cout << "Adding one double and one string Datum: "
+            << datum_string_test.GetDouble().value() << std::endl;
 
   cse::Datum string_test = d_add2 + d_add3;
-  std::cout << "Adding two string Datums: " << string_test.GetDouble().value() << std::endl;
+  std::cout << "Adding two string Datums: " << string_test.GetDouble().value()
+            << std::endl;
 
-  std::cout << "Equal Check (1): " << (d_add==equal_datum) << std::endl;
-  std::cout << "Equal Check (0): " << (d_add==d_add1) << std::endl;
-  std::cout << "Equal Check (0): " << (d_add==d_add2) << std::endl;
-  std::cout << "Equal Check (0): " << (d_add2==d_add3) << std::endl;
-  std::cout << "Equal Check (1): " << (d_add2==equal_datum1) << std::endl;
+  std::cout << "Equal Check (1): " << (d_add == equal_datum) << std::endl;
+  std::cout << "Equal Check (0): " << (d_add == d_add1) << std::endl;
+  std::cout << "Equal Check (0): " << (d_add == d_add2) << std::endl;
+  std::cout << "Equal Check (0): " << (d_add2 == d_add3) << std::endl;
+  std::cout << "Equal Check (1): " << (d_add2 == equal_datum1) << std::endl;
 
   std::cout << "===" << std::endl;
 
@@ -114,34 +117,42 @@ int main() {
   refVec.push_back(d2);
   refVec.push_back(d3);
 
-  std::cout << "ReferenceVector size should be 3: " << refVec.size() << std::endl;
-  std::cout << "First element should be 987.987: " << refVec.front().GetDouble().value() << std::endl;
-  std::cout << "Access to element at will, should be string newTest: " << refVec.at(1).GetString().value() << std::endl;
-  std::cout << "Last element should be the string 987: " << refVec.back().GetString().value() << std::endl;
+  std::cout << "ReferenceVector size should be 3: " << refVec.size()
+            << std::endl;
+  std::cout << "First element should be 987.987: "
+            << refVec.front().GetDouble().value() << std::endl;
+  std::cout << "Access to element at will, should be string newTest: "
+            << refVec.at(1).GetString().value() << std::endl;
+  std::cout << "Last element should be the string 987: "
+            << refVec.back().GetString().value() << std::endl;
 
   // Modify the second element using the Proxy operator=
   cse::Datum newDatum("UpdatedDatum");
   refVec[1] = newDatum;
-  std::cout << "Updated second element: " << refVec.at(1).GetString().value() << std::endl;
+  std::cout << "Updated second element: " << refVec.at(1).GetString().value()
+            << std::endl;
 
   refVec.pop_back();
-  std::cout << "ReferenceVector size after pop_back should be 2: " << refVec.size() << std::endl;
+  std::cout << "ReferenceVector size after pop_back should be 2: "
+            << refVec.size() << std::endl;
 
   refVec.clear();
-  std::cout << "ReferenceVector size after clear should be 0: " << refVec.size() << std::endl;
-  std::cout << "ReferenceVector empty check should be 1: " << refVec.empty() << std::endl;
+  std::cout << "ReferenceVector size after clear should be 0: " << refVec.size()
+            << std::endl;
+  std::cout << "ReferenceVector empty check should be 1: " << refVec.empty()
+            << std::endl;
 
   std::cout << "=== DataGrid Tests ===\n";
   cse::DataGrid grid;
 
   std::cout << "\n[1] Insert Rows\n";
-  grid.insertRow(0);
-  grid.insertRow(1);
+  grid.insertRow(0, 0);
+  grid.insertRow(1, 0);
   std::cout << grid;
 
   std::cout << "\n[2] Insert Columns\n";
-  grid.insertColumn(0);
-  grid.insertColumn(1);
+  grid.insertColumn(0, 0);
+  grid.insertColumn(1, 0);
   std::cout << grid;
 
   std::cout << "\n[3] Modify Values (String and Double)\n";

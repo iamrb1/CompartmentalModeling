@@ -8,10 +8,10 @@
 
 #pragma once
 
-#include <vector>
+#include "Datum.h"
 #include <memory>
 #include <stdexcept>
-#include "Datum.h"
+#include <vector>
 
 namespace cse {
 
@@ -19,46 +19,46 @@ namespace cse {
  * A vector class that keeps pointers to Datum instances under the hood.
  */
 class ReferenceVector {
- private:
+private:
   /// Stores the reference vector.
-  std::vector<Datum*> mData;
+  std::vector<Datum *> mData;
 
- public:
+public:
   class Proxy {
-   private:
+  private:
     /// Stores a pointer to a Datum.
-    Datum* mDatum;
+    Datum *mDatum;
 
-   public:
+  public:
     /**
-    * Constructs a Proxy object for a given Datum pointer.
-    *
-    * @param datum A pointer to the Datum instance.
-    */
-    explicit Proxy(Datum* datum) : mDatum(datum) {};
+     * Constructs a Proxy object for a given Datum pointer.
+     *
+     * @param datum A pointer to the Datum instance.
+     */
+    explicit Proxy(Datum *datum) : mDatum(datum) {};
 
-    Proxy& operator=(const Datum& value);
-    
-    /**
-    * Implicitly converts the Proxy object to a Datum reference.
-    *
-    * @return Datum& A reference to the underlying Datum.
-    */
-    operator Datum&() { return *mDatum; };
+    Proxy &operator=(const Datum &value);
 
     /**
-    * Provides pointer-like access to the underlying Datum instance.
-    *
-    * @return Datum* A pointer to the Datum instance.
-    */
-    Datum* operator->() { return mDatum; };
+     * Implicitly converts the Proxy object to a Datum reference.
+     *
+     * @return Datum& A reference to the underlying Datum.
+     */
+    operator Datum &() { return *mDatum; };
+
+    /**
+     * Provides pointer-like access to the underlying Datum instance.
+     *
+     * @return Datum* A pointer to the Datum instance.
+     */
+    Datum *operator->() { return mDatum; };
   };
 
   /**
-  * Constructor for a reference vector.
-  *
-  * @param none
-  */
+   * Constructor for a reference vector.
+   *
+   * @param none
+   */
   ReferenceVector() = default;
 
   /**
@@ -66,7 +66,7 @@ class ReferenceVector {
    *
    * @param datum The reference to a Datum.
    */
-  void push_back(Datum& datum) { mData.push_back(&datum); };
+  void push_back(Datum &datum) { mData.push_back(&datum); };
 
   void pop_back();
 
@@ -91,25 +91,53 @@ class ReferenceVector {
 
   Proxy operator[](size_t index);
 
-  Datum& at(size_t index);
+  Datum &at(size_t index);
 
-  Datum& front();
+  Datum &front();
 
-  Datum& back();
+  Datum &back();
+
+  class iterator {
+  private:
+    std::vector<Datum *>::iterator it_;
+
+  public:
+    explicit iterator(std::vector<Datum *>::iterator it) : it_(it) {}
+
+    Datum &operator*() const { return **it_; }
+
+    Datum *operator->() const { return *it_; }
+
+    iterator &operator++() {
+      ++it_;
+      return *this;
+    }
+
+    iterator operator++(int) {
+      iterator temp = *this;
+      ++(*this);
+      return temp;
+    }
+
+    bool operator==(const iterator &other) const { return it_ == other.it_; }
+    bool operator!=(const iterator &other) const { return it_ != other.it_; }
+  };
 
   /**
    * Returns an iterator to the beginning of the reference vector.
    *
-   * @return std::vector<Datum*>::iterator An iterator pointing to the first element.
+   * @return std::vector<Datum*>::iterator An iterator pointing to the first
+   * element.
    */
-  std::vector<Datum*>::iterator begin() { return mData.begin(); };
-  
+  iterator begin() { return iterator(mData.begin()); }
+
   /**
    * Returns an iterator to the end of the reference vector.
    *
-   * @return std::vector<Datum*>::iterator An iterator pointing past the last element.
+   * @return std::vector<Datum*>::iterator An iterator pointing past the last
+   * element.
    */
-  std::vector<Datum*>::iterator end() { return mData.end(); };
+  iterator end() { return iterator(mData.end()); }
 };
 
-}  // namespace cse
+} // namespace cse
