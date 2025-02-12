@@ -6,6 +6,7 @@
 #pragma once
 
 #include <any>
+#include <cassert>
 #include <iostream>
 #include <map>
 #include <stdexcept>
@@ -25,27 +26,25 @@ class DataMap {
 
  public:
   /**
+   * Default constructor
+   */
+  DataMap() = default;
+
+  DataMap(std::initializer_list<std::pair<std::string, std::any>> initial);
+
+  /**
   * Insert key value pair into DataMap
-  * @tparam T
-  * @param name
-  * @param val
+  * @tparam T any value
+  * @param name key name to be inserted
+  * @param val value to be associated with key within DataMap
   */
   template <typename T>
   void insert(const std::string& name, const T& val) {
-    if (contains(name)) {
-      throw(std::runtime_error(name + " key already exists within DataMap"));
-    }
+    assert(!contains(name) && "Key already exists within DataMap");
     m_map[name] = val;
   }
 
-  /**
-  * overloaded operator for datamap[] assignment of values
-  * @param key
-  * @return
-  */
-  std::any& operator[](const std::string& key) {
-    return m_map[key];
-  }
+  std::any& operator[](const std::string& key);
 
   /**
   * .at method for finding where key is
@@ -72,6 +71,7 @@ class DataMap {
     * @param name key to be deleted
     */
   void key_delete(const std::string& name) {
+    assert(contains(name) && "Key does not exist in DataMap");
     m_map.erase(name);
   }
 
@@ -79,6 +79,7 @@ class DataMap {
     * Clear the DataMap
     */
   void clear() {
+    assert(!empty() && "Datamap is not empty");
     m_map.clear();
   }
 
@@ -87,13 +88,14 @@ class DataMap {
     * @return unsigned long map size
     */
   size_t size() {
+    assert(m_map.size() >= 0 && "Size of DataMap is less than 0");
     return m_map.size();
   }
 
   /**
     * Emptys the DataMap
     */
-  int empty() {
+  bool empty() {
     return m_map.empty();
   }
 
