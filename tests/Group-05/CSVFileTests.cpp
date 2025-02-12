@@ -6,6 +6,14 @@
  * Tests for the CSV class.
  */
 
+#include "../../Group-05/src/CSVfile.cpp"
+#include "../../Group-05/src/CSVfile.h"
+#include "../../Group-05/src/DataGrid.cpp"
+#include "../../Group-05/src/DataGrid.h"
+#include "../../Group-05/src/Datum.cpp"
+#include "../../Group-05/src/Datum.h"
+#include "../../Group-05/src/ReferenceVector.cpp"
+#include "../../Group-05/src/ReferenceVector.h"
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 
 #include <fstream>
@@ -14,7 +22,8 @@
 #include <tuple>
 #include <vector>
 
-#include "../../Group-05/src/CSVfile.h"
+using cse::DataGrid;
+using cse::Datum;
 
 TEST_CASE("CSVFile LoadCsv - Valid File", "[CSVFile]") {
     // Create a temporary CSV file for testing
