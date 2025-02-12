@@ -264,9 +264,36 @@ TEST_CASE("Test bitwise XOR on BitVectors", "[bitvector]") {
   // Test all combos of bits (a < b)
   cse::BitVector a2(7), b2(9);
   XOR_TEST(a2, b2);
+  cse::BitVector a3(4), b3(5);
+  XOR_TEST(a3, b3);
 
   // Test all combos of bits (b > a)
-  cse::BitVector a3(9), b3(7);
-  XOR_TEST(a3, b3);
+  cse::BitVector a4(9), b4(7);
+  XOR_TEST(a4, b4);
+  cse::BitVector a5(5), b5(4);
+  XOR_TEST(a5, b5);
+}
+
+TEST_CASE("Test bitwise shifting", "[bitvector]") {
+  // One byte
+  cse::BitVector bv1(8), bc1("10101000");
+  bv1.pattern_set(0, 8, std::byte{0b01010101});
+  bv1 <<= 3;
+  CHECK(bv1 == bc1);
+  
+  // Multi-byte
+  cse::BitVector bv2(14), bc2("10101010000000");
+  bv2.pattern_set(0, 14, std::byte{0b01010101});
+  bv2 <<= 7;
+  CHECK(bv2 == bc2);
+}
+
+TEST_CASE("Test bitwise NOT", "[bitvector]") {
+  // One Byte
+  cse::BitVector bv1(8), bc1("01010001");
+  bv1.pattern_set(0, 8, std::byte{0b10101110});
+  CHECK(bc1 == ~bv1);
+  bv1.flip();
+  CHECK(bc1 == bv1);
 }
 
