@@ -60,9 +60,9 @@ TEST_CASE("set and get object orientation") {
         REQUIRE(position.get_object_orientation() == 40);
     }
 
-    SECTION("object orientation of -30 degrees") {
+    SECTION("object orientation of -30 degrees should be 330") {
         position.set_object_orientation(-30);
-        REQUIRE(position.get_object_orientation() == -30);
+        REQUIRE(position.get_object_orientation() == 330);
     }
 }
 
