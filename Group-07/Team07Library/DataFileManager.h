@@ -4,7 +4,10 @@
 #include <string>
 #include <unordered_map>
 #include <functional>
+#include <fstream>
 #include <iostream>
+#include <cassert>
+#include <sstream>
 
 namespace cse {
     class DataFileManager {
@@ -22,7 +25,7 @@ namespace cse {
         ~DataFileManager() = default;
 
         // Getter and Setter for our file location
-        std::string getFile(){
+        const std::string& getFile(){
             return fileOpened;
         }
 
@@ -47,6 +50,17 @@ namespace cse {
         void listFunctions(){
             // https://stackoverflow.com/questions/22880431/iterate-through-unordered-map-c
             for (const auto & [ key, value ] : functionMap) {
+                // Read in and assert Substring
+                std::istringstream iss(key);
+                std::string first, second;
+                iss >> first;
+                iss >> second;
+                // Condition to assert
+                bool condition = (second == "Value");
+                // Use assert to test the condition
+                assert(condition && "String does not match the expected value.");
+                // If the condition is true, this line will be executed
+                std::cout << "Assertion passed!" << std::endl;
                 std::cout << key << std::endl;
             }
         }
