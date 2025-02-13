@@ -13,7 +13,7 @@ include_directories(${APPLICATION_LIBRARY})
 # Define a variable containing a list of source files for the project
 set(SOURCE_FILES pch.h main.cpp
         Tests/DataTrackerTests/Makefile
-        Tests/FunctionSetTest/FunctionSetTest.cpp)
+        Tests/FunctionSetTest/Makefile)
 
 # Define the build target for the executable
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
@@ -29,7 +29,7 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE pch.h)
 add_subdirectory(third-party/Catch)
 
 enable_testing()
-
+# DataTracker Tests
 file(GLOB_RECURSE TEST_FILES Tests/DataTrackerTests/*.cpp)
 
 add_executable(DataTrackerTests ${TEST_FILES})
@@ -37,11 +37,11 @@ add_executable(DataTrackerTests ${TEST_FILES})
 target_link_libraries(DataTrackerTests PRIVATE Catch2::Catch2 ${APPLICATION_LIBRARY})
 
 add_test(NAME DataTrackerTests COMMAND DataTrackerTests)
+# FunctionSet Tests
+file(GLOB_RECURSE TEST_FILES Tests/FunctionSetTest/*.cpp)
 
-#file(GLOB_RECURSE TEST_FILES Tests/FunctionSetTest/*.cpp)
-#
-#add_executable(FunctionSetTest ${TEST_FILES})
-#
-#target_link_libraries(FunctionSetTest PRIVATE Catch2::Catch2 ${APPLICATION_LIBRARY})
-#
-#add_test(NAME FunctionSetTest COMMAND FunctionSetTest)
+add_executable(FunctionSetTest ${TEST_FILES})
+
+target_link_libraries(FunctionSetTest PRIVATE Catch2::Catch2 ${APPLICATION_LIBRARY})
+
+add_test(NAME FunctionSetTest COMMAND FunctionSetTest)
