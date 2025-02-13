@@ -34,13 +34,10 @@ namespace cse {
         }
     }
 
-    void addFunction(const std::string& name, const std::function<void()>& lambda){
+    void DataFileManager::addFunction(const std::string& name, const std::function<void()>& lambda){
+        // functionMap[name] = lambda;  // Add the function to the map
         auto var1 = name;
         auto var2 = lambda;
-    }
-
-    void clearFunctions() {
-
     }
 
     void DataFileManager::closeFile() {
