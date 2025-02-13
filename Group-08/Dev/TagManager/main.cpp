@@ -3,7 +3,7 @@
 
 int main () {
     TagManager tm;
-    
+
      // Example usage
      tm.AddTag("CSE498", "urgent");
      tm.AddTag("CSE498", "work");

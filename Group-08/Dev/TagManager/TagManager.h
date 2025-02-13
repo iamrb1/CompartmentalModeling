@@ -57,6 +57,4 @@ public:
     bool HasTag(const string& task, const string& tag);
 };
 
-
-
 #endif //TAGMANAGER_TAGMANAGER_H
