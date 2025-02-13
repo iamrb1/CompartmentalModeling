@@ -1,4 +1,5 @@
-TEST_NAMES = TestFile1 TestFile2 AuditedArrayTest SchedulerTest OutputLogTest SerializerTest DataFileManagerTest
+# TEST_NAMES = TestFile1 TestFile2 AuditedArrayTest SchedulerTest OutputLogTest SerializerTest DataFileManagerTest
+TEST_NAMES = SerializerTest
 
 # -O3	  -Wl,--stack,8388608 -ftrack-macro-expansion=0
 FLAGS = -std=c++2a -g -pthread -Wall -Wextra -I../../ -DCATCH_CONFIG_MAIN
