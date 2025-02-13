@@ -25,7 +25,16 @@ private:
 public:
     Image(const std::string& url, int width, int height, const std::string& altText = "");
 
-    /** @return The url of the image */
+  /**
+  * @brief Compares two Image objects and determine if they are the same values
+  * @param image to compare
+  * @return true if same values
+  */
+    bool operator==(const Image &image) const {
+       return ((image.url == url) && (image.width == width) && (image.height == height));
+    }
+
+  /** @return The url of the image */
     std::string getURL() const { return url; }
     /** @return The width of the image */
     int getWidth() const { return width; }
