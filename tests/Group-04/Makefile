@@ -1,9 +1,9 @@
-TEST_NAMES = Assert
+TEST_NAMES = Assert BVOps BVSize
 
 # -O3	  -Wl,--stack,8388608 -ftrack-macro-expansion=0
 CATCH = ../../third-party/Catch/single_include/catch2
 GROUP4 = ../../Group-04/lib
-FLAGS = -std=c++23 -g -pthread -Wall -Wextra -I../../ -I$(GROUP4) -I$(CATCH) -DCATCH_CONFIG_MAIN
+FLAGS = -std=c++23 -g -pthread -Wall -Wextra -I../../ -I$(GROUP4) -I$(CATCH) -DCATCH_CONFIG_MAIN -DCSET_IMPLEMENTATION
 
 default: test
 

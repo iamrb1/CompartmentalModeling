@@ -4,6 +4,8 @@
 #include <iostream>
 #include <vector>
 
+#include "CseAssert.hpp"
+
 namespace cse {
 
 // Author(s): Kyle Gunger
@@ -78,11 +80,17 @@ class BitVector {
     ~reference() = default;
   };
 
+  // Default constructor
+  BitVector() = default;
+
   // Constructor
   BitVector(size_t bits) {
     num_bits = bits;
     underlying.resize(bits / 8 + (bits % 8 == 0 ? 0 : 1), std::byte{0});
   }
+
+  // Bit string constructor
+  BitVector(std::string bstr, char zero = '0', char one = '1');
 
   // Copy constructor
   BitVector(const BitVector& bv) {
@@ -136,12 +144,22 @@ class BitVector {
   // Copy assignment
   BitVector& operator=(const BitVector& bv);
 
+  // Set count bits in a repeating pattern starting at the index start
+  BitVector& pattern_set(size_t start, size_t count, std::byte pattern);
+
   // Set all bits in the vector to true
-  BitVector& set(bool value = true);
-  // Set a specific bit in the vector to the given value (defaults true)
-  BitVector& set(size_t pos, bool value = true);
-  // Set count bits to a specific value starting at the index start
-  BitVector& set(size_t start, size_t count, bool value = true);
+  BitVector& set();
+  // Set a specific bit in the vector to true
+  BitVector& set(size_t pos);
+  // Set count bits to true starting at the index start
+  BitVector& set(size_t start, size_t count);
+
+  // Set all bits in the vector to false
+  BitVector& reset();
+  // Set a specific bit in the vector to false
+  BitVector& reset(size_t pos);
+  // Set count bits to false starting at the index start
+  BitVector& reset(size_t start, size_t count);
 
   // Test a specific bit in the BitVector
   bool test(size_t idx) const;
@@ -181,6 +199,9 @@ class BitVector {
   // Prepend the given BitVector to this bit vector
   void prepend(const BitVector& bv);
 };
+
+// IMPL GUARD
+#ifdef CSET_IMPLEMENTATION
 
 //
 // Reference functions
@@ -230,13 +251,30 @@ BitVector::reference& BitVector::reference::flip() {
 // BitVector functions
 //
 
+// Bit string constructor
+BitVector::BitVector(std::string bstr, char zero, char one) {
+  num_bits = bstr.size();
+  num_set = 0;
+  underlying.resize(num_bits / 8 + (num_bits % 8 == 0 ? 0 : 1), std::byte{0});
+
+  for (size_t i = 0; i < num_bits; ++i) {
+    size_t idx = num_bits - (i + 1);
+    if (bstr[idx] == one) {
+      (*this)[i] = true;
+    } else if (bstr[idx] != zero) {
+      throw std::invalid_argument(std::format(
+          "Unexpected character in bit string (1 = '{}') (0 = '{}'): '{}'", one,
+          zero, bstr[idx]));
+    }
+  }
+}
+
 // Get the index as a reference
 BitVector::reference BitVector::operator[](size_t idx) {
 #ifndef NDEBUG
-  if (idx >= num_bits)
+  if (num_bits <= idx)
     throw std::out_of_range(std::format(
-        "Attempt to access BitVector at index {}, number of bits is {}", idx,
-        num_bits));
+        "Invalid index into BitVector: idx - {}, max - {}", idx, num_bits));
 #endif
   return reference(this, &underlying[idx / 8], (uint8_t)(idx % 8));
 }
@@ -244,55 +282,127 @@ BitVector::reference BitVector::operator[](size_t idx) {
 // Get the index as a const bool
 bool BitVector::operator[](size_t idx) const {
 #ifndef NDEBUG
-  if (idx >= num_bits)
+  if (num_bits <= idx)
     throw std::out_of_range(std::format(
-        "Attempt to access BitVector at index {}, number of bits is {}", idx,
-        num_bits));
+        "Invalid index into BitVector: idx - {}, max - {}", idx, num_bits));
 #endif
   const std::byte b = (std::byte{1} << (idx % 8)) & underlying[idx / 8];
   return b != std::byte{0};
 }
 
-// Set all bits in the vector
-BitVector& BitVector::set(bool value) {
-  std::byte replace = std::byte{0};
+// Set bits in a pattern
+BitVector& BitVector::pattern_set(size_t start, size_t count,
+                                  std::byte pattern) {
+  if (count == 0)
+    return *this;
+  else if ((start + count) > num_bits)
+    throw std::out_of_range(
+        std::format("Invalid range to pattern_set BitVector: start: {}, count: "
+                    "{}, number of bits is: {}",
+                    start, count, num_bits));
 
-  if (value == true) {
-    replace = std::byte{0b11111111};
-    num_set = underlying.size() * 8;
-  } else
-    num_set = 0;
+  // Offset the pattern due to where the start bit is
+  pattern = (pattern << (start % 8)) | (pattern >> (8 - (start % 8)));
 
-  for (std::byte& b : underlying) {
-    b = replace;
+  // Masks for end bytes in the seq
+  std::byte bot_mask = std::byte{0b11111111} << (start % 8);
+  std::byte top_mask = std::byte{0b11111111};
+  if ((start + count) % 8) top_mask >>= (8 - (start + count) % 8);
+
+  // Total bits set in the new sequence
+  size_t ps_total = (size_t)BIT_LOOKUP(pattern) * (count / 8);
+  ps_total +=
+      (size_t)BIT_LOOKUP(pattern & (std::byte{0b11111111} >> (8 - count % 8)));
+  // Counter for the number of bytes in the old sequence
+  size_t ps_before = 0;
+
+  // Index of the byte we are changing
+  size_t idx = start / 8;
+
+  // First byte
+  if (start % 8 + count <= 8) {
+    // We only need to change one byte in this case
+    top_mask = std::byte{0b11111111};
+    if (count % 8 != 0) top_mask >>= (8 - (count) % 8);
+
+    bot_mask &= top_mask << (start % 8);
+    ps_before = BIT_LOOKUP(underlying[idx] & bot_mask);
+    ps_total = BIT_LOOKUP(pattern & bot_mask);
+
+    underlying[idx] = (underlying[idx] & ~bot_mask) | (pattern & bot_mask);
+
+    num_set += ps_total;
+    num_set -= ps_before;
+    return (*this);
   }
-  fixup_byte(underlying.size() - 1, num_bits);
+
+  ps_before += BIT_LOOKUP(underlying[idx] & bot_mask);
+  underlying[idx] = (underlying[idx] & ~bot_mask) | (pattern & bot_mask);
+
+  // Loop set
+  for (++idx; (idx + 1) * 8 < start + count; ++idx) {
+    ps_before += BIT_LOOKUP(underlying[idx]);
+    underlying[idx] = pattern;
+  }
+
+  // Last byte
+  ps_before += BIT_LOOKUP(underlying[idx] & top_mask);
+  underlying[idx] = (underlying[idx] & ~top_mask) | (pattern & top_mask);
+
+  num_set += ps_total;
+  num_set -= ps_before;
 
   return *this;
 }
 
+// Set all bits in the vector
+BitVector& BitVector::set() {
+  return pattern_set(0, num_bits, std::byte{0b11111111});
+}
+
 // Set a bit in the vector
-BitVector& BitVector::set(size_t idx, bool value) {
+BitVector& BitVector::set(size_t idx) {
   if (idx >= num_bits)
     throw std::out_of_range(std::format(
         "Attempt to set BitVector at index {}, number of bits is {}", idx,
         num_bits));
-
-  (*this)[idx] = value;
+  (*this)[idx] = true;
   return *this;
 }
 
 // Set bits in the vector within a certain range, starting from
 // start and ending at (start + count - 1)
-BitVector& BitVector::set(size_t start, size_t count, bool value) {
-  // const std::byte rep_true = std::byte{0b11111111};
-  // const std::byte rep_false = std::byte{0b00000000};
-  // TODO better impl, using byte setting instead of bit setting
-  for (; start < count && start < num_bits; start++) {
-    (*this)[start] = value;
-  }
+BitVector& BitVector::set(size_t start, size_t count) {
+  if ((start + count) > num_bits)
+    throw std::out_of_range(
+        std::format("Invalid range to set BitVector: start: {}, count: {}, "
+                    "number of bits is: {}",
+                    start, count, num_bits));
+  return pattern_set(start, count, std::byte{0b11111111});
+}
 
+// Reset all bits in the vector
+BitVector& BitVector::reset() { return pattern_set(0, num_bits, std::byte{0}); }
+
+// Reset a bit in the vector
+BitVector& BitVector::reset(size_t idx) {
+  if (idx >= num_bits)
+    throw std::out_of_range(std::format(
+        "Attempt to reset BitVector at index {}, number of bits is {}", idx,
+        num_bits));
+  (*this)[idx] = false;
   return *this;
+}
+
+// Reset bits in the vector within a certain range, starting from
+// start and ending at (start + count - 1)
+BitVector& BitVector::reset(size_t start, size_t count) {
+  if ((start + count) > num_bits)
+    throw std::out_of_range(
+        std::format("Invalid range to reset BitVector: start: {}, count: {}, "
+                    "number of bits is: {}",
+                    start, count, num_bits));
+  return pattern_set(start, count, std::byte{0});
 }
 
 // Test to see if a bit is set
@@ -376,7 +486,7 @@ BitVector& BitVector::operator&=(const BitVector& rhs) {
   for (; i < underlying.size(); i++) {
     uint8_t diff = BIT_LOOKUP(underlying[i]);
     underlying[i] = std::byte{0};
-    num_bits -= diff;
+    num_set -= diff;
   }
 
   return *this;
@@ -644,8 +754,10 @@ std::ostream& operator<<(std::ostream& os, const BitVector& bv) {
   for (auto b = bv.underlying.rbegin(); b != bv.underlying.rend(); ++b) {
     if (byte % 4 == 3)
       os << std::format("{:0>8b}\n", std::to_integer<uint8_t>(*b));
-    else
-      os << std::format("{:0>8b} ", std::to_integer<uint8_t>(*b));
+    else {
+      os << std::format("{:0>8b}", std::to_integer<uint8_t>(*b));
+      if (b != (bv.underlying.rend() - 1)) os << " ";
+    }
     byte++;
   }
 
@@ -739,5 +851,7 @@ void BitVector::prepend(const BitVector& bv) {
   *this = bv;
   append(tmp);
 }
+
+#endif
 
 };  // namespace cse
