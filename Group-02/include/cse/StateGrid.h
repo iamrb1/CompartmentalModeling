@@ -14,9 +14,9 @@ namespace cse {
 class StateGrid {
  private:
   ///Rows in grid
-  size_t m_rows = 0;
+  int m_rows = 0;
   ///Rows in grid
-  size_t m_cols = 0;
+  int m_cols = 0;
   ///Grid to represent game map
   std::vector<std::string> m_grid;
 
