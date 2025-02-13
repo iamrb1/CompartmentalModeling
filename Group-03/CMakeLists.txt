@@ -12,7 +12,8 @@ include_directories(${APPLICATION_LIBRARY})
 
 # Define a variable containing a list of source files for the project
 set(SOURCE_FILES pch.h main.cpp
-        Tests/DataTrackerTests/Makefile)
+        Tests/DataTrackerTests/Makefile
+        Tests/FunctionSetTest/FunctionSetTest.cpp)
 
 # Define the build target for the executable
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
@@ -33,6 +34,14 @@ file(GLOB_RECURSE TEST_FILES Tests/DataTrackerTests/*.cpp)
 
 add_executable(DataTrackerTests ${TEST_FILES})
 
-target_link_libraries(DataTrackerTests PRIVATE Catch2::Catch2)
+target_link_libraries(DataTrackerTests PRIVATE Catch2::Catch2 ${APPLICATION_LIBRARY})
 
 add_test(NAME DataTrackerTests COMMAND DataTrackerTests)
+
+#file(GLOB_RECURSE TEST_FILES Tests/FunctionSetTest/*.cpp)
+#
+#add_executable(FunctionSetTest ${TEST_FILES})
+#
+#target_link_libraries(FunctionSetTest PRIVATE Catch2::Catch2)
+#
+#add_test(NAME FunctionSetTest COMMAND FunctionSetTest)
