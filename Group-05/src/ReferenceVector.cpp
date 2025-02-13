@@ -7,69 +7,58 @@
 #include "ReferenceVector.h"
 
 namespace cse {
-/**
- * Assigns a new Datum value to the Proxy.
- *
- * @param value The Datum instance to assign.
- * @return Proxy& A reference to the updated Proxy object.
- */
-ReferenceVector::Proxy &ReferenceVector::Proxy::operator=(const Datum &value) {
-  *mDatum = value;
-  return *this;
-}
 
 /**
- * Removes the last element in the reference vector.
+ * Removes the last element from the vector.
  */
 void ReferenceVector::pop_back() {
-  if (!mData.empty())
-    mData.pop_back();
+  if (!mData.empty()) mData.pop_back();
 }
 
 /**
- * Accesses a Datum element at the given index using Proxy.
+ * Accesses a Datum at the given index.
  *
  * @param index The position of the element.
- * @return Proxy A Proxy object referencing the element.
+ * @return Datum& Reference to the Datum.
  */
-ReferenceVector::Proxy ReferenceVector::operator[](size_t index) {
-  if (index >= mData.size())
-    throw std::out_of_range("Index out of range");
-  return Proxy(mData[index]);
-}
-
-/**
- * Returns a reference to the datum at a position.
- *
- * @param index The desired index.
- * @return Datum& The reference to a Datum.
- */
-Datum &ReferenceVector::at(size_t index) {
+Datum& ReferenceVector::operator[](size_t index) {
   if (index >= mData.size())
     throw std::out_of_range("Index out of range");
   return *mData[index];
 }
 
 /**
- * Returns a reference to the Datum at the front of the vector.
+ * Returns a reference to the Datum at a position.
  *
- * @return Datum& The reference to the Datum at the front.
+ * @param index The index of the desired element.
+ * @return Datum& Reference to the Datum.
+ */ 
+Datum& ReferenceVector::at(size_t index) {
+  if (index >= mData.size())
+    throw std::out_of_range("Index out of range");
+  return *mData[index];
+}
+
+/**
+ * Returns a reference to the first Datum in the vector.
+ *
+ * @return Datum& Reference to the first Datum.
  */
-Datum &ReferenceVector::front() {
+Datum& ReferenceVector::front() {
   if (mData.empty())
     throw std::out_of_range("ReferenceVector is empty");
   return *mData.front();
 }
 
 /**
- * Returns a reference to the Datum at the back of the vector.
+ * Returns a reference to the last Datum in the vector.
  *
- * @return Datum& The reference to the Datum at the back.
+ * @return Datum& Reference to the last Datum.
  */
-Datum &ReferenceVector::back() {
+Datum& ReferenceVector::back() {
   if (mData.empty())
     throw std::out_of_range("ReferenceVector is empty");
-  return *mData.back();
+   return *mData.back();
 }
 
-} // namespace cse
+}  // namespace cse 

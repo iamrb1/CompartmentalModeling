@@ -43,6 +43,31 @@ public:
    */
   Datum(double value = 0) { mValue = value; }
 
+  // CITE: Used https://www.geeksforgeeks.org/rule-of-five-in-cpp/ for the default constructors
+
+  /**
+   * Default copy constructor
+   * @param datum The other Datum
+   */
+  Datum(const Datum &datum) = default;
+
+  /**
+   * Default destructor
+   */
+  ~Datum() = default;
+
+  /**
+   * Default move constructor
+   */
+  Datum(Datum &&) noexcept = default;
+
+  /**
+   * Default move assignment opeartor
+   * @param datum The other Datum
+   * @return A reference to this Datum
+   */
+  Datum &operator=(Datum &&datum) noexcept = default;
+
   /**
    * Checks if the current type of the Datum is a string.
    * @return true if the type is a string, false otherwise.

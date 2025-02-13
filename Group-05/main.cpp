@@ -70,7 +70,7 @@ int main() {
   std::cout << "===" << std::endl;
 
   // Convert invalid string to double --> Return NaN:
-  cse::Datum d5("helloWorld");
+  cse::Datum d5("123helloWorld");
   std::cout << "Invalid string to double --> Return NaN. Should output 1"
             << std::endl;
   d5.AsDouble();

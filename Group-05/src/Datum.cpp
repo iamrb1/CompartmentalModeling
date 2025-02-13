@@ -4,6 +4,7 @@
  * @author Max Krawec
  */
 
+#include <cassert>
 #include <cmath>
 #include <iostream>
 #include <limits>
@@ -13,7 +14,7 @@
 
 namespace cse {
 
-// TODO - May need to change value, I just picked a random one
+// TODO - May need to change value, I just picked a semi-random one
 static const double kEpsilon = 0.0001;
 
 /**
@@ -46,21 +47,18 @@ std::optional<double> Datum::GetDouble() const {
  */
 void Datum::AsString() {
   if (GetDouble()) {
+    assert(GetDouble().has_value());
     if (std::isnan(GetDouble().value())) {
       mValue = "";
     } else {
       std::string string_numeric_value = std::to_string(GetDouble().value());
-
-      // https://stackoverflow.com/questions/13686482/c11-stdto-stringdouble-no-trailing-zeros.
-      // Used the above link to help remove trailing 0s and . when a double
-      // converts into a string. find_last_not_of finds the last value of the
-      // indicated value (0 and .). Need to add 1 to find the first 0 or .
-      // string::npos indicates everything until the end of the string. So
-      // remove everything after the last 0 or .
-      string_numeric_value.erase(string_numeric_value.find_last_not_of('0') + 1,
-                                 std::string::npos);
-      string_numeric_value.erase(string_numeric_value.find_last_not_of('.') + 1,
-                                 std::string::npos);
+      
+      // CITE: https://stackoverflow.com/questions/13686482/c11-stdto-stringdouble-no-trailing-zeros.
+      // Used the above link to help remove trailing 0s and . when a double converts into a string.
+      // find_last_not_of finds the last value of the indicated value (0 and .). Need to add 1 to find the first 0 or .
+      // string::npos indicates everything until the end of the string. So remove everything after the last 0 or .
+      string_numeric_value.erase(string_numeric_value.find_last_not_of('0') + 1, std::string::npos);
+      string_numeric_value.erase(string_numeric_value.find_last_not_of('.') + 1, std::string::npos);
       mValue = string_numeric_value;
     }
   }
@@ -73,9 +71,20 @@ void Datum::AsString() {
 void Datum::AsDouble() {
   if (GetString()) {
     try {
-      mValue = std::stod(GetString().value());
+      assert(GetString().has_value());
+      // CITE: Used ChatGPT to write this code. There was a bug where, if the string started with numbers, it
+      //  wouldn't throw an invalid argument exception. Instead, it would take the valid numbers. For example,
+      //  123Hello --> 123. To fix this, stod can count the number of valid values that can become a double. If
+      //  the value is less than the length of the string, we know there was a conversion error, and it throws an exception.
+      std::size_t pos;
+      double double_value = std::stod(GetString().value(), &pos);
+      if (pos!=GetString().value().length()) {
+        throw std::invalid_argument("Invalid input: cannot convert to double");
+      } else {
+        mValue = double_value;
+      }
     } catch (std::invalid_argument &e) {
-      // Citation: Used
+      // CITE: Used
       // https://stackoverflow.com/questions/16691207/c-c-nan-constant-literal
       // for NaN
       mValue = std::numeric_limits<double>::quiet_NaN();
@@ -88,9 +97,7 @@ void Datum::AsDouble() {
 }
 
 // TODO - May want to change the overloaded functions based on the specs
-//  Need to figure out how we want to do comparisons with different types(>, >=,
-//  <, <=) Also, need to test more (Will probably wait until we get a testing
-//  framework)
+//  Need to figure out how we want to do comparisons with different types(>, >=, <, <=)
 
 // Used https://www.geeksforgeeks.org/operator-overloading-cpp/ to help me with
 // operator overloading
@@ -104,6 +111,7 @@ void Datum::AsDouble() {
  */
 Datum Datum::operator+(const Datum &datum) const {
   if (AreDatumsDouble(datum)) {
+    assert(GetDouble().has_value() && datum.GetDouble().has_value());
     return {GetDouble().value() + datum.GetDouble().value()};
   }
   return {std::numeric_limits<double>::quiet_NaN()};
@@ -119,6 +127,7 @@ Datum Datum::operator+(const Datum &datum) const {
  */
 Datum Datum::operator-(const Datum &datum) const {
   if (AreDatumsDouble(datum)) {
+    assert(GetDouble().has_value() && datum.GetDouble().has_value());
     return {GetDouble().value() - datum.GetDouble().value()};
   }
   return {std::numeric_limits<double>::quiet_NaN()};
@@ -134,7 +143,8 @@ Datum Datum::operator-(const Datum &datum) const {
  */
 Datum Datum::operator*(const Datum &datum) const {
   if (AreDatumsDouble(datum)) {
-    return {GetDouble().value() * datum.GetDouble().value()};
+    assert(GetDouble().has_value() && datum.GetDouble().has_value());
+    return {GetDouble().value()*datum.GetDouble().value()};
   }
   return {std::numeric_limits<double>::quiet_NaN()};
 }
@@ -148,8 +158,10 @@ Datum Datum::operator*(const Datum &datum) const {
  * Otherwise, returns NaN
  */
 Datum Datum::operator/(const Datum &datum) const {
-  if (AreDatumsDouble(datum)) {
-    return {GetDouble().value() * datum.GetDouble().value()};
+  if (AreDatumsDouble(datum) && datum.GetDouble().value()!=0.0) {
+    assert(GetDouble().has_value() && datum.GetDouble().has_value());
+    assert(datum.GetDouble().value()!=0.0);
+    return {GetDouble().value()/datum.GetDouble().value()};
   }
   return {std::numeric_limits<double>::quiet_NaN()};
 }
@@ -163,9 +175,11 @@ Datum Datum::operator/(const Datum &datum) const {
  */
 bool Datum::operator==(const Datum &datum) const {
   if (AreDatumsDouble(datum)) {
+    assert(GetDouble().has_value() && datum.GetDouble().has_value());
     return std::abs(GetDouble().value() - datum.GetDouble().value()) < kEpsilon;
   } else if (AreDatumsStrings(datum)) {
-    return GetString().value() == datum.GetString().value();
+    assert(GetString().has_value() && datum.GetString().has_value());
+    return GetString().value()==datum.GetString().value();
   } else {
     return false;
   }
@@ -178,6 +192,7 @@ bool Datum::operator==(const Datum &datum) const {
  */
 bool Datum::AreDatumsDouble(const Datum &datum) const {
   if (IsDouble() && datum.IsDouble()) {
+    assert(GetDouble().has_value() && datum.GetDouble().has_value());
     if (GetDouble().has_value() && datum.GetDouble().has_value()) {
       return true;
     }
@@ -192,6 +207,7 @@ bool Datum::AreDatumsDouble(const Datum &datum) const {
  */
 bool Datum::AreDatumsStrings(const Datum &datum) const {
   if (IsString() && datum.IsString()) {
+    assert(GetString().has_value() && datum.GetString().has_value());
     if (GetString().has_value() && datum.GetString().has_value()) {
       return true;
     }
