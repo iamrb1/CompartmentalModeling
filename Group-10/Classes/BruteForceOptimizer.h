@@ -54,11 +54,11 @@ public:
      *
      * @return A pair: (best score, best subset).
      */
-    std::pair<double, std::vector<Item>> FindOptimalSolution()
+    std::pair<double, std::vector<T>> FindOptimalSolution()
     {
     bestScore_ = -999999;
     currentSelection_.clear();
-    Backtrack(0, 0.0, 0.0);
+    Backtrack(0, 0.0);
     return {bestScore_, bestSelection_};
     }
 
