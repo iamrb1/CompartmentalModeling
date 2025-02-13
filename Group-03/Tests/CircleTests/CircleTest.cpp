@@ -4,18 +4,18 @@
 #include <Circle.h>
 #include <Surface.h>
 
-TEST_CASE("CircleTest", "CircleInitialization") {
+TEST_CASE("CircleTest1", "CircleInitialization") {
     Circle circle(5.0, 10.0, 3.0);
     CHECK(circle.getX() == 5.0);
     CHECK(circle.getY() == 10.0);
     CHECK(circle.getRadius() == 3.0);
 }
 
-TEST_CASE("CircleTest", "CircleInvalidRadius") {
+TEST_CASE("CircleTest2", "CircleInvalidRadius") {
     CHECK_THROWS_AS(Circle(0.0, 0.0, -1.0), std::invalid_argument);
 }
 
-TEST_CASE("SurfaceTest", "AddCircleToSurface") {
+TEST_CASE("SurfaceTest1", "AddCircleToSurface") {
     Surface surface(100, 100, 10);
     Circle circle(15.0, 25.0, 5.0);
     surface.add_circle(&circle);
@@ -28,7 +28,7 @@ TEST_CASE("SurfaceTest", "AddCircleToSurface") {
     CHECK(surface.sectors[x][y].circles[0]->getRadius() == 5.0);
 }
 
-TEST_CASE("SurfaceTest", "MoveCircleOnSurface") {
+TEST_CASE("SurfaceTest2", "MoveCircleOnSurface") {
     Surface surface(100, 100, 10);
     Circle circle(15.0, 25.0, 5.0);
     surface.add_circle(&circle);
