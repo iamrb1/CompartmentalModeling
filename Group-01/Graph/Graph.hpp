@@ -17,9 +17,9 @@ namespace cse {
     std::unordered_map<std::string, std::shared_ptr<cse::Edge>> edges{};
 
   protected:
-    void SetId(std::string) override{};
-    std::string GetId() const override { return ""; };
-    std::string GetTypeName() const override { return "GRAPH"; };
+    std::string GetTypeName() const override { return "GRAPH"; }
+    std::string GetId() const override { return ""; }
+    void SetId(std::string) override {}
     std::map<std::string, SerializableProperty> GetPropertyMap() override;
 
   public:
@@ -39,6 +39,7 @@ namespace cse {
 
     bool IsConnected(std::shared_ptr<cse::Vertex> const &v1, std::shared_ptr<cse::Vertex> const &v2) const;
     bool IsConnected(std::string const &v1_id, std::string const &v2_id) const;
-    // TODO @lspecht: Add iterator for class
+
+        // TODO @lspecht: Add iterator for class
   };
 } // namespace cse

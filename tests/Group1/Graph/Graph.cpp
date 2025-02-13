@@ -2,6 +2,7 @@
 #include "../../../Group-01/Graph/Vertex.hpp"
 #include "../../../Group-01/Graph/Edge.hpp"
 #include "../../../Group-01/Graph/Graph.hpp"
+#include "../Utils/TestUtils.hpp"
 
 #include <vector>
 #include <sstream>
@@ -78,9 +79,19 @@ TEST_CASE("Test cse::Graph - To file", "Export to file")
 
   // Test adding vertices
   auto v1 = graph.AddVertex("id1");
-  auto v2 = graph.AddVertex("id2");
+  auto v2 = graph.AddVertex("id2", 1.5);
+  std::stringstream s;
 
-  graph.ToFile(std::cout, "  ");
-  // std::vector<std::string> lines{"  VERTEX:id1", "    X:0", "    Y:0"};
-  // REQUIRE(CheckForStringFile(lines, s));
+  graph.ToFile(s);
+
+  std::vector<std::string> lines{"GRAPH:",
+                                 "  Vertices:",
+                                 "    VERTEX:id2",
+                                 "      X:1.5",
+                                 "      Y:0",
+                                 "    VERTEX:id1",
+                                 "      X:0",
+                                 "      Y:0",
+                                 ""};
+  REQUIRE(cse_test_utils::CheckForStringFile(lines, s));
 }

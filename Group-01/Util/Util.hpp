@@ -89,6 +89,14 @@ protected:
   virtual void SetId(std::string) = 0;
   virtual std::map<std::string, SerializableProperty> GetPropertyMap() = 0;
 
+  static std::string GetIndent(size_t level, std::string const &indent_unit = "    ") {
+    std::string result;
+    for (size_t i = 0; i < level; ++i) {
+      result += indent_unit;
+    }
+    return result;
+  }
+
 public:
   virtual ~FileSerializable() = default;
 
@@ -113,12 +121,13 @@ public:
     }
   }
 
-  void ToFile(std::ostream &s, std::string const &prefix) {
-    s << prefix << GetTypeName() << ":" << GetId() << "\n";
-    auto p = prefix + prefix;
+  void ToFile(std::ostream &s, size_t indent_level = 0, std::string const &indent_unit = "  ") {
+    std::string indent = GetIndent(indent_level, indent_unit);
+    s << indent << GetTypeName() << ":" << GetId() << "\n";
 
+    auto property_indent = GetIndent(indent_level + 1, indent_unit);
     for (auto const &[key, property] : GetPropertyMap()) {
-      s << p << key << ":";
+      s << property_indent << key << ":";
       property.writer(s);
       s << "\n";
     }

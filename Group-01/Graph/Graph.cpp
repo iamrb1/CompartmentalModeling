@@ -113,15 +113,16 @@ namespace cse {
 
   std::map<std::string, SerializableProperty> Graph::GetPropertyMap() {
     std::map<std::string, SerializableProperty> properties;
+
     auto verticesWriter = [this](std::ostream &s) {
       s << "\n";
-      for (auto [id, vertex] : vertices) {
-        vertex->ToFile(s, "  ");
+      for (auto const &[id, vertex] : vertices) {
+        vertex->ToFile(s, 2); // indent_level = 2 for vertices
       }
     };
-    auto verticesHandler = [](const std::string &) {};
 
-    properties.emplace("vertices", SerializableProperty(verticesWriter, verticesHandler));
+    auto verticesHandler = [](const std::string &) {};
+    properties.emplace("Vertices", SerializableProperty(verticesWriter, verticesHandler));
 
     return properties;
   }
