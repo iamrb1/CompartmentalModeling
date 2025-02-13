@@ -7,9 +7,6 @@
 
 #include <any>
 #include <cassert>
-#include <iostream>
-#include <map>
-#include <stdexcept>
 #include <string>
 #include <typeinfo>
 #include <unordered_map>
@@ -86,7 +83,6 @@ class DataMap {
     * @return unsigned long map size
     */
   size_t size() {
-    assert(m_map.size() >= 0 && "Size of DataMap is less than 0");
     return m_map.size();
   }
 

@@ -22,7 +22,11 @@ if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   # -std=c++xx instead of -std=g++xx
   set(CMAKE_CXX_EXTENSIONS OFF)
 
-  # Docs only available if this is the main app
+  # Set Wall, Wextra and Wpedantic flags
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    add_compile_options(-Wall -Wextra -Wpedantic)
+  endif ()
+
   find_package(Doxygen)
   if (DOXYGEN_FOUND)
     find_package(Doxygen)
@@ -44,26 +48,3 @@ endif ()
 # Add the subdirectories (libraries and executables)
 add_subdirectory(src/cse)
 add_subdirectory(src/app)
-
-# ========== TEST SETUP ==========
-add_subdirectory(include/third-party/Catch)
-enable_testing()
-
-file(GLOB_RECURSE TEST_FILES tests/AuditedVector/*.cpp)
-
-add_executable(AuditedVectorTest ${TEST_FILES})
-
-target_link_libraries(AuditedVectorTest PRIVATE Catch2::Catch2)
-
-add_test(NAME AuditedVectorTest COMMAND AuditedVectorTest)
-
-file(GLOB_RECURSE TEST_FILES tests/StateGridPosition/*.cpp)
-
-add_executable(StateGridPositionTest ${TEST_FILES} src/cse/StateGridPosition.cpp)
-
-target_include_directories(StateGridPositionTest PRIVATE ${PROJECT_SOURCE_DIR}/include)
-
-target_link_libraries(StateGridPositionTest PRIVATE Catch2::Catch2)
-
-add_test(NAME StateGridPositionTest COMMAND StateGridPositionTest)
-

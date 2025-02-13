@@ -4,9 +4,10 @@
  */
 
 #include "cse/StateGrid.h"
-#include <iostream>
-#include <utility>
 #include <cassert>
+#include <iostream>
+#include <map>
+#include <utility>
 namespace cse {
 
 /**
@@ -15,7 +16,7 @@ namespace cse {
  * @param cols cols in grid map
  * @param diff string representing requested difficulty
  */
-StateGrid::StateGrid(const std::string& diff){
+StateGrid::StateGrid(const std::string& diff) {
   choose_map(diff);
 }
 
@@ -36,7 +37,7 @@ void StateGrid::display_grid() {
  * @param agent pair containing current agent position
  */
 bool StateGrid::set_state(std::pair<int, int> move, std::pair<int, int> agent) {
-  assert(!m_grid.empty() && m_grid[agent.first][agent.second] =='P');
+  assert(!m_grid.empty() && m_grid[agent.first][agent.second] == 'P');
   if (validate_position(std::pair(move.first, move.second))) {
     m_grid[move.first][move.second] = 'P';
     m_grid[agent.first][agent.second] = ' ';
@@ -64,7 +65,7 @@ char StateGrid::get_state(int row, int col) {
 bool StateGrid::validate_position(std::pair<int, int> move) {
   assert(move.first <= m_rows && move.second <= m_cols && "This move is out of bounds");
   char validate = m_grid[move.first][move.second];
-  if (validate == ' ' || validate == 'X') { /// << Will add '0' when adding win function
+  if (validate == ' ' || validate == 'X') {  /// << Will add '0' when adding win function
     return true;
   }
   return false;
@@ -79,8 +80,8 @@ bool StateGrid::validate_position(std::pair<int, int> move) {
 std::vector<std::pair<int, int>> StateGrid::find_moves(int row, int col) {
   assert(row <= m_rows && col <= m_cols && "This is not inside the grid");
   std::vector<std::pair<int, int>> moves = {};
-  std::vector<std::pair<int, int>> poss_moves = {std::pair((row+1), col), std::pair((row-1), col), std::pair(row, (col+1)),
-                                                 std::pair(row, (col-1))};
+  std::vector<std::pair<int, int>> poss_moves = {std::pair((row + 1), col), std::pair((row - 1), col),
+                                                 std::pair(row, (col + 1)), std::pair(row, (col - 1))};
   for (auto move : poss_moves) {
     if (validate_position(move)) {
       moves.push_back(move);
@@ -93,11 +94,12 @@ std::vector<std::pair<int, int>> StateGrid::find_moves(int row, int col) {
  * @param diff string to choose map of specified difficulty
  */
 void StateGrid::choose_map(const std::string& diff) {
-  std::map<std::string, std::vector<std::string>> maps = {{"test", {"#####", "# P #", "##X##", "## ##", "#0  #","#####"}}};
+  std::map<std::string, std::vector<std::string>> maps = {
+      {"test", {"#####", "# P #", "##X##", "## ##", "#0  #", "#####"}}};
   if (maps.find(diff) != maps.end()) {
     m_grid = maps[diff];
     m_cols = 5;
-    m_rows = 4;   /// << This is only until more maps are made, for testing purposes
+    m_rows = 4;  /// << This is only until more maps are made, for testing purposes
   } else {
     m_grid = maps["test"];
     m_cols = 5;

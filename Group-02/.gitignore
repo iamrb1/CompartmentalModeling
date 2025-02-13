@@ -7,8 +7,8 @@ bin/
 docs/
 
 # IDE folders
-.vscode
-.idea
+.vscode/
+.idea/
 
 # Compiled files
 *.o
