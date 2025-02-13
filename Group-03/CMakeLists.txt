@@ -42,6 +42,6 @@ add_test(NAME DataTrackerTests COMMAND DataTrackerTests)
 #
 #add_executable(FunctionSetTest ${TEST_FILES})
 #
-#target_link_libraries(FunctionSetTest PRIVATE Catch2::Catch2)
+#target_link_libraries(FunctionSetTest PRIVATE Catch2::Catch2 ${APPLICATION_LIBRARY})
 #
 #add_test(NAME FunctionSetTest COMMAND FunctionSetTest)

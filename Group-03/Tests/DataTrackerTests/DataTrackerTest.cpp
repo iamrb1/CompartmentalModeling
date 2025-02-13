@@ -5,9 +5,8 @@
 #include <vector>
 #include <DataTracker.h>
 
-cse::DataTracker tracker;
-
 TEST_CASE("DataTrackerTest 1", "Empty") {
+    cse::DataTracker tracker;
     CHECK(tracker.total() == 0);
     CHECK(tracker.mean() == 0.0);
     CHECK(tracker.median() == 0.0);
@@ -16,6 +15,7 @@ TEST_CASE("DataTrackerTest 1", "Empty") {
 }
 
 TEST_CASE("DataTrackerTest 2", "Add") {
+    cse::DataTracker tracker;
     tracker.add_value(10.0);
     CHECK(tracker.total() == 1);
     CHECK(tracker.mean() == 10.0);
@@ -25,6 +25,7 @@ TEST_CASE("DataTrackerTest 2", "Add") {
 }
 
 TEST_CASE("DataTracker 3", "Multiple") {
+    cse::DataTracker tracker;
     tracker.add_value(5.0);
     tracker.add_value(10.0);
     tracker.add_value(15.0);
@@ -36,6 +37,7 @@ TEST_CASE("DataTracker 3", "Multiple") {
 }
 
 TEST_CASE("DataTracker 4", "delete") {
+    cse::DataTracker tracker;
     tracker.add_value(5.0);
     tracker.add_value(10.0);
     tracker.add_value(15.0);
@@ -49,6 +51,7 @@ TEST_CASE("DataTracker 4", "delete") {
 
 
 TEST_CASE("DataTracker 5", "even number") {
+    cse::DataTracker tracker;
     tracker.add_value(1.0);
     tracker.add_value(3.0);
     tracker.add_value(2.0);
