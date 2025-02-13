@@ -11,6 +11,8 @@ Date: 1/31/2025
 #include <vector>
 #include <utility>
 
+
+namespace cse {
 /**
  * @brief A templated class for exploring possible combinations of items 
  * and identifying an optimal subset based on a scoring (value) function.
@@ -33,7 +35,7 @@ public:
      */
     void SetItems(const std::vector<T>& newItems)
     {
-        items = newItems;
+        items_ = newItems;
     }
 
     /**
@@ -44,7 +46,7 @@ public:
      */
     void SetCapacity(double cap)
     {
-        capacity = cap;
+        capacity_ = cap;
     }
 
     /**
@@ -54,10 +56,10 @@ public:
      */
     std::pair<double, std::vector<Item>> FindOptimalSolution()
     {
-    bestScore = -999999;
-    currentSelection.clear();
+    bestScore_ = -999999;
+    currentSelection_.clear();
     Backtrack(0, 0.0, 0.0);
-    return {bestScore, bestSelection};
+    return {bestScore_, bestSelection_};
     }
 
     /**
@@ -67,12 +69,12 @@ public:
      */
     void Backtrack(size_t index, T currentSum)
     {
-        if (index >= items.size())
+        if (index >= items_.size())
         {
-            if (currentSum > bestScore)
+            if (currentSum > bestScore_)
             {
-                bestScore = currentSum;
-                bestSelection = currentSelection;
+                bestScore_ = currentSum;
+                bestSelection_ = currentSelection_;
             }
             return;
         }
@@ -81,23 +83,24 @@ public:
         Backtrack(index + 1, currentSum);
 
         // Include the current item if it fits
-        T w = items[index];
-        if (currentSum + w <= capacity)
+        T w = items_[index];
+        if (currentSum + w <= capacity_)
         {
-            currentSelection.push_back(w);
+            currentSelection_.push_back(w);
             Backtrack(index + 1, currentSum + w);
-            currentSelection.pop_back();
+            currentSelection_.pop_back();
         }
     }
 
 private:
     
-    std::vector<T> items;
-    double capacity;
-    double bestScore;
-    std::vector<T> bestSelection;
-    std::vector<T> currentSelection;
+    std::vector<T> items_;
+    double capacity_;
+    double bestScore_;
+    std::vector<T> bestSelection_;
+    std::vector<T> currentSelection_;
 };
 
+} // namespace cse
 
 #endif // BRUTEFORCEOPTIMIZER_H
