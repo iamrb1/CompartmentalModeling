@@ -3,6 +3,7 @@
 #include <vector>
 #include "Circle.h"
 
+namespace cse{
 class Sector {
     public:
         int x, y;                       // Sector coordinates
@@ -12,3 +13,4 @@ class Sector {
         void add_circle(Circle* circle);
         void remove_circle(Circle* circle);
 };
+}

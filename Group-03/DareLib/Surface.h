@@ -3,6 +3,7 @@
 #include <vector>
 #include "Sector.h"
 
+namespace cse{
 class Surface {
     public:
         int width, height, sector_width, sector_height, surface_size;
@@ -15,3 +16,4 @@ class Surface {
         void check_collision();
         // void update();
 };
+}

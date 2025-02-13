@@ -1,5 +1,7 @@
 #include "Sector.h"
 
+
+namespace cse{
 Sector::Sector(int x, int y) 
     : x(x), y(y) {}
 
@@ -9,4 +11,5 @@ void Sector::add_circle(Circle* circle) {
 
 void Sector::remove_circle(Circle* circle) {
     circles.erase(std::remove(circles.begin(), circles.end(), circle), circles.end());
+}
 }
