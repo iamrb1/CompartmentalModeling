@@ -1,6 +1,5 @@
 /**
  * @file StringSet.cpp
- * @author Orhan Aydin
  * @brief Implementation of StringSet class
  */
 
@@ -51,6 +50,17 @@ bool cse::StringSet::empty() const
 {
     return m_elements.empty();
 }
+
+/**
+ * @brief Check if str in the set or not
+ * @param str
+ * @return 0 or 1. If str in the set returns 1 otherwise 0
+ */
+size_t cse::StringSet::count(const std::string &str) const
+{
+    return m_elements.count(str);
+}
+
 
 
 /**
@@ -103,3 +113,44 @@ cse::StringSet cse::StringSet::Intersection(const StringSet& other)const
 
     return result;
 }
+
+/**
+ * @brief Operates differentiation between two string sets
+ * @param other the second set
+ * @return the difference set
+ */
+cse::StringSet cse::StringSet::Difference(const cse::StringSet &other) const {
+    // Create new set result
+    StringSet result;
+
+    // Iterate through every element in m_elements
+    for(const auto& str : m_elements)
+    {
+        // Check if str not in other
+        if(other.m_elements.find(str) == other.m_elements.end())
+        {
+            result.insert(str);
+        }
+    }
+
+    return result;
+}
+
+/**
+ * @brief Filter the set based on the criteria
+ * @param filter
+ */
+void cse::StringSet::Filter(std::function<bool(std::string &)> filter)
+{
+
+}
+
+/**
+ * Filter out the set based on the criteria
+ * @param filter
+ */
+void cse::StringSet::FilterOut(std::function<bool(std::string &)> filter)
+{
+
+}
+
