@@ -63,6 +63,8 @@ namespace cse {
         void printError(int32_t line, const std::string& message, ErrorLevel level = ErrorLevel::Info) {
             
             assert(!message.empty());
+            assert(stringColorCodes.find(level) != stringColorCodes.end());
+            assert(terminationEnabled.find(level) != terminationEnabled.end());
 
             std::stringstream ss;
             ss << "[";
@@ -87,8 +89,9 @@ namespace cse {
                 actions[level]();
             }
 
-            if (terminationEnabled[level] > 0) {
-                exit(terminationEnabled[level]);
+            int code = terminationEnabled[level];
+            if (code > 0) {
+                exit(code);
             }
         }
 
@@ -123,6 +126,8 @@ namespace cse {
          * @param statusCode optional parameter: specifies which status code to use for exit()
          */
         void enableTermination(ErrorLevel level, bool enabled, int32_t statusCode = 1) {
+            assert(statusCode >= 0);
+
             if (enabled) {
                 terminationEnabled[level] = statusCode;
             } else {
@@ -149,7 +154,7 @@ namespace cse {
 
         std::unordered_map<ErrorLevel, std::function<void()>> actions;
 
-        std::string errorLevelToString(ErrorLevel level) {
+        std::string errorLevelToString(ErrorLevel level) const {
             switch(level) {
                 case ErrorLevel::Info:
                     return "Info";
@@ -161,7 +166,8 @@ namespace cse {
                     return "Fatal";
                     break;
                 default:
-                    return "Unknown";
+                    assert(false && "Encountered an unknown ErrorLevel in errorLevelToString");
+                    return "Unknown"; // to prevent compiler warnings
                     break;      
             }
         }
