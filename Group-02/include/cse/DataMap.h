@@ -102,4 +102,4 @@ class DataMap {
     return m_map.count(name);
   }
 };
-}
+}  // namespace cse

@@ -5,12 +5,9 @@
  *
  */
 
-
 #pragma once
 
 #include <cse/StateGrid.h>
-//#include "../../include/cse/StateGrid.h"
-
 
 #ifndef CSEG2_INCLUDE_CSE_STATEGRIDPOSITION_H
 #define CSEG2_INCLUDE_CSE_STATEGRIDPOSITION_H
@@ -37,8 +34,7 @@ class StateGridPosition {
   StateGrid* m_state_grid = nullptr;
 
  public:
-
-  StateGridPosition(const std::string& name);
+  StateGridPosition();
 
   Point create_point(double x, double y) {
     Point p;
