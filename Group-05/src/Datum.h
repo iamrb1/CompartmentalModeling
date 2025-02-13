@@ -18,7 +18,7 @@ namespace cse {
  * A data class that can be either a string or double.
  */
 class Datum {
- private:
+private:
   /// Stores the string or double value.
   std::variant<std::string, double> mValue = 0.0;
 
@@ -26,7 +26,11 @@ class Datum {
 
   bool AreDatumsStrings(const Datum &datum) const;
 
- public:
+public:
+  Datum(const Datum &datum) = default;
+  Datum(Datum &&datum) = default;
+  Datum &operator=(Datum &&datum) = default;
+
   /**
    * Constructor for a string value.
    * @param value The string value
@@ -37,7 +41,7 @@ class Datum {
    * Constructor for a double value.
    * @param value The double value
    */
-  Datum(double value) { mValue = value; }
+  Datum(double value = 0) { mValue = value; }
 
   // CITE: Used https://www.geeksforgeeks.org/rule-of-five-in-cpp/ for the default constructors
 
@@ -107,4 +111,4 @@ class Datum {
   Datum &operator=(const std::string &string_value);
 };
 
-}  // namespace cse
+} // namespace cse

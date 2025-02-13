@@ -7,10 +7,12 @@
 
 #pragma once
 
+#include <assert.h>
 #include <iomanip>
 #include <vector>
 
 #include "Datum.h"
+#include "ReferenceVector.h"
 
 namespace cse {
 
@@ -19,17 +21,61 @@ namespace cse {
  * @brief A 2D data table providing a simple and efficient tabular interface.
  */
 class DataGrid {
- private:
-  using row_t = std::vector<Datum>;  // row_t is an alias for a vector of Datums
+private:
+  using row_t = std::vector<Datum>; // row_t is an alias for a vector of Datums
 
   /// A 2D vector holding datums
-  std::vector<row_t> mGrid;
+  std::vector<row_t> grid_;
 
- public:
+public:
   /**
    * @brief Default Constructor
    */
   DataGrid() = default;
+
+  /**
+   * @brief Create rectangular datagrid of desired size with default value
+   * (double)
+   * @param num_rows_
+   * @param num_cols_
+   * @param default_value_
+   */
+  DataGrid(const std::size_t num_rows_, const std::size_t num_columns_,
+           const double default_value_ = 0) {
+    this->resize(num_rows_, num_columns_, default_value_);
+  }
+
+  /**
+   * @brief Create rectangular datagrid of desired size with default value
+   * (string)
+   * @param num_rows_
+   * @param num_cols_
+   * @param default_value_
+   */
+  DataGrid(const std::size_t num_rows_, const std::size_t num_columns_,
+           const std::string default_value_) {
+    this->resize(num_rows_, num_columns_, default_value_);
+  }
+
+  /**
+   * @brief Default Copy Constructor
+   */
+  DataGrid(const DataGrid &) = default;
+
+  /**
+   * @brief Default Move Constructor
+   */
+  DataGrid(DataGrid &&) = default;
+
+  /**
+   * @brief Default Copy Assignment Operator
+   */
+  DataGrid &operator=(const DataGrid &) = default;
+
+  /**
+   * @brief Default Move Assignment Operator
+   */
+  DataGrid &operator=(DataGrid &&) = default;
 
   /**
    * @brief Default Destructor
@@ -37,68 +83,41 @@ class DataGrid {
   ~DataGrid() = default;
 
   /**
-   * @brief Index a row of the DataGrid
-   * @param row_index Index of the row
-   * @return Indexed vector row from DataGrid
+   * @brief Delete all data in datagrid
    */
-  row_t& operator[](const std::size_t row_index) {
-    return mGrid.at(row_index);
-  }
+  void clear() { grid_.clear(); }
 
-  /**
-   * @brief Index a row of the DataGrid
-   * @param row_index Index of the row
-   * @return Indexed vector row from DataGrid
-   */
-  row_t& GetRow(const std::size_t row_index) {
-    return mGrid.at(row_index);
-  }
-
-  /**
- * @brief Retrieves a row from the DataGrid in a read-only manner.
- *
- * Allows access to a specific row without modifying the DataGrid.
- * 
- * @param row_index Index of the row to retrieve.
- * @return A const reference to the indexed vector row from the DataGrid.
- */
-const row_t& GetRow(const std::size_t row_index) const {
-  return mGrid.at(row_index);
-}
-
-  /**
-   * @brief Get Datum value from DataGrid
-   * @param row_index Index of the row
-   * @param column_index Index of the column
-   * @return The Datum at the given index
-   */
-  Datum& GetValue(const std::size_t row_index, const std::size_t column_index) {
-    return mGrid.at(row_index).at(column_index);
-  }
-
-  /**
-   * @brief Get const Datum value from DataGrid (used for stream output printing)
-   * @param row_index Index of the row
-   * @param column_index Index of the column
-   * @return The Datum at the given index
-   */
-  const Datum& GetValue(std::size_t row_index, std::size_t column_index) const {
-    return mGrid.at(row_index).at(column_index);
-  }
-
-  std::tuple<const std::size_t, const std::size_t> Shape() const;
-  std::vector<Datum> GetColumn(std::size_t column_index) const;
-  void InsertRow(std::size_t row_index);
-  void InsertColumn(std::size_t column_index);
-  void DeleteRow(std::size_t row_index);
-  void DeleteColumn(std::size_t column_index);
-
-  /**
-   * @brief Outputs DataGrid values to output stream for visualization
-   * @param os Output stream
-   * @return Output stream with formatted DataGrid values
-   */
-  std::ostream& Print(std::ostream& os) const;
+  row_t &operator[](std::size_t row_index_);
+  row_t &getRow(std::size_t row_index_);
+  const row_t &getRow(std::size_t row_index_) const;
+  Datum &getValue(std::size_t row_index_, std::size_t column_index_);
+  const Datum &getValue(std::size_t row_index_,
+                        std::size_t column_index_) const;
+  std::tuple<const std::size_t, const std::size_t> shape() const;
+  cse::ReferenceVector getColumn(std::size_t column_index_);
+  void
+  insertRow(std::size_t row_index_ = std::numeric_limits<std::size_t>::max(),
+            double default_value_ = 0);
+  void
+  insertRow(std::size_t row_index_ = std::numeric_limits<std::size_t>::max(),
+            std::string default_value_ = "");
+  void insertColumn(
+      std::size_t column_index_ = std::numeric_limits<std::size_t>::max(),
+      double default_value_ = 0);
+  void insertColumn(
+      std::size_t column_index_ = std::numeric_limits<std::size_t>::max(),
+      const std::string &default_value_ = "");
+  void deleteRow(std::size_t row_index_);
+  void deleteColumn(std::size_t column_index_);
+  void resize(std::size_t num_rows_, std::size_t num_columns_,
+              double default_value_ = 0);
+  void resize(std::size_t num_rows_, std::size_t num_columns_,
+              std::string default_value_);
+  std::ostream &print(std::ostream &os_) const;
+  Datum &at(std::size_t row_index_, std::size_t column_index_);
+  const Datum &at(std::size_t row_index_, std::size_t column_index_) const;
+  row_t &at(std::size_t row_index_);
+  const row_t &at(std::size_t row_index_) const;
 };
 
 /**
@@ -107,8 +126,8 @@ const row_t& GetRow(const std::size_t row_index) const {
  * @param grid DataGrid to be printed
  * @return Output stream with DataGrid content
  */
-inline std::ostream& operator<<(std::ostream& os, const DataGrid& grid) {
-  return grid.Print(os);
+inline std::ostream &operator<<(std::ostream &os, const DataGrid &grid) {
+  return grid.print(os);
 }
 
-}  // namespace cse
+} // namespace cse

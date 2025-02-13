@@ -8,7 +8,7 @@
  * type differentiation, and error handling.
  */
 
- #pragma once
+#pragma once
 
  #include <string>
  #include "DataGrid.h"
@@ -31,4 +31,3 @@
  };
  
  }  // namespace cse
- 

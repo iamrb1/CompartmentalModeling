@@ -8,9 +8,10 @@
 
 #pragma once
 
-#include <vector>
-#include <stdexcept>
 #include "Datum.h"
+#include <memory>
+#include <stdexcept>
+#include <vector>
 
 namespace cse {
 
@@ -63,7 +64,7 @@ class ReferenceVector {
    * @return Datum& Reference to the Datum at the index.
    */
   Datum& operator[](size_t index);
-
+  
   /**
    * Returns a reference to the Datum at the given index.
    *
@@ -86,15 +87,47 @@ class ReferenceVector {
    */
   Datum& back();
 
-  /**
-   * Returns an iterator to the beginning of the vector.
-   */
-  std::vector<Datum*>::iterator begin() { return mData.begin(); }
+  class iterator {
+  private:
+    std::vector<Datum *>::iterator it_;
+
+  public:
+    explicit iterator(std::vector<Datum *>::iterator it) : it_(it) {}
+
+    Datum &operator*() const { return **it_; }
+
+    Datum *operator->() const { return *it_; }
+
+    iterator &operator++() {
+      ++it_;
+      return *this;
+    }
+
+    iterator operator++(int) {
+      iterator temp = *this;
+      ++(*this);
+      return temp;
+    }
+
+    bool operator==(const iterator &other) const { return it_ == other.it_; }
+    bool operator!=(const iterator &other) const { return it_ != other.it_; }
+  };
 
   /**
-   * Returns an iterator to the end of the vector.
+   * Returns an iterator to the beginning of the reference vector.
+   *
+   * @return std::vector<Datum*>::iterator An iterator pointing to the first
+   * element.
    */
-  std::vector<Datum*>::iterator end() { return mData.end(); }
+  iterator begin() { return iterator(mData.begin()); }
+
+  /**
+   * Returns an iterator to the end of the reference vector.
+   *
+   * @return std::vector<Datum*>::iterator An iterator pointing past the last
+   * element.
+   */
+  iterator end() { return iterator(mData.end()); }
 };
 
 }  // namespace cse 
