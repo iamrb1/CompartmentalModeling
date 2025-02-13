@@ -1,4 +1,5 @@
 #include "Parser.h"
+#include <assert.h>
 #include <cctype>
 #include <iostream>
 #include <sstream>
@@ -9,6 +10,10 @@ Parser::Parser() {}
 
 // Member function to evaluate the expression
 int Parser::Evaluate(std::string expression) {
+  assert(std::any_of(expression.begin(), expression.end(), ::isdigit));
+  assert(std::any_of(expression.begin(), expression.end(), [](char c) {
+    return c == '+' || c == '-' || c == '/' || c == '*';
+}));
   size_t index = 0;
   double result = ParseNumber(expression, index);  // Get the first number
 
@@ -48,6 +53,8 @@ int Parser::Evaluate(std::string expression) {
 
 // Helper function to parse a number inside curly braces
 int Parser::ParseNumber(std::string expression, size_t &index) {
+  assert(index < expression.size());
+  assert(std::any_of(expression.begin(), expression.end(), ::isdigit));
   bool negative = false;
   while (index < expression.size() && expression[index] != '{') {
     index++;  // Skip whitespace
@@ -58,7 +65,7 @@ int Parser::ParseNumber(std::string expression, size_t &index) {
     int result = 0;
 
     // Extract the number inside the curly braces
-    while (index < expression.size() && (std::isdigit(expression[index])) ||
+    while (((index < expression.size()) && (std::isdigit(expression[index]))) ||
            expression[index] == '-') {
       if (expression[index] == 45) {
         negative = true;
