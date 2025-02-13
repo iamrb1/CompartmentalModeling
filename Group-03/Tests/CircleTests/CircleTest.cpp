@@ -16,7 +16,7 @@ TEST_CASE("CircleTest2", "CircleInvalidRadius") {
 }
 
 TEST_CASE("SurfaceTest1", "AddCircleToSurface") {
-    Surface surface(100, 100, 10);
+    cse::Surface surface(100, 100, 10);
     Circle circle(15.0, 25.0, 5.0);
     surface.add_circle(&circle);
 
@@ -29,7 +29,7 @@ TEST_CASE("SurfaceTest1", "AddCircleToSurface") {
 }
 
 TEST_CASE("SurfaceTest2", "MoveCircleOnSurface") {
-    Surface surface(100, 100, 10);
+    cse::Surface surface(100, 100, 10);
     Circle circle(15.0, 25.0, 5.0);
     surface.add_circle(&circle);
 

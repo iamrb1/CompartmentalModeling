@@ -55,3 +55,12 @@ add_executable(CircleTests ${TEST_FILES})
 target_link_libraries(CircleTests PRIVATE Catch2::Catch2 ${APPLICATION_LIBRARY})
 
 add_test(NAME CircleTests COMMAND CircleTests)
+
+# Surface Test
+file(GLOB_RECURSE TEST_FILES Tests/SurfaceTests/*.cpp)
+
+add_executable(SurfaceTests ${TEST_FILES})
+
+target_link_libraries(SurfaceTests PRIVATE Catch2::Catch2 ${APPLICATION_LIBRARY})
+
+add_test(NAME SurfaceTests COMMAND SurfaceTests)
