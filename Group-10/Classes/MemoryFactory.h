@@ -6,6 +6,8 @@ Date: 1/31/2025
 ------------------------------------------ */
 
 #include <list>
+#include <stdexcept>
+#include <tuple>
 
 #ifndef MEMORYFACTORY_H
 #define MEMORYFACTORY_H
@@ -17,84 +19,133 @@ namespace cse {
  */
 template <typename Object>
 class MemoryFactory {
+ private:
   /// @brief Default size of the MemoryFactory
-  int allocationSize = 10;
+  int allocationSize_ = 10;
 
   /// @brief List containing all allocated objects
-  std::list<Object*> allocatedBlock;
+  std::list<Object*> allocatedBlock_;
 
   /// @brief Points to the next available Object
-  typename std::list<Object*>::iterator reservedPoint;
+  typename std::list<Object*>::iterator reservedPoint_;
 
   /// @brief Int indicating how many free objects are left
-  int reservedObjects = 0;
+  int reservedObjects_ = 0;
+
+  /// @brief Default Value for all Objects
+  Object defaultObject_;
+
+  /**
+   * @brief Private Function to handle dynamic expansion of allocated objects
+   *
+   * @param allocationAmount how many objects to be allocated for future use
+   * @param initialState Object instance that should be assigned to all new
+   * objects
+   *
+   * AllocateObjects iterates over the allocation amount and reserves new
+   * objects.
+   *
+   * Use Cases:
+   *  Initial Construction - This creates all initial objects
+   *  Expansion - This doubles the current size of the MemoryFactory
+   */
+  void AllocateObjects_(int allocationAmount, Object initialState = Object{}) {
+    for (int i = 0; i < allocationAmount; i++) {
+      Object* newObject = new Object{};
+
+      // If the initial state is not a default state
+      // then reassign the object to the desired value
+      *newObject = (*newObject != initialState) ? initialState : *newObject;
+      allocatedBlock_.push_back(newObject);
+
+      /** The function is only ever called when no objects exist in the
+       * MemoryFactory or if all current objects are reserved, so the reserved
+       * point should now point at the newest object to be added to the factory
+       */
+      if (i == 0) {
+        reservedPoint_ = --allocatedBlock_.end();
+      }
+    }
+  }
+
+  /**
+   * @brief Doubles the amount of allocated Objects within the MemoryFactory
+   */
+  void ExpandSpace_() {
+    AllocateObjects_(allocationSize_, defaultObject_);
+    allocationSize_ = allocationSize_ * 2;
+  }
 
  public:
   /**
    * @brief MemoryFactory Basic Constructor
+   *
+   * @param newAllocSize New count of initially allocated objects
+   * @param initialState Alternate starting value for all Objects in the factory
    */
-  MemoryFactory() {
-    for (int i = 0; i <= allocationSize; i++) {
-      Object* newObject = new Object;
-      allocatedBlock.push_back(newObject);
+  MemoryFactory(int newAllocSize = 10, Object initialState = Object{}) {
+    if (newAllocSize <= 0) {
+      throw std::invalid_argument(
+          "Invalid constructor argument: Allocation size must exceed 0.");
     }
-    reservedPoint = allocatedBlock.begin();
-  }
-
-  MemoryFactory(int newAllocSize) {
     assert(newAllocSize > 0);
-    allocationSize = newAllocSize;
-    for (int i = 0; i < allocationSize; i++) {
-      Object* newObject = new Object;
-      allocatedBlock.push_back(newObject);
-    }
-    reservedPoint = allocatedBlock.begin();
+    allocationSize_ = newAllocSize;
+    AllocateObjects_(allocationSize_, initialState);
+    defaultObject_ = initialState;
   }
 
   /**
    * @brief MemoryFactory Basic Destructor
    */
   ~MemoryFactory() {
-    for (auto object : allocatedBlock) {
+    for (auto object : allocatedBlock_) {
       delete object;
     }
   }
 
   /**
    * @brief Returns a pointer to a reserved Object for the user
+   *
+   * @tparam newArgs Any arguments to pass to the Object's constructor
    */
-  Object* Allocate() {
-    /* TODO: Check if all space is taken by checking freeSpace before returning
-     * a pointer. If so, return exception
-     */
-    // TODO: Doublecheck pointer use after Allocation
-    Object* allocatedObject = *reservedPoint;
-    reservedPoint++;
-    reservedObjects++;
+  template <typename... newArgs>
+  Object* Allocate(newArgs... assignedValues) {
+    if (reservedPoint_ == allocatedBlock_.end()) {
+      ExpandSpace_();
+    }
+    Object* allocatedObject = *reservedPoint_;
+    reservedPoint_++;
+    reservedObjects_++;
+    // TODO: Catch any errors in the constructor and pass to user
+    // TODO: If assignedValues is blank this should not wipe out defaultObject_
+    *allocatedObject = Object{assignedValues...};
     return allocatedObject;
   }
 
   void Deallocate(Object* targetObject) {
     assert(targetObject != nullptr);
-    /* Rough Idea: Save the object pointer, iterate over list to find it's
-     * location.
-     * Erase the object, dereference the object pointer and append it to
-     * the list.
-     * if the iterator points at end() before you append, make sure it
-     * is set to the new element.
-     * Finally, increment freeSpace */
-    for (auto iterator = allocatedBlock.begin();
-         iterator != allocatedBlock.end(); iterator++) {
+    for (auto iterator = allocatedBlock_.begin();
+         iterator != allocatedBlock_.end(); iterator++) {
       if (*iterator == targetObject) {
-        allocatedBlock.erase(iterator);
-        allocatedBlock.push_back(targetObject);
+        allocatedBlock_.erase(iterator);
+        // TODO: Reassign the object to the default before pushing back
+        allocatedBlock_.push_back(targetObject);
         break;
       }
     }
-    reservedObjects--;
+    reservedObjects_--;
   }
 
-  int GetSpace() { return allocationSize - reservedObjects; }
+  // TODO: Enable const for both functions
+  /**
+   * @brief Returns number of remaining objects in the factory
+   */
+  int GetSpace() { return allocationSize_ - reservedObjects_; }
+
+  /**
+   * @brief Returns how many Objects are allocated by the factory
+   */
+  int GetSize() { return allocationSize_; }
 };
 }  // namespace cse
 #endif  // MEMORYFACTORY_H
