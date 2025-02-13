@@ -55,4 +55,6 @@ clean:
 	rm -f *.info
 	rm -f *.gcov
 	rm -f ./Coverage*
+
 	rm -rf ./temp
+
