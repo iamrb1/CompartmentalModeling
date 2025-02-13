@@ -136,21 +136,15 @@ cse::StringSet cse::StringSet::Difference(const cse::StringSet &other) const {
     return result;
 }
 
-/**
- * @brief Filter the set based on the criteria
- * @param filter
- */
+
+/*
 void cse::StringSet::Filter(std::function<bool(std::string &)> filter)
 {
 
 }
 
-/**
- * Filter out the set based on the criteria
- * @param filter
- */
 void cse::StringSet::FilterOut(std::function<bool(std::string &)> filter)
 {
 
 }
-
+*/

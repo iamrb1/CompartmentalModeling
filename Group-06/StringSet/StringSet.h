@@ -52,9 +52,9 @@ public:
 
     StringSet Difference(const StringSet &other) const;
 
-    void Filter( std::function<bool(std::string & in)> filter );
+   // void Filter( std::function<bool(std::string & in)> filter );
 
-    void FilterOut( std::function<bool(std::string & in)> filter );
+  //  void FilterOut( std::function<bool(std::string & in)> filter );
 
 };
 }
