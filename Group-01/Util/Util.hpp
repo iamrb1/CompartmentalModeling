@@ -1,3 +1,4 @@
+#pragma once
 #include <assert.h>
 #include <functional>
 #include <iostream>
@@ -68,6 +69,13 @@ using PropertyWriter = std::function<void(std::ostream &)>;
 struct SerializableProperty {
   PropertyHandler handler;
   PropertyWriter writer;
+
+  SerializableProperty() = delete;
+  ~SerializableProperty() {};
+  SerializableProperty(std::function<void(std::ostream &)> w, std::function<void(const std::string &)> h)
+      : handler(h), writer(w) {}
+  SerializableProperty(std::function<void(const std::string &)> h, std::function<void(std::ostream &)> w)
+      : handler(h), writer(w) {}
 };
 
 /**

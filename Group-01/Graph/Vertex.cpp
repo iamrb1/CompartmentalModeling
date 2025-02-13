@@ -39,10 +39,10 @@ namespace cse {
 
   std::map<std::string, SerializableProperty> Vertex::GetPropertyMap() {
     std::map<std::string, SerializableProperty> properties;
-    properties["X"] = {[this](const std::string &value) { this->x = std::stod(value); },
-                       [this](std::ostream &s) { s << x; }};
-    properties["Y"] = {[this](const std::string &value) { this->y = std::stod(value); },
-                       [this](std::ostream &s) { s << y; }};
+    properties.emplace("X", SerializableProperty([this](const std::string &value) { this->x = std::stod(value); },
+                                                 [this](std::ostream &s) { s << x; }));
+    properties.emplace("Y", SerializableProperty([this](const std::string &value) { this->y = std::stod(value); },
+                                                 [this](std::ostream &s) { s << y; }));
     return properties;
   }
 

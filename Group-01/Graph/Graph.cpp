@@ -111,13 +111,18 @@ namespace cse {
     return IsConnected(GetVertex(v1_id), GetVertex(v2_id));
   }
 
-  // void cse::Graph::ToFile(std::fstream &s) {
-  //   // TODO @lspecht: Implement this
-  // }
+  std::map<std::string, SerializableProperty> Graph::GetPropertyMap() {
+    std::map<std::string, SerializableProperty> properties;
+    auto verticesWriter = [this](std::ostream &s) {
+      s << "\n";
+      for (auto [id, vertex] : vertices) {
+        vertex->ToFile(s, "  ");
+      }
+    };
+    auto verticesHandler = [](const std::string &) {};
 
-  // cse::Graph cse::Graph::FromFile(std::fstream &s) {
-  //   cse::Graph graph;
-  //   // TODO @lspecht: Implement this
-  //   return graph;
-  // }
+    properties.emplace("vertices", SerializableProperty(verticesWriter, verticesHandler));
+
+    return properties;
+  }
 } // namespace cse

@@ -5,15 +5,22 @@
 #include <unordered_map>
 #include <vector>
 
+#include "../Util/Util.hpp"
 #include "Edge.hpp"
 #include "Vertex.hpp"
 
 namespace cse {
 
-  class Graph {
+  class Graph : public FileSerializable {
   private:
     std::unordered_map<std::string, std::shared_ptr<cse::Vertex>> vertices{};
     std::unordered_map<std::string, std::shared_ptr<cse::Edge>> edges{};
+
+  protected:
+    void SetId(std::string) override{};
+    std::string GetId() const override { return ""; };
+    std::string GetTypeName() const override { return "GRAPH"; };
+    std::map<std::string, SerializableProperty> GetPropertyMap() override;
 
   public:
     std::shared_ptr<cse::Vertex> AddVertex(std::string id, double X = 0.0, double Y = 0.0);
@@ -32,9 +39,6 @@ namespace cse {
 
     bool IsConnected(std::shared_ptr<cse::Vertex> const &v1, std::shared_ptr<cse::Vertex> const &v2) const;
     bool IsConnected(std::string const &v1_id, std::string const &v2_id) const;
-    // void ToFile(std::fstream &s);
-    // static Graph FromFile(std::fstream &s);
-
     // TODO @lspecht: Add iterator for class
   };
 } // namespace cse

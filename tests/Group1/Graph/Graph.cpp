@@ -71,3 +71,16 @@ TEST_CASE("Test cse::Graph", "[base]")
   }
   auto e4 = graph.AddEdge("id1", "id2", true);
 }
+
+TEST_CASE("Test cse::Graph - To file", "Export to file")
+{
+  cse::Graph graph;
+
+  // Test adding vertices
+  auto v1 = graph.AddVertex("id1");
+  auto v2 = graph.AddVertex("id2");
+
+  graph.ToFile(std::cout, "  ");
+  // std::vector<std::string> lines{"  VERTEX:id1", "    X:0", "    Y:0"};
+  // REQUIRE(CheckForStringFile(lines, s));
+}
