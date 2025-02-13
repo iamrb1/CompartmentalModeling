@@ -10,13 +10,18 @@ namespace cse {
     // }
     // Open CSV file based on location (path variable)
     void DataFileManager::openFile(const std::string& path) {
+        // Check if we've already opened a file
+        if (cse::DataFileManager::getFile() == "") {
+        	std::cout << "Please close the current file before attempting to open a new one." << std::endl;
+        }
         // Handles CSV Case, https://en.cppreference.com/w/cpp/string/basic_string/find_last_of
-        if (filePath.substr(filePath.find_last_of(".") + 1) == "csv") {
-        	std::cout << "File has .csv extension." << std::endl;
+        else if (path.substr(path.find_last_of(".") + 1) == "csv") {
+            cse::DataFileManager::setFile(path);
+        	std::cout << "File has a .csv extension." << std::endl;
     	}
         // Handles Error
         else {
-        	std::cout << "File does not have valid extension." << std::endl;
+        	std::cout << "File extension is not valid." << std::endl;
     	}
     }
 
@@ -29,12 +34,13 @@ namespace cse {
         }
     }
 
-    void addFunction(const std::string& name, const std::function<void()>& lambda){
+    void DataFileManager::addFunction(const std::string& name, const std::function<void()>& lambda){
+        // functionMap[name] = lambda;  // Add the function to the map
         auto var1 = name;
         auto var2 = lambda;
     }
 
     void DataFileManager::closeFile() {
-        filePath = "";
+
     }
 }
