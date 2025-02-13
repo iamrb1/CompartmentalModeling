@@ -151,8 +151,8 @@ int main() {
   std::cout << grid;
 
   std::cout << "\n[2] Insert Columns\n";
-  grid.insertColumn(0, 0);
-  grid.insertColumn(1, 0);
+  grid.insertDefaultColumn(0, 0);
+  grid.insertDefaultColumn(1, 0);
   std::cout << grid;
 
   std::cout << "\n[3] Modify Values (String and Double)\n";

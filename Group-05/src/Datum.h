@@ -27,10 +27,6 @@ private:
   bool AreDatumsStrings(const Datum &datum) const;
 
 public:
-  Datum(const Datum &datum) = default;
-  Datum(Datum &&datum) = default;
-  Datum &operator=(Datum &&datum) = default;
-
   /**
    * Constructor for a string value.
    * @param value The string value
@@ -43,7 +39,8 @@ public:
    */
   Datum(double value = 0) { mValue = value; }
 
-  // CITE: Used https://www.geeksforgeeks.org/rule-of-five-in-cpp/ for the default constructors
+  // CITE: Used https://www.geeksforgeeks.org/rule-of-five-in-cpp/ for the
+  // default constructors
 
   /**
    * Default copy constructor

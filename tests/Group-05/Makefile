@@ -1,4 +1,4 @@
-TEST_NAMES = DatumTests CSVFileTests ParserTests ReferenceVectorTests
+TEST_NAMES = DatumTests DataGridTests CSVFileTests ParserTests ReferenceVectorTests
 
 # -O3	  -Wl,--stack,8388608 -ftrack-macro-expansion=0
 FLAGS = -std=c++2a -g -pthread -Wall -Wextra -I../../ -DCATCH_CONFIG_MAIN

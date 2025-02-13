@@ -159,9 +159,9 @@ cse::ReferenceVector DataGrid::getColumn(const std::size_t column_index_) {
 /**
  * @brief Inserts a row at given index
  * @param row_index_ Index at which to insert the row
- * @param default_value_ of row
+ * @param default_value_ of row values
  */
-void DataGrid::insertRow(std::size_t row_index_, double default_value_) {
+void DataGrid::insertDefaultRow(std::size_t row_index_, double default_value_) {
   assert(row_index_ <= grid_.size() || row_index_ == 0);
   assert(row_index_ >= 0);
 
@@ -184,7 +184,8 @@ void DataGrid::insertRow(std::size_t row_index_, double default_value_) {
  * @param row_index_ Index at which to insert the row
  * @param default_value_ of row
  */
-void DataGrid::insertRow(std::size_t row_index_, std::string default_value_) {
+void DataGrid::insertDefaultRow(std::size_t row_index_,
+                                std::string default_value_) {
   assert(row_index_ <= grid_.size() || row_index_ == 0);
   assert(row_index_ >= 0);
 
@@ -207,7 +208,8 @@ void DataGrid::insertRow(std::size_t row_index_, std::string default_value_) {
  * @param column_index_ Index at which to insert the column
  * @param default_value_ of column
  */
-void DataGrid::insertColumn(std::size_t column_index_, double default_value_) {
+void DataGrid::insertDefaultColumn(std::size_t column_index_,
+                                   double default_value_) {
   assert(!grid_.empty());
   assert(column_index_ <= grid_[0].size() || column_index_ == 0);
   assert(column_index_ >= 0);
@@ -229,8 +231,8 @@ void DataGrid::insertColumn(std::size_t column_index_, double default_value_) {
  * @param column_index_ Index at which to insert the column
  * @param default_value_ of column
  */
-void DataGrid::insertColumn(std::size_t column_index_,
-                            const std::string &default_value_) {
+void DataGrid::insertDefaultColumn(std::size_t column_index_,
+                                   const std::string &default_value_) {
   assert(!grid_.empty());
   assert(column_index_ <= grid_[0].size() || column_index_ == 0);
   assert(column_index_ >= 0);
@@ -289,7 +291,7 @@ void DataGrid::deleteColumn(const std::size_t column_index_) {
  */
 void DataGrid::resize(std::size_t num_rows_, std::size_t num_columns_,
                       double default_value_) {
-  assert(num_rows_ > 0 && num_columns_ > 0);
+  assert(num_rows_ >= 0 && num_columns_ >= 0);
 
   grid_.resize(num_rows_,
                std::vector<Datum>(num_columns_, Datum(default_value_)));
