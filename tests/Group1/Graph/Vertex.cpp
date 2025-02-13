@@ -73,10 +73,12 @@ TEST_CASE("Test cse::Vertex - To file", "Export to file")
 
 TEST_CASE("Test cse::Vertex - From file", "Read from file")
 {
-  // auto v1 = std::make_shared<cse::Vertex>("id1");
-  // std::stringstream s;
-  // v1->ToFile(s, "  ");
-  // std::vector<std::string> lines{"  VERTEX:id1", "    X:0", "    Y:0"};
-  // REQUIRE(CheckForStringFile(lines, s));
-  // BuildFileFromVector
+  std::vector<std::string> lines{"  VERTEX:id1", "    X:1", "    Y:1"};
+  std::stringstream s;
+  BuildFileFromVector(lines, s);
+
+  auto v1 = std::make_shared<cse::Vertex>(s, 2);
+  REQUIRE_THAT(v1->GetX(), WithinAbs(1, FLOAT_DELTA));
+  REQUIRE_THAT(v1->GetY(), WithinAbs(1, FLOAT_DELTA));
+  CHECK(v1->GetId() == "id1");
 }
