@@ -16,6 +16,7 @@ public:
     return key;
   }
 
+  // TODO @lspecht: Handle edge case where there is an extra indentation level
   static bool CheckPrefixSize(std::istream &fs, size_t prefix_size) {
     std::string line;
     FileUtil::PeekLine(fs, line);
@@ -100,7 +101,7 @@ protected:
 public:
   virtual ~FileSerializable() = default;
 
-  void FromFile(std::istream &f, size_t prefix_size) {
+  virtual void FromFile(std::istream &f, size_t prefix_size) {
     std::string line;
     std::getline(f, line);
     auto [key, value] = FileUtil::SeparateKeyValue(line);

@@ -5,6 +5,10 @@
 #include <stdexcept>
 
 namespace cse {
+  Graph::Graph(std::istream &f) {
+    FromFile(f, 0);
+  }
+
   /**
    * TODO @lspecht: Add integration with GraphPosition
    * TODO @lspecht: Add GetAllEdges from vertex
@@ -111,19 +115,45 @@ namespace cse {
     return IsConnected(GetVertex(v1_id), GetVertex(v2_id));
   }
 
+  void Graph::ParseVertices(std::istream &f, size_t indent_level) {
+    std::string line;
+    while (FileUtil::CheckPrefixSize(f, indent_level + 2)) {
+      auto vertex = std::make_shared<Vertex>(f, indent_level + 2);
+      vertices[vertex->GetId()] = vertex;
+    }
+  }
+
+  void Graph::FromFile(std::istream &f, size_t) {
+    std::string line;
+    std::getline(f, line);
+    auto [key, value] = FileUtil::SeparateKeyValue(line);
+    if (key != GetTypeName()) {
+      throw std::runtime_error("Invalid type: " + key);
+    }
+
+    // Read "Vertices:" line
+    std::getline(f, line);
+    auto [vertices_key, _] = FileUtil::SeparateKeyValue(line);
+    if (vertices_key != "Vertices") {
+      throw std::runtime_error("Expected Vertices section, got: " + vertices_key);
+    }
+
+    // Parse vertices
+    ParseVertices(f, 2);
+  }
+
   std::map<std::string, SerializableProperty> Graph::GetPropertyMap() {
     std::map<std::string, SerializableProperty> properties;
 
     auto verticesWriter = [this](std::ostream &s) {
       s << "\n";
       for (auto const &[id, vertex] : vertices) {
-        vertex->ToFile(s, 2); // indent_level = 2 for vertices
+        vertex->ToFile(s, 2);
       }
     };
 
-    auto verticesHandler = [](const std::string &) {};
-    properties.emplace("Vertices", SerializableProperty(verticesWriter, verticesHandler));
-
+    // Handler not needed since we override FromFile
+    properties.emplace("Vertices", SerializableProperty(verticesWriter, [](const std::string &) {}));
     return properties;
   }
 } // namespace cse
