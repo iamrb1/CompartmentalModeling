@@ -51,7 +51,7 @@ std::unordered_set<string> TagManager::GetTags(const string& task) {
 }
 
 /**
- * Return all the tags associated with the task
+ * Return all the tags associated with all the tasks
  * 
  * @param task
  * @return tags --> retrun empty set if no
