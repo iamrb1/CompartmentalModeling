@@ -13,6 +13,8 @@ include_directories(${APPLICATION_LIBRARY})
 # Define a variable containing a list of source files for the project
 set(SOURCE_FILES pch.h main.cpp
         Tests/DataTrackerTests/Makefile
+        Tests/FunctionSetTest/FunctionSetTest.cpp
+        Tests/CircleTests/CircleTest.cpp)
         Tests/FunctionSetTest/Makefile)
 
 # Define the build target for the executable
