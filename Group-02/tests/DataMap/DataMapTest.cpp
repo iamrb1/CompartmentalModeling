@@ -53,10 +53,8 @@ TEST_CASE("DataMap .at method","[DataMap]") {
     CHECK(val == 80.2);
   }
 
-  SECTION(".at method wrong type specified") {
-    REQUIRE_THROWS_AS(data_map.at<std::string>("key"), std::runtime_error);
-
-    REQUIRE_THROWS_AS(data_map.at<int>("false_key"), std::out_of_range);
+  SECTION(".at method wrong key specified") {
+    REQUIRE_FALSE(data_map.contains("bob"));
   }
 }
 

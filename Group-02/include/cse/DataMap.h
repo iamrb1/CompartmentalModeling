@@ -22,6 +22,7 @@ namespace cse {
 */
 class DataMap {
  private:
+  /// Member Variable unordered_map
   std::unordered_map<std::string, std::any> m_map;
 
  public:
@@ -40,6 +41,7 @@ class DataMap {
   */
   template <typename T>
   void insert(const std::string& name, const T& val) {
+    // https://stackoverflow.com/questions/3692954/add-custom-messages-in-assert custom messages in assert trick I have implemented within
     assert(!contains(name) && "Key already exists within DataMap");
     m_map[name] = val;
   }
@@ -54,14 +56,10 @@ class DataMap {
   */
   template <typename T>
   T at(const std::string& name) {
-    if (contains(name)) {
-      const std::any& val = m_map[name];
-      if (val.type() == typeid(T)) {
-        return std::any_cast<T>(m_map[name]);
-      }
-      throw(std::runtime_error("Wrong type requested from what is contained within DataMap for key: " + name));
-    }
-    throw(std::out_of_range("Key does not exist within DataMap"));
+    assert(contains(name) && "Key does not exist in DataMap");
+    const std::any& val = m_map[name];
+    assert(val.type() == typeid(T) && "Wrong type requested from what is contained within DataMap for key");
+    return std::any_cast<T>(m_map[name]);
   }
 
   bool contains(const std::string& name);
@@ -108,4 +106,4 @@ class DataMap {
     return m_map.count(name);
   }
 };
-}  // namespace cse
+}
