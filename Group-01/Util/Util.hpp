@@ -70,6 +70,10 @@ struct SerializableProperty {
   PropertyWriter writer;
 };
 
+/**
+ * There was some use of AI to write the types and maps
+ * that map properties to handlers
+ */
 class FileSerializable {
 protected:
   virtual std::string GetTypeName() const = 0;
@@ -95,7 +99,7 @@ public:
     for (auto [key, value] : properties) {
       auto it = propertyMap.find(key);
       if (it == propertyMap.end()) {
-        throw std::runtime_error("Unknown property: " + key);
+        throw std::runtime_error("Unknown property on " + GetTypeName() + ": " + key);
       }
       it->second.handler(value);
     }
