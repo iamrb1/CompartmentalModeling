@@ -318,88 +318,86 @@ TEST_CASE("Test for Difference", "[Difference]"){
 }
 
 
-// These functions hasn't been implemented yet.
+ TEST_CASE("Test for Filter ", "[Filter]"){
 
-// TEST_CASE("Test for Filter ", "[Filter]"){
+     StringSet set;
 
-//     StringSet set;
+     set.insert("blue");
+     set.insert("yellow");
+     set.insert("black");
+     set.insert("red");
+     set.insert("brown");
+     set.insert("white");
 
-//     set.insert("blue");
-//     set.insert("yellow");
-//     set.insert("black");
-//     set.insert("red");
-//     set.insert("brown");
-//     set.insert("white");
+     set.Filter([](const std::string& str){
+         return str.size() > 4;
+     });
 
-//     set.Filter([](const std::string& str){
-//         return str.size() > 4;
-//     });
+     REQUIRE(set.size() == 4);
+     REQUIRE(set.count("yellow") == 1);
+     REQUIRE(set.count("black") == 1);
+     REQUIRE(set.count("brown") == 1);
+     REQUIRE(set.count("white") == 1);
+     REQUIRE(set.count("blue") == 0);
+     REQUIRE(set.count("red") == 0);
+     REQUIRE(set.count("green") == 0);
+     REQUIRE_FALSE(set.empty());
 
-//     REQUIRE(set.size() == 4);
-//     REQUIRE(set.count("yellow") == 1);
-//     REQUIRE(set.count("black") == 1);
-//     REQUIRE(set.count("brown") == 1);
-//     REQUIRE(set.count("white") == 1);
-//     REQUIRE(set.count("blue") == 0);
-//     REQUIRE(set.count("red") == 0);
-//     REQUIRE(set.count("green") == 0);
-//     REQUIRE_FALSE(set.empty());
+     set.clear();
+     REQUIRE(set.empty());
+     REQUIRE(set.size() == 0);
+     REQUIRE(set.count("yellow") == 0);
 
-//     set.clear();
-//     REQUIRE(set.empty());
-//     REQUIRE(set.size() == 0);
-//     REQUIRE(set.count("yellow") == 0);
+     // Try in empty set (shouldn't give any errors, set still needs to be empty)
+     set.Filter([](const std::string& str){
+         return str.size() > 4;
+     });
 
-//     // Try in empty set (shouldn't give any errors, set still needs to be empty)
-//     set.Filter([](const std::string& str){
-//         return str.size() > 4;
-//     });
+     REQUIRE(set.size() == 0);
+     REQUIRE(set.empty());
+     REQUIRE(set.count("blue") == 0);
+ }
 
-//     REQUIRE(set.size() == 0);
-//     REQUIRE(set.empty());
-//     REQUIRE(set.count("blue") == 0);
-// }
+ TEST_CASE("Test for FilterOut", "[FilterOut]"){
+     StringSet set;
 
-// TEST_CASE("Test for FilterOut", "[FilterOut]"){
-//     StringSet set;
-
-//     set.insert("blue");
-//     set.insert("yellow");
-//     set.insert("black");
-//     set.insert("red");
-//     set.insert("brown");
-//     set.insert("white");
+     set.insert("blue");
+     set.insert("yellow");
+     set.insert("black");
+     set.insert("red");
+     set.insert("brown");
+     set.insert("white");
 
 
-//     set.FilterOut([](const std::string& str){
-//         return str.size() > 4;
-//     });
+     set.FilterOut([](const std::string& str){
+         return str.size() > 4;
+     });
 
-//     REQUIRE(set.size() == 2);
-//     REQUIRE(set.count("yellow") == 0);
-//     REQUIRE(set.count("black") == 0);
-//     REQUIRE(set.count("brown") == 0);
-//     REQUIRE(set.count("white") == 0);
-//     REQUIRE(set.count("blue") == 1);
-//     REQUIRE(set.count("red") == 1);
-//     REQUIRE(set.count("green") == 0);
-//     REQUIRE_FALSE(set.empty());
+     REQUIRE(set.size() == 2);
+     REQUIRE(set.count("yellow") == 0);
+     REQUIRE(set.count("black") == 0);
+     REQUIRE(set.count("brown") == 0);
+     REQUIRE(set.count("white") == 0);
+     REQUIRE(set.count("blue") == 1);
+     REQUIRE(set.count("red") == 1);
+     REQUIRE(set.count("green") == 0);
+     REQUIRE_FALSE(set.empty());
 
-//     set.clear();
-//     REQUIRE(set.empty());
-//     REQUIRE(set.size() == 0);
-//     REQUIRE(set.count("yellow") == 0);
+     set.clear();
+     REQUIRE(set.empty());
+     REQUIRE(set.size() == 0);
+     REQUIRE(set.count("yellow") == 0);
 
 
-//     // Try it in an empty set (shouldn't give any errors, still needs to be empty set)
-//     set.FilterOut([](const std::string& str){
-//         return str.size() > 4;
-//     });
+     // Try it in an empty set (shouldn't give any errors, still needs to be empty set)
+     set.FilterOut([](const std::string& str){
+         return str.size() > 4;
+     });
 
-//     REQUIRE(set.size() == 0);
-//     REQUIRE(set.empty());
-//     REQUIRE(set.count("blue") == 0);
-// }
+     REQUIRE(set.size() == 0);
+     REQUIRE(set.empty());
+     REQUIRE(set.count("blue") == 0);
+ }
 
 
 
