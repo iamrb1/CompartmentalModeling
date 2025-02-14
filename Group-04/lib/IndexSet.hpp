@@ -241,8 +241,14 @@ class IndexSet {
    * @param index The index to start appending
    */
   void appendAt(const IndexSet& indexSet, const std::size_t index) {
-    // TODO: Implement AppendAt
-    assert(false);  // Not implemented yet.
+    // Create a copy of the input IndexSet and offset it by the starting index
+    IndexSet offsetSet = indexSet;
+    offsetSet.offset(index);
+    
+    // Add all ranges from the offset set to this set
+    for (const auto& range : offsetSet.ranges_) {
+      insertRange(range.first, range.second);
+    }
   }
 
   // Iterator support - to be implemented
