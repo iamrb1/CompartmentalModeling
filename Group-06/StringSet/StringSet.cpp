@@ -137,14 +137,53 @@ cse::StringSet cse::StringSet::Difference(const cse::StringSet &other) const {
 }
 
 
-/*
-void cse::StringSet::Filter(std::function<bool(std::string &)> filter)
+/**
+ * @brief Keep elements in m_elements based on custom filter
+ * @param filter custom function
+ */
+void cse::StringSet::Filter(std::function<bool(const std::string &)> filter)
 {
+    std::vector<std::string> filteredElements;
 
+    // Filter every element in m_elements
+    for (const auto& str : m_elements)
+    {
+        if (!filter(str))
+        {
+            filteredElements.push_back(str);
+        }
+    }
+
+    // Remove unfiltered elements
+    for (const auto& str : filteredElements)
+    {
+        m_elements.erase(str);
+    }
 }
 
-void cse::StringSet::FilterOut(std::function<bool(std::string &)> filter)
+
+/**
+ * @brief Delete elements based on custom filter
+ * @param filter custom function
+ */
+void cse::StringSet::FilterOut(std::function<bool(const std::string &)> filter)
 {
 
+    std::vector<std::string> filteredElements;
+
+    // Filter every element in m_elements
+    for (const auto& str : m_elements)
+    {
+        if (filter(str))
+        {
+            filteredElements.push_back(str);
+        }
+    }
+
+    // Remove filtered elements
+    for (const auto& str : filteredElements)
+    {
+        m_elements.erase(str);
+    }
 }
-*/
+
