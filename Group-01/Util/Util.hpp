@@ -88,7 +88,7 @@ protected:
   virtual std::string GetTypeName() const = 0;
   virtual std::string GetId() const = 0;
   virtual void SetId(std::string) = 0;
-  virtual std::map<std::string, SerializableProperty> GetPropertyMap() = 0;
+  virtual std::vector<std::pair<std::string, SerializableProperty>> GetPropertyMap() = 0;
 
   static std::string GetIndent(size_t level, std::string const &indent_unit = "    ") {
     std::string result;
@@ -111,14 +111,17 @@ public:
     SetId(value);
 
     auto properties = FileUtil::GetProperties(f, prefix_size + 2);
-    auto propertyMap = GetPropertyMap();
+    auto propertyVector = GetPropertyMap();
 
-    for (auto [key, value] : properties) {
-      auto it = propertyMap.find(key);
-      if (it == propertyMap.end()) {
+    for (auto [key, value] : propertyVector) {
+      auto it = std::find_if(properties.begin(), properties.end(),
+                             [key](std::pair<std::string, std::string> &value) { return value.first == key; });
+      if (it == properties.end()) {
         throw std::runtime_error("Unknown property on " + GetTypeName() + ": " + key);
       }
-      it->second.handler(value);
+      value.handler(it->second);
+    }
+    for (auto [key, value] : properties) {
     }
   }
 

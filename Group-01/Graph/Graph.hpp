@@ -21,7 +21,7 @@ namespace cse {
     std::string GetTypeName() const override { return "GRAPH"; }
     std::string GetId() const override { return ""; }
     void SetId(std::string) override {}
-    std::map<std::string, SerializableProperty> GetPropertyMap() override;
+    std::vector<std::pair<std::string, SerializableProperty>> GetPropertyMap() override;
     void FromFile(std::istream &f, size_t prefix_size) override;
 
   public:

@@ -18,7 +18,7 @@ namespace cse {
 
   protected:
     std::string GetTypeName() const override { return "VERTEX"; }
-    std::map<std::string, SerializableProperty> GetPropertyMap() override;
+    std::vector<std::pair<std::string, SerializableProperty>> GetPropertyMap() override;
     void SetId(std::string newId) override { id = newId; };
 
   private:

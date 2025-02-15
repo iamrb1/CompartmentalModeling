@@ -80,6 +80,7 @@ TEST_CASE("Test cse::Graph - To file", "Export to file")
   // Test adding vertices
   auto v1 = graph.AddVertex("id1");
   auto v2 = graph.AddVertex("id2", 1.5);
+  graph.AddEdge(v1, v2);
   std::stringstream s;
 
   graph.ToFile(s);
@@ -92,6 +93,12 @@ TEST_CASE("Test cse::Graph - To file", "Export to file")
                                  "    VERTEX:id1",
                                  "      X:0",
                                  "      Y:0",
+                                 "",
+                                 "  Edges:",
+                                 "    EDGE:id1-id2",
+                                 "      from:id1",
+                                 "      to:id2",
+                                 "      bidirectional:0",
                                  ""};
   REQUIRE(cse_test_utils::CheckForStringFile(lines, s));
 }

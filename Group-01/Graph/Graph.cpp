@@ -137,13 +137,12 @@ namespace cse {
     if (vertices_key != "Vertices") {
       throw std::runtime_error("Expected Vertices section, got: " + vertices_key);
     }
-
     // Parse vertices
     ParseVertices(f, 2);
   }
 
-  std::map<std::string, SerializableProperty> Graph::GetPropertyMap() {
-    std::map<std::string, SerializableProperty> properties;
+  std::vector<std::pair<std::string, SerializableProperty>> Graph::GetPropertyMap() {
+    std::vector<std::pair<std::string, SerializableProperty>> properties;
 
     auto verticesWriter = [this](std::ostream &s) {
       s << "\n";
@@ -152,8 +151,16 @@ namespace cse {
       }
     };
 
+    auto edgesWriter = [this](std::ostream &s) {
+      s << "\n";
+      for (auto const &[id, edge] : edges) {
+        edge->ToFile(s, 2);
+      }
+    };
+
     // Handler not needed since we override FromFile
-    properties.emplace("Vertices", SerializableProperty(verticesWriter, [](const std::string &) {}));
+    properties.emplace_back("Vertices", SerializableProperty(verticesWriter, [](const std::string &) {}));
+    properties.emplace_back("Edges", SerializableProperty(edgesWriter, [](const std::string &) {}));
     return properties;
   }
 } // namespace cse
