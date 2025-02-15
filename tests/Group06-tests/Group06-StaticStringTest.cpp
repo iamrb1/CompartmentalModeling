@@ -12,7 +12,7 @@ using namespace cse;
 
 TEST_CASE("Tests for constructors", "[StaticString]") {
 
-    SECTION("Constructor by default")
+    SECTION("TESTS: Constructor by default")
     {
         StaticString<10> s;
         REQUIRE(s.length() == 0);
@@ -20,7 +20,7 @@ TEST_CASE("Tests for constructors", "[StaticString]") {
         REQUIRE(std::strcmp(s.get_str(), "") == 0);
     }
 
-    SECTION("Constructor for empty string")
+    SECTION("TESTS: Constructor for empty string")
     {
         StaticString<0> s;
         REQUIRE(s.length() == 0);
@@ -34,7 +34,7 @@ TEST_CASE("Tests for constructors", "[StaticString]") {
         REQUIRE(std::strcmp(s2.get_str(), "") == 0);
     }
 
-    SECTION("Constructor with valid string")
+    SECTION("TESTS: Constructor with valid string")
     {
         StaticString<10> s("Hello");
         REQUIRE(s.length() == 5);
@@ -42,7 +42,7 @@ TEST_CASE("Tests for constructors", "[StaticString]") {
         REQUIRE(std::strcmp(s.get_str(), "Hello") == 0);
     }   
 
-    SECTION("Constructor with a string exactly equal to capacity") {
+    SECTION("TESTS: Constructor with a string exactly equal to capacity") {
         char exact[11] = "1234567890"; 
         StaticString<10> s(exact);
 
@@ -51,7 +51,7 @@ TEST_CASE("Tests for constructors", "[StaticString]") {
         REQUIRE(std::strcmp(s.get_str(), exact) == 0);
     }
 
-    SECTION("Copy constructor, copy another StaticString object")
+    SECTION("TESTS: Copy constructor, copy another StaticString object")
     {
         StaticString<10> s("Hello");
         StaticString<10> copy(s);
@@ -77,7 +77,7 @@ TEST_CASE("Tests for constructors", "[StaticString]") {
 
 TEST_CASE("Tests for operators", "[StaticString]") {
 
-    SECTION("Assignment operator copies correctly")
+    SECTION("TESTS: Assignment operator copies correctly")
     {
         StaticString<10> s("Hello");
         StaticString<10> s2;
@@ -91,7 +91,7 @@ TEST_CASE("Tests for operators", "[StaticString]") {
         REQUIRE(std::strcmp(s3.get_str(), s2.get_str()) == 0);
     }
 
-    SECTION("Assigning a normal string") {
+    SECTION("TESTS: Assigning a normal string") {
         StaticString<10> s;
         s = "Hello";
         REQUIRE(s.length() == 5);
@@ -103,7 +103,7 @@ TEST_CASE("Tests for operators", "[StaticString]") {
         REQUIRE(std::strcmp(s2.get_str(), "Hello") == 0);
     }
 
-    SECTION("Assigning an empty string") {
+    SECTION("TESTS: Assigning an empty string") {
         StaticString<10> s;
         s = "";
         REQUIRE(s.length() == 0);
@@ -111,7 +111,7 @@ TEST_CASE("Tests for operators", "[StaticString]") {
         REQUIRE(std::strcmp(s.get_str(), "") == 0);
     }
 
-    SECTION("Assigning nullptr should reset the string") {
+    SECTION("TESTS: Assigning nullptr should reset the string") {
         StaticString<10> s("Hello");
         s = nullptr;
         REQUIRE(s.length() == 0);
@@ -119,7 +119,7 @@ TEST_CASE("Tests for operators", "[StaticString]") {
         REQUIRE(std::strcmp(s.get_str(), "") == 0);
     }
 
-    SECTION("Assigning a string exactly fitting MaxSize") {
+    SECTION("TESTS: Assigning a string exactly fitting MaxSize") {
         StaticString<10> s;
         s = "HelloWorld"; 
         REQUIRE(s.length() == 10);
@@ -127,7 +127,7 @@ TEST_CASE("Tests for operators", "[StaticString]") {
         REQUIRE(std::strcmp(s.get_str(), "HelloWorld") == 0);
     }
 
-    SECTION("Assigning multiple times should overwrite previous value") {
+    SECTION("TESTS: Assigning multiple times should overwrite previous value") {
         StaticString<10> s("Hello");
         s = "World!";
         REQUIRE(s.length() == 6);
@@ -142,7 +142,7 @@ TEST_CASE("Tests for operators", "[StaticString]") {
         REQUIRE(std::strncmp(s.get_str(), "Hi!", 10) == 0);
     }
 
-    SECTION("Operator[] with valid index")
+    SECTION("TESTS: Operator[] with valid index")
     {
         StaticString<10> s("World");
         REQUIRE(s[0] == 'W');
@@ -152,7 +152,7 @@ TEST_CASE("Tests for operators", "[StaticString]") {
         REQUIRE(s[4] == 'd');
     }
 
-    SECTION("Operator[], changing the indexed value.")
+    SECTION("TESTS: Operator[], changing the indexed value.")
     {
         StaticString<10> s("Test");
         s.set(2,'a');
@@ -180,7 +180,7 @@ TEST_CASE("Tests for operators", "[StaticString]") {
 
 
     // Comparisons conducted lexicograhical orders based
-    SECTION("Equality and inequality operators") {
+    SECTION("TESTS: Equality and inequality operators") {
         REQUIRE(s1 == s3);       // Alpha == Alpha True
         REQUIRE_FALSE(s1 == s2); // Alpha == Bravo Fals
         REQUIRE(s1 != s2);       // Alpha != Bravo True
@@ -197,7 +197,7 @@ TEST_CASE("Tests for operators", "[StaticString]") {
         REQUIRE(emptyString != s1);        // "" != Alpha True
     }
 
-    SECTION("Less than operator <") {
+    SECTION("TESTS: Less than operator <") {
         REQUIRE(s1 < s2);           // Alpha < Bravo True
         REQUIRE(s1 < s5);           // Alpha < Alphabeta True
         REQUIRE_FALSE(s1 < s3);     // Alpha < Alpha False
@@ -209,40 +209,40 @@ TEST_CASE("Tests for operators", "[StaticString]") {
         REQUIRE(s7 < s1);  // !@#$% < Alpha True
     }
 
-    SECTION("Greater than operator >") {
+    SECTION("TESTS: Greater than operator >") {
         REQUIRE(s2 > s1);           // Bravo > Alpha True
         REQUIRE(s5 > s1);           // Alphabeta > Alpha True
         REQUIRE(s1 > emptyString);  // Alpha > "" True
         REQUIRE_FALSE(s1 > s2);     // Alpha > Bravo False
     }
 
-    SECTION("Less than or equal operator <=") {
+    SECTION("TESTS: Less than or equal operator <=") {
         REQUIRE(s1 <= s3);          // Alpha <= Alpha True
         REQUIRE(s1 <= s2);          // Alpha <= Bravo True
         REQUIRE(s1 <= s5);          // Alpha <= Alphabeta True
         REQUIRE(emptyString <= s1); // "" <= Alpha True
     }
 
-    SECTION("Greater than or equal operator >=") {
+    SECTION("TESTS: Greater than or equal operator >=") {
         REQUIRE(s2 >= s1);          // Bravo >= Alpha True
         REQUIRE(s5 >= s1);          // Alphabeta >= Alpha True
         REQUIRE(s1 >= emptyString); // Alpha >= "" True
         REQUIRE(s1 >= s3);          // Alpha >= Alpha True
     }
 
-    SECTION("Case sensitivity check") {
+    SECTION("TESTS: Case sensitivity check") {
         REQUIRE_FALSE(s1 == s4);  // Alpha == alpha False
         REQUIRE(s1 < s4);         // Alpha < alpha True
         REQUIRE(s4 > s1);         // alpha > Alpha True
     }
 
-    SECTION("Numbers and special characters") {
+    SECTION("TESTS: Numbers and special characters") {
         REQUIRE(s7 < s1);  // !@#$% < Alpha True
         REQUIRE(s6 < s2);  // 12345 < Bravo True
         REQUIRE(s7 < s6);  // !@#$% < 12345 True
     }
 
-    SECTION("Edge Cases: Longer and Truncated Strings") {
+    SECTION("TESTS: Longer and Truncated Strings") {
         REQUIRE(s8 == s9);  
         REQUIRE_FALSE(s8 < s9); 
         REQUIRE_FALSE(s8 > s9); 
@@ -254,7 +254,7 @@ TEST_CASE("Tests for operators", "[StaticString]") {
 
 TEST_CASE("Tests for member functions", "[StaticString]") {
 
-    SECTION("size and length member functions")
+    SECTION("TESTS: size and length member functions")
     {
         StaticString<15> s("Hello");
         REQUIRE(s.size() == 15);
@@ -265,7 +265,7 @@ TEST_CASE("Tests for member functions", "[StaticString]") {
         REQUIRE(s2.length() == 5);
     }
     
-    SECTION("get_str member function")
+    SECTION("TESTS: get_str member function")
     {
         StaticString<10> s("HelloWorld");
         StaticString<10> s2("Hello");
@@ -273,7 +273,7 @@ TEST_CASE("Tests for member functions", "[StaticString]") {
         REQUIRE_FALSE(std::strcmp(s2.get_str(), "HelloWorld") == 0);
     }
 
-    SECTION("find member function")
+    SECTION("TESTS: find member function")
     {
         StaticString<10> s("abcdef");
         REQUIRE(s.find('a') == 0);
@@ -282,7 +282,7 @@ TEST_CASE("Tests for member functions", "[StaticString]") {
         REQUIRE(s.find('g') == s.npos);
     }
 
-    SECTION("to_string member function")
+    SECTION("TESTS: to_string member function")
     {
         StaticString<10> s("HelloWorld");
         StaticString<10> s2("Hello");
@@ -293,7 +293,7 @@ TEST_CASE("Tests for member functions", "[StaticString]") {
         REQUIRE(s3.to_string() == "Hello");      
     }
 
-    SECTION("set member function")
+    SECTION("TESTS: set member function")
     {
         StaticString<10> s("HelloWorld");
         StaticString<10> s2("Hello");
@@ -312,7 +312,7 @@ TEST_CASE("Tests for member functions", "[StaticString]") {
     }
 
 
-    SECTION("Append member function")
+    SECTION("TESTS: Append member function")
     {
         StaticString<20> s("HelloWorld");
         StaticString<20> s2("Hello");
@@ -384,7 +384,7 @@ TEST_CASE("Tests for member functions", "[StaticString]") {
 
     }
 
-    SECTION("concat member function")
+    SECTION("TESTS: concat member function")
     {
         StaticString<20> s("HelloWorld");
         StaticString<20> s2("Hello");
@@ -420,7 +420,7 @@ TEST_CASE("Tests for member functions", "[StaticString]") {
 
     }
 
-    SECTION("substr member function")
+    SECTION("TESTS: substr member function")
     {
         StaticString<20> s("HelloWorld");
         StaticString<20> s2("Hello");
