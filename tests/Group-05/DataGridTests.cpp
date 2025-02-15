@@ -99,7 +99,7 @@ TEST_CASE("DataGrid: Get Row", "[access]") {
 TEST_CASE("DataGrid: Get Column", "[access]") {
   DataGrid grid(3, 3);
   auto column = grid.getColumn(1);
-  CHECK(column.size() == 3);
+  CHECK(column.Size() == 3);
 }
 
 /**
