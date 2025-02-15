@@ -109,7 +109,7 @@ TEST_CASE("DataGrid: Get Value", "[access]") {
   DataGrid grid(2, 2);
   Datum d(42.0);
   grid.at(1, 1) = d;
-  CHECK(grid.getValue(1, 1).GetDouble().value() == 42.0);
+  CHECK(grid.getValue(1, 1).GetDouble() == 42.0);
 }
 
 /**
@@ -157,5 +157,5 @@ TEST_CASE("DataGrid: Comprehensive Test", "[comprehensive]") {
   grid.deleteColumn(1);
   grid.resize(3, 3, 0.0);
   CHECK(grid.shape() == std::make_tuple(3, 3));
-  CHECK(grid.getValue(2, 2).GetString().value() == "Water");
+  CHECK(grid.getValue(2, 2).GetString() == "Water");
 }

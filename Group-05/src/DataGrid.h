@@ -7,8 +7,9 @@
 
 #pragma once
 
-#include <assert.h>
+#include <cassert>
 #include <iomanip>
+#include <limits>
 #include <vector>
 
 #include "Datum.h"

@@ -6,9 +6,9 @@
 #include "DataGrid.h"
 
 #include <algorithm>
-#include <assert.h>
+#include <cassert>
 #include <iostream>
-#include <optional>
+#include <limits>
 #include <vector>
 
 #include "Datum.h"
@@ -341,9 +341,9 @@ std::ostream &DataGrid::print(std::ostream &os_) const {
       try {
         auto value = this->getValue(i, j);
         if (value.IsString()) {
-          os_ << value.GetString().value() << " ";
+          os_ << value.GetString() << " ";
         } else if (value.IsDouble()) {
-          os_ << value.GetDouble().value() << " ";
+          os_ << value.GetDouble() << " ";
         }
       } catch (const std::out_of_range &) {
         os_ << "- ";
