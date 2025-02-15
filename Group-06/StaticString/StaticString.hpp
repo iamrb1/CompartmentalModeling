@@ -30,22 +30,6 @@ class StaticString {
     /// @brief size_t current size of the string.
     std::size_t mCurrentSize = 0;  // Tracks the current size of string.
 
-    /**
-     * @brief Update the current length of the StaticString
-     * 
-     * After changes made to the string, updates the length of the staticString
-     * New size calculated based until first hit to null terminator.
-     * Changes occured after a null terminator such as [test\0\0test2\0] wouldn't
-     * be reflected on length.
-     */
-    void Update_Length()
-    {
-        size_t newLength = 0;
-        while (mString[newLength] != '\0' && newLength < MaxSize) {
-            ++newLength;
-        }
-        mCurrentSize = newLength;
-    }
 
    public:
     /// @brief Constant value for StaticString npos, not found value.
@@ -105,9 +89,9 @@ class StaticString {
     StaticString(const StaticString<newMaxSize>& staticString) {
         
         // Check if the string that we will copy is larger than new MaxSize defined
-        assert(staticString.size() <= MaxSize && "Error: The length of coppied string exceeds static limit defined.");
+        assert(staticString.length() <= MaxSize && "Error: The length of coppied string exceeds static limit defined.");
 
-        std::copy(staticString.get_str(), staticString.get_str() + staticString.size(), mString);
+        std::copy(staticString.get_str(), staticString.get_str() + staticString.length(), mString);
 
         mCurrentSize = staticString.length();
     }
@@ -128,8 +112,8 @@ class StaticString {
         if (this != &staticString) {
             
             // Check if the string that we will copy is larger than new MaxSize defined
-            assert(staticString.size() <= MaxSize && "Error: The length of coppied string exceeds static limit defined.");
-            std::copy(staticString.mString, staticString.mString + staticString.size(),
+            assert(staticString.length() <= MaxSize && "Error: The length of coppied string exceeds static limit defined.");
+            std::copy(staticString.mString, staticString.mString + staticString.length(),
                       mString);
 
             mCurrentSize = staticString.mCurrentSize;
@@ -171,9 +155,12 @@ class StaticString {
 
         assert((newLength < MaxSize || cstr[newLength] == '\0') && "Invalid size for assign input, input string is too long.");
 
-        mCurrentSize = newLength;
-        mString[mCurrentSize] = '\0';
+        // Replace remaining part of the string with null terminator
+        for (size_t i = newLength; i <= MaxSize; ++i) {
+            mString[i] = '\0';
+        }
 
+        mCurrentSize = newLength;
         return *this;
     }    
 
@@ -186,37 +173,67 @@ class StaticString {
     char operator[](std::size_t index) {
     
         // Indexed value is out of range or trying to index to the null terminator at the end
-        assert(index <= MaxSize && "Index value is out of range.");
-
+        assert(index < mCurrentSize && "Index value is out of range.");
         return mString[index];
     }
 
+
     bool operator==(const StaticString &rhs) const {
-        return std::strcmp(mString, rhs.mString) == 0;
+        return mCurrentSize == rhs.mCurrentSize && std::strcmp(mString, rhs.mString) == 0;
     }
     
     bool operator==(const char* rhs) const {
-        return std::strcmp(this->get_str(), rhs) == 0;
+        if (!rhs) return false;
+        assert(rhs != nullptr && "Nullptr comparsions not a legal comparison");
+        return std::strcmp(mString, rhs) == 0;
     }
-
+    
     bool operator!=(const StaticString &rhs) const {
-        return std::strcmp(mString, rhs.mString) != 0;
+        return !(*this == rhs);
     }
-
+    
+    bool operator!=(const char* rhs) const {
+        return std::strcmp(mString, rhs) != 0;
+    }
+    
     bool operator<(const StaticString &rhs) const {
-        return std::strcmp(mString, rhs.mString) < 0;
+        return std::strcmp(mString, rhs.mString) < 0; 
     }
-
+    
+    bool operator<(const char* rhs) const {
+        if (!rhs) return false;
+        assert(rhs != nullptr && "Nullptr comparsions not a legal comparison");
+        return std::strcmp(mString, rhs) < 0;
+    }
+    
     bool operator>(const StaticString &rhs) const {
-        return std::strcmp(mString, rhs.mString) > 0;
-    }   
-
+        return std::strcmp(mString, rhs.mString) > 0; 
+    }
+    
+    bool operator>(const char* rhs) const {
+        if (!rhs) return true;
+        assert(rhs != nullptr && "Nullptr comparsions not a legal comparison");        
+        return std::strcmp(mString, rhs) > 0;
+    }
+    
     bool operator<=(const StaticString &rhs) const {
         return std::strcmp(mString, rhs.mString) <= 0;
     }
-
+    
+    bool operator<=(const char* rhs) const {
+        if (!rhs) return false;
+        assert(rhs != nullptr && "Nullptr comparsions not a legal comparison");
+        return std::strcmp(mString, rhs) <= 0;
+    }
+    
     bool operator>=(const StaticString &rhs) const {
         return std::strcmp(mString, rhs.mString) >= 0;
+    }
+    
+    bool operator>=(const char* rhs) const {
+        if (!rhs) return true;
+        assert(rhs != nullptr && "Nullptr comparsions not a legal comparison");
+        return std::strcmp(mString, rhs) >= 0;
     }
 
 
@@ -257,7 +274,7 @@ class StaticString {
      * @param c character to be searched.
      * @return std::size_t Position of the character or npos if not found.
      */
-    std::size_t find(char c) const {
+    std::size_t find(const char& c) const {
         for (std::size_t i = 0; i < mCurrentSize; ++i) {
             if (mString[i] == c) return i;
         }
@@ -267,14 +284,26 @@ class StaticString {
     /**
      * @brief Set the given character to given index
      * 
+     * Index starts from 0, if the MaxSize is 10 then last possible index is 9
+     * 
      * @param index Index to be changed
      * @param c Char value to be assigned 
      */
     void set(const size_t& index, const char& c)
     {
-        assert(index < MaxSize && "Index value is out of range");
+        assert(index < mCurrentSize && "Index value is out of range");
+        if(index >= mCurrentSize || index >= MaxSize)
+        {
+            throw std::out_of_range("Index value is out of range");
+        }
+
+        // If user explicitly tries to cut their strings with null terminator
+        // Handle the size appropriately
+        if(c == '\0')
+        {   
+            mCurrentSize = index;
+        }
         mString[index] = c;
-        Update_Length();    // Update the current length
     }
 
 
@@ -288,6 +317,100 @@ class StaticString {
     }
 
     
+
+    /*--------------------- STRING OPERATIONS ----------------------*/
+
+    void append(const char * cstr) {
+
+        const std::size_t cstr_length = std::strlen(cstr);
+
+        assert((mCurrentSize + cstr_length <= MaxSize) && "Appending string exceeds maximum size");
+        if(mCurrentSize + cstr_length > MaxSize)
+        {
+            throw std::out_of_range("Static limit exceeded, appended string must be within limits defined");
+        }
+
+        std::copy(cstr, cstr + cstr_length, mString + mCurrentSize);
+
+        mCurrentSize += cstr_length;
+        mString[mCurrentSize] = '\0';
+    }
+
+    void append(const char & character) {
+
+        assert((mCurrentSize + 1 <= MaxSize) && "Appending string exceeds maximum size");
+        if(mCurrentSize + 1 > MaxSize)
+        {
+            throw std::out_of_range("Static limit exceeded, appended string must be within limits defined");
+        }
+
+        mString[mCurrentSize] = character;
+        mCurrentSize++;
+        mString[mCurrentSize] = '\0';
+    }
+
+    void append(const std::string & str) {
+
+        const std::size_t str_length = str.length();
+
+        assert((mCurrentSize + str_length < MaxSize) && "Appending string exceeds maximum size");
+        if(mCurrentSize + str_length >= MaxSize)
+        {
+            throw std::out_of_range("Static limit exceeded, appended string must be within limits defined");
+        }
+
+        std::copy(str.begin(), str.end(), mString + mCurrentSize);
+
+        mCurrentSize += str_length;
+        mString[mCurrentSize] = '\0';
+    }
+
+    void append(const std::string_view & str) {
+
+        const std::size_t str_length = str.length();
+    
+        assert((mCurrentSize + str_length < MaxSize) && "Appending string exceeds maximum size");
+        if (mCurrentSize + str_length >= MaxSize) {
+            throw std::out_of_range("Static limit exceeded, appended string must be within limits defined");
+        }
+    
+        std::copy(str.begin(), str.end(), mString + mCurrentSize);
+    
+        mCurrentSize += str_length;
+        mString[mCurrentSize] = '\0';
+    }
+
+
+    StaticString & concat(const StaticString& rhs) {
+        assert((mCurrentSize + rhs.mCurrentSize <= MaxSize) && "Concatenated string exceeds maximum size");\
+
+        if(mCurrentSize + rhs.mCurrentSize > MaxSize)
+        {
+            throw std::out_of_range("Static limit exceeded, concatinated string must be within limits defined");
+        }
+
+        std::copy(rhs.mString, rhs.mString + rhs.mCurrentSize + 1, mString + mCurrentSize);
+        mCurrentSize += rhs.mCurrentSize;
+        mString[mCurrentSize] = '\0';
+        return *this;
+    }
+
+    /**
+     * @brief 
+     * Start index is inclusive while end index exclusive.
+     * @param start 
+     * @param end 
+     * @return std::string_view 
+     */
+    std::string_view substr(std::size_t start, std::size_t end) const {
+
+        assert((start < end || end <= mCurrentSize) && "Index provided for substring are invalid");
+
+        if (start > end || end > mCurrentSize) {
+            throw std::out_of_range("Invalid substring request");
+        }
+        return std::string_view(mString + start, end - start);
+    }
     
 };
 
