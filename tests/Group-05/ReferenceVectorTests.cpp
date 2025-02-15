@@ -51,9 +51,9 @@ TEST_CASE("Element access functionality", "[access]") {
   refVec.push_back(d2);
   refVec.push_back(d3);
 
-  CHECK(refVec.front().GetDouble().value() == 123.123);
-  CHECK(refVec.at(1).GetString().value() == "test");
-  CHECK(refVec.back().GetDouble().value() == 987);
+  CHECK(refVec.front().GetDouble() == 123.123);
+  CHECK(refVec.at(1).GetString() == "test");
+  CHECK(refVec.back().GetDouble() == 987);
 }
 
 TEST_CASE("Element modification functionality", "[modify]") {
@@ -70,8 +70,8 @@ TEST_CASE("Element modification functionality", "[modify]") {
 
   refVec[1] = newDatum;
   refVec[2] = newDatum2;
-  CHECK(refVec.at(1).GetString().value() == "UpdatedDatum");
-  CHECK(refVec.at(2).GetDouble().value() == 987.987);
+  CHECK(refVec.at(1).GetString() == "UpdatedDatum");
+  CHECK(refVec.at(2).GetDouble() == 987.987);
 }
 
 TEST_CASE("clear() functionality", "[clear]") {

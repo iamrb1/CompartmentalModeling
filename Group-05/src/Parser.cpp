@@ -1,5 +1,7 @@
 #include "Parser.h"
-#include <assert.h>
+
+#include <algorithm>
+#include <cassert>
 #include <cctype>
 #include <iostream>
 #include <sstream>

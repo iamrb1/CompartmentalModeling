@@ -12,11 +12,13 @@
 #include "Datum.h"
 
 #include <cassert>
+#include <cmath>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
 #include <tuple>
 #include <vector>
+#include <iostream>
 
 namespace cse {
 
@@ -151,13 +153,13 @@ bool CSVFile::ExportCsv(const std::string &file_name, const DataGrid &grid,
            "Row does not have the expected number of columns.");
     for (std::size_t j = 0; j < num_cols; ++j) {
       std::string out_value;
-      std::optional<std::string> opt_str = row[j].GetString();
-      if (opt_str.has_value()) {
-        out_value = opt_str.value();
+      if (row[j].IsString()) {
+        std::string opt_str = row[j].GetString();
+        out_value = opt_str;
       } else {
-        std::optional<double> opt_double = row[j].GetDouble();
+        double opt_double = row[j].GetDouble();
         out_value =
-            (opt_double.has_value()) ? std::to_string(opt_double.value()) : "";
+            (opt_double) ? std::to_string(opt_double) : "";
       }
       out_file << Sanitize(out_value, delimiter);
       if (j < num_cols - 1) {

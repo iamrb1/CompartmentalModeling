@@ -16,6 +16,7 @@
 #include "../../Group-05/src/ReferenceVector.h"
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 
+#include <iostream>
 #include <cstdio>
 #include <fstream>
 #include <string>
@@ -56,25 +57,25 @@ TEST_CASE("CSVFile LoadCsv - Valid File", "[CSVFile]") {
   {
     std::vector<cse::Datum> row0 = data_grid.getRow(0);
     REQUIRE(row0.size() == 3);
-    CHECK(row0[0].GetString().value() == "Name");
-    CHECK(row0[1].GetString().value() == "Age");
-    CHECK(row0[2].GetString().value() == "Score");
+    CHECK(row0[0].GetString() == "Name");
+    CHECK(row0[1].GetString() == "Age");
+    CHECK(row0[2].GetString() == "Score");
   }
   // Validate first data row
   {
     std::vector<cse::Datum> row1 = data_grid.getRow(1);
     REQUIRE(row1.size() == 3);
-    CHECK(row1[0].GetString().value() == "Alice");
-    CHECK(row1[1].GetDouble().value() == Approx(30.0));
-    CHECK(row1[2].GetDouble().value() == Approx(95.5));
+    CHECK(row1[0].GetString() == "Alice");
+    CHECK(row1[1].GetDouble() == Approx(30.0));
+    CHECK(row1[2].GetDouble() == Approx(95.5));
   }
   // Validate second data row
   {
     std::vector<cse::Datum> row2 = data_grid.getRow(2);
     REQUIRE(row2.size() == 3);
-    CHECK(row2[0].GetString().value() == "Bob");
-    CHECK(row2[1].GetDouble().value() == Approx(25.0));
-    CHECK(row2[2].GetDouble().value() == Approx(88.0));
+    CHECK(row2[0].GetString() == "Bob");
+    CHECK(row2[1].GetDouble() == Approx(25.0));
+    CHECK(row2[2].GetDouble() == Approx(88.0));
   }
 
   // Cleanup temporary file
