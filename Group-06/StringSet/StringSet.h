@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <functional>
 
 namespace cse{
 class StringSet {
