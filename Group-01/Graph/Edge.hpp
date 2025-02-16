@@ -19,12 +19,12 @@ namespace cse {
     std::string GetTypeName() const override { return "EDGE"; }
     std::vector<std::pair<std::string, SerializableProperty>> GetPropertyMap() override {
       std::vector<std::pair<std::string, SerializableProperty>> properties;
+      properties.emplace_back("bidirectional", SerializableProperty([this](std::ostream &s) { s << IsBidirectional(); },
+                                                                    [](const std::string &) {}));
       properties.emplace_back(
           "from", SerializableProperty([this](std::ostream &s) { s << from->GetId(); }, [](const std::string &) {}));
       properties.emplace_back(
           "to", SerializableProperty([this](std::ostream &s) { s << to->GetId(); }, [](const std::string &) {}));
-      properties.emplace_back("bidirectional", SerializableProperty([this](std::ostream &s) { s << IsBidirectional(); },
-                                                                    [](const std::string &) {}));
       return properties;
     }
     void SetId(std::string newId) override { id = newId; };

@@ -121,8 +121,6 @@ public:
       }
       value.handler(it->second);
     }
-    for (auto [key, value] : properties) {
-    }
   }
 
   void ToFile(std::ostream &s, size_t indent_level = 0, std::string const &indent_unit = "  ") {

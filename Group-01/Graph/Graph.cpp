@@ -123,6 +123,28 @@ namespace cse {
     }
   }
 
+  void Graph::ParseEdges(std::istream &f, size_t indent_level) {
+    std::string line;
+    while (FileUtil::CheckPrefixSize(f, indent_level + 2)) {
+      // Get EDGE
+      std::string line;
+      std::getline(f, line);
+      auto [key, value] = FileUtil::SeparateKeyValue(line);
+      if (key != "EDGE") {
+        throw std::runtime_error("Invalid type: " + key);
+      }
+
+      auto properties = FileUtil::GetProperties(f, indent_level + 2 + 2);
+      assert(properties.size() == 3);
+      assert(properties.at(0).first == "bidirectional");
+
+      bool isBidirectional = std::stoi(properties.at(0).second);
+      auto from = GetVertex(properties.at(1).second);
+      auto to = GetVertex(properties.at(2).second);
+      AddEdge(from, to, isBidirectional);
+    }
+  }
+
   void Graph::FromFile(std::istream &f, size_t) {
     std::string line;
     std::getline(f, line);
@@ -139,6 +161,18 @@ namespace cse {
     }
     // Parse vertices
     ParseVertices(f, 2);
+
+    // Skip one line
+    std::getline(f, line);
+
+    // Read "Edges:" line
+    std::getline(f, line);
+    auto [edges_key, edge_value] = FileUtil::SeparateKeyValue(line);
+    if (edges_key != "Edges") {
+      throw std::runtime_error("Expected Edges section, got: " + edges_key);
+    }
+    // Parse vertices
+    ParseEdges(f, 2);
   }
 
   std::vector<std::pair<std::string, SerializableProperty>> Graph::GetPropertyMap() {

@@ -96,9 +96,9 @@ TEST_CASE("Test cse::Graph - To file", "Export to file")
                                  "",
                                  "  Edges:",
                                  "    EDGE:id1-id2",
+                                 "      bidirectional:0",
                                  "      from:id1",
                                  "      to:id2",
-                                 "      bidirectional:0",
                                  ""};
   REQUIRE(cse_test_utils::CheckForStringFile(lines, s));
 }
@@ -113,6 +113,12 @@ TEST_CASE("Test cse::Graph - From file", "Read from file")
                                  "    VERTEX:id1",
                                  "      X:1",
                                  "      Y:1",
+                                 "",
+                                 "  Edges:",
+                                 "    EDGE:id1-id2",
+                                 "      bidirectional:0",
+                                 "      from:id1",
+                                 "      to:id2",
                                  ""};
   std::stringstream s;
   cse_test_utils::BuildFileFromVector(lines, s);
@@ -124,4 +130,6 @@ TEST_CASE("Test cse::Graph - From file", "Read from file")
   REQUIRE_THAT(graph.GetVertex("id2")->GetX(), WithinAbs(1.5, cse_test_utils::FLOAT_DELTA));
   REQUIRE_THAT(graph.GetVertex("id2")->GetY(), WithinAbs(0, cse_test_utils::FLOAT_DELTA));
   CHECK(graph.GetVertex("id2")->GetId() == "id2");
+  CHECK(graph.IsConnected("id1", "id2"));
+  CHECK(!graph.IsConnected("id2", "id1"));
 }
