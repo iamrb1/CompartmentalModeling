@@ -16,11 +16,11 @@
 namespace cse {
 
 class ReferenceVector {
- private:
+private:
   /// Stores pointers to Datum instances.
-  std::vector<Datum*> mData;
+  std::vector<Datum *> mData;
 
- public:
+public:
   /**
    * Default constructor for ReferenceVector.
    */
@@ -31,7 +31,7 @@ class ReferenceVector {
    *
    * @param datum The reference to a Datum.
    */
-  void push_back(Datum& datum) { mData.push_back(&datum); }
+  void push_back(Datum &datum) { mData.push_back(&datum); }
 
   /**
    * Removes the last element in the vector.
@@ -63,29 +63,29 @@ class ReferenceVector {
    * @param index The position of the element.
    * @return Datum& Reference to the Datum at the index.
    */
-  Datum& operator[](size_t index);
-  
+  Datum &operator[](size_t index);
+
   /**
    * Returns a reference to the Datum at the given index.
    *
    * @param index The index of the desired element.
    * @return Datum& Reference to the Datum.
    */
-  Datum& at(size_t index);
+  Datum &at(size_t index);
 
   /**
    * Returns a reference to the first Datum in the vector.
    *
    * @return Datum& Reference to the first Datum.
    */
-  Datum& front();
+  Datum &front();
 
   /**
    * Returns a reference to the last Datum in the vector.
    *
    * @return Datum& Reference to the last Datum.
    */
-  Datum& back();
+  Datum &back();
 
   class iterator {
   private:
@@ -130,4 +130,4 @@ class ReferenceVector {
   iterator end() { return iterator(mData.end()); }
 };
 
-}  // namespace cse 
+} // namespace cse

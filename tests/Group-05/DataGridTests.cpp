@@ -20,16 +20,6 @@ using cse::DataGrid;
 using cse::Datum;
 
 /**
- * @brief Test default constructor
- */
-TEST_CASE("DataGrid: Default Constructor", "[constructor]") {
-  DataGrid grid;
-  auto [rows, cols] = grid.shape();
-  CHECK(rows == 0);
-  CHECK(cols == 0);
-}
-
-/**
  * @brief Test parameterized constructor
  */
 TEST_CASE("DataGrid: Parameterized Constructor", "[constructor]") {
@@ -51,22 +41,22 @@ TEST_CASE("DataGrid: Copy and Move Constructors", "[constructor]") {
 }
 
 /**
- * @brief Test inserting rows
+ * @brief Test inserting default rows
  */
 TEST_CASE("DataGrid: Insert Row", "[insert]") {
   DataGrid grid(2, 3);
-  grid.insertRow(1, 5.0);
+  grid.insertDefaultRow(1, 5.0);
   auto [rows, cols] = grid.shape();
   CHECK(rows == 3);
   CHECK(cols == 3);
 }
 
 /**
- * @brief Test inserting columns
+ * @brief Test inserting default columns
  */
 TEST_CASE("DataGrid: Insert Column", "[insert]") {
   DataGrid grid(3, 2);
-  grid.insertColumn(1, 7.5);
+  grid.insertDefaultColumn(1, 7.5);
   auto [rows, cols] = grid.shape();
   CHECK(rows == 3);
   CHECK(cols == 3);
@@ -119,14 +109,14 @@ TEST_CASE("DataGrid: Get Value", "[access]") {
   DataGrid grid(2, 2);
   Datum d(42.0);
   grid.at(1, 1) = d;
-  CHECK(grid.getValue(1, 1).GetDouble().value() == 42.0);
+  CHECK(grid.getValue(1, 1).GetDouble() == 42.0);
 }
 
 /**
  * @brief Test resizing
  */
 TEST_CASE("DataGrid: Resize", "[resize]") {
-  DataGrid grid;
+  DataGrid grid(1, 1);
   grid.resize(4, 5, 3.14);
   auto [rows, cols] = grid.shape();
   CHECK(rows == 4);
@@ -160,12 +150,12 @@ TEST_CASE("DataGrid: Stream Output", "[stream]") {
  */
 TEST_CASE("DataGrid: Comprehensive Test", "[comprehensive]") {
   DataGrid grid(5, 5, 1.0);
-  grid.insertRow(2, 2.0);
-  grid.insertColumn(3, "Water");
+  grid.insertDefaultRow(2, 2.0);
+  grid.insertDefaultColumn(3, "Water");
   grid.at(4, 4) = Datum(9.99);
   grid.deleteRow(0);
   grid.deleteColumn(1);
   grid.resize(3, 3, 0.0);
   CHECK(grid.shape() == std::make_tuple(3, 3));
-  CHECK(grid.getValue(2, 2).GetString().value() == "Water");
+  CHECK(grid.getValue(2, 2).GetString() == "Water");
 }

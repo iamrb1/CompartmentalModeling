@@ -12,7 +12,8 @@ namespace cse {
  * Removes the last element from the vector.
  */
 void ReferenceVector::pop_back() {
-  if (!mData.empty()) mData.pop_back();
+  if (!mData.empty())
+    mData.pop_back();
 }
 
 /**
@@ -21,7 +22,7 @@ void ReferenceVector::pop_back() {
  * @param index The position of the element.
  * @return Datum& Reference to the Datum.
  */
-Datum& ReferenceVector::operator[](size_t index) {
+Datum &ReferenceVector::operator[](size_t index) {
   if (index >= mData.size())
     throw std::out_of_range("Index out of range");
   return *mData[index];
@@ -32,8 +33,8 @@ Datum& ReferenceVector::operator[](size_t index) {
  *
  * @param index The index of the desired element.
  * @return Datum& Reference to the Datum.
- */ 
-Datum& ReferenceVector::at(size_t index) {
+ */
+Datum &ReferenceVector::at(size_t index) {
   if (index >= mData.size())
     throw std::out_of_range("Index out of range");
   return *mData[index];
@@ -44,7 +45,7 @@ Datum& ReferenceVector::at(size_t index) {
  *
  * @return Datum& Reference to the first Datum.
  */
-Datum& ReferenceVector::front() {
+Datum &ReferenceVector::front() {
   if (mData.empty())
     throw std::out_of_range("ReferenceVector is empty");
   return *mData.front();
@@ -55,10 +56,10 @@ Datum& ReferenceVector::front() {
  *
  * @return Datum& Reference to the last Datum.
  */
-Datum& ReferenceVector::back() {
+Datum &ReferenceVector::back() {
   if (mData.empty())
     throw std::out_of_range("ReferenceVector is empty");
-   return *mData.back();
+  return *mData.back();
 }
 
-}  // namespace cse 
+} // namespace cse

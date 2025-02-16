@@ -7,8 +7,9 @@
 
 #pragma once
 
-#include <assert.h>
+#include <cassert>
 #include <iomanip>
+#include <limits>
 #include <vector>
 
 #include "Datum.h"
@@ -28,10 +29,12 @@ private:
   std::vector<row_t> grid_;
 
 public:
-  /**
-   * @brief Default Constructor
-   */
-  DataGrid() = default;
+  explicit DataGrid(std::vector<std::vector<Datum>> data) {
+    assert(data.size() != 0);
+    assert(data[0].size() != 0);
+
+    grid_ = data;
+  }
 
   /**
    * @brief Create rectangular datagrid of desired size with default value
@@ -40,7 +43,7 @@ public:
    * @param num_cols_
    * @param default_value_
    */
-  DataGrid(const std::size_t num_rows_, const std::size_t num_columns_,
+  DataGrid(const std::size_t num_rows_ = 0, const std::size_t num_columns_ = 0,
            const double default_value_ = 0) {
     this->resize(num_rows_, num_columns_, default_value_);
   }
@@ -95,16 +98,16 @@ public:
                         std::size_t column_index_) const;
   std::tuple<const std::size_t, const std::size_t> shape() const;
   cse::ReferenceVector getColumn(std::size_t column_index_);
-  void
-  insertRow(std::size_t row_index_ = std::numeric_limits<std::size_t>::max(),
-            double default_value_ = 0);
-  void
-  insertRow(std::size_t row_index_ = std::numeric_limits<std::size_t>::max(),
-            std::string default_value_ = "");
-  void insertColumn(
+  void insertDefaultRow(
+      std::size_t row_index_ = std::numeric_limits<std::size_t>::max(),
+      double default_value_ = 0);
+  void insertDefaultRow(
+      std::size_t row_index_ = std::numeric_limits<std::size_t>::max(),
+      std::string default_value_ = "");
+  void insertDefaultColumn(
       std::size_t column_index_ = std::numeric_limits<std::size_t>::max(),
       double default_value_ = 0);
-  void insertColumn(
+  void insertDefaultColumn(
       std::size_t column_index_ = std::numeric_limits<std::size_t>::max(),
       const std::string &default_value_ = "");
   void deleteRow(std::size_t row_index_);

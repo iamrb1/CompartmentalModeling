@@ -4,14 +4,14 @@
 #include <string>
 
 class Parser {
- public:
+public:
   // Constructor
   Parser();
 
   // Member function to evaluate the expression
   int Evaluate(std::string expression);
 
- private:
+private:
   // Helper function to parse a number inside curly braces
   int ParseNumber(std::string expression, size_t &index);
   auto MakeDivideFun(std::string name1, std::string name2);
@@ -20,4 +20,4 @@ class Parser {
   auto MakeMultiplyFun(std::string name1, std::string name2);
 };
 
-#endif  // PARSER_H
+#endif // PARSER_H

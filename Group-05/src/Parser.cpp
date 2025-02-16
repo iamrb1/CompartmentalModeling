@@ -1,5 +1,7 @@
 #include "Parser.h"
-#include <assert.h>
+
+#include <algorithm>
+#include <cassert>
 #include <cctype>
 #include <iostream>
 #include <sstream>
@@ -15,11 +17,11 @@ int Parser::ParseNumber(std::string expression, size_t &index) {
   assert(std::any_of(expression.begin(), expression.end(), ::isdigit));
   bool negative = false;
   while (index < expression.size() && expression[index] != '{') {
-    index++;  // Skip whitespace
+    index++; // Skip whitespace
   }
 
   if (expression[index] == '{') {
-    index++;  // Skip opening '{'
+    index++; // Skip opening '{'
     int result = 0;
 
     // Extract the number inside the curly braces
@@ -35,7 +37,7 @@ int Parser::ParseNumber(std::string expression, size_t &index) {
     }
 
     if (expression[index] == '}') {
-      index++;  // Skip closing '}'
+      index++; // Skip closing '}'
     }
     if (negative == true) {
       result *= -1;
@@ -44,7 +46,7 @@ int Parser::ParseNumber(std::string expression, size_t &index) {
   }
 
   std::cerr << "Error: Expected number inside {}" << std::endl;
-  return 0;  // Return a default error value
+  return 0; // Return a default error value
 }
 
 
