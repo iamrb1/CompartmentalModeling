@@ -8,11 +8,19 @@
 #include <string>
 #include <map>
 
-// Constructor
+/**
+ * @brief Default constructor for Parser object
+ */
 Parser::Parser() {}
 
-// Helper function to parse a number inside curly braces
-int Parser::ParseNumber(std::string expression, size_t &index) {
+/**
+ * @brief Parses the next number in the equation, returning that number as a double
+ * 
+ * @param expression The string representing the equation
+ * @param index The position of the parser in the string
+ * @return The double result of the equation
+ */
+double Parser::ParseNumber(std::string expression, size_t &index) {
   assert(index < expression.size());
   assert(std::any_of(expression.begin(), expression.end(), ::isdigit));
   bool negative = false;
@@ -50,7 +58,13 @@ int Parser::ParseNumber(std::string expression, size_t &index) {
 }
 
 
-  // Member function to evaluate the expression
+  /**
+   * @brief Creates adding function that take a map with values to add
+   * 
+   * @param name1 Key for first value
+   * @param name2 Key for second value
+   * @return auto 
+   */
   auto Parser::MakeAddFun(std::string name1, std::string name2) {
     using map_t = std::map<std::string, double>;
     return [name1,name2](map_t & m){
@@ -58,6 +72,13 @@ int Parser::ParseNumber(std::string expression, size_t &index) {
     };
   }
 
+  /**
+   * @brief Creates subtracting function that take a map with values to add
+   * 
+   * @param name1 Key for first value
+   * @param name2 Key for second value
+   * @return auto 
+   */
   auto Parser::MakeSubtractFun(std::string name1, std::string name2) {
     using map_t = std::map<std::string, double>;
     return [name1,name2](map_t & m){
@@ -65,6 +86,13 @@ int Parser::ParseNumber(std::string expression, size_t &index) {
     };
   }
 
+  /**
+   * @brief Creates multiplication function that take a map with values to add
+   * 
+   * @param name1 Key for first value
+   * @param name2 Key for second value
+   * @return auto 
+   */
   auto Parser::MakeMultiplyFun(std::string name1, std::string name2) {
     using map_t = std::map<std::string, double>;
     return [name1,name2](map_t & m){
@@ -72,6 +100,13 @@ int Parser::ParseNumber(std::string expression, size_t &index) {
     };
   }
 
+  /**
+   * @brief Creates dividation function that take a map with values to add
+   * 
+   * @param name1 Key for first value
+   * @param name2 Key for second value
+   * @return auto 
+   */
   auto Parser::MakeDivideFun(std::string name1, std::string name2) {
     using map_t = std::map<std::string, double>;
     return [name1,name2](map_t & m){
@@ -79,14 +114,20 @@ int Parser::ParseNumber(std::string expression, size_t &index) {
     };
   }
 
-  int Parser::Evaluate(std::string expression) {
+  /**
+   * @brief Evaluates equation represented by expression and returns simplified value as a double
+   * 
+   * @param expression Representing equation
+   * @return double representing value of equation
+   */
+  double Parser::Evaluate(std::string expression) {
     assert(std::any_of(expression.begin(), expression.end(), ::isdigit));
     assert(std::any_of(expression.begin(), expression.end(), [](char c) {
     return c == '+' || c == '-' || c == '/' || c == '*';
     }));
     size_t index = 0;
     std::map<std::string, double> number_map;
-    number_map["val1"] = ParseNumber(expression, index);  // Get the first number
+    number_map["val1"] = ParseNumber(expression, index);  // Put the first number in map
     double result=0;
     while (index < expression.size()) {
       index++;
@@ -95,10 +136,10 @@ int Parser::ParseNumber(std::string expression, size_t &index) {
       if (op == '+' || op == '-' || op == '*' || op == '/') {
         index++;  // Skip the operator
         double next_number = ParseNumber(expression, index);
-        number_map["val2"] = next_number;
+        number_map["val2"] = next_number; //Put second number in map
         if (op == '+'){
-            auto fun = MakeAddFun("val1", "val2");
-            result = fun(number_map);
+            auto fun = MakeAddFun("val1", "val2"); //Creates function
+            result = fun(number_map); //Evauluates operator
             break;
         }
         else if (op == '-'){
