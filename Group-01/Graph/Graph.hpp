@@ -15,8 +15,16 @@ namespace cse {
   private:
     std::unordered_map<std::string, std::shared_ptr<cse::Vertex>> vertices{};
     std::unordered_map<std::string, std::shared_ptr<cse::Edge>> edges{};
+
+    // File parsing helpers
+    void ParseSection(std::istream &f, const std::string &expected_section);
     void ParseVertices(std::istream &f, size_t indent_level);
     void ParseEdges(std::istream &f, size_t indent_level);
+
+    // Edge management
+    void ValidateVerticesExist(const std::string &v1_id, const std::string &v2_id) const;
+    std::shared_ptr<Edge> CreateEdge(const std::string &edge_id, const std::string &v1_id, const std::string &v2_id,
+                                     bool bidirectional);
 
   protected:
     std::string GetTypeName() const override { return "GRAPH"; }

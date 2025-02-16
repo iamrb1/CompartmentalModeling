@@ -40,24 +40,29 @@ namespace cse {
     return removedVertex;
   }
 
-  std::weak_ptr<cse::Edge> cse::Graph::AddEdge(std::string v1_id, std::string v2_id, bool bidirectional) {
+  void Graph::ValidateVerticesExist(const std::string &v1_id, const std::string &v2_id) const {
     if (vertices.find(v1_id) == vertices.end() || vertices.find(v2_id) == vertices.end()) {
       throw std::out_of_range("One or both vertices do not exist.");
     }
+  }
 
-    // TODO @lspecht: Maybe this should be a unique ID.
-    // TODO @lspecht: Check if edge already exists.
+  std::shared_ptr<Edge> Graph::CreateEdge(const std::string &edge_id, const std::string &v1_id,
+                                          const std::string &v2_id, bool bidirectional) {
+    auto v1 = vertices[v1_id];
+    auto v2 = vertices[v2_id];
+    return bidirectional ? std::make_shared<BidirectionalEdge>(edge_id, v1, v2)
+                         : std::make_shared<Edge>(edge_id, v1, v2);
+  }
+
+  std::weak_ptr<cse::Edge> cse::Graph::AddEdge(std::string v1_id, std::string v2_id, bool bidirectional) {
+    ValidateVerticesExist(v1_id, v2_id);
+
     std::string edge_id = v1_id + "-" + v2_id;
-    std::shared_ptr<cse::Edge> e;
-    if (bidirectional) {
-      e = std::make_shared<cse::BidirectionalEdge>(edge_id, vertices[v1_id], vertices[v2_id]);
-    } else {
-      e = std::make_shared<cse::Edge>(edge_id, vertices[v1_id], vertices[v2_id]);
-    }
+    auto edge = CreateEdge(edge_id, v1_id, v2_id, bidirectional);
 
-    GetVertex(v1_id)->AddEdge(e);
-    edges[edge_id] = e;
-    return e;
+    GetVertex(v1_id)->AddEdge(edge);
+    edges[edge_id] = edge;
+    return edge;
   }
 
   std::weak_ptr<cse::Edge> cse::Graph::AddEdge(std::shared_ptr<cse::Vertex> &v1, std::shared_ptr<cse::Vertex> &v2,
@@ -145,6 +150,15 @@ namespace cse {
     }
   }
 
+  void Graph::ParseSection(std::istream &f, const std::string &expected_section) {
+    std::string line;
+    std::getline(f, line);
+    auto [section_key, _] = FileUtil::SeparateKeyValue(line);
+    if (section_key != expected_section) {
+      throw std::runtime_error("Expected " + expected_section + " section, got: " + section_key);
+    }
+  }
+
   void Graph::FromFile(std::istream &f, size_t) {
     std::string line;
     std::getline(f, line);
@@ -153,25 +167,11 @@ namespace cse {
       throw std::runtime_error("Invalid type: " + key);
     }
 
-    // Read "Vertices:" line
-    std::getline(f, line);
-    auto [vertices_key, _] = FileUtil::SeparateKeyValue(line);
-    if (vertices_key != "Vertices") {
-      throw std::runtime_error("Expected Vertices section, got: " + vertices_key);
-    }
-    // Parse vertices
+    ParseSection(f, "Vertices");
     ParseVertices(f, 2);
 
-    // Skip one line
-    std::getline(f, line);
-
-    // Read "Edges:" line
-    std::getline(f, line);
-    auto [edges_key, edge_value] = FileUtil::SeparateKeyValue(line);
-    if (edges_key != "Edges") {
-      throw std::runtime_error("Expected Edges section, got: " + edges_key);
-    }
-    // Parse vertices
+    std::getline(f, line); // Skip empty line
+    ParseSection(f, "Edges");
     ParseEdges(f, 2);
   }
 
