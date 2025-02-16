@@ -1,19 +1,34 @@
 #pragma once
+#include "../Util/Util.hpp"
 #include "Vertex.hpp"
 #include <iostream>
 #include <string>
 
-#include "../Util/Util.hpp"
-
 namespace cse {
-  /**
-   * A single direction edge
-   */
+  class Graph; // Forward declaration
+
   class Edge : public FileSerializable {
   private:
     std::string id;
     std::shared_ptr<cse::Vertex> from;
     std::shared_ptr<cse::Vertex> to;
+
+    // Helper for parsing edge properties
+    struct EdgeProperties {
+      bool bidirectional;
+      std::string from_id;
+      std::string to_id;
+    };
+
+    static EdgeProperties ParseProperties(std::istream &f, size_t indent_level) {
+      auto properties = FileUtil::GetProperties(f, indent_level + 2);
+      assert(properties.size() == 3);
+      assert(properties.at(0).first == "bidirectional");
+      assert(properties.at(1).first == "from");
+      assert(properties.at(2).first == "to");
+
+      return EdgeProperties{std::stoi(properties.at(0).second) != 0, properties.at(1).second, properties.at(2).second};
+    }
 
   protected:
     std::string GetTypeName() const override { return "EDGE"; }
@@ -43,6 +58,8 @@ namespace cse {
     std::shared_ptr<cse::Vertex> &GetFrom() { return from; };
     std::shared_ptr<cse::Vertex> &GetTo() { return to; };
     std::string GetId() const override { return id; };
+
+    static void CreateFromFile(std::istream &f, size_t indent_level, Graph &graph);
   };
 
   class BidirectionalEdge : public cse::Edge {

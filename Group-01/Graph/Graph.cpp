@@ -129,24 +129,8 @@ namespace cse {
   }
 
   void Graph::ParseEdges(std::istream &f, size_t indent_level) {
-    std::string line;
     while (FileUtil::CheckPrefixSize(f, indent_level + 2)) {
-      // Get EDGE
-      std::string line;
-      std::getline(f, line);
-      auto [key, value] = FileUtil::SeparateKeyValue(line);
-      if (key != "EDGE") {
-        throw std::runtime_error("Invalid type: " + key);
-      }
-
-      auto properties = FileUtil::GetProperties(f, indent_level + 2 + 2);
-      assert(properties.size() == 3);
-      assert(properties.at(0).first == "bidirectional");
-
-      bool isBidirectional = std::stoi(properties.at(0).second);
-      auto from = GetVertex(properties.at(1).second);
-      auto to = GetVertex(properties.at(2).second);
-      AddEdge(from, to, isBidirectional);
+      Edge::CreateFromFile(f, indent_level + 2, *this);
     }
   }
 

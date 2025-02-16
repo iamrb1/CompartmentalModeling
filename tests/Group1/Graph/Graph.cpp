@@ -76,7 +76,6 @@ TEST_CASE("Test cse::Graph", "[base]")
 TEST_CASE("Test cse::Graph - To file", "Export to file")
 {
   cse::Graph graph;
-
   // Test adding vertices
   auto v1 = graph.AddVertex("id1");
   auto v2 = graph.AddVertex("id2", 1.5);
@@ -132,4 +131,30 @@ TEST_CASE("Test cse::Graph - From file", "Read from file")
   CHECK(graph.GetVertex("id2")->GetId() == "id2");
   CHECK(graph.IsConnected("id1", "id2"));
   CHECK(!graph.IsConnected("id2", "id1"));
+}
+
+TEST_CASE("Test cse::Graph - From advanced file", "Complex graph")
+{
+  cse::Graph graph;
+  // Test adding vertices
+  auto v1 = graph.AddVertex("id1");
+  auto v2 = graph.AddVertex("id2", 1.5);
+  auto v3 = graph.AddVertex("id3");
+
+  graph.AddEdge(v1, v2);
+  // Add bidirectional graph
+  graph.AddEdge(v1, v3, true);
+  std::stringstream s;
+
+  graph.ToFile(s);
+
+  cse::Graph destinationGraph(s);
+  CHECK(destinationGraph.GetVertex("id1")->GetId() == "id1");
+  CHECK(destinationGraph.GetVertex("id2")->GetId() == "id2");
+  CHECK(destinationGraph.GetVertex("id3")->GetId() == "id3");
+
+  CHECK(destinationGraph.IsConnected("id1", "id2"));
+  CHECK(!destinationGraph.IsConnected("id2", "id1"));
+  CHECK(destinationGraph.IsConnected("id1", "id3"));
+  CHECK(destinationGraph.IsConnected("id3", "id1"));
 }
