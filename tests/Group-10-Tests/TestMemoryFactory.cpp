@@ -9,12 +9,6 @@
 // Class Header
 #include "../../Group-10/Classes/MemoryFactory.h"
 
-/// Test Initial Construction and Deletion
-/// Test Standard Allocation and Deallocation of int
-/// Test Standard Allocation and Deallocation of string
-/// Test Standard Allocation and Deallocation of a custom struct
-/// Test Custom amounts of Allocation with the same objects
-
 TEST_CASE("MemoryFactory Construction", "[constructor]") {
   SECTION("Testing default construction") {
     // Constructor with Default Size
