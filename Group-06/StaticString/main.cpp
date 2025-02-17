@@ -52,7 +52,7 @@ int main() {
     (void)ge;  // Avoid unused variable warning
   }
   auto end_std = high_resolution_clock::now();
-  auto duration_std = duration_cast<milliseconds>(end_std - start_std).count();
+  auto duration_std = duration_cast<microseconds>(end_std - start_std).count();
 
   // --------------------- StaticString OPERATIONS ------------------------
   auto start_static = high_resolution_clock::now();
@@ -98,7 +98,7 @@ int main() {
   }
   auto end_static = high_resolution_clock::now();
   auto duration_static =
-      duration_cast<milliseconds>(end_static - start_static).count();
+      duration_cast<microseconds>(end_static - start_static).count();
 
   // ----------------------- Print the timing results -----------------------
   std::cout << "std::string operations took " << duration_std << " ms"
