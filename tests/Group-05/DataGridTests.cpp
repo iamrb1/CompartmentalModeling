@@ -15,6 +15,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <sstream>
 
 using cse::DataGrid;
 using cse::Datum;

@@ -97,6 +97,19 @@ public:
 
   bool operator==(const Datum &datum) const;
 
+/**
+ * @brief Checks if two datum objects are not equal.
+ *
+ * This operator will return the logical negation of the equality operator.
+ *
+ * @param other The other Datum object to compare.
+ * @return true if the Datum objects are not equal, and false otherwise.
+ */
+
+  bool operator!=(const Datum &other) const { 
+    return !(*this == other); 
+}
+
   Datum &operator=(const Datum &datum);
 
   Datum &operator=(const double &double_value);
