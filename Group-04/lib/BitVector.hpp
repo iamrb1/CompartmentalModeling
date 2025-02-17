@@ -144,6 +144,11 @@ class BitVector {
   // Copy assignment
   BitVector& operator=(const BitVector& bv);
 
+  // Add a BitVector to the end of this one
+  BitVector& operator+=(const BitVector& bv);
+  // Add a BitVector to a copy of this one, producing a new BitVector
+  BitVector operator+(const BitVector& bv) const;
+
   // Set count bits in a repeating pattern starting at the index start
   BitVector& pattern_set(size_t start, size_t count, std::byte pattern);
 
@@ -168,6 +173,8 @@ class BitVector {
   BitVector& flip();
   // Flip a specific bit in the BitVector
   BitVector& flip(size_t idx);
+  // Flip count bits starting at index start
+  BitVector& flip(size_t start, size_t count);
 
   // Returns true if all the bits in the BitVector are true
   bool all() const { return num_set == num_bits; }
@@ -435,6 +442,53 @@ BitVector& BitVector::flip(size_t idx) {
         num_bits));
 
   (*this)[idx].flip();
+
+  return *this;
+}
+
+// Flip all bits in the BitVector
+BitVector& BitVector::flip(size_t start, size_t count) {
+  if (count == 0)
+    return *this;
+  else if ((start + count) > num_bits)
+    throw std::out_of_range(
+        std::format("Invalid range to flip BitVector: start: {}, count: "
+                    "{}, number of bits is: {}",
+                    start, count, num_bits));
+
+  std::byte flipper = std::byte{255};
+  // Index of the byte we are changing
+  size_t idx = start / 8;
+
+  // We only need to change one byte in this case
+  if (start % 8 + count <= 8) {
+    // Constrict the flipped bits to only the ones we want
+    if (count % 8) flipper >>= (8 - (count % 8));
+
+    num_set -= BIT_LOOKUP(underlying[idx]);
+    underlying[idx] ^= (flipper << (start % 8));
+    num_set += BIT_LOOKUP(underlying[idx]);
+
+    return (*this);
+  }
+
+  // First byte
+  num_set -= BIT_LOOKUP(underlying[idx]);
+  underlying[idx] ^= flipper << (start % 8);
+  num_set += BIT_LOOKUP(underlying[idx]);
+
+  // Loop flip
+  for (++idx; (idx + 1) * 8 < start + count; ++idx) {
+    num_set -= BIT_LOOKUP(underlying[idx]);
+    underlying[idx] ^= flipper;
+    num_set += BIT_LOOKUP(underlying[idx]);
+  }
+
+  // Last byte
+  num_set -= BIT_LOOKUP(underlying[idx]);
+  if ((start + count) % 8) flipper >>= (8 - (start + count) % 8);
+  underlying[idx] ^= flipper;
+  num_set += BIT_LOOKUP(underlying[idx]);
 
   return *this;
 }
@@ -850,6 +904,17 @@ void BitVector::prepend(const BitVector& bv) {
   BitVector tmp = *this;
   *this = bv;
   append(tmp);
+}
+
+BitVector& BitVector::operator+=(const BitVector& bv) {
+  this->append(bv);
+  return *this;
+}
+
+BitVector BitVector::operator+(const BitVector& bv) const {
+  BitVector out = *this;
+  out.append(bv);
+  return out;
 }
 
 #endif
