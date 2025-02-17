@@ -143,10 +143,10 @@ class ReferenceVector {
 
   class iterator {
    private:
-    typename std::vector<template_type *>::iterator it_;
+    std::vector<template_type *>::iterator it_;
 
    public:
-    explicit iterator(typename std::vector<template_type *>::iterator it) : it_(it) {}
+    explicit iterator(std::vector<template_type *>::iterator it) : it_(it) {}
 
     template_type &operator*() const { return **it_; }
 

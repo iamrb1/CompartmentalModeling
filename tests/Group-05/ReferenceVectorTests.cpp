@@ -6,10 +6,12 @@
  * Tests for the ReferenceVector class.
  */
 
-#include "../../Group-05/src/Datum.h"
-#include "../../Group-05/src/ReferenceVector.h"
+ #include "../../Group-05/src/Datum.cpp"
+ #include "../../Group-05/src/Datum.h"
+ 
+ #include "../../Group-05/src/ReferenceVector.cpp"
+ #include "../../Group-05/src/ReferenceVector.h"
 
-#define CATCH_CONFIG_MAIN
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 
 TEST_CASE("PushBack() functionality", "[push_back]") {
