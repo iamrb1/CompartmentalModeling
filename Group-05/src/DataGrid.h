@@ -97,7 +97,7 @@ public:
   const Datum &getValue(std::size_t row_index_,
                         std::size_t column_index_) const;
   std::tuple<const std::size_t, const std::size_t> shape() const;
-  cse::ReferenceVector getColumn(std::size_t column_index_);
+  cse::ReferenceVector<Datum> getColumn(std::size_t column_index_);
   void insertDefaultRow(
       std::size_t row_index_ = std::numeric_limits<std::size_t>::max(),
       double default_value_ = 0);
