@@ -9,7 +9,7 @@
 TEST_CASE("default values are 0s")
 {
     REQUIRE(1==1);
-    cse::StateGridPosition position("position");
+    cse::StateGridPosition position;
 
     SECTION("default central position (0, 0)") {
         cse::Point central_pos = position.get_grid_position();
@@ -29,7 +29,7 @@ TEST_CASE("default values are 0s")
 }
 
 TEST_CASE("set and get object position") {
-    cse::StateGridPosition position("position");
+    cse::StateGridPosition position;
 
     SECTION("set object position to (2, 3)") {
         position.set_object_position(2, 3);
@@ -47,7 +47,7 @@ TEST_CASE("set and get object position") {
 }
 
 TEST_CASE("set and get object orientation") {
-    cse::StateGridPosition position("position");
+    cse::StateGridPosition position;
 
     SECTION("object orientation 25 degrees") {
         position.set_object_orientation(25);
@@ -67,7 +67,7 @@ TEST_CASE("set and get object orientation") {
 
 TEST_CASE("calculate object position correctly")
 {
-    cse::StateGridPosition position("position");
+    cse::StateGridPosition position;
 
     SECTION("calculate_object_position is default (0, 0)")
     {
@@ -78,7 +78,7 @@ TEST_CASE("calculate object position correctly")
 }
 
 TEST_CASE("default nullptr StateGrid") {
-    cse::StateGridPosition position("position");
+    cse::StateGridPosition position;
 
     SECTION("should be nullptr by default") {
         REQUIRE(position.get_state_grid() == nullptr);
