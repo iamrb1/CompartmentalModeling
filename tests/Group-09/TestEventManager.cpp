@@ -102,6 +102,31 @@ TEST_CASE("Trigger events", "[EventManager]")
   CHECK(eM.getNumEvents() == 0);
 }
 
+TEST_CASE("Trigger Events with Repeat Events", "[EventManager]")
+{
+  EventManager eM;
+
+  Event e1(1, 1, "Event 1");
+  Event e2(2, 3, "Event 2");
+  Event e3(3, 5, "Event 3");
+  Event e4(4, 10, "Event 4");
+
+  eM.AddEvent(e1);
+  eM.AddEvent(e2);
+  eM.AddEvent(e3);
+  CHECK(eM.RepeatEvent(e1, 4) == true);
+  CHECK(eM.RepeatEvent(e4, 10) == false);
+
+  std::cout << "Beginning Trigger Events - Repeat Events Test Case" << std::endl;
+  REQUIRE(eM.getNumEvents() == 3);
+  eM.StartQueue();
+  std::this_thread::sleep_for(std::chrono::seconds(2)); //e1 triggered and readd to queue
+  CHECK(eM.getNumEvents() == 3);
+  std::this_thread::sleep_for(std::chrono::seconds(2)); //e2 triggered
+  CHECK(eM.getNumEvents() == 2);
+  std::this_thread::sleep_for(std::chrono::seconds(2)); //e1 and e3 triggered, readd e1
+  CHECK(eM.getNumEvents() == 1);
+}
 
 
 

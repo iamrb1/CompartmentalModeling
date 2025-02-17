@@ -5,7 +5,6 @@
 
 #include "EventManager.hpp"
 
-
 namespace cse {
 
 /**
@@ -25,9 +24,15 @@ void EventManager::AdvanceTime() {
 void EventManager::TriggerEvents() {
   while ((event_queue_.size() > 0) && !paused_events_.count(event_queue_.peek().getID())
       && event_queue_.peek().getTime() <= clock_time_) {
+    cse::Event e = event_queue_.peek();
     std::cout << event_queue_.peek().getData() << "\n"; //Placeholder for handling events
-    running_events_.erase(event_queue_.peek().getID());
-    event_queue_.pop();
+    if (repeat_events_.find(e.getID()) != repeat_events_.end()) {
+      cse::Event event(e.getID(), e.getTime() + repeat_events_[e.getID()], e.getData());
+      event_queue_.update(event);
+    } else {
+      running_events_.erase(e.getID());
+      event_queue_.pop();
+    }
   }
   if (event_queue_.size() == 0) {
     running_ = false;
@@ -40,8 +45,8 @@ void EventManager::TriggerEvents() {
  * @return true if successful, false if event does not exist in queue
  */
 bool EventManager::PauseEvent(int event_id) {
-  assert( ((paused_events_.count(event_id) > 0) ||
-    (running_events_.count(event_id) > 0)) && "Event ID must be a managed ID."  );
+  assert(((paused_events_.count(event_id) > 0) ||
+      (running_events_.count(event_id) > 0)) && "Event ID must be a managed ID.");
   if (paused_events_.count(event_id) > 0) {
     return true;
   } else if (running_events_.count(event_id) > 0) {
@@ -58,8 +63,8 @@ bool EventManager::PauseEvent(int event_id) {
  * @return true if successfully removed, false if event is not currently paused
  */
 bool EventManager::ResumeEvent(int event_id) {
-  assert( ((paused_events_.count(event_id) > 0) ||
-      (running_events_.count(event_id) > 0)) && "Event ID must be a managed ID."  );
+  assert(((paused_events_.count(event_id) > 0) ||
+      (running_events_.count(event_id) > 0)) && "Event ID must be a managed ID.");
   if (running_events_.count(event_id) > 0) {
     return true;
   } else if (paused_events_.count(event_id) > 0) {
@@ -81,6 +86,20 @@ bool EventManager::AddEvent(Event &event) {
   event_queue_.add(event);
   running_events_.insert(event.getID());
   return true;
+}
+
+/**
+ * @brief Adds event to repeat_events_
+ * @param event The event to be repeated
+ * @return true if successfully added to repeat_events, false if unsuccessful
+ */
+bool EventManager::RepeatEvent(cse::Event &event, int time_interval) {
+  assert(time_interval > 0);
+  if (time_interval > 0 && (paused_events_.count(event.getID()) + running_events_.count(event.getID()))) {
+    repeat_events_.insert({event.getID(), time_interval});
+    return true; // Event is currently being managed or time_interval is invalid
+  }
+  return false;
 }
 
 /**

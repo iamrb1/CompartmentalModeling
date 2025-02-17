@@ -14,6 +14,7 @@
 #include <utility>
 #include <set>
 #include <cassert>
+#include <map>
 #include "../Event/Event.hpp"
 #include "../EventQueue/EventQueue.hpp"
 
@@ -27,6 +28,7 @@ class EventManager {
   std::thread clock_thread_;
   std::set<int> paused_events_;
   std::set<int> running_events_;
+  std::unordered_map<int, int> repeat_events_;
   void AdvanceTime();
   void TriggerEvents();
 
@@ -36,6 +38,7 @@ class EventManager {
   bool PauseEvent(int event_id);
   bool ResumeEvent(int event_id);
   bool AddEvent(cse::Event &event);
+  bool RepeatEvent(cse::Event &event, int time_interval);
   void StopQueue();
   void StartQueue();
   void RestartQueue();
