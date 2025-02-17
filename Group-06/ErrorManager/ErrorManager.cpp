@@ -189,16 +189,26 @@ class ErrorManager {
 
  private:
  
-  /// @name Color codes and error level string constants
-  ///@{
+  /// @brief Green ANSI color code for Info
   static constexpr const char* COLOR_GREEN = "\033[32m";
+
+  /// @brief Yellow ANSI color code for Warning
   static constexpr const char* COLOR_YELLOW = "\033[33m";
+
+  /// @brief Red ANSI color code for Fatal
   static constexpr const char* COLOR_RED = "\033[31m";
+
+  /// @brief Reset color code
   static constexpr const char* COLOR_RESET = "\033[0m";
+
+  /// @brief Info string constant
   static constexpr const char* INFO_STRING = "Info";
+
+  /// @brief Warning string constant
   static constexpr const char* WARNING_STRING = "Warning";
+  
+  /// @brief Fatal string constant
   static constexpr const char* FATAL_STRING = "Fatal";
-  ///@}
 
   /// @brief Tracks whether color messages are enabled
 
