@@ -16,7 +16,7 @@ namespace cse {
 
 class GraphPosition {
     private:
-    const Graph& graph;
+    [[maybe_unused]] const Graph& graph;
     std::shared_ptr<Vertex> currentVertex;
     std::set<std::shared_ptr<Vertex>> visitedVertices;
     std::vector<std::shared_ptr<Vertex>> traversalPath;

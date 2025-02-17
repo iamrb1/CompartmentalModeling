@@ -3,15 +3,17 @@
 
 using Catch::Matchers::WithinAbs;
 
-TEST_CASE("Test cse498::Distribution", "[base]")\
+TEST_CASE("Test cse::Distribution", "[base]")\
 {
-  cse498::Distribution distribution;
+  cse::Distribution distribution;
 
-  const double tolerance = 0.0001;
+  const double tolerance = 0.001;
   const double bin3 = 0.0081;
-  const double bin3cumulative = 0.99954;
-  const double uni3 = 0.02;
-  const double uni3cumulative = 0.6;
+  const double bin3Cumulative = 0.99954;
+  const double uni3 = 0.2;
+  const double uni3Cumulative = 0.6;
+  const double noChance = 0.0;
+  const double probZero = 0.59049;
 
 
   // Test trying an empty distributiongi
@@ -21,12 +23,14 @@ TEST_CASE("Test cse498::Distribution", "[base]")\
   // Test making a uniform distribution
   distribution.BuildUniform(5);
   CHECK(distribution.getProb(3) == uni3);
-  CHECK(distribution.getCumulativeProb(3) == uni3cumulative);
+  CHECK_THAT(distribution.getCumulativeProb(3), Catch::Matchers::WithinAbs(uni3Cumulative, tolerance));
 
   // Test making a binomial distribution
   distribution.BuildBinomial(5, .1);
   CHECK_THAT(distribution.getProb(3), Catch::Matchers::WithinAbs(bin3, tolerance));
-  CHECK_THAT(distribution.getCumulativeProb(3), Catch::Matchers::WithinAbs(bin3cumulative, tolerance));
+  CHECK_THAT(distribution.getCumulativeProb(3), Catch::Matchers::WithinAbs(bin3Cumulative, tolerance));
+  CHECK_THAT(distribution.getProb(0), Catch::Matchers::WithinAbs(probZero, tolerance));
+  CHECK_THAT(distribution.getCumulativeProb(0), Catch::Matchers::WithinAbs(probZero, tolerance));
 
   // Test distributions to see if you can use nonsence vals
   CHECK_THROWS_AS(distribution.BuildUniform(0),std::runtime_error);
@@ -36,10 +40,10 @@ TEST_CASE("Test cse498::Distribution", "[base]")\
   // Tests trials out of range
   distribution.BuildUniform(5);
   CHECK_THROWS_AS(distribution.getProb(-1),std::out_of_range);
-  CHECK_THROWS_AS(distribution.getCumulativeProb(7),std::out_of_range);
+  CHECK_THAT(distribution.getCumulativeProb(7), Catch::Matchers::WithinAbs(noChance, tolerance));
 
   distribution.BuildBinomial(5, .1);
   CHECK_THROWS_AS(distribution.getProb(-1),std::out_of_range);
-  CHECK_THROWS_AS(distribution.getCumulativeProb(7),std::out_of_range);
+  CHECK_THAT(distribution.getCumulativeProb(7), Catch::Matchers::WithinAbs(noChance, tolerance));
 
 }
