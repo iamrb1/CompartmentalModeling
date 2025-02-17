@@ -11,7 +11,6 @@
 #include <iomanip>
 #include <limits>
 #include <vector>
-#include <limits>
 
 #include "Datum.h"
 #include "ReferenceVector.h"

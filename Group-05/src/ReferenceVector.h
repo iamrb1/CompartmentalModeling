@@ -45,13 +45,6 @@ class ReferenceVector {
   };
 
   /**
-   * Removes an element at a specified index.
-   *
-   * @param index The position of the element to remove.
-   */
-  void erase(size_t index);
-
-  /**
    * Returns the number of elements in the vector.
    * @return size_t The size of the vector.
    */
