@@ -14,16 +14,20 @@
   ::cse::_assert_internal::Assert(condition_msg, #condition_msg, __FILE__, \
                                   __LINE__, __func__)
 
-#define cse_assert_never(...)                              \
-  ::cse::_assert_internal::AssertNever(__FILE__, __LINE__, \
-                                       __func__ __VA_OPT__(, __VA_ARGS__))
+#define cse_assert_never(...)                   \
+  ::cse::_assert_internal::AssertNeverNoReturn( \
+      __FILE__, __LINE__, __func__ __VA_OPT__(, __VA_ARGS__))
 
 #ifdef NDEBUG
 // Adding (void)0 here ensures callers still needs to end the line with a
 // semi-colon. Source: https://stackoverflow.com/a/1306618/4678913
 #define dbg_assert(...) (void)0
+#define dbg_assert_never(...) (void)0
 #else
 #define dbg_assert(...) cse_assert(__VA_ARGS__)
+#define dbg_assert_never(...)                 \
+  ::cse::_assert_internal::AssertNeverReturn( \
+      __FILE__, __LINE__, __func__ __VA_OPT__(, __VA_ARGS__))
 #endif
 
 // Do *not* access anything inside this namespace directly
@@ -74,13 +78,10 @@ void Assert(AssertArgs const &args, const char *args_text, const char *file,
   }
 }
 
-// this technically does return when using the testing mode
-#ifndef _cse_ASSERT_TEST
 [[noreturn]]
-#endif
-void AssertNever(const char *file, int line, const char *function,
-                 std::optional<const char *> message_opt = std::nullopt) {
-
+void AssertNeverNoReturn(
+    const char *file, int line, const char *function,
+    std::optional<const char *> message_opt = std::nullopt) {
   std::cout << "Assertion failed!";
   if (auto message = message_opt) {
     std::cout << " " << message.value();
@@ -89,6 +90,14 @@ void AssertNever(const char *file, int line, const char *function,
   std::cout << "  Located at: " << file << ":" << line << " (in function "
             << function << ")\n";
   Fail();
+}
+
+// dbg_assert_never doesn't uphold noreturn in release mode (since it is a
+// no-op), so this function acts like AssertNeverNoReturn but without the
+// [[noreturn]] marker
+void AssertNeverReturn(const char *file, int line, const char *function,
+                       std::optional<const char *> message_opt = std::nullopt) {
+  AssertNeverNoReturn(file, line, function, message_opt);
 }
 
 }  // namespace cse::_assert_internal
