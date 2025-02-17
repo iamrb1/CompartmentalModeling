@@ -3,9 +3,8 @@
  * @author Muhammad Masood
  * @brief Manages CSV file interactions with DataGrid.
  *
- * This class provides static functions to load CSV data into a DataGrid
- * and export a DataGrid to a CSV file. It handles basic parsing,
- * type differentiation, and error handling.
+ * This class loads CSV data into a DataGrid and exports a DataGrid to CSV,
+ *        handling parsing and errors.
  */
 
 #pragma once
@@ -17,10 +16,10 @@ namespace cse {
 
 /**
  * @class CSVFile
- * @brief Handles CSV file operations like loading and exporting.
+ * @brief Handles CSV file operations like loading and exporting the data.
  *
- * Provides functions to load data from a CSV file into a DataGrid and
- * export the DataGrid content into a CSV file, with proper handling
+ * Loads data from a CSV file into a DataGrid and then
+ * exports the DataGrid content into a CSV file, with proper handling
  * of data types and error cases.
  */
 class CSVFile {

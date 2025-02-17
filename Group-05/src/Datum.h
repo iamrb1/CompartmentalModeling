@@ -100,9 +100,9 @@ public:
 /**
  * @brief Checks if two datum objects are not equal.
  *
- * This operator will return the logical negation of the equality operator.
+ * This operator returns the logical negation of the equality operator.
  *
- * @param other The other Datum object to compare.
+ * @param other The other Datum object that is to be compared.
  * @return true if the Datum objects are not equal, and false otherwise.
  */
 
