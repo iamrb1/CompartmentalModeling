@@ -7,7 +7,8 @@
  *
  */
 
- #pragma once
+#ifndef CSE_STATIC_STRING_HPP_
+#define CSE_STATIC_STRING_HPP_
 
  #include <cassert>
  #include <cstring>
@@ -27,13 +28,6 @@
   */
  template <std::size_t MaxSize>
  class StaticString {
-  private:
-   /// @brief Array of characters stores the string with a predefined size.
-   char mString[MaxSize + 1] = {'\0'};  // Array of characters '\0' by default
- 
-   /// @brief size_t The current length of the string.
-   std::size_t mCurrentSize = 0;  // Tracks the current length of the string.
- 
   public:
    /// @brief Constant value for StaticString npos, not found value.
    static constexpr std::size_t npos = static_cast<std::size_t>(-1);
@@ -217,9 +211,9 @@
     * @return true if both strings are equal
     * @return false if both strings are not equal
     */
-   bool operator==(const char* rhs) const {
-     if (!rhs) return false;
+   bool operator==(const char* rhs) const {   
      assert(rhs != nullptr && "Nullptr comparsions not a legal comparison");
+     if (!rhs) return false;
      return std::strcmp(mString, rhs) == 0;
    }
  
@@ -374,13 +368,13 @@
    /**
     * @brief Finds the first occurrence of a character in the string.
     *
-    * @param c character to be searched
+    * @param character character to be searched
     * @return std::size_t The index of the character if found; if not found
     * StaticString::npos
     */
-   std::size_t find(const char& c) const {
+   std::size_t find(const char& character) const {
      for (std::size_t i = 0; i < mCurrentSize; ++i) {
-       if (mString[i] == c) return i;
+       if (mString[i] == character) return i;
      }
      return npos;
    }
@@ -389,12 +383,18 @@
     * @brief Sets the given character at given index.
     *
     * Indexing starts from 0, if the MaxSize is 10 then last possible index is 9.
+    * If inserted character is a null terminator, StaticString will behave as a 
+    * new string creation rest of the string after null terminated part will be 
+    * assigned to '\0' back again. 
+    * 
+    * @attention If '\0' is explicitly set as a character, rest of the string
+    * will be terminated.
     *
     * @param index Index to be changed
-    * @param c Char value to be assigned
+    * @param character Char value to be assigned
     * @throws std::out_of_range if the index is invalid
     */
-   void set(const size_t& index, const char& c) {
+   void set(const size_t& index, const char& character) {
      assert(index < mCurrentSize && "Index value is out of range");
      if (index >= mCurrentSize || index >= MaxSize) {
        throw std::out_of_range("Index value is out of range");
@@ -402,10 +402,10 @@
  
      // If user explicitly tries to cut their strings with null terminator
      // Handle the size appropriately
-     if (c == '\0') {
+     if (character == '\0') {
        mCurrentSize = index;
      }
-     mString[index] = c;
+     mString[index] = character;
    }
  
    /**
@@ -573,7 +573,7 @@
     * @throws std::out_of_range if the resulting string would exceed the maximum
     * size
     */
-   std::string_view substr(std::size_t start, std::size_t end) const {
+   std::string_view substr(const std::size_t& start, const std::size_t& end) const {
      // Validate that substring range is inside our StaticString range without
      // exceeding static limit
      assert((start < end || end <= mCurrentSize) &&
@@ -584,5 +584,14 @@
      }
      return std::string_view(mString + start, end - start);
    }
+
+  private:
+    /// @brief Array of characters stores the string with a predefined size.
+    char mString[MaxSize + 1] = {'\0'};  // Array of characters '\0' by default
+
+    /// @brief size_t The current length of the string.
+    std::size_t mCurrentSize = 0;  // Tracks the current length of the string.
  };
-}
+}  // namespace cse
+
+#endif  // CSE_STATIC_STRING_HPP_

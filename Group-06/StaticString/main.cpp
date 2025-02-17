@@ -22,10 +22,10 @@ int main() {
     s_assigned = s;
 
     // Element access using operator[]
-    char ch = s[0];
+    [[maybe_unused]] char ch = s[0];
 
     // Find a character
-    std::size_t pos = s.find('o');
+    [[maybe_unused]] std::size_t pos = s.find('o');
 
     // Append operations
     s.append(" appended");  // Append a C-string literal
@@ -35,7 +35,7 @@ int main() {
     std::string s_sub = s.substr(0, 5);
 
     // Get underlying C-string pointer
-    const char* c_str = s.c_str();
+    [[maybe_unused]] const char* c_str = s.c_str();
 
     // (Optional) Perform a comparison operation
     bool eq = (s == s_copy);
@@ -66,10 +66,10 @@ int main() {
     s_assigned = s;
 
     // Element access using operator[]
-    char ch = s[0];
+    [[maybe_unused]] char ch = s[0];
 
     // Find a character
-    std::size_t pos = s.find('o');
+    [[maybe_unused]] std::size_t pos = s.find('o');
 
     // Append operations (using C-string literal and a single character)
     s.append(" appended");  // Append a C-string literal
@@ -77,10 +77,10 @@ int main() {
 
     // Substring extraction (start index 0, end index 5; returns a
     // std::string_view)
-    auto s_sub = s.substr(0, 5);
+    [[maybe_unused]] auto s_sub = s.substr(0, 5);
 
     // Get underlying C-string pointer
-    const char* c_str = s.get_str();
+    [[maybe_unused]] const char* c_str = s.get_str();
 
     // (Optional) Perform a comparison operation
     bool eq = (s == s_copy);
