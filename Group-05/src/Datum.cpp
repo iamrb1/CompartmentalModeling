@@ -14,7 +14,6 @@
 
 namespace cse {
 
-// TODO - May need to change value, I just picked a semi-random one
 static const double kEpsilon = 0.0001;
 
 /**
@@ -22,6 +21,12 @@ static const double kEpsilon = 0.0001;
  * @return The string value of the Datum
  */
 std::string Datum::GetString() const {
+  if (!IsString()) {
+    // CITE: Used https://www.geeksforgeeks.org/how-to-throw-an-exception-in-cpp/
+    // to help with throwing an error.
+    throw std::runtime_error("Attempted GetString() on a non-string Datum.");
+  }
+
   assert(IsString());
   return std::get<std::string>(GetVariant());
 }
@@ -31,6 +36,10 @@ std::string Datum::GetString() const {
  * @return The double value of the Datum
  */
 double Datum::GetDouble() const {
+  if (!IsDouble()) {
+    throw std::runtime_error("Attempted GetDouble() on a non-double Datum.");
+  }
+
   assert(IsDouble());
   return std::get<double>(GetVariant());
 }
@@ -38,19 +47,25 @@ double Datum::GetDouble() const {
 /**
  * Converts the Datum into a string.
  */
-void Datum::AsString() {
-  assert(IsDouble());
-  assert(!std::isnan(GetDouble()));
+[[maybe_unused]] void Datum::AsString() {
+  if (IsDouble()) {
+    assert(IsDouble());
+    if (!std::isnan(GetDouble())) {
+      assert(!std::isnan(GetDouble()));
+      std::string string_numeric_value = std::to_string(GetDouble());
 
-  std::string string_numeric_value = std::to_string(GetDouble());
-
-  // CITE: https://stackoverflow.com/questions/13686482/c11-stdto-stringdouble-no-trailing-zeros.
-  // Used the above link to help remove trailing 0s and . when a double converts into a string.
-  string_numeric_value.erase(string_numeric_value.find_last_not_of('0') + 1,
-                             std::string::npos);
-  string_numeric_value.erase(string_numeric_value.find_last_not_of('.') + 1,
-                             std::string::npos);
-  value_ = string_numeric_value;
+      // CITE: https://stackoverflow.com/questions/13686482/c11-stdto-stringdouble-no-trailing-zeros.
+      // Used the above link to help remove trailing 0s and . when a double converts into a string.
+      string_numeric_value.erase(string_numeric_value.find_last_not_of('0') + 1,
+                                 std::string::npos);
+      string_numeric_value.erase(string_numeric_value.find_last_not_of('.') + 1,
+                                 std::string::npos);
+      value_ = string_numeric_value;
+    } else {
+      assert(std::isnan(GetDouble()));
+      value_ = "";
+    }
+  }
 }
 
 /**
@@ -58,24 +73,26 @@ void Datum::AsString() {
  * @warning If the Datum is an invalid double, converts into NaN.
  */
 void Datum::AsDouble() {
-  assert(IsString());
-  try {
-    // CITE: Used ChatGPT to write this code. Fixed a bug where strings starting with
-    // numbers (e.g., "123Hello") were partially converted instead of throwing an exception.
-    std::size_t pos;
-    double double_value = std::stod(GetString(), &pos);
-    assert(pos == GetString().length());
-    value_ = double_value;
-  } catch (std::invalid_argument &e) {
-      // CITE: Used https://stackoverflow.com/questions/16691207/c-c-nan-constant-literal for NaN
+  if (IsString()) {
+    assert(IsString());
+    try {
+
+      // CITE: Used ChatGPT to write this code. Fixed a bug where strings starting with
+      // numbers (e.g., "123Hello") were partially converted instead of setting to NaN.
+      std::size_t pos;
+      double double_value = std::stod(GetString(), &pos);
+      if (pos == GetString().length()) {
+        assert(pos == GetString().length());
+        value_ = double_value;
+      } else {
+        // CITE: Used https://stackoverflow.com/questions/16691207/c-c-nan-constant-literal for NaN
+        value_ = std::numeric_limits<double>::quiet_NaN();
+      }
+    } catch (std::invalid_argument &e) {
       value_ = std::numeric_limits<double>::quiet_NaN();
-      std::cout << "Warning: Attempted to convert a string with no numeric "
-                   "value. Replaced the value with NaN."
-                << std::endl;
-      std::cout << e.what() << std::endl;
+    }
   }
 }
-
 
 // Used https://www.geeksforgeeks.org/operator-overloading-cpp/ to help with
 // operator overloading
@@ -85,11 +102,15 @@ void Datum::AsDouble() {
  * @return If the Datums are doubles, returns the sum between them in a new Datum.
  */
 Datum Datum::operator+(const Datum &datum) const {
-  assert((IsDouble() && datum.IsDouble())
-    || (IsString() && datum.IsString()));
+  if ((IsString() && datum.IsDouble()) || (IsDouble() && datum.IsString())) {
+    throw std::runtime_error("Can't add 1 string Datum and 1 double Datum");
+  }
+
   if (IsDouble() && datum.IsDouble()) {
+    assert(IsDouble() && datum.IsDouble());
     return Datum(GetDouble() + datum.GetDouble());
   }
+  assert(IsString() && datum.IsString());
   return Datum(GetString() + datum.GetString());
 }
 
@@ -99,6 +120,10 @@ Datum Datum::operator+(const Datum &datum) const {
  * @return If the Datums are doubles, returns the difference between them in a new Datum.
  */
 Datum Datum::operator-(const Datum &datum) const {
+  if (IsString() || datum.IsString()) {
+    throw std::runtime_error("Can't subtract a string Datum.");
+  }
+
   assert(IsDouble() && datum.IsDouble());
   return Datum(GetDouble() - datum.GetDouble());
 }
@@ -109,6 +134,10 @@ Datum Datum::operator-(const Datum &datum) const {
  * @return If the Datums are doubles, returns the product between them in a new Datum.
  */
 Datum Datum::operator*(const Datum &datum) const {
+  if (IsString() || datum.IsString()) {
+    throw std::runtime_error("Can't multiple a string Datum.");
+  }
+
   assert(IsDouble() && datum.IsDouble());
   return Datum(GetDouble() * datum.GetDouble());
 }
@@ -119,8 +148,15 @@ Datum Datum::operator*(const Datum &datum) const {
  * @return If the Datums are doubles, returns the quotient between them in a new Datum.
  */
 Datum Datum::operator/(const Datum &datum) const {
+  if (IsString() || datum.IsString()) {
+    throw std::runtime_error("Can't divide a string Datum.");
+  }
+
+  if (datum.GetDouble() == 0) {
+    throw std::runtime_error("Can't divide by 0.");
+  }
+
   assert(IsDouble() && datum.IsDouble());
-  assert(datum.IsDouble() != 0.0);
   return Datum(GetDouble() / datum.GetDouble());
 }
 
@@ -139,7 +175,6 @@ bool Datum::operator==(const Datum &datum) const {
     return false;
   }
 }
-
 
 // Used https://www.geeksforgeeks.org/cpp-assignment-operator-overloading/ to
 // help with assignment overloading Used ChatGPT to help with the assignment

@@ -39,7 +39,7 @@ class ReferenceVector {
   /**
    * Removes the last element in the vector.
    */
-  void PopBack() {
+  [[maybe_unused]] void PopBack() {
     assert(!references_.empty());
     references_.pop_back();
   };
@@ -48,24 +48,24 @@ class ReferenceVector {
    * Returns the number of elements in the vector.
    * @return size_t The size of the vector.
    */
-  [[nodiscard]] size_t Size() const { return references_.size(); }
+  [[maybe_unused]] [[nodiscard]] size_t Size() const { return references_.size(); }
 
   /**
    * Checks if the vector is empty.
    * @return bool True if empty, otherwise false.
    */
-  [[nodiscard]] bool Empty() const { return references_.empty(); }
+  [[maybe_unused]] [[nodiscard]] bool Empty() const { return references_.empty(); }
 
   /**
    * Clears all elements from the vector.
    */
-  void Clear() { references_.clear(); }
+  [[maybe_unused]] void Clear() { references_.clear(); }
 
   /**
  * Returns a reference to the first object in the vector.
  * @return template_type& Reference to the first template_type.
  */
-  template_type &Front() {
+  [[maybe_unused]] template_type &Front() {
     assert(!references_.empty());
     return *references_.front();
   };
@@ -74,7 +74,7 @@ class ReferenceVector {
    * Returns a reference to the last template_type in the vector.
    * @return template_type& Reference to the last template_type.
    */
-  template_type &Back() {
+  [[maybe_unused]] template_type &Back() {
     assert(!references_.empty());
     return *references_.back();
   };
@@ -83,7 +83,7 @@ class ReferenceVector {
    * Erases the element at the index.
    * @param index The index of the desired element.
    */
-  void Erase(size_t index) {
+  [[maybe_unused]] void Erase(size_t index) {
     assert(index < references_.size());
     references_.erase(references_.begin() + index);
   }
@@ -93,7 +93,7 @@ class ReferenceVector {
    * @param first The first index to remove.
    * @param last The first index you don't want removed.
    */
-  void Erase(size_t first, size_t last) {
+  [[maybe_unused]] void Erase(size_t first, size_t last) {
     assert(first < references_.size());
     assert(last <= references_.size());
     assert(first < last); // TODO - Not sure if they can be equal?
@@ -106,7 +106,7 @@ class ReferenceVector {
    * @param index The desired index.
    * @param value The value to add.
    */
-  void Insert(size_t index, template_type &value) {
+  [[maybe_unused]] void Insert(size_t index, template_type &value) {
     assert(index < references_.size());
     references_.insert(references_.begin() + index, &value);
   }
@@ -117,6 +117,10 @@ class ReferenceVector {
   * @return template_type& Reference to the object at the index.
   */
   template_type &operator[](size_t index) {
+    if (references_[index] == nullptr) {
+      throw std::runtime_error("Cannot dereference a nullptr");
+    }
+
     assert(index < references_.size());
     return *references_[index];
   };
@@ -126,7 +130,11 @@ class ReferenceVector {
    * @param index The index of the desired element.
    * @return template_type& Reference to the object.
    */
-  template_type &At(size_t index) {
+  [[maybe_unused]] template_type &At(size_t index) {
+    if (references_[index] == nullptr) {
+      throw std::runtime_error("Cannot dereference a nullptr");
+    }
+
     assert(index < references_.size());
     return *references_[index];
   };
@@ -136,7 +144,7 @@ class ReferenceVector {
    * @param index The index to update.
    * @param value The value to update with.
    */
-  void SetReference(size_t index, template_type &value) {
+  [[maybe_unused]] void SetReference(size_t index, template_type &value) {
     assert(index < references_.size());
     references_[index] = &value;
   }
