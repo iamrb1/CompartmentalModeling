@@ -71,3 +71,14 @@ TEST_CASE("AuditedArray isValidIndex", "[AuditedArray]") {
 	REQUIRE_FALSE(arr.isValidIndex(-1));
 	REQUIRE_FALSE(arr.isValidIndex(5));
 }
+
+TEST_CASE("AuditedArray iterator", "[AuditedArray]") {
+	cse::AuditedArray<int, 5> arr;
+	arr.fill(1);
+	int i = 0;
+	for (auto it = arr.begin(); it != arr.end(); it++) {
+		REQUIRE(*it == 1);
+		i++;
+	}
+	REQUIRE(i == 5);
+}

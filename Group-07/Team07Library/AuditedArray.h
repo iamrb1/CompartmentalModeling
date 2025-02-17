@@ -6,6 +6,7 @@
 #define AUDITEDARRAY_H
 
 #include <algorithm>
+#include <iterator>
 #include <iostream>
 #include <stdexcept>
 
@@ -88,19 +89,13 @@ namespace cse{
 
   template <typename T, size_t Size>
   void AuditedArray<T, Size>::fill(const T& value) {
-    for (size_t i = 0; i < Size; i++) {
-      data[i] = value;
-    }
+    std::fill(begin(), end(), value);
   }
 
   template <typename T, size_t Size>
   bool AuditedArray<T, Size>::contains(const T& value) const {
-    for (size_t i = 0; i < Size; i++) {
-      if (data[i] == value) {
-        return true;
-      }
-    }
-    return false;
+    auto it = std::find(begin(), end(), value);
+    return it != end();
   }
 
   template <typename T, size_t Size>
@@ -110,12 +105,12 @@ namespace cse{
 
   template <typename T, size_t Size>
   int AuditedArray<T, Size>::indexOf(const T& value) const {
-    for (size_t i = 0; i < Size; i++) {
-      if (data[i] == value) {
-        return static_cast<int>(i);
-      }
+    auto it = std::find(begin(), end(), value);
+    if (it == end()) {
+      return -1;
     }
-    return -1;
+    int index = std::distance(begin(), it);
+    return index;
   }
 
   template <typename T, size_t Size>
