@@ -83,9 +83,9 @@ public:
 
   [[nodiscard]] double GetDouble() const;
 
-  void AsString();
+  [[maybe_unused]] void AsString();
 
-  void AsDouble();
+  [[maybe_unused]] void AsDouble();
 
   Datum operator+(const Datum &datum) const;
 
