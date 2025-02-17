@@ -57,6 +57,13 @@ TEST_CASE("DataMap .at method","[DataMap]") {
   }
 }
 
+TEST_CASE("DataMap get test") {
+  cse::DataMap data_map;
+  data_map.insert("key", 80.2);
+  auto val = data_map.get<double>("key");
+  REQUIRE(val == 80.2);
+}
+
 TEST_CASE("DataMap delete key test") {
   cse::DataMap data_map;
   data_map.insert("key", 80.2);
