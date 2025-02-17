@@ -6,39 +6,73 @@
 #include <functional>
 #include <fstream>
 #include <iostream>
-#include <cassert>
 #include <sstream>
+#include <vector>
 
 namespace cse {
+    // Class to manage data file operations, particularly CSV files
     class DataFileManager {
     private:
-        // Easiest way to store functions is through an unordered map
         // https://stackoverflow.com/questions/55520876/creating-an-unordered-map-of-stdfunctions-with-any-arguments
-        std::unordered_map<std::string, std::function<void()>> functionMap;
+        std::unordered_map<std::string, std::function<int()>> functionMap;  // Stores functions for data generation
+        std::string fileLocation;  // Path to the CSV file
+        std::vector<std::vector<std::string>> fileData;  // Data read from the CSV file
+        bool updateMade;  // Flag indicating if an update has been made to the data
 
-        // Track status of file and updates made
-        std::string fileOpened = "";
-        bool updateMade = false;
     public:
-        // Constructors
+        // Default constructor
         DataFileManager() = default;
+
+        // Parameterized constructor initializes file location and opens the file
+        DataFileManager(const std::string& path) : fileLocation(path), updateMade(false) {
+            openFile(path);
+        }
+
+        // Destructor
         ~DataFileManager() = default;
 
-        // Getter and Setter for our file location
-        const std::string& getFile(){
-            return fileOpened;
+        // Returns the file location
+        const std::string& getFile() const {
+            return fileLocation;
         }
 
-        void setFile(const std::string& path){
-            fileOpened = path;
+        // Set the file location
+        void setFile(const std::string& path) {
+            fileLocation = path;
         }
 
-        void openFile(const std::string& path);
-        void update();
-        void addFunction(const std::string& name, const std::function<void()>& lambda);
+        // Check if an update has been made
+        bool checkUpdate() const {
+            return updateMade;
+        }
 
-        // Delete a function from our map
-        void deleteFunction(const std::string& name){
+        // Set the update flag
+        void setUpdate(bool status) {
+            updateMade = status;
+        }
+
+        // Set the data read from our file
+        void setData(const std::vector<std::vector<std::string>>& data) {
+            fileData = data;
+        }
+
+        // Return data read from the current file
+        std::vector<std::vector<std::string>> getData() const {
+            return fileData;
+        }
+
+        // Clears all stored functions
+        void clearFunctions() {
+            functionMap.clear();
+        }
+
+        // Adds a function to the map
+        void addFunction(const std::string& name, const std::function<int()>& lambda) {
+            functionMap[name] = lambda;
+        }
+
+        // Deletes a function from our map
+        void deleteFunction(const std::string& name) {
             // https://cplusplus.com/reference/unordered_map/unordered_map/erase/
             auto it = functionMap.find(name);
             if (it != functionMap.end()) {
@@ -46,31 +80,23 @@ namespace cse {
             }
         }
 
-        // List each function we have stored so far
-        void listFunctions(){
+        // Lists all store functions
+        void listFunctions() const {
             // https://stackoverflow.com/questions/22880431/iterate-through-unordered-map-c
-            for (const auto & [ key, value ] : functionMap) {
-                // Read in and assert Substring
-                std::istringstream iss(key);
-                std::string first, second;
-                iss >> first;
-                iss >> second;
-                // Condition to assert
-                bool condition = (second == "Value");
-                // Use assert to test the condition
-                assert(condition && "String does not match the expected value.");
-                // If the condition is true, this line will be executed
-                std::cout << "Assertion passed!" << std::endl;
+            for (const auto& [key, value] : functionMap) {
                 std::cout << key << std::endl;
             }
         }
-        // Clear every function
-        void clearFunctions(){
-            functionMap.clear();
-        }
 
+        // Opens a CSV file to read its contents
+        void openFile(const std::string& path);
+
+        // Updates our CSV file with new data generated from functions
+        void update();
+
+        // Closes the file and writes any updates made to the data
         void closeFile();
-
     };
 }
-#endif // DATAFILEMANAGER_H
+
+#endif
