@@ -19,82 +19,94 @@
  * @tparam R    The return type of the functions.
  * @tparam Args The argument types of the functions.
  */
-template <typename R, typename... Args>
-class FunctionSet
+namespace cse
 {
-public:
-    using FunctionType = std::function<R(Args...)>;
-
-    /// Constructor
-    FunctionSet();
-    /// Destructor
-    ~FunctionSet();
-
-    /**
-     * @brief Add a function to the set
-     * @param func The actual function to store
-     */
-    void addFunction(const FunctionType& func);
-
-    /**
-     * @brief Remove a function from the set (by reference).
-     *        Real usage may require a different approach, because std::function
-     *        doesn't have operator== for comparing contents.
-     */
-    void removeFunction(const FunctionType& func);
-
-    /**
-     * @brief Clear all the functions in the function set
-     */
-    void clearAll();
-
-    /**
-     * @brief Check if the set is empty
-     * @return true if empty; false otherwise
-     */
-    bool isEmpty() const;
-
-    /**
-     * @brief Return the size of the function set
-     * @return number of functions stored
-     */
-    std::size_t countFunSet() const;
-
-    /**
-     * @brief Call all functions in the set with the given arguments
-     * @param args The parameters to pass to each function
-     * @return Depending on R, returns either std::vector<R> or void
-     */
-    auto callAll(Args... args)
+    template <typename R, typename... Args>
+    class FunctionSet
     {
-        return callAllImpl(std::is_void<R>{}, args...);
-    }
+    public:
+        using FunctionType = std::function<R(Args...)>;
 
-private:
-    std::vector<FunctionType> mFunctions;
+        /// Constructor
+        FunctionSet();
+        /// Destructor
+        ~FunctionSet();
 
-    // If R is not void, we collect results in std::vector<R>.
-    template <typename... CallArgs>
-    std::vector<R> callAllImpl(std::false_type, CallArgs&&... callArgs)
-    {
-        std::vector<R> results;
-        results.reserve(mFunctions.size());
-        for (auto &func : mFunctions)
+        /**
+         * @brief Add a function to the set
+         * @param func The actual function to store
+         */
+        void addFunction(const FunctionType& func);
+
+
+
+        /**
+         * @brief Clear all the functions in the function set
+         */
+        void clearAll();
+
+        /**
+         * @brief Check if the set is empty
+         * @return true if empty; false otherwise
+         */
+        bool isEmpty() const;
+
+        /**
+         * @brief Return the size of the function set
+         * @return number of functions stored
+         */
+        std::size_t countFunSet() const;
+
+        /**
+         * @brief Return the index number of the function and use it for later. (This only works for real function pointers or non-capturing lambdas )
+         * @param func the actual function
+         * @return a int that tells the position of the function
+         */
+        int findFunctionIndex(const FunctionType& func) const;
+
+        /**
+         * @brief Remove a function from the set (by reference).
+         *        Real usage may require a different approach, because std::function
+         *        doesn't have operator== for comparing contents.
+         */
+        void removeFunction(const FunctionType& func);
+
+        /**
+         * @brief Call all functions in the set with the given arguments
+         * @param args The parameters to pass to each function
+         * @return Depending on R, returns either std::vector<R> or void
+         */
+        auto callAll(Args... args)
         {
-            results.push_back(func(std::forward<CallArgs>(callArgs)...));
+            return callAllImpl(std::is_void<R>{}, args...);
         }
-        return results;
-    }
 
-    // If R is void, we just call the functions with no return.
-    template <typename... CallArgs>
-    void callAllImpl(std::true_type, CallArgs&&... callArgs)
-    {
-        for (auto &func : mFunctions)
+    private:
+        std::vector<FunctionType> mFunctions;
+
+        /// If R is not void, we collect results in std::vector<R>.
+        template <typename... CallArgs>
+        std::vector<R> callAllImpl(std::false_type, CallArgs&&... callArgs)
         {
-            func(std::forward<CallArgs>(callArgs)...);
+            std::vector<R> results;
+            results.reserve(mFunctions.size());
+            for (auto &func : mFunctions)
+            {
+                results.push_back(func(std::forward<CallArgs>(callArgs)...));
+            }
+            return results;
         }
-    }
-};
+
+        /// If R is void, we just call the functions with no return.
+        template <typename... CallArgs>
+        void callAllImpl(std::true_type, CallArgs&&... callArgs)
+        {
+            for (auto &func : mFunctions)
+            {
+                func(std::forward<CallArgs>(callArgs)...);
+            }
+        }
+    };
+}
 
 #endif // FUNCTIONSET_H
