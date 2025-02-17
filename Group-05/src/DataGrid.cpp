@@ -93,8 +93,8 @@ Datum &DataGrid::getValue(const std::size_t row_index_,
  * @param column_index_ Index of the column
  * @return The Datum at the given index
  */
-const Datum &DataGrid::getValue(std::size_t row_index_,
-                                std::size_t column_index_) const {
+const Datum &DataGrid::getValue(const std::size_t row_index_,
+                                const std::size_t column_index_) const {
   assert(!grid_.empty());
   assert(row_index_ < grid_.size());
   assert(column_index_ < grid_[0].size());
@@ -112,19 +112,7 @@ const Datum &DataGrid::getValue(std::size_t row_index_,
  * @return tuple of (# of rows, # of columns)
  */
 std::tuple<const std::size_t, const std::size_t> DataGrid::shape() const {
-  const std::size_t num_of_rows = grid_.size();
-
-  // Source: ChatGPT
-  const std::size_t num_of_col =
-      num_of_rows == 0
-          ? 0
-          : std::ranges::max_element(grid_,
-                                     [](const auto &row1, const auto &row2) {
-                                       return row1.size() < row2.size();
-                                     })
-                ->size();
-
-  return std::make_tuple(num_of_rows, num_of_col);
+  return std::make_tuple(grid_.size(), grid_[0].size());
 }
 
 /**
@@ -140,7 +128,7 @@ cse::ReferenceVector<Datum> DataGrid::getColumn(const std::size_t column_index_)
     throw std::out_of_range("Column index out of bounds");
   }
 
-  cse::ReferenceVector<Datum> column;
+  ReferenceVector<Datum> column;
 
   for (auto &row : grid_) {
     column.PushBack(row.at(column_index_));
@@ -160,6 +148,7 @@ void DataGrid::insertDefaultRow(std::size_t row_index_, double default_value_) {
     throw std::out_of_range("Row index out of bounds");
   }
 
+  // If row_index_ is not given, update row_index_ to insert to the end of grid
   if (row_index_ == std::numeric_limits<std::size_t>::max()) {
     row_index_ = grid_.size();
   }
@@ -167,7 +156,7 @@ void DataGrid::insertDefaultRow(std::size_t row_index_, double default_value_) {
   std::size_t num_columns = std::get<1>(this->shape());
 
   // Source ChatGPT
-  // Convert row_index_ safely to signed type for iterator arithmetic
+  // Inserts row at row_index_
   grid_.insert(grid_.begin() + static_cast<std::ptrdiff_t>(row_index_),
                std::vector<Datum>(num_columns, Datum(default_value_)));
 }
@@ -185,6 +174,7 @@ void DataGrid::insertDefaultRow(std::size_t row_index_,
     throw std::out_of_range("Row index out of bounds");
   }
 
+  // If row_index_ is not given, update row_index_ to insert to the end of grid
   if (row_index_ == std::numeric_limits<std::size_t>::max()) {
     row_index_ = grid_.size();
   }
@@ -192,7 +182,7 @@ void DataGrid::insertDefaultRow(std::size_t row_index_,
   std::size_t num_columns = std::get<1>(this->shape());
 
   // Source ChatGPT
-  // Convert row_index_ safely to signed type for iterator arithmetic
+  // Inserts row at row_index_
   grid_.insert(grid_.begin() + static_cast<std::ptrdiff_t>(row_index_),
                std::vector<Datum>(num_columns, Datum(std::move(default_value_))));
 }
@@ -211,9 +201,12 @@ void DataGrid::insertDefaultColumn(std::size_t column_index_,
     throw std::out_of_range("Column index out of bounds");
   }
 
+  // If column_index_ is not given, update column_index_ to insert to the end of grid
   if (column_index_ == std::numeric_limits<std::size_t>::max()) {
     column_index_ = grid_[0].size();
   }
+
+  // Append values to each row
   for (auto &row : grid_) {
     row.insert(row.begin() + static_cast<std::ptrdiff_t>(column_index_), Datum(default_value_));
   }
@@ -233,9 +226,12 @@ void DataGrid::insertDefaultColumn(std::size_t column_index_,
     throw std::out_of_range("Column index out of bounds");
   }
 
+  // If column_index_ is not given, update column_index_ to insert to the end of grid
   if (column_index_ == std::numeric_limits<std::size_t>::max()) {
     column_index_ = grid_[0].size();
   }
+
+  // Append values to each row
   for (auto &row : grid_) {
     row.insert(row.begin() + static_cast<std::ptrdiff_t>(column_index_), Datum(default_value_));
   }
@@ -301,18 +297,8 @@ void DataGrid::resize(std::size_t num_rows_, std::size_t num_columns_,
  */
 void DataGrid::resize(std::size_t num_rows_, std::size_t num_columns_,
                       const std::string& default_value_) {
-  assert(num_rows_ > 0 && num_columns_ > 0);
-
   grid_.resize(num_rows_,
                std::vector<Datum>(num_columns_, Datum(default_value_)));
-
-  for (auto &row : grid_) {
-    if (row.size() < num_columns_) {
-      row.insert(row.end(), num_columns_ - row.size(), Datum(default_value_));
-    } else if (row.size() > num_columns_) {
-      row.resize(num_columns_);
-    }
-  }
 }
 
 /**
@@ -321,20 +307,16 @@ void DataGrid::resize(std::size_t num_rows_, std::size_t num_columns_,
  * @return Modified output stream
  */
 std::ostream &DataGrid::print(std::ostream &os_) const {
-  auto [rows, cols] = this->shape();
-  os_ << "Grid Shape: " << rows << " x " << cols << "\n";
+  auto [rows, columns] = this->shape();
+  os_ << "Grid Shape: " << rows << " x " << columns << "\n";
 
   for (std::size_t i = 0; i < rows; ++i) {
-    for (std::size_t j = 0; j < cols; ++j) {
-      try {
-        auto value = this->getValue(i, j);
-        if (value.IsString()) {
-          os_ << value.GetString() << " ";
-        } else if (value.IsDouble()) {
-          os_ << value.GetDouble() << " ";
-        }
-      } catch (const std::out_of_range &) {
-        os_ << "- ";
+    for (std::size_t j = 0; j < columns; ++j) {
+      auto value = this->getValue(i, j);
+      if (value.IsString()) {
+        os_ << value.GetString() << " ";
+      } else if (value.IsDouble()) {
+        os_ << value.GetDouble() << " ";
       }
     }
     os_ << "\n";
