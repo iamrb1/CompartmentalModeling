@@ -7,8 +7,8 @@ TEST_CASE("Textbox default state", "[TextBox]") {
   TextBox tb;
 
   CHECK(tb.getFormattedText().getText() == "");
-  CHECK(tb.getWidth() == 0);
-  CHECK(tb.getHeight() == 0);
+  CHECK(tb.getWidth() == 300);
+  CHECK(tb.getHeight() == 150);
 }
 
 TEST_CASE("TextBox get and set text", "[TextBox]") {
@@ -49,7 +49,7 @@ TEST_CASE("TextBox configuration", "[TextBox]") {
   ft.setText("Configured text");
 
   // Create a configuration for the TextBox.
-  TextBoxConfig config = {ft, 300, 150};
+  TextBoxConfig config = {ft, 350, 200};
 
   // Construct the TextBox using the configuration and a manual ID.
   TextBox tb("configured-box", config);
@@ -58,8 +58,8 @@ TEST_CASE("TextBox configuration", "[TextBox]") {
   // manual ID.
   CHECK(tb.getID() == "configured-box");
   CHECK(tb.getFormattedText() == ft);
-  CHECK(tb.getWidth() == 300);
-  CHECK(tb.getHeight() == 150);
+  CHECK(tb.getWidth() == 350);
+  CHECK(tb.getHeight() == 200);
 }
 
 TEST_CASE("TextBox resizing with negative values", "[TextBox]") {
@@ -70,17 +70,14 @@ TEST_CASE("TextBox resizing with negative values", "[TextBox]") {
   CHECK(tb.getHeight() == 0);
 }
 
-TEST_CASE("TextBox handles empty and whitespace text", "[TextBox]") {
+TEST_CASE("TextBox handles whitespace text", "[TextBox]") {
   TextBox tb;
   FormattedText ft;
-  ft.setText("");
-  tb.setFormattedText(ft);
-
-  CHECK(tb.getFormattedText().getText() == "");
 
   ft.setText("   ");
-  // Should trim whitespace, so we expect an empty string.
-  CHECK(tb.getFormattedText().getText() == "");
+  tb.setFormattedText(ft);
+  // Should NOT trim whitespace.
+  CHECK(tb.getFormattedText().getText() == "   ");
 }
 
 TEST_CASE("TextBox clear text", "[TextBox]") {

@@ -173,8 +173,8 @@ class TextBox {
  private:
   std::string id;  // Unique identifier for the TextBox.
   FormattedText content;
-  int width = 0;
-  int height = 0;
+  int width = 300;
+  int height = 150;
 };
 }  // namespace cse
 
