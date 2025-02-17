@@ -1,42 +1,48 @@
 /**
  * @file ReferenceVector.h
  *
- * @author Calen Green
+ * @author Calen Green and Max Krawec
  *
- * A vector class that keeps pointers to Datum instances under the hood.
+ * A vector class that keeps pointers to a type of objects,
+ * allowing for entries into the vector to be treated like references.
  */
 
 #pragma once
 
 #include "Datum.h"
+
+#include <cassert>
 #include <memory>
 #include <stdexcept>
 #include <vector>
 
 namespace cse {
 
+template<typename template_type>
 class ReferenceVector {
-private:
-  /// Stores pointers to Datum instances.
-  std::vector<Datum *> mData;
+ private:
+  /// Stores pointers to a type of objects.
+  std::vector<template_type*> references_;
 
-public:
+ public:
   /**
    * Default constructor for ReferenceVector.
    */
   ReferenceVector() = default;
 
   /**
-   * Pushes a Datum reference into the vector.
-   *
-   * @param datum The reference to a Datum.
+   * Pushes an object reference into the vector.
+   * @param value The reference to an object.
    */
-  void push_back(Datum &datum) { mData.push_back(&datum); }
+  void PushBack(template_type &value) { references_.push_back(&value); }
 
   /**
    * Removes the last element in the vector.
    */
-  void pop_back();
+  void PopBack() {
+    assert(!references_.empty());
+    references_.pop_back();
+  };
 
   /**
    * Removes an element at a specified index.
@@ -47,63 +53,111 @@ public:
 
   /**
    * Returns the number of elements in the vector.
-   *
    * @return size_t The size of the vector.
    */
-  size_t size() const { return mData.size(); }
+  [[nodiscard]] size_t Size() const { return references_.size(); }
 
   /**
    * Checks if the vector is empty.
-   *
    * @return bool True if empty, otherwise false.
    */
-  bool empty() const { return mData.empty(); }
+  [[nodiscard]] bool Empty() const { return references_.empty(); }
 
   /**
    * Clears all elements from the vector.
    */
-  void clear() { mData.clear(); }
+  void Clear() { references_.clear(); }
 
   /**
-   * Accesses a Datum reference at the given index.
-   *
-   * @param index The position of the element.
-   * @return Datum& Reference to the Datum at the index.
+ * Returns a reference to the first object in the vector.
+ * @return template_type& Reference to the first template_type.
+ */
+  template_type &Front() {
+    assert(!references_.empty());
+    return *references_.front();
+  };
+
+  /**
+   * Returns a reference to the last template_type in the vector.
+   * @return template_type& Reference to the last template_type.
    */
-  Datum &operator[](size_t index);
+  template_type &Back() {
+    assert(!references_.empty());
+    return *references_.back();
+  };
 
   /**
-   * Returns a reference to the Datum at the given index.
-   *
+   * Erases the element at the index.
    * @param index The index of the desired element.
-   * @return Datum& Reference to the Datum.
    */
-  Datum &at(size_t index);
+  void Erase(size_t index) {
+    assert(index < references_.size());
+    references_.erase(references_.begin() + index);
+  }
 
   /**
-   * Returns a reference to the first Datum in the vector.
-   *
-   * @return Datum& Reference to the first Datum.
+   * Erases multiple elements at the indices.
+   * @param first The first index to remove.
+   * @param last The first index you don't want removed.
    */
-  Datum &front();
+  void Erase(size_t first, size_t last) {
+    assert(first < references_.size());
+    assert(last <= references_.size());
+    assert(first < last); // TODO - Not sure if they can be equal?
+    assert(first != last);
+    references_.erase(references_.begin() + first, references_.begin() + last);
+  }
 
   /**
-   * Returns a reference to the last Datum in the vector.
-   *
-   * @return Datum& Reference to the last Datum.
+   * Inserts a value at the desired index.
+   * @param index The desired index.
+   * @param value The value to add.
    */
-  Datum &back();
+  void Insert(size_t index, template_type &value) {
+    assert(index < references_.size());
+    references_.insert(references_.begin() + index, &value);
+  }
+
+  /**
+  * Accesses an object reference at the given index.
+  * @param index The position of the element.
+  * @return template_type& Reference to the object at the index.
+  */
+  template_type &operator[](size_t index) {
+    assert(index < references_.size());
+    return *references_[index];
+  };
+
+  /**
+   * Returns a reference to the object at the given index.
+   * @param index The index of the desired element.
+   * @return template_type& Reference to the object.
+   */
+  template_type &At(size_t index) {
+    assert(index < references_.size());
+    return *references_[index];
+  };
+
+  /**
+   * Sets the reference at an index.
+   * @param index The index to update.
+   * @param value The value to update with.
+   */
+  void SetReference(size_t index, template_type &value) {
+    assert(index < references_.size());
+    references_[index] = &value;
+  }
 
   class iterator {
-  private:
-    std::vector<Datum *>::iterator it_;
+   private:
+    std::vector<template_type *>::iterator it_;
 
-  public:
-    explicit iterator(std::vector<Datum *>::iterator it) : it_(it) {}
+   public:
+    explicit iterator(std::vector<template_type *>::iterator it) : it_(it) {}
 
-    Datum &operator*() const { return **it_; }
+    template_type &operator*() const { return **it_; }
 
-    Datum *operator->() const { return *it_; }
+    template_type *operator->() const { return *it_; }
 
     iterator &operator++() {
       ++it_;
@@ -122,19 +176,17 @@ public:
 
   /**
    * Returns an iterator to the beginning of the reference vector.
-   *
-   * @return std::vector<Datum*>::iterator An iterator pointing to the first
+   * @return std::vector<template_type*>::iterator An iterator pointing to the first
    * element.
    */
-  iterator begin() { return iterator(mData.begin()); }
+  iterator begin() { return iterator(references_.begin()); }
 
   /**
    * Returns an iterator to the end of the reference vector.
-   *
-   * @return std::vector<Datum*>::iterator An iterator pointing past the last
+   * @return std::vector<template_type*>::iterator An iterator pointing past the last
    * element.
    */
-  iterator end() { return iterator(mData.end()); }
+  iterator end() { return iterator(references_.end()); }
 };
 
 } // namespace cse

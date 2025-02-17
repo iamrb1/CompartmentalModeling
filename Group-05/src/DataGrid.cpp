@@ -6,9 +6,9 @@
 #include "DataGrid.h"
 
 #include <algorithm>
-#include <assert.h>
+#include <cassert>
 #include <iostream>
-#include <optional>
+#include <limits>
 #include <vector>
 
 #include "Datum.h"
@@ -139,7 +139,7 @@ std::tuple<const std::size_t, const std::size_t> DataGrid::shape() const {
  * @param column_index_ Column index to retrieve
  * @return Indexed vector column from DataGrid
  */
-cse::ReferenceVector DataGrid::getColumn(const std::size_t column_index_) {
+cse::ReferenceVector<Datum> DataGrid::getColumn(const std::size_t column_index_) {
   assert(!grid_.empty());
   assert(column_index_ < grid_[0].size());
   assert(column_index_ >= 0);
@@ -148,10 +148,10 @@ cse::ReferenceVector DataGrid::getColumn(const std::size_t column_index_) {
     throw std::out_of_range("Column index out of bounds");
   }
 
-  cse::ReferenceVector column;
+  cse::ReferenceVector<Datum> column;
 
   for (auto &row : grid_) {
-    column.push_back(row.at(column_index_));
+    column.PushBack(row.at(column_index_));
   }
   return column;
 }
@@ -341,9 +341,9 @@ std::ostream &DataGrid::print(std::ostream &os_) const {
       try {
         auto value = this->getValue(i, j);
         if (value.IsString()) {
-          os_ << value.GetString().value() << " ";
+          os_ << value.GetString() << " ";
         } else if (value.IsDouble()) {
-          os_ << value.GetDouble().value() << " ";
+          os_ << value.GetDouble() << " ";
         }
       } catch (const std::out_of_range &) {
         os_ << "- ";
