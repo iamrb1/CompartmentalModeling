@@ -55,7 +55,16 @@ class DataMap {
   T at(const std::string& name) {
     assert(contains(name) && "Key does not exist in DataMap");
     const std::any& val = m_map[name];
-    assert(val.type() == typeid(T) && "Wrong type requested from what is contained within DataMap for key");
+    assert(val.type() == typeid(T) && "Wrong type requested from what is contained within DataMap for value");
+    return std::any_cast<T>(m_map[name]);
+  }
+
+  template <typename T>
+  T get(const std::string& name) {
+    if (!m_map.contains(name)) {
+      m_map[name] = std::any(T());
+    }
+    assert(m_map[name].type() == typeid(T) && "Wrong type requested from what is contained within DataMap for value");
     return std::any_cast<T>(m_map[name]);
   }
 

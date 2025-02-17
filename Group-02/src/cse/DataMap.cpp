@@ -38,7 +38,7 @@ bool DataMap::contains(const std::string& name) {
  */
 std::any& DataMap::operator[](const std::string& key) {
   if (!m_map.contains(key)) {
-    m_map[key] = 0;
+    m_map[key] = std::any(0);
   }
   return m_map[key];
 }
