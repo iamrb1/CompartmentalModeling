@@ -29,6 +29,7 @@ namespace cse{
     int size() const;
     void fill(const T& value);
     bool contains(const T& value) const;
+    bool isValidIndex(int index) const;
     int indexOf(const T& value) const;
     T* begin();
     T* end();
@@ -66,8 +67,7 @@ namespace cse{
 
   template <typename T, size_t Size>
   T& AuditedArray<T, Size>::operator[](int index) {
-    int size_int = static_cast<int>(Size);
-    if (index < 0 || index >= size_int) { // Throwing an exception if the index is out of range
+    if (!isValidIndex(index)) { // Throwing an exception if the index is out of range
       throw std::out_of_range("Index out of range");
     }
     return data[index];
@@ -75,7 +75,7 @@ namespace cse{
 
   template <typename T, size_t Size>
   const T& AuditedArray<T, Size>::operator[](int index) const {
-    if (index < 0 || index >= Size) { // Throwing an exception if the index is out of range
+    if (!isValidIndex(index)) { // Throwing an exception if the index is out of range
       throw std::out_of_range("Index out of range");
     }
     return data[index];
@@ -101,6 +101,11 @@ namespace cse{
       }
     }
     return false;
+  }
+
+  template <typename T, size_t Size>
+  bool AuditedArray<T, Size>::isValidIndex(int index) const {
+    return index >= 0 && index < static_cast<int>(Size);
   }
 
   template <typename T, size_t Size>

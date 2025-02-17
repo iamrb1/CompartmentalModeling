@@ -37,6 +37,13 @@ TEST_CASE("AuditedArray Fill", "[AuditedArray]") {
 	for (int i = 0; i < 5; i++) {
 		REQUIRE(arr[i] == 1);
 	}
+
+	std::string str = "hello";
+	cse::AuditedArray<std::string, 5> arr2;
+	arr2.fill(str);
+	for (int i = 0; i < 5; i++) {
+		REQUIRE(arr2[i] == str);
+	}
 }
 
 TEST_CASE("AuditedArray Contains", "[AuditedArray]") {
@@ -55,4 +62,12 @@ TEST_CASE("AuditedArray IndexOf", "[AuditedArray]") {
 
 	REQUIRE(arr.indexOf(1) == 0);
 	REQUIRE(arr.indexOf(2) == -1);
+}
+
+TEST_CASE("AuditedArray isValidIndex", "[AuditedArray]") {
+	cse::AuditedArray<int, 5> arr;
+
+	REQUIRE(arr.isValidIndex(0));
+	REQUIRE_FALSE(arr.isValidIndex(-1));
+	REQUIRE_FALSE(arr.isValidIndex(5));
 }
