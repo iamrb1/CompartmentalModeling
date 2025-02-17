@@ -59,6 +59,14 @@ class DataMap {
     return std::any_cast<T>(m_map[name]);
   }
 
+  /**
+   * Emulate behavior of the [] operator as in std::unordered map
+   * Get value from key std::string
+   * If key does not exist, set key to defaulted any templated value constructor
+   * @tparam T templated value returned
+   * @param name std::string
+   * @return T
+   */
   template <typename T>
   T get(const std::string& name) {
     if (!m_map.contains(name)) {
