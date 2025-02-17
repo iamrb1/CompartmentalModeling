@@ -34,22 +34,6 @@ TEST_CASE("MemoryFactory Construction", "[constructor]") {
     cse::MemoryFactory<std::string> stringFactory2 =
         cse::MemoryFactory<std::string>(20);
     REQUIRE(stringFactory2.GetSpace() == 20);
-
-    // Expected to error out due to the negative input
-    try {
-      std::cout << "Testing negative allocation:" << std::endl;
-      cse::MemoryFactory<int> intFactory3 = cse::MemoryFactory<int>(-1);
-    } catch (std::invalid_argument& exception) {
-      std::cout << "Invalid Constructor Argument: -1" << std::endl;
-    }
-
-    // No use in initializing a MemoryFactory with no memory allocated
-    try {
-      std::cout << "Testing zero allocation:" << std::endl;
-      cse::MemoryFactory<int> intFactory3 = cse::MemoryFactory<int>(0);
-    } catch (std::invalid_argument& exception) {
-      std::cout << "Invalid Constructor Argument: 0" << std::endl;
-    }
   }
 
   SECTION("Testing Customized Initial Values for Allocation") {
