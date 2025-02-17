@@ -2,13 +2,13 @@
 #include <cassert>
 #include <cstdint>
 #include <cstdlib>
+#include <fstream>
 #include <functional>
 #include <iostream>
+#include <optional>
 #include <sstream>
 #include <stdexcept>
 #include <unordered_map>
-#include <fstream>
-#include <optional>
 
 namespace cse {
 /**
@@ -34,9 +34,9 @@ class ErrorManager {
    * @param level Error level of a message
    */
   void executeAndHandleError(const std::function<void()>& function,
-                             const std::string& message = "",
+                             const std::string& message,
                              ErrorLevel level = ErrorLevel::Info) {
-    assert(function);
+    // assert(function);
 
     try {
       function();
@@ -88,7 +88,7 @@ class ErrorManager {
     ss << ": " << message << "\n";
 
     std::string output = ss.str();
-    std::cout << output; // output error to the console
+    std::cout << output;  // output error to the console
 
     // Format for logging into a file
     if (mLogFile.is_open()) {
@@ -98,13 +98,15 @@ class ErrorManager {
         while ((pos = output.find("\033[")) != std::string::npos) {
           size_t endPos = output.find('m', pos);
           if (endPos != std::string::npos) {
-            output.erase(pos, endPos - pos + 1); // erase color code
+            output.erase(pos, endPos - pos + 1);  // erase color code
           }
         }
 
-      mLogFile << output;
+        mLogFile << output;
+        mLogFile.flush();
       }
     }
+
     if (mActions.find(level) != mActions.end()) {
       mActions[level]();
     }
@@ -131,21 +133,24 @@ class ErrorManager {
 
   /**
    * @brief Constructs a new Error Manager object
-   * 
-   * @param filePath Optional parameter for a file path where errors will be logged
+   *
+   * @param filePath Optional parameter for a file path where errors will be
+   * logged
    */
   ErrorManager(const std::optional<std::string>& filePath = std::nullopt) {
     if (filePath.has_value()) {
       mLogFile.open(filePath.value(), std::ios::app);
       if (!mLogFile.is_open()) {
-        std::cerr << "Unable to open log file: " << filePath.value() << std::endl; 
+        std::cerr << "Unable to open log file: " << filePath.value()
+                  << std::endl;
       }
     }
   }
 
   /**
-   * @brief Destroy the Error Manager object and close logging file if it was opened
-   * 
+   * @brief Destroy the Error Manager object and close logging file if it was
+   * opened
+   *
    */
   ~ErrorManager() {
     if (mLogFile.is_open()) {
@@ -183,6 +188,9 @@ class ErrorManager {
   }
 
  private:
+ 
+  /// @name Color codes and error level string constants
+  ///@{
   static constexpr const char* COLOR_GREEN = "\033[32m";
   static constexpr const char* COLOR_YELLOW = "\033[33m";
   static constexpr const char* COLOR_RED = "\033[31m";
@@ -190,6 +198,7 @@ class ErrorManager {
   static constexpr const char* INFO_STRING = "Info";
   static constexpr const char* WARNING_STRING = "Warning";
   static constexpr const char* FATAL_STRING = "Fatal";
+  ///@}
 
   /// @brief Tracks whether color messages are enabled
 
@@ -204,11 +213,13 @@ class ErrorManager {
       {ErrorLevel::Warning, COLOR_YELLOW},
       {ErrorLevel::Fatal, COLOR_RED}};
 
-  /// @brief Tracks whether termination of a program upon invoking an error is enabled
+  /// @brief Tracks whether termination of a program upon invoking an error is
+  /// enabled
   std::unordered_map<ErrorLevel, int32_t> mTerminationEnabled = {
       {ErrorLevel::Info, 0}, {ErrorLevel::Warning, 0}, {ErrorLevel::Fatal, 0}};
 
-  /// @brief Map of actions to be invoked when a corresponding ErrorLevel is invoked
+  /// @brief Map of actions to be invoked when a corresponding ErrorLevel is
+  /// invoked
   std::unordered_map<ErrorLevel, std::function<void()>> mActions;
 
   /// @brief Returns string representation of ErrorLevel
