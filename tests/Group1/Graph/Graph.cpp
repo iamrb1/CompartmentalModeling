@@ -2,6 +2,7 @@
 #include "../../../Group-01/Graph/Vertex.hpp"
 #include "../../../Group-01/Graph/Edge.hpp"
 #include "../../../Group-01/Graph/Graph.hpp"
+#include "../Utils/TestUtils.hpp"
 
 #include <vector>
 #include <sstream>
@@ -70,4 +71,90 @@ TEST_CASE("Test cse::Graph", "[base]")
     CHECK(e3_sh->IsBidirectional());
   }
   auto e4 = graph.AddEdge("id1", "id2", true);
+}
+
+TEST_CASE("Test cse::Graph - To file", "Export to file")
+{
+  cse::Graph graph;
+  // Test adding vertices
+  auto v1 = graph.AddVertex("id1");
+  auto v2 = graph.AddVertex("id2", 1.5);
+  graph.AddEdge(v1, v2);
+  std::stringstream s;
+
+  graph.ToFile(s);
+
+  std::vector<std::string> lines{"GRAPH:",
+                                 "  Vertices:",
+                                 "    VERTEX:id2",
+                                 "      X:1.5",
+                                 "      Y:0",
+                                 "    VERTEX:id1",
+                                 "      X:0",
+                                 "      Y:0",
+                                 "",
+                                 "  Edges:",
+                                 "    EDGE:id1-id2",
+                                 "      bidirectional:0",
+                                 "      from:id1",
+                                 "      to:id2",
+                                 ""};
+  REQUIRE(cse_test_utils::CheckForStringFile(lines, s));
+}
+
+TEST_CASE("Test cse::Graph - From file", "Read from file")
+{
+  std::vector<std::string> lines{"GRAPH:",
+                                 "  Vertices:",
+                                 "    VERTEX:id2",
+                                 "      X:1.5",
+                                 "      Y:0",
+                                 "    VERTEX:id1",
+                                 "      X:1",
+                                 "      Y:1",
+                                 "",
+                                 "  Edges:",
+                                 "    EDGE:id1-id2",
+                                 "      bidirectional:0",
+                                 "      from:id1",
+                                 "      to:id2",
+                                 ""};
+  std::stringstream s;
+  cse_test_utils::BuildFileFromVector(lines, s);
+
+  cse::Graph graph(s);
+  CHECK(graph.GetVertex("id1")->GetId() == "id1");
+  REQUIRE_THAT(graph.GetVertex("id1")->GetX(), WithinAbs(1, cse_test_utils::FLOAT_DELTA));
+  REQUIRE_THAT(graph.GetVertex("id1")->GetY(), WithinAbs(1, cse_test_utils::FLOAT_DELTA));
+  REQUIRE_THAT(graph.GetVertex("id2")->GetX(), WithinAbs(1.5, cse_test_utils::FLOAT_DELTA));
+  REQUIRE_THAT(graph.GetVertex("id2")->GetY(), WithinAbs(0, cse_test_utils::FLOAT_DELTA));
+  CHECK(graph.GetVertex("id2")->GetId() == "id2");
+  CHECK(graph.IsConnected("id1", "id2"));
+  CHECK(!graph.IsConnected("id2", "id1"));
+}
+
+TEST_CASE("Test cse::Graph - From advanced file", "Complex graph")
+{
+  cse::Graph graph;
+  // Test adding vertices
+  auto v1 = graph.AddVertex("id1");
+  auto v2 = graph.AddVertex("id2", 1.5);
+  auto v3 = graph.AddVertex("id3");
+
+  graph.AddEdge(v1, v2);
+  // Add bidirectional graph
+  graph.AddEdge(v1, v3, true);
+  std::stringstream s;
+
+  graph.ToFile(s);
+
+  cse::Graph destinationGraph(s);
+  CHECK(destinationGraph.GetVertex("id1")->GetId() == "id1");
+  CHECK(destinationGraph.GetVertex("id2")->GetId() == "id2");
+  CHECK(destinationGraph.GetVertex("id3")->GetId() == "id3");
+
+  CHECK(destinationGraph.IsConnected("id1", "id2"));
+  CHECK(!destinationGraph.IsConnected("id2", "id1"));
+  CHECK(destinationGraph.IsConnected("id1", "id3"));
+  CHECK(destinationGraph.IsConnected("id3", "id1"));
 }
