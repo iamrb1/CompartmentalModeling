@@ -29,9 +29,9 @@ private:
   std::vector<row_t> grid_;
 
 public:
-  explicit DataGrid(std::vector<std::vector<Datum>> data) {
-    assert(data.size() != 0);
-    assert(data[0].size() != 0);
+  explicit DataGrid(const std::vector<std::vector<Datum>> &data) {
+    assert(!data.empty());
+    assert(!data[0].empty());
 
     grid_ = data;
   }
@@ -40,10 +40,10 @@ public:
    * @brief Create rectangular datagrid of desired size with default value
    * (double)
    * @param num_rows_
-   * @param num_cols_
+   * @param num_columns_
    * @param default_value_
    */
-  DataGrid(const std::size_t num_rows_ = 0, const std::size_t num_columns_ = 0,
+  explicit DataGrid(const std::size_t num_rows_ = 0, const std::size_t num_columns_ = 0,
            const double default_value_ = 0) {
     this->resize(num_rows_, num_columns_, default_value_);
   }
@@ -52,11 +52,11 @@ public:
    * @brief Create rectangular datagrid of desired size with default value
    * (string)
    * @param num_rows_
-   * @param num_cols_
+   * @param num_columns_
    * @param default_value_
    */
   DataGrid(const std::size_t num_rows_, const std::size_t num_columns_,
-           const std::string default_value_) {
+           const std::string& default_value_) {
     this->resize(num_rows_, num_columns_, default_value_);
   }
 
@@ -92,11 +92,11 @@ public:
 
   row_t &operator[](std::size_t row_index_);
   row_t &getRow(std::size_t row_index_);
-  const row_t &getRow(std::size_t row_index_) const;
+  [[nodiscard]] const row_t &getRow(std::size_t row_index_) const;
   Datum &getValue(std::size_t row_index_, std::size_t column_index_);
-  const Datum &getValue(std::size_t row_index_,
+  [[nodiscard]] const Datum &getValue(std::size_t row_index_,
                         std::size_t column_index_) const;
-  std::tuple<const std::size_t, const std::size_t> shape() const;
+  [[nodiscard]] std::tuple<const std::size_t, const std::size_t> shape() const;
   cse::ReferenceVector<Datum> getColumn(std::size_t column_index_);
   void insertDefaultRow(
       std::size_t row_index_ = std::numeric_limits<std::size_t>::max(),
@@ -115,12 +115,12 @@ public:
   void resize(std::size_t num_rows_, std::size_t num_columns_,
               double default_value_ = 0);
   void resize(std::size_t num_rows_, std::size_t num_columns_,
-              std::string default_value_);
+              const std::string& default_value_);
   std::ostream &print(std::ostream &os_) const;
   Datum &at(std::size_t row_index_, std::size_t column_index_);
-  const Datum &at(std::size_t row_index_, std::size_t column_index_) const;
+  [[nodiscard]] const Datum &at(std::size_t row_index_, std::size_t column_index_) const;
   row_t &at(std::size_t row_index_);
-  const row_t &at(std::size_t row_index_) const;
+  [[nodiscard]] const row_t &at(std::size_t row_index_) const;
 };
 
 /**
