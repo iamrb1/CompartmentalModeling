@@ -7,7 +7,6 @@
  */
 
 #include "../../Group-05/src/Datum.cpp"
-#include "../../Group-05/src/Datum.h"
 
 #include "../../Group-05/src/ReferenceVector.h"
 
@@ -38,6 +37,9 @@ TEST_CASE("PopBack() functionality", "[pop_back]") {
   reference_vector.PopBack();
 
   CHECK(reference_vector.Size() == 2);
+
+  cse::ReferenceVector<cse::Datum> empty;
+  CHECK_THROWS(empty.PopBack());
 }
 
 TEST_CASE("Size() functionality", "[size]") {
@@ -83,6 +85,10 @@ TEST_CASE("Element access functionality", "[access]") {
 
   CHECK(reference_vector.Front().GetDouble() == 123.123);
   CHECK(reference_vector.Back().GetDouble() == 987);
+
+  cse::ReferenceVector<cse::Datum> empty;
+  CHECK_THROWS(empty.Front());
+  CHECK_THROWS(empty.Back());
 }
 
 TEST_CASE("Erase() functionality", "[erase]") {
@@ -123,7 +129,20 @@ TEST_CASE("Erase() functionality", "[erase]") {
       reference_vector.Erase(0,2);
       CHECK(reference_vector.Size() == 1);
     }
+  }
 
+  SECTION("Invalid Erases") {
+    cse::ReferenceVector<cse::Datum> empty;
+    CHECK_THROWS(empty.Erase(1));
+    CHECK_THROWS(empty.Erase(2,7));
+
+    cse::Datum d1(123.123);
+    cse::Datum d2("test");
+    cse::ReferenceVector<cse::Datum> values;
+
+    values.PushBack(d1);
+    values.PushBack(d2);
+    CHECK_THROWS(empty.Erase(1,0));
   }
 }
 
@@ -143,6 +162,10 @@ TEST_CASE("Insert functionality", "[insert]") {
   CHECK(reference_vector.At(1).GetString() == "apple");
   CHECK(reference_vector.At(2).GetString() == "test");
   CHECK(reference_vector.Size() == 4);
+
+  cse::ReferenceVector<cse::Datum> empty;
+  CHECK_THROWS(empty.Insert(2, d3));
+  CHECK_THROWS(empty[1] = d3);
 }
 
 TEST_CASE("Element modification functionality", "[modify]") {
@@ -166,6 +189,9 @@ TEST_CASE("Element modification functionality", "[modify]") {
   CHECK(reference_vector.At(1).GetString() == "UpdatedDatum");
   CHECK(reference_vector.At(2).GetDouble() == 987.987);
 
+  cse::ReferenceVector<cse::Datum> empty;
+  CHECK_THROWS(empty.At(1));
+
   CHECK(reference_vector[0].GetString() == "hello");
   CHECK(reference_vector[1].GetString() == "UpdatedDatum");
   CHECK(reference_vector[2].GetDouble() == 987.987);
@@ -187,4 +213,7 @@ TEST_CASE("SetReference() functionality", "[set_reference]") {
 
   d4 = "sad";
   CHECK(reference_vector[0].GetString() == "sad");
+
+  cse::ReferenceVector<cse::Datum> empty;
+  CHECK_THROWS(empty.SetReference(2, d3));
 }

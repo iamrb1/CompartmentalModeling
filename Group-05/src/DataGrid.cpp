@@ -112,7 +112,9 @@ const Datum &DataGrid::getValue(const std::size_t row_index_,
  * @return tuple of (# of rows, # of columns)
  */
 std::tuple<const std::size_t, const std::size_t> DataGrid::shape() const {
-  return std::make_tuple(grid_.size(), grid_[0].size());
+  size_t rows = grid_.size();
+  size_t columns = rows == 0 ? 0 : grid_[0].size();
+  return std::make_tuple(rows, columns);
 }
 
 /**

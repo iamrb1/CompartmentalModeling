@@ -14,6 +14,7 @@
 
 namespace cse {
 
+/// Epsilon used to compare doubles
 static const double kEpsilon = 0.0001;
 
 /**
