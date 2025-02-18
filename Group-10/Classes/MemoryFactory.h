@@ -53,8 +53,8 @@ class MemoryFactory {
     for (int i = 0; i < allocationAmount; i++) {
       Object* newObject = new Object{};
 
-      // If the initial state is not a default state
-      // then reassign the object to the desired value
+      /* If the desired state is not DEFAULT
+       * then reassign the object to the desired value */
       *newObject = (*newObject != initialState) ? initialState : *newObject;
       allocatedBlock_.push_back(newObject);
 
@@ -84,10 +84,7 @@ class MemoryFactory {
    * @param initialState Alternate starting value for all Objects in the factory
    */
   MemoryFactory(int newAllocSize = 10, Object initialState = Object{}) {
-    if (newAllocSize <= 0) {
-      throw std::invalid_argument(
-          "Invalid constructor argument: Allocation size must exceed 0.");
-    }
+    // No point in a MemoryFactory that doesn't store objects
     assert(newAllocSize > 0);
     allocationSize_ = newAllocSize;
     AllocateObjects_(allocationSize_, initialState);
@@ -107,45 +104,72 @@ class MemoryFactory {
    * @brief Returns a pointer to a reserved Object for the user
    *
    * @tparam newArgs Any arguments to pass to the Object's constructor
+   * 
+   * @return A pointer to the reserved Object
    */
+
   template <typename... newArgs>
   Object* Allocate(newArgs... assignedValues) {
+    // MemoryFactory is out of space
     if (reservedPoint_ == allocatedBlock_.end()) {
       ExpandSpace_();
     }
     Object* allocatedObject = *reservedPoint_;
     reservedPoint_++;
     reservedObjects_++;
-    // TODO: Catch any errors in the constructor and pass to user
-    // TODO: If assignedValues is blank this should not wipe out defaultObject_
-    *allocatedObject = Object{assignedValues...};
+
+    // If no constructor arguments are passed use the default value
+    if (sizeof...(assignedValues) != 0) {
+      *allocatedObject = Object{assignedValues...};
+    } else {
+      *allocatedObject = defaultObject_;
+    }
     return allocatedObject;
   }
 
+  /**
+   * @brief Returns an object to the MemoryFactory once it is done being used
+   * @param targetObject Object pointer to the deallocated Object
+   *
+   * @details Will take the returned Object, reset it to the default state, and
+   * add it back to the pool of available Objects
+   */
   void Deallocate(Object* targetObject) {
+    // This needs to point to an object
     assert(targetObject != nullptr);
+    bool objectFound = false;
+
     for (auto iterator = allocatedBlock_.begin();
          iterator != allocatedBlock_.end(); iterator++) {
       if (*iterator == targetObject) {
         allocatedBlock_.erase(iterator);
-        // TODO: Reassign the object to the default before pushing back
+        *targetObject = defaultObject_;
         allocatedBlock_.push_back(targetObject);
+        objectFound = true;
         break;
       }
     }
-    reservedObjects_--;
+    if (objectFound) {
+      reservedObjects_--;
+    } else {
+      throw std::invalid_argument(
+          "This object does not belong to this MemoryFactory");
+    }
   }
 
-  // TODO: Enable const for both functions
   /**
    * @brief Returns number of remaining objects in the factory
+   * 
+   * @return The number of available Objects in the MemoryFactory
    */
-  int GetSpace() { return allocationSize_ - reservedObjects_; }
+  int GetSpace() const { return allocationSize_ - reservedObjects_; }
 
   /**
    * @brief Returns how many Objects are allocated by the factory
+   * 
+   * @return The total number of Objects in the MemoryFactory
    */
-  int GetSize() { return allocationSize_; }
+  int GetSize() const { return allocationSize_; }
 };
 }  // namespace cse
 #endif  // MEMORYFACTORY_H
