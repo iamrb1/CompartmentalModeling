@@ -11,7 +11,7 @@ namespace cse {
  * Constructor to allow initializer list for DataMap
  * @param initial std::initializer list of a pair of string and any
  */
-DataMap::DataMap(std::initializer_list<std::pair<std::string, std::any>> initial) {
+[[maybe_unused]] DataMap::DataMap(std::initializer_list<std::pair<std::string, std::any>> initial) {
   for (const auto& keyvalue : initial) {
     m_map[keyvalue.first] = keyvalue.second;
   }
@@ -22,7 +22,7 @@ DataMap::DataMap(std::initializer_list<std::pair<std::string, std::any>> initial
 * @param name std::string name to be found
 * @return bool if key exists or not
 */
-bool DataMap::contains(const std::string& name) {
+bool DataMap::contains(const std::string& name) const{
   if (m_map.find(name) == m_map.end()) {
     return false;
   }

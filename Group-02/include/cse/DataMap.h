@@ -15,7 +15,9 @@ namespace cse {
 
 /**
 * DataMap Class
-*
+* (implementation decision to utilize composition rather than inheritance as ActionMap class is made easier since
+ * it uses DataMap)
+ * Allows for std::string key and any value desired as key value pair held within class
 */
 class DataMap {
  private:
@@ -28,7 +30,20 @@ class DataMap {
    */
   DataMap() = default;
 
-  DataMap(std::initializer_list<std::pair<std::string, std::any>> initial);
+  [[maybe_unused]] DataMap(std::initializer_list<std::pair<std::string, std::any>> initial);
+
+  /**
+   * Copy constructor
+   * @param other DataMap to be copied
+   */
+  DataMap(const DataMap& other) = default;
+
+  /**
+   * Assignment operator
+   * @param other DataMap to be copied
+   * @return reference to DataMap
+   */
+  DataMap& operator=(const DataMap& other) = default;
 
   /**
   * Insert key value pair into DataMap
@@ -47,8 +62,8 @@ class DataMap {
 
   /**
   * .at method for finding where key is
-  * @tparam T
-  * @param name
+  * @tparam T templated value returned
+  * @param name std::string
   * @return
   */
   template <typename T>
@@ -76,13 +91,13 @@ class DataMap {
     return std::any_cast<T>(m_map[name]);
   }
 
-  bool contains(const std::string& name);
+  [[nodiscard]] bool contains(const std::string& name) const;
 
   /**
     * Delete a key from the map
     * @param name key to be deleted
     */
-  void key_delete(const std::string& name) {
+  void erase(const std::string& name) {
     assert(contains(name) && "Key does not exist in DataMap");
     m_map.erase(name);
   }
@@ -99,14 +114,14 @@ class DataMap {
     * Gives the size of the map
     * @return unsigned long map size
     */
-  size_t size() {
+  [[nodiscard]] size_t size() const {
     return m_map.size();
   }
 
   /**
     * Emptys the DataMap
     */
-  bool empty() {
+  [[nodiscard]] bool empty() const {
     return m_map.empty();
   }
 
@@ -115,7 +130,7 @@ class DataMap {
     * @param name key to be found
     * @return unsigned long # of keys
     */
-  size_t count(const std::string& name) {
+  [[nodiscard]] size_t count(const std::string& name) const {
     return m_map.count(name);
   }
 };

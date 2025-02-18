@@ -67,7 +67,7 @@ TEST_CASE("DataMap get test") {
 TEST_CASE("DataMap delete key test") {
   cse::DataMap data_map;
   data_map.insert("key", 80.2);
-  data_map.key_delete("key");
+  data_map.erase("key");
   REQUIRE(data_map.empty() == 1);
 }
 
