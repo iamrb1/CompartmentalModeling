@@ -5,29 +5,70 @@
 
 #pragma once
 
+#include <cassert>
+
+#include <any>
 #include <functional>
 #include <string>
 #include <unordered_map>
 
 namespace cse {
 class ActionMap {
+ private:
+  /// Map of actions and their corresponding functions
+  std::unordered_map<std::string, std::any> m_actions;
+
  public:
-  void insert(const std::string& name, const std::function<void()>& action);
+  /// Default constructor
+  ActionMap() = default;
 
-  void erase(const std::string& name);
+  /// Default destructor
+  ~ActionMap() = default;
 
-  [[nodiscard]] bool contains(const std::string& name) const;
+  /**
+   * @brief Bind an action to a function
+   * @tparam Func Function type
+   * @param action Action name
+   * @param func Function to bind
+   */
+  template <typename Func>
+  void insert(const std::string& action, Func&& func) {
+    m_actions[action] = std::function(std::forward<Func>(func));
+  }
+
+  /**
+   * @brief Invoke an action with arguments
+   * @tparam Ret Return type
+   * @tparam Args Argument types
+   * @param action Action name
+   * @param args Arguments
+   * @return Return value of the function
+   */
+  template <typename Ret = void, typename... Args>
+  Ret invoke(const std::string& action, Args&&... args) {
+    if (const auto it = m_actions.find(action); it != m_actions.end()) {
+      try {
+        return std::any_cast<std::function<Ret(Args...)>>(it->second)(std::forward<Args>(args)...);
+      } catch (const std::bad_any_cast& e) {
+        assert(false &&
+               "Wrong function signature for action. Check the return type and arguments. You may need to use "
+               "invoke<Ret, Args...>().");
+      }
+    } else {
+      assert(false && "Action not found.");
+    }
+    return Ret{};
+  }
+
+  [[nodiscard]] bool contains(const std::string& action) const;
 
   void clear();
 
-  void invoke(const std::string& name);
+  void erase(const std::string& action);
 
-  std::function<void()>& operator[](const std::string& name);
+  [[nodiscard]] size_t size() const;
 
-  [[nodiscard]] const std::function<void()>& at(const std::string& name);
-
- private:
-  std::unordered_map<std::string, std::function<void()>> m_actions;
+  [[nodiscard]] bool empty() const;
 };
 
 };  // namespace cse
