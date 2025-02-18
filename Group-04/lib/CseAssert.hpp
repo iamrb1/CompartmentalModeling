@@ -22,6 +22,10 @@
   internal_cse_assert_eq_(internal_cse_assert_args_head_(args), \
                           internal_cse_assert_args_tail_(args), \
                           cse::_assert_internal::BinaryAssertArgs{args})
+#define cse_assert_neq(args...)                                  \
+  internal_cse_assert_neq_(internal_cse_assert_args_head_(args), \
+                           internal_cse_assert_args_tail_(args), \
+                           cse::_assert_internal::BinaryAssertArgs{args})
 
 // These macros perform a best-effort recovery of the text of the original
 // arguments for display output on assertion failure.
@@ -41,6 +45,9 @@
 #define internal_cse_assert_eq_(lhs_text, rhs_text, rest...)            \
   ::cse::_assert_internal::AssertEq(rest, lhs_text, rhs_text, __FILE__, \
                                     __LINE__, __func__)
+#define internal_cse_assert_neq_(lhs_text, rhs_text, rest...)            \
+  ::cse::_assert_internal::AssertNeq(rest, lhs_text, rhs_text, __FILE__, \
+                                     __LINE__, __func__)
 
 // Debug macros
 #ifdef NDEBUG
@@ -49,11 +56,15 @@
 // Source: https://stackoverflow.com/a/1306618/4678913
 #define dbg_assert(...) (void)0
 #define dbg_assert_never(...) (void)0
+#define dbg_assert_eq(...) (void)0
+#define dbg_assert_neq(...) (void)0
 #else
 #define dbg_assert(...) cse_assert(__VA_ARGS__)
 #define dbg_assert_never(...)                 \
   ::cse::_assert_internal::AssertNeverReturn( \
       __FILE__, __LINE__, __func__ __VA_OPT__(, __VA_ARGS__))
+#define dbg_assert_eq(...) cse_assert_eq(__VA_ARGS__)
+#define dbg_assert_neq(...) cse_assert_neq(__VA_ARGS__)
 #endif
 
 // Do *not* access anything inside this namespace directly
@@ -145,6 +156,33 @@ void AssertEq(BinaryAssertArgs<T> const &args, const char *lhs_text,
     PrintLocation(file, line, function);
   } else {
     std::cout << "  These expressions evaluated to different values:\n"
+              << "   left: " << lhs_string << "\n  right: " << rhs_string
+              << "\n";
+    PrintLocation(file, line, function);
+    std::cout << "hint: implement operator<< to see the underlying values\n";
+  }
+
+  Fail();
+}
+
+template <typename T>
+  requires std::equality_comparable<T>
+void AssertNeq(BinaryAssertArgs<T> const &args, const char *lhs_text,
+               const char *rhs_text, const char *file, int line,
+               const char *function) {
+  if (args.lhs != args.rhs) {
+    return;
+  }
+  std::string lhs_string = std::string{lhs_text};
+  std::string rhs_string = std::string{rhs_text};
+
+  PrintAssertMessage(args.message);
+  if constexpr (printable<T>) {
+    std::cout << " These values are the same:\n"
+              << "   left: " << args.lhs << "\n  right: " << args.rhs << "\n";
+    PrintLocation(file, line, function);
+  } else {
+    std::cout << "  These expressions evaluated to the same value:\n"
               << "   left: " << lhs_string << "\n  right: " << rhs_string
               << "\n";
     PrintLocation(file, line, function);
