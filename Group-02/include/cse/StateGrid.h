@@ -9,6 +9,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 namespace cse {
 class StateGrid {
@@ -19,9 +20,17 @@ class StateGrid {
   int m_cols = 0;
   ///Grid to represent game map
   std::vector<std::string> m_grid;
+  ///Map to represent the name and (future) properties of each state <<< Soon to be DataMap type
+  std::map<char, std::vector<std::string>> m_dictionary = {
+      {' ', {"EmptySpace", "Open"} },
+      {'#', {"Wall", "Closed"}},
+      {'X', {"Enemy", "Open"}},
+      {'0', {"Exit", "Open"}},
+      {'P', {"Player", "Closed"}}
+  };
 
  public:
-  StateGrid(const std::string& diff);
+  [[maybe_unused]] explicit StateGrid(const std::string& diff);
 
   void choose_map(const std::string& diff);
 
@@ -31,8 +40,10 @@ class StateGrid {
 
   char get_state(int row, int col);
 
+  std::vector<std::string> define_state(char state);
+
   bool validate_position(std::pair<int, int> move);
 
-  std::vector<std::pair<int, int>> find_moves(int row, int col);
+  std::vector<std::pair<int,int>> find_moves(int row, int col);
 };
 }  // namespace cse

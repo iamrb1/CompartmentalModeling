@@ -26,7 +26,7 @@ StateGrid::StateGrid(const std::string& diff) {
 void StateGrid::display_grid() {
   assert(!m_grid.empty() && "m_grid is empty and cannot display");
 
-  for (auto line : m_grid) {
+  for (const std::string& line : m_grid) {
     std::cout << line << "\n";
   }
 }
@@ -47,15 +47,26 @@ bool StateGrid::set_state(std::pair<int, int> move, std::pair<int, int> agent) {
 }
 
 /**
+ * Returns property information about a specific state
+ * @param state queried state
+ * @return vector of strings holding info about state
+ */
+std::vector<std::string> StateGrid::define_state(char state) {
+  auto possible_state = m_dictionary.find(state);
+  assert(possible_state != m_dictionary.end() && "This state is not in the map!");
+  return m_dictionary.at(state);
+}
+/**
  * @brief Returns the state of a grid position
  * @param row row of position
  * @param col col of position
  * @return state of (row,col) position
  */
 char StateGrid::get_state(int row, int col) {
-  assert(row <= m_rows && col <= m_cols && "This is not inside the grid");
+  assert(row < m_rows && col < m_cols && "This is not inside the grid");
   return m_grid[row][col];
 }
+
 /**
  * @brief Validates if a position can be occupied by agent
  * @param row row of position
@@ -63,11 +74,13 @@ char StateGrid::get_state(int row, int col) {
  * @return T/F of position validity
  */
 bool StateGrid::validate_position(std::pair<int, int> move) {
-  assert(move.first <= m_rows && move.second <= m_cols && "This move is out of bounds");
+  assert(move.first < m_rows && move.second < m_cols && "This move is out of bounds");
   char validate = m_grid[move.first][move.second];
-  if (validate == ' ' || validate == 'X') {  /// << Will add '0' when adding win function
+  if (m_dictionary.find(validate) != m_dictionary.end() && m_dictionary.at(validate)[1]=="Open")
+  {
     return true;
   }
+
   return false;
 }
 
@@ -77,11 +90,10 @@ bool StateGrid::validate_position(std::pair<int, int> move) {
  * @param col col of agent position
  * @return vector of pairs of possible move directions
  */
-std::vector<std::pair<int, int>> StateGrid::find_moves(int row, int col) {
-  assert(row <= m_rows && col <= m_cols && "This is not inside the grid");
-  std::vector<std::pair<int, int>> moves = {};
-  std::vector<std::pair<int, int>> poss_moves = {std::pair((row + 1), col), std::pair((row - 1), col),
-                                                 std::pair(row, (col + 1)), std::pair(row, (col - 1))};
+std::vector<std::pair<int,int>> StateGrid::find_moves(int row, int col) {
+  assert(row < m_rows && col < m_cols && "This is not inside the grid");
+  std::vector<std::pair<int,int>> moves = {};
+  std::vector<std::pair<int,int>> poss_moves = {{(row + 1), col}, {(row - 1), col}, {row, (col + 1)}, {row, (col - 1)}};
   for (auto move : poss_moves) {
     if (validate_position(move)) {
       moves.push_back(move);
@@ -98,12 +110,13 @@ void StateGrid::choose_map(const std::string& diff) {
       {"test", {"#####", "# P #", "##X##", "## ##", "#0  #", "#####"}}};
   if (maps.find(diff) != maps.end()) {
     m_grid = maps[diff];
-    m_cols = 5;
-    m_rows = 4;  /// << This is only until more maps are made, for testing purposes
+    m_cols = static_cast<int>(m_grid[0].size());
+    m_rows = static_cast<int>(m_grid.size());
   } else {
     m_grid = maps["test"];
-    m_cols = 5;
-    m_rows = 4;
+    m_cols = static_cast<int>(m_grid[0].size());
+    m_rows = static_cast<int>(m_grid.size());
   }
 }
+
 }  // namespace cse
