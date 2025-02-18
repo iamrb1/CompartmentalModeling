@@ -7,7 +7,7 @@
 #include <cse/StateGrid.h>
 #include <stdexcept>
 
-TEST_CASE("StateGrid loads test map correctly")
+TEST_CASE("Testing StateGrid loads test map correctly")
 {
   REQUIRE(1==1);
   cse::StateGrid grid ("test");
@@ -86,10 +86,10 @@ TEST_CASE("Testing if find_moves finds correct valid moves for agent")
 
     REQUIRE(moves.size() == 3);
 
-    std::vector<std::pair<int,int>> expmoves = {{1,1},{1,3},{2,2}};
+    std::vector<std::pair<int,int>> expectedmoves = {{1,1},{1,3},{2,2}};
 
     for (auto move : moves){
-      auto selectedmove = std::find(expmoves.begin(), expmoves.end(), move);
+      auto selectedmove = std::find(expectedmoves.begin(), expectedmoves.end(), move);
       REQUIRE(selectedmove != expmoves.end());
     }
 

@@ -65,6 +65,11 @@ class StateGridPosition {
     m_object_position = create_point(x, y);
   }
 
+  ///Overloaded in case we want to use pairs or individual points
+    void set_object_position(std::pair<int, int> agent) {
+        m_object_position = create_point(static_cast<double>(agent.first), static_cast<double>(agent.second));
+    }
+
   double get_object_orientation();
 
   ///Set the object's orientation, 0-359 degrees

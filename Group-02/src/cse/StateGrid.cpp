@@ -36,10 +36,11 @@ void StateGrid::display_grid() {
  * @param move pair containing new agent spot
  * @param agent pair containing current agent position
  */
-bool StateGrid::set_state(std::pair<int, int> move, std::pair<int, int> agent) {
+bool StateGrid::set_state(std::pair<int, int> new_position, std::pair<int, int> agent) {
   assert(!m_grid.empty() && m_grid[agent.first][agent.second] == 'P');
-  if (validate_position(std::pair(move.first, move.second))) {
-    m_grid[move.first][move.second] = 'P';
+
+  if (validate_position({new_position.first, new_position.second})) {
+    m_grid[new_position.first][new_position.second] = 'P';
     m_grid[agent.first][agent.second] = ' ';
     return true;
   }
@@ -92,8 +93,8 @@ bool StateGrid::validate_position(std::pair<int, int> move) {
  */
 std::vector<std::pair<int,int>> StateGrid::find_moves(int row, int col) {
   assert(row < m_rows && col < m_cols && "This is not inside the grid");
-  std::vector<std::pair<int,int>> moves = {};
-  std::vector<std::pair<int,int>> poss_moves = {{(row + 1), col}, {(row - 1), col}, {row, (col + 1)}, {row, (col - 1)}};
+  std::vector<std::pair<int, int>> moves = {};
+  std::vector<std::pair<int, int>> poss_moves = {{(row + 1), col}, {(row - 1), col}, {row, (col + 1)}, {row, (col - 1)}};
   for (auto move : poss_moves) {
     if (validate_position(move)) {
       moves.push_back(move);
@@ -107,7 +108,7 @@ std::vector<std::pair<int,int>> StateGrid::find_moves(int row, int col) {
  */
 void StateGrid::choose_map(const std::string& diff) {
   std::map<std::string, std::vector<std::string>> maps = {
-      {"test", {"#####", "# P #", "##X##", "## ##", "#0  #", "#####"}}};
+      {"test", {"#####", "# P #", "##X##", "## ##", "#0  #", "#####"}}}; ///Could add functionality to load in a map from separate file
   if (maps.find(diff) != maps.end()) {
     m_grid = maps[diff];
     m_cols = static_cast<int>(m_grid[0].size());
