@@ -20,8 +20,7 @@ cse::ArgManager::ArgManager(int argc, char *argv[])
 
     //pass argc and argv
     mArgc = argc;
-    for (int i = 0; i < argc; i++)
-    {
+    for (int i = 0; i < argc; i++) {
         mArgv.push_back(argv[i]);
     }
 }
@@ -41,10 +40,9 @@ void cse::ArgManager::LoadArgManager()
  */
 bool cse::ArgManager::Has(std::string argv)
 {
-    for (int i = 0 ; i < mArgc; i++)
-    {
-        if (mArgv[i] == argv)
-        {
+    // Search through each given arg in argv to check if it has the arg value
+    for (int i = 0 ; i < mArgc; i++) {
+        if (mArgv[i] == argv) {
             return true;
         }
     }
@@ -58,23 +56,21 @@ bool cse::ArgManager::Has(std::string argv)
  */
 std::string cse::ArgManager::GetOption(std::string argv)
 {
-    for (int i = 0 ; i < mArgc; i++)
-    {
-        if (mArgv[i] == argv)
-        {
-            if (i + 1 >= mArgc)
-            {
+    // Search through each given arg in argv
+    for (int i = 0 ; i < mArgc; i++) {
+        if (mArgv[i] == argv) {
+            //Check if the arg given is the last argument in the argv list, with no valid string after
+            if (i + 1 >= mArgc) {
                 std::cout << "Invalid output provided for: " << argv << std::endl;
                 return "";
             }
-            else
-            {
+            else {
                 return mArgv[i + 1];
             }
         }
     }
     std::cout << "This arg does not exist: " << argv << std::endl;
-
+    // Return a blank string if no arg has been found
     return "";
 }
 
@@ -88,43 +84,56 @@ std::vector<std::string> cse::ArgManager::GetOptions(std::string argv)
     int count = -1;
     int startingIndex = -1;
     std::vector<std::string> toReturn = {};
-    for (int i = 0 ; i < mArgc; i++)
-    {
-        if (mArgv[i] == argv)
-        {
-            if (i + 1 >= mArgc)
-            {
+
+    // Search through each given arg in argv
+    for (int i = 0 ; i < mArgc; i++) {
+        if (mArgv[i] == argv) {
+            // Check if the argv given is the last argument in the arg list, with no valid string after
+            if (i + 1 >= mArgc) {
                 std::cout << "Invalid output provided for: " << argv << std::endl;
                 return {""};
             }
-            else if (count == -1)
-            {
+            else if (count == -1) {
+                // Check the first value after the arg given, which should be the size of the list
+                
+                // Remember the starting position of the list
                 startingIndex = i + 1;
+
+                // Try and convert the value into an into
                 try {
                     count = std::stoi(mArgv[i + 1]);
                 }
                 catch(const std::exception& caughtError) {
                     std::cerr << "\"" << mArgv[i + 1] << "\" is not an integer" << std::endl;
+
+                    // Return a list with an empty string
                     return {""};
                 }
+
+                // There are not enough arg given after the size provided
                 if (startingIndex + count >= mArgc)
                 {
+                    // Return a list with an empty string
                     std::cout << "Not enough options provided for: " << argv << std::endl;
                     return {""};
                 }
             }
         }
-        else if (i > startingIndex && i <= startingIndex + count)
-        {
+        else if (i > startingIndex && i <= startingIndex + count) {
+            // Add the string to the list
             toReturn.push_back(mArgv[i]);
         }
     }
 
-    if (count == -1)
-    {
+    // If the arg does not exist
+    if (count == -1) {
         std::cout << "This arg does not exist: " << argv << std::endl;
+
+        // Return an empty string
         return {""};
     }
+
+    // Return the list created
     return toReturn;
 }
 
