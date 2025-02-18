@@ -1,7 +1,7 @@
 /**
- * Implementation of the ArgManager class
- * 
- * By Will Crawford
+ * @file ArgManager.cpp
+ * @author By Will Crawford
+ * @brief Implementation of the ArgManager class
  */
 
 #include <iostream>
@@ -9,7 +9,7 @@
 #include "ArgManager.h"
 
 /**
- * Constructor for ArgManager
+ * @brief Constructor for ArgManager
  * @param argc the amount of arguments
  * @param argv the list of arguments
  */
@@ -27,7 +27,7 @@ cse::ArgManager::ArgManager(int argc, char *argv[])
 }
 
 /**
- * Loads in all of the command line options
+ * @brief Loads in all of the command line options
  */
 void cse::ArgManager::LoadArgManager()
 {
@@ -35,7 +35,7 @@ void cse::ArgManager::LoadArgManager()
 }
 
 /**
- * Checks if a string is present in the input arguments
+ * @brief Checks if a string is present in the input arguments
  * @param argv the string to check for
  * @return if the string is present in the input arguments
  */
@@ -52,7 +52,7 @@ bool cse::ArgManager::Has(std::string argv)
 }
 
 /**
- * Find a string and return the next string as the value of the option
+ * @brief Find a string and return the next string as the value of the option
  * @param argv the string to find
  * @return the next string as the value of the option
  */
@@ -79,7 +79,7 @@ std::string cse::ArgManager::GetOption(std::string argv)
 }
 
 /**
- * Find an option, then get the number after it to determine the size of the list, then return the next values in a list as the value of the option
+ * @brief Find an option, then get the number after it to determine the size of the list, then return the next values in a list as the value of the option
  * @param argv the string to find
  * @return the next strings in a list as the value of the option
  */
@@ -129,7 +129,7 @@ std::vector<std::string> cse::ArgManager::GetOptions(std::string argv)
 }
 
 /**
-* Prints help info for ArgManager
+* @brief Prints help info for ArgManager
 */
 void cse::ArgManager::PrintHelp()
 {
@@ -138,6 +138,4 @@ void cse::ArgManager::PrintHelp()
     std::cout << "-h | The help command" << std::endl;
     std::cout << "-o | Gets the string name after it" << std::endl;
     std::cout << "-l | The integer given after determines the list size, every string after it will be added to the list until it reaches capacity" << std::endl;
-
-    //std::cout << "[placeholder]" << std::endl;
 }
