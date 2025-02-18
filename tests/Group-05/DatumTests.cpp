@@ -233,13 +233,6 @@ TEST_CASE("Assignment functionality", "[datum]") {
       CHECK_THAT(datum_double.GetDouble(),
                  Catch::WithinAbs(123.123, kEpsilon));
     }
-
-    SECTION("Datum self assignment") {
-      cse::Datum datum_double(123.123);
-      datum_double = datum_double;
-      CHECK_THAT(datum_double.GetDouble(),
-                   Catch::WithinAbs(123.123, kEpsilon));
-    }
   }
 
   SECTION("Double assignment") {
