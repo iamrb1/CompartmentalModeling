@@ -1,5 +1,5 @@
 # List of folders containing test files
-TEST_FOLDERS = Graph Random GraphPosition
+TEST_FOLDERS = Graph Random GraphPosition Distribution
 
 BUILD_CPP_FILES = ../../Group-01/Graph/Vertex.cpp ../../Group-01/Graph/Graph.cpp
 
