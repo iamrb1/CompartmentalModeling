@@ -1,7 +1,8 @@
 #pragma once
 
-#include <stdexcept>
 #include <string>
+
+#include "CseAssert.hpp"
 
 namespace cse {
 
@@ -20,17 +21,13 @@ class String : public std::string {
 
   char &operator[](std::size_t pos) {
     // Range check only in debug mode
-    if (pos >= size()) {
-      throw std::out_of_range("cse::String index out of range");
-    }
+    dbg_assert(pos < size(), "cse::String index out of range");
     return std::string::operator[](pos);
   }
 
   const char &operator[](std::size_t pos) const {
     // Range check only in debug mode
-    if (pos >= size()) {
-      throw std::out_of_range("cse::String index out of range");
-    }
+    dbg_assert(pos < size(), "cse::String index out of range");
     return std::string::operator[](pos);
   }
 };
