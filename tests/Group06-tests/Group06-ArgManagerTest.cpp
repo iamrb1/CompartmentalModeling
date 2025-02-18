@@ -4,7 +4,7 @@
 #include "../../Group-06/ArgManager/ArgManager.cpp"
 
 TEST_CASE("ArgManager has a command", "[ArgManager]") {
-    char *argVal []= {"--Test"};
+    char *argVal []= {(char *)"--Test"};
     int argC = 1;
     cse::ArgManager argManager(argC, argVal);
 
@@ -22,7 +22,7 @@ TEST_CASE("ArgManager has a command", "[ArgManager]") {
 }
 
 TEST_CASE("ArgManager GetOption", "[ArgManager]") {
-    char *argVal []= {"--TestGetter"};
+    char *argVal []= {(char *)"--TestGetter"};
     int argC = 1;
     cse::ArgManager argManager(argC, argVal);
 
@@ -32,7 +32,7 @@ TEST_CASE("ArgManager GetOption", "[ArgManager]") {
         // command line arguments sent in.
         std::string out_filename="default_output.dat";
         if (argManager.Has("--TestGetter"))
-            out_filename = argManager.GetOption("-TestGetter");
+            out_filename = argManager.GetOption("--TestGetter");
         
         REQUIRE(out_filename != "default_output.dat");
     }
@@ -41,8 +41,83 @@ TEST_CASE("ArgManager GetOption", "[ArgManager]") {
     {
         std::string out_filename="default_output.dat";
         if (argManager.Has("--DoesNotExist")) 
-            out_filename = argManager.GetOption("-DoesNotExist");
+            out_filename = argManager.GetOption("--DoesNotExist");
         
         REQUIRE(out_filename == "default_output.dat");
+    }
+
+    SECTION("Output file does not exist")
+    {
+        std::string out_filename="default_output.dat";
+        if (argManager.Has("--TestGetter")) 
+            out_filename = argManager.GetOption("--TestGetter");
+        
+        REQUIRE(out_filename == "");
+    }
+
+    char *argVal2 []= {(char *)"--TestGetter", (char *)"success.dat"};
+    int argC2 = 2;
+    cse::ArgManager argManager2(argC2, argVal2);
+
+    SECTION("Successfully given output file"); 
+    {
+        // Set a default output filename, then Test if one was specified in the
+        // command line arguments sent in.
+        std::string out_filename="default_output.dat";
+        if (argManager2.Has("--TestGetter"))
+            out_filename = argManager2.GetOption("--TestGetter");
+        
+        REQUIRE(out_filename == "success.dat");
+    }
+}
+
+TEST_CASE("ArgManager GetOptions", "[ArgManager]") {
+    char *argVal [7]= {(char *)"--TestGetters", (char *)"5", (char *)"item1", (char *)"item2", (char *)"item3", (char *)"item4", (char *)"item5"};
+    int argC = 7;
+    cse::ArgManager argManager(argC, argVal);
+
+    SECTION("Successfully given output list"); 
+    {
+        // Set a default output filename, then Test if one was specified in the
+        // command line arguments sent in.
+        std::vector<std::string> out_list= {"default_list"};
+        if (argManager.Has("--TestGetters"))
+        out_list = argManager.GetOptions("--TestGetters");
+
+        std::vector<std::string> correctOutput = { "item1", "item2", "item3", "item4", "item5"};
+        REQUIRE(correctOutput.size() == out_list.size());
+
+        REQUIRE(out_list[0] == correctOutput[0]);
+        REQUIRE(out_list[1] == correctOutput[1]);
+        REQUIRE(out_list[2] == correctOutput[2]);
+        REQUIRE(out_list[3] == correctOutput[3]);
+        REQUIRE(out_list[4] == correctOutput[4]);
+    }
+
+    SECTION("Option does not exist")
+    {
+        std::vector<std::string> out_list = {"default_list"};
+        if (argManager.Has("--DoesNotExist")) 
+        out_list = argManager.GetOptions("--oesNotExist");
+        
+        REQUIRE((int)out_list.size() == 1);
+        REQUIRE(out_list[0] == "default_list");
+    }
+
+    char *argVal2 []= {(char *)"--TestGetters", (char *)"7", (char *)"item1", (char *)"item2", (char *)"item3", (char *)"item4", (char *)"item5"};
+    int argC2 = 7;
+    cse::ArgManager argManager2(argC2, argVal2);
+
+    SECTION("Not enough strings given for the size"); 
+    {
+        // Set a default output filename, then Test if one was specified in the
+        // command line arguments sent in.
+        std::vector<std::string> out_list= {"default_list"};
+        if (argManager2.Has("--TestGetters"))
+        out_list = argManager2.GetOptions("--TestGetters");
+
+        std::vector<std::string> correctOutput = { "item1", "item2", "item3", "item4", "item5"};
+        REQUIRE(correctOutput.size() != out_list.size());
+        REQUIRE(out_list[0] == "");
     }
 }

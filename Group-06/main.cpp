@@ -216,6 +216,25 @@ void runArgManager(int argc, char* argv[]) {
     std::string out_filename="default_output.dat";
     if (args.Has("-o")) out_filename = args.GetOption("-o");
 
+    std::cout << "File Name sent out: " << out_filename << "\n";
+
+    std::vector<std::string> out_list = {"Default list"};
+    if (args.Has("-l")) out_list = args.GetOptions("-l");
+    for (int i = 0 ; i < (int)out_list.size(); i++)
+    {
+        if (i == 0)
+        {
+            std::cout << "List: ";
+        }
+        std::cout << out_list[i];
+        if (i < (int)out_list.size() - 1)
+        {
+            std::cout << ", ";
+        }
+        else{
+            std::cout << "\n";
+        }
+    }
 
     cse::ArgManager manager(argc, argv);
     std::cout << "Did you pass an argument 'cat' when running executable?: ";

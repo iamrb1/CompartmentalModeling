@@ -19,10 +19,10 @@ cse::ArgManager::ArgManager(int argc, char *argv[])
     LoadArgManager();
 
     //pass argc and argv
-    _argc = argc;
+    mArgc = argc;
     for (int i = 0; i < argc; i++)
     {
-        _argv.push_back(argv[i]);
+        mArgv.push_back(argv[i]);
     }
 }
 
@@ -41,9 +41,9 @@ void cse::ArgManager::LoadArgManager()
  */
 bool cse::ArgManager::Has(std::string argv)
 {
-    for (int i = 0 ; i < _argc; i++)
+    for (int i = 0 ; i < mArgc; i++)
     {
-        if (_argv[i] == argv)
+        if (mArgv[i] == argv)
         {
             return true;
         }
@@ -58,14 +58,74 @@ bool cse::ArgManager::Has(std::string argv)
  */
 std::string cse::ArgManager::GetOption(std::string argv)
 {
-    for (int i = 0 ; i < _argc; i++)
+    for (int i = 0 ; i < mArgc; i++)
     {
-        if (_argv[i] == argv)
+        if (mArgv[i] == argv)
         {
-            return _argv[i + 1];
+            if (i + 1 >= mArgc)
+            {
+                std::cout << "Invalid output provided for: " << argv << std::endl;
+                return "";
+            }
+            else
+            {
+                return mArgv[i + 1];
+            }
         }
     }
+    std::cout << "This arg does not exist: " << argv << std::endl;
+
     return "";
+}
+
+/**
+ * Find an option, then get the number after it to determine the size of the list, then return the next values in a list as the value of the option
+ * @param argv the string to find
+ * @return the next strings in a list as the value of the option
+ */
+std::vector<std::string> cse::ArgManager::GetOptions(std::string argv)
+{
+    int count = -1;
+    int startingIndex = -1;
+    std::vector<std::string> toReturn = {};
+    for (int i = 0 ; i < mArgc; i++)
+    {
+        if (mArgv[i] == argv)
+        {
+            if (i + 1 >= mArgc)
+            {
+                std::cout << "Invalid output provided for: " << argv << std::endl;
+                return {""};
+            }
+            else if (count == -1)
+            {
+                startingIndex = i + 1;
+                try {
+                    count = std::stoi(mArgv[i + 1]);
+                }
+                catch(const std::exception& caughtError) {
+                    std::cerr << "\"" << mArgv[i + 1] << "\" is not an integer" << std::endl;
+                    return {""};
+                }
+                if (startingIndex + count >= mArgc)
+                {
+                    std::cout << "Not enough options provided for: " << argv << std::endl;
+                    return {""};
+                }
+            }
+        }
+        else if (i > startingIndex && i <= startingIndex + count)
+        {
+            toReturn.push_back(mArgv[i]);
+        }
+    }
+
+    if (count == -1)
+    {
+        std::cout << "This arg does not exist: " << argv << std::endl;
+        return {""};
+    }
+    return toReturn;
 }
 
 /**
@@ -75,5 +135,9 @@ void cse::ArgManager::PrintHelp()
 {
     std::cout << "--help has been triggered\n";
     std::cout << "arguments available:\n";
-    std::cout << "[placeholder]" << std::endl;
+    std::cout << "-h | The help command" << std::endl;
+    std::cout << "-o | Gets the string name after it" << std::endl;
+    std::cout << "-l | The integer given after determines the list size, every string after it will be added to the list until it reaches capacity" << std::endl;
+
+    //std::cout << "[placeholder]" << std::endl;
 }
