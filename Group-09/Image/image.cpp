@@ -12,6 +12,13 @@
 #include <emscripten.h>
 
 namespace cse {
+void Alert(const std::string& msg) {
+  EM_ASM({
+    var msg = UTF8ToString($0);
+    alert(msg);
+  }, msg.c_str());
+}
+
 /**
  * @brief Validates whether URL starts with http or https
  *
@@ -33,10 +40,8 @@ bool validateURL(const std::string& url) {
  */
 Image::Image(const std::string& url, int width, int height, const std::string& altText)
     : url(url), width(width), height(height), altText(altText) {
-  assert(!url.empty() && "URL must not be empty");
-  assert(width > 0 && height > 0 && "Width and height must be positive integers");
-  width = -100;
-  assert(width >0);
+  em_assert(!url.empty() && "URL must not be empty");
+  em_assert(width > 0 && height > 0 && "Width and height must be positive integers");
 
   if (!validateURL(url)) {
     throw std::invalid_argument("Invalid URL: Must start with http:// or https://");
@@ -53,7 +58,7 @@ Image::Image(const std::string& url, int width, int height, const std::string& a
  * @throws std::invalid_argument If the URL is invalid
  */
 void Image::setURL(const std::string& newURL) {
-  assert(!newURL.empty() && "New URL must not be empty");
+  em_assert(!newURL.empty() && "New URL must not be empty");
   if (!validateURL(newURL)) {
     throw std::invalid_argument("Invalid URL: Must start with http:// or https://");
   }
@@ -70,7 +75,6 @@ void Image::setURL(const std::string& newURL) {
  */
 void Image::resize(int newWidth, int newHeight, bool maintainAspect) {
 
-  assert(newWidth > 0 && newHeight > 0 && "Must be positive integers");
   if (newWidth <= 0 || newHeight <= 0) {
     throw std::invalid_argument("Invalid dimensions: Width and height must be positive.");
   }
@@ -118,7 +122,13 @@ std::string Image::generateJS() const {
 }
 
 /**
- * @brief Preview of the image details for debugging
+ * @brief Logs a preview of the image details for debugging purposes.
+ *
+ * This function prints image attributes such as URL, dimensions, and alt text,
+ * along with the generated HTML and JavaScript, to the browser console.
+ *
+ * Uses emscripten_log to output messages to the browser console when running in
+ * a WebAssembly environment.
  */
 void Image::preview() const {
   std::ostringstream output;
@@ -132,16 +142,26 @@ void Image::preview() const {
   emscripten_log(EM_LOG_CONSOLE, "%s", output.str().c_str());
 }
 
+/**
+ * @brief Injects the image into the HTML document using JavaScript
+ *
+ * This function creates an `<img>` element in the DOM with the image's URL, width, height,
+ * and alt text. It is executed using Emscripten's `EM_ASM_` macro to interact with
+ * JavaScript from C++
+ *
+ * The image is appended to the document body
+ */
+
+void Image::injectJS() const {
+    EM_ASM_({
+        var img = document.createElement('img');
+        img.src = UTF8ToString($0);
+        img.width = $1;
+        img.height = $2;
+        img.alt = UTF8ToString($3);
+        document.body.appendChild(img);
+    }, url.c_str(), width, height, altText.c_str());
+}
+
 
 }
-/**
- * @brief Main function that initializes image injection via JS using Emscripten
- */
-//int main() {
-//    EM_ASM({
-//        InjectImage = Module.cwrap('InjectImage', null, ['string', 'number', 'number', 'string']);
-//        InjectImage("https://cse498.github.io/assets/img/logo.png", 400, 300, "JavaScript Logo");
-//    });
-//
-//    return 0;
-//}

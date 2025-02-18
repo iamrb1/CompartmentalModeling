@@ -8,6 +8,7 @@
 
 #include <string>
 #include <emscripten.h>
+#include <cstdlib>
 
 namespace cse {
 /**
@@ -42,8 +43,26 @@ class Image {
   int width;
   int height;
   std::string altText;
-    // bool validateURL(const std::string& url) const;
+  // bool validateURL(const std::string& url) const;
 
 };
+
+void Alert(const std::string& msg);
+
+#ifdef NDEBUG
+  #define em_assert(...)
+#else
+  #define em_assert(condition)                            \
+    do {                                                  \
+      if (!(condition)) {                                 \
+        std::string msg = "Assertion failed: " #condition \
+          "\nFile: " __FILE__ "\nLine: ";                 \
+        msg += std::to_string(__LINE__);                  \
+        Alert(msg);                                       \
+        std::abort();                                     \
+      }                                                   \
+    } while (0)
+#endif
+
 
 }
