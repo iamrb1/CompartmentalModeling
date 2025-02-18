@@ -1,11 +1,11 @@
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 
-#include "../../Group-05/src/Parser.cpp"
-#include "../../Group-05/src/Parser.h"
+#include "../../Group-05/src/ExpressionParser.cpp"
+#include "../../Group-05/src/ExpressionParser.h"
 #include <map>
 
 TEST_CASE("Parser Evaluations", "[parser]") {
-  Parser parser;
+  cse::ExpressionParser parser;
   std::map<std::string, double> symbolTable;
   symbolTable["val1"]=-2;
   symbolTable["val2"]=2;
