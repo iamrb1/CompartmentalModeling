@@ -96,3 +96,48 @@ TEST_CASE("Testing if find_moves finds correct valid moves for agent")
 
   }
 }
+
+TEST_CASE("Testing if define_state returns correct properties")
+{
+    cse::StateGrid grid ("test");
+
+    SECTION("Testing Name Property")
+    {
+        REQUIRE(grid.define_state(grid.get_state(0,0))[0] == "Wall" );
+
+        REQUIRE(grid.define_state(grid.get_state(1,2))[0] == "Player" );
+
+        REQUIRE(grid.define_state(grid.get_state(1,1))[0] == "EmptySpace" );
+
+        REQUIRE(grid.define_state(grid.get_state(2,2))[0] == "Enemy" );
+
+        REQUIRE(grid.define_state(grid.get_state(4,1))[0] == "Exit" );
+    }
+
+    SECTION("Testing Open/Closed Property")
+    {
+        REQUIRE(grid.define_state(grid.get_state(0,0))[1] == "Closed" );
+
+        REQUIRE(grid.define_state(grid.get_state(1,2))[1] == "Closed" );
+
+        REQUIRE(grid.define_state(grid.get_state(1,1))[1] == "Open" );
+
+        REQUIRE(grid.define_state(grid.get_state(2,2))[1] == "Open" );
+
+        REQUIRE(grid.define_state(grid.get_state(4,1))[1] == "Open" );
+    }
+
+    SECTION("Testing after a set_state()")
+    {
+        REQUIRE(grid.define_state(grid.get_state(3,2))[1] == "Open" );
+        REQUIRE(grid.define_state(grid.get_state(3,2))[0] == "EmptySpace" );
+        REQUIRE(grid.define_state(grid.get_state(2,2))[0] == "Enemy");
+
+        grid.set_state({2,2},{1,2});
+        grid.set_state({3,2},{2,2});
+
+        REQUIRE(grid.define_state(grid.get_state(2,2))[0] == "EmptySpace" );
+        REQUIRE(grid.define_state(grid.get_state(3,2))[0] == "Player" );
+        REQUIRE(grid.define_state(grid.get_state(3,2))[1] == "Closed" );
+    }
+}
