@@ -1,3 +1,9 @@
+/**
+ * @file CseString.h
+ * @author Krishna (Krish)
+ *
+ */
+
 #pragma once
 
 #include <stdexcept>
