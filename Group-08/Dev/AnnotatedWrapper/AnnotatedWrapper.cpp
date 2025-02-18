@@ -14,7 +14,7 @@ void AnnotatedWrapper::addAnnotation(const std::string& key, const std::string& 
  * @param key The key to look for.
  * @return The value associated with the key, or an empty string if not found.
  */
-std::string AnnotatedWrapper::getAnnotation(const std::string& key) {
+std::string AnnotatedWrapper::getAnnotation(const std::string key) {
     return annotations.at(key);
 }
 
@@ -22,14 +22,14 @@ std::string AnnotatedWrapper::getAnnotation(const std::string& key) {
  * @brief Removes an annotation by key.
  * @param key The key to remove.
  */
-void AnnotatedWrapper::removeAnnotation(const std::string& key) {
+void AnnotatedWrapper::removeAnnotation(const std::string key) {
     annotations.erase(key);
 }
 
 /**
  * @brief Lists all stored annotations.
  */
-void AnnotatedWrapper::listAnnotations() const {
+void AnnotatedWrapper::listAnnotations() {
     if (annotations.empty()) {
         std::cout << "No annotations available." << std::endl;
         return;
