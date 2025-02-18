@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <stdexcept>
 
-void cse498::WeightedSet::Add(size_t id, double weight) {
+void cse::WeightedSet::Add(size_t id, double weight) {
     if (weight < 0) {
         throw std::invalid_argument("Weight must be a positive value");
     }
@@ -10,7 +10,7 @@ void cse498::WeightedSet::Add(size_t id, double weight) {
     weights.push_back(weight);
 }
 
-void cse498::WeightedSet::Remove(size_t id) {
+void cse::WeightedSet::Remove(size_t id) {
     auto it = std::find(ids.begin(), ids.end(), id);
     if (it == ids.end()) {
         throw std::invalid_argument("ID does not exist");
@@ -20,7 +20,7 @@ void cse498::WeightedSet::Remove(size_t id) {
     weights.erase(weights.begin() + i);
 }
 
-double cse498::WeightedSet::TotalWeight() {
+double cse::WeightedSet::TotalWeight() {
     double total = 0;
     for (double weight : weights) {
         total += weight;
@@ -28,7 +28,7 @@ double cse498::WeightedSet::TotalWeight() {
     return total;
 }
 
-double cse498::WeightedSet::Weight(size_t id) {
+double cse::WeightedSet::Weight(size_t id) {
     auto it = std::find(ids.begin(), ids.end(), id);
     if (it == ids.end()) {
         throw std::invalid_argument("ID does not exist");
@@ -36,7 +36,7 @@ double cse498::WeightedSet::Weight(size_t id) {
     return weights[std::distance(ids.begin(), it)];
 }
 
-size_t cse498::WeightedSet::At(double position) {
+size_t cse::WeightedSet::At(double position) {
     if (position < 0 || position > TotalWeight()) {
         throw std::invalid_argument("Invalid position");
     }

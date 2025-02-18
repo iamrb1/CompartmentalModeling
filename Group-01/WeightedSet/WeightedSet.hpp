@@ -2,7 +2,7 @@
 
 #include <vector>
 
-namespace cse498 {
+namespace cse {
     class WeightedSet {
     private:
         std::vector<size_t> ids;
