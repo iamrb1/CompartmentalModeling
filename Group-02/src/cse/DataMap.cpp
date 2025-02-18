@@ -22,7 +22,7 @@ namespace cse {
 * @param name std::string name to be found
 * @return bool if key exists or not
 */
-bool DataMap::contains(const std::string& name) const{
+bool DataMap::contains(const std::string& name) const {
   if (m_map.find(name) == m_map.end()) {
     return false;
   }
