@@ -1,6 +1,6 @@
 #include "ErrorManager/ErrorManager.cpp"
 #include "StaticString/StaticString.hpp"
-#include "StringSet/StringSet.h"
+#include "StringSet/StringSet.hpp"
 #include "CommandLine/CommandLine.cpp"
 #include "ArgManager/ArgManager.h"
 #include <iostream>

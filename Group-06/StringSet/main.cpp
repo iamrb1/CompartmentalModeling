@@ -1,4 +1,4 @@
-#include "StringSet.h"
+#include "StringSet.hpp"
 #include <iostream>
 
 int main() {
