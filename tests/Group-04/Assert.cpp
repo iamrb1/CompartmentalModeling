@@ -1,6 +1,6 @@
 #include "catch.hpp"
 
-#define _cse_ASSERT_TEST
+#define TEST_CSE_ASSERT
 #include "CseAssert.hpp"
 
 #define REQUIRE_ASSERT(...)                                                    \
@@ -22,6 +22,21 @@ TEST_CASE("Test basic assert functionality", "[assert]") {
   REQUIRE_NOASSERT(cse_assert(std::is_same_v<int, int>, "hello world"));
   REQUIRE_ASSERT(cse_assert(std::is_same_v<int, double>));
   REQUIRE_ASSERT(cse_assert(std::is_same_v<int, double>, "hello world"));
+}
+
+TEST_CASE("Test assert never", "[assert]") {
+  REQUIRE_ASSERT(cse_assert_never());
+  REQUIRE_ASSERT(cse_assert_never("hello world"));
+}
+
+TEST_CASE("Test assert equal", "[assert]") {
+  // basic assert_eq (printable)
+  REQUIRE_ASSERT(cse_assert_eq(1, 2));
+  REQUIRE_NOASSERT(cse_assert_eq(1, 1));
+
+  // basic assert_eq (non-printable)
+  REQUIRE_ASSERT(cse_assert_eq(std::vector<int>{0}, std::vector<int>{1}));
+  REQUIRE_NOASSERT(cse_assert_eq(std::vector<int>{0}, std::vector<int>{0}));
 }
 
 TEST_CASE("Test debug asserts", "[assert]") {

@@ -295,5 +295,16 @@ TEST_CASE("Test bitwise NOT", "[bitvector]") {
   CHECK(bc1 == ~bv1);
   bv1.flip();
   CHECK(bc1 == bv1);
+
+  cse::BitVector bv2(21), bc2(21);
+  bv2.pattern_set(0, 21, std::byte{0b01101011});
+  bc2 = bv2;
+
+  bv2.flip(6, 13);
+  for(size_t i = 6; i < 19; i++) {
+    bc2.flip(i);
+  }
+
+  CHECK(bv2 == bc2);
 }
 
