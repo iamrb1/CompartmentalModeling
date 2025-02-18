@@ -1,6 +1,13 @@
 /**
  * @file Serializer.h
+ * @brief A collection of serialization/deserialization functions for common C++ types and containers.
+ *
+ * This file defines the `cse::Serializer` class, which can operate in SAVE or LOAD mode to
+ * serialize (write) or deserialize (read) data to/from binary files. It supports primitive types,
+ * `std::string`, and many standard containers (e.g., `std::vector`, `std::map`, `std::queue`, etc.).
+ *
  * @author tdkduong
+ * ChatGPT Assistance: Documentation (17 Feb 2025)
  */
 
 #ifndef CSE_SERIALIZER_H
@@ -24,30 +31,81 @@
 
 namespace cse
 {
-    // The mode in which the serializer operates.
+    /**
+     * @enum Mode
+     * @brief Specifies whether the Serializer is in SAVE mode or LOAD mode.
+     */
     enum class Mode
     {
-        SAVE,
-        LOAD
+        SAVE, ///< Serializer writes data to file.
+        LOAD  ///< Serializer reads data from file.
     };
+
+    /**
+     * @class Serializer
+     * @brief A utility class for serializing and deserializing various data types to/from binary files.
+     *
+     * The Serializer can be toggled between SAVE and LOAD modes. In SAVE mode, data will be written
+     * to the specified file in a binary format; in LOAD mode, data will be read from the file and
+     * stored in the provided variables or containers.
+     */
     class Serializer
     {
     private:
-        Mode mode_;
+        Mode mode_; ///< Current operating mode (SAVE or LOAD).
 
     public:
-        // Constructor
-        explicit Serializer() { mode_ = cse::Mode::SAVE; } // Set mode_ to SAVE by default
+        /**
+         * @brief Default constructor that initializes the serializer in SAVE mode.
+         */
+        explicit Serializer()
+        {
+            mode_ = cse::Mode::SAVE;
+        }
+
+        /**
+         * @brief Constructor that initializes the serializer with the specified mode.
+         * @param mode The desired operating mode (SAVE or LOAD).
+         */
         explicit Serializer(Mode mode) : mode_(mode) {}
+
+        /**
+         * @brief Default destructor.
+         */
         ~Serializer() = default;
-        // Checking current mode
+
+        /**
+         * @brief Retrieves the current operating mode of the serializer.
+         * @return The current mode (SAVE or LOAD).
+         */
         Mode GetMode()
         {
             return mode_;
         }
-        bool IsSave() { return (mode_ == cse::Mode::SAVE); }
-        bool IsLoad() { return (mode_ == cse::Mode::LOAD); }
-        // Swapping Mode
+
+        /**
+         * @brief Checks if the serializer is in SAVE mode.
+         * @return True if SAVE mode, otherwise false.
+         */
+        bool IsSave()
+        {
+            return (mode_ == cse::Mode::SAVE);
+        }
+
+        /**
+         * @brief Checks if the serializer is in LOAD mode.
+         * @return True if LOAD mode, otherwise false.
+         */
+        bool IsLoad()
+        {
+            return (mode_ == cse::Mode::LOAD);
+        }
+
+        /**
+         * @brief Swaps the current mode between SAVE and LOAD.
+         *
+         * If the mode is SAVE, it becomes LOAD, and vice versa.
+         */
         void SwapMode()
         {
             if (mode_ == cse::Mode::SAVE)
@@ -55,7 +113,16 @@ namespace cse
             else if (mode_ == cse::Mode::LOAD)
                 mode_ = cse::Mode::SAVE;
         }
-        // Generic Serialize and Deserialze method for simple types
+
+        /**
+         * @brief Serializes or deserializes an arithmetic type (e.g., int, float, double) to/from a binary file.
+         * @tparam T An arithmetic type (integral or floating-point).
+         * @param data Reference to the variable to write or read.
+         * @param filename Path to the binary file.
+         *
+         * In SAVE mode, writes the contents of `data` to the file.
+         * In LOAD mode, reads from the file into `data`.
+         */
         template <typename T, typename std::enable_if_t<std::is_arithmetic_v<T>, int> = 0>
         void Serialize(T &data, const std::string &filename)
         {
@@ -81,7 +148,14 @@ namespace cse
             }
         }
 
-        // Serialize std::string
+        /**
+         * @brief Serializes or deserializes a `std::string` to/from a binary file.
+         * @param data Reference to the string to write or read.
+         * @param filename Path to the binary file.
+         *
+         * In SAVE mode, writes the size of the string followed by the characters.
+         * In LOAD mode, reads the size and then resizes the string before reading its contents.
+         */
         void Serialize(std::string &data, const std::string &filename)
         {
             if (mode_ == Mode::SAVE)
@@ -111,7 +185,12 @@ namespace cse
             }
         }
 
-        // Serialize std::vector
+        /**
+         * @brief Serializes or deserializes a `std::vector` of any type to/from a binary file.
+         * @tparam T The type of elements stored in the vector.
+         * @param vec Reference to the vector to write or read.
+         * @param filename Path to the binary file.
+         */
         template <typename T>
         void Serialize(std::vector<T> &vec, const std::string &filename)
         {
@@ -142,7 +221,13 @@ namespace cse
             }
         }
 
-        // Serialize std::array<T, N>
+        /**
+         * @brief Serializes or deserializes a `std::array` of fixed size to/from a binary file.
+         * @tparam T The type of elements stored in the array.
+         * @tparam N The size of the array.
+         * @param arr Reference to the array to write or read.
+         * @param filename Path to the binary file.
+         */
         template <typename T, std::size_t N>
         void Serialize(std::array<T, N> &arr, const std::string &filename)
         {
@@ -168,7 +253,12 @@ namespace cse
             }
         }
 
-        // Serialize std::set<T>
+        /**
+         * @brief Serializes or deserializes a `std::set` of elements to/from a binary file.
+         * @tparam T The type of elements in the set.
+         * @param set Reference to the set to write or read.
+         * @param filename Path to the binary file.
+         */
         template <typename T>
         void Serialize(std::set<T> &set, const std::string &filename)
         {
@@ -217,7 +307,12 @@ namespace cse
             }
         }
 
-        // Serialize std::unordered_set<T>
+        /**
+         * @brief Serializes or deserializes a `std::unordered_set` of elements to/from a binary file.
+         * @tparam T The type of elements in the unordered_set.
+         * @param uset Reference to the unordered_set to write or read.
+         * @param filename Path to the binary file.
+         */
         template <typename T>
         void Serialize(std::unordered_set<T> &uset, const std::string &filename)
         {
@@ -266,7 +361,12 @@ namespace cse
             }
         }
 
-        // Serialize std::multiset<T>
+        /**
+         * @brief Serializes or deserializes a `std::multiset` of elements to/from a binary file.
+         * @tparam T The type of elements in the multiset.
+         * @param mset Reference to the multiset to write or read.
+         * @param filename Path to the binary file.
+         */
         template <typename T>
         void Serialize(std::multiset<T> &mset, const std::string &filename)
         {
@@ -315,7 +415,12 @@ namespace cse
             }
         }
 
-        // Serialize std::unordered_multiset<T>
+        /**
+         * @brief Serializes or deserializes a `std::unordered_multiset` of elements to/from a binary file.
+         * @tparam T The type of elements in the unordered_multiset.
+         * @param umset Reference to the unordered_multiset to write or read.
+         * @param filename Path to the binary file.
+         */
         template <typename T>
         void Serialize(std::unordered_multiset<T> &umset, const std::string &filename)
         {
@@ -364,7 +469,13 @@ namespace cse
             }
         }
 
-        // Serialize std::map
+        /**
+         * @brief Serializes or deserializes a `std::map` (key-value pairs) to/from a binary file.
+         * @tparam K The key type.
+         * @tparam V The value type.
+         * @param map Reference to the map to write or read.
+         * @param filename Path to the binary file.
+         */
         template <typename K, typename V>
         void Serialize(std::map<K, V> &map, const std::string &filename)
         {
@@ -413,7 +524,13 @@ namespace cse
             }
         }
 
-        // Serialize std::unordered_map
+        /**
+         * @brief Serializes or deserializes a `std::unordered_map` (key-value pairs) to/from a binary file.
+         * @tparam K The key type.
+         * @tparam V The value type.
+         * @param umap Reference to the unordered_map to write or read.
+         * @param filename Path to the binary file.
+         */
         template <typename K, typename V>
         void Serialize(std::unordered_map<K, V> &umap, const std::string &filename)
         {
@@ -462,7 +579,13 @@ namespace cse
             }
         }
 
-        // Serialize std::multimap
+        /**
+         * @brief Serializes or deserializes a `std::multimap` (key-value pairs) to/from a binary file.
+         * @tparam K The key type.
+         * @tparam V The value type.
+         * @param mmap Reference to the multimap to write or read.
+         * @param filename Path to the binary file.
+         */
         template <typename K, typename V>
         void Serialize(std::multimap<K, V> &mmap, const std::string &filename)
         {
@@ -511,7 +634,13 @@ namespace cse
             }
         }
 
-        // Serialize std::unordered_multimap
+        /**
+         * @brief Serializes or deserializes a `std::unordered_multimap` (key-value pairs) to/from a binary file.
+         * @tparam K The key type.
+         * @tparam V The value type.
+         * @param ummap Reference to the unordered_multimap to write or read.
+         * @param filename Path to the binary file.
+         */
         template <typename K, typename V>
         void Serialize(std::unordered_multimap<K, V> &ummap, const std::string &filename)
         {
@@ -560,7 +689,16 @@ namespace cse
             }
         }
 
-        // Serialize stack
+        /**
+         * @brief Serializes or deserializes a `std::stack` to/from a binary file.
+         * @tparam T The type of elements in the stack.
+         * @param stk Reference to the stack to write or read.
+         * @param filename Path to the binary file.
+         *
+         * In SAVE mode, this method extracts all elements into a temporary vector (top to bottom)
+         * and writes them. In LOAD mode, the elements are read into a vector and then pushed
+         * onto the stack in reverse order to restore the original stack order.
+         */
         template <typename T>
         void Serialize(std::stack<T> &stk, const std::string &filename)
         {
@@ -608,7 +746,12 @@ namespace cse
             }
         }
 
-        // // Serialize queue
+        /**
+         * @brief Serializes or deserializes a `std::queue` to/from a binary file.
+         * @tparam T The type of elements in the queue.
+         * @param q Reference to the queue to write or read.
+         * @param filename Path to the binary file.
+         */
         template <typename T>
         void Serialize(std::queue<T> &q, const std::string &filename)
         {
@@ -658,7 +801,12 @@ namespace cse
             }
         }
 
-        // Serialize priority_queue
+        /**
+         * @brief Serializes or deserializes a `std::priority_queue` to/from a binary file.
+         * @tparam T The type of elements in the priority_queue.
+         * @param pq Reference to the priority_queue to write or read.
+         * @param filename Path to the binary file.
+         */
         template <typename T>
         void Serialize(std::priority_queue<T> &pq, const std::string &filename)
         {
@@ -703,7 +851,12 @@ namespace cse
             }
         }
 
-        // Serialize Deque
+        /**
+         * @brief Serializes or deserializes a `std::deque` to/from a binary file.
+         * @tparam T The type of elements in the deque.
+         * @param deq Reference to the deque to write or read.
+         * @param filename Path to the binary file.
+         */
         template <typename T>
         void Serialize(std::deque<T> &deq, const std::string &filename)
         {
@@ -750,7 +903,15 @@ namespace cse
             }
         }
 
-        // Specialized function for serializing user-defined classes/structs (Currently not in use)
+        /**
+         * @brief Specialized function for serializing custom user-defined classes/structs.
+         * @tparam T A user-defined class or struct that implements a `Serialize` member function.
+         * @param obj Reference to the object to write or read.
+         * @param filename Path to the binary file.
+         *
+         * This function calls `obj.Serialize(*this, filename);`.
+         * Your custom class must define its own `Serialize(Serializer&, const std::string&)` method.
+         */
         template <typename T, typename std::enable_if_t<std::is_class_v<T> && !std::is_same_v<T, std::string>, int> = 0>
         void Serialize(T &obj, const std::string &filename)
         {
