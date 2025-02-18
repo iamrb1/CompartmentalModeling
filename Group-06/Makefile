@@ -2,7 +2,7 @@
 # The following resource has been used to generate Makefile: https://www.nicomedes.assistedcoding.eu/app/makefilegen/c
 OBJS	= ArgManager/ArgManager.o CommandLine/CommandLine.o StringSet/StringSet.o ErrorManager/ErrorManager.o main.o
 SOURCE	= ArgManager/ArgManager.cpp CommandLine/CommandLine.cpp StringSet/StringSet.cpp ErrorManager.cpp main.cpp
-HEADER	= ArgManager/ArgManager.h Statis_String/StaticString.hpp StringSet/StringSet.h
+HEADER	= ArgManager/ArgManager.h Static_String/StaticString.hpp StringSet/StringSet.hpp
 OUT	= Lamport.exe
 FLAGS	= -std=c++23 -g -c -Wall -Wextra
 LFLAGS	= 

@@ -1,4 +1,15 @@
-#pragma once
+/**
+ * @file ErrorManager.cpp
+ * @author Ivan Bega
+ * @brief 
+ * @version 0.1
+ * @date 2025-02-17
+ * 
+ */
+
+#ifndef CSE_ERROR_MANAGER_CPP_
+#define CSE_ERROR_MANAGER_CPP_
+
 #include <cassert>
 #include <cstdint>
 #include <cstdlib>
@@ -255,3 +266,5 @@ class ErrorManager {
   }
 };
 }  // namespace cse
+
+#endif  // CSE_ERROR_MANAGER_CPP_
