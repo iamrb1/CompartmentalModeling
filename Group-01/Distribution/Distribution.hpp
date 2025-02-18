@@ -1,16 +1,16 @@
 #pragma once
 
+#include <cmath>
+#include <stdexcept>
 #include <string>
 #include <vector>
-#include <stdexcept>
-#include <cmath>
 
 namespace cse {
 
   class Distribution {
   private:
     std::vector<double> probs;
-    std::vector<double> cumulative_probs;
+    std::vector<double> cumulativeProbs;
     const double noChance = 0.0;
 
   public:
@@ -23,77 +23,73 @@ namespace cse {
     void BuildPowerLaw(int);
   };
 
-
-void Distribution::BuildBinomial(int trials, double prob){
-    if(trials < 1){
-        throw std::runtime_error("Must have at least 1 datapoint");
+  // Fills the probs and cumulativeProbs vectors with binomial probabilities
+  void Distribution::BuildBinomial(int trials, double prob) {
+    if (trials < 1) {
+      throw std::runtime_error("Must have at least 1 datapoint");
     }
-    if(prob > 1.0 || prob < 0.0){
-        throw std::out_of_range("Probability not expessed as a decimal.");
+    if (prob > 1.0 || prob < 0.0) {
+      throw std::out_of_range("Probability not expessed as a decimal.");
     }
-    cumulative_probs.resize(trials);
+    cumulativeProbs.resize(trials);
     probs.resize(trials);
-    for(int i = 0; i < trials; i++){
-        probs[i] = std::tgamma(trials+1.0)/(std::tgamma(i+1.0)*std::tgamma(trials-i+1.0))*std::pow(prob,i)*std::pow((1.0-prob),trials-i);
-        
-        if (i>0){
-            cumulative_probs[i] = cumulative_probs[i-1] + probs[i];
-        }
-        else if (i==0){
-            cumulative_probs[i] = probs[i];
-        }
+    for (int i = 0; i < trials; i++) {
+      // The formula for binomial probability
+      probs[i] = std::tgamma(trials + 1.0) / (std::tgamma(i + 1.0) * std::tgamma(trials - i + 1.0)) *
+                 std::pow(prob, i) * std::pow((1.0 - prob), trials - i);
+      if (i > 0) {
+        cumulativeProbs[i] = cumulativeProbs[i - 1] + probs[i];
+      } else if (i == 0) {
+        cumulativeProbs[i] = probs[i];
+      }
     }
-}
-
-void Distribution::BuildUniform(int trials){
-    if(trials < 1){
-        throw std::runtime_error("Must have at least 1 datapoint");
+  }
+  // Fills the probs and cumulativeProbs vectors with uniform probabilities
+  void Distribution::BuildUniform(int trials) {
+    if (trials < 1) {
+      throw std::runtime_error("Must have at least 1 datapoint");
     }
-    double odds = 1.0/trials;
+    double odds = 1.0 / trials;
     probs.assign(trials, odds);
-    cumulative_probs.resize(trials);
-    cumulative_probs[0] = noChance;
-    for(int i = 1; i < trials; i++){
-        cumulative_probs[i] = cumulative_probs[i-1] + odds;
+    cumulativeProbs.resize(trials);
+    cumulativeProbs[0] = noChance;
+    for (int i = 1; i < trials; i++) {
+      cumulativeProbs[i] = cumulativeProbs[i - 1] + odds;
     }
-}
+  }
 
-void Distribution::BuildNormal([[maybe_unused]] int trials){
-    
-}
+  // Future dsitribution likely to be added
+  void Distribution::BuildNormal([[maybe_unused]] int trials) {}
 
-void Distribution::BuildPoisson([[maybe_unused]] int trials){
-    
-}
+  void Distribution::BuildPoisson([[maybe_unused]] int trials) {}
 
-void Distribution::BuildPowerLaw([[maybe_unused]] int trials){
-    
-}
+  void Distribution::BuildPowerLaw([[maybe_unused]] int trials) {}
 
-double Distribution::getProb(int trials){
-    if(trials < 0){
-        throw std::out_of_range("Must have at least 1 trial");
+  // Getters
+  double Distribution::getProb(int trials) {
+    if (trials < 0) {
+      throw std::out_of_range("Must have at least 1 trial");
     }
-    if(probs.empty()){
-        throw std::runtime_error("You have not built a distrubtion");
+    if (probs.empty()) {
+      throw std::runtime_error("You have not built a distrubtion");
     }
-    if(trials >= static_cast<int>(probs.size())){
-        return noChance;
+    if (trials >= static_cast<int>(probs.size())) {
+      return noChance;
     }
     return probs[trials];
-}
+  }
 
-double Distribution::getCumulativeProb(int trials){
-    if(trials < 0){
-        std::out_of_range("Must have at least 1 trial");
+  double Distribution::getCumulativeProb(int trials) {
+    if (trials < 0) {
+      std::out_of_range("Must have at least 1 trial");
     }
-    if(cumulative_probs.empty()){
-        throw std::runtime_error("You have not built a distrubtion");
+    if (cumulativeProbs.empty()) {
+      throw std::runtime_error("You have not built a distrubtion");
     }
-    if(trials >= static_cast<int>(cumulative_probs.size())){
-        return noChance;
+    if (trials >= static_cast<int>(cumulativeProbs.size())) {
+      return noChance;
     }
-    return cumulative_probs[trials];
-}
+    return cumulativeProbs[trials];
+  }
 
 } // namespace cse
