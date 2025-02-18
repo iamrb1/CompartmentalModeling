@@ -5,14 +5,20 @@
 #include <filesystem>
 #include <cstdlib>
 
-// Clear file prior to concluding test function
+/**
+ * @brief Clears the file prior to concluding test function.
+ * @param filePath The path of the file to clear.
+ */
 void resetFile(const std::string& filePath) {
     // https://en.cppreference.com/w/cpp/io/ios_base/openmode
     std::ofstream file(filePath, std::ios::trunc);  // Open truncated file to help clear it
     file.close();
 }
 
-// Get root of file location to implement tests on multiple machines..
+/**
+ * @brief Gets the root of the file location to implement tests on multiple machines.
+ * @return The root directory of the project as a string.
+ */
 std::string getProjectRoot() {
     std::filesystem::path currentPath = std::filesystem::current_path();
     // MAY NEED TO BE CHANGED DEPENDING ON FOLDER NAME
@@ -106,7 +112,6 @@ TEST_CASE("Function Management", "[DataFileManager]") {
 
     resetFile(filePath); 
 }
-
 
 TEST_CASE("File and Data Management", "[DataFileManager]") {
     std::string projectRoot = getProjectRoot();
