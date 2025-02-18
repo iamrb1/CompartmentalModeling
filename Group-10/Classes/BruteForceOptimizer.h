@@ -10,19 +10,31 @@ Date: 1/31/2025
 
 #include <vector>
 #include <utility>
-
+#include <string>
 
 namespace cse {
+
+
+/**
+ * @brief Structure representing an item with a name, weight, and value.
+ */
+struct Item {
+    std::string name;
+    double weight;   
+    double value;      
+};
+
 /**
  * @brief A templated class for exploring possible combinations of items 
  * and identifying an optimal subset based on a scoring (value) function.
  *
- * @tparam T The type of items that will be stored and processed.
+ * Each item is defined by its name, weight, and value.
  */
 template <typename T>
 class BruteForceOptimizer
 {
 public:
+
     /**
      * @brief Default constructor for BruteForceOptimizer.
      */
@@ -39,10 +51,10 @@ public:
     }
 
     /**
-     * @brief Sets a capacity/threshold. 
-     * This could represent max weight, max cost, etc.
+     * @brief Sets a capacity/threshold.
+     * This represents the maximum allowed weight.
      *
-     * @param cap The max allowed value (like max weight).
+     * @param cap The maximum allowed weight.
      */
     void SetCapacity(double cap)
     {
@@ -50,44 +62,45 @@ public:
     }
 
     /**
-     * @brief Initiates the brute force or backtracking search to find the best subset.
+     * @brief Initiates the brute force/backtracking search to find the best subset.
      *
-     * @return A pair: (best score, best subset).
+     * @return A pair containing the best total value and the corresponding subset of items.
      */
-    std::pair<double, std::vector<T>> FindOptimalSolution()
+    std::pair<double, std::vector<Item>> FindOptimalSolution()
     {
-    bestScore_ = -999999;
-    currentSelection_.clear();
-    Backtrack(0, 0.0);
-    return {bestScore_, bestSelection_};
+        bestScore_ = -999999;
+        currentSelection_.clear();
+        Backtrack(0, 0.0, 0.0);
+        return {bestScore_, bestSelection_};
     }
 
     /**
      * @brief Recursive helper that decides to include or exclude each item.
+     *
      * @param index Index of the current item in the items vector.
-     * @param currentSum The sum of chosen items so far.
+     * @param currentWeight The total weight of the selected items so far.
+     * @param currentValue The total value of the selected items so far.
      */
-    void Backtrack(size_t index, T currentSum)
+    void Backtrack(size_t index, double currentWeight, double currentValue)
     {
         if (index >= items_.size())
         {
-            if (currentSum > bestScore_)
+            if (currentWeight <= capacity_ && currentValue > bestScore_)
             {
-                bestScore_ = currentSum;
+                bestScore_ = currentValue;
                 bestSelection_ = currentSelection_;
             }
             return;
         }
 
-        // Exclude the current item
-        Backtrack(index + 1, currentSum);
-
-        // Include the current item if it fits
-        T w = items_[index];
-        if (currentSum + w <= capacity_)
+        // Exclude the current item.
+        Backtrack(index + 1, currentWeight, currentValue);
+        // Include the current item if it does not exceed capacity.
+        const Item& item = items_[index];
+        if (currentWeight + item.weight <= capacity_)
         {
-            currentSelection_.push_back(w);
-            Backtrack(index + 1, currentSum + w);
+            currentSelection_.push_back(item);
+            Backtrack(index + 1, currentWeight + item.weight, currentValue + item.value);
             currentSelection_.pop_back();
         }
     }
