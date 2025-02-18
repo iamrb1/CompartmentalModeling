@@ -12,13 +12,15 @@
 //
 // Curly braces are used (instead of parenthesis as in P2264R7) as these
 // arguments are actually passed to the constructor of `AssertArgs`.
-#define cse_assert(condition_msg...) \
-  _cse_assert_internal(_cse_assert_arg_1(condition_msg), {condition_msg})
+#define cse_assert(condition_msg...)                                  \
+  internal_cse_assert_(internal_cse_assert_args_head_(condition_msg), \
+                       {condition_msg})
 #define cse_assert_never(...)                   \
   ::cse::_assert_internal::AssertNeverNoReturn( \
       __FILE__, __LINE__, __func__ __VA_OPT__(, __VA_ARGS__))
-#define cse_assert_eq(args...)                                              \
-  _cse_assert_eq_internal(_cse_assert_arg_1(args), _cse_assert_arg_2(args), \
+#define cse_assert_eq(args...)                                  \
+  internal_cse_assert_eq_(internal_cse_assert_args_head_(args), \
+                          internal_cse_assert_args_tail_(args), \
                           cse::_assert_internal::BinaryAssertArgs{args})
 
 // These macros perform a best-effort recovery of the text of the original
@@ -28,15 +30,15 @@
 // does, but in this case only affects the display and not the logic. We could
 // potentially implement a parser to determine more accurately how the arguments
 // are split, but this is already an edge case.
-#define _cse_assert_arg_1(arg1, ...) #arg1
-#define _cse_assert_arg_2(arg1, arg2, ...) #arg2
+#define internal_cse_assert_args_head_(head, tail...) #head
+#define internal_cse_assert_args_tail_(head, tail...) #tail
 
 // Internal macros which fill in the file, line number, etc. and call into the
 // actual C++ functions.
-#define _cse_assert_internal(condition_text, condition_msg...)             \
+#define internal_cse_assert_(condition_text, condition_msg...)             \
   ::cse::_assert_internal::Assert(condition_msg, condition_text, __FILE__, \
                                   __LINE__, __func__)
-#define _cse_assert_eq_internal(lhs_text, rhs_text, rest...)            \
+#define internal_cse_assert_eq_(lhs_text, rhs_text, rest...)            \
   ::cse::_assert_internal::AssertEq(rest, lhs_text, rhs_text, __FILE__, \
                                     __LINE__, __func__)
 
@@ -56,9 +58,7 @@
 
 // Do *not* access anything inside this namespace directly
 namespace cse::_assert_internal {
-// underscore followed by capital letter is
-// reserved
-#ifdef _cse_ASSERT_TEST
+#ifdef TEST_CSE_ASSERT
 class AssertTestException : std::exception {};
 void Fail() { throw AssertTestException(); }
 #else
@@ -155,7 +155,7 @@ void AssertEq(BinaryAssertArgs<T> const &args, const char *lhs_text,
 }
 
 // technically does return when in test mode
-#ifndef _cse_ASSERT_TEST
+#ifndef TEST_CSE_ASSERT
 [[noreturn]]
 #endif
 void AssertNeverNoReturn(

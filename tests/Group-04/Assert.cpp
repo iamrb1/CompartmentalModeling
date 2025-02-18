@@ -1,6 +1,6 @@
 #include "catch.hpp"
 
-#define _cse_ASSERT_TEST
+#define TEST_CSE_ASSERT
 #include "CseAssert.hpp"
 
 #define REQUIRE_ASSERT(...)                                                    \
