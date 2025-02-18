@@ -13,25 +13,58 @@
 
 namespace cse {
 
+struct TextBoxLayout {
+  TextBox textBox;
+  int y;
+  int x;
+
+  TextBoxLayout() : textBox(), x(0), y(0) {};
+
+  TextBoxLayout(const TextBox &textBox, int x, int y)
+      : textBox(textBox), x(x), y(y) {}
+
+  bool operator==(const TextBoxLayout &textboxLayout) const {
+    return ((textboxLayout.textBox.getText() == textBox.getText())
+        && (textboxLayout.textBox.getWidth() == textBox.getWidth())
+        && (textboxLayout.textBox.getHeight() == textBox.getHeight()));
+  }
+};
+
+struct ImageLayout {
+  Image image;
+  int y;
+  int x;
+
+  ImageLayout() : image("", 0, 0), x(0), y(0) {};
+
+  ImageLayout(const Image &image, int x, int y)
+      : image(image), x(x), y(y) {}
+
+  bool operator==(const ImageLayout &imageLayout) const {
+    return ((imageLayout.image.getURL() == image.getURL()) && (imageLayout.image.getWidth() == image.getWidth())
+        && (imageLayout.image.getHeight() == image.getHeight()));
+  }
+};
+
 class WebLayout {
  private:
-  std::vector<TextBox> textBoxes;
-  std::vector<Image> images;
+  std::vector<TextBoxLayout> textBoxes;
+  std::vector<ImageLayout> images;
 
-  void PushTextBox(const std::string &msg, const int &width, const int &height);
-  void PushImage(const std::string &url, const int &width, const int &height);
+  void PushTextBox(const std::string &msg, const int &width, const int &height, const int &x, const int &y);
+  void PushImage(const std::string &url, const int &width, const int &height, const int &x, const int &y);
 
  public:
   WebLayout() = default;
   ~WebLayout() = default;
-  void addImage(const Image &image);
-  void removeImage(const Image &image);
-  void addTextBox(const TextBox &textBox);
-  void removeTextBox(const TextBox &textBox);
+  void addImage(const ImageLayout &image);
+  void removeImage(const ImageLayout &image);
+  void addTextBox(const TextBoxLayout &textBox);
+  void removeTextBox(const TextBoxLayout &textBox);
   void LoadPage();
   void TransitionToPage(const WebLayout &newPage);
-  std::vector<Image> getImages();
-  std::vector<TextBox> getTextBoxes();
+  std::vector<ImageLayout> getImages();
+  std::vector<TextBoxLayout> getTextBoxes();
 
 };
 }

@@ -29,32 +29,38 @@ void testCase2() {
 
   WebLayout wb;
   Image i("https://msu_logo.png", 50, 50);
-
-  wb.addImage(i);
+  ImageLayout il(i, 10, 10);
+  wb.addImage(il);
 
   //Recheck size of images vector
   if (wb.getImages().size() != 1) { std::cout << "Image adding failure\n"; }
 
   //Check saved correctly
-  if (wb.getImages().at(0).getURL() != "https://msu_logo.png") { std::cout << "Image adding failure\n"; }
-  if (wb.getImages().at(0).getWidth() != 50) { std::cout << "Image adding failure\n"; }
-  if (wb.getImages().at(0).getHeight() != 50) { std::cout << "Image adding failure\n"; }
+  if (wb.getImages().at(0).image.getURL() != "https://msu_logo.png") { std::cout << "Image adding failure\n"; }
+  if (wb.getImages().at(0).image.getWidth() != 50) { std::cout << "Image adding failure\n"; }
+  if (wb.getImages().at(0).image.getHeight() != 50) { std::cout << "Image adding failure\n"; }
+  if (wb.getImages().at(0).x != 10) { std::cout << "Image adding failure\n"; }
+  if (wb.getImages().at(0).y != 10) { std::cout << "Image adding failure\n"; }
 
   TextBoxConfig tbc;
   tbc.text = "CSE498";
   tbc.height = 100;
   tbc.width = 100;
   TextBox tb(tbc);
-  wb.addTextBox(tb);
+  TextBoxLayout tbl(tb, 12, 12);
+  wb.addTextBox(tbl);
 
   //Recheck size of text boxes vector
   if (wb.getTextBoxes().size() != 1) { std::cout << "Text box adding failure\n"; }
 
   //Check saved correctly
-  if (wb.getTextBoxes().at(0).getText() != "CSE498") { std::cout << "Text box adding failure\n"; }
+  if (wb.getTextBoxes().at(0).textBox.getText() != "CSE498") { std::cout << "Text box adding failure\n"; }
+  if (wb.getTextBoxes().at(0).textBox.getWidth() != 100) { std::cout << "Text box adding failure\n"; }
+  if (wb.getTextBoxes().at(0).textBox.getHeight() != 100) { std::cout << "Text box adding failure\n"; }
+  if (wb.getTextBoxes().at(0).x != 12) { std::cout << "Text box adding failure\n"; }
+  if (wb.getTextBoxes().at(0).y != 12) { std::cout << "Text box adding failure\n"; }
 
   std::cout << "Successful Test Case 2\n";
-
 }
 
 void testCase3() {
@@ -63,12 +69,13 @@ void testCase3() {
 
   WebLayout wb;
   Image i("https://msu_logo.png", 50, 50);
-  wb.addImage(i);
+  ImageLayout il(i, 10, 10);
+  wb.addImage(il);
 
   //Check size of images vector
   if (wb.getImages().size() != 1) { std::cout << "Image adding failure\n"; }
 
-  wb.removeImage(i);
+  wb.removeImage(il);
   //Check size of images vector
   if (wb.getImages().size() != 0) { std::cout << "Image removing failure\n"; }
 
@@ -77,12 +84,13 @@ void testCase3() {
   tbc.height = 100;
   tbc.width = 100;
   TextBox tb(tbc);
-  wb.addTextBox(tb);
+  TextBoxLayout tbl(tb, 12, 12);
+  wb.addTextBox(tbl);
 
   //Recheck size of text boxes vector
   if (wb.getTextBoxes().size() != 1) { std::cout << "Text box adding failure\n"; }
 
-  wb.removeTextBox(tb);
+  wb.removeTextBox(tbl);
 
   //Recheck size of text boxes vector
   if (wb.getTextBoxes().size() != 0) { std::cout << "Text box removing failure\n"; }
@@ -95,14 +103,16 @@ void testCase4() {
   std::cout << "Beginning Test Case 4 (Invalid Remove)\n";
 
   WebLayout wb;
-  Image i("https://msu_logo.png", 100, 100);
-  wb.addImage(i);
+  Image i("https://msu_logo.png", 50, 50);
+  ImageLayout il(i, 10, 10);
+  wb.addImage(il);
 
   //Check size of images vector
   if (wb.getImages().size() != 1) { std::cout << "Image adding failure\n"; }
 
   Image ii("https://msu_logo_but_bigger.png", 150, 150);
-  wb.removeImage(ii);
+  ImageLayout iil(ii, 10, 10);
+  wb.removeImage(iil);
   //Check size of images vector
   if (wb.getImages().size() != 1) { std::cout << "Image Invalid Removal failure\n"; }
 
@@ -111,7 +121,8 @@ void testCase4() {
   tbc.height = 100;
   tbc.width = 100;
   TextBox tb(tbc);
-  wb.addTextBox(tb);
+  TextBoxLayout tbl(tb, 12, 12);
+  wb.addTextBox(tbl);
 
   //Recheck size of text boxes vector
   if (wb.getTextBoxes().size() != 1) { std::cout << "Text box adding failure\n"; }
@@ -121,7 +132,8 @@ void testCase4() {
   tbc2.height = 200;
   tbc2.width = 200;
   TextBox tbb(tbc2);
-  wb.removeTextBox(tbb);
+  TextBoxLayout tbl2(tbb, 14, 14);
+  wb.removeTextBox(tbl2);
   //Check size of text boxes vector
   if (wb.getTextBoxes().size() != 1) { std::cout << "Text box Invalid Removal failure\n"; }
 
