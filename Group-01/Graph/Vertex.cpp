@@ -3,10 +3,17 @@
 #include "Edge.hpp"
 #include <cassert>
 #include <iostream>
+#include <istream>
+#include <sstream>
+#include <string>
 
 namespace cse {
   void cse::Vertex::AddEdge(std::weak_ptr<Edge> const &e, std::shared_ptr<cse::Vertex> const &destination) {
     this->edges[destination->GetId()] = e;
+  }
+
+  Vertex::Vertex(std::istream &f, size_t prefix_size) {
+    FromFile(f, prefix_size);
   }
 
   void cse::Vertex::AddEdge(std::weak_ptr<Edge> const &e) {
@@ -28,6 +35,15 @@ namespace cse {
         ++it;
       }
     }
+  }
+
+  std::vector<std::pair<std::string, SerializableProperty>> Vertex::GetPropertyMap() {
+    std::vector<std::pair<std::string, SerializableProperty>> properties;
+    properties.emplace_back("X", SerializableProperty([this](const std::string &value) { this->x = std::stod(value); },
+                                                      [this](std::ostream &s) { s << x; }));
+    properties.emplace_back("Y", SerializableProperty([this](const std::string &value) { this->y = std::stod(value); },
+                                                      [this](std::ostream &s) { s << y; }));
+    return properties;
   }
 
   bool cse::Vertex::IsConnected(std::shared_ptr<cse::Vertex> const &destination) {
