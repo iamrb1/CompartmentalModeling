@@ -15,8 +15,6 @@
  * @param argv the list of arguments
  */
 cse::ArgManager::ArgManager(int argc, char* argv[]) {
-  // Load in all the command line options
-  LoadArgManager();
 
   // pass argc and argv
   mArgc = argc;
@@ -24,11 +22,6 @@ cse::ArgManager::ArgManager(int argc, char* argv[]) {
     mArgv.push_back(argv[i]);
   }
 }
-
-/**
- * @brief Loads in all of the command line options
- */
-void cse::ArgManager::LoadArgManager() {}
 
 /**
  * @brief Checks if a string is present in the input arguments
@@ -137,10 +130,9 @@ std::vector<std::string> cse::ArgManager::GetOptions(std::string argv) {
 void cse::ArgManager::PrintHelp() {
   std::cout << "--help has been triggered\n";
   std::cout << "arguments available:\n";
-  std::cout << "-h | The help command" << std::endl;
-  std::cout << "-o | Gets the string name after it" << std::endl;
-  std::cout
-      << "-l | The integer given after determines the list size, every string "
-         "after it will be added to the list until it reaches capacity"
-      << std::endl;
+
+  for (int i = 0; i < mArgc; i++)
+  {
+    std::cout << mArgv[i] << "\n";
+  }
 }
