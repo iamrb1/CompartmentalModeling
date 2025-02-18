@@ -3,10 +3,10 @@
  * @author Rahul B
  */
 
-#include <catch2/catch.hpp>
+#include "../../third-party/Catch/single_include/catch2/catch.hpp"
 #include <cse/DataMap.h>
 
-TEST_CASE("DataMap Initialization", "[DataMap]") {
+TEST_CASE("DataMap Initialization Tests", "[DataMap]") {
   cse::DataMap data_map = {
     {"name", std::string("rahul")},
     {"age", 22},
@@ -21,6 +21,66 @@ TEST_CASE("DataMap Initialization", "[DataMap]") {
   SECTION("Valid DataMap keys") {
     REQUIRE(data_map.count("name") == 1);
   }
+}
+
+TEST_CASE("DataMap Copy Constructor Tests", "[DataMap]") {
+  cse::DataMap data_map = {
+      {"name", std::string("rahul")},
+      {"age", 22},
+      {"dob", std::string("1209")}
+  };
+
+  cse::DataMap copy(data_map);
+
+  SECTION("Copy contains same key values as DataMap") {
+    REQUIRE(copy.contains("name"));
+    REQUIRE(copy.contains("age"));
+    REQUIRE(copy.contains("dob"));
+
+    std::string n = data_map.get<std::string>("name");
+    int val = data_map.get<int>("age");
+    std::string d = data_map.get<std::string>("dob");
+
+    REQUIRE(n == "rahul");
+    REQUIRE(val == 22);
+    REQUIRE(d == "1209");
+  }
+
+  SECTION("Change in DataMap should not change copy") {
+    data_map.insert("new", 10);
+    REQUIRE_FALSE(copy.contains("new"));
+  }
+}
+
+TEST_CASE("DataMap Copy Assignment Tests") {
+  cse::DataMap data_map = {
+      {"name", std::string("rahul")},
+      {"age", 22},
+      {"dob", std::string("1209")}
+  };
+
+  cse::DataMap copy;
+  copy = data_map;
+
+  SECTION("Copy contains same key values as DataMap") {
+    REQUIRE(copy.contains("name"));
+    REQUIRE(copy.contains("age"));
+    REQUIRE(copy.contains("dob"));
+
+    std::string n = data_map.get<std::string>("name");
+    int val = data_map.get<int>("age");
+    std::string d = data_map.get<std::string>("dob");
+
+    REQUIRE(n == "rahul");
+    REQUIRE(val == 22);
+    REQUIRE(d == "1209");
+  }
+
+  SECTION("Change in DataMap should not change copy") {
+    data_map.insert("new", 10);
+    REQUIRE_FALSE(copy.contains("new"));
+  }
+
 }
 
 TEST_CASE("DataMap Insert Method Tests", "[DataMap]") {
@@ -42,7 +102,7 @@ TEST_CASE("DataMap Insert Method Tests", "[DataMap]") {
   }
 }
 
-TEST_CASE("DataMap .at method","[DataMap]") {
+TEST_CASE("DataMap .at method Tests","[DataMap]") {
   cse::DataMap data_map;
   data_map.insert("key", 80.2);
   data_map.insert("joe", std::string("value"));
@@ -57,21 +117,21 @@ TEST_CASE("DataMap .at method","[DataMap]") {
   }
 }
 
-TEST_CASE("DataMap get test") {
+TEST_CASE("DataMap get method Test") {
   cse::DataMap data_map;
   data_map.insert("key", 80.2);
   auto val = data_map.get<double>("key");
   REQUIRE(val == 80.2);
 }
 
-TEST_CASE("DataMap delete key test") {
+TEST_CASE("DataMap erase method Test") {
   cse::DataMap data_map;
   data_map.insert("key", 80.2);
   data_map.erase("key");
   REQUIRE(data_map.empty() == 1);
 }
 
-TEST_CASE("DataMap [] operator test") {
+TEST_CASE("DataMap [] operator Test") {
   cse::DataMap data_map;
   data_map["joe"] = 80;
   int val = std::any_cast<int>(data_map["joe"]);
