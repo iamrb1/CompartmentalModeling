@@ -41,34 +41,49 @@ namespace cse{
     T data[Size];
   };
 
+
   template <typename T, size_t Size>
   AuditedArray<T, Size>::AuditedArray() {
-    // Default constructor
+    /**
+     * Default constructor
+     * Initializes all elements to default values of type T
+     */
     std::fill(begin(), end(), T());
   }
 
   template <typename T, size_t Size>
   AuditedArray<T, Size>::AuditedArray(const AuditedArray<T, Size>& other) {
-    // Copy constructor
-    assert (this->size() == other.size()); // Asserting that the sizes are the same
+    /**
+     * Copy constructor
+     * @param other: Another AuditedArray to copy from
+     */
+    assert(this->size() == other.size());
     std::copy(other.begin(), other.end(), begin());
   }
 
   template <typename T, size_t Size>
-  AuditedArray<T, Size>& AuditedArray<T, Size>::operator=(
-      const AuditedArray<T, Size>& other) {
-    // Assignment operator
+  AuditedArray<T, Size>& AuditedArray<T, Size>::operator=(const AuditedArray<T, Size>& other) {
+    /**
+     * Copy assignment operator
+     * @param other: Another AuditedArray to assign from
+     * @return: Reference to the assigned AuditedArray
+     */
     if (this == &other) {
       return *this;
     }
-    assert (this->size() == other.size()); // Asserting that the sizes are the same
+    assert(this->size() == other.size());
     std::copy(other.begin(), other.end(), begin());
     return *this;
   }
 
   template <typename T, size_t Size>
   T& AuditedArray<T, Size>::operator[](int index) {
-    if (!isValidIndex(index)) { // Throwing an exception if the index is out of range
+    /**
+     * Overloaded [] operator to access elements
+     * @param index: The index of the element to access
+     * @return: Reference to the element at the index
+     */
+    if (!isValidIndex(index)) {
       throw std::out_of_range("Index out of range");
     }
     return data[index];
@@ -76,7 +91,12 @@ namespace cse{
 
   template <typename T, size_t Size>
   const T& AuditedArray<T, Size>::operator[](int index) const {
-    if (!isValidIndex(index)) { // Throwing an exception if the index is out of range
+    /**
+     * Overloaded [] operator for const objects
+     * @param index: The index of the element to access
+     * @return: Const reference to the element at the index
+     */
+    if (!isValidIndex(index)) {
       throw std::out_of_range("Index out of range");
     }
     return data[index];
@@ -84,54 +104,90 @@ namespace cse{
 
   template <typename T, size_t Size>
   int AuditedArray<T, Size>::size() const {
+    /**
+     * Returns the size of the array
+     * @return: Integer representing the size of the array
+     */
     return Size;
   }
 
   template <typename T, size_t Size>
   void AuditedArray<T, Size>::fill(const T& value) {
+    /**
+     * Fills the array with a specified value
+     * @param value: The value to fill the array with
+     */
     std::fill(begin(), end(), value);
   }
 
   template <typename T, size_t Size>
   bool AuditedArray<T, Size>::contains(const T& value) const {
-    auto it = std::find(begin(), end(), value);
-    return it != end();
+    /**
+     * Checks if the array contains a specific value
+     * @param value: The value to check for
+     * @return: True if the value is found, false otherwise
+     */
+    return std::find(begin(), end(), value) != end();
   }
 
   template <typename T, size_t Size>
   bool AuditedArray<T, Size>::isValidIndex(int index) const {
+    /**
+     * Checks if an index is valid
+     * @param index: The index to check
+     * @return: True if the index is within range, false otherwise
+     */
     return index >= 0 && index < static_cast<int>(Size);
   }
 
   template <typename T, size_t Size>
   int AuditedArray<T, Size>::indexOf(const T& value) const {
+    /**
+     * Finds the index of a specific value
+     * @param value: The value to find
+     * @return: The index of the value if found, -1 otherwise
+     */
     auto it = std::find(begin(), end(), value);
-    if (it == end()) {
-      return -1;
-    }
-    int index = std::distance(begin(), it);
-    return index;
+    return (it != end()) ? std::distance(begin(), it) : -1;
   }
 
   template <typename T, size_t Size>
   T* AuditedArray<T, Size>::begin() {
+    /**
+     * Returns an iterator to the beginning of the array
+     * @return: Pointer to the first element
+     */
     return &data[0];
   }
 
   template <typename T, size_t Size>
   T* AuditedArray<T, Size>::end() {
+    /**
+     * Returns an iterator to the end of the array
+     * @return: Pointer to one past the last element
+     */
     return &data[Size];
   }
 
   template <typename T, size_t Size>
   const T* AuditedArray<T, Size>::begin() const {
+    /**
+     * Returns a const iterator to the beginning of the array
+     * @return: Const pointer to the first element
+     */
     return &data[0];
   }
 
   template <typename T, size_t Size>
   const T* AuditedArray<T, Size>::end() const {
+    /**
+     * Returns a const iterator to the end of the array
+     * @return: Const pointer to one past the last element
+     */
     return &data[Size];
   }
+
+  
 }
 #endif // NDEBUG
 #endif // AUDITEDARRAY_H
