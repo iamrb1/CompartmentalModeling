@@ -33,7 +33,7 @@ class IndexSet {
     using pointer = std::size_t*;
     using reference = std::size_t&;
 
-    iterator(const std::vector<std::pair<std::size_t, std::size_t>>& ranges, 
+    iterator(const std::vector<std::pair<std::size_t, std::size_t>>& ranges,
              std::size_t range_idx = 0, std::size_t current = 0)
         : ranges_(&ranges), range_idx_(range_idx), current_(current) {
       // If this is an end iterator (range_idx >= size)
@@ -46,10 +46,10 @@ class IndexSet {
     }
 
     value_type operator*() const { return current_; }
-    
+
     iterator& operator++() {
       if (range_idx_ >= ranges_->size()) return *this;
-      
+
       current_++;
       // If we've reached the end of the current range
       if (current_ >= (*ranges_)[range_idx_].second) {
@@ -65,22 +65,19 @@ class IndexSet {
       }
       return *this;
     }
-    
+
     iterator operator++(int) {
       iterator tmp = *this;
       ++(*this);
       return tmp;
     }
-    
+
     bool operator==(const iterator& other) const {
-      return ranges_ == other.ranges_ && 
-             range_idx_ == other.range_idx_ && 
+      return ranges_ == other.ranges_ && range_idx_ == other.range_idx_ &&
              current_ == other.current_;
     }
-    
-    bool operator!=(const iterator& other) const {
-      return !(*this == other);
-    }
+
+    bool operator!=(const iterator& other) const { return !(*this == other); }
 
    private:
     const std::vector<std::pair<std::size_t, std::size_t>>* ranges_;
@@ -96,8 +93,9 @@ class IndexSet {
     using pointer = const std::size_t*;
     using reference = const std::size_t&;
 
-    const_iterator(const std::vector<std::pair<std::size_t, std::size_t>>& ranges, 
-                  std::size_t range_idx = 0, std::size_t current = 0)
+    const_iterator(
+        const std::vector<std::pair<std::size_t, std::size_t>>& ranges,
+        std::size_t range_idx = 0, std::size_t current = 0)
         : ranges_(&ranges), range_idx_(range_idx), current_(current) {
       // If this is an end iterator (range_idx >= size)
       if (range_idx_ >= ranges_->size()) {
@@ -108,11 +106,11 @@ class IndexSet {
       current_ = (*ranges_)[range_idx_].first;
     }
 
-    value_type operator*() const { return current_; }
-    
+    std::remove_const_t<value_type> operator*() const { return current_; }
+
     const_iterator& operator++() {
       if (range_idx_ >= ranges_->size()) return *this;
-      
+
       current_++;
       // If we've reached the end of the current range
       if (current_ >= (*ranges_)[range_idx_].second) {
@@ -128,19 +126,18 @@ class IndexSet {
       }
       return *this;
     }
-    
+
     const_iterator operator++(int) {
       const_iterator tmp = *this;
       ++(*this);
       return tmp;
     }
-    
+
     bool operator==(const const_iterator& other) const {
-      return ranges_ == other.ranges_ && 
-             range_idx_ == other.range_idx_ && 
+      return ranges_ == other.ranges_ && range_idx_ == other.range_idx_ &&
              current_ == other.current_;
     }
-    
+
     bool operator!=(const const_iterator& other) const {
       return !(*this == other);
     }
@@ -164,7 +161,7 @@ class IndexSet {
   IndexSet& operator=(const IndexSet&) = default;
 
   // Move operations
-  IndexSet(IndexSet&& other) noexcept 
+  IndexSet(IndexSet&& other) noexcept
       : ranges_(std::move(other.ranges_)), total_size_(other.total_size_) {
     // Clear the moved-from object
     other.ranges_.clear();
@@ -228,16 +225,13 @@ class IndexSet {
 
   void insertRange(const std::size_t start, const std::size_t end) {
     if (start >= end) return;  // Invalid range
-    
-    // Track old size before merging
-    std::size_t old_total = total_size_;
-    
+
     // Insert new range directly
     ranges_.emplace_back(start, end);
-    
+
     // Merge overlapping ranges
     merge_overlapping_ranges();
-    
+
     // Recalculate total size
     total_size_ = 0;
     for (const auto& range : ranges_) {
@@ -400,7 +394,7 @@ class IndexSet {
     // Create a copy of the input IndexSet and offset it by the starting index
     IndexSet offsetSet = indexSet;
     offsetSet.offset(index);
-    
+
     // Add all ranges from the offset set to this set
     for (const auto& range : offsetSet.ranges_) {
       insertRange(range.first, range.second);
@@ -428,7 +422,7 @@ class IndexSet {
    */
   IndexSet operator&(const IndexSet& other) const {
     IndexSet result;
-    
+
     // For each range in this set
     for (const auto& range1 : ranges_) {
       // For each range in the other set
@@ -436,7 +430,7 @@ class IndexSet {
         // Find intersection of ranges
         auto start = std::max(range1.first, range2.first);
         auto end = std::min(range1.second, range2.second);
-        
+
         // If ranges overlap, add their intersection
         if (start < end) {
           result.insertRange(start, end);
@@ -453,7 +447,7 @@ class IndexSet {
    */
   IndexSet operator-(const IndexSet& other) const {
     IndexSet result = *this;  // Start with a copy of this set
-    
+
     // Remove each range from the other set
     for (const auto& range : other.ranges_) {
       for (std::size_t i = range.first; i < range.second; ++i) {
@@ -470,14 +464,14 @@ class IndexSet {
    */
   IndexSet operator^(const IndexSet& other) const {
     IndexSet result;
-    
+
     // Get the union and intersection
     IndexSet union_set = *this | other;
     IndexSet intersect_set = *this & other;
-    
+
     // Symmetric difference is union minus intersection
     result = union_set - intersect_set;
-    
+
     return result;
   }
 
@@ -501,17 +495,19 @@ class IndexSet {
    * @param other The potential subset
    * @return true if this set is a superset of other
    */
-  bool operator>=(const IndexSet& other) const {
-    return other <= *this;
-  }
+  bool operator>=(const IndexSet& other) const { return other <= *this; }
 
   // Iterator methods
   iterator begin() { return iterator(ranges_); }
   iterator end() { return iterator(ranges_, ranges_.size(), 0); }
   const_iterator begin() const { return const_iterator(ranges_); }
-  const_iterator end() const { return const_iterator(ranges_, ranges_.size(), 0); }
+  const_iterator end() const {
+    return const_iterator(ranges_, ranges_.size(), 0);
+  }
   const_iterator cbegin() const { return const_iterator(ranges_); }
-  const_iterator cend() const { return const_iterator(ranges_, ranges_.size(), 0); }
+  const_iterator cend() const {
+    return const_iterator(ranges_, ranges_.size(), 0);
+  }
 
  private:
   // Internal representation - vector of ranges
