@@ -7,10 +7,6 @@
 #include <string>
 #include <stdexcept>
 
-//-----------------------------------------------------------
-// Original Tests
-//-----------------------------------------------------------
-
 // Test 1: Using ComboManager with std::vector<int>
 TEST_CASE("ComboManager: std::vector<int> with combination size 2", "[ComboManager]") {
     std::vector<int> numbers = {0, 1, 2, 3, 4};
@@ -131,5 +127,167 @@ TEST_CASE("ComboManager: Invalid combination size (k > n) throws exception", "[C
     std::vector<int> numbers = {1, 2, 3};
     // Requesting more elements than available should throw.
     REQUIRE_THROWS_AS(cse::ComboManager<std::vector<int>>(numbers, 5), std::invalid_argument);
+}
+
+// Test 7: Reset functionality
+TEST_CASE("ComboManager: Reset functionality returns to first combination", "[ComboManager]") {
+    std::vector<int> numbers = {10, 20, 30, 40};
+    cse::ComboManager<std::vector<int>> cm(numbers, 2);
+    
+    // Advance through all combinations (we don't need to track the count).
+    while (cm.NextCombo()) { }
+    
+    // After exhausting combinations, reset back.
+    cm.Reset();
+    std::vector<int> firstCombo = cm.GetCurrentCombo();
+    REQUIRE(firstCombo.size() == 2);
+    // The first combination should match the first two elements.
+    REQUIRE(firstCombo[0] == numbers[0]);
+    REQUIRE(firstCombo[1] == numbers[1]);
+}
+
+// Test 8: Current indices correctness
+TEST_CASE("ComboManager: GetCurrentIndices returns increasing indices", "[ComboManager]") {
+    std::vector<char> letters = {'x', 'y', 'z', 'w'};
+    cse::ComboManager<std::vector<char>> cm(letters, 3);
+    std::vector<std::size_t> indices = cm.GetCurrentIndices();
+    
+    // For the first combination, the indices should be {0, 1, 2}.
+    REQUIRE(indices.size() == 3);
+    REQUIRE(indices[0] == 0);
+    REQUIRE(indices[1] == 1);
+    REQUIRE(indices[2] == 2);
+    
+    // Move to next combination and ensure the indices remain strictly increasing.
+    bool moved = cm.NextCombo();
+    REQUIRE(moved);
+    indices = cm.GetCurrentIndices();
+    for (std::size_t i = 1; i < indices.size(); ++i) {
+        INFO("Index " << i << " is " << indices[i] << ", previous index was " << indices[i-1]);
+        REQUIRE(indices[i] > indices[i - 1]);
+    }
+}
+
+// Test 9: Single element container
+TEST_CASE("ComboManager: Single element container produces one combination", "[ComboManager]") {
+    std::vector<int> single = {42};
+    cse::ComboManager<std::vector<int>> cm(single, 1);
+    const unsigned long long expectedTotal = 1;
+    REQUIRE(cm.TotalCombinations() == expectedTotal);
+    
+    std::vector<int> combo = cm.GetCurrentCombo();
+    REQUIRE(combo.size() == 1);
+    REQUIRE(combo[0] == 42);
+    // No further combination should be available.
+    REQUIRE_FALSE(cm.NextCombo());
+}
+
+// Test 10: Empty container with combination size 0
+TEST_CASE("ComboManager: Empty container with combination size 0", "[ComboManager]") {
+    std::vector<int> empty;
+    // By convention, C(0, 0) is 1.
+    cse::ComboManager<std::vector<int>> cm(empty, 0);
+    REQUIRE(cm.TotalCombinations() == 1);
+    
+    std::vector<int> combo = cm.GetCurrentCombo();
+    REQUIRE(combo.empty());
+    REQUIRE_FALSE(cm.NextCombo());
+}
+
+// Test 11: Empty container with nonzero combination size should throw.
+TEST_CASE("ComboManager: Empty container with nonzero combination size throws exception", "[ComboManager]") {
+    std::vector<int> empty;
+    REQUIRE_THROWS_AS(cse::ComboManager<std::vector<int>>(empty, 1), std::invalid_argument);
+}
+
+// Test 12: Repeated calls to NextCombo after exhaustion
+TEST_CASE("ComboManager: Repeated calls to NextCombo after last combination always return false", "[ComboManager]") {
+    std::vector<int> numbers = {0, 1, 2};
+    cse::ComboManager<std::vector<int>> cm(numbers, 2);
+    // Advance to the last combination.
+    while (cm.NextCombo()) { }
+    REQUIRE(cm.TotalCombinations() == 3);
+    // After reaching the final combination, repeated calls return false.
+    for (int i = 0; i < 5; i++) {
+       REQUIRE_FALSE(cm.NextCombo());
+    }
+}
+
+// Test 13: Repeated calls to PrevCombo on first combination always return false.
+TEST_CASE("ComboManager: Repeated calls to PrevCombo on first combination always return false", "[ComboManager]") {
+    std::vector<int> numbers = {5, 6, 7, 8};
+    cse::ComboManager<std::vector<int>> cm(numbers, 2);
+    // Already at the first combination.
+    for (int i = 0; i < 3; i++) {
+        REQUIRE_FALSE(cm.PrevCombo());
+    }
+}
+
+// Test 14: Alternate NextCombo and PrevCombo consistency
+TEST_CASE("ComboManager: Alternating NextCombo and PrevCombo yields consistent results", "[ComboManager]") {
+    std::vector<int> numbers = {0, 1, 2, 3};
+    cse::ComboManager<std::vector<int>> cm(numbers, 2);
+    
+    // Save the first combination.
+    std::vector<int> first = cm.GetCurrentCombo();
+    
+    // Move to the next combination.
+    bool moved = cm.NextCombo();
+    REQUIRE(moved);
+    std::vector<int> second = cm.GetCurrentCombo();
+    // Ensure the two combinations are different.
+    REQUIRE(first != second);
+    
+    // Move back to the first combination.
+    moved = cm.PrevCombo();
+    REQUIRE(moved);
+    std::vector<int> firstAgain = cm.GetCurrentCombo();
+    REQUIRE(first == firstAgain);
+}
+
+// Test 15: Lexicographical order of generated combinations
+TEST_CASE("ComboManager: Generated combinations are in lexicographical order", "[ComboManager]") {
+    std::vector<int> numbers = {0, 1, 2, 3};
+    cse::ComboManager<std::vector<int>> cm(numbers, 2);
+    std::vector<std::vector<int>> combinations;
+    do {
+        combinations.push_back(cm.GetCurrentCombo());
+    } while (cm.NextCombo());
+    
+    // Compare each combination with the next to ensure lexicographical order.
+    for (size_t i = 1; i < combinations.size(); i++) {
+        INFO("Comparing combination " << i - 1 << " with combination " << i);
+        REQUIRE(combinations[i - 1] < combinations[i]);
+    }
+}
+
+// Test 16: Container with duplicate elements
+TEST_CASE("ComboManager: Container with duplicate elements", "[ComboManager]") {
+    std::vector<int> numbers = {1, 2, 2, 3};
+    // With 4 items, choosing 2 gives C(4,2) = 6 index combinations,
+    // even though some value combinations may be identical.
+    cse::ComboManager<std::vector<int>> cm(numbers, 2);
+    REQUIRE(cm.TotalCombinations() == 6);
+    
+    int count = 0;
+    do {
+        std::vector<int> combo = cm.GetCurrentCombo();
+        INFO("Combination " << count << " values: "
+             << (combo.empty() ? "(empty)" : ""));
+        REQUIRE(combo.size() == 2);
+        count++;
+    } while(cm.NextCombo());
+    REQUIRE(count == 6);
+}
+
+// Test 17: Larger container test for TotalCombinations correctness
+TEST_CASE("ComboManager: Larger container total combinations test", "[ComboManager]") {
+    std::vector<int> numbers(10);
+    for (int i = 0; i < 10; i++) {
+        numbers[i] = i;
+    }
+    cse::ComboManager<std::vector<int>> cm(numbers, 3);
+    // C(10,3) should equal 120.
+    REQUIRE(cm.TotalCombinations() == 120);
 }
 
