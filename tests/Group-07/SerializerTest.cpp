@@ -81,11 +81,11 @@ TEST_CASE("Serializer Save Load Fundamental Types", "[Serializer]")
         std::remove(filename);
     }
     // Testing Char
-    std::uniform_int_distribution<char> ranChar('A', 'Z');
+    std::uniform_int_distribution<int> ranChar(static_cast<int>('A'), static_cast<int>('Z'));
     char Character;
     for (int i = 0; i < MAX_CASE; i++)
     {
-        Character = ranChar(gen);
+        Character = static_cast<char>(ranChar(gen));
         char Result;
         Saver.Serialize(Character, filename);
         Loader.Serialize(Result, filename);
@@ -126,12 +126,12 @@ TEST_CASE("Serializer Save Load String", "[Serializer]")
     for (int i = 0; i < MAX_CASE; i++)
     {
         std::uniform_int_distribution<int> ranInt(1, MAX_SIZE);
-        std::uniform_int_distribution<char> ranChar(' ', '~');
+        std::uniform_int_distribution<int> ranChar(static_cast<int>(' '), static_cast<int>('~'));
         int Length = ranInt(gen);
         std::string String = "";
         for (int l = 0; l < Length; l++)
         {
-            char Character = ranChar(gen);
+            char Character = static_cast<char>(ranChar(gen));
             String = String + Character;
         }
         std::string Result;
