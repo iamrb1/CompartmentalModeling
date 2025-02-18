@@ -1,3 +1,28 @@
 {
-    "cmake.sourceDirectory": "C:/Users/muham/OneDrive/Documents/MSU Courses/CSE 498 MSU (Spring 2025)/CSE498-Spring2025/CSE498-Spring2025-1/Group-05"
+    "cmake.sourceDirectory": "C:/Users/muham/OneDrive/Documents/MSU Courses/CSE 498 MSU (Spring 2025)/CSE498-Spring2025/CSE498-Spring2025-1/Group-05",
+    "files.associations": {
+        "map": "cpp",
+        "bitset": "cpp",
+        "forward_list": "cpp",
+        "fstream": "cpp",
+        "future": "cpp",
+        "initializer_list": "cpp",
+        "ios": "cpp",
+        "iosfwd": "cpp",
+        "limits": "cpp",
+        "locale": "cpp",
+        "new": "cpp",
+        "optional": "cpp",
+        "ostream": "cpp",
+        "ratio": "cpp",
+        "regex": "cpp",
+        "set": "cpp",
+        "sstream": "cpp",
+        "stack": "cpp",
+        "streambuf": "cpp",
+        "string": "cpp",
+        "tuple": "cpp",
+        "typeinfo": "cpp",
+        "vector": "cpp"
+    }
 }
