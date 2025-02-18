@@ -90,7 +90,7 @@ TEST_CASE("Testing if find_moves finds correct valid moves for agent")
 
     for (auto move : moves){
       auto selectedmove = std::find(expectedmoves.begin(), expectedmoves.end(), move);
-      REQUIRE(selectedmove != expmoves.end());
+      REQUIRE(selectedmove != expectedmoves.end());
     }
 
 
