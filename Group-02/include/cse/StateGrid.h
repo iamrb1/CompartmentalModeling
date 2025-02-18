@@ -36,7 +36,7 @@ class StateGrid {
 
   void display_grid();
 
-  bool set_state(std::pair<int, int> move, std::pair<int, int> agent);
+  bool set_state(std::pair<int, int> new_position, std::pair<int, int> agent);
 
   char get_state(int row, int col);
 
