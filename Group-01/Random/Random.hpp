@@ -1,3 +1,6 @@
+/*
+Random class 
+*/
 #pragma once
 
 #include <cassert>
