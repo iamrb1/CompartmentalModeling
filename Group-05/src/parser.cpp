@@ -1,12 +1,6 @@
 #include "Parser.h"
 
-#include <algorithm>
-#include <cassert>
-#include <cctype>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <map>
+
 
 /**
  * @brief Default constructor for Parser object
