@@ -28,7 +28,7 @@ namespace cse {
 template <typename Container>
 class ComboManager {
  public:
-  /// The type of elements stored in the container.
+  // The type of elements stored in the container.
   using ValueType = typename Container::value_type;
 
   /**
