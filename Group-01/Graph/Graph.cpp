@@ -122,15 +122,15 @@ namespace cse {
 
   void Graph::ParseVertices(std::istream &f, size_t indent_level) {
     std::string line;
-    while (FileUtil::CheckPrefixSize(f, indent_level + 2)) {
-      auto vertex = std::make_shared<Vertex>(f, indent_level + 2);
+    while (FileUtil::CheckPrefixSize(f, indent_level + cse::BASE_INDENTATION)) {
+      auto vertex = std::make_shared<Vertex>(f, indent_level + cse::BASE_INDENTATION);
       vertices[vertex->GetId()] = vertex;
     }
   }
 
   void Graph::ParseEdges(std::istream &f, size_t indent_level) {
-    while (FileUtil::CheckPrefixSize(f, indent_level + 2)) {
-      Edge::CreateFromFile(f, indent_level + 2, *this);
+    while (FileUtil::CheckPrefixSize(f, indent_level + cse::BASE_INDENTATION)) {
+      Edge::CreateFromFile(f, indent_level + cse::BASE_INDENTATION, *this);
     }
   }
 
@@ -152,11 +152,11 @@ namespace cse {
     }
 
     ParseSection(f, "Vertices");
-    ParseVertices(f, 2);
+    ParseVertices(f, cse::BASE_INDENTATION);
 
     std::getline(f, line); // Skip empty line
     ParseSection(f, "Edges");
-    ParseEdges(f, 2);
+    ParseEdges(f, cse::BASE_INDENTATION);
   }
 
   std::vector<std::pair<std::string, SerializableProperty>> Graph::GetPropertyMap() {
@@ -165,14 +165,14 @@ namespace cse {
     auto verticesWriter = [this](std::ostream &s) {
       s << "\n";
       for (auto const &[id, vertex] : vertices) {
-        vertex->ToFile(s, 2);
+        vertex->ToFile(s, cse::BASE_INDENTATION);
       }
     };
 
     auto edgesWriter = [this](std::ostream &s) {
       s << "\n";
       for (auto const &[id, edge] : edges) {
-        edge->ToFile(s, 2);
+        edge->ToFile(s, cse::BASE_INDENTATION);
       }
     };
 
