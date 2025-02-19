@@ -67,7 +67,6 @@ double DataTracker::max() const {
 
 size_t DataTracker::total() const {
     size_t size = values.size();
-    assert(size >= 0 && "Total count cannot be negative.");
     return size;
 }
-}
+} //namespace cse

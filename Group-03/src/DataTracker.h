@@ -6,7 +6,7 @@
 namespace cse {
 class DataTracker {
 private:
-    std::vector<double> values;
+    std::vector<double> values; //main container
 
 public:
     void add_value(double value);
