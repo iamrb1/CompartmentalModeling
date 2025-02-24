@@ -3,7 +3,7 @@ TEST_NAMES = Assert BVOps BVSize IndexSet RichText
 # -O3	  -Wl,--stack,8388608 -ftrack-macro-expansion=0
 CATCH = ../../third-party/Catch/single_include/catch2
 GROUP4 = ../../Group-04/lib
-FLAGS = -std=c++23 -g -pthread -Wall -Wextra -I../../ -I$(GROUP4) -I$(CATCH) -DCATCH_CONFIG_MAIN -DCSET_IMPLEMENTATION
+FLAGS = -std=c++23 -g -pthread -Wall -Wextra -I../../ -I$(GROUP4) -I$(CATCH) -DCATCH_CONFIG_MAIN -DCSE4_IMPL
 
 default: test
 
