@@ -1,4 +1,4 @@
-#define CSET_IMPLEMENTATION
+#define CSE4_IMPL
 #include "BVTest.hpp"
 #include "index_set_test.hpp"
 
