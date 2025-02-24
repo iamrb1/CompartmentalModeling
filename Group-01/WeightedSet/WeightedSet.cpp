@@ -6,6 +6,10 @@ void cse::WeightedSet::Add(size_t id, double weight) {
     if (weight < 0) {
         throw std::invalid_argument("Weight must be a positive value");
     }
+    auto it = std::find(ids.begin(), ids.end(), id);
+    if (it != ids.end()) {
+        throw std::invalid_argument("ID already exists");
+    }
     ids.push_back(id);
     weights.push_back(weight);
 }
