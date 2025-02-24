@@ -40,6 +40,6 @@ class String : public std::string {
 // In Release builds, String is just an alias to std::string
 using String = std::string;
 
-#endif // NDEBUG
+#endif  // NDEBUG
 
 }  // namespace cse

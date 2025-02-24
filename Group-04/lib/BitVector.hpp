@@ -8,6 +8,15 @@
 
 namespace cse {
 
+// A std::byte filled with ones
+constexpr std::byte ALL_ONE = std::byte{0xFF};
+// A std::byte filled with zeros
+constexpr std::byte ALL_ZERO = std::byte{0};
+// One
+constexpr std::byte ONE_ONE = std::byte{1};
+// Number of bits per element in the underlying vector
+constexpr size_t BITS_PER_EL = 8;
+
 // Author(s): Kyle Gunger
 // BitVector represents a dynamic array of bits, packed into bytes for space
 // efficiency. BitVector supports boolean operations on itself with other
@@ -44,6 +53,10 @@ class BitVector {
   // Keep the bottom "keep" bits of the given byte, discarding the rest and
   // updating the m_num_set
   void truncate_byte(size_t byte, uint8_t keep);
+
+  // Manages the case in pattern set where
+  // only one byte needs changing
+  BitVector& pattern_set_one(size_t start, size_t count, std::byte pattern);
 
  public:
   // Author(s): Kyle Gunger
@@ -86,7 +99,8 @@ class BitVector {
   // Constructor
   BitVector(size_t bits) {
     m_num_bits = bits;
-    m_underlying.resize(bits / 8 + (bits % 8 == 0 ? 0 : 1), std::byte{0});
+    m_underlying.resize(bits / BITS_PER_EL + (bits % BITS_PER_EL == 0 ? 0 : 1),
+                        ALL_ZERO);
   }
 
   // Bit string constructor
@@ -216,9 +230,8 @@ class BitVector {
 
 // Convert a reference into a boolean
 BitVector::reference::operator bool() const {
-  std::byte b = (std::byte{1} << bit_off) & *byte;
-  if (b == std::byte{0}) return false;
-  return true;
+  std::byte b = (ONE_ONE << bit_off) & *byte;
+  return !(b == ALL_ZERO);
 }
 
 // Get the inverse of this reference's boolean value
@@ -229,7 +242,7 @@ bool BitVector::reference::operator~() const {
 // Assign a boolean value to a reference
 BitVector::reference& BitVector::reference::operator=(bool value) {
   if (*this != value) {
-    std::byte mask = std::byte{1} << bit_off;
+    std::byte mask = ONE_ONE << bit_off;
     if (value) {
       *byte |= mask;
       parent->m_num_set++;
@@ -262,7 +275,9 @@ BitVector::reference& BitVector::reference::flip() {
 BitVector::BitVector(std::string bstr, char zero, char one) {
   m_num_bits = bstr.size();
   m_num_set = 0;
-  m_underlying.resize(m_num_bits / 8 + (m_num_bits % 8 == 0 ? 0 : 1), std::byte{0});
+  m_underlying.resize(
+      m_num_bits / BITS_PER_EL + (m_num_bits % BITS_PER_EL == 0 ? 0 : 1),
+      ALL_ZERO);
 
   for (size_t i = 0; i < m_num_bits; ++i) {
     size_t idx = m_num_bits - (i + 1);
@@ -283,7 +298,8 @@ BitVector::reference BitVector::operator[](size_t idx) {
     throw std::out_of_range(std::format(
         "Invalid index into BitVector: idx - {}, max - {}", idx, m_num_bits));
 #endif
-  return reference(this, &m_underlying[idx / 8], (uint8_t)(idx % 8));
+  return reference(this, &m_underlying[idx / BITS_PER_EL],
+                   (uint8_t)(idx % BITS_PER_EL));
 }
 
 // Get the index as a const bool
@@ -293,11 +309,35 @@ bool BitVector::operator[](size_t idx) const {
     throw std::out_of_range(std::format(
         "Invalid index into BitVector: idx - {}, max - {}", idx, m_num_bits));
 #endif
-  const std::byte b = (std::byte{1} << (idx % 8)) & m_underlying[idx / 8];
-  return b != std::byte{0};
+  const std::byte b =
+      (ONE_ONE << (idx % BITS_PER_EL)) & m_underlying[idx / BITS_PER_EL];
+  return b != ALL_ZERO;
 }
 
-// Set bits in a pattern
+// Update a single byte with pattern set
+BitVector& BitVector::pattern_set_one(size_t start, size_t count,
+                                      std::byte pattern) {
+  std::byte mask = ALL_ONE;
+  if (count % BITS_PER_EL != 0) mask >>= (BITS_PER_EL - (count) % BITS_PER_EL);
+  mask <<= (start % BITS_PER_EL);
+
+  pattern = (pattern << (start % BITS_PER_EL)) |
+            (pattern >> (BITS_PER_EL - (start % BITS_PER_EL)));
+
+  size_t idx = start / BITS_PER_EL;
+
+  m_num_set -= BIT_LOOKUP(m_underlying[idx] & mask);
+  m_num_set += BIT_LOOKUP(pattern & mask);
+
+  m_underlying[idx] = (m_underlying[idx] & ~mask) | (pattern & mask);
+
+  return (*this);
+}
+
+// Set bits in a repeating pattern
+// start - the index in the BitVector to start filling with the sequence
+// count - the number of bits to fill with the sequence
+// pattern - the pattern of bits to fill with
 BitVector& BitVector::pattern_set(size_t start, size_t count,
                                   std::byte pattern) {
   if (count == 0)
@@ -308,46 +348,36 @@ BitVector& BitVector::pattern_set(size_t start, size_t count,
                     "{}, number of bits is: {}",
                     start, count, m_num_bits));
 
+  // Case where we only need to change one byte
+  if (start % BITS_PER_EL + count <= BITS_PER_EL)
+    return pattern_set_one(start, count, pattern);
+
   // Masks for end bytes in the seq
-  std::byte bot_mask = std::byte{0b11111111} << (start % 8);
-  std::byte top_mask = std::byte{0b11111111};
-  if ((start + count) % 8) top_mask >>= (8 - (start + count) % 8);
+  std::byte bot_mask = ALL_ONE << (start % BITS_PER_EL);
+  std::byte top_mask = ALL_ONE;
+  if ((start + count) % BITS_PER_EL)
+    top_mask >>= (BITS_PER_EL - (start + count) % BITS_PER_EL);
 
   // Total bits set in the new sequence
-  size_t ps_total = (size_t)BIT_LOOKUP(pattern) * (count / 8);
-  ps_total +=
-      (size_t)BIT_LOOKUP(pattern & (std::byte{0b11111111} >> (8 - count % 8)));
+  size_t ps_total = (size_t)BIT_LOOKUP(pattern) * (count / BITS_PER_EL);
+  ps_total += (size_t)BIT_LOOKUP(
+      pattern & (ALL_ONE >> (BITS_PER_EL - count % BITS_PER_EL)));
   // Counter for the number of bytes in the old sequence
   size_t ps_before = 0;
 
   // Offset the pattern due to where the start bit is
-  pattern = (pattern << (start % 8)) | (pattern >> (8 - (start % 8)));
+  pattern = (pattern << (start % BITS_PER_EL)) |
+            (pattern >> (BITS_PER_EL - (start % BITS_PER_EL)));
 
   // Index of the byte we are changing
-  size_t idx = start / 8;
-
-  // Case where we only need to change one byte
-  if (start % 8 + count <= 8) {
-    bot_mask = std::byte{0b11111111};
-    if (count % 8 != 0) bot_mask >>= (8 - (count) % 8);
-    bot_mask <<= (start % 8);
-
-    ps_before = BIT_LOOKUP(m_underlying[idx] & bot_mask);
-    ps_total = BIT_LOOKUP(pattern & bot_mask);
-
-    m_underlying[idx] = (m_underlying[idx] & ~bot_mask) | (pattern & bot_mask);
-
-    m_num_set += ps_total;
-    m_num_set -= ps_before;
-    return (*this);
-  }
+  size_t idx = start / BITS_PER_EL;
 
   // First byte
   ps_before += BIT_LOOKUP(m_underlying[idx] & bot_mask);
   m_underlying[idx] = (m_underlying[idx] & ~bot_mask) | (pattern & bot_mask);
 
   // Loop set
-  for (++idx; (idx + 1) * 8 < start + count; ++idx) {
+  for (++idx; (idx + 1) * BITS_PER_EL < start + count; ++idx) {
     ps_before += BIT_LOOKUP(m_underlying[idx]);
     m_underlying[idx] = pattern;
   }
@@ -363,9 +393,7 @@ BitVector& BitVector::pattern_set(size_t start, size_t count,
 }
 
 // Set all bits in the vector
-BitVector& BitVector::set() {
-  return pattern_set(0, m_num_bits, std::byte{0b11111111});
-}
+BitVector& BitVector::set() { return pattern_set(0, m_num_bits, ALL_ONE); }
 
 // Set a bit in the vector
 BitVector& BitVector::set(size_t idx) {
@@ -385,11 +413,11 @@ BitVector& BitVector::set(size_t start, size_t count) {
         std::format("Invalid range to set BitVector: start: {}, count: {}, "
                     "number of bits is: {}",
                     start, count, m_num_bits));
-  return pattern_set(start, count, std::byte{0b11111111});
+  return pattern_set(start, count, ALL_ONE);
 }
 
 // Reset all bits in the vector
-BitVector& BitVector::reset() { return pattern_set(0, m_num_bits, std::byte{0}); }
+BitVector& BitVector::reset() { return pattern_set(0, m_num_bits, ALL_ZERO); }
 
 // Reset a bit in the vector
 BitVector& BitVector::reset(size_t idx) {
@@ -409,7 +437,7 @@ BitVector& BitVector::reset(size_t start, size_t count) {
         std::format("Invalid range to reset BitVector: start: {}, count: {}, "
                     "number of bits is: {}",
                     start, count, m_num_bits));
-  return pattern_set(start, count, std::byte{0});
+  return pattern_set(start, count, ALL_ZERO);
 }
 
 // Test to see if a bit is set
@@ -426,7 +454,7 @@ BitVector& BitVector::flip() {
   m_num_set = 0;
 
   for (size_t i = 0; i < m_underlying.size(); i++) {
-    m_underlying[i] = m_underlying[i] ^ std::byte{0b11111111};
+    m_underlying[i] = m_underlying[i] ^ ALL_ONE;
     m_num_set += BIT_LOOKUP(m_underlying[i]);
   }
   truncate_byte(m_underlying.size() - 1, m_num_bits);
@@ -456,17 +484,17 @@ BitVector& BitVector::flip(size_t start, size_t count) {
                     "{}, number of bits is: {}",
                     start, count, m_num_bits));
 
-  std::byte flipper = std::byte{255};
+  std::byte flipper = ALL_ONE;
   // Index of the byte we are changing
-  size_t idx = start / 8;
+  size_t idx = start / BITS_PER_EL;
 
   // We only need to change one byte in this case
-  if (start % 8 + count <= 8) {
+  if (start % BITS_PER_EL + count <= BITS_PER_EL) {
     // Constrict the flipped bits to only the ones we want
-    if (count % 8) flipper >>= (8 - (count % 8));
+    if (count % BITS_PER_EL) flipper >>= (BITS_PER_EL - (count % BITS_PER_EL));
 
     m_num_set -= BIT_LOOKUP(m_underlying[idx]);
-    m_underlying[idx] ^= (flipper << (start % 8));
+    m_underlying[idx] ^= (flipper << (start % BITS_PER_EL));
     m_num_set += BIT_LOOKUP(m_underlying[idx]);
 
     return (*this);
@@ -474,11 +502,11 @@ BitVector& BitVector::flip(size_t start, size_t count) {
 
   // First byte
   m_num_set -= BIT_LOOKUP(m_underlying[idx]);
-  m_underlying[idx] ^= flipper << (start % 8);
+  m_underlying[idx] ^= flipper << (start % BITS_PER_EL);
   m_num_set += BIT_LOOKUP(m_underlying[idx]);
 
   // Loop flip
-  for (++idx; (idx + 1) * 8 < start + count; ++idx) {
+  for (++idx; (idx + 1) * BITS_PER_EL < start + count; ++idx) {
     m_num_set -= BIT_LOOKUP(m_underlying[idx]);
     m_underlying[idx] ^= flipper;
     m_num_set += BIT_LOOKUP(m_underlying[idx]);
@@ -486,7 +514,8 @@ BitVector& BitVector::flip(size_t start, size_t count) {
 
   // Last byte
   m_num_set -= BIT_LOOKUP(m_underlying[idx]);
-  if ((start + count) % 8) flipper >>= (8 - (start + count) % 8);
+  if ((start + count) % BITS_PER_EL)
+    flipper >>= (BITS_PER_EL - (start + count) % BITS_PER_EL);
   m_underlying[idx] ^= flipper;
   m_num_set += BIT_LOOKUP(m_underlying[idx]);
 
@@ -498,9 +527,9 @@ BitVector& BitVector::flip(size_t start, size_t count) {
 // note: keep is modded, so don't worry about putting in too high a number
 void BitVector::truncate_byte(size_t byte, uint8_t keep) {
   // No need to cut off if keep is a multiple of 8
-  if (keep > 0 && keep % 8 == 0) return;
+  if (keep > 0 && keep % BITS_PER_EL == 0) return;
   // Generate cutoff mask
-  std::byte mask = std::byte{0b11111111} >> (8 - (keep % 8));
+  std::byte mask = ALL_ONE >> (BITS_PER_EL - (keep % BITS_PER_EL));
 
   // Get set bit diff as well as apply mask
   m_num_set -= BIT_LOOKUP(m_underlying[byte]);
@@ -529,7 +558,7 @@ BitVector& BitVector::operator&=(const BitVector& rhs) {
   // If we stopped before the last byte, all the rest should be assumed zero
   for (; i < m_underlying.size(); i++) {
     m_num_set -= BIT_LOOKUP(m_underlying[i]);
-    m_underlying[i] = std::byte{0};
+    m_underlying[i] = ALL_ZERO;
   }
 
   return *this;
@@ -549,7 +578,8 @@ BitVector& BitVector::operator|=(const BitVector& rhs) {
 
   // Fixup last byte just in case extra bits from rhs
   // were put at end of byte
-  if (i == m_underlying.size()) truncate_byte(m_underlying.size() - 1, m_num_bits);
+  if (i == m_underlying.size())
+    truncate_byte(m_underlying.size() - 1, m_num_bits);
 
   return *this;
 }
@@ -568,7 +598,8 @@ BitVector& BitVector::operator^=(const BitVector& rhs) {
 
   // Fixup last byte just in case extra bits from rhs
   // were put at end of byte
-  if (i == m_underlying.size()) truncate_byte(m_underlying.size() - 1, m_num_bits);
+  if (i == m_underlying.size())
+    truncate_byte(m_underlying.size() - 1, m_num_bits);
 
   return *this;
 }
@@ -578,7 +609,7 @@ BitVector BitVector::operator~() const {
   BitVector out(m_num_bits);
 
   for (size_t i = 0; i < m_underlying.size(); i++) {
-    out.m_underlying[i] = m_underlying[i] ^ std::byte{0b11111111};
+    out.m_underlying[i] = m_underlying[i] ^ ALL_ONE;
     out.m_num_set += BIT_LOOKUP(out.m_underlying[i]);
   }
   out.truncate_byte(out.m_underlying.size() - 1, out.m_num_bits);
@@ -655,16 +686,17 @@ BitVector& BitVector::operator<<=(size_t pos) {
 
   m_num_set = 0;
   // The first byte that has information we will keep
-  size_t skip = pos / 8;
+  size_t skip = pos / BITS_PER_EL;
   // The number of bits to interpolate between shift and shift+1 bytes
-  uint8_t slide = pos % 8;
+  uint8_t slide = pos % BITS_PER_EL;
   // The index of the byte we are modifying
   size_t idx = m_underlying.size() - 1;
 
   // Loop for combining neighboring bytes
   for (; skip < idx; --idx) {
     m_underlying[idx] = m_underlying[idx - skip] << slide;
-    m_underlying[idx] |= m_underlying[idx - (skip + 1)] >> (8 - slide);
+    m_underlying[idx] |=
+        m_underlying[idx - (skip + 1)] >> (BITS_PER_EL - slide);
     m_num_set += BIT_LOOKUP(m_underlying[idx]);
   }
 
@@ -676,7 +708,7 @@ BitVector& BitVector::operator<<=(size_t pos) {
   // Clear the rest of the bytes (<< fills with 0s from the right)
   while (idx) {
     --idx;
-    m_underlying[idx] = std::byte{0};
+    m_underlying[idx] = ALL_ZERO;
   }
 
   return *this;
@@ -693,16 +725,16 @@ BitVector& BitVector::operator>>=(size_t pos) {
 
   m_num_set = 0;
   // The first byte that has information we will keep
-  size_t skip = pos / 8;
+  size_t skip = pos / BITS_PER_EL;
   // The number of bits to interpolate between shift and shift+1 bytes
-  uint8_t slide = pos % 8;
+  uint8_t slide = pos % BITS_PER_EL;
   // The index of the byte we are modifying
   size_t idx = 0;
 
   // Combine neighbor bytes
   for (; idx + skip < m_underlying.size() - 1; ++idx) {
     m_underlying[idx] = m_underlying[idx + skip] >> slide;
-    m_underlying[idx] |= m_underlying[idx + skip + 1] << (8 - slide);
+    m_underlying[idx] |= m_underlying[idx + skip + 1] << (BITS_PER_EL - slide);
     m_num_set += BIT_LOOKUP(m_underlying[idx]);
   }
 
@@ -712,7 +744,7 @@ BitVector& BitVector::operator>>=(size_t pos) {
 
   // Clear the rest of the bytes (>> fills with 0s from the left)
   for (++idx; idx < m_underlying.size(); ++idx) {
-    m_underlying[idx] = std::byte{0};
+    m_underlying[idx] = ALL_ZERO;
   }
 
   return *this;
@@ -752,19 +784,20 @@ std::ostream& operator<<(std::ostream& os, const BitVector& bv) {
 
 // Resize this BitVector
 void BitVector::resize(size_t size, std::byte fill) {
-  uint8_t over = size % 8;
-  size_t bytes = (size / 8) + (over ? 1 : 0);
+  size_t bytes = (size / BITS_PER_EL);
+  if (size % BITS_PER_EL) bytes++;
 
   if (size > m_num_bits) {
-    if (m_num_bits % 8) {
+    if (m_num_bits % BITS_PER_EL) {
       // Add bits from the pattern to the end of the last byte
       int8_t diff = BIT_LOOKUP(m_underlying.back());
-      m_underlying.back() |= fill << (m_num_bits % 8);
+      m_underlying.back() |= fill << (m_num_bits % BITS_PER_EL);
       diff -= BIT_LOOKUP(m_underlying.back());
 
       // Update m_num_set
       m_num_set += diff;
-      fill = (fill >> (8 - (m_num_bits % 8))) | (fill << (m_num_bits % 8));
+      fill = (fill >> (BITS_PER_EL - (m_num_bits % BITS_PER_EL))) |
+             (fill << (m_num_bits % BITS_PER_EL));
     }
 
     // Add to num set based on the number of bytes we will be appending on to
@@ -779,13 +812,13 @@ void BitVector::resize(size_t size, std::byte fill) {
 
 // Resize this bitvector, optionally filling with bits
 void BitVector::resize(size_t size, bool fill) {
-  std::byte b = fill ? std::byte{0b11111111} : std::byte{0};
+  std::byte b = fill ? ALL_ONE : ALL_ZERO;
   resize(size, b);
 }
 
 // Append a bit to this BitVector
 void BitVector::append(bool value) {
-  if (m_num_bits % 8 == 0) m_underlying.push_back(std::byte{0});
+  if (m_num_bits % BITS_PER_EL == 0) m_underlying.push_back(ALL_ZERO);
   m_num_bits++;
   (*this)[m_num_bits - 1] = value;
 }
@@ -795,7 +828,7 @@ void BitVector::append(const BitVector& bv) {
   if (bv.m_num_bits == 0) return;
 
   // Pack bits into the last byte if there is room
-  uint8_t over = m_num_bits % 8;
+  uint8_t over = m_num_bits % BITS_PER_EL;
   if (over > 0) m_underlying.back() |= bv.m_underlying[0] << over;
 
   // Loop to push new bytes on to the back
@@ -803,19 +836,19 @@ void BitVector::append(const BitVector& bv) {
     std::byte add = bv.m_underlying[i];
     // Merge with next byte if offset
     if (over > 0) {
-      add = add >> (8 - over);
+      add = add >> (BITS_PER_EL - over);
       add |= bv.m_underlying[i + 1] << over;
     }
     m_underlying.push_back(add);
   }
 
   // The number of bits we had in our upper byte to begin with
-  uint8_t open_slots = (8 - (m_num_bits % 8)) % 8;
+  uint8_t open_slots = (BITS_PER_EL - (m_num_bits % BITS_PER_EL)) % BITS_PER_EL;
   // The number of bits taken up in the upper byte of bv
-  uint8_t req_slots = 8 - (bv.m_num_bits % 8);
+  uint8_t req_slots = BITS_PER_EL - (bv.m_num_bits % BITS_PER_EL);
   // Add the remaining bits if required
   if (req_slots < open_slots) {
-    std::byte add = bv.m_underlying.back() >> (8 - over);
+    std::byte add = bv.m_underlying.back() >> (BITS_PER_EL - over);
     m_underlying.push_back(add);
   }
 
@@ -825,7 +858,7 @@ void BitVector::append(const BitVector& bv) {
 
 // Prepend a single bit to the BitVector
 void BitVector::prepend(bool value) {
-  if (m_num_bits % 8 == 0) m_underlying.push_back(std::byte{0});
+  if (m_num_bits % BITS_PER_EL == 0) m_underlying.push_back(ALL_ZERO);
   m_num_bits++;
   *this <<= 1;
   (*this)[0] = value;
@@ -849,6 +882,6 @@ BitVector BitVector::operator+(const BitVector& bv) const {
   return out;
 }
 
-#endif // CSE4_IMPL
+#endif  // CSE4_IMPL
 
 };  // namespace cse
