@@ -52,4 +52,16 @@ namespace cse {
     return traversalPath;
   }
 
+  void GraphPosition::ResetTraversal(std::shared_ptr<Vertex> newStartVertex) {
+    assert(newStartVertex != nullptr && "ResetTraversal must receive a non-null vertex!");
+
+    // Clear traversal history
+    visitedVertices.clear();
+    traversalPath.clear();
+
+    // Set new starting position
+    currentVertex = newStartVertex;
+    MarkVisited(currentVertex);
+}
+
 } // namespace cse

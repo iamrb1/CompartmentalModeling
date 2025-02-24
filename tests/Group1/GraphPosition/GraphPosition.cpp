@@ -113,3 +113,42 @@ TEST_CASE("GraphPosition Traversal Path Tests", "[GraphPosition]") {
         REQUIRE(pos.GetTraversalPath() == expectedPath);
     }
 }
+
+TEST_CASE("GraphPosition ResetTraversal Tests", "[GraphPosition]") {
+    cse::Graph graph;
+    auto v1 = graph.AddVertex("A");
+    auto v2 = graph.AddVertex("B");
+    auto v3 = graph.AddVertex("C");
+
+    graph.AddEdge("A", "B");
+    graph.AddEdge("B", "C");
+
+    cse::GraphPosition pos(graph, v1);
+
+    SECTION("ResetTraversal clears visited vertices and traversal path") {
+        pos.AdvanceToNextNeighbor(); // Moves to B
+        REQUIRE(pos.GetTraversalPath().size() == 2); // A -> B
+
+        pos.ResetTraversal(v1); // Reset back to A
+
+        REQUIRE(pos.GetTraversalPath().size() == 1); // Only A should remain
+        REQUIRE(pos.GetTraversalPath().front() == v1); 
+        REQUIRE(pos.GetCurrentVertex() == v1);
+    }
+
+    SECTION("ResetTraversal allows starting from a different vertex") {
+        pos.ResetTraversal(v3);
+
+        REQUIRE(pos.GetTraversalPath().size() == 1); // Only C should be in path
+        REQUIRE(pos.GetTraversalPath().front() == v3);
+        REQUIRE(pos.GetCurrentVertex() == v3);
+    }
+
+    SECTION("ResetTraversal maintains valid traversal after reset") {
+        pos.AdvanceToNextNeighbor(); // Move to B
+        pos.ResetTraversal(v1); // Reset back to A
+
+        REQUIRE(pos.AdvanceToNextNeighbor()); // Should be able to move again
+        REQUIRE(pos.GetCurrentVertex() == v2);
+    }
+}
