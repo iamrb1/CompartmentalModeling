@@ -1,8 +1,3 @@
-/**
- * @file FixedPoint.h
- * @author Owen Garcia
- */
-
 #ifndef FIXEDPOINT_H
 #define FIXEDPOINT_H
 
@@ -10,6 +5,7 @@
 #include <ratio>
 #include <iostream>
 #include <stdexcept>
+#include <iomanip>
 
 namespace cse {
 
@@ -53,20 +49,23 @@ public:
     bool operator<=(const FixedPoint& other) const;
     bool operator>=(const FixedPoint& other) const;
 
-    // Stream output
-    friend std::ostream& operator<<(std::ostream& os, const FixedPoint& fp) {
-        return os << static_cast<double>(fp);
-    }
-
 private:
     StorageType value;
 
-    static constexpr StorageType scale() { return Ratio::num / Ratio::den; }
+    static constexpr double scale() {
+        return static_cast<double>(Ratio::num) / static_cast<double>(Ratio::den);
+    }
 
-    // Private constructor for internal use
     static FixedPoint fromRaw(StorageType rawValue);
 };
 
-#endif // FIXEDPOINT_H
+// Stream output (fixed: now a free function)
+template <typename Ratio>
+std::ostream& operator<<(std::ostream& os, const FixedPoint<Ratio>& fp) {
+    return os << static_cast<double>(fp);
 
 }
+
+} // namespace cse
+
+#endif // FIXEDPOINT_H

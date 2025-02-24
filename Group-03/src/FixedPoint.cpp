@@ -12,28 +12,20 @@ template <typename Ratio>
 FixedPoint<Ratio>::FixedPoint() : value(0) {}
 
 template <typename Ratio>
-FixedPoint<Ratio>::FixedPoint(double d) 
-    : value(static_cast<StorageType>(d * Ratio::num / static_cast<double>(Ratio::den))) {}
+FixedPoint<Ratio>::FixedPoint(double d) : value(static_cast<StorageType>(d * scale())) {}
 
 template <typename Ratio>
-FixedPoint<Ratio>::FixedPoint(int64_t i) 
-    : value(i * Ratio::num / Ratio::den) {}
+FixedPoint<Ratio>::FixedPoint(int64_t i) : value(i * scale()) {}
 
 // Type conversion
 template <typename Ratio>
-FixedPoint<Ratio>::operator double() const {
-    return static_cast<double>(value) * Ratio::den / Ratio::num;
-}
+FixedPoint<Ratio>::operator double() const { return static_cast<double>(value) / scale(); }
 
 template <typename Ratio>
-FixedPoint<Ratio>::operator int() const {
-    return static_cast<int>(operator double());
-}
+FixedPoint<Ratio>::operator int() const { return static_cast<int>(operator double()); }
 
 template <typename Ratio>
-FixedPoint<Ratio>::operator float() const {
-    return static_cast<float>(operator double());
-}
+FixedPoint<Ratio>::operator float() const { return static_cast<float>(operator double()); }
 
 // Arithmetic operators
 template <typename Ratio>
@@ -48,7 +40,8 @@ FixedPoint<Ratio> FixedPoint<Ratio>::operator-(const FixedPoint& other) const {
 
 template <typename Ratio>
 FixedPoint<Ratio> FixedPoint<Ratio>::operator*(const FixedPoint& other) const {
-    return FixedPoint::fromRaw((value * other.value) / scale());
+    return FixedPoint::fromRaw(static_cast<StorageType>((static_cast<double>(value) * other.value) / scale()));
+
 }
 
 template <typename Ratio>
@@ -152,7 +145,10 @@ FixedPoint<Ratio> FixedPoint<Ratio>::fromRaw(StorageType rawValue) {
     return fp;
 }
 
-// Explicit template instantiation for the default Ratio
+// Explicit Instantiations
 template class FixedPoint<std::ratio<1>>;
+template class FixedPoint<std::ratio<10>>;
+template class FixedPoint<std::ratio<100>>;
+template class FixedPoint<std::ratio<1000>>;
 
-}
+} // namespace cse

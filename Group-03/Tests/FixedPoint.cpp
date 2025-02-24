@@ -1,10 +1,12 @@
+#define CATCH_CONFIG_MAIN
+
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 
 #include "../src/FixedPoint.h"
 #include <vector>
 #include <sstream>
 
-using Ratio1 = std::ratio<1>;
+using Ratio1 = std::ratio<100>;
 using Fixed1 = cse::FixedPoint<Ratio1>;
 
 // Constructor Tests
