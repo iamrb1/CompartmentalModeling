@@ -21,7 +21,7 @@ namespace cse {
     };
 
     static EdgeProperties ParseProperties(std::istream &f, size_t indent_level) {
-      auto properties = FileUtil::GetProperties(f, indent_level + 2);
+      auto properties = FileUtil::GetProperties(f, indent_level + cse::BASE_INDENTATION);
       assert(properties.size() == 3);
       assert(properties.at(0).first == "bidirectional");
       assert(properties.at(1).first == "from");
