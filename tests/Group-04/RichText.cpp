@@ -59,3 +59,31 @@ TEST_CASE("AppendFormattedText", "[RichTextTest]") {
     REQUIRE(text1.formatsAt(8)->size() == 1);
     REQUIRE(text1.formatsAt(8)->at(0) == italic);
 }
+
+TEST_CASE("ComplexFormatting", "[RichTextTest]") {
+    cse::RichText text("hello world");
+
+    cse::RichText::Format bold("bold");
+    text.applyFormatToRange(bold, 0, 11);
+
+    cse::RichText::Format textSize("text size", 11);
+    text.applyFormatToRange(textSize, 0, 11);
+
+    cse::RichText::Format link("link", "https://cse498.github.io/");
+    text.applyFormatToRange(link, 0, 11);
+
+    auto formats = text.formatsAt(3);
+
+    REQUIRE(formats->size() == 3);
+    REQUIRE(formats->at(0) == bold);
+    REQUIRE(formats->at(0).name == std::string("bold"));
+    REQUIRE(std::get<std::monostate>(formats->at(0).metadata) == std::monostate());
+    REQUIRE(formats->at(1) == link);
+    REQUIRE(formats->at(1).name == std::string("link"));
+    REQUIRE(std::get<std::string>(formats->at(1).metadata) == std::string("https://cse498.github.io/"));
+    REQUIRE(formats->at(2) == textSize);
+    REQUIRE(formats->at(2).name == std::string("text size"));
+    REQUIRE(std::get<int32_t>(formats->at(2).metadata) == 11);
+
+
+}
