@@ -871,11 +871,13 @@ void BitVector::prepend(const BitVector& bv) {
   append(tmp);
 }
 
+// Append a bit vector to the end of this one
 BitVector& BitVector::operator+=(const BitVector& bv) {
   this->append(bv);
   return *this;
 }
 
+// Append two bit vectors (NOT ASSOCIATIVE, right gets added to left)
 BitVector BitVector::operator+(const BitVector& bv) const {
   BitVector out = *this;
   out.append(bv);
