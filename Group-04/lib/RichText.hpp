@@ -55,9 +55,11 @@ class RichText {
 
   size_t size() const noexcept { return text.size(); }
 
-  const char& char_at(size_t pos) const { return text.at(pos); }
+  const char& charAt(size_t pos) const { return text.at(pos); }
 
-  std::unique_ptr<std::vector<Format>> formats_at(size_t pos) const {
+  std::string toString() const { return text; }
+
+  std::unique_ptr<std::vector<Format>> formatsAt(size_t pos) const {
     auto result = std::make_unique<std::vector<Format>>();
     for (const auto& [format, index] : formatting) {
       if (index.contains(pos)) result->push_back(format);
@@ -82,6 +84,11 @@ class RichText {
         continue;
       }
 
+      formatting.insert({right->first, right->second})
+          .first->second.offset(text.size());
+      ++right;
+    }
+    while (right != right_end) {
       formatting.insert({right->first, right->second})
           .first->second.offset(text.size());
       ++right;
