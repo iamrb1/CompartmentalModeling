@@ -96,7 +96,7 @@ public:
   Datum &getValue(std::size_t row_index_, std::size_t column_index_);
   [[nodiscard]] const Datum &getValue(std::size_t row_index_,
                         std::size_t column_index_) const;
-  [[nodiscard]] std::tuple<const std::size_t, const std::size_t> shape() const;
+  [[nodiscard]] std::tuple<std::size_t, std::size_t> shape() const;
   cse::ReferenceVector<Datum> getColumn(std::size_t column_index_);
   void insertDefaultRow(
       std::size_t row_index_ = std::numeric_limits<std::size_t>::max(),

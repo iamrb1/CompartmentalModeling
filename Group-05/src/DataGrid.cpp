@@ -22,14 +22,7 @@ namespace cse {
  * @return Indexed vector row from DataGrid
  */
 DataGrid::row_t &DataGrid::operator[](const std::size_t row_index_) {
-  assert(!grid_.empty());
-  assert(row_index_ < grid_.size());
-
-  if (grid_.empty() || row_index_ >= grid_.size()) {
-    throw std::out_of_range("Row index out of bounds");
-  }
-
-  return grid_.at(row_index_);
+  return this->at(row_index_);
 }
 
 /**
@@ -38,14 +31,7 @@ DataGrid::row_t &DataGrid::operator[](const std::size_t row_index_) {
  * @return Indexed vector row from DataGrid
  */
 DataGrid::row_t &DataGrid::getRow(const std::size_t row_index_) {
-  assert(!grid_.empty());
-  assert(row_index_ < grid_.size());
-
-  if (grid_.empty() || row_index_ >= grid_.size()) {
-    throw std::out_of_range("Row index out of bounds");
-  }
-
-  return grid_.at(row_index_);
+  return this->at(row_index_);
 }
 
 /**
@@ -111,7 +97,7 @@ const Datum &DataGrid::getValue(const std::size_t row_index_,
  * @brief Returns the shape of the DataGrid
  * @return tuple of (# of rows, # of columns)
  */
-std::tuple<const std::size_t, const std::size_t> DataGrid::shape() const {
+std::tuple<std::size_t, std::size_t> DataGrid::shape() const {
   size_t rows = grid_.size();
   size_t columns = rows == 0 ? 0 : grid_[0].size();
   return std::make_tuple(rows, columns);
@@ -144,7 +130,7 @@ cse::ReferenceVector<Datum> DataGrid::getColumn(const std::size_t column_index_)
  * @param default_value_ of row values
  */
 void DataGrid::insertDefaultRow(std::size_t row_index_, double default_value_) {
-  assert(row_index_ <= grid_.size() || row_index_ == 0);
+  assert(row_index_ <= grid_.size());
 
   if (row_index_ > grid_.size()) {
     throw std::out_of_range("Row index out of bounds");
@@ -170,7 +156,7 @@ void DataGrid::insertDefaultRow(std::size_t row_index_, double default_value_) {
  */
 void DataGrid::insertDefaultRow(std::size_t row_index_,
                                 std::string default_value_) {
-  assert(row_index_ <= grid_.size() || row_index_ == 0);
+  assert(row_index_ <= grid_.size());
 
   if (row_index_ > grid_.size()) {
     throw std::out_of_range("Row index out of bounds");
@@ -197,7 +183,7 @@ void DataGrid::insertDefaultRow(std::size_t row_index_,
 void DataGrid::insertDefaultColumn(std::size_t column_index_,
                                    double default_value_) {
   assert(!grid_.empty());
-  assert(column_index_ <= grid_[0].size() || column_index_ == 0);
+  assert(column_index_ <= grid_[0].size());
 
   if (grid_.empty() || column_index_ > grid_.front().size()) {
     throw std::out_of_range("Column index out of bounds");
@@ -222,7 +208,7 @@ void DataGrid::insertDefaultColumn(std::size_t column_index_,
 void DataGrid::insertDefaultColumn(std::size_t column_index_,
                                    const std::string &default_value_) {
   assert(!grid_.empty());
-  assert(column_index_ <= grid_[0].size() || column_index_ == 0);
+  assert(column_index_ <= grid_[0].size());
 
   if (grid_.empty() || column_index_ > grid_.front().size()) {
     throw std::out_of_range("Column index out of bounds");
@@ -358,6 +344,11 @@ const Datum &DataGrid::at(std::size_t row_index_,
  */
 DataGrid::row_t &DataGrid::at(std::size_t row_index_) {
   assert(row_index_ < grid_.size());
+
+  if (grid_.empty() || row_index_ >= grid_.size()) {
+    throw std::out_of_range("Row index out of bounds");
+  }
+
   return grid_[row_index_];
 }
 
@@ -368,6 +359,11 @@ DataGrid::row_t &DataGrid::at(std::size_t row_index_) {
  */
 const DataGrid::row_t &DataGrid::at(std::size_t row_index_) const {
   assert(row_index_ < grid_.size());
+
+  if (grid_.empty() || row_index_ >= grid_.size()) {
+    throw std::out_of_range("Row index out of bounds");
+  }
+
   return grid_[row_index_];
 }
 
