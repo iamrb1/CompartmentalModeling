@@ -15,7 +15,13 @@
 namespace cse {
 
 /// Epsilon used to compare doubles
-static const double kEpsilon = 0.0001;
+static constexpr double kEpsilon = 0.0001;
+
+/// Used to remove trailing zeros
+static constexpr char kTrailingZero = '0';
+
+/// Used to remove decimal point
+static constexpr char kDecimalPoint = '.';
 
 /**
  * Returns the string value of the Datum.
@@ -57,9 +63,9 @@ double Datum::GetDouble() const {
 
       // CITE: https://stackoverflow.com/questions/13686482/c11-stdto-stringdouble-no-trailing-zeros.
       // Used the above link to help remove trailing 0s and . when a double converts into a string.
-      string_numeric_value.erase(string_numeric_value.find_last_not_of('0') + 1,
+      string_numeric_value.erase(string_numeric_value.find_last_not_of(kTrailingZero) + 1,
                                  std::string::npos);
-      string_numeric_value.erase(string_numeric_value.find_last_not_of('.') + 1,
+      string_numeric_value.erase(string_numeric_value.find_last_not_of(kDecimalPoint) + 1,
                                  std::string::npos);
       value_ = string_numeric_value;
     } else {
@@ -73,7 +79,7 @@ double Datum::GetDouble() const {
  * Converts the Datum into a double.
  * @warning If the Datum is an invalid double, converts into NaN.
  */
-void Datum::AsDouble() {
+[[maybe_unused]] void Datum::AsDouble() {
   if (IsString()) {
     assert(IsString());
     try {
@@ -136,7 +142,7 @@ Datum Datum::operator-(const Datum &datum) const {
  */
 Datum Datum::operator*(const Datum &datum) const {
   if (IsString() || datum.IsString()) {
-    throw std::runtime_error("Can't multiple a string Datum.");
+    throw std::runtime_error("Can't multiply a string Datum.");
   }
 
   assert(IsDouble() && datum.IsDouble());
