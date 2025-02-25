@@ -86,7 +86,7 @@ public:
 
   [[maybe_unused]] void AsString();
 
-  [[maybe_unused]] [[maybe_unused]] void AsDouble();
+  [[maybe_unused]] void AsDouble();
 
   Datum &operator=(const Datum &datum);
 
