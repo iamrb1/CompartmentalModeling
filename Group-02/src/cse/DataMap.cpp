@@ -12,8 +12,8 @@ namespace cse {
  * @param initial std::initializer list of a pair of string and any
  */
 [[maybe_unused]] DataMap::DataMap(std::initializer_list<std::pair<std::string, std::any>> initial) {
-  for (const auto& keyvalue : initial) {
-    m_map[keyvalue.first] = keyvalue.second;
+  for (const auto& pair : initial) {
+    m_map[pair.first] = pair.second;
   }
 }
 
@@ -21,12 +21,12 @@ namespace cse {
 * Check if key is within the DataMap
 * @param name std::string name to be found
 * @return bool if key exists or not
+ *
+ * (For grading purposes of initial specs, this function function was renamed from keyContains to better fit naming
+ * convention)
 */
 bool DataMap::contains(const std::string& name) const {
-  if (m_map.find(name) == m_map.end()) {
-    return false;
-  }
-  return true;
+  return (m_map.find(name) != m_map.end());
 }
 
 /**
@@ -38,7 +38,7 @@ bool DataMap::contains(const std::string& name) const {
  */
 std::any& DataMap::operator[](const std::string& key) {
   if (!m_map.contains(key)) {
-    m_map[key] = std::any(0);
+    m_map[key] = std::any(DEFAULT_VALUE);
   }
   return m_map[key];
 }
