@@ -1,4 +1,4 @@
-TEST_NAMES := AuditedPointerTest
+TEST_NAMES := AuditedPointerTest RandomAccessSetTest
 
 CXX = g++
 
@@ -32,10 +32,10 @@ cranky-%:
 
 cranky: $(addprefix cranky-, $(TEST_NAMES))
 
-test-web-js:
-	cd web && make test-web
+# test-web-js:
+# 	cd web && make test-web
 
-clean: $(addprefix clean-, $(TEST_NAMES)) clean-web
+clean: $(addprefix clean-, $(TEST_NAMES))
 	rm -f *.out
 	rm -f *.o
 	rm -f *.gcda
