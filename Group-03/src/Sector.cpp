@@ -2,7 +2,7 @@
 
 
 namespace cse{
-Sector::Sector(int x, int y) 
+Sector::Sector(int x, int y)
     : x(x), y(y) {}
 
 void Sector::add_circle(Circle* circle) {

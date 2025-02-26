@@ -45,10 +45,10 @@ double DataTracker::median() const {
 
 double DataTracker::min() const {
     if (values.empty()) return 0.0;
-    
+
     double min = *std::min_element(values.begin(), values.end());
 
-    assert(std::all_of(values.begin(), values.end(), [&](double v) { return v >= min; }) && 
+    assert(std::all_of(values.begin(), values.end(), [&](double v) { return v >= min; }) &&
            "Min value is not actually the minimum.");
 
     return min;
@@ -59,7 +59,7 @@ double DataTracker::max() const {
 
     double max = *std::max_element(values.begin(), values.end());
 
-    assert(std::all_of(values.begin(), values.end(), [&](double v) { return v <= max; }) && 
+    assert(std::all_of(values.begin(), values.end(), [&](double v) { return v <= max; }) &&
            "Max value is not actually the maximum.");
 
     return max;

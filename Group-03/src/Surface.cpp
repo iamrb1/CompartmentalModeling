@@ -1,9 +1,9 @@
 #include "Surface.h"
 
 namespace cse{
-Surface::Surface(int width, int height, int sector_size) 
+Surface::Surface(int width, int height, int sector_size)
     : width(width), height(height), surface_size(sector_size), sector_width(width/sector_size), sector_height(height/sector_size){
-    
+
     // I got all of this from copilot, I was going to make something similar
     sectors.resize(sector_width, std::vector<Sector>(sector_height, Sector(0, 0))); // Resize sectors vector
     for (int i = 0; i < sector_width; ++i) {
@@ -32,6 +32,6 @@ void Surface::move_circle(Circle* circle, float x_pos, float y_pos) {
 }
 
 void Surface::check_collision() {
-    
+
 }
 }

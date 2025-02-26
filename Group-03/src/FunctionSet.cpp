@@ -25,8 +25,12 @@ cse::FunctionSet<R, Args...>::~FunctionSet() = default;
  * addFunction
  */
 template <typename R, typename... Args>
-void cse::FunctionSet<R, Args...>::addFunction(const FunctionType& func)
+void cse::FunctionSet<R, Args...>::AddFunction(const FunctionType& func)
 {
+    if (func == nullptr){
+      std::cerr << "Function does not exist" << std::endl;
+      return;
+    }
     using PointerType = R(*)(Args...);
 
     if (func.target_type() == typeid(PointerType)) {
@@ -45,7 +49,7 @@ void cse::FunctionSet<R, Args...>::addFunction(const FunctionType& func)
  * clearAll
  */
 template <typename R, typename... Args>
-void cse::FunctionSet<R, Args...>::clearAll()
+void cse::FunctionSet<R, Args...>::ClearAll()
 {
     mFunctions.clear();
 }
@@ -54,7 +58,7 @@ void cse::FunctionSet<R, Args...>::clearAll()
  * isEmpty
  */
 template <typename R, typename... Args>
-bool cse::FunctionSet<R, Args...>::isEmpty() const
+bool cse::FunctionSet<R, Args...>::IsEmpty() const
 {
     return mFunctions.empty();
 }
@@ -63,7 +67,7 @@ bool cse::FunctionSet<R, Args...>::isEmpty() const
  * countFunSet
  */
 template <typename R, typename... Args>
-std::size_t cse::FunctionSet<R, Args...>::countFunSet() const
+std::size_t cse::FunctionSet<R, Args...>::CountFun() const
 {
     return mFunctions.size();
 }
@@ -72,8 +76,12 @@ std::size_t cse::FunctionSet<R, Args...>::countFunSet() const
  * Find the index of the function
  */
 template <typename R, typename... Args>
-int cse::FunctionSet<R, Args...>::findFunctionIndex(const FunctionType& func) const
+int cse::FunctionSet<R, Args...>::FindFunctionIndex(const FunctionType& func) const
 {
+    if (func == nullptr){
+        std::cerr << "Are you really trying to find an empty function? Really?" << std::endl;
+        return -1;
+    }
     using PointerType = R(*)(Args...);
 
     if (func.target_type() == typeid(PointerType))
@@ -94,6 +102,7 @@ int cse::FunctionSet<R, Args...>::findFunctionIndex(const FunctionType& func) co
             }
         }
     }
+    std::cerr << "Function does not exist in the set" << std::endl;
     return -1;
 }
 
@@ -103,14 +112,18 @@ int cse::FunctionSet<R, Args...>::findFunctionIndex(const FunctionType& func) co
  * removeFunction
  */
 template <typename R, typename... Args>
-void cse::FunctionSet<R, Args...>::removeFunction( const FunctionType& func)
+void cse::FunctionSet<R, Args...>::RemoveFunction( const FunctionType& func)
 {
-    int index = findFunctionIndex(func);
+    if (func == nullptr){
+        std::cerr << "Are you really trying to remove an empty function? Really?" << std::endl;
+        return;
+    }
+    int index = FindFunctionIndex(func);
     if (index >= 0)
     {
         mFunctions.erase(mFunctions.begin() + index);
+        std::cerr << "Function is removed, hopfully." << std::endl;
     }
 }
-template class cse::FunctionSet<int, int>;                  // For "FunctionSet<int,int>"
-template class cse::FunctionSet<void, const std::string&>;  // For "FunctionSet<void, const std::string&>"
-// Add more lines if you use more template argument sets...
+template class cse::FunctionSet<int, int>;                  /// For "FunctionSet<int,int>"
+template class cse::FunctionSet<void, const std::string&>;  /// For "FunctionSet<void, const std::string&>"
