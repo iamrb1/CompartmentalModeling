@@ -221,6 +221,12 @@ TEST_CASE("Equal Functionality", "[datum]") {
     CHECK(datum_double == datum_double1);
     CHECK(datum_double != datum_double2);
   }
+
+  SECTION("Testing one double and one string") {
+    cse::Datum datum_double(123.123);
+    cse::Datum datum_string("test");
+    CHECK(datum_double != datum_string);
+  }
 }
 
 TEST_CASE("Assignment functionality", "[datum]") {
