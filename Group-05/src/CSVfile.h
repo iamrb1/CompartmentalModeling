@@ -4,7 +4,7 @@
  * @brief Manages CSV file interactions with DataGrid.
  *
  * This class loads CSV data into a DataGrid and exports a DataGrid to CSV,
- *        handling parsing and errors.
+ * handling the parsing and errors.
  */
 
 #pragma once
@@ -27,6 +27,13 @@ public:
   static DataGrid LoadCsv(const std::string &file_name, char delimiter = ',');
   static bool ExportCsv(const std::string &file_name, const DataGrid &grid,
                         char delimiter = ',');
+
+private:
+// These are helper functions for internal use in CSV class
+  static std::string TrimWhitespaces(const std::string &s);
+  static bool IsNumeric(const std::string &s);
+  static std::string SanitizeCsvField(const std::string &s, char delimiter);
+
 };
 
 } // namespace cse

@@ -15,59 +15,64 @@
 #include <tuple>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 
 namespace cse {
 
 /**
  * @brief Trims the whitespaces from both ends of a string.
  *
- * @param s The string to trim.
+ * @param input The string to trim.
  * @return The trimmed string.
  */
-static std::string Trim(const std::string &s) {
-  size_t start = s.find_first_not_of(" \t\r\n");
-  size_t end = s.find_last_not_of(" \t\r\n");
-  // CITE: Used ChatGPT to write this return statement and to find a method for trimming whitespaces effectively.
-  return (start == std::string::npos || end == std::string::npos)
-             ? ""
-             : s.substr(start, end - start + 1);
+std::string CSVFile::TrimWhitespaces(const std::string &input) {
+  static const std::string WHITESPACE = " \t\r\n";
+  // Finds the first character that is not a whitespace.
+  auto start = std::find_if(input.begin(), input.end(), [&](char character) {
+    return WHITESPACE.find(character) == std::string::npos;
+  });
+  // Finds the last character that is not a whitespace (using reverse iterator).
+  auto end = std::find_if(input.rbegin(), input.rend(), [&](char character) {
+    return WHITESPACE.find(character) == std::string::npos;
+  });
+  // If no non-whitespace character is found, return an empty string; otherwise, return the trimmed substring.
+  return (start == input.end()) ? "" : std::string(start, end.base());
 }
 
 /**
  * @brief Checks if a string represents a numeric value.
  *
- * @param s The string to check.
+ * @param input The string to check.
  * @return True if the string is numeric, false otherwise.
  */
-static bool IsNumeric(const std::string &s) {
-  std::istringstream iss(s);
+bool CSVFile::IsNumeric(const std::string &input) {
+  std::istringstream iss(input);
   double d;
   iss >> d;
 
-  //Returns true if the entire string is parsed successfully as a number
+  // Returns true if the entire string is parsed successfully as a number
   return iss.eof() && !iss.fail();
 }
 
 /**
- * @brief Prepares a string for CSV format, escaping quotes and handling
- * delimiters.
+ * @brief Prepares a string for CSV format, escaping quotes and handling delimiters.
  *
- * @param s The string to sanitize.
+ * @param input The string to sanitize.
  * @param delimiter The delimiter character used in the CSV.
  * @return The sanitized string.
  */
-static std::string Sanitize(const std::string &s, char delimiter) {
-  if (s.find(delimiter) != std::string::npos ||
-      s.find('"') != std::string::npos) {
+std::string CSVFile::SanitizeCsvField(const std::string &input, char delimiter) {
+  if (input.find(delimiter) != std::string::npos ||
+      input.find('"') != std::string::npos) {
     std::string result = "\"";
-    for (char c : s) {
-      // CITE: Used ChatGPT to develop this logic for escaping double quotes in CSV fields.
-      result += (c == '"') ? "\"\"" : std::string(1, c);
+    for (char character : input) {
+      // CITE: Used ChatGPT to help develop this logic for escaping double quotes in CSV fields.
+      result += (character == '"') ? "\"\"" : std::string(1, character);
     }
     result += "\"";
     return result;
   }
-  return s;
+  return input;
 }
 
 /**
@@ -88,7 +93,6 @@ DataGrid CSVFile::LoadCsv(const std::string &file_name, char delimiter) {
   if (!file.is_open()) {
     throw std::runtime_error("Cannot open file: " + file_name);
   }
-
   // Assert that the file stream is open (which is for debug builds).
   assert(file.is_open() && "File must be open for reading.");
 
@@ -101,9 +105,29 @@ DataGrid CSVFile::LoadCsv(const std::string &file_name, char delimiter) {
     std::string token;
     std::vector<Datum> row;
 
-    // CITE: Researched on StackOverflow to learn how to tokenize each CSV line and trim whitespace effectively for this below chunk of code.
+    // CITE: Used StackOverflow to learn how to tokenize each CSV line and trim whitespace effectively for the code below.
     while (std::getline(line_stream, token, delimiter)) {
-      token = Trim(token);
+      // Trim any leading/trailing whitespace from the token.
+      token = TrimWhitespaces(token);
+      // If the token starts with a quote but doesn't end with one,
+      // it likely contains the delimiter as part of the field.
+      // Continue reading and appending tokens until we find the closing quote.
+      if (!token.empty() && token.front() == '"' && token.back() != '"') {
+        std::string next_token;
+        while (std::getline(line_stream, next_token, delimiter)) {
+          // Append the delimiter and the next part without extra trimming
+          // to preserve any spaces inside the quoted field.
+          token += delimiter + next_token;
+          // Once the token ends with a quote, we've captured the entire field.
+          if (!token.empty() && token.back() == '"') {
+            break;
+          }
+        }
+      }
+      // Remove surrounding quotes if they are present.
+      if (!token.empty() && token.front() == '"' && token.back() == '"') {
+        token = token.substr(1, token.size() - 2);
+      }
       if (!token.empty() && IsNumeric(token)) {
         try {
           double value = std::stod(token);
@@ -111,7 +135,8 @@ DataGrid CSVFile::LoadCsv(const std::string &file_name, char delimiter) {
           assert(!std::isnan(value) &&
                  "Converted numeric value should not be NaN.");
           row.emplace_back(value);
-        } catch (...) {
+        //This will make the error handling more clearer to understand
+        } catch (const std::invalid_argument &conversion_error) {
           row.emplace_back(token);
         }
       } else {
@@ -121,11 +146,15 @@ DataGrid CSVFile::LoadCsv(const std::string &file_name, char delimiter) {
 
     data.push_back(row);
   }
+// If no data was read from the CSV, return an empty DataGrid.
+  file.close();
+
+if (data.empty()) {
+  return DataGrid();
+}
 
   //Initializing a Datagrid directly from the parsed 2D vector
   cse::DataGrid grid(data);
-
-  file.close();
   return grid;
 }
 
@@ -145,13 +174,13 @@ bool CSVFile::ExportCsv(const std::string &file_name, const DataGrid &grid,
                         char delimiter) {
   std::ofstream out_file(file_name);
 
-  // Assert that the output file stream is open and is active in debug mode.
-  assert(out_file.is_open() && "Output file must be open for writing.");
-
   // Checks proper error handling in the release builds                        
   if (!out_file.is_open()) {
     throw std::runtime_error("Cannot write to file: " + file_name);
   }
+
+  // Assert that the output file stream is open and is active in debug mode.
+  assert(out_file.is_open() && "Output file must be open for writing.");
 
   //CITE: Used GPT to think through and extract grid's dimensions (rows and columns) for further processing
   std::tuple<const std::size_t, const std::size_t> shape = grid.shape();
@@ -165,20 +194,20 @@ bool CSVFile::ExportCsv(const std::string &file_name, const DataGrid &grid,
     assert(row.size() == num_cols &&
            "Row does not have the expected number of columns.");
     for (std::size_t j = 0; j < num_cols; ++j) {
-      std::string out_value;
 
       //CITE: Used GPT to help with this if/else statement to convert each datum into a string.
-      if (row[j].IsString()) {
-        std::string opt_str = row[j].GetString();
-        out_value = opt_str;
+      std::string out_value;
+      if (row[j].IsDouble()) {
+        double val = row[j].GetDouble();
+        // Convert the numeric value to a string—this ensures that even 0.0 is properly represented.
+        out_value = std::to_string(val);
       } else {
-        double opt_double = row[j].GetDouble();
-        out_value =
-            (opt_double) ? std::to_string(opt_double) : "";
+        // Otherwise, use the string stored in the cell.
+        out_value = row[j].GetString();
       }
 
       //This writes the sanitized cell value and if this isn't the last column, it will append the delimiter.
-      out_file << Sanitize(out_value, delimiter);
+      out_file << SanitizeCsvField(out_value, delimiter);
       if (j < num_cols - 1) {
         out_file << delimiter;
       }

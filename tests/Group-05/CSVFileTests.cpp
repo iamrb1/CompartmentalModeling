@@ -136,4 +136,93 @@ TEST_CASE("CSVFile LoadCsv - File Not Found", "[CSVFile]") {
   // Attempt to load a non-existent CSV file and expect an exception
   std::string non_existent_file = "non_existent_file.csv";
   CHECK_THROWS_AS(cse::CSVFile::LoadCsv(non_existent_file), std::runtime_error);
+  
+}
+
+TEST_CASE("CSVFile LoadCsv - Empty CSV", "[CSVFile][edge]") {
+  // Create an empty CSV file.
+  std::string test_file = "empty.csv";
+  {
+    std::ofstream out_file(test_file);
+    REQUIRE(out_file.is_open());
+    // Write nothing to simulate an empty file.
+    out_file.close();
+  }
+
+  // Load the empty CSV file.
+  cse::DataGrid grid = cse::CSVFile::LoadCsv(test_file);
+  auto shape = grid.shape();
+  // Expect the grid to be empty.
+  REQUIRE(std::get<0>(shape) == 0);
+  REQUIRE(std::get<1>(shape) == 0);
+
+  std::remove(test_file.c_str());
+}
+
+TEST_CASE("CSVFile LoadCsv - Header Only", "[CSVFile][edge]") {
+  // Create a CSV file with only a header row.
+  std::string test_file = "header_only.csv";
+  {
+    std::ofstream out_file(test_file);
+    REQUIRE(out_file.is_open());
+    out_file << "Name,Age,Score\n";
+    out_file.close();
+  }
+
+  // Load the CSV file.
+  cse::DataGrid grid = cse::CSVFile::LoadCsv(test_file);
+  auto shape = grid.shape();
+  // Expect 1 row (the header) and 3 columns.
+  REQUIRE(std::get<0>(shape) == 1);
+  REQUIRE(std::get<1>(shape) == 3);
+
+  std::remove(test_file.c_str());
+}
+
+TEST_CASE("CSVFile LoadCsv - Special Characters", "[CSVFile][edge]") {
+  // Create a CSV file with special characters in fields.
+  std::string test_file = "special_chars.csv";
+  {
+    std::ofstream out_file(test_file);
+    REQUIRE(out_file.is_open());
+    out_file << "\"Name\",\"Age\",\"Comment\"\n";
+    out_file << "\"Alice\",\"30\",\"Hello, world!\"\n";
+    // Here, newlines inside a field might not be fully supported by our parser as of now.
+    //This might need some adjustment in near-future updates.
+    out_file << "\"Bob\",\"25\",\"Line1\\nLine2\"\n";
+    out_file.close();
+  }
+
+  // Load the CSV file.
+  cse::DataGrid grid = cse::CSVFile::LoadCsv(test_file);
+  auto shape = grid.shape();
+  // Expect 3 rows, 3 columns.
+  REQUIRE(std::get<0>(shape) == 3);
+  REQUIRE(std::get<1>(shape) == 3);
+  
+  // Check that special characters are preserved or handled as intended.
+  std::vector<cse::Datum> row1 = grid.getRow(1);
+  CHECK(row1[2].GetString() == "Hello, world!");
+
+  std::remove(test_file.c_str());
+}
+
+TEST_CASE("CSVFile ExportCsv - Zero Value Preservation", "[CSVFile][edge]") {
+  // Create a DataGrid with a 0.0 value.
+  cse::DataGrid data_grid(1, 1);
+  data_grid.at(0, 0) = cse::Datum(0.0);
+  std::string test_file = "zero_value.csv";
+  bool export_success = cse::CSVFile::ExportCsv(test_file, data_grid);
+  REQUIRE(export_success);
+
+  // Read the exported CSV file.
+  std::ifstream in_file(test_file);
+  REQUIRE(in_file.is_open());
+  std::string content;
+  std::getline(in_file, content);
+  // Check that the 0.0 value is present (std::to_string typically outputs "0.000000").
+  CHECK(content.find("0.000000") != std::string::npos);
+
+  in_file.close();
+  std::remove(test_file.c_str());
 }
