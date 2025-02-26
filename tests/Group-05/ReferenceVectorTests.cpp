@@ -121,12 +121,12 @@ TEST_CASE("Erase() functionality", "[erase]") {
     reference_vector.PushBack(d3);
 
     SECTION("Remove all indices") {
-      reference_vector.Erase(0, 3);
+      reference_vector.EraseIndices(0, 3);
       CHECK(reference_vector.Empty());
     }
 
     SECTION("Remove a few indices") {
-      reference_vector.Erase(0,2);
+      reference_vector.EraseIndices(0,2);
       CHECK(reference_vector.Size() == 1);
     }
   }
@@ -134,7 +134,7 @@ TEST_CASE("Erase() functionality", "[erase]") {
   SECTION("Invalid Erases") {
     cse::ReferenceVector<cse::Datum> empty;
     CHECK_THROWS(empty.Erase(1));
-    CHECK_THROWS(empty.Erase(2,7));
+    CHECK_THROWS(empty.EraseIndices(2,7));
 
     cse::Datum d1(123.123);
     cse::Datum d2("test");
@@ -142,11 +142,11 @@ TEST_CASE("Erase() functionality", "[erase]") {
 
     values.PushBack(d1);
     values.PushBack(d2);
-    CHECK_THROWS(empty.Erase(1,0));
+    CHECK_THROWS(empty.EraseIndices(1,0));
   }
 }
 
-TEST_CASE("Insert functionality", "[insert]") {
+TEST_CASE("Insert() functionality", "[insert]") {
   cse::Datum d1(123.123);
   cse::Datum d2("test");
   cse::Datum d3(987);
@@ -216,4 +216,44 @@ TEST_CASE("SetReference() functionality", "[set_reference]") {
 
   cse::ReferenceVector<cse::Datum> empty;
   CHECK_THROWS(empty.SetReference(2, d3));
+}
+
+TEST_CASE("Iterator functionality", "[iterator]") {
+  cse::Datum d1(123.123);
+  cse::Datum d2("test");
+  cse::Datum d3(987);
+
+  cse::ReferenceVector<cse::Datum> reference_vector;
+  reference_vector.PushBack(d1);
+  reference_vector.PushBack(d2);
+  reference_vector.PushBack(d3);
+
+  SECTION("Iterator traversal") {
+    auto it = reference_vector.begin();
+    CHECK((*it).GetDouble() == 123.123);
+
+    ++it;
+    CHECK((*it).GetString() == "test");
+
+    ++it;
+    CHECK((*it).GetDouble() == 987);
+
+    ++it;
+    CHECK(it == reference_vector.end());
+  }
+
+  SECTION("Reverse iterator traversal") {
+    auto it = reference_vector.end();
+    
+    --it;
+    CHECK((*it).GetDouble() == 987);
+
+    --it;
+    CHECK((*it).GetString() == "test");
+
+    --it;
+    CHECK((*it).GetDouble() == 123.123);
+
+    CHECK(it == reference_vector.begin());
+  }
 }

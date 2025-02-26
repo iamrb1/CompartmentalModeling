@@ -46,7 +46,7 @@ class ReferenceVector {
 
     assert(!references_.empty());
     references_.pop_back();
-  };
+  }
 
   /**
    * Returns the number of elements in the vector.
@@ -76,7 +76,7 @@ class ReferenceVector {
 
     assert(!references_.empty());
     return *references_.front();
-  };
+  }
 
   /**
    * Returns a reference to the last template_type in the vector.
@@ -89,7 +89,7 @@ class ReferenceVector {
 
     assert(!references_.empty());
     return *references_.back();
-  };
+  }
 
   /**
    * Erases the element at the index.
@@ -109,7 +109,7 @@ class ReferenceVector {
    * @param first The first index to remove.
    * @param last The first index you don't want removed.
    */
-  [[maybe_unused]] void Erase(size_t first, size_t last) {
+  [[maybe_unused]] void EraseIndices(size_t first, size_t last) {
     if (first >= references_.size() || last > references_.size()) {
       throw std::out_of_range("Index out of range.");
     }
@@ -135,7 +135,7 @@ class ReferenceVector {
       throw std::runtime_error("Index out of range.");
     }
 
-    assert(index < references_.size());
+    assert(index <= references_.size());
     references_.insert(references_.begin() + index, &value);
   }
 
@@ -208,6 +208,17 @@ class ReferenceVector {
     iterator operator++(int) {
       iterator temp = *this;
       ++(*this);
+      return temp;
+    }
+
+    iterator &operator--() {
+      --it_;
+      return *this;
+    }
+
+    iterator operator--(int) {
+      iterator temp = *this;
+      --(*this);
       return temp;
     }
 
