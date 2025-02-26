@@ -9,7 +9,7 @@ class AnnotatedWrapper {
 public:
     // Constructor
     AnnotatedWrapper(){
-        annotations = std::unordered_map<std::string, std::string>();
+        mAnnotations = std::unordered_map<std::string, std::string>();
     };
 
     // Destructor
@@ -23,7 +23,7 @@ public:
     void clearAnnotations();
 
 private:
-    std::unordered_map<std::string, std::string> annotations;
+    std::unordered_map<std::string, std::string> mAnnotations;
 
 };
 
