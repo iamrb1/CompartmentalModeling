@@ -6,7 +6,21 @@
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 #include <cse/DataMap.h>
 
-TEST_CASE("DataMap Initialization Tests", "[DataMap]") {
+TEST_CASE("DataMap Default Constructor Test", "[DataMap]") {
+  cse::DataMap data_map;
+  data_map.insert("key", 20);
+
+  SECTION("DataMap is not empty") {
+    bool y = data_map.empty();
+    REQUIRE(y == 0);
+  }
+
+  SECTION("Valid DataMap keys") {
+    REQUIRE(data_map.count("key") == 1);
+  }
+}
+
+TEST_CASE("DataMap Initializer List Constructor Test", "[DataMap]") {
   cse::DataMap data_map = {
     {"name", std::string("rahul")},
     {"age", 22},
@@ -102,6 +116,17 @@ TEST_CASE("DataMap Insert Method Tests", "[DataMap]") {
   }
 }
 
+TEST_CASE("DataMap [] operator Test") {
+  cse::DataMap data_map;
+  data_map["joe"] = 80;
+  int val = std::any_cast<int>(data_map["joe"]);
+  REQUIRE(val == 80);
+
+  data_map["bob"];
+  auto value = std::any_cast<int>(data_map["bob"]);
+  REQUIRE(value == 0);
+}
+
 TEST_CASE("DataMap .at method Tests","[DataMap]") {
   cse::DataMap data_map;
   data_map.insert("key", 80.2);
@@ -131,13 +156,30 @@ TEST_CASE("DataMap erase method Test") {
   REQUIRE(data_map.empty() == 1);
 }
 
-TEST_CASE("DataMap [] operator Test") {
+TEST_CASE("DataMap clear method Test") {
   cse::DataMap data_map;
-  data_map["joe"] = 80;
-  int val = std::any_cast<int>(data_map["joe"]);
-  REQUIRE(val == 80);
+  data_map.insert("key", 80.2);
+  data_map.clear();
+  REQUIRE(data_map.empty() == 1);
+}
 
-  data_map["bob"];
-  auto value = std::any_cast<int>(data_map["bob"]);
-  REQUIRE(value == 0);
+TEST_CASE("DataMap size method Test") {
+  cse::DataMap data_map;
+  data_map.insert("key", 80.2);
+  REQUIRE(data_map.size() == 1);
+}
+
+TEST_CASE("DataMap empty method Test") {
+  cse::DataMap data_map;
+  data_map.insert("key", 80.2);
+  REQUIRE_FALSE(data_map.empty() == 1);
+
+  data_map.clear();
+  REQUIRE(data_map.empty() == 1);
+}
+
+TEST_CASE("DataMap count method Test") {
+  cse::DataMap data_map;
+  data_map.insert("key", 80.2);
+  REQUIRE(data_map.count("key") == 1);
 }

@@ -51,7 +51,7 @@ class DataMap {
   /**
   * Insert key value pair into DataMap
    *
-   * (For grading purposes of inital specs, this function was renamed from set to insert to better match the standard
+   * (For grading purposes of initial specs, this function was renamed from set to insert to better match the standard
    * library)
   * @tparam T any value
   * @param name key name to be inserted

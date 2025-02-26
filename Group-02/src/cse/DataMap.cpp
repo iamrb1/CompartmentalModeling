@@ -31,7 +31,7 @@ bool DataMap::contains(const std::string& name) const {
 
 /**
  * Operator overload for Datamap []
- * defaults to 0 if called DataMap["key"]
+ * Defaults to 0 if called DataMap["key"]
  * Allows for assignment DataMap["key"] = 90
  * @param key
  * @return std::any&
