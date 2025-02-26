@@ -7,7 +7,6 @@
 #include "../../Group-05/src/DataGrid.h"
 #include "../../Group-05/src/Datum.cpp"
 #include "../../Group-05/src/Datum.h"
-#include "../../Group-05/src/ReferenceVector.cpp"
 #include "../../Group-05/src/ReferenceVector.h"
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 
@@ -15,6 +14,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <sstream> //added this include
 
 using cse::DataGrid;
 using cse::Datum;

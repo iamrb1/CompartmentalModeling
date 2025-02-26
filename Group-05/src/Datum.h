@@ -4,6 +4,7 @@
  * @author Max Krawec
  *
  * A data class that can be either a string or double.
+ * Can be useful for quick conversions between types and Excel functionality.
  */
 
 #pragma once
@@ -83,9 +84,15 @@ public:
 
   [[nodiscard]] double GetDouble() const;
 
-  void AsString();
+  [[maybe_unused]] void AsString();
 
-  void AsDouble();
+  [[maybe_unused]] void AsDouble();
+
+  Datum &operator=(const Datum &datum);
+
+  Datum &operator=(const double &double_value);
+
+  Datum &operator=(const std::string &string_value);
 
   Datum operator+(const Datum &datum) const;
 
@@ -97,11 +104,13 @@ public:
 
   bool operator==(const Datum &datum) const;
 
-  Datum &operator=(const Datum &datum);
-
-  Datum &operator=(const double &double_value);
-
-  Datum &operator=(const std::string &string_value);
+  /**
+   * Checks if two double or string Datums are not equal.
+   * Otherwise, returns true if one Datum is a string and the other is a double.
+   * @param datum The other Datum.
+   * @return True if the Datums are the same type and not equal each other. Otherwise false.
+   */
+  bool operator!=(const Datum &datum) const { return !(*this == datum); }
 };
 
 } // namespace cse
