@@ -5,6 +5,10 @@
 
 TEST_CASE("SchedulerTest Construct", "[Scheduler]") {
   cse::Scheduler scheduler;
+
+  CHECK(0 == scheduler.GetCurrProcesses());
+  CHECK(0 == scheduler.GetTotalProcesses());
+  CHECK(0 == scheduler.GetUniqueProcesses());
 }
 
 TEST_CASE("SchedulerTest Add", "[Scheduler]") {
@@ -56,23 +60,23 @@ TEST_CASE("SchedulerTest Empty", "[Scheduler]") {
 
 TEST_CASE("SchedulerTest Update", "[Scheduler]") {
   cse::Scheduler scheduler;
-  scheduler.UpdateProcessCount(1, 12);
+  scheduler.SetProcessCount(1, 12);
   CHECK(12 == scheduler.GetCurrProcesses());
   CHECK(12 == scheduler.GetTotalProcesses());
   CHECK(1 == scheduler.GetUniqueProcesses());
 
-  scheduler.UpdateProcessCount(1, -1);
+  scheduler.SetProcessCount(1, -1);
   CHECK(12 == scheduler.GetCurrProcesses());
   CHECK(12 == scheduler.GetTotalProcesses());
   CHECK(1 == scheduler.GetUniqueProcesses());
 
   scheduler.AddProcess(0);
-  scheduler.UpdateProcessCount(0, 12);
+  scheduler.SetProcessCount(0, 12);
   CHECK(24 == scheduler.GetCurrProcesses());
   CHECK(24 == scheduler.GetTotalProcesses());
   CHECK(2 == scheduler.GetUniqueProcesses());
 
-  scheduler.UpdateProcessCount(1, 0);
+  scheduler.SetProcessCount(1, 0);
   CHECK(12 == scheduler.GetCurrProcesses());
   CHECK(12 == scheduler.GetTotalProcesses());
   CHECK(1 == scheduler.GetUniqueProcesses());
@@ -80,18 +84,18 @@ TEST_CASE("SchedulerTest Update", "[Scheduler]") {
 
 TEST_CASE("SchedulerTest Queue", "[Scheduler]") {
   cse::Scheduler scheduler, scheduler2, scheduler3;
-  CHECK(-1 == scheduler.GetNextProcess());
+  CHECK(std::nullopt == scheduler.PopNextProcess());
 
   scheduler.AddProcess(1);
-  CHECK(1 == scheduler.GetNextProcess());
-  CHECK(-1 == scheduler.GetNextProcess());
+  CHECK(1 == scheduler.PopNextProcess());
+  CHECK(std::nullopt == scheduler.PopNextProcess());
 
   scheduler.AddProcess(2);
   scheduler.AddProcess(1);
   scheduler.AddProcess(3);
-  std::vector<int> expected = {1, 2, 3}, actual = {};
+  std::vector<std::optional<int>> expected = {1, 2, 3}, actual = {};
   while (!scheduler.empty()) {
-    actual.push_back(scheduler.GetNextProcess());
+    actual.push_back(scheduler.PopNextProcess());
   }
   CHECK(expected == actual);
 
@@ -103,13 +107,13 @@ TEST_CASE("SchedulerTest Queue", "[Scheduler]") {
   expected = {4, 4, 4, 4, 3, 3, 3, 2, 2, 1};
   actual = {};
   while (!scheduler2.empty()) {
-    actual.push_back(scheduler2.GetNextProcess());
+    actual.push_back(scheduler2.PopNextProcess());
   }
   CHECK(expected == actual);
 
   for (int i = 0; i < 10; i++) {
     scheduler3.AddProcess(1);
-    scheduler3.GetNextProcess();
+    scheduler3.PopNextProcess();
   }
   expected = {1, 4, 4};
   actual = {};
@@ -117,7 +121,7 @@ TEST_CASE("SchedulerTest Queue", "[Scheduler]") {
   scheduler3.AddProcess(1);
   scheduler3.AddProcess(4);
   while (!scheduler3.empty()) {
-    actual.push_back(scheduler3.GetNextProcess());
+    actual.push_back(scheduler3.PopNextProcess());
   }
 
   CHECK(expected == actual);

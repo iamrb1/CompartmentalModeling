@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <iostream>
 #include <iterator>
+#include <cassert>
 #include <stdexcept>
 
 #ifdef NDEBUG

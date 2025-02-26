@@ -21,7 +21,7 @@ class Scheduler {
  private:
   /// Maps each process ID to the number of times that the process is currently
   /// in the scheduler
-  std::map<int, int> scheduleMap;
+  std::map<int, int> processCount;
 
   /// Maps each process ID to the number of times that process has been added to
   /// the scheduler
@@ -39,6 +39,8 @@ class Scheduler {
   /// Indicator if we need to sort the scheduler again
   bool needUpdate = true;
 
+  // Use a custom merge sort since std::sort is not stable, which can lead to the scheduling order for 'tied' processes being
+  // changed during the sorting process when they should not be changed. Using a stable custom merge sort fixes this issue
   // Code for merge and merge sort taken from
   // https://www.geeksforgeeks.org/merge-sort/
   void merge(std::vector<int>& arr, int left, int mid, int right) {
@@ -113,10 +115,10 @@ class Scheduler {
    * Adds a process to the Scheduler
    * @param id ID of the process we are adding to the scheduler
    */
-  void AddProcess(int id) {
-    scheduleMap[id]++;
+  void AddProcess(const int &id) {
+    processCount[id]++;
     timesCalled[id]++;
-    if (scheduleMap[id] == 1) {
+    if (processCount[id] == 1) {
       currIds.push_back(id);
     }
     totalProcesses++;
@@ -128,13 +130,13 @@ class Scheduler {
    * Removes the process of a given ID from the scheduler
    * @param id ID of the process we are removing from the scheduler
    */
-  void RemoveProcess(int id) {
-    if (scheduleMap.find(id) != scheduleMap.end() && scheduleMap[id] > 0) {
-      scheduleMap[id]--;
+  void RemoveProcess(const int &id) {
+    if (processCount.find(id) != processCount.end() && processCount[id] > 0) {
+      processCount[id]--;
       timesCalled[id]--;
       totalProcesses--;
       currProcesses--;
-      if (scheduleMap[id] == 0) {
+      if (processCount[id] == 0) {
         currIds.erase(std::find(currIds.begin(), currIds.end(), id));
       }
     }
@@ -146,22 +148,21 @@ class Scheduler {
    * @param id ID of the process we are updating the process count for
    * @param x The new process count
    */
-  void UpdateProcessCount(int id, int x) {
-    if (x < 0) {
+  void SetProcessCount(const int &id, const int &x) {
+    if (x < 0) { // Check we are given a valid count for the process
       return;
     }
-
-    if (scheduleMap.find(id) != scheduleMap.end()) {
-      totalProcesses -= scheduleMap[id];
-      currProcesses -= scheduleMap[id];
-      timesCalled[id] -= scheduleMap[id];
-      if (x == 0 && scheduleMap[id] != 0) {
+    if (processCount.find(id) != processCount.end()) {
+      totalProcesses -= processCount[id];
+      currProcesses -= processCount[id];
+      timesCalled[id] -= processCount[id];
+      if (x == 0 && processCount[id] != 0) {
         currIds.erase(std::find(currIds.begin(), currIds.end(), id));
       }
     } else if (x != 0) {
       currIds.push_back(id);
     }
-    scheduleMap[id] = x;
+    processCount[id] = x;
     timesCalled[id] += x;
     totalProcesses += x;
     currProcesses += x;
@@ -173,17 +174,17 @@ class Scheduler {
    * and removes it from the scheduler
    * @return ID of the highest priority process
    */
-  int GetNextProcess() {
-    if (currProcesses == 0) {
-      return -1;
+  std::optional<int> PopNextProcess() {
+    if (currProcesses == 0) { // Make sure the Scheduler isn't empty before popping a process from it
+      return std::nullopt;
     }
     if (needUpdate) {
       mergeSort(currIds, 0, currIds.size() - 1);
     }
     int outID = currIds[0];
-    scheduleMap[outID]--;
+    processCount[outID]--;
     currProcesses--;
-    if (scheduleMap[outID] == 0) {
+    if (processCount[outID] == 0) {
       currIds.erase(std::find(currIds.begin(), currIds.end(), outID));
     }
     needUpdate = false;
