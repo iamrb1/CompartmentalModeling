@@ -4,63 +4,67 @@
  *
  */
 
-#ifndef CSE498_SPRING2025_GROUP_09_WEBLAYOUT_WEBLAYOUT_H
-#define CSE498_SPRING2025_GROUP_09_WEBLAYOUT_WEBLAYOUT_H
-
 #pragma once
 #include <iostream>
 #include <vector>
 #include <emscripten.h>
+#include "../Image/image.hpp"
+#include "../TextBox/TextBox.hpp"
 
-/**
- * Temporary Image struct in place of Image class
- */
-struct Image {
-  int xLoc;
-  int yLoc;
-  int width;
-  int height;
-  std::string url;
-  int id;
+namespace cse {
 
-  bool operator==(const Image &image) const {
-    return id == image.id;
+struct TextBoxLayout {
+  TextBox textBox;
+  int y;
+  int x;
+
+  TextBoxLayout() : textBox(), x(0), y(0) {};
+
+  TextBoxLayout(const TextBox &textBox, int x, int y)
+      : textBox(textBox), x(x), y(y) {}
+
+  bool operator==(const TextBoxLayout &textboxLayout) const {
+    return ((textboxLayout.textBox.getText() == textBox.getText())
+        && (textboxLayout.textBox.getWidth() == textBox.getWidth())
+        && (textboxLayout.textBox.getHeight() == textBox.getHeight()));
   }
 };
 
-/**
- * Temporary TextBox struct in place of TextBox class
- */
-struct TextBox {
-  int xLoc;
-  int yLoc;
-  int width;
-  int height;
-  std::string text;
-  int id;
+struct ImageLayout {
+  Image image;
+  int y;
+  int x;
 
-  bool operator==(const TextBox &textBox) const {
-    return id == textBox.id;
+  ImageLayout() : image("", 0, 0), x(0), y(0) {};
+
+  ImageLayout(const Image &image, int x, int y)
+      : image(image), x(x), y(y) {}
+
+  bool operator==(const ImageLayout &imageLayout) const {
+    return ((imageLayout.image.getURL() == image.getURL()) && (imageLayout.image.getWidth() == image.getWidth())
+        && (imageLayout.image.getHeight() == image.getHeight()));
   }
 };
 
 class WebLayout {
  private:
-  std::vector<TextBox> textBoxes;
-  std::vector<Image> images;
-  void PushTextBox(const std::string &msg, const int &width, const int &height);
-  void PushImage(const std::string &url, const int &width, const int &height, const int &xLoc, const int &yLoc);
+  std::vector<TextBoxLayout> textBoxes;
+  std::vector<ImageLayout> images;
+
+  void PushTextBox(const std::string &msg, const int &width, const int &height, const int &x, const int &y);
+  void PushImage(const std::string &url, const int &width, const int &height, const int &x, const int &y);
 
  public:
   WebLayout() = default;
   ~WebLayout() = default;
-  void addImage(const Image &image);
-  void removeImage(const Image &image);
-  void addTextBox(const TextBox &textBox);
-  void removeTextBox(const TextBox &textBox);
+  void addImage(const ImageLayout &image);
+  void removeImage(const ImageLayout &image);
+  void addTextBox(const TextBoxLayout &textBox);
+  void removeTextBox(const TextBoxLayout &textBox);
   void LoadPage();
-  std::string GenerateJS();
   void TransitionToPage(const WebLayout &newPage);
-};
+  std::vector<ImageLayout> getImages();
+  std::vector<TextBoxLayout> getTextBoxes();
 
-#endif //CSE498_SPRING2025_GROUP_09_WEBLAYOUT_WEBLAYOUT_H
+};
+}

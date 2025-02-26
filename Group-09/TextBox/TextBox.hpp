@@ -51,6 +51,17 @@ class TextBox {
         height(config.height) {}
 
   /**
+   * @brief Compares two TextBox objects and determine if they are the same
+   * values
+   * @param text_box to compare
+   * @return true if same values
+   */
+  bool operator==(const TextBox& text_box) const {
+    return ((text_box.content == content) && (text_box.width == width) &&
+            (text_box.height == height));
+  }
+
+  /**
    * @brief Copy constructor.
    */
   TextBox(const TextBox& other)

@@ -3,41 +3,42 @@
  * @author merry
  */
 
-#include <emscripten.h>
 #include <iostream>
 #include "WebLayout.h"
 
-// Compile with: emcc main.cpp WebLayout.cpp -o output.js --shell-file index.html
+// Compile with: emcc main.cpp ../Image/Image.cpp WebLayout.cpp -o output.js --shell-file index.html
+using namespace cse;
 
 int main() {
   // Create WebLayout
   WebLayout *sampleWebLayout = new WebLayout();
 
   // Setup test Image
-  Image *testImage = new Image();
-  testImage->xLoc = 500;
-  testImage->yLoc = 300;
-  testImage->height = 250;
-  testImage->width = 250;
-  testImage->url =
-      "https://upload.wikimedia.org/wikipedia/en/thumb/a/a7/Michigan_State_Athletics_logo.svg/640px-Michigan_State_Athletics_logo.svg.png";
-  sampleWebLayout->addImage(*testImage);
+  Image *testImage = new Image(
+      "https://upload.wikimedia.org/wikipedia/en/thumb/a/a7/Michigan_State_Athletics_logo.svg/640px-Michigan_State_Athletics_logo.svg.png",
+      25,
+      25);
+  ImageLayout il(*testImage, 20, 30);
+  sampleWebLayout->addImage(il);
 
   // Setup test textbox
-  TextBox *testTextBox = new TextBox();
-  testTextBox->height = 50;
-  testTextBox->width = 400;
-  testTextBox->text = "Yay a Text Box";
-  sampleWebLayout->addTextBox(*testTextBox);
+  TextBoxConfig tbc;
+  tbc.height = 10;
+  tbc.width = 45;
+  tbc.text = "Yay a Text Box!";
+  TextBox *testTextBox = new TextBox(tbc);
+  TextBoxLayout tbl(*testTextBox, 40, 30);
+  sampleWebLayout->addTextBox(tbl);
 
-  // Setup test textbox2
-  TextBox *testTextBox2 = new TextBox();
-  testTextBox2->height = 150;
-  testTextBox2->width = 200;
-  testTextBox2->text = "Yay another Text Box";
-  sampleWebLayout->addTextBox(*testTextBox2);
+  // Setup test textbox2 (exceed barriers test)
+  TextBoxConfig tbc2;
+  tbc2.height = 15;
+  tbc2.width = 20;
+  tbc2.text = "Yay another Text Box!!!";
+  TextBox *testTextBox2 = new TextBox(tbc2);
+  TextBoxLayout tbl2(*testTextBox2, 500, 500);
+  sampleWebLayout->addTextBox(tbl2);
 
   // Load Page
   sampleWebLayout->LoadPage();
-  WebLayout *sampleWebLayout2 = new WebLayout();
 }
