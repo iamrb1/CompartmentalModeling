@@ -66,39 +66,36 @@ cse::StringSet cse::StringSet::Difference(const cse::StringSet& other) const {
 }
 
 /**
+ * @brief Delete or keep elements based on filter and boolean parameter
+ * @param filter custom filter function
+ * @param erase Boolean, if true delete element from string set, otherwise keep it
+ */
+void cse::StringSet::Filter(const std::function<bool(const std::string &)> filter, bool erase) {
+    std::vector<std::string> filteredElements;
+
+    for(const auto& str : mElements) {
+        if(erase == filter(str)){
+            filteredElements.push_back(str);
+        }
+    }
+
+    for(const auto& str : filteredElements){
+        mElements.erase(str);
+    }
+}
+
+/**
  * @brief Keep elements in string set based on custom filter
  * @param filter custom function
  */
-void cse::StringSet::RetainFilter(std::function<bool(const std::string&)> filter) {
-  std::vector<std::string> filteredElements;
-
-  for (const auto& str : mElements) {
-
-    if (!filter(str)) {
-      filteredElements.push_back(str);
-    }
-  }
-
-  for (const auto& str : filteredElements) {
-    mElements.erase(str);
-  }
+void cse::StringSet::RetainFilter(const std::function<bool(const std::string&)> filter) {
+  Filter(filter, false);
 }
 
 /**
  * @brief Delete elements based on custom filter
  * @param filter custom function
  */
-void cse::StringSet::RemoveFilter(std::function<bool(const std::string&)> filter) {
-  std::vector<std::string> filteredElements;
-
-  for (const auto& str : mElements) {
-
-    if (filter(str)) {
-      filteredElements.push_back(str);
-    }
-  }
-
-  for (const auto& str : filteredElements) {
-    mElements.erase(str);
-  }
+void cse::StringSet::RemoveFilter(const std::function<bool(const std::string&)> filter) {
+  Filter(filter, true);
 }

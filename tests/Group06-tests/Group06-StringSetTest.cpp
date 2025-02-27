@@ -24,6 +24,10 @@ TEST_CASE("Insert and Size Tests", "[insert]"){
     set.insert("purple");
     REQUIRE(set.size()==4);
 
+    set.clear();
+    set.insert({"black", "blue", "purple", "green", "yellow"});
+    REQUIRE(set.size() == 5);
+
 }
 
 TEST_CASE("Test for erase", "[erase]"){

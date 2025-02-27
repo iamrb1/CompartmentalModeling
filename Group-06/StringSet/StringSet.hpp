@@ -46,6 +46,14 @@ public:
   * @param str Added to string set
   */
   void insert(const std::string &str) { mElements.insert(str); }
+
+  /**
+  * @brief Add vector of strings into the string set
+  * @param stringVector  Vector of strings
+  */
+  void insert(const std::vector<std::string> &stringVector)
+  {mElements.insert(stringVector.begin(), stringVector.end()+1); }
+
   
   /**
   * @brief Erase specific string from string set
@@ -82,9 +90,12 @@ public:
   StringSet Intersection(const StringSet &other) const;
   
   StringSet Difference(const StringSet &other) const;
+
+  void Filter(const std::function<bool(const std::string &str)> filter, bool erase);
   
-  void RetainFilter(std::function<bool(const std::string &str)> filter);
+  void RetainFilter(const std::function<bool(const std::string &str)> filter);
   
-  void RemoveFilter(std::function<bool(const std::string &str)> filter);
+  void RemoveFilter(const std::function<bool(const std::string &str)> filter);
+
 };
 }  // namespace cse
