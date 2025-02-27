@@ -69,7 +69,7 @@ cse::StringSet cse::StringSet::Difference(const cse::StringSet& other) const {
  * @brief Keep elements in string set based on custom filter
  * @param filter custom function
  */
-void cse::StringSet::Filter(std::function<bool(const std::string&)> filter) {
+void cse::StringSet::RetainFilter(std::function<bool(const std::string&)> filter) {
   std::vector<std::string> filteredElements;
 
   for (const auto& str : mElements) {
@@ -88,7 +88,7 @@ void cse::StringSet::Filter(std::function<bool(const std::string&)> filter) {
  * @brief Delete elements based on custom filter
  * @param filter custom function
  */
-void cse::StringSet::FilterOut(std::function<bool(const std::string&)> filter) {
+void cse::StringSet::RemoveFilter(std::function<bool(const std::string&)> filter) {
   std::vector<std::string> filteredElements;
 
   for (const auto& str : mElements) {

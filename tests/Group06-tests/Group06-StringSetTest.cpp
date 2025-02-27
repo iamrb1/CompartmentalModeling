@@ -295,7 +295,7 @@ TEST_CASE("Test for Difference", "[Difference]"){
 }
 
 
- TEST_CASE("Test for Filter ", "[Filter]"){
+ TEST_CASE("Test for RetainFilter ", "[RetainFilter]"){
 
      StringSet set;
 
@@ -306,7 +306,7 @@ TEST_CASE("Test for Difference", "[Difference]"){
      set.insert("brown");
      set.insert("white");
 
-     set.Filter([](const std::string& str){
+     set.RetainFilter([](const std::string& str){
          return str.size() > 4;
      });
 
@@ -324,7 +324,7 @@ TEST_CASE("Test for Difference", "[Difference]"){
      REQUIRE(set.count("yellow") == 0);
 
      // Try in empty set (shouldn't give any errors, set still needs to be empty)
-     set.Filter([](const std::string& str){
+     set.RetainFilter([](const std::string& str){
          return str.size() > 4;
      });
 
@@ -332,7 +332,7 @@ TEST_CASE("Test for Difference", "[Difference]"){
 
  }
 
- TEST_CASE("Test for FilterOut", "[FilterOut]"){
+ TEST_CASE("Test for RemoveFilter", "[RemoveFilter]"){
      StringSet set;
 
      set.insert("blue");
@@ -343,7 +343,7 @@ TEST_CASE("Test for Difference", "[Difference]"){
      set.insert("white");
 
 
-     set.FilterOut([](const std::string& str){
+     set.RemoveFilter([](const std::string& str){
          return str.size() > 4;
      });
 
@@ -362,7 +362,7 @@ TEST_CASE("Test for Difference", "[Difference]"){
 
 
      // Try it in an empty set (shouldn't give any errors, still needs to be empty set)
-     set.FilterOut([](const std::string& str){
+     set.RemoveFilter([](const std::string& str){
          return str.size() > 4;
      });
 

@@ -16,12 +16,13 @@ namespace cse {
 
 /**
  * @brief A container(unordered_set) with a set of strings and various methods
+ * like adding, removing, checking existence, set operations and filtering
  * to simplify using the container.
  *
  */
 class StringSet {
 private:
-  /// @brief Unordered set of strings
+
   std::unordered_set<std::string> mElements;
 
 public:
@@ -82,8 +83,8 @@ public:
   
   StringSet Difference(const StringSet &other) const;
   
-  void Filter(std::function<bool(const std::string &in)> filter);
+  void RetainFilter(std::function<bool(const std::string &str)> filter);
   
-  void FilterOut(std::function<bool(const std::string &in)> filter);
+  void RemoveFilter(std::function<bool(const std::string &str)> filter);
 };
 }  // namespace cse
