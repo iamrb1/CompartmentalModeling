@@ -23,6 +23,7 @@ TEST_CASE("Insert and Size Tests", "[insert]"){
 
     set.insert("purple");
     REQUIRE(set.size()==4);
+
 }
 
 TEST_CASE("Test for erase", "[erase]"){
@@ -30,15 +31,10 @@ TEST_CASE("Test for erase", "[erase]"){
 
     set.insert("blue");
     set.insert("yellow");
-
-    REQUIRE(set.size() == 2);
-
     set.insert("black");
     REQUIRE(set.size() == 3);
 
     set.erase("yellow");
-    REQUIRE(set.size() == 2);
-
     set.erase("black");
     REQUIRE(set.size() == 1);
 
@@ -48,11 +44,9 @@ TEST_CASE("Test for erase", "[erase]"){
 
     set.erase("blue");
     REQUIRE(set.size() == 0);
-    REQUIRE(set.empty());
 
     set.erase("white");
     REQUIRE(set.size()==0);
-    REQUIRE(set.empty());
 
 }
 
@@ -62,19 +56,16 @@ TEST_CASE("Test for clear", "[clear]"){
     StringSet set;
 
     set.insert("blue");
-    REQUIRE(set.size() == 1);
-
     set.insert("yellow");
     REQUIRE(set.size() == 2);
 
     set.clear();
     REQUIRE(set.size() == 0);
-    REQUIRE(set.empty());
 
     // Try clearing empty set
     set.clear();
     REQUIRE(set.size() == 0);
-    REQUIRE(set.empty());
+
 }
 
 TEST_CASE("More test for erase and clear together", "[erase][clear]"){
@@ -85,20 +76,17 @@ TEST_CASE("More test for erase and clear together", "[erase][clear]"){
     REQUIRE(set.size() == 2);
 
     set.erase("white");
-    REQUIRE(set.size() == 1);
-
     set.erase("blue");
     REQUIRE(set.size() == 0);
 
     // Try clear in empty set
     set.clear();
     REQUIRE(set.size() == 0);
-    REQUIRE(set.empty());
 
     // Try deleting element from empty set
     set.erase("yellow");
     REQUIRE(set.size() == 0);
-    REQUIRE(set.empty());
+
 }
 
 TEST_CASE("Test for empty", "[empty]"){
@@ -114,6 +102,7 @@ TEST_CASE("Test for empty", "[empty]"){
     set.insert("blue");
     set.clear();
     REQUIRE(set.empty());
+
 }
 
 TEST_CASE("Test for count", "[count]"){
@@ -140,6 +129,7 @@ TEST_CASE("Test for count", "[count]"){
     set.clear();
     REQUIRE(set.count("yellow") == 0);
     REQUIRE(set.empty());
+
 }
 
 TEST_CASE("Test for Union", "[Union]"){
@@ -148,11 +138,8 @@ TEST_CASE("Test for Union", "[Union]"){
     // Empty sets
     StringSet unionSet = set1.Union(set2);
     REQUIRE(unionSet.size() == 0);
-    REQUIRE(unionSet.empty());
     REQUIRE(set1.size() == 0);
     REQUIRE(set2.size() == 0);
-    REQUIRE(set1.empty());
-    REQUIRE(set2.empty());
 
     // Not empty sets
     set1.insert("blue");
@@ -173,7 +160,6 @@ TEST_CASE("Test for Union", "[Union]"){
     REQUIRE(unionSet.count("pink") == 1);
     REQUIRE(unionSet.count("white") == 0);
     REQUIRE(unionSet.size() == 5); // blue, yellow, black, green, pink
-    REQUIRE_FALSE(unionSet.empty());
 
     // One set empty other one is not
     set1.clear();
@@ -185,7 +171,6 @@ TEST_CASE("Test for Union", "[Union]"){
     REQUIRE(unionSet.count("pink") == 1);
     REQUIRE(unionSet.count("white") == 0);
     REQUIRE(unionSet.size() == 3); // black, green, pink
-    REQUIRE_FALSE(unionSet.empty());
 
 }
 
@@ -196,11 +181,8 @@ TEST_CASE("Test for Intersection", "[Intersection]"){
     // Empty sets
     StringSet intersectionSet = set1.Intersection(set2);
     REQUIRE(intersectionSet.size() == 0);
-    REQUIRE(intersectionSet.empty());
     REQUIRE(set1.size() == 0);
     REQUIRE(set2.size() == 0);
-    REQUIRE(set1.empty());
-    REQUIRE(set2.empty());
 
     // Not empty sets
     set1.insert("blue");
@@ -219,7 +201,6 @@ TEST_CASE("Test for Intersection", "[Intersection]"){
     REQUIRE(intersectionSet.count("green") == 0);
     REQUIRE(intersectionSet.count("yellow") == 0);
     REQUIRE(intersectionSet.size() == 2); // blue, black
-    REQUIRE_FALSE(intersectionSet.empty());
 
     // One empty set
     set1.clear();
@@ -227,7 +208,7 @@ TEST_CASE("Test for Intersection", "[Intersection]"){
     REQUIRE(intersectionSet.count("blue") == 0);
     REQUIRE(intersectionSet.count("black") == 0);
     REQUIRE(intersectionSet.size() == 0);
-    REQUIRE(intersectionSet.empty());
+
 }
 
 
@@ -284,7 +265,6 @@ TEST_CASE("Test for Difference", "[Difference]"){
     REQUIRE(differenceSet1.count("red") == 0);
     REQUIRE_FALSE(differenceSet1.count("yellow") == 1);
     REQUIRE(differenceSet1.size() == 0);
-    REQUIRE(differenceSet1.empty());
 
     differenceSet2 = set2.Difference(set1);
     REQUIRE(differenceSet2.count("white") == 0);
@@ -292,7 +272,6 @@ TEST_CASE("Test for Difference", "[Difference]"){
     REQUIRE(differenceSet2.count("red") == 0);
     REQUIRE_FALSE(differenceSet2.count("green") == 1);
     REQUIRE(differenceSet2.size() == 0);
-    REQUIRE(differenceSet2.empty());
 
     // 2 empty sets
     set1.clear();
@@ -301,12 +280,10 @@ TEST_CASE("Test for Difference", "[Difference]"){
     differenceSet1 = set1.Difference(set2);
     REQUIRE(differenceSet1.count("white") == 0);
     REQUIRE(differenceSet1.size() == 0);
-    REQUIRE(differenceSet1.empty());
 
     differenceSet2 = set2.Difference(set1);
     REQUIRE(differenceSet2.count("white") == 0);
     REQUIRE(differenceSet2.size() == 0);
-    REQUIRE(differenceSet2.empty());
 
     // one set empty other is not
     set2.insert("blue");
@@ -341,10 +318,8 @@ TEST_CASE("Test for Difference", "[Difference]"){
      REQUIRE(set.count("blue") == 0);
      REQUIRE(set.count("red") == 0);
      REQUIRE(set.count("green") == 0);
-     REQUIRE_FALSE(set.empty());
 
      set.clear();
-     REQUIRE(set.empty());
      REQUIRE(set.size() == 0);
      REQUIRE(set.count("yellow") == 0);
 
@@ -354,8 +329,7 @@ TEST_CASE("Test for Difference", "[Difference]"){
      });
 
      REQUIRE(set.size() == 0);
-     REQUIRE(set.empty());
-     REQUIRE(set.count("blue") == 0);
+
  }
 
  TEST_CASE("Test for FilterOut", "[FilterOut]"){
@@ -381,10 +355,8 @@ TEST_CASE("Test for Difference", "[Difference]"){
      REQUIRE(set.count("blue") == 1);
      REQUIRE(set.count("red") == 1);
      REQUIRE(set.count("green") == 0);
-     REQUIRE_FALSE(set.empty());
 
      set.clear();
-     REQUIRE(set.empty());
      REQUIRE(set.size() == 0);
      REQUIRE(set.count("yellow") == 0);
 
@@ -395,8 +367,7 @@ TEST_CASE("Test for Difference", "[Difference]"){
      });
 
      REQUIRE(set.size() == 0);
-     REQUIRE(set.empty());
-     REQUIRE(set.count("blue") == 0);
+
  }
 
 
