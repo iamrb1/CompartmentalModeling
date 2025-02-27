@@ -67,8 +67,8 @@ cse::StringSet cse::StringSet::Difference(const cse::StringSet& other) const {
 
 /**
  * @brief Delete or keep elements based on filter and boolean parameter
- * @param filter custom filter function
- * @param erase Boolean, if true delete element from string set, otherwise keep it
+ * @param filter Custom filter function
+ * @param erase Boolean, RetainFilter function calls with false, RemoveFilter function calls with true
  */
 void cse::StringSet::Filter(const std::function<bool(const std::string &)> filter, bool erase) {
     std::vector<std::string> filteredElements;
