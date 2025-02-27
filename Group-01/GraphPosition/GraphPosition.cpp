@@ -8,7 +8,7 @@ namespace cse {
     traversalPath.push_back(vertex);
   }
 
-  GraphPosition::GraphPosition(const Graph &g, std::shared_ptr<Vertex> startVertex, TraversalMode mode = TraversalMode::DFS)
+  GraphPosition::GraphPosition(const Graph &g, std::shared_ptr<Vertex> startVertex, TraversalMode mode)
       : graph(g), currentVertex(startVertex), traversalMode(mode) {
     if (!startVertex) {
       throw std::invalid_argument("GraphPosition must be initialized with a non-null vertex!");
