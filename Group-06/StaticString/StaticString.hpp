@@ -53,7 +53,7 @@ public:
   * @param cstr Pointer to an array of characters that corresponds
   * to our string value.
   */
-  StaticString(const char* cstr) : mCurrentSize(0) {
+  constexpr StaticString(const char* cstr) : mCurrentSize(0) {
     // Loop over given array of characters until find null terminator
     // or the size exceeds static size initialized
     while (cstr[mCurrentSize] != null_terminator && mCurrentSize < MaxSize) {
@@ -75,7 +75,7 @@ public:
   *
   * @param staticString Static String object to be copied.
   */
-  StaticString(const StaticString& staticString) noexcept
+  constexpr StaticString(const StaticString& staticString) noexcept
       : mCurrentSize(staticString.mCurrentSize) {
     std::copy(staticString.mString, staticString.mString + MaxSize + 1,
               mString);
@@ -117,6 +117,9 @@ public:
   StaticString& operator=(const StaticString& staticString) {
     // Avoid assigning to itself
     assert(this != &staticString && "Assigning object itself is not allowed.");
+    if (this == &staticString) {
+      return *this;
+    }
 
     if (this != &staticString) {
       // Check if the string that we will copy is larger than MaxSize defined
@@ -184,7 +187,7 @@ public:
   * @param index size_t The index of character.
   * @return Indexed char value.
   */
-  char operator[](std::size_t index) {
+  char operator[](std::size_t index) const {
     // Indexed value is out of range or
     // trying to index to the null terminator at the end
     assert(index < mCurrentSize && "Index value is out of range.");
@@ -371,7 +374,7 @@ public:
   * @return std::size_t The index of the character if found;
   * if not found StaticString::npos.
   */
-  std::size_t find(const char& character) const noexcept {
+  constexpr std::size_t find(const char& character) const noexcept {
     for (std::size_t i = 0; i < mCurrentSize; ++i) {
       if (mString[i] == character) return i;
     }
