@@ -37,8 +37,7 @@ namespace cse {
 
         // If neighbor has not been visited, move to it
         if (visitedVertices.find(neighbor) == visitedVertices.end()) {
-          currentVertex = neighbor;
-          MarkVisited(currentVertex);
+          SetCurrentVertex(neighbor);
           return true;
         }
       }
@@ -60,8 +59,7 @@ namespace cse {
     traversalPath.clear();
 
     // Set new starting position
-    currentVertex = newStartVertex;
-    MarkVisited(currentVertex);
+    SetCurrentVertex(newStartVertex);
 }
 
 } // namespace cse
