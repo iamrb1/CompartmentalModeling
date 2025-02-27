@@ -11,6 +11,7 @@
 #include <string>
 #include <unordered_set>
 #include <vector>
+#include <cassert>
 
 namespace cse {
 
@@ -59,7 +60,10 @@ public:
   * @brief Erase specific string from string set
   * @param str Deleted from string set
   */
-  void erase(const std::string &str) { mElements.erase(str); }
+  void erase(const std::string &str) {
+      assert(!str.empty() && "Erasing empty string");
+      mElements.erase(str);
+  }
   
   /**
   * @brief Make string set empty
