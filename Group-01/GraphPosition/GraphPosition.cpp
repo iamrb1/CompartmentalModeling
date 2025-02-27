@@ -8,8 +8,8 @@ namespace cse {
     traversalPath.push_back(vertex);
   }
 
-  GraphPosition::GraphPosition(const Graph &g, std::shared_ptr<Vertex> startVertex)
-      : graph(g), currentVertex(startVertex) {
+  GraphPosition::GraphPosition(const Graph &g, std::shared_ptr<Vertex> startVertex, TraversalMode mode = TraversalMode::DFS)
+      : graph(g), currentVertex(startVertex), traversalMode(mode) {
     if (!startVertex) {
       throw std::invalid_argument("GraphPosition must be initialized with a non-null vertex!");
     }
@@ -28,6 +28,7 @@ namespace cse {
   }
 
   bool GraphPosition::AdvanceToNextNeighbor() {
+    // NEED TO MODIFY CODE TO SUPPORT DIFFERENT TRAVERSAL MODES
     assert(currentVertex != nullptr && "Current vertex should never be nullptr!");
     // Get the current vertex's edges
     for (auto &[neighborID, weakEdge] : currentVertex->GetEdges()) {
@@ -60,6 +61,16 @@ namespace cse {
 
     // Set new starting position
     SetCurrentVertex(newStartVertex);
-}
+  }
+
+  // NEED TO WRITE FULL FUNCTION
+  GraphPosition &GraphPosition::operator++() {
+    return *this;
+  }
+
+  // NEED TO WRITE FULL FUNCTION
+  GraphPosition::operator bool() const {
+    return false;
+  }
 
 } // namespace cse
