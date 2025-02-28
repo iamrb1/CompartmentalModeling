@@ -6,6 +6,19 @@
 #include <any>
 
 
+ /**
+ * @class AnnotatedWrapper
+ * @brief A wrapper class for managing key-value annotations.
+ *
+ * This class provides an easy-to-use interface for adding, retrieving,
+ * and removing key-value annotations. It is designed to be lightweight 
+ * and efficient using `std::unordered_map` for fast lookups.
+ *
+ * Internally:
+ * - Uses `std::unordered_map<std::string, std::string>` to store 
+ *   annotations as key-value pairs.
+ *
+ */
 namespace cse {
 
     class AnnotatedWrapper {
