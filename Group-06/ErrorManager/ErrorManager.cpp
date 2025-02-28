@@ -20,6 +20,8 @@
 #include <sstream>
 #include <stdexcept>
 #include <unordered_map>
+#include <array>
+#include <regex>
 
 namespace cse {
 /**
@@ -34,7 +36,7 @@ class ErrorManager {
    * @brief Possible levels of errors
    *
    */
-  enum class ErrorLevel { Info, Warning, Fatal };
+  enum class ErrorLevel { Info = 0, Warning = 1, Fatal = 2 };
 
   /**
    * @brief Executes a function and displays an error if function throws during
@@ -77,13 +79,12 @@ class ErrorManager {
   void printError(int32_t line, const std::string& message,
                   ErrorLevel level = ErrorLevel::Info) {
     assert(!message.empty());
-    assert(mStringColorCodes.find(level) != mStringColorCodes.end());
-    assert(mTerminationEnabled.find(level) != mTerminationEnabled.end());
-
+    assert(static_cast<std::size_t>(level) < mStringColorCodes.size());
+    assert(static_cast<std::size_t>(level) < mTerminationEnabled.size());
     std::stringstream ss;
     ss << "[";
     if (mColorsEnabled) {
-      ss << mStringColorCodes[level];
+      ss << mStringColorCodes[static_cast<int>(level)];
     }
     ss << errorLevelToString(level);
     if (mColorsEnabled) {
@@ -105,6 +106,9 @@ class ErrorManager {
     if (mLogFile.is_open()) {
       if (mColorsEnabled) {
         // Remove ANSI color codes for output in the file
+        // Tried to use RegEx, as suggested by a reviewer,
+        // but it was too difficult to implement
+
         size_t pos = 0;
         while ((pos = output.find("\033[")) != std::string::npos) {
           size_t endPos = output.find('m', pos);
@@ -118,11 +122,11 @@ class ErrorManager {
       }
     }
 
-    if (mActions.find(level) != mActions.end()) {
-      mActions[level]();
+    if (mActions[static_cast<int>(level)]) {
+      mActions[static_cast<int>(level)]();
     }
 
-    int code = mTerminationEnabled[level];
+    int code = mTerminationEnabled[static_cast<int>(level)];
     if (code > 0) {
       exit(code);
     }
@@ -139,7 +143,7 @@ class ErrorManager {
   void setAction(ErrorLevel level, const std::function<void()>& action) {
     assert(action);
 
-    mActions[level] = action;
+    mActions[static_cast<int>(level)] = action;
   }
 
   /**
@@ -192,9 +196,9 @@ class ErrorManager {
     assert(statusCode >= 0);
 
     if (enabled) {
-      mTerminationEnabled[level] = statusCode;
+      mTerminationEnabled[static_cast<int>(level)] = statusCode;
     } else {
-      mTerminationEnabled[level] = 0;
+      mTerminationEnabled[static_cast<int>(level)] = 0;
     }
   }
 
@@ -228,20 +232,16 @@ class ErrorManager {
   /// @brief File for logging errors
   std::ofstream mLogFile;
 
-  /// @brief Map that matches ErrorLevel to the corresponding ANSI color code
-  std::unordered_map<ErrorLevel, std::string> mStringColorCodes = {
-      {ErrorLevel::Info, COLOR_GREEN},
-      {ErrorLevel::Warning, COLOR_YELLOW},
-      {ErrorLevel::Fatal, COLOR_RED}};
+  /// @brief Array that matches ErrorLevel to the corresponding ANSI color code
+  std::array<std::string, 3> mStringColorCodes = {
+      COLOR_GREEN, COLOR_YELLOW, COLOR_RED};
 
   /// @brief Tracks whether termination of a program upon invoking an error is
   /// enabled
-  std::unordered_map<ErrorLevel, int32_t> mTerminationEnabled = {
-      {ErrorLevel::Info, 0}, {ErrorLevel::Warning, 0}, {ErrorLevel::Fatal, 0}};
-
-  /// @brief Map of actions to be invoked when a corresponding ErrorLevel is
+  std::array<int32_t, 3> mTerminationEnabled = {0, 0, 0};
+  /// @brief Array of actions to be invoked when a corresponding ErrorLevel is
   /// invoked
-  std::unordered_map<ErrorLevel, std::function<void()>> mActions;
+  std::array<std::function<void()>, 3> mActions;
 
   /// @brief Returns string representation of ErrorLevel
   /// @param level Corresponding ErrorLevel enum
