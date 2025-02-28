@@ -8,99 +8,101 @@ namespace cse {
  * @param index The position of the parser in the string
  * @return The first key found
  */
-std::string cse::ExpressionParser::ParseKey(const std::string expression, size_t &index) {
+std::string cse::ExpressionParser::ParseKey(const std::string &expression, size_t &index) {
   assert(index < expression.size());
   assert(std::any_of(expression.begin(), expression.end(), ::isdigit));
 
   while (index < expression.size() && expression[index]!='{') {
-    index++; // Skip whitespace
+    index++; 
   }
 
   if (expression[index]=='{') {
-    index++; // Skip opening '{'
+    index++; 
     std::string result;
 
-    // Extract the string inside the curly braces
-    while (index < expression.size() && expression[index]!='}') {
+    
+    while (expression[index]!='}') {
+      assert(expression[index]!='{');
+      assert(index<expression.size());
       result.push_back(expression[index]);
       index++;
     }
 
     if (expression[index]=='}') {
-      index++; // Skip closing '}'
+      index++; 
     }
 
     return result;
   }
 
   std::cerr << "Error: Expected string inside {}" << std::endl;
-  return ""; // Return a default error value (empty string)
+  return ""; 
 }
 
 /**
  * @brief Creates adding function that take a map with values to add
  *
- * @param name1 Key for first value
- * @param name2 Key for second value
+ * @param key1 Key for first value
+ * @param key2 Key for second value
  * @return auto
  */
-auto cse::ExpressionParser::MakeAddFun(const std::string name1, const std::string name2) {
+auto cse::ExpressionParser::MakeAddFun(const std::string &key1, const std::string &key2) {
   using map_t = std::map<std::string, double>;
-  return [name1, name2](map_t &m) {
-    return m[name1] + m[name2];
+  return [key1, key2](map_t &m) {
+    return m[key1] + m[key2];
   };
 }
 
 /**
  * @brief Creates subtracting function that take a map with values to add
  *
- * @param name1 Key for first value
- * @param name2 Key for second value
+ * @param key1 Key for first value
+ * @param key2 Key for second value
  * @return auto
  */
-auto cse::ExpressionParser::MakeSubtractFun(const std::string name1, const std::string name2) {
+auto cse::ExpressionParser::MakeSubtractFun(const std::string &key1, const std::string &key2) {
   using map_t = std::map<std::string, double>;
-  return [name1, name2](map_t &m) {
-    return m[name1] - m[name2];
+  return [key1, key2](map_t &m) {
+    return m[key1] - m[key2];
   };
 }
 
 /**
  * @brief Creates multiplication function that take a map with values to add
  *
- * @param name1 Key for first value
- * @param name2 Key for second value
+ * @param key1 Key for first value
+ * @param key2 Key for second value
  * @return auto
  */
-auto cse::ExpressionParser::MakeMultiplyFun(const std::string name1, const std::string name2) {
+auto cse::ExpressionParser::MakeMultiplyFun(const std::string &key1, const std::string &key2) {
   using map_t = std::map<std::string, double>;
-  return [name1, name2](map_t &m) {
-    return m[name1]*m[name2];
+  return [key1, key2](map_t &m) {
+    return m[key1]*m[key2];
   };
 }
 
 /**
  * @brief Creates dividation function that take a map with values to add
  *
- * @param name1 Key for first value
- * @param name2 Key for second value
+ * @param key1 Key for first value
+ * @param key2 Key for second value
  * @return auto
  */
-auto cse::ExpressionParser::MakeDivideFun(const std::string name1, const std::string name2) {
+auto cse::ExpressionParser::MakeDivideFun(const std::string &key1, const std::string &key2) {
   using map_t = std::map<std::string, double>;
-  return [name1, name2](map_t &m) {
-    return m[name1]/m[name2];
+  return [key1, key2](map_t &m) {
+    return m[key1]/m[key2];
   };
 }
 
 /**
  * @brief Evaluates equation represented by expression and returns simplified value as a double
  *
- * @param number_map Map with value and key that will be regerences in expression
+ * @param symbol_table_ Map with value and key that will be regerences in expression
  * @param expression Representing equation
  * @return double representing value of equation
  */
-double cse::ExpressionParser::Evaluate(std::map<std::string, double> number_map, const std::string expression) {
+double cse::ExpressionParser::Evaluate( const std::string &expression) {
   assert(std::any_of(expression.begin(), expression.end(), ::isdigit));
   assert(std::any_of(expression.begin(), expression.end(), [](char c) {
     return c=='+' || c=='-' || c=='/' || c=='*';
@@ -108,34 +110,42 @@ double cse::ExpressionParser::Evaluate(std::map<std::string, double> number_map,
   size_t index = 0;
   std::string first_key;
   std::string second_key;
-  first_key = ParseKey(expression, index);  // Put the first number in map
+  first_key = ParseKey(expression, index);  
   double result = 0;
-  assert(number_map.find(first_key)!=number_map.end());
+  assert(symbol_table_.find(first_key)!=symbol_table_.end());
 
   while (index < expression.size()) {
     index++;
-    char op = expression[index];  // Get the operator
+    char op = expression[index];  
+    char comparison_char;
     if (op=='+' || op=='-' || op=='*' || op=='/') {
-      index++;  // Skip the operator
+      index++;  
       second_key = ParseKey(expression, index);
-      assert(number_map.find(second_key)!=number_map.end());
-      if (op=='+') {
+      assert(symbol_table_.find(second_key)!=symbol_table_.end());
+      addition(comparison_char);
+      if (op==comparison_char) {
         auto fun = MakeAddFun(first_key, second_key); //Creates function
-        result = fun(number_map); //Evauluates operator
+        result = fun(symbol_table_); 
         break;
-      } else if (op=='-') {
+      }
+      subtraction(comparison_char);
+      if (op==comparison_char) {
         auto fun = MakeSubtractFun(first_key, second_key);
-        result = fun(number_map);
+        result = fun(symbol_table_);
         break;
-      } else if (op=='*') {
+      }
+      multiplication(comparison_char);
+      if (op==comparison_char) {
         auto fun = MakeMultiplyFun(first_key, second_key);
-        result = fun(number_map);
+        result = fun(symbol_table_);
         break;
-      } else if (op=='/') {
+      } 
+      division(comparison_char);
+      if (op==comparison_char) {
         auto fun = MakeDivideFun(first_key, second_key);
-        assert(number_map[second_key]!=0);
+        assert(symbol_table_[second_key]!=0);
         {
-          result = fun(number_map);
+          result = fun(symbol_table_);
           break;
         }
       }
@@ -145,4 +155,4 @@ double cse::ExpressionParser::Evaluate(std::map<std::string, double> number_map,
   return result;
 
 }
-} // namespace cse
+} 

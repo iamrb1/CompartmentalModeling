@@ -16,6 +16,44 @@ namespace cse {
  */
 class ExpressionParser {
   private:
+
+  /**
+   * @brief set char to subtraction operator
+   * 
+   * @param sub_char comparison char
+   */
+  constexpr void subtraction(char& sub_char){
+    sub_char='-';
+  }
+
+  /**
+   * @brief set char to addition operator
+   * 
+   * @param add_char comparison char
+   */
+  constexpr void addition(char& add_char){
+    add_char='+';
+  }
+
+  /**
+   * @brief set char to division operator
+   * 
+   * @param div_char comparison char
+   */
+  constexpr void division(char& div_char){
+    div_char='/';
+  }
+
+  /**
+   * @brief set char to multiplication operator
+   * 
+   * @param mult_char comparison char
+   */
+  constexpr void multiplication(char& mult_char){
+    mult_char='*';
+  }
+
+  std::map<std::string, double> symbol_table_;
   /**
    * @brief Parses the next key in the equation, returning that number as a double
    *
@@ -23,7 +61,7 @@ class ExpressionParser {
    * @param index The position of the parser in the string
    * @return The first key found
    */
-   std::string ParseKey(const std::string expression, size_t &index);
+   std::string ParseKey(const std::string &expression, size_t &index);
 
   /**
    * @brief Creates division function that take a map with values to add
@@ -32,7 +70,7 @@ class ExpressionParser {
    * @param name2 Key for second value
    * @return auto Lambda function to perform operation
    */
-   auto MakeDivideFun(const std::string name1, const std::string name2);
+   auto MakeDivideFun(const std::string &name1, const std::string &name2);
 
   /**
    * @brief Creates adding function that take a map with values to add
@@ -41,7 +79,7 @@ class ExpressionParser {
    * @param name2 Key for second value
    * @return auto Lambda function to perform operation
    */
-   auto MakeAddFun(const std::string name1, const std::string name2);
+   auto MakeAddFun(const std::string &name1, const std::string &name2);
 
   /**
    * @brief Creates subtracting function that take a map with values to add
@@ -50,7 +88,7 @@ class ExpressionParser {
    * @param name2 Key for second value
    * @return auto Lambda function to perform operation
    */
-   auto MakeSubtractFun(const std::string name1, const std::string name2);
+   auto MakeSubtractFun(const std::string &name1, const std::string &name2);
 
   /**
    * @brief Creates multiplication function that take a map with values to add
@@ -59,7 +97,7 @@ class ExpressionParser {
    * @param name2 Key for second value
    * @return auto Lambda function to perform operation
    */
-   auto MakeMultiplyFun(const std::string name1, const std::string name2);
+   auto MakeMultiplyFun(const std::string &name1, const std::string &name2);
 
  public:
   /**
@@ -74,7 +112,29 @@ class ExpressionParser {
    * @param expression Representing equation
    * @return double representing value of equation
    */
-   double Evaluate(std::map<std::string, double> number_map, const std::string expression);
-};
+   double Evaluate(const std::string &expression);
 
-} // namespace cse
+   /**
+    * @brief Get the Symbol Table object
+    * 
+    * @return std::map<std::string, double> symbol table
+    */
+   std::map<std::string, double>& GetSymbolTable(){
+    return symbol_table_;
+   }
+
+   /**
+    * @brief Set a pair in the Symbol Table object
+    * 
+    * @param key string key for symbol table
+    * @param num double value for symbol table
+    */
+    void SetSymbolTable(const std::string &key, const double &num){
+      symbol_table_[key] = num;
+    }
+  };
+}
+
+
+
+
