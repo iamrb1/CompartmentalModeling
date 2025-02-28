@@ -65,4 +65,4 @@ void Alert(const std::string& msg);
 #endif
 
 
-}
+} // namespace cse

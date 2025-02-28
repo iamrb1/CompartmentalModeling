@@ -164,4 +164,4 @@ void Image::injectJS() const {
 }
 
 
-}
+} // namespace cse
