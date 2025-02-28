@@ -10,6 +10,8 @@
 #include <string>
 #include <typeinfo>
 #include <unordered_map>
+#include <sstream>
+
 
 namespace cse {
 
@@ -138,6 +140,21 @@ class DataMap {
     */
   [[maybe_unused]] [[nodiscard]] size_t count(const std::string& name) const {
     return m_map.count(name);
+  }
+
+  /**
+   * Converts a value into a string using a stringstream
+   * @tparam T templated value
+   * @param name key of associated value
+   * @return std::string of value
+   */
+  template <typename T>
+  [[maybe_unused]] std::string to_string(const std::string & name) {
+    assert(contains(name) && "Key does not exist in DataMap");
+    T value = get<T>(name);
+    std::stringstream ss;
+    ss << value;
+    return ss.str();
   }
 
 };
