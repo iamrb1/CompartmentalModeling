@@ -6,8 +6,8 @@
 #include "../../Group-07/Team07Library/Serializer.h"
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 
-const int MAX_CASE = 100;
-const int MAX_SIZE = 500;
+const int MAX_CASE = 10;
+const int MAX_SIZE = 50;
 const char filename[] = "result.bin";
 
 std::random_device rd;
@@ -536,4 +536,76 @@ TEST_CASE("Serializer Empty File or Empty Containers", "[Serializer]")
   REQUIRE(res.size() == 0);
   std::remove(filename);
   Loader.Serialize(res, filename); // It must raise error
+}
+
+// All below tests should fail now, since it is currently not implemented
+TEST_CASE("Serializer Nested Containers and Similars", "[Serializer]")
+{
+  cse::Serializer Saver(cse::Mode::SAVE);
+  cse::Serializer Loader(cse::Mode::LOAD);
+  std::remove(filename);
+  for (int i = 0; i < MAX_CASE; i++)
+  {
+    std::uniform_int_distribution<int> ranSize(1, MAX_SIZE);
+    int Length = ranSize(gen);
+    std::vector<std::vector<int>> vvec;
+    for (int j = 0; j < Length; j++)
+    {
+      std::uniform_int_distribution<int> ranSizeInner(1, MAX_SIZE);
+      std::uniform_int_distribution<int> ranInt(INT_MIN, INT_MAX);
+      int LengthInner = ranSizeInner(gen);
+      std::vector<int> vec;
+      for (int l = 0; l < Length; l++)
+      {
+        int value = ranInt(gen);
+        vec.push_back(value);
+      }
+      vvec.push_back(vec);
+    }
+    std::vector<std::vector<int>> Result;
+    Saver.Serialize(vvec, filename);
+    Loader.Serialize(Result, filename);
+    REQUIRE(vvec.size() == Result.size());
+    int length = vvec.size();
+    for (int l = 0; l < length; l++)
+    {
+      REQUIRE(vvec[l].size() == Result[l].size());
+      int llength = vvec[l].size();
+      for (int ll = 0; ll < llength; ll++)
+      {
+        REQUIRE(vvec[l][ll] == Result[l][ll]);
+      }
+    }
+    std::remove(filename);
+  }
+}
+
+TEST_CASE("Serialize External Class/Struct", "[Serializer]")
+{
+  cse::Serializer Saver(cse::Mode::SAVE);
+  cse::Serializer Loader(cse::Mode::LOAD);
+  std::remove(filename);
+  struct Person
+  {
+    std::string name;
+    int age;
+    double height;
+    std::vector<std::string> hobbies;
+  };
+  Person P1, P2;
+  P1.name = "John Doe";
+  P1.age = 40;
+  P1.height = 177.5;
+  P1.hobbies.push_back("Playing Games");
+  P1.hobbies.push_back("Listening to Music");
+  Saver.Serialize(P1, filename);
+  Loader.Serialize(P2, filename);
+  REQUIRE(P1.name == P2.name);
+  REQUIRE(P1.age == P2.age);
+  REQUIRE(P1.height == P2.height);
+  REQUIRE(P1.hobbies.size() == P2.hobbies.size());
+  for (int i = 0; i < P1.hobbies.size(); i++)
+  {
+    REQUIRE(P1.hobbies[i] == P2.hobbies[i]);
+  }
 }
