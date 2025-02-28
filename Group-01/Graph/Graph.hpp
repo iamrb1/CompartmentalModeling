@@ -41,11 +41,11 @@ namespace cse {
   public:
     Graph() {};
     Graph(std::istream &f);
-    std::shared_ptr<cse::Vertex> AddVertex(std::string id, double X = 0.0, double Y = 0.0);
+    std::shared_ptr<cse::Vertex> AddVertex(std::string const id, double X = 0.0, double Y = 0.0);
     std::shared_ptr<cse::Vertex> GetVertex(std::string const &id) const;
-    std::shared_ptr<cse::Vertex> RemoveVertex(std::string id);
+    std::shared_ptr<cse::Vertex> RemoveVertex(std::string const id);
 
-    std::weak_ptr<cse::Edge> AddEdge(std::string v1_id, std::string v2_id, bool bidirectional = false);
+    std::weak_ptr<cse::Edge> AddEdge(std::string const v1_id, std::string const v2_id, bool bidirectional = false);
     std::weak_ptr<cse::Edge> AddEdge(std::shared_ptr<cse::Vertex> &v1, std::shared_ptr<cse::Vertex> &v2,
                                      bool bidirectional = false);
     void RemoveEdge(std::string const &edge_id);
@@ -53,7 +53,7 @@ namespace cse {
     std::weak_ptr<cse::Edge> GetEdge(std::string const &edge_id) const;
     std::weak_ptr<cse::Edge> GetEdge(std::shared_ptr<cse::Vertex> const from,
                                      std::shared_ptr<cse::Vertex> const to) const;
-    std::weak_ptr<cse::Edge> GetEdge(std::string from_id, std::string to_id);
+    std::weak_ptr<cse::Edge> GetEdge(std::string const &from_id, std::string const &to_id);
 
     bool IsConnected(std::shared_ptr<cse::Vertex> const &v1, std::shared_ptr<cse::Vertex> const &v2) const;
     bool IsConnected(std::string const &v1_id, std::string const &v2_id) const;

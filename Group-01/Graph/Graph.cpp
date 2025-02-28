@@ -26,7 +26,7 @@ namespace cse {
    * @return Shared pointer to the created vertex
    * @throws runtime_error if vertex ID already exists
    */
-  std::shared_ptr<cse::Vertex> cse::Graph::AddVertex(std::string id, double X, double Y) {
+  std::shared_ptr<cse::Vertex> cse::Graph::AddVertex(std::string const id, double X, double Y) {
     if (vertices.find(id) != vertices.end()) {
       throw std::runtime_error("Vertex already exists: " + id);
     }
@@ -54,7 +54,7 @@ namespace cse {
    * @return Shared pointer to the removed vertex
    * @throws out_of_range if vertex doesn't exist
    */
-  std::shared_ptr<cse::Vertex> cse::Graph::RemoveVertex(std::string id) {
+  std::shared_ptr<cse::Vertex> cse::Graph::RemoveVertex(std::string const id) {
     auto it = vertices.find(id);
     if (it == vertices.end()) {
       throw std::out_of_range("Vertex does not exist: " + id);
@@ -99,7 +99,7 @@ namespace cse {
    * @param bidirectional Whether the edge is bidirectional
    * @return Weak pointer to the created edge
    */
-  std::weak_ptr<cse::Edge> cse::Graph::AddEdge(std::string v1_id, std::string v2_id, bool bidirectional) {
+  std::weak_ptr<cse::Edge> cse::Graph::AddEdge(std::string const v1_id, std::string const v2_id, bool bidirectional) {
     ValidateVerticesExist(v1_id, v2_id);
 
     std::string edge_id = v1_id + "-" + v2_id;
@@ -180,7 +180,7 @@ namespace cse {
    * @param to_id Destination vertex ID
    * @return Weak pointer to the edge
    */
-  std::weak_ptr<cse::Edge> cse::Graph::GetEdge(std::string from_id, std::string to_id) {
+  std::weak_ptr<cse::Edge> cse::Graph::GetEdge(std::string const &from_id, std::string const &to_id) {
     return GetEdge(GetVertex(from_id), GetVertex(to_id));
   }
 
