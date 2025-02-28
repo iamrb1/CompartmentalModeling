@@ -10,7 +10,7 @@
 #include "../../Group-06/StringSet/StringSet.cpp"
 
 using namespace cse;
-
+// GitHub copilot helped write some initial code for this function
 TEST_CASE("Test for Search", "[Search]") {
     // Create a StringSet and insert some strings
     StringSet set;
@@ -25,7 +25,7 @@ TEST_CASE("Test for Search", "[Search]") {
     std::vector<std::string> expected = {"abc", "aXcY", "aXcZ"};
     REQUIRE(result == expected);
 }
-
+// GitHub copilot helped write some initial code for this function
 TEST_CASE("Test for Count_occurrence", "[Count_occurrence]") {
     // Create a StringSet and insert some strings
     StringSet set;
