@@ -8,21 +8,22 @@
 #include <iostream>
 #include <map>
 #include <utility>
+#include "cse/StateGridPosition.h"
 namespace cse {
 
 /**
  * @brief Contructor for StateGrid object
- * @param rows rows in grid map
- * @param cols cols in grid map
  * @param diff string representing requested difficulty
  */
 StateGrid::StateGrid(const std::string& diff) {
-  choose_map(diff);
+  load_map(diff);
 }
 
 /**
  * @brief Displays the grid to user
  */
+///REVIEW COMMENT: an overloaded << to display StateGrid would be useful, but not needed
+///unless we decide not to implement a better visual element to display our game.
 void StateGrid::display_grid() {
   assert(!m_grid.empty() && "m_grid is empty and cannot display");
 
@@ -33,7 +34,7 @@ void StateGrid::display_grid() {
 
 /**
  * @brief Sets the specific position to occupied by agent
- * @param move pair containing new agent spot
+ * @param new_position pair containing new agent spot
  * @param agent pair containing current agent position
  */
 bool StateGrid::set_state(std::pair<int, int> new_position, std::pair<int, int> agent) {
@@ -57,6 +58,9 @@ std::vector<std::string> StateGrid::define_state(char state) {
   assert(possible_state != m_dictionary.end() && "This state is not in the map!");
   return m_dictionary.at(state);
 }
+///REVIEW COMMENT: A review comment was made to add std::optional for this function in the case where no
+/// StateGrid state was found, but I do not believe this necessary as the assert checks
+/// if the row,col is within bounds which will guarantee a StateGrid state.
 /**
  * @brief Returns the state of a grid position
  * @param row row of position
@@ -70,19 +74,13 @@ char StateGrid::get_state(int row, int col) {
 
 /**
  * @brief Validates if a position can be occupied by agent
- * @param row row of position
- * @param col col of position
+ * @param move std::pair containing row,col of position to be validated
  * @return T/F of position validity
  */
 bool StateGrid::validate_position(std::pair<int, int> move) {
   assert(move.first < m_rows && move.second < m_cols && "This move is out of bounds");
   char validate = m_grid[move.first][move.second];
-  if (m_dictionary.find(validate) != m_dictionary.end() && m_dictionary.at(validate)[1]=="Open")
-  {
-    return true;
-  }
-
-  return false;
+  return (m_dictionary.find(validate) != m_dictionary.end() && m_dictionary.at(validate)[1]=="Open");
 }
 
 /**
@@ -106,18 +104,16 @@ std::vector<std::pair<int,int>> StateGrid::find_moves(int row, int col) {
  * @brief sets m_grid to specified map
  * @param diff string to choose map of specified difficulty
  */
-void StateGrid::choose_map(const std::string& diff) {
+void StateGrid::load_map(const std::string& diff) {
   std::map<std::string, std::vector<std::string>> maps = {
       {"test", {"#####", "# P #", "##X##", "## ##", "#0  #", "#####"}}}; ///Could add functionality to load in a map from separate file
   if (maps.find(diff) != maps.end()) {
     m_grid = maps[diff];
-    m_cols = static_cast<int>(m_grid[0].size());
-    m_rows = static_cast<int>(m_grid.size());
-  } else {
+  } else {                                          ///<< If wrong map input, default to test map
     m_grid = maps["test"];
-    m_cols = static_cast<int>(m_grid[0].size());
-    m_rows = static_cast<int>(m_grid.size());
   }
+  m_cols = static_cast<int>(m_grid[0].size());
+  m_rows = static_cast<int>(m_grid.size());
 }
 
 }  // namespace cse
