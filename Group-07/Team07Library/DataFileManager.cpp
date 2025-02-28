@@ -2,19 +2,48 @@
 
 #include <fstream>  // https://stackoverflow.com/questions/13035674/how-to-read-a-file-line-by-line-or-a-whole-text-file-at-include <fstream>
 #include <iostream>
+#include <sstream>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+using std::cerr;
+using std::cout;
+using std::endl;
+using std::function;
+using std::getline;
+using std::ifstream;
+using std::ofstream;
+using std::string;
+using std::stringstream;
+using std::unordered_map;
+using std::vector;
 
 namespace cse {
+
+/**
+ * Writes data rows to the file.
+ */
+void DataFileManager::writeRowsToFile(ofstream &file, const vector<vector<string>> &data) {
+  for (const auto &row : data) {
+    for (size_t i = 0; i < row.size(); ++i) {
+      file << row[i];
+      if (i < row.size() - 1) {
+        file << ",";
+      }
+    }
+    file << "\n";
+  }
+}
 
 /**
  * Opens a CSV file and reads its content into fileData.
  * @param path The file path of the CSV to open.
  */
-void DataFileManager::openFile(const std::string& path) {
+void DataFileManager::openFile(const string &path) {
   // Check if a file is already open
   if (!fileLocation.empty()) {
-    std::cerr
-        << "Please close the current file before attempting to open a new one."
-        << std::endl;
+    cerr << "Please close the current file before attempting to open a new one." << endl;
     return;
   }
 
@@ -22,27 +51,27 @@ void DataFileManager::openFile(const std::string& path) {
   // https://en.cppreference.com/w/cpp/string/basic_string/find_last_of
   if (path.substr(path.find_last_of(".") + 1) != "csv") {
     // https://en.cppreference.com/w/cpp/io/cerr
-    std::cerr << "File extension is not valid." << std::endl;
+    cerr << "File extension is not valid." << endl;
     return;
   }
 
   // Check if the file can be opened
-  std::ifstream file(path);
+  ifstream file(path);
   if (!file.is_open()) {
-    std::cerr << "Error opening file: " << path << std::endl;
+    cerr << "Error opening file: " << path << endl;
     return;
   }
 
-  std::vector<std::vector<std::string>> data;
-  std::string line, cell;
+  vector<vector<string>> data;
+  string line, cell;
 
   // Read the file line by line
-  while (std::getline(file, line)) {
-    std::vector<std::string> row;
-    std::stringstream lineStream(line);
+  while (getline(file, line)) {
+    vector<string> row;
+    stringstream lineStream(line);
 
-    // Read each comma separated cell
-    while (std::getline(lineStream, cell, ',')) {
+    // Read each comma-separated cell
+    while (getline(lineStream, cell, ',')) {
       row.push_back(cell);
     }
     data.push_back(row);
@@ -56,40 +85,32 @@ void DataFileManager::openFile(const std::string& path) {
 /**
  * Updates the CSV based on added functions.
  */
-void DataFileManager::update() {
+void DataFileManager::updateFile() {
   if (fileLocation.empty()) {
-    std::cerr << "No file is currently open." << std::endl;
+    cerr << "No file is currently open." << endl;
     return;
   }
 
   if (fileData.empty()) {
     // Add headers only if the fileData is empty
-    std::vector<std::string> headers;
-    for (const auto& pair : functionMap) {
+    vector<string> headers;
+    for (const auto &pair : functionMap) {
       headers.push_back(pair.first);
     }
     fileData.push_back(headers);
   }
 
-  std::vector<std::string> newRow;
-  for (const auto& pair : functionMap) {
+  vector<string> newRow;
+  for (const auto &pair : functionMap) {
     newRow.push_back(std::to_string(pair.second()));
   }
   fileData.push_back(newRow);
   updateMade = true;
 
   // Saves the current state of fileData to the file
-  std::ofstream file(fileLocation);
+  ofstream file(fileLocation);
   if (file.is_open()) {
-    for (const auto& row : fileData) {
-      for (size_t i = 0; i < row.size(); ++i) {
-        file << row[i];
-        if (i < row.size() - 1) {
-          file << ",";
-        }
-      }
-      file << "\n";
-    }
+    writeRowsToFile(file, fileData);
     file.close();
   }
   updateMade = false;
@@ -104,36 +125,26 @@ void DataFileManager::closeFile() {
     return;
   }
 
-  std::ofstream file(
-      fileLocation,
-      std::ios::trunc);  // Open file in truncate mode to overwrite
+  ofstream file(fileLocation, std::ios::trunc); // Open file in truncate mode to overwrite
   if (!file.is_open()) {
-    std::cerr << "Error opening file" << std::endl;
+    cerr << "Error opening file" << endl;
     return;
   }
 
   // Write header if functionMap is not empty
   if (!fileData.empty()) {
-    for (const auto& pair : functionMap) {
+    for (const auto &pair : functionMap) {
       file << pair.first << ",";
     }
-    file.seekp(-1, std::ios_base::end);  // Remove the last comma
+    file.seekp(-1, std::ios_base::end); // Remove the last comma
     file << "\n";
   }
 
   // Write each row of data to the file
-  for (const auto& row : fileData) {
-    for (size_t j = 0; j < row.size(); ++j) {
-      file << row[j];
-      if (j < row.size() - 1) {
-        file << ",";
-      }
-    }
-    file << "\n";
-  }
+  writeRowsToFile(file, fileData);
 
   // Clear the file data after writing
   fileData.clear();
 }
 
-}  // namespace cse
+}
