@@ -13,14 +13,14 @@ TEST_CASE("default values are 0s")
 
     SECTION("default central position (0, 0)") {
         cse::Point central_pos = position.get_grid_position();
-        REQUIRE(central_pos.x == 0);
-        REQUIRE(central_pos.y == 0);
+        REQUIRE(central_pos.x_position == 0);
+        REQUIRE(central_pos.y_position == 0);
     }
 
     SECTION("default object position (0, 0)") {
         cse::Point object_pos = position.get_object_position();
-        REQUIRE(object_pos.x == 0);
-        REQUIRE(object_pos.y == 0);
+        REQUIRE(object_pos.x_position == 0);
+        REQUIRE(object_pos.y_position == 0);
     }
 
     SECTION("default object orientation 0 degrees") {
@@ -34,15 +34,15 @@ TEST_CASE("set and get object position") {
     SECTION("set object position to (2, 3)") {
         position.set_object_position(2, 3);
         cse::Point object_pos = position.get_object_position();
-        REQUIRE(object_pos.x == 2);
-        REQUIRE(object_pos.y == 3);
+        REQUIRE(object_pos.x_position == 2);
+        REQUIRE(object_pos.y_position == 3);
     }
 
     SECTION("set object position to (-2.5, 2.5)") {
         position.set_object_position(-2.5, 2.5);
         cse::Point object_pos = position.get_object_position();
-        REQUIRE(object_pos.x == -2.5);
-        REQUIRE(object_pos.y == 2.5);
+        REQUIRE(object_pos.x_position == -2.5);
+        REQUIRE(object_pos.y_position == 2.5);
     }
 }
 
@@ -72,8 +72,8 @@ TEST_CASE("calculate object position correctly")
     SECTION("calculate_object_position is default (0, 0)")
     {
         cse::Point calculated_pos = position.calculate_object_position();
-        REQUIRE(calculated_pos.x == 0);
-        REQUIRE(calculated_pos.y == 0);
+        REQUIRE(calculated_pos.x_position == 0);
+        REQUIRE(calculated_pos.y_position == 0);
     }
 }
 
