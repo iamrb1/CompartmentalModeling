@@ -27,15 +27,11 @@ TEST_CASE("Test cse::Graph", "[base]")
 
   // Test adding edges
   v1 = graph.AddVertex("id1");
-  auto e1 = graph.AddEdge("id1", "id2", false);
+  auto e1 = graph.AddEdge("id1", "id2");
   CHECK(graph.IsConnected(v1, v2));
   CHECK(!graph.IsConnected(v2, v1));
   CHECK(graph.IsConnected("id1", "id2"));
   CHECK(!graph.IsConnected("id2", "id1"));
-  {
-    auto e1_sh = e1.lock();
-    CHECK(!e1_sh->IsBidirectional());
-  }
   // Edge should only be owned by graph
   CHECK(e1.use_count() == 1);
 
@@ -46,8 +42,7 @@ TEST_CASE("Test cse::Graph", "[base]")
   CHECK(!graph.IsConnected(v4, v5));
   CHECK(!graph.IsConnected(v4, v4));
 
-  auto e2 = graph.AddEdge(v4, v5, false);
-  // TODO @lspecht: Should check if nodes are connected via Graph Interface
+  auto e2 = graph.AddEdge(v4, v5);
   CHECK(graph.IsConnected(v4, v5));
   CHECK(!graph.IsConnected(v5, v4));
   CHECK(e2.use_count() == 1);
@@ -55,22 +50,24 @@ TEST_CASE("Test cse::Graph", "[base]")
   // Testing removing Edges
   auto v4_v5_edge = graph.GetEdge(v4->GetId(), v5->GetId());
   CHECK(!v4_v5_edge.expired());
+  {
+    auto e = v4_v5_edge.lock();
+    REQUIRE_THAT(e->GetWeigth(), WithinAbs(2, cse_test_utils::FLOAT_DELTA));
+  }
   graph.RemoveEdge(e2);
   CHECK(v4_v5_edge.expired());
   CHECK_THROWS_AS(graph.GetEdge(v4->GetId(), v5->GetId()), std::runtime_error);
   CHECK_THROWS_AS(graph.RemoveEdge(e2), std::out_of_range);
   CHECK_THROWS_AS(v4->GetEdge(v5), std::runtime_error);
 
-  // Test bidirectional edges
-  auto e3 = graph.AddEdge("id1", "id2", true);
-
+  // No bidirectional edges
+  auto e3 = graph.AddEdge("id1", "id2", 2);
   CHECK(graph.IsConnected(v1, v2));
-  CHECK(graph.IsConnected(v2, v1));
+  CHECK(!graph.IsConnected(v2, v1));
   {
-    auto e3_sh = e3.lock();
-    CHECK(e3_sh->IsBidirectional());
+    auto e = e3.lock();
+    REQUIRE_THAT(e->GetWeigth(), WithinAbs(2, cse_test_utils::FLOAT_DELTA));
   }
-  auto e4 = graph.AddEdge("id1", "id2", true);
 }
 
 TEST_CASE("Test cse::Graph - To file", "Export to file")
@@ -95,9 +92,9 @@ TEST_CASE("Test cse::Graph - To file", "Export to file")
                                  "",
                                  "  Edges:",
                                  "    EDGE:id1-id2",
-                                 "      bidirectional:0",
                                  "      from:id1",
                                  "      to:id2",
+                                 "      weigth:0",
                                  ""};
   REQUIRE(cse_test_utils::CheckForStringFile(lines, s));
 }
@@ -115,9 +112,9 @@ TEST_CASE("Test cse::Graph - From file", "Read from file")
                                  "",
                                  "  Edges:",
                                  "    EDGE:id1-id2",
-                                 "      bidirectional:0",
                                  "      from:id1",
                                  "      to:id2",
+                                 "      weigth:0",
                                  ""};
   std::stringstream s;
   cse_test_utils::BuildFileFromVector(lines, s);
@@ -182,3 +179,18 @@ TEST_CASE("Test cse::Graph - From advanced file", "Complex graph")
   CHECK(destinationGraph.IsConnected("id1", "id3"));
   CHECK(destinationGraph.IsConnected("id3", "id1"));
 }
+
+/**
+
+TEST_CASE("Test cse::Graph - Check for templated vertex", "Testing templated Vertex")
+{
+  cse::Graph graph;
+  // Test adding vertices
+  auto v1 = graph.AddVertex("id1", 0, 0, 10);
+  CHECK(v1->GetValue<int>() == 10);
+
+  auto v2 = graph.AddVertex("id1", 0, 0, "value");
+  CHECK(v1->GetValue<std::string>() == "value");
+}
+
+*/
