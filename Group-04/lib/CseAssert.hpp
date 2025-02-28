@@ -136,7 +136,7 @@ void Assert(AssertArgs const &args, const char *args_text, const char *file,
 }
 
 template <typename T>
-concept printable = requires(T a) { std::cout << a; };
+concept printable = requires(T output) { std::cout << output; };
 
 template <typename T>
   requires std::equality_comparable<T>
