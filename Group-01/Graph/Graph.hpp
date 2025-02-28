@@ -13,7 +13,9 @@ namespace cse {
 
   class Graph : public FileSerializable {
   private:
+    /** Collection of vertices in the graph, mapped by vertex ID */
     std::unordered_map<std::string, std::shared_ptr<cse::Vertex>> vertices{};
+    /** Collection of edges in the graph, mapped by edge ID */
     std::unordered_map<std::string, std::shared_ptr<cse::Edge>> edges{};
 
     // File parsing helpers
@@ -27,8 +29,11 @@ namespace cse {
                                      bool bidirectional);
 
   protected:
+    /** Gets the type name of the graph for serialization */
     std::string GetTypeName() const override { return "GRAPH"; }
+    /** Gets the ID of the graph (empty string as graphs don't have IDs) */
     std::string GetId() const override { return ""; }
+    /** Sets the ID of the graph (no-op as graphs don't have IDs) */
     void SetId(std::string) override {}
     std::vector<std::pair<std::string, SerializableProperty>> GetPropertyMap() override;
     void FromFile(std::istream &f, size_t prefix_size) override;

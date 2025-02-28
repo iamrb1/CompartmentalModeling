@@ -8,14 +8,28 @@
 #include <string>
 
 namespace cse {
+  /**
+   * Adds an edge to this vertex's edge collection with a specific destination
+   * @param e The edge to add
+   * @param destination The destination vertex of the edge
+   */
   void cse::Vertex::AddEdge(std::weak_ptr<Edge> const &e, std::shared_ptr<cse::Vertex> const &destination) {
     this->edges[destination->GetId()] = e;
   }
 
+  /**
+   * Constructs a vertex from a file stream
+   * @param f Input stream to read from
+   * @param prefix_size The indentation level
+   */
   Vertex::Vertex(std::istream &f, size_t prefix_size) {
     FromFile(f, prefix_size);
   }
 
+  /**
+   * Adds an edge to this vertex and handles bidirectional edge setup
+   * @param e The edge to add
+   */
   void cse::Vertex::AddEdge(std::weak_ptr<Edge> const &e) {
     if (auto edge = e.lock()) {
       auto &origin = edge->GetFrom();
@@ -27,6 +41,9 @@ namespace cse {
     }
   }
 
+  /**
+   * Removes any expired edge references from the edges collection
+   */
   void cse::Vertex::CleanupExpiredEdges() {
     for (auto it = edges.begin(); it != edges.end();) {
       if (it->second.expired()) {
@@ -37,6 +54,10 @@ namespace cse {
     }
   }
 
+  /**
+   * Gets the serializable properties for this vertex
+   * @return Vector of property pairs for serialization
+   */
   std::vector<std::pair<std::string, SerializableProperty>> Vertex::GetPropertyMap() {
     std::vector<std::pair<std::string, SerializableProperty>> properties;
     properties.emplace_back("X", SerializableProperty([this](const std::string &value) { this->x = std::stod(value); },
@@ -46,6 +67,11 @@ namespace cse {
     return properties;
   }
 
+  /**
+   * Checks if this vertex is connected to another vertex
+   * @param destination The vertex to check connection with
+   * @return true if vertices are connected, false otherwise
+   */
   bool cse::Vertex::IsConnected(std::shared_ptr<cse::Vertex> const &destination) {
     auto it = edges.find(destination->GetId());
     if (it == edges.end()) {
@@ -60,6 +86,12 @@ namespace cse {
     return true;
   }
 
+  /**
+   * Gets the edge connecting this vertex to another vertex
+   * @param to The destination vertex
+   * @return Shared pointer to the edge
+   * @throws runtime_error if edge doesn't exist
+   */
   std::shared_ptr<cse::Edge> const cse::Vertex::GetEdge(std::shared_ptr<cse::Vertex> const &to) {
     CleanupExpiredEdges();
     auto it = edges.find(to->GetId());
