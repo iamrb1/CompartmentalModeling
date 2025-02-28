@@ -7,7 +7,6 @@
  */
 
 #define NDEBUG
-#include <cassert>
 #include <catch2/catch.hpp>
 #include <cse/AuditedVector.h>
 
@@ -46,4 +45,8 @@ TEST_CASE("AuditedVector Release: behaves like std::vector overall", "[AuditedVe
   REQUIRE(vec.size() == 5);
   for (int i = 0; i < 5; ++i)
     REQUIRE(vec[i] == i * 10);
+}
+
+TEST_CASE("AuditedVector Release: alias to std::vector", "[AuditedVector][release]") {
+  STATIC_REQUIRE(std::is_same_v<cse::AuditedVector<int>, std::vector<int>>);
 }

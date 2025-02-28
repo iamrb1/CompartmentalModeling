@@ -3,8 +3,7 @@
  * @author Matthew Hawkins
  */
 
-#ifndef AUDITEDVECTOR_H
-#define AUDITEDVECTOR_H
+#pragma once
 
 #include <cassert>
 #include <cstddef>
@@ -21,7 +20,9 @@ using AuditedVector = std::vector<T, Allocator>;
 template <typename T, typename Allocator = std::allocator<T>>
 class AuditedVector : public std::vector<T, Allocator> {
  public:
+  // Create a type alias
   using base_t = std::vector<T, Allocator>;
+  // Inherit all functions without having to manually re-define
   using base_t::base_t;
 
   T& operator[](size_t index) {
@@ -64,4 +65,3 @@ class AuditedVector : public std::vector<T, Allocator> {
 
 }  // namespace cse
 
-#endif  // AUDITEDVECTOR_H
