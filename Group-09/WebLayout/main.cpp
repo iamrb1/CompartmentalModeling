@@ -3,8 +3,6 @@
  * @author merry
  */
 
-#include <iostream>
-#include <memory>
 #include "WebLayout.h"
 
 // Compile with: emcc main.cpp ../Image/Image.cpp WebLayout.cpp -o output.js --shell-file index.html
@@ -23,20 +21,20 @@ int main() {
   sampleWebLayout->addImage(il);
 
   // Setup test textbox
-  TextBoxConfig tbc;
-  tbc.height = 10;
-  tbc.width = 45;
-  tbc.text = "Yay a Text Box!";
-  std::shared_ptr<TextBox> testTextBox = std::make_shared<TextBox>(tbc);
+  std::shared_ptr<TextBox> testTextBox = std::make_shared<TextBox>();
+  FormattedText ft;
+  ft.setText("Yay a Text Box!");
+  testTextBox->resize(45, 10);
+  testTextBox->setFormattedText(ft);
   TextBoxLayout tbl(testTextBox, 40, 30);
   sampleWebLayout->addTextBox(tbl);
 
   // Setup test textbox2 (exceed barriers test)
-  TextBoxConfig tbc2;
-  tbc2.height = 15;
-  tbc2.width = 20;
-  tbc2.text = "I'm an out of bounds text box D:";
-  std::shared_ptr<TextBox> testTextBox2 = std::make_shared<TextBox>(tbc2);
+  std::shared_ptr<TextBox> testTextBox2 = std::make_shared<TextBox>();
+  testTextBox2->resize(20, 15);
+  FormattedText ft2;
+  ft2.setText("I'm an out of bounds text box D:");
+  testTextBox2->setFormattedText(ft2);
   TextBoxLayout tbl2(testTextBox2, 500, 450);
   sampleWebLayout->addTextBox(tbl2);
 

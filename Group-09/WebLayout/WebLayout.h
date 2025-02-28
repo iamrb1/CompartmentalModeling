@@ -25,7 +25,7 @@ struct TextBoxLayout {
       : textBox(std::move(textBox)), xPos(x), yPos(y) {}
 
   bool operator==(const TextBoxLayout &textboxLayout) const {
-    return ((textboxLayout.textBox->getText() == textBox->getText())
+    return ((textboxLayout.textBox->getFormattedText().getText() == textBox->getFormattedText().getText())
         && (textboxLayout.textBox->getWidth() == textBox->getWidth())
         && (textboxLayout.textBox->getHeight() == textBox->getHeight()));
   }
@@ -63,8 +63,8 @@ class WebLayout {
   void addTextBox(const TextBoxLayout &textBox);
   void removeTextBox(const TextBoxLayout &textBox);
   void loadPage();
-  const std::vector<ImageLayout>& getImages();
-  const std::vector<TextBoxLayout>& getTextBoxes();
+  const std::vector<ImageLayout> &getImages();
+  const std::vector<TextBoxLayout> &getTextBoxes();
 
   //TODO: Future Implement Clear Layout Function
 

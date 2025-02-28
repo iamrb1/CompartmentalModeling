@@ -42,11 +42,11 @@ void testCase2() {
   if (wb.getImages().at(0).xPos != 10) { std::cout << "Image adding failure\n"; }
   if (wb.getImages().at(0).yPos != 10) { std::cout << "Image adding failure\n"; }
 
-  TextBoxConfig tbc;
-  tbc.text = "CSE498";
-  tbc.height = 100;
-  tbc.width = 100;
-  std::shared_ptr<TextBox> tb = std::make_shared<TextBox>(tbc);
+  FormattedText ft;
+  ft.setText("CSE498");
+  std::shared_ptr<TextBox> tb = std::make_shared<TextBox>();
+  tb->setFormattedText(ft);
+  tb->resize(100, 100);
   TextBoxLayout tbl(tb, 12, 12);
   wb.addTextBox(tbl);
 
@@ -54,7 +54,9 @@ void testCase2() {
   if (wb.getTextBoxes().size() != 1) { std::cout << "Text box adding failure\n"; }
 
   //Check saved correctly
-  if (wb.getTextBoxes().at(0).textBox->getText() != "CSE498") { std::cout << "Text box adding failure\n"; }
+  if (wb.getTextBoxes().at(0).textBox->getFormattedText().getText() != "CSE498") {
+    std::cout << "Text box adding failure\n";
+  }
   if (wb.getTextBoxes().at(0).textBox->getWidth() != 100) { std::cout << "Text box adding failure\n"; }
   if (wb.getTextBoxes().at(0).textBox->getHeight() != 100) { std::cout << "Text box adding failure\n"; }
   if (wb.getTextBoxes().at(0).xPos != 12) { std::cout << "Text box adding failure\n"; }
@@ -79,11 +81,11 @@ void testCase3() {
   //Check size of images vector
   if (wb.getImages().size() != 0) { std::cout << "Image removing failure\n"; }
 
-  TextBoxConfig tbc;
-  tbc.text = "CSE498";
-  tbc.height = 100;
-  tbc.width = 100;
-  std::shared_ptr<TextBox> tb = std::make_shared<TextBox>(tbc);
+  FormattedText ft;
+  ft.setText("CSE498");
+  std::shared_ptr<TextBox> tb = std::make_shared<TextBox>();
+  tb->setFormattedText(ft);
+  tb->resize(100, 100);
   TextBoxLayout tbl(tb, 12, 12);
   wb.addTextBox(tbl);
 
@@ -116,22 +118,22 @@ void testCase4() {
   //Check size of images vector
   if (wb.getImages().size() != 1) { std::cout << "Image Invalid Removal failure\n"; }
 
-  TextBoxConfig tbc;
-  tbc.text = "CSE498";
-  tbc.height = 100;
-  tbc.width = 100;
-  std::shared_ptr<TextBox> tb = std::make_shared<TextBox>(tbc);
+  FormattedText ft;
+  ft.setText("CSE498");
+  std::shared_ptr<TextBox> tb = std::make_shared<TextBox>();
+  tb->setFormattedText(ft);
+  tb->resize(100, 100);
   TextBoxLayout tbl(tb, 12, 12);
   wb.addTextBox(tbl);
 
   //Recheck size of text boxes vector
   if (wb.getTextBoxes().size() != 1) { std::cout << "Text box adding failure\n"; }
 
-  TextBoxConfig tbc2;
-  tbc2.text = "CSE498-Capstone";
-  tbc2.height = 200;
-  tbc2.width = 200;
-  std::shared_ptr<TextBox> tbb = std::make_shared<TextBox>(tbc2);
+  FormattedText ft2;
+  ft.setText("CSE498-Capstone");
+  std::shared_ptr<TextBox> tbb = std::make_shared<TextBox>();
+  tbb->setFormattedText(ft2);
+  tbb->resize(200, 200);
   TextBoxLayout tbl2(tbb, 14, 14);
   wb.removeTextBox(tbl2);
   //Check size of text boxes vector
@@ -149,16 +151,16 @@ void testCase5() {
   ImageLayout il(i, 10, 10);
   wb.addImage(il);
 
-  TextBoxConfig tbc;
-  tbc.text = "CSE498";
-  tbc.height = 100;
-  tbc.width = 100;
-  std::shared_ptr<TextBox> tb = std::make_shared<TextBox>(tbc);
+  FormattedText ft;
+  ft.setText("CSE498");
+  std::shared_ptr<TextBox> tb = std::make_shared<TextBox>();
+  tb->setFormattedText(ft);
+  tb->resize(100, 100);
   TextBoxLayout tbl(tb, 12, 12);
   wb.addTextBox(tbl);
 
   wb.loadPage();
-  std::cout << "Loaded Page: Please open TestWebLayout.html or input.html to inspect correctness\n";
+  std::cout << "Loaded Page: Please open TestWebLayout.html to inspect correctness\n";
   std::cout << "Ending Test Case 5 (Loading Page)\n";
 }
 

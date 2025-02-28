@@ -57,7 +57,7 @@ void WebLayout::removeTextBox(const TextBoxLayout &textBox) {
  * Gets images vector of web layout
  * @return images that are connected
  */
-const std::vector<ImageLayout>& WebLayout::getImages() {
+const std::vector<ImageLayout> &WebLayout::getImages() {
   return images;
 }
 
@@ -65,7 +65,7 @@ const std::vector<ImageLayout>& WebLayout::getImages() {
  * Gets text boxes vector of web layout
  * @return textBoxes that are connected
  */
-const std::vector<TextBoxLayout>& WebLayout::getTextBoxes() {
+const std::vector<TextBoxLayout> &WebLayout::getTextBoxes() {
   return textBoxes;
 }
 
@@ -75,7 +75,11 @@ const std::vector<TextBoxLayout>& WebLayout::getTextBoxes() {
  * @param width width of the textbox
  * @param height height of the textbox
  */
-void const WebLayout::renderTextBox(const std::string &msg, const int &width, const int &height, const int &x, const int &y) {
+void const WebLayout::renderTextBox(const std::string &msg,
+                                    const int &width,
+                                    const int &height,
+                                    const int &x,
+                                    const int &y) {
 
   assert(width >= MIN_PERCENT && height >= MIN_PERCENT); //assert width and height are positive
   assert(x >= MIN_PERCENT && y >= MIN_PERCENT); //assert x and y are positive
@@ -127,8 +131,8 @@ void const WebLayout::renderTextBox(const std::string &msg, const int &width, co
  * @param yLoc of image
  */
 void const WebLayout::renderImage(const std::string &url,
-                          const int &width,
-                          const int &height, const int &x, const int &y) {
+                                  const int &width,
+                                  const int &height, const int &x, const int &y) {
 
   assert(width >= MIN_PERCENT && height >= MIN_PERCENT); //assert width and height are positive
   assert(x >= MIN_PERCENT && y >= MIN_PERCENT); //assert x and y are positive
@@ -164,21 +168,33 @@ void const WebLayout::renderImage(const std::string &url,
  */
 void WebLayout::loadPage() {
   // Display text boxes
-  for (const auto& layout : textBoxes) {
+  for (const auto &layout : textBoxes) {
+
+    // Future add functionality to fully format text
 
     // Verify values are valid
-    if ((layout.textBox->getHeight() > MIN_PERCENT && layout.textBox->getWidth() > MIN_PERCENT) && (layout.xPos >= MIN_PERCENT && layout.yPos >= MIN_PERCENT)) {
-      renderTextBox(layout.textBox->getText(), layout.textBox->getWidth(), layout.textBox->getHeight(), layout.xPos, layout.yPos);
+    if ((layout.textBox->getHeight() > MIN_PERCENT && layout.textBox->getWidth() > MIN_PERCENT)
+        && (layout.xPos >= MIN_PERCENT && layout.yPos >= MIN_PERCENT)) {
+      renderTextBox(layout.textBox->getFormattedText().getText(),
+                    layout.textBox->getWidth(),
+                    layout.textBox->getHeight(),
+                    layout.xPos,
+                    layout.yPos);
     }
 
   }
 
   // Display images
-  for (const auto& layout : images) {
+  for (const auto &layout : images) {
 
     // Verify values are valid
-    if ((layout.image->getHeight() > MIN_PERCENT && layout.image->getWidth() > MIN_PERCENT) && (layout.xPos >= MIN_PERCENT && layout.yPos >= MIN_PERCENT)) {
-      renderImage(layout.image->getURL(), layout.image->getWidth(), layout.image->getHeight(), layout.xPos, layout.yPos);
+    if ((layout.image->getHeight() > MIN_PERCENT && layout.image->getWidth() > MIN_PERCENT)
+        && (layout.xPos >= MIN_PERCENT && layout.yPos >= MIN_PERCENT)) {
+      renderImage(layout.image->getURL(),
+                  layout.image->getWidth(),
+                  layout.image->getHeight(),
+                  layout.xPos,
+                  layout.yPos);
     }
   }
 }
