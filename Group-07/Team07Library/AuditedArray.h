@@ -11,10 +11,10 @@
 #include <cassert>
 #include <stdexcept>
 
-#ifdef NDEBUG
+#if defined(NDEBUG) || !defined(AUDIT)
 template <typename T, size_t N>
 using AuditedArray = std::array<T, N>;
-#else
+#else // NDEBUG
 
 namespace cse {
 template <typename T, size_t Size>
@@ -38,7 +38,7 @@ class AuditedArray {
   const T* end() const;
 
  private:
-  T data[Size];
+  T arrayData[Size];
 };
 
 template <typename T, size_t Size>
@@ -86,7 +86,7 @@ T& AuditedArray<T, Size>::operator[](int index) {
   if (!isValidIndex(index)) {
     throw std::out_of_range("Index out of range");
   }
-  return data[index];
+  return arrayData[index];
 }
 
 template <typename T, size_t Size>
@@ -99,7 +99,7 @@ const T& AuditedArray<T, Size>::operator[](int index) const {
   if (!isValidIndex(index)) {
     throw std::out_of_range("Index out of range");
   }
-  return data[index];
+  return arrayData[index];
 }
 
 template <typename T, size_t Size>
@@ -157,7 +157,7 @@ T* AuditedArray<T, Size>::begin() {
    * Returns an iterator to the beginning of the array
    * @return: Pointer to the first element
    */
-  return &data[0];
+  return &arrayData[0];
 }
 
 template <typename T, size_t Size>
@@ -166,7 +166,7 @@ T* AuditedArray<T, Size>::end() {
    * Returns an iterator to the end of the array
    * @return: Pointer to one past the last element
    */
-  return &data[Size];
+  return &arrayData[Size];
 }
 
 template <typename T, size_t Size>
@@ -175,7 +175,7 @@ const T* AuditedArray<T, Size>::begin() const {
    * Returns a const iterator to the beginning of the array
    * @return: Const pointer to the first element
    */
-  return &data[0];
+  return &arrayData[0];
 }
 
 template <typename T, size_t Size>
@@ -184,7 +184,7 @@ const T* AuditedArray<T, Size>::end() const {
    * Returns a const iterator to the end of the array
    * @return: Const pointer to one past the last element
    */
-  return &data[Size];
+  return &arrayData[Size];
 }
 
 }  // namespace cse

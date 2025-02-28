@@ -5,8 +5,19 @@
 #include "../../Group-07/Team07Library/AuditedArray.h"
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 
+#if defined(NDEBUG) || !defined(AUDIT)
+template <typename T, size_t N>
+using AuditedArray = std::array<T, N>;
+#else 
+
+
 TEST_CASE("AuditedArray Construction", "[AuditedArray]") {
   cse::AuditedArray<int, 5> arr;
+}
+
+TEST_CASE("AuditedArray Copy Construction", "[AuditedArray]") {
+  cse::AuditedArray<int, 5> arr;
+  cse::AuditedArray<int, 5> arr2 = arr;
 }
 
 TEST_CASE("AuditedArray Size", "[AuditedArray]") {
@@ -18,6 +29,15 @@ TEST_CASE("AuditedArray Access", "[AuditedArray]") {
   cse::AuditedArray<int, 5> arr;
   arr[0] = 1;
   REQUIRE(arr[0] == 1);
+
+  // test const access
+  arr[3] = 2;
+  const int val = arr[3];
+  REQUIRE(val == 2);
+
+  // test invalid access throws out_of_range
+  REQUIRE_THROWS_AS(arr[5], std::out_of_range);
+  REQUIRE_THROWS_AS(arr[-1], std::out_of_range);
 }
 
 TEST_CASE("AuditedArray Assignment", "[AuditedArray]") {
@@ -81,4 +101,14 @@ TEST_CASE("AuditedArray iterator", "[AuditedArray]") {
     i++;
   }
   REQUIRE(i == 5);
+
+  // const iterator
+  const cse::AuditedArray<int, 5> arr2;
+  i = 0;
+  for (auto it = arr2.begin(); it != arr2.end(); it++) {
+    i++;
+  }
+  REQUIRE(i == 5);
 }
+
+#endif
