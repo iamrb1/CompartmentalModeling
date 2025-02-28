@@ -75,3 +75,151 @@ TEST_CASE("Test for Statistic", "[Statistic]") {
     REQUIRE(stats.longest_string == "abcd");
     REQUIRE(stats.shortest_string == "abc");
 }
+
+TEST_CASE("Insert using vector", "[Insert]") {
+    StringSet set;
+
+    SECTION("Insert an empty vector") {
+        std::vector<std::string> vector;
+        set.Insert(vector);
+        REQUIRE(set.size() == 0);
+    }
+
+    SECTION("Insert a one-element vector") {
+        std::vector<std::string> vector = {"cat"};
+        set.Insert(vector);
+        REQUIRE(set.size() == 1);
+        REQUIRE(set.count("red") == 1);
+    }
+
+    SECTION("Inserting duplicate elements") {
+        std::vector<std::string> vector = {"cat", "dogg", "cat"};
+        set.Insert(vector);
+        REQUIRE(set.size() == 2);
+        REQUIRE(set.count("cat") == 1);
+        REQUIRE(set.count("dogg") == 1);
+    }
+
+    SECTION("Inserting a vector with other elements present") {
+        set.Insert("cat");
+        set.Insert("dog");
+        REQUIRE(set.size() == 2);
+
+        std::vector<std::string> vector = {"monkey", "ivan", "llama", "cat"};
+        set.Insert(vector);
+
+        REQUIRE(set.size() == 5);
+        REQUIRE(set.count("cat") == 1);
+        REQUIRE(set.count("dog") == 1);
+        REQUIRE(set.count("monkey") == 1);
+        REQUIRE(set.count("ivan") == 1);
+	REQUIRE(set.count("llama") == 1);
+    }
+}
+
+TEST_CASE("Test for IsSubset", "[IsSubset]") {
+	StringSet set1, set2;
+	
+	SECTION("Empty test is a subset of empty set and itself") {
+		REQUIRE(set1.IsSubset(set2));
+		REQUIRE(set1.IsSubset(set1));
+	}
+	
+	SECTION("Non-empty set is a subset of itself") {
+		set1.Insert("cat");
+		set1.Insert("dog");
+		REQUIRE(set1.IsSubset(set1));
+	}
+	
+	SECTION("Non-empty set is a subset of another larger non-empty set") {
+		set1.Insert("cat");
+		set2.Insert("cat");
+		set1.Insert("dog");
+		set2.Insert("dog");
+		
+		set2.Insert("ivan");
+		set2.Insert("monkey");
+		
+		REQUIRE(set1.IsSubset(set2));
+		
+	}
+	
+	SECTION("Superset is not a subset") {
+		set1.Insert("cat");
+		set2.Insert("cat");
+		set1.Insert("dog");
+		set2.Insert("dog");
+		
+		set1.Insert("monkey");
+		
+		REQUIRE_FALSE(set1.IsSubset(set2));
+	}
+}
+
+
+TEST_CASE("Test for SubstringFilter", "[SubstringFilter]") {
+	StringSet set;
+	
+	SECTION("Filtering from an empty set should not cause errors") {
+		set.SubstringFilter("something");
+		REQUIRE(set.size() == 0);
+	}
+	
+	SECTION("Filtering with non-occuring substring should not change the set") {
+		set.insert("apple");
+		set.insert("banana");
+		set.insert("orange");
+		set.SubstringFilter("something");
+		
+		REQUIRE(set.count("apple") == 1);
+		REQUIRE(set.count("banana") == 1);
+		REQUIRE(set.count("orange") == 1);
+		REQUIRE(set.count("something") == 0);
+	}
+	
+	SECTION("Using a substring that occurs in all elements") {
+		set.insert("apple");
+		set.insert("banana");
+		set.insert("orange");
+		set.SubstringFilter("a");
+		REQUIRE(set.size() == 0)
+	}
+	
+	SECTION("Using a substring that occurs in some elements") {
+		set.insert("apple");
+		set.insert("banana");
+		set.insert("orange");
+		set.insert("dog");
+		set.SubstringFilter("o");
+		REQUIRE(set.size() == 2);
+		REQUIRE(set.count("apple") == 1);
+		REQUIRE(set.count("banana") == 1);
+		REQUIRE(set.count("orange") == 0);
+		REQUIRE(set.count("dog") == 0);
+	}
+}
+
+TEST_CASE("Tests for SizeFilter", "[SizeFilter]") {
+	StringSet set;
+	
+	SECTION("Filtering an empty set does not cause an error") {
+		set.SizeFilter(100);
+		REQUIRE(set.size() == 0);
+	}
+	
+	SECTION("Filtering a set with same string lengths should not change it") {
+		set.insert({"applee", "banana", "orange"});
+		set.SizeFilter(6);
+		
+		REQUIRE(set.size() == 3);
+	}
+	
+	SECTION("Filtering a set with multiple different elements") {
+		set.insert({"apple", "banana", "orange", "ivan", "goose"});
+		set.SizeFilter(5);
+		
+		REQUIRE(set.size() == 2);
+		REQUIRE(set.count("apple") == 1);
+		REQUIRE(set.count("goose") == 1);
+	}
+}
