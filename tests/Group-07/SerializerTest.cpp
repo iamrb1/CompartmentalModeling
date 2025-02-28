@@ -46,7 +46,7 @@ TEST_CASE("Serializer Swap Mode", "[Serializer]")
 {
     cse::Serializer Neutral;
     REQUIRE(Neutral.IsSave());
-    Neutral.SwapMode();
+    Neutral.SetMode(cse::Mode::LOAD);
     REQUIRE(Neutral.IsLoad());
 }
 

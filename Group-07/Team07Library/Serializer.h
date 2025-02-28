@@ -102,17 +102,10 @@ namespace cse
         }
 
         /**
-         * @brief Swaps the current mode between SAVE and LOAD.
-         *
-         * If the mode is SAVE, it becomes LOAD, and vice versa.
+         * @brief Sets the mode of the serializer.
+         * @param mode The desired mode (SAVE or LOAD).
          */
-        void SwapMode()
-        {
-            if (mode_ == cse::Mode::SAVE)
-                mode_ = cse::Mode::LOAD;
-            else if (mode_ == cse::Mode::LOAD)
-                mode_ = cse::Mode::SAVE;
-        }
+        void SetMode(Mode mode) { mode_ = mode; }
 
         /**
          * @brief Serializes or deserializes an arithmetic type (e.g., int, float, double) to/from a binary file.
@@ -128,7 +121,7 @@ namespace cse
         {
             if (mode_ == Mode::SAVE)
             {
-                std::ofstream outFile(filename, std::ios::binary);
+                std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
                 if (!outFile)
                 {
                     std::cerr << "Error opening file for writing: " << filename << std::endl;
@@ -150,25 +143,25 @@ namespace cse
 
         /**
          * @brief Serializes or deserializes a `std::string` to/from a binary file.
-         * @param data Reference to the string to write or read.
+         * @param str Reference to the string to write or read.
          * @param filename Path to the binary file.
          *
          * In SAVE mode, writes the size of the string followed by the characters.
          * In LOAD mode, reads the size and then resizes the string before reading its contents.
          */
-        void Serialize(std::string &data, const std::string &filename)
+        void Serialize(std::string &str, const std::string &filename)
         {
             if (mode_ == Mode::SAVE)
             {
-                std::ofstream outFile(filename, std::ios::binary);
+                std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
                 if (!outFile)
                 {
                     std::cerr << "Error opening file for writing: " << filename << std::endl;
                     return;
                 }
-                size_t length = data.size();
+                size_t length = str.size();
                 outFile.write(reinterpret_cast<const char *>(&length), sizeof(size_t));
-                outFile.write(data.c_str(), length);
+                outFile.write(str.c_str(), length);
             }
             else
             {
@@ -180,8 +173,8 @@ namespace cse
                 }
                 size_t length;
                 inFile.read(reinterpret_cast<char *>(&length), sizeof(size_t));
-                data.resize(length);
-                inFile.read(&data[0], length);
+                str.resize(length);
+                inFile.read(&str[0], length);
             }
         }
 
@@ -196,7 +189,7 @@ namespace cse
         {
             if (mode_ == Mode::SAVE)
             {
-                std::ofstream outFile(filename, std::ios::binary);
+                std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
                 if (!outFile)
                 {
                     std::cerr << "Error opening file for writing: " << filename << std::endl;
@@ -485,6 +478,7 @@ namespace cse
                 if (!outFile)
                 {
                     std::cerr << "Error opening file for writing: " << filename << std::endl;
+                    return;
                 }
                 size_t size = map.size();
                 outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
@@ -500,6 +494,7 @@ namespace cse
                 if (!inFile)
                 {
                     std::cerr << "Error opening file for reading: " << filename << std::endl;
+                    return;
                 }
                 size_t size;
                 inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
@@ -514,7 +509,6 @@ namespace cse
                     V value;
                     inFile.read(reinterpret_cast<char *>(&key), sizeof(K));
                     inFile.read(reinterpret_cast<char *>(&value), sizeof(V));
-
                     if (!inFile)
                     {
                         std::cerr << "Error reading element " << i << " from file: " << filename << std::endl;
@@ -540,6 +534,7 @@ namespace cse
                 if (!outFile)
                 {
                     std::cerr << "Error opening file for writing: " << filename << std::endl;
+                    return;
                 }
                 size_t size = umap.size();
                 outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
@@ -555,6 +550,7 @@ namespace cse
                 if (!inFile)
                 {
                     std::cerr << "Error opening file for reading: " << filename << std::endl;
+                    return;
                 }
                 size_t size;
                 inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
@@ -569,7 +565,6 @@ namespace cse
                     V value;
                     inFile.read(reinterpret_cast<char *>(&key), sizeof(K));
                     inFile.read(reinterpret_cast<char *>(&value), sizeof(V));
-
                     if (!inFile)
                     {
                         std::cerr << "Error reading element " << i << " from file: " << filename << std::endl;
@@ -595,6 +590,7 @@ namespace cse
                 if (!outFile)
                 {
                     std::cerr << "Error opening file for writing: " << filename << std::endl;
+                    return;
                 }
                 size_t size = mmap.size();
                 outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
@@ -610,6 +606,7 @@ namespace cse
                 if (!inFile)
                 {
                     std::cerr << "Error opening file for reading: " << filename << std::endl;
+                    return;
                 }
                 size_t size;
                 inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
@@ -624,7 +621,6 @@ namespace cse
                     V value;
                     inFile.read(reinterpret_cast<char *>(&key), sizeof(K));
                     inFile.read(reinterpret_cast<char *>(&value), sizeof(V));
-
                     if (!inFile)
                     {
                         std::cerr << "Error reading element " << i << " from file: " << filename << std::endl;
@@ -650,6 +646,7 @@ namespace cse
                 if (!outFile)
                 {
                     std::cerr << "Error opening file for writing: " << filename << std::endl;
+                    return;
                 }
                 size_t size = ummap.size();
                 outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
@@ -665,6 +662,7 @@ namespace cse
                 if (!inFile)
                 {
                     std::cerr << "Error opening file for reading: " << filename << std::endl;
+                    return;
                 }
                 size_t size;
                 inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
@@ -679,7 +677,6 @@ namespace cse
                     V value;
                     inFile.read(reinterpret_cast<char *>(&key), sizeof(K));
                     inFile.read(reinterpret_cast<char *>(&value), sizeof(V));
-
                     if (!inFile)
                     {
                         std::cerr << "Error reading element " << i << " from file: " << filename << std::endl;
@@ -708,6 +705,7 @@ namespace cse
                 if (!outFile)
                 {
                     std::cerr << "Error opening file for writing: " << filename << std::endl;
+                    return;
                 }
                 std::vector<T> vec;
                 std::stack<T> temp = stk;
@@ -729,6 +727,7 @@ namespace cse
                 if (!inFile)
                 {
                     std::cerr << "Error opening file for reading: " << filename << std::endl;
+                    return;
                 }
                 size_t size;
                 inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
@@ -761,7 +760,7 @@ namespace cse
                 if (!outFile)
                 {
                     std::cerr << "Error opening file for writing: " << filename << std::endl;
-                    std::abort();
+                    return;
                 }
                 std::vector<T> vec;
                 std::queue<T> temp = q;
@@ -783,6 +782,7 @@ namespace cse
                 if (!inFile)
                 {
                     std::cerr << "Error opening file for reading: " << filename << std::endl;
+                    return;
                 }
                 size_t size;
                 inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
@@ -816,7 +816,7 @@ namespace cse
                 if (!outFile)
                 {
                     std::cerr << "Error opening file for writing: " << filename << std::endl;
-                    std::abort();
+                    return;
                 }
                 std::vector<T> vec;
                 std::priority_queue<T> temp = pq;
@@ -838,6 +838,7 @@ namespace cse
                 if (!inFile)
                 {
                     std::cerr << "Error opening file for reading: " << filename << std::endl;
+                    return;
                 }
                 size_t size;
                 inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
@@ -866,7 +867,7 @@ namespace cse
                 if (!outFile)
                 {
                     std::cerr << "Error opening file for writing: " << filename << std::endl;
-                    std::abort();
+                    return;
                 }
                 size_t size = deq.size();
                 outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
@@ -881,6 +882,7 @@ namespace cse
                 if (!inFile)
                 {
                     std::cerr << "Error opening file for reading: " << filename << std::endl;
+                    return;
                 }
                 size_t size;
                 inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
