@@ -93,21 +93,13 @@ namespace cse
 		bool IsLoad() { return (mode_ == cse::Mode::LOAD); }
 
 		/**
-		 * @brief Swaps the current mode between SAVE and LOAD.
-		 *
-		 * If the mode is SAVE, it becomes LOAD, and vice versa.
+		 * @brief Sets the mode of the serializer.
+		 * @param mode The desired mode (SAVE or LOAD).
 		 */
-		void SwapMode()
-		{
-			if (mode_ == cse::Mode::SAVE)
-				mode_ = cse::Mode::LOAD;
-			else if (mode_ == cse::Mode::LOAD)
-				mode_ = cse::Mode::SAVE;
-		}
+		void SetMode(Mode mode) { mode_ = mode; }
 
 		/**
-		 * @brief Serializes or deserializes an arithmetic type (e.g., int, float,
-		 * double) to/from a binary file.
+		 * @brief Serializes or deserializes an arithmetic type (e.g., int, float, double) to/from a binary file.
 		 * @tparam T An arithmetic type (integral or floating-point).
 		 * @param data Reference to the variable to write or read.
 		 * @param filename Path to the binary file.
@@ -115,17 +107,15 @@ namespace cse
 		 * In SAVE mode, writes the contents of `data` to the file.
 		 * In LOAD mode, reads from the file into `data`.
 		 */
-		template <typename T,
-				  typename std::enable_if_t<std::is_arithmetic_v<T>, int> = 0>
+		template <typename T, typename std::enable_if_t<std::is_arithmetic_v<T>, int> = 0>
 		void Serialize(T &data, const std::string &filename)
 		{
 			if (mode_ == Mode::SAVE)
 			{
-				std::ofstream outFile(filename, std::ios::binary);
+				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
 				if (!outFile)
 				{
-					std::cerr << "Error opening file for writing: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for writing: " << filename << std::endl;
 					return;
 				}
 				outFile.write(reinterpret_cast<const char *>(&data), sizeof(T));
@@ -135,8 +125,7 @@ namespace cse
 				std::ifstream inFile(filename, std::ios::binary);
 				if (!inFile)
 				{
-					std::cerr << "Error opening file for reading: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for reading: " << filename << std::endl;
 					return;
 				}
 				inFile.read(reinterpret_cast<char *>(&data), sizeof(T));
@@ -145,47 +134,43 @@ namespace cse
 
 		/**
 		 * @brief Serializes or deserializes a `std::string` to/from a binary file.
-		 * @param data Reference to the string to write or read.
+		 * @param str Reference to the string to write or read.
 		 * @param filename Path to the binary file.
 		 *
 		 * In SAVE mode, writes the size of the string followed by the characters.
-		 * In LOAD mode, reads the size and then resizes the string before reading its
-		 * contents.
+		 * In LOAD mode, reads the size and then resizes the string before reading its contents.
 		 */
-		void Serialize(std::string &data, const std::string &filename)
+		void Serialize(std::string &str, const std::string &filename)
 		{
 			if (mode_ == Mode::SAVE)
 			{
-				std::ofstream outFile(filename, std::ios::binary);
+				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
 				if (!outFile)
 				{
-					std::cerr << "Error opening file for writing: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for writing: " << filename << std::endl;
 					return;
 				}
-				size_t length = data.size();
+				size_t length = str.size();
 				outFile.write(reinterpret_cast<const char *>(&length), sizeof(size_t));
-				outFile.write(data.c_str(), length);
+				outFile.write(str.c_str(), length);
 			}
 			else
 			{
 				std::ifstream inFile(filename, std::ios::binary);
 				if (!inFile)
 				{
-					std::cerr << "Error opening file for reading: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for reading: " << filename << std::endl;
 					return;
 				}
 				size_t length;
 				inFile.read(reinterpret_cast<char *>(&length), sizeof(size_t));
-				data.resize(length);
-				inFile.read(&data[0], length);
+				str.resize(length);
+				inFile.read(&str[0], length);
 			}
 		}
 
 		/**
-		 * @brief Serializes or deserializes a `std::vector` of any type to/from a
-		 * binary file.
+		 * @brief Serializes or deserializes a `std::vector` of any type to/from a binary file.
 		 * @tparam T The type of elements stored in the vector.
 		 * @param vec Reference to the vector to write or read.
 		 * @param filename Path to the binary file.
@@ -195,25 +180,22 @@ namespace cse
 		{
 			if (mode_ == Mode::SAVE)
 			{
-				std::ofstream outFile(filename, std::ios::binary);
+				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
 				if (!outFile)
 				{
-					std::cerr << "Error opening file for writing: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for writing: " << filename << std::endl;
 					return;
 				}
 				size_t size = vec.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				outFile.write(reinterpret_cast<const char *>(vec.data()),
-							  size * sizeof(T));
+				outFile.write(reinterpret_cast<const char *>(vec.data()), size * sizeof(T));
 			}
 			else
 			{
 				std::ifstream inFile(filename, std::ios::binary);
 				if (!inFile)
 				{
-					std::cerr << "Error opening file for reading: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for reading: " << filename << std::endl;
 					return;
 				}
 				size_t size;
@@ -496,8 +478,7 @@ namespace cse
 		}
 
 		/**
-		 * @brief Serializes or deserializes a `std::map` (key-value pairs) to/from a
-		 * binary file.
+		 * @brief Serializes or deserializes a `std::map` (key-value pairs) to/from a binary file.
 		 * @tparam K The key type.
 		 * @tparam V The value type.
 		 * @param map Reference to the map to write or read.
@@ -511,8 +492,8 @@ namespace cse
 				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
 				if (!outFile)
 				{
-					std::cerr << "Error opening file for writing: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for writing: " << filename << std::endl;
+					return;
 				}
 				size_t size = map.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
@@ -527,15 +508,14 @@ namespace cse
 				std::ifstream inFile(filename, std::ios::binary);
 				if (!inFile)
 				{
-					std::cerr << "Error opening file for reading: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for reading: " << filename << std::endl;
+					return;
 				}
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				if (!inFile)
 				{
-					std::cerr << "Error reading map size from file: " << filename
-							  << std::endl;
+					std::cerr << "Error reading map size from file: " << filename << std::endl;
 				}
 				map.clear();
 				for (size_t i = 0; i < size; i++)
@@ -544,11 +524,9 @@ namespace cse
 					V value;
 					inFile.read(reinterpret_cast<char *>(&key), sizeof(K));
 					inFile.read(reinterpret_cast<char *>(&value), sizeof(V));
-
 					if (!inFile)
 					{
-						std::cerr << "Error reading element " << i
-								  << " from file: " << filename << std::endl;
+						std::cerr << "Error reading element " << i << " from file: " << filename << std::endl;
 					}
 					map[key] = value;
 				}
@@ -556,8 +534,7 @@ namespace cse
 		}
 
 		/**
-		 * @brief Serializes or deserializes a `std::unordered_map` (key-value pairs)
-		 * to/from a binary file.
+		 * @brief Serializes or deserializes a `std::unordered_map` (key-value pairs) to/from a binary file.
 		 * @tparam K The key type.
 		 * @tparam V The value type.
 		 * @param umap Reference to the unordered_map to write or read.
@@ -571,8 +548,8 @@ namespace cse
 				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
 				if (!outFile)
 				{
-					std::cerr << "Error opening file for writing: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for writing: " << filename << std::endl;
+					return;
 				}
 				size_t size = umap.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
@@ -587,15 +564,14 @@ namespace cse
 				std::ifstream inFile(filename, std::ios::binary);
 				if (!inFile)
 				{
-					std::cerr << "Error opening file for reading: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for reading: " << filename << std::endl;
+					return;
 				}
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				if (!inFile)
 				{
-					std::cerr << "Error reading map size from file: " << filename
-							  << std::endl;
+					std::cerr << "Error reading map size from file: " << filename << std::endl;
 				}
 				umap.clear();
 				for (size_t i = 0; i < size; i++)
@@ -604,11 +580,9 @@ namespace cse
 					V value;
 					inFile.read(reinterpret_cast<char *>(&key), sizeof(K));
 					inFile.read(reinterpret_cast<char *>(&value), sizeof(V));
-
 					if (!inFile)
 					{
-						std::cerr << "Error reading element " << i
-								  << " from file: " << filename << std::endl;
+						std::cerr << "Error reading element " << i << " from file: " << filename << std::endl;
 					}
 					umap[key] = value;
 				}
@@ -616,8 +590,7 @@ namespace cse
 		}
 
 		/**
-		 * @brief Serializes or deserializes a `std::multimap` (key-value pairs)
-		 * to/from a binary file.
+		 * @brief Serializes or deserializes a `std::multimap` (key-value pairs) to/from a binary file.
 		 * @tparam K The key type.
 		 * @tparam V The value type.
 		 * @param mmap Reference to the multimap to write or read.
@@ -631,8 +604,8 @@ namespace cse
 				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
 				if (!outFile)
 				{
-					std::cerr << "Error opening file for writing: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for writing: " << filename << std::endl;
+					return;
 				}
 				size_t size = mmap.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
@@ -647,15 +620,14 @@ namespace cse
 				std::ifstream inFile(filename, std::ios::binary);
 				if (!inFile)
 				{
-					std::cerr << "Error opening file for reading: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for reading: " << filename << std::endl;
+					return;
 				}
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				if (!inFile)
 				{
-					std::cerr << "Error reading map size from file: " << filename
-							  << std::endl;
+					std::cerr << "Error reading map size from file: " << filename << std::endl;
 				}
 				mmap.clear();
 				for (size_t i = 0; i < size; i++)
@@ -664,11 +636,9 @@ namespace cse
 					V value;
 					inFile.read(reinterpret_cast<char *>(&key), sizeof(K));
 					inFile.read(reinterpret_cast<char *>(&value), sizeof(V));
-
 					if (!inFile)
 					{
-						std::cerr << "Error reading element " << i
-								  << " from file: " << filename << std::endl;
+						std::cerr << "Error reading element " << i << " from file: " << filename << std::endl;
 					}
 					mmap.insert({key, value});
 				}
@@ -676,24 +646,22 @@ namespace cse
 		}
 
 		/**
-		 * @brief Serializes or deserializes a `std::unordered_multimap` (key-value
-		 * pairs) to/from a binary file.
+		 * @brief Serializes or deserializes a `std::unordered_multimap` (key-value pairs) to/from a binary file.
 		 * @tparam K The key type.
 		 * @tparam V The value type.
 		 * @param ummap Reference to the unordered_multimap to write or read.
 		 * @param filename Path to the binary file.
 		 */
 		template <typename K, typename V>
-		void Serialize(std::unordered_multimap<K, V> &ummap,
-					   const std::string &filename)
+		void Serialize(std::unordered_multimap<K, V> &ummap, const std::string &filename)
 		{
 			if (mode_ == Mode::SAVE)
 			{
 				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
 				if (!outFile)
 				{
-					std::cerr << "Error opening file for writing: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for writing: " << filename << std::endl;
+					return;
 				}
 				size_t size = ummap.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
@@ -708,15 +676,14 @@ namespace cse
 				std::ifstream inFile(filename, std::ios::binary);
 				if (!inFile)
 				{
-					std::cerr << "Error opening file for reading: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for reading: " << filename << std::endl;
+					return;
 				}
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				if (!inFile)
 				{
-					std::cerr << "Error reading map size from file: " << filename
-							  << std::endl;
+					std::cerr << "Error reading map size from file: " << filename << std::endl;
 				}
 				ummap.clear();
 				for (size_t i = 0; i < size; i++)
@@ -725,11 +692,9 @@ namespace cse
 					V value;
 					inFile.read(reinterpret_cast<char *>(&key), sizeof(K));
 					inFile.read(reinterpret_cast<char *>(&value), sizeof(V));
-
 					if (!inFile)
 					{
-						std::cerr << "Error reading element " << i
-								  << " from file: " << filename << std::endl;
+						std::cerr << "Error reading element " << i << " from file: " << filename << std::endl;
 					}
 					ummap.insert({key, value});
 				}
@@ -742,10 +707,9 @@ namespace cse
 		 * @param stk Reference to the stack to write or read.
 		 * @param filename Path to the binary file.
 		 *
-		 * In SAVE mode, this method extracts all elements into a temporary vector
-		 * (top to bottom) and writes them. In LOAD mode, the elements are read into a
-		 * vector and then pushed onto the stack in reverse order to restore the
-		 * original stack order.
+		 * In SAVE mode, this method extracts all elements into a temporary vector (top to bottom)
+		 * and writes them. In LOAD mode, the elements are read into a vector and then pushed
+		 * onto the stack in reverse order to restore the original stack order.
 		 */
 		template <typename T>
 		void Serialize(std::stack<T> &stk, const std::string &filename)
@@ -755,8 +719,8 @@ namespace cse
 				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
 				if (!outFile)
 				{
-					std::cerr << "Error opening file for writing: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for writing: " << filename << std::endl;
+					return;
 				}
 				std::vector<T> vec;
 				std::stack<T> temp = stk;
@@ -777,15 +741,14 @@ namespace cse
 				std::ifstream inFile(filename, std::ios::binary);
 				if (!inFile)
 				{
-					std::cerr << "Error opening file for reading: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for reading: " << filename << std::endl;
+					return;
 				}
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				if (!inFile)
 				{
-					std::cerr << "Error reading stack size from file: " << filename
-							  << std::endl;
+					std::cerr << "Error reading stack size from file: " << filename << std::endl;
 				}
 				std::vector<T> vec(size);
 				inFile.read(reinterpret_cast<char *>(vec.data()), sizeof(T) * size);
@@ -811,9 +774,8 @@ namespace cse
 				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
 				if (!outFile)
 				{
-					std::cerr << "Error opening file for writing: " << filename
-							  << std::endl;
-					std::abort();
+					std::cerr << "Error opening file for writing: " << filename << std::endl;
+					return;
 				}
 				std::vector<T> vec;
 				std::queue<T> temp = q;
@@ -834,8 +796,8 @@ namespace cse
 				std::ifstream inFile(filename, std::ios::binary);
 				if (!inFile)
 				{
-					std::cerr << "Error opening file for reading: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for reading: " << filename << std::endl;
+					return;
 				}
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
@@ -856,8 +818,7 @@ namespace cse
 		}
 
 		/**
-		 * @brief Serializes or deserializes a `std::priority_queue` to/from a binary
-		 * file.
+		 * @brief Serializes or deserializes a `std::priority_queue` to/from a binary file.
 		 * @tparam T The type of elements in the priority_queue.
 		 * @param pq Reference to the priority_queue to write or read.
 		 * @param filename Path to the binary file.
@@ -870,9 +831,8 @@ namespace cse
 				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
 				if (!outFile)
 				{
-					std::cerr << "Error opening file for writing: " << filename
-							  << std::endl;
-					std::abort();
+					std::cerr << "Error opening file for writing: " << filename << std::endl;
+					return;
 				}
 				std::vector<T> vec;
 				std::priority_queue<T> temp = pq;
@@ -893,15 +853,14 @@ namespace cse
 				std::ifstream inFile(filename, std::ios::binary);
 				if (!inFile)
 				{
-					std::cerr << "Error opening file for reading: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for reading: " << filename << std::endl;
+					return;
 				}
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				if (!inFile)
 				{
-					std::cerr << "Error reading priority queue size from file: " << filename
-							  << std::endl;
+					std::cerr << "Error reading priority queue size from file: " << filename << std::endl;
 				}
 				std::vector<T> vec(size);
 				inFile.read(reinterpret_cast<char *>(vec.data()), sizeof(T) * size);
@@ -923,9 +882,8 @@ namespace cse
 				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
 				if (!outFile)
 				{
-					std::cerr << "Error opening file for writing: " << filename
-							  << std::endl;
-					std::abort();
+					std::cerr << "Error opening file for writing: " << filename << std::endl;
+					return;
 				}
 				size_t size = deq.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
@@ -939,15 +897,14 @@ namespace cse
 				std::ifstream inFile(filename, std::ios::binary);
 				if (!inFile)
 				{
-					std::cerr << "Error opening file for reading: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for reading: " << filename << std::endl;
+					return;
 				}
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				if (!inFile || inFile.eof())
 				{
-					std::cerr << "Error reading deque size from file: " << filename
-							  << std::endl;
+					std::cerr << "Error reading deque size from file: " << filename << std::endl;
 					std::abort();
 				}
 				deq.clear();
@@ -957,8 +914,7 @@ namespace cse
 					inFile.read(reinterpret_cast<char *>(&item), sizeof(T));
 					if (!inFile)
 					{
-						std::cerr << "Error reading element " << i
-								  << " from file: " << filename << std::endl;
+						std::cerr << "Error reading element " << i << " from file: " << filename << std::endl;
 					}
 					deq.push_back(item);
 				}

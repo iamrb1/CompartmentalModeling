@@ -119,10 +119,34 @@ TEST_CASE("Serializer Save Load String", "[Serializer]") {
       char Character = static_cast<char>(ranChar(gen));
       String = String + Character;
     }
+<<<<<<< HEAD
     std::string Result;
     Saver.Serialize(String, filename);
     Loader.Serialize(Result, filename);
     REQUIRE(String == Result);
+=======
+    REQUIRE(called);
+}
+
+TEST_CASE("Serializer Swap Mode", "[Serializer]")
+{
+    cse::Serializer Neutral;
+    REQUIRE(Neutral.IsSave());
+    Neutral.SetMode(cse::Mode::LOAD);
+    REQUIRE(Neutral.IsLoad());
+}
+
+TEST_CASE("Serializer Save Load Basic", "[Serializer]")
+{
+    cse::Serializer Saver(cse::Mode::SAVE);
+    cse::Serializer Loader(cse::Mode::LOAD);
+    int number = 22;
+    int result = -1;
+    Saver.Serialize(number, filename);
+    REQUIRE(result == -1);
+    Loader.Serialize(result, filename);
+    REQUIRE(result == number);
+>>>>>>> team07_serializer
     std::remove(filename);
   }
 }
