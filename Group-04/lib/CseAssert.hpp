@@ -72,6 +72,14 @@ namespace cse::_assert_internal {
 #ifdef TEST_CSE_ASSERT
 class AssertTestException : std::exception {};
 void Fail() { throw AssertTestException(); }
+
+// helper macros for catch2 tests
+#ifdef CATCH_VERSION_MAJOR
+#define REQUIRE_ASSERT(...) \
+  REQUIRE_THROWS_AS(__VA_ARGS__, cse::_assert_internal::AssertTestException)
+#define REQUIRE_NOASSERT(...) REQUIRE_NOTHROW(__VA_ARGS__)
+#endif
+
 #else
 [[noreturn]] void Fail() { std::abort(); }
 #endif
@@ -108,15 +116,15 @@ class BinaryAssertArgs {
 
 void PrintAssertMessage(
     std::optional<const char *> message_opt = std::nullopt) {
-  std::cout << "Assertion ";
+  std::cerr << "Assertion ";
   if (auto message = message_opt) {
-    std::cout << "'" << message.value() << "' ";
+    std::cerr << "'" << message.value() << "' ";
   }
-  std::cout << "failed!";
+  std::cerr << "failed!";
 }
 
 void PrintLocation(const char *file, int line, const char *function) {
-  std::cout << "\nLocated at: " << file << ":" << line << " (in function "
+  std::cerr << "\nLocated at: " << file << ":" << line << " (in function "
             << function << ")\n";
 }
 
@@ -128,7 +136,7 @@ void Assert(AssertArgs const &args, const char *args_text, const char *file,
   std::string cond_string = std::string{args_text};
 
   PrintAssertMessage(args.message);
-  std::cout << "\n  Condition evaluated to "
+  std::cerr << "\n  Condition evaluated to "
                "false: "
             << cond_string << "\n";
   PrintLocation(file, line, function);
@@ -136,7 +144,7 @@ void Assert(AssertArgs const &args, const char *args_text, const char *file,
 }
 
 template <typename T>
-concept printable = requires(T output) { std::cout << output; };
+concept printable = requires(T output) { std::cerr << output; };
 
 template <typename T>
   requires std::equality_comparable<T>
@@ -151,15 +159,15 @@ void AssertEq(BinaryAssertArgs<T> const &args, const char *lhs_text,
 
   PrintAssertMessage(args.message);
   if constexpr (printable<T>) {
-    std::cout << " These values are different:\n"
+    std::cerr << " These values are different:\n"
               << "   left: " << args.lhs << "\n  right: " << args.rhs << "\n";
     PrintLocation(file, line, function);
   } else {
-    std::cout << "  These expressions evaluated to different values:\n"
+    std::cerr << "  These expressions evaluated to different values:\n"
               << "   left: " << lhs_string << "\n  right: " << rhs_string
               << "\n";
     PrintLocation(file, line, function);
-    std::cout << "hint: implement operator<< to see the underlying values\n";
+    std::cerr << "hint: implement operator<< to see the underlying values\n";
   }
 
   Fail();
@@ -178,15 +186,15 @@ void AssertNeq(BinaryAssertArgs<T> const &args, const char *lhs_text,
 
   PrintAssertMessage(args.message);
   if constexpr (printable<T>) {
-    std::cout << " These values are the same:\n"
+    std::cerr << " These values are the same:\n"
               << "   left: " << args.lhs << "\n  right: " << args.rhs << "\n";
     PrintLocation(file, line, function);
   } else {
-    std::cout << "  These expressions evaluated to the same value:\n"
+    std::cerr << "  These expressions evaluated to the same value:\n"
               << "   left: " << lhs_string << "\n  right: " << rhs_string
               << "\n";
     PrintLocation(file, line, function);
-    std::cout << "hint: implement operator<< to see the underlying values\n";
+    std::cerr << "hint: implement operator<< to see the underlying values\n";
   }
 
   Fail();

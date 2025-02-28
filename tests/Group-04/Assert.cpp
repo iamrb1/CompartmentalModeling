@@ -3,11 +3,6 @@
 #define TEST_CSE_ASSERT
 #include "CseAssert.hpp"
 
-#define REQUIRE_ASSERT(...)                                                    \
-  REQUIRE_THROWS_AS(__VA_ARGS__, cse::_assert_internal::AssertTestException)
-
-#define REQUIRE_NOASSERT(...) REQUIRE_NOTHROW(__VA_ARGS__)
-
 TEST_CASE("Test basic assert functionality", "[assert]") {
   // test most basic asserts
   REQUIRE_NOASSERT(cse_assert(true));
