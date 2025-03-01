@@ -1,7 +1,7 @@
 #same as RandomAccessSetTest
 
 # Define the test name
-TEST_NAMES = TagManagerTest;
+TEST_NAMES = TagManagerTest
 
 # Compilation Flags
 # Dynamically linking or else it wont work

@@ -46,3 +46,50 @@ void cse::AnnotatedWrapper::listAnnotations() {
 void cse::AnnotatedWrapper::clearAnnotations() {
     mAnnotations.clear();
 }
+
+// Skeletal test functions
+
+void setFontSize(float size)
+{
+
+}
+
+float getFontSize()
+{
+    return 0.0;
+}
+
+void setFontColor(const std::string& color)
+{
+
+}
+
+const std::string& getFontColor()
+{
+    return "";
+}
+
+void setBackgroundColor (const std::string& color)
+{
+
+}
+
+const std::string& getBackgroundColor()
+{
+    return "";
+}
+
+void addAnnotation( const std::string& wrapperKey, const std::string& personalKey, const std::string& value)
+{
+
+}
+
+void addAnnotation( const std::string& key, const float number)
+{
+
+}
+
+int getAnnotationCount()
+{
+    
+}

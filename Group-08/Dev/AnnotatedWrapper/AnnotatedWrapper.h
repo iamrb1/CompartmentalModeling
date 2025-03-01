@@ -32,13 +32,33 @@ namespace cse {
 
         // Public methods
         void addAnnotation( const std::string& key, const std::string& value);
+
+        // Temporary hard coded annotation types for testing only
+        void addAnnotation( const std::string& wrapperKey, const std::string& personalKey, const std::string& value);
+        void addAnnotation( const std::string& key, const float number);
+
         std::string getAnnotation(const std::string key);
         void removeAnnotation(const std::string key);
         void listAnnotations();
         void clearAnnotations();
 
+        void setFontSize(float size);
+        float getFontSize();
+
+        void setFontColor(const std::string& color);
+        const std::string& getFontColor();
+
+        void setBackgroundColor (const std::string& color);
+        const std::string& getBackgroundColor();
+
+        int getAnnotationCount();
+
     private:
         std::unordered_map<std::string, std::string> mAnnotations;
+
+        int mFontSize;
+        int mFontColor;
+        int mBackgroundColor;
 
     };
 }
