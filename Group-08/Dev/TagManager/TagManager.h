@@ -9,8 +9,8 @@ using std::string;
 class TagManager {
 private:
     // Maps from task -> set of tags, and from tag -> set of entries
-    std::unordered_map<string, std::unordered_set<string> > TaskToTag;
-    std::unordered_map<string, std::unordered_set<string> > TagToTask;
+    std::unordered_map<string, std::unordered_set<string> > mTaskToTag;
+    std::unordered_map<string, std::unordered_set<string> > mTagToTask;
 
 public:
     // Default constructor
@@ -19,15 +19,15 @@ public:
     // Copy constructor
     TagManager(const TagManager& other) {
         // Copy both maps from the other TagManager1
-        TaskToTag = other.TaskToTag;
-        TagToTask = other.TagToTask;
+        mTaskToTag = other.mTaskToTag;
+        mTagToTask = other.mTagToTask;
     }
 
     // Copy assignment operator
     TagManager& operator=(const TagManager& other) {
         if (this != &other) {  // Check for self-assignment
-            TaskToTag = other.TaskToTag;
-            TagToTask = other.TagToTask;
+            mTaskToTag = other.mTaskToTag;
+            mTagToTask = other.mTagToTask;
         }
         return *this;
     }
