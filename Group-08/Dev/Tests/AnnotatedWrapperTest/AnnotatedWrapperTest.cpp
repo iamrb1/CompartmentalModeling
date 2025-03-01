@@ -2,6 +2,12 @@
  #include "../../AnnotatedWrapper/AnnotatedWrapper.h"
  using namespace cse;
 
+TEST_CASE("Test AnnotatedWrapper default construction", "[AnnotatedWrapper]") {
+    AnnotatedWrapper wrapper;
+    CHECK(wrapper.getAnnotation("key1").empty());
+    CHECK(wrapper.getAnnotation("key2").empty());
+}
+
 TEST_CASE("Test AnnotatedWrapper addAnnotation operation", "[AnnotatedWrapper]") {
     AnnotatedWrapper wrapper;
     wrapper.addAnnotation("key1", "value1");

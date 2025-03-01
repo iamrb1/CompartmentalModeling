@@ -15,6 +15,9 @@ void cse::AnnotatedWrapper::addAnnotation(const std::string& key, const std::str
  * @return The value associated with the key, or an empty string if not found.
  */
 std::string cse::AnnotatedWrapper::getAnnotation(const std::string key) {
+    if (mAnnotations.find(key) == mAnnotations.end()) {
+        return "";
+    }
     return mAnnotations.at(key);
 }
 
