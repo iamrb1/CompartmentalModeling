@@ -15,7 +15,11 @@ void cse::AnnotatedWrapper::addAnnotation(const std::string& key, const std::str
  * @return The value associated with the key, or an empty string if not found.
  */
 std::string cse::AnnotatedWrapper::getAnnotation(const std::string key) {
-    return mAnnotations.at(key);
+    auto it = mAnnotations.find(key);
+    if (it != mAnnotations.end()) {
+        return it->second;
+    }
+    return "";
 }
 
 /**
@@ -66,7 +70,8 @@ void setFontColor(const std::string& color)
 
 const std::string& getFontColor()
 {
-    return "";
+    static const std::string emptyStr = "";
+    return emptyStr;
 }
 
 void setBackgroundColor (const std::string& color)
@@ -76,7 +81,8 @@ void setBackgroundColor (const std::string& color)
 
 const std::string& getBackgroundColor()
 {
-    return "";
+    static const std::string emptyStr = "";
+    return emptyStr;
 }
 
 void addAnnotation( const std::string& wrapperKey, const std::string& personalKey, const std::string& value)
@@ -91,5 +97,5 @@ void addAnnotation( const std::string& key, const float number)
 
 int getAnnotationCount()
 {
-    
+    return 0;
 }
