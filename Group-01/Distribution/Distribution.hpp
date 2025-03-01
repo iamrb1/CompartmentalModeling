@@ -12,7 +12,7 @@ namespace cse {
   private:
     std::vector<double> probs;           // Holds the probabilities of the distribution
     std::vector<double> cumulativeProbs; // Holds the cumulative probabilities of the distribution
-    const double noChance = 0.0;         // Nada
+    const double noChance = 0.0;         // A value for when the probability is none or "0"
     const double maxProb = 1.0;          // The maximum probability
     const int minTrials = 1;             // The minimum number of trials you can build
     const int minTrialsCheck = 0;        // The minimum number of trials to check if successful
