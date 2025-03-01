@@ -2,7 +2,7 @@
 #include "TagManager.h"
 
 int main () {
-    TagManager tm;
+    cse::TagManager tm;
 
      // Example usage
      tm.AddTag("CSE498", "urgent");

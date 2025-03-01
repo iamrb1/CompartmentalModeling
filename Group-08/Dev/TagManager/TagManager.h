@@ -6,6 +6,8 @@
 #include <unordered_set>
 using std::string;
 
+namespace cse {
+
 class TagManager {
 private:
     // Maps from task -> set of tags, and from tag -> set of entries
@@ -58,3 +60,5 @@ public:
 };
 
 #endif //TAGMANAGER_TAGMANAGER_H
+
+}   // namespace cse

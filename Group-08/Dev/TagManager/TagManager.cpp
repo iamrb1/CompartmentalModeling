@@ -1,6 +1,7 @@
 #include "TagManager.h"
 using std::string;
 
+namespace cse {
 /**
  * Adds a tag to a task
  * 
@@ -114,4 +115,6 @@ bool TagManager::HasTag(const string& task, const string& tag) const {
         return it->second.find(tag) != it->second.end();  // Check if tag exists
     }
     return false;  // Return false if task doesn't exist
-}
+};
+
+}   //namespace
