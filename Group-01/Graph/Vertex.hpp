@@ -11,9 +11,13 @@ namespace cse {
   class Edge;
   class Vertex : public FileSerializable {
   private:
+    /** Unique identifier for the vertex */
     std::string id;
+    /** X coordinate position of the vertex */
     double x{0};
+    /** Y coordinate position of the vertex */
     double y{0};
+    /** Map of edges connected to this vertex, keyed by destination vertex ID */
     std::map<std::string, std::weak_ptr<Edge>> edges{};
 
   protected:
@@ -35,13 +39,12 @@ namespace cse {
     bool IsConnected(std::shared_ptr<cse::Vertex> const &destination);
 
     std::string GetId() const override { return id; }
-    const std::map<std::string, std::weak_ptr<Edge>>& GetEdges() const { return edges; };
+    const std::map<std::string, std::weak_ptr<Edge>> &GetEdges() const { return edges; };
     double GetX() const { return x; };
     double GetY() const { return y; };
 
     std::shared_ptr<cse::Edge> const GetEdge(std::shared_ptr<cse::Vertex> const &to);
 
-    // void ToFile(std::ostream &s, std::string const &prefix);
     friend std::ostream &operator<<(std::ostream &, const Vertex &);
     friend bool operator==(const Vertex &lhs, const Vertex &rhs);
     friend class Graph; // Allow Graph to call RemoveEdge

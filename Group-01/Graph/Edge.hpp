@@ -47,7 +47,7 @@ namespace cse {
   public:
     Edge() = delete;
     virtual ~Edge() = default;
-    Edge(std::string id, std::shared_ptr<cse::Vertex> &from, std::shared_ptr<cse::Vertex> &to)
+    Edge(const std::string id, std::shared_ptr<cse::Vertex> &from, std::shared_ptr<cse::Vertex> &to)
         : id(id), from(from), to(to) {};
 
     virtual bool IsBidirectional() { return false; };
@@ -66,7 +66,7 @@ namespace cse {
   public:
     BidirectionalEdge() = delete;
     virtual ~BidirectionalEdge() = default;
-    BidirectionalEdge(std::string id, std::shared_ptr<cse::Vertex> &from, std::shared_ptr<cse::Vertex> &to)
+    BidirectionalEdge(const std::string id, std::shared_ptr<cse::Vertex> &from, std::shared_ptr<cse::Vertex> &to)
         : cse::Edge(id, from, to) {};
     // TODO @lspecht: Handle GetFrom and GetTo on bidirectional case
     bool IsBidirectional() override { return true; };
