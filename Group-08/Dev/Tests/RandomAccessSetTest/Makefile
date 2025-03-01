@@ -2,9 +2,8 @@
 TEST_NAMES = RandomAccessSetTest
 
 # Compilation Flags
-# Dynamically linking or else it wont work
+# Statically linking or else it wont work
 FLAGS = -std=c++20 -g -pthread -Wall -Wextra -I../../ -DCATCH_CONFIG_MAIN -static-libgcc -static-libstdc++
-
 
 # Default target
 default: test
