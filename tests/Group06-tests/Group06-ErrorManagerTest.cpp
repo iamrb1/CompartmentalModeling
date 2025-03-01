@@ -192,6 +192,10 @@ TEST_CASE("Program terminates with a specific error code",
 
 TEST_CASE("Program writes errors into a text file", "[printError]") {
   const std::string file = "file.log";
+  // Assist from ChatGPT: Clear the file before test
+  std::ofstream clearFile(file, std::ios::trunc);
+  clearFile.close();
+
   cse::ErrorManager manager(file);
   std::stringstream buffer;
   std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
