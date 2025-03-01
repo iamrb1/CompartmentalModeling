@@ -1,4 +1,5 @@
 TEST_NAMES = Assert BVOps BVSize IndexSet RichText CseString
+#TEST_NAMES = RichTextAdvanced TextSerializer
 
 # -O3	  -Wl,--stack,8388608 -ftrack-macro-expansion=0
 CATCH = ../../third-party/Catch/single_include/catch2
