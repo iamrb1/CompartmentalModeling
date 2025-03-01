@@ -6,13 +6,11 @@
 #include <set>
 #include <stdexcept>
 #include <vector>
-
-// Forward declaration of Graph.
-// Likely will have functions like GetNeighbors, HasVertex (bool if vertex exists in graph), GetModificationCount
-// (provides count of # times graph has been modified so GraphPosition can use to detect changes during traversal), and
-// more. Also assumes Graph class initializes vertices with an ID for easy tracking/position usage.
+#include <deque>
 
 namespace cse {
+
+  enum class TraversalMode { DFS, BFS, RANDOM, WEIGHTED };
 
   class GraphPosition {
   private:
@@ -20,16 +18,22 @@ namespace cse {
     std::shared_ptr<Vertex> currentVertex;
     std::set<std::shared_ptr<Vertex>> visitedVertices;
     std::vector<std::shared_ptr<Vertex>> traversalPath;
+    TraversalMode traversalMode = TraversalMode::DFS; // Default to DFS
+    std::deque<std::shared_ptr<Vertex>> traversalQueue; // Needed for BFS
 
     void MarkVisited(std::shared_ptr<Vertex> vertex);
 
   public:
-    GraphPosition(const Graph &g, std::shared_ptr<Vertex> startVertex);
+    GraphPosition(const Graph &g, std::shared_ptr<Vertex> startVertex, TraversalMode mode = TraversalMode::DFS);
 
     std::shared_ptr<Vertex> GetCurrentVertex() const;
     void SetCurrentVertex(std::shared_ptr<Vertex> vertex);
     bool AdvanceToNextNeighbor();
     const std::vector<std::shared_ptr<Vertex>> &GetTraversalPath() const;
+    void ResetTraversal(std::shared_ptr<Vertex> newStartVertex);
+    // NEED TO WRITE FUNCTION EXPRESSIONS NOT JUST DECLARE THEM
+    GraphPosition& operator++(); // Advances to next vertex
+    explicit operator bool() const; // Checks if more traversal is possible
   };
 
 } // namespace cse

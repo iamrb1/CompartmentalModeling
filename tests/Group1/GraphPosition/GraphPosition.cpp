@@ -113,3 +113,144 @@ TEST_CASE("GraphPosition Traversal Path Tests", "[GraphPosition]") {
         REQUIRE(pos.GetTraversalPath() == expectedPath);
     }
 }
+
+TEST_CASE("GraphPosition ResetTraversal Tests", "[GraphPosition]") {
+    cse::Graph graph;
+    auto v1 = graph.AddVertex("A");
+    auto v2 = graph.AddVertex("B");
+    auto v3 = graph.AddVertex("C");
+
+    graph.AddEdge("A", "B");
+    graph.AddEdge("B", "C");
+
+    cse::GraphPosition pos(graph, v1);
+
+    SECTION("ResetTraversal clears visited vertices and traversal path") {
+        pos.AdvanceToNextNeighbor(); // Moves to B
+        REQUIRE(pos.GetTraversalPath().size() == 2); // A -> B
+
+        pos.ResetTraversal(v1); // Reset back to A
+
+        REQUIRE(pos.GetTraversalPath().size() == 1); // Only A should remain
+        REQUIRE(pos.GetTraversalPath().front() == v1); 
+        REQUIRE(pos.GetCurrentVertex() == v1);
+    }
+
+    SECTION("ResetTraversal allows starting from a different vertex") {
+        pos.ResetTraversal(v3);
+
+        REQUIRE(pos.GetTraversalPath().size() == 1); // Only C should be in path
+        REQUIRE(pos.GetTraversalPath().front() == v3);
+        REQUIRE(pos.GetCurrentVertex() == v3);
+    }
+
+    SECTION("ResetTraversal maintains valid traversal after reset") {
+        pos.AdvanceToNextNeighbor(); // Move to B
+        pos.ResetTraversal(v1); // Reset back to A
+
+        REQUIRE(pos.AdvanceToNextNeighbor()); // Should be able to move again
+        REQUIRE(pos.GetCurrentVertex() == v2);
+    }
+}
+
+// Advanced Functionality tests
+// FAILS SO FAR
+TEST_CASE("GraphPosition Iterator Traversal Tests", "[GraphPosition]") {
+    cse::Graph graph;
+    auto v1 = graph.AddVertex("A");
+    auto v2 = graph.AddVertex("B");
+    auto v3 = graph.AddVertex("C");
+
+    graph.AddEdge("A", "B");
+    graph.AddEdge("B", "C");
+
+    cse::GraphPosition pos(graph, v1, cse::TraversalMode::DFS);
+
+    SECTION("Using ++ operator moves to next vertex") {
+        CHECK(pos.GetCurrentVertex() == v1);
+        ++pos;
+        CHECK(pos.GetCurrentVertex() == v2);
+        ++pos;
+        CHECK(pos.GetCurrentVertex() == v3);
+    }
+
+    SECTION("Iterator-like traversal stops at last vertex") {
+        ++pos; // Move to B
+        ++pos; // Move to C
+        ++pos; // No more vertices left
+        CHECK_FALSE(pos);
+    }
+}
+
+// FAILS SO FAR
+TEST_CASE("GraphPosition Depth-First Search Traversal", "[GraphPosition]") {
+    cse::Graph graph;
+    auto v1 = graph.AddVertex("A");
+    auto v2 = graph.AddVertex("B");
+    auto v3 = graph.AddVertex("C");
+    auto v4 = graph.AddVertex("D");
+
+    graph.AddEdge("A", "B");
+    graph.AddEdge("A", "C");
+    graph.AddEdge("B", "D");
+
+    cse::GraphPosition pos(graph, v1, cse::TraversalMode::DFS);
+
+    SECTION("DFS follows deep traversal first") {
+        ++pos;
+        CHECK(pos.GetCurrentVertex() == v2); // First deeper neighbor
+        ++pos;
+        CHECK(pos.GetCurrentVertex() == v4); // Goes as deep as possible first
+        ++pos;
+        CHECK(pos.GetCurrentVertex() == v3); // Backtracks to remaining neighbors
+    }
+}
+
+// FAILS SO FAR
+TEST_CASE("GraphPosition Breadth-First Search Traversal", "[GraphPosition]") {
+    cse::Graph graph;
+    auto v1 = graph.AddVertex("A");
+    auto v2 = graph.AddVertex("B");
+    auto v3 = graph.AddVertex("C");
+    auto v4 = graph.AddVertex("D");
+
+    graph.AddEdge("A", "B");
+    graph.AddEdge("A", "C");
+    graph.AddEdge("B", "D");
+
+    cse::GraphPosition pos(graph, v1, cse::TraversalMode::BFS);
+
+    SECTION("BFS follows level-order traversal") {
+        ++pos;
+        CHECK(pos.GetCurrentVertex() == v2); // BFS visits all direct neighbors first
+        ++pos;
+        CHECK(pos.GetCurrentVertex() == v3);
+        ++pos;
+        CHECK(pos.GetCurrentVertex() == v4); // Then visits the next level
+    }
+}
+
+// FAILS SO FAR
+TEST_CASE("GraphPosition Random Walk Traversal", "[GraphPosition]") {
+    cse::Graph graph;
+    auto v1 = graph.AddVertex("A");
+    auto v2 = graph.AddVertex("B");
+    auto v3 = graph.AddVertex("C");
+
+    graph.AddEdge("A", "B");
+    graph.AddEdge("A", "C");
+
+    cse::GraphPosition pos(graph, v1, cse::TraversalMode::RANDOM);
+
+    SECTION("Random walk selects different neighbors") {
+        ++pos;
+        auto firstMove = pos.GetCurrentVertex();
+        CHECK((firstMove == v2 || firstMove == v3)); // Could be either B or C
+    }
+}
+
+// WILL NEED TO WORK WITH GRAPH TO ADD WEIGHTED EDGES FIRST I BELIEVE
+TEST_CASE("GraphPosition Weighted Walk Traversal", "[GraphPosition]") {
+    
+}
+

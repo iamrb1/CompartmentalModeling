@@ -8,8 +8,8 @@ namespace cse {
     traversalPath.push_back(vertex);
   }
 
-  GraphPosition::GraphPosition(const Graph &g, std::shared_ptr<Vertex> startVertex)
-      : graph(g), currentVertex(startVertex) {
+  GraphPosition::GraphPosition(const Graph &g, std::shared_ptr<Vertex> startVertex, TraversalMode mode)
+      : graph(g), currentVertex(startVertex), traversalMode(mode) {
     if (!startVertex) {
       throw std::invalid_argument("GraphPosition must be initialized with a non-null vertex!");
     }
@@ -28,6 +28,7 @@ namespace cse {
   }
 
   bool GraphPosition::AdvanceToNextNeighbor() {
+    // NEED TO MODIFY CODE TO SUPPORT DIFFERENT TRAVERSAL MODES
     assert(currentVertex != nullptr && "Current vertex should never be nullptr!");
     // Get the current vertex's edges
     for (auto &[neighborID, weakEdge] : currentVertex->GetEdges()) {
@@ -37,8 +38,7 @@ namespace cse {
 
         // If neighbor has not been visited, move to it
         if (visitedVertices.find(neighbor) == visitedVertices.end()) {
-          currentVertex = neighbor;
-          MarkVisited(currentVertex);
+          SetCurrentVertex(neighbor);
           return true;
         }
       }
@@ -50,6 +50,27 @@ namespace cse {
 
   const std::vector<std::shared_ptr<Vertex>> &GraphPosition::GetTraversalPath() const {
     return traversalPath;
+  }
+
+  void GraphPosition::ResetTraversal(std::shared_ptr<Vertex> newStartVertex) {
+    assert(newStartVertex != nullptr && "ResetTraversal must receive a non-null vertex!");
+
+    // Clear traversal history
+    visitedVertices.clear();
+    traversalPath.clear();
+
+    // Set new starting position
+    SetCurrentVertex(newStartVertex);
+  }
+
+  // NEED TO WRITE FULL FUNCTION
+  GraphPosition &GraphPosition::operator++() {
+    return *this;
+  }
+
+  // NEED TO WRITE FULL FUNCTION
+  GraphPosition::operator bool() const {
+    return false;
   }
 
 } // namespace cse
