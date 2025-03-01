@@ -1,4 +1,4 @@
-TEST_NAMES := AuditedPointerTest RandomAccessSetTest
+TEST_NAMES := AuditedPointerTest RandomAccessSetTest TagManagerTest DynamicStringTest AnnotatedWrapperTest
 
 CXX = g++
 

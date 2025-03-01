@@ -1,6 +1,5 @@
 #include "../../../../third-party/Catch/single_include/catch2/catch.hpp"
-#include "TagManager.h"
-
+#include "../../TagManager/TagManager.h"
 
 TEST_CASE("Test AddTag", "[TagManager]") {
     cse::TagManager tm;
