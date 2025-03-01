@@ -13,7 +13,6 @@ class Surface {
         int surface_height;
         int sector_width;
         int sector_height;
-
         std::vector<std::vector<Sector>> sectors;
 
         Surface(int width, int height, int sector_size);

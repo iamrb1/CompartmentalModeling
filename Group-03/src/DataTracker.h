@@ -1,8 +1,8 @@
-/**
+/** 
 * @file DataTracker.h
 * @author nigamsa1
 * adds or removes data from a vector and provides statistcal data from it
-*
+* 
 */
 
 #ifndef DATATRACKER_H

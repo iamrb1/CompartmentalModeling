@@ -59,7 +59,6 @@ void Surface::check_collision() {
                     // Ensure neighbor is within bounds
                     if (neighbor_x >= 0 && neighbor_x < sector_width &&
                         neighbor_y >= 0 && neighbor_y < sector_height) {
-
                         Sector& neighbor_sector = sectors[neighbor_x][neighbor_y];
 
                         for (Circle* c1 : current_sector.circles) {
