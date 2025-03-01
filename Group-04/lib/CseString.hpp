@@ -6,9 +6,10 @@
 
 #pragma once
 
-#include <string>
 #include <sstream>  // for std::ostringstream
-#include "CseAssert.hpp"  
+#include <string>
+
+#include "CseAssert.hpp"
 
 namespace cse {
 
@@ -18,7 +19,8 @@ namespace cse {
  * @class String
  * @brief A debug-audited string class derived from std::string.
  *
- * Provides additional index-range checks and other safety mechanisms in Debug builds.
+ * Provides additional index-range checks and other safety mechanisms in Debug
+ * builds.
  */
 class String : public std::string {
  public:
@@ -33,9 +35,7 @@ class String : public std::string {
    * This may help compilers that see std::__1::string as distinct
    * from std::string in certain environments (e.g., macOS clang).
    */
-  String(const std::string &other)
-    : std::string(other) {
-  }
+  String(const std::string &other) : std::string(other) {}
 
   /**
    * @brief Assignment operator from std::string.
@@ -52,7 +52,9 @@ class String : public std::string {
    */
   char &operator[](std::size_t pos) {
     dbg_assert(pos < size(),
-               buildErrorMsg_("cse::String operator[] index out of range", pos, size()).c_str());
+               build_error_msg("cse::String operator[] index out of range", pos,
+                               size())
+                   .c_str());
     return std::string::operator[](pos);
   }
 
@@ -63,7 +65,9 @@ class String : public std::string {
    */
   const char &operator[](std::size_t pos) const {
     dbg_assert(pos < size(),
-               buildErrorMsg_("cse::String operator[] index out of range", pos, size()).c_str());
+               build_error_msg("cse::String operator[] index out of range", pos,
+                               size())
+                   .c_str());
     return std::string::operator[](pos);
   }
 
@@ -73,9 +77,12 @@ class String : public std::string {
    * @return Reference to the character at the specified position.
    */
   char &at(std::size_t pos) {
-    dbg_assert(pos < size(),
-               buildErrorMsg_("cse::String at() index out of range", pos, size()).c_str());
-    return std::string::at(pos);  // std::string::at() also throws std::out_of_range
+    dbg_assert(
+        pos < size(),
+        build_error_msg("cse::String at() index out of range", pos, size())
+            .c_str());
+    return std::string::at(
+        pos);  // std::string::at() also throws std::out_of_range
   }
 
   /**
@@ -84,8 +91,10 @@ class String : public std::string {
    * @return Const reference to the character at the specified position.
    */
   const char &at(std::size_t pos) const {
-    dbg_assert(pos < size(),
-               buildErrorMsg_("cse::String at() index out of range", pos, size()).c_str());
+    dbg_assert(
+        pos < size(),
+        build_error_msg("cse::String at() index out of range", pos, size())
+            .c_str());
     return std::string::at(pos);
   }
 
@@ -96,13 +105,17 @@ class String : public std::string {
    * @return A cse::String containing the requested substring.
    */
   cse::String substr(std::size_t pos, std::size_t count = npos) const {
-    dbg_assert(pos <= size(),
-               buildErrorMsg_("cse::String substr() start position out of range", pos, size()).c_str());
+    dbg_assert(
+        pos <= size(),
+        build_error_msg("cse::String substr() start position out of range", pos,
+                        size())
+            .c_str());
     return cse::String(std::string::substr(pos, count));
   }
 
   /**
-   * @brief Insert a string into this String at the specified position, with debug checks.
+   * @brief Insert a string into this String at the specified position, with
+   * debug checks.
    *
    * @param pos The position at which the content should be inserted.
    * @param str The string to insert.
@@ -110,7 +123,9 @@ class String : public std::string {
    */
   String &insert(std::size_t pos, const String &str) {
     dbg_assert(pos <= size(),
-               buildErrorMsg_("cse::String insert() position out of range", pos, size()).c_str());
+               build_error_msg("cse::String insert() position out of range",
+                               pos, size())
+                   .c_str());
     std::string::insert(pos, str);
     return *this;
   }
@@ -123,14 +138,18 @@ class String : public std::string {
    * @return Reference to this String after erasure.
    */
   String &erase(std::size_t pos = 0, std::size_t count = npos) {
-    dbg_assert(pos <= size(),
-               buildErrorMsg_("cse::String erase() start position out of range", pos, size()).c_str());
+    dbg_assert(
+        pos <= size(),
+        build_error_msg("cse::String erase() start position out of range", pos,
+                        size())
+            .c_str());
     std::string::erase(pos, count);
     return *this;
   }
 
   /**
-   * @brief Replace a portion of this String with another string, with debug checks.
+   * @brief Replace a portion of this String with another string, with debug
+   * checks.
    *
    * @param pos The starting position of the replace operation.
    * @param count The number of characters to replace.
@@ -138,8 +157,11 @@ class String : public std::string {
    * @return Reference to this String after replacement.
    */
   String &replace(std::size_t pos, std::size_t count, const String &str) {
-    dbg_assert(pos <= size(),
-               buildErrorMsg_("cse::String replace() start position out of range", pos, size()).c_str());
+    dbg_assert(
+        pos <= size(),
+        build_error_msg("cse::String replace() start position out of range",
+                        pos, size())
+            .c_str());
     std::string::replace(pos, count, str);
     return *this;
   }
@@ -148,12 +170,14 @@ class String : public std::string {
   /**
    * @brief Helper function to build a detailed debug error message.
    *
-   * @param context Contextual message (e.g., which function is throwing the error).
+   * @param context Contextual message (e.g., which function is throwing the
+   * error).
    * @param index The index/position causing the error.
    * @param length The current length of the string.
    * @return A formatted error message including context, index, and length.
    */
-  static std::string buildErrorMsg_(const char* context, std::size_t index, std::size_t length) {
+  static std::string build_error_msg(const char *context, std::size_t index,
+                                     std::size_t length) {
     std::ostringstream oss;
     oss << context << ": pos=" << index << ", size=" << length;
     return oss.str();
