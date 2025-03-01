@@ -5,8 +5,8 @@
  * @param key The annotation key.
  * @param value The annotation value.
  */
-void AnnotatedWrapper::addAnnotation(const std::string& key, const std::string& value) {
-    annotations[key] = value;
+void cse::AnnotatedWrapper::addAnnotation(const std::string& key, const std::string& value) {
+    mAnnotations[key] = value;
 }
 
 /**
@@ -14,7 +14,7 @@ void AnnotatedWrapper::addAnnotation(const std::string& key, const std::string& 
  * @param key The key to look for.
  * @return The value associated with the key, or an empty string if not found.
  */
-std::string AnnotatedWrapper::getAnnotation(const std::string key) {
+std::string cse::AnnotatedWrapper::getAnnotation(const std::string key) {
     return mAnnotations.at(key);
 }
 
@@ -22,14 +22,14 @@ std::string AnnotatedWrapper::getAnnotation(const std::string key) {
  * @brief Removes an annotation by key.
  * @param key The key to remove.
  */
-void AnnotatedWrapper::removeAnnotation(const std::string key) {
+void cse::AnnotatedWrapper::removeAnnotation(const std::string key) {
     mAnnotations.erase(key);
 }
 
 /**
  * @brief Lists all stored annotations.
  */
-void AnnotatedWrapper::listAnnotations() {
+void cse::AnnotatedWrapper::listAnnotations() {
     if (mAnnotations.empty()) {
         std::cout << "No annotations available." << std::endl;
         return;
@@ -43,6 +43,6 @@ void AnnotatedWrapper::listAnnotations() {
 /**
  * @brief Clears all stored annotations.
  */
-void AnnotatedWrapper::clearAnnotations() {
+void cse::AnnotatedWrapper::clearAnnotations() {
     mAnnotations.clear();
 }
