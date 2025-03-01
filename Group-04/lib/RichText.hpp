@@ -7,13 +7,13 @@
 #pragma once
 
 #include <map>
-#include <memory>
 #include <optional>
 #include <string>
 #include <utility>
 #include <variant>
 #include <vector>
 
+#include "CseAssert.hpp"
 #include "IndexSet.hpp"
 
 namespace cse {
@@ -59,10 +59,13 @@ class RichText {
 
   std::string to_string() const { return m_text; }
 
-  std::unique_ptr<std::vector<Format>> formats_at(size_t pos) const {
-    auto result = std::make_unique<std::vector<Format>>();
+  std::vector<Format> formats_at(size_t pos) const {
+    dbg_assert(pos < m_text.size(),
+               std::format("Out of bounds access, idx: {} size: {}", pos,
+                           m_text.size()));
+    std::vector<Format> result;
     for (const auto& [format, index] : m_formatting) {
-      if (index.contains(pos)) result->push_back(format);
+      if (index.contains(pos)) result.push_back(format);
     }
     return result;
   }
@@ -99,6 +102,11 @@ class RichText {
 
   void apply_format_to_range(const Format& format, const size_t begin,
                              const size_t end) {
+    dbg_assert(
+        end >= begin,
+        std::format("Format range ends after beginning, begin: {}, end: {}",
+                    begin, end));
+
     auto [item, inserted] = m_formatting.insert({format, IndexSet(begin, end)});
     if (!inserted) {
       item->second.insert_range(begin, end);

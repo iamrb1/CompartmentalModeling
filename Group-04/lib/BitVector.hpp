@@ -283,8 +283,8 @@ BitVector::BitVector(std::string bstr, char zero, char one) {
     if (bstr[idx] == one) {
       (*this)[i] = true;
     } else {
-      cse_assert(
-          bstr[idx] == zero,
+      cse_assert_eq(
+          bstr[idx], zero,
           std::format(
               "Unexpected character in bit string (1 = '{}') (0 = '{}'): '{}'",
               one, zero, bstr[idx]));
