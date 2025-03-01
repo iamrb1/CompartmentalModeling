@@ -25,6 +25,12 @@ class ActionMap {
   /// Default destructor
   ~ActionMap() = default;
 
+  /// Default copy/move constructor
+  ActionMap(const ActionMap&) = default;
+
+  /// Default copy assignment operator
+  ActionMap& operator=(const ActionMap&) = default;
+
   /**
    * @brief Bind an action to a function
    * @tparam Func Function type
@@ -48,7 +54,8 @@ class ActionMap {
   Ret invoke(const std::string& action, Args&&... args) {
     if (const auto it = m_actions.find(action); it != m_actions.end()) {
       try {
-        return std::any_cast<std::function<Ret(Args...)>>(it->second)(std::forward<Args>(args)...);
+        using Func = std::function<Ret(Args...)>;
+        return std::any_cast<Func>(it->second)(std::forward<Args>(args)...);
       } catch (const std::bad_any_cast& e) {
         assert(false &&
                "Wrong function signature for action. Check the return type and arguments. You may need to use "
@@ -57,7 +64,12 @@ class ActionMap {
     } else {
       assert(false && "Action not found.");
     }
-    return Ret{};
+
+    if constexpr (std::is_same_v<Ret, void>) {
+      return;
+    } else {
+      return Ret{};
+    }
   }
 
   [[nodiscard]] bool contains(const std::string& action) const;
