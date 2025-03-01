@@ -262,3 +262,100 @@ TEST_CASE("SetOperations", "[IndexSetTest]") {
           set1.size());                    // Difference with empty set
   REQUIRE((empty_set - set1).size() == 0); // Empty difference
 }
+
+// Test basic operations
+TEST_CASE("Test basic operations", "[IndexSetTest]") {
+  cse::IndexSet set;
+
+  // Test initial state
+  REQUIRE(set.size() == 0);
+  REQUIRE(!set.contains(0));
+
+  // Test single insert
+  set.insert(5);
+  REQUIRE(set.size() == 1);
+  REQUIRE(set.contains(5));
+  REQUIRE(!set.contains(4));
+  REQUIRE(!set.contains(6));
+
+  // Test single remove
+  set.remove(5);
+  REQUIRE(set.size() == 0);
+  REQUIRE(!set.contains(5));
+}
+
+// Test range operations
+TEST_CASE("Test range operations", "[IndexSetTest]") {
+  cse::IndexSet set;
+
+  // Insert consecutive numbers
+  for (size_t i = 5; i < 10; ++i) {
+    set.insert(i);
+  }
+
+  // Test range creation
+  REQUIRE(set.size() == 5);
+  auto range = set.get_containing_range(7);
+  REQUIRE(range.has_value());
+  REQUIRE(range->first == 5);
+  REQUIRE(range->second == 10);
+
+  // Test range queries
+  auto next_range = set.get_next_range(4);
+  REQUIRE(next_range.has_value());
+  REQUIRE(next_range->first == 5);
+  REQUIRE(next_range->second == 10);
+
+  auto prev_range = set.get_prev_range(12);
+  REQUIRE(prev_range.has_value());
+  REQUIRE(prev_range->first == 5);
+  REQUIRE(prev_range->second == 10);
+
+  // Test get_all_indices
+  auto indices = set.get_all_indices();
+  REQUIRE(indices.size() == 5);
+  for (size_t i = 0; i < indices.size(); ++i) {
+    REQUIRE(indices[i] == i + 5);
+  }
+}
+
+// Test range merging
+TEST_CASE("Test range merging", "[IndexSetTest]") {
+  cse::IndexSet set;
+
+  // Insert non-consecutive ranges
+  set.insert(1);
+  set.insert(2);
+  set.insert(4);
+  set.insert(5);
+  set.insert(3); // This should merge all into one range
+
+  REQUIRE(set.size() == 5);
+  auto range = set.get_containing_range(3);
+  REQUIRE(range.has_value());
+  REQUIRE(range->first == 1);
+  REQUIRE(range->second == 6);
+}
+
+// Test range splitting
+TEST_CASE("Test range splitting", "[IndexSetTest]") {
+  cse::IndexSet set;
+
+  // Create a range and split it
+  for (size_t i = 1; i <= 5; ++i) {
+    set.insert(i);
+  }
+
+  set.remove(3);
+  REQUIRE(set.size() == 4);
+  REQUIRE(!set.contains(3));
+
+  auto first_range = set.get_containing_range(2);
+  auto second_range = set.get_containing_range(4);
+  REQUIRE(first_range.has_value());
+  REQUIRE(second_range.has_value());
+  REQUIRE(first_range->first == 1);
+  REQUIRE(first_range->second == 3);
+  REQUIRE(second_range->first == 4);
+  REQUIRE(second_range->second == 6);
+}
