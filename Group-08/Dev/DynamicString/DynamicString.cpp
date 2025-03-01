@@ -126,4 +126,5 @@ std::string DynamicString::ToString() const
             }
         }, segment);
     }
+    return result;
 }
