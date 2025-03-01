@@ -28,7 +28,7 @@ void Surface::move_circle(Circle* circle, int x_pos, int y_pos) {
         sectors[x][y].remove_circle(circle);        // Remove circle from old sector
         sectors[new_x][new_y].add_circle(circle);   // Add circle to new sector
     }
-    circle->setPosition(x_pos, y_pos);       // Update the position of the circle
+    circle->setPosition(x_pos, y_pos);              // Update the position of the circle
 }
 
 void Surface::check_collision() {
@@ -59,13 +59,12 @@ void Surface::check_collision() {
                     // Ensure neighbor is within bounds
                     if (neighbor_x >= 0 && neighbor_x < sector_width &&
                         neighbor_y >= 0 && neighbor_y < sector_height) {
-                        
                         Sector& neighbor_sector = sectors[neighbor_x][neighbor_y];
 
                         for (Circle* c1 : current_sector.circles) {
                             for (Circle* c2 : neighbor_sector.circles) {
                                 if (c1->overlaps(*c2)) {
-                                    std::cout << "Collision detected between sectors (" << i << ", " << j 
+                                    std::cout << "Collision detected between sectors (" << i << ", " << j
                                               << ") and (" << neighbor_x << ", " << neighbor_y << ")\n";
                                 }
                             }

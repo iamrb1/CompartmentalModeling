@@ -12,5 +12,9 @@ class Sector {
         Sector(int x, int y);
         void add_circle(Circle* circle);
         void remove_circle(Circle* circle);
+
+        // New accessor methods
+        int get_circle_count() const;
+        Circle* get_circle_at(size_t index) const;
 };
 }
