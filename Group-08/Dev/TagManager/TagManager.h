@@ -42,10 +42,10 @@ public:
     void RemoveTag(const string& task, const string& tag);
 
     // 3. Retrieves all tags associated with an task
-    std::unordered_set<string> GetTags(const string& task);
+    std::unordered_set<string> GetTags(const string& task) const;
 
     // 4. Retrieves all entries associated with a specific tag
-    std::unordered_set<string> GetTaskTags(const string& tag);
+    std::unordered_set<string> GetTaskTags(const string& tag) const;
 
     // 5. Clears all tags for a specific task
     void ClearTagsForTask(const string& task);
@@ -54,7 +54,7 @@ public:
     void ClearTags(const string& tag);
 
     // 7. Checks if an task has a specific tag
-    bool HasTag(const string& task, const string& tag);
+    bool HasTag(const string& task, const string& tag) const;
 };
 
 #endif //TAGMANAGER_TAGMANAGER_H

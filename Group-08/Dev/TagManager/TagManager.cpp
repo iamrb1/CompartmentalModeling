@@ -42,7 +42,7 @@ void TagManager::RemoveTag(const string& task, const string& tag) {
  * @param task
  * @return tags --> retrun empty set if no
  */
-std::unordered_set<string> TagManager::GetTags(const string& task) {
+std::unordered_set<string> TagManager::GetTags(const string& task) const {
     auto it = mTaskToTag.find(task);
     if (it != mTaskToTag.end()) {
         return it->second;  // Return the set of tags
@@ -56,7 +56,7 @@ std::unordered_set<string> TagManager::GetTags(const string& task) {
  * @param task
  * @return tags --> retrun empty set if no
  */
-std::unordered_set<string> TagManager::GetTaskTags(const string& tag) {
+std::unordered_set<string> TagManager::GetTaskTags(const string &tag) const {
     auto it = mTagToTask.find(tag);
     if (it != mTagToTask.end()) {
         return it->second;  // Return the set of entries
@@ -108,7 +108,7 @@ void TagManager::ClearTags(const string& tag) {
  * @param task
  * @return bool 
  */
-bool TagManager::HasTag(const string& task, const string& tag) {
+bool TagManager::HasTag(const string& task, const string& tag) const {
     auto it = mTaskToTag.find(task);
     if (it != mTaskToTag.end()) {
         return it->second.find(tag) != it->second.end();  // Check if tag exists
