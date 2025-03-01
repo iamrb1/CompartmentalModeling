@@ -117,10 +117,12 @@ class BinaryAssertArgs {
 void print_assert_message(
     std::optional<std::string> message_opt = std::nullopt) {
   std::cerr << "Assertion ";
+  std::cerr << "failed";
   if (auto message = message_opt) {
-    std::cerr << "'" << message.value() << "' ";
+    std::cerr << ": " << message.value();
+  } else {
+    std::cerr << "!";
   }
-  std::cerr << "failed!";
 }
 
 void print_location(const char *file, int line, const char *function) {

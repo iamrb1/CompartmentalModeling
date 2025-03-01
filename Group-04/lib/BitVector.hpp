@@ -1,6 +1,5 @@
 #pragma once
 #include <cstdint>
-#include <format>
 #include <iostream>
 #include <vector>
 
@@ -283,32 +282,30 @@ BitVector::BitVector(std::string bstr, char zero, char one) {
     size_t idx = m_num_bits - (i + 1);
     if (bstr[idx] == one) {
       (*this)[i] = true;
-    } else if (bstr[idx] != zero) {
-      throw std::invalid_argument(std::format(
-          "Unexpected character in bit string (1 = '{}') (0 = '{}'): '{}'", one,
-          zero, bstr[idx]));
+    } else {
+      cse_assert(
+          bstr[idx] == zero,
+          std::format(
+              "Unexpected character in bit string (1 = '{}') (0 = '{}'): '{}'",
+              one, zero, bstr[idx]));
     }
   }
 }
 
 // Get the index as a reference
 BitVector::reference BitVector::operator[](size_t idx) {
-#ifndef NDEBUG
-  if (m_num_bits <= idx)
-    throw std::out_of_range(std::format(
-        "Invalid index into BitVector: idx - {}, max - {}", idx, m_num_bits));
-#endif
+  dbg_assert(m_num_bits > idx,
+             std::format("Invalid index into BitVector: idx - {}, max - {}",
+                         idx, m_num_bits));
   return reference(this, &m_underlying[idx / BITS_PER_EL],
                    (uint8_t)(idx % BITS_PER_EL));
 }
 
 // Get the index as a const bool
 bool BitVector::operator[](size_t idx) const {
-#ifndef NDEBUG
-  if (m_num_bits <= idx)
-    throw std::out_of_range(std::format(
-        "Invalid index into BitVector: idx - {}, max - {}", idx, m_num_bits));
-#endif
+  dbg_assert(m_num_bits > idx,
+             std::format("Invalid index into BitVector: idx - {}, max - {}",
+                         idx, m_num_bits));
   const std::byte b =
       (ONE_ONE << (idx % BITS_PER_EL)) & m_underlying[idx / BITS_PER_EL];
   return b != ALL_ZERO;
@@ -340,13 +337,13 @@ BitVector& BitVector::pattern_set_one(size_t start, size_t count,
 // pattern - the pattern of bits to fill with
 BitVector& BitVector::pattern_set(size_t start, size_t count,
                                   std::byte pattern) {
-  if (count == 0)
-    return *this;
-  else if ((start + count) > m_num_bits)
-    throw std::out_of_range(
-        std::format("Invalid range to pattern_set BitVector: start: {}, count: "
-                    "{}, number of bits is: {}",
-                    start, count, m_num_bits));
+  if (count == 0) return *this;
+
+  cse_assert(
+      (start + count) <= m_num_bits,
+      std::format("Invalid range to pattern_set BitVector: start: {}, count: "
+                  "{}, number of bits is: {}",
+                  start, count, m_num_bits));
 
   // Case where we only need to change one byte
   if (start % BITS_PER_EL + count <= BITS_PER_EL)
@@ -397,10 +394,10 @@ BitVector& BitVector::set() { return pattern_set(0, m_num_bits, ALL_ONE); }
 
 // Set a bit in the vector
 BitVector& BitVector::set(size_t idx) {
-  if (idx >= m_num_bits)
-    throw std::out_of_range(std::format(
-        "Attempt to set BitVector at index {}, number of bits is {}", idx,
-        m_num_bits));
+  cse_assert(
+      idx < m_num_bits,
+      std::format("Attempt to set BitVector at index {}, number of bits is {}",
+                  idx, m_num_bits));
   (*this)[idx] = true;
   return *this;
 }
@@ -408,11 +405,11 @@ BitVector& BitVector::set(size_t idx) {
 // Set bits in the vector within a certain range, starting from
 // start and ending at (start + count - 1)
 BitVector& BitVector::set(size_t start, size_t count) {
-  if ((start + count) > m_num_bits)
-    throw std::out_of_range(
-        std::format("Invalid range to set BitVector: start: {}, count: {}, "
-                    "number of bits is: {}",
-                    start, count, m_num_bits));
+  cse_assert(
+      (start + count) <= m_num_bits,
+      std::format("Invalid range to set BitVector: start: {}, count: {}, "
+                  "number of bits is: {}",
+                  start, count, m_num_bits));
   return pattern_set(start, count, ALL_ONE);
 }
 
@@ -421,10 +418,10 @@ BitVector& BitVector::reset() { return pattern_set(0, m_num_bits, ALL_ZERO); }
 
 // Reset a bit in the vector
 BitVector& BitVector::reset(size_t idx) {
-  if (idx >= m_num_bits)
-    throw std::out_of_range(std::format(
-        "Attempt to reset BitVector at index {}, number of bits is {}", idx,
-        m_num_bits));
+  cse_assert(idx < m_num_bits,
+             std::format(
+                 "Attempt to reset BitVector at index {}, number of bits is {}",
+                 idx, m_num_bits));
   (*this)[idx] = false;
   return *this;
 }
@@ -432,20 +429,20 @@ BitVector& BitVector::reset(size_t idx) {
 // Reset bits in the vector within a certain range, starting from
 // start and ending at (start + count - 1)
 BitVector& BitVector::reset(size_t start, size_t count) {
-  if ((start + count) > m_num_bits)
-    throw std::out_of_range(
-        std::format("Invalid range to reset BitVector: start: {}, count: {}, "
-                    "number of bits is: {}",
-                    start, count, m_num_bits));
+  cse_assert(
+      (start + count) <= m_num_bits,
+      std::format("Invalid range to reset BitVector: start: {}, count: {}, "
+                  "number of bits is: {}",
+                  start, count, m_num_bits));
   return pattern_set(start, count, ALL_ZERO);
 }
 
 // Test to see if a bit is set
 bool BitVector::test(size_t idx) const {
-  if (idx >= m_num_bits)
-    throw std::out_of_range(std::format(
-        "Attempt to test BitVector at index {}, number of bits is {}", idx,
-        m_num_bits));
+  cse_assert(
+      idx < m_num_bits,
+      std::format("Attempt to test BitVector at index {}, number of bits is {}",
+                  idx, m_num_bits));
   return (*this)[idx];
 }
 
@@ -464,10 +461,10 @@ BitVector& BitVector::flip() {
 
 // Flip a specific bit in the BitVector
 BitVector& BitVector::flip(size_t idx) {
-  if (idx >= m_num_bits)
-    throw std::out_of_range(std::format(
-        "Attempt to flip BitVector at index {}, number of bits is {}", idx,
-        m_num_bits));
+  cse_assert(
+      idx < m_num_bits,
+      std::format("Attempt to flip BitVector at index {}, number of bits is {}",
+                  idx, m_num_bits));
 
   (*this)[idx].flip();
 
@@ -476,13 +473,12 @@ BitVector& BitVector::flip(size_t idx) {
 
 // Flip all bits in the BitVector
 BitVector& BitVector::flip(size_t start, size_t count) {
-  if (count == 0)
-    return *this;
-  else if ((start + count) > m_num_bits)
-    throw std::out_of_range(
-        std::format("Invalid range to flip BitVector: start: {}, count: "
-                    "{}, number of bits is: {}",
-                    start, count, m_num_bits));
+  if (count == 0) return *this;
+
+  cse_assert((start + count) <= m_num_bits,
+             std::format("Invalid range to flip BitVector: start: {}, count: "
+                         "{}, number of bits is: {}",
+                         start, count, m_num_bits));
 
   std::byte flipper = ALL_ONE;
   // Index of the byte we are changing
