@@ -16,8 +16,8 @@
  * @brief A container that holds multiple callable objects sharing the same signature
  *        and can invoke them all using a single call.
  *
- * @tparam R    The return type of the functions.
- * @tparam Args The argument types of the functions.
+ * @param R    The return type of the functions.
+ * @param Args The argument types of the functions.
  */
 namespace cse
 {
@@ -36,47 +36,48 @@ namespace cse
          * @brief Add a function to the set
          * @param func The actual function to store
          */
-        void addFunction(const FunctionType& func);
+        void AddFunction(const FunctionType& func);
 
 
 
         /**
          * @brief Clear all the functions in the function set
          */
-        void clearAll();
+        void ClearAll();
 
         /**
          * @brief Check if the set is empty
          * @return true if empty; false otherwise
          */
-        bool isEmpty() const;
+        bool IsEmpty() const;
 
         /**
          * @brief Return the size of the function set
          * @return number of functions stored
          */
-        std::size_t countFunSet() const;
+        std::size_t CountFun() const;
 
         /**
          * @brief Return the index number of the function and use it for later. (This only works for real function pointers or non-capturing lambdas )
          * @param func the actual function
          * @return a int that tells the position of the function
          */
-        int findFunctionIndex(const FunctionType& func) const;
+        int FindFunctionIndex(const FunctionType& func) const;
 
         /**
          * @brief Remove a function from the set (by reference).
          *        Real usage may require a different approach, because std::function
          *        doesn't have operator== for comparing contents.
+         * @param func the actual function
          */
-        void removeFunction(const FunctionType& func);
+        void RemoveFunction(const FunctionType& func);
 
         /**
          * @brief Call all functions in the set with the given arguments
          * @param args The parameters to pass to each function
          * @return Depending on R, returns either std::vector<R> or void
          */
-        auto callAll(Args... args)
+        auto CallAll(Args... args)
         {
             return callAllImpl(std::is_void<R>{}, args...);
         }
