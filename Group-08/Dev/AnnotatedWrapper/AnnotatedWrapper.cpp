@@ -6,7 +6,7 @@
  * @param value The annotation value.
  */
 void AnnotatedWrapper::addAnnotation(const std::string& key, const std::string& value) {
-    annotations[key] = value;
+    mAnnotations[key] = value;
 }
 
 /**
