@@ -23,7 +23,7 @@ namespace cse {
  */
 class StringSet {
 private:
-
+  /// @brief Unordred set of string that as underlying data structure
   std::unordered_set<std::string> mElements;
 
 public:
