@@ -7,7 +7,6 @@ TEST_NAMES = TagManagerTest;
 # Dynamically linking or else it wont work
 FLAGS = -std=c++20 -g -pthread -Wall -Wextra -I../../ -DCATCH_CONFIG_MAIN -static-libgcc -static-libstdc++
 
-
 # Default target
 default: test
 
@@ -18,6 +17,15 @@ cov-%: %.cpp ../../third-party/Catch/single_include/catch2/catch.hpp
 	llvm-profdata merge default.profraw -o default.profdata
 	llvm-cov show ./$@.out -instr-profile=default.profdata > coverage_$@.txt
 	python ../../third-party/force-cover/fix_coverage.py coverage_$@.txt
+
+# compiling TagManager.cpp separately into an object file
+TagManager.o: ../../TagManager/TagManager.cpp ../../TagManager/TagManager.h
+	$(CXX) $(FLAGS) -c ../../TagManager/TagManager.cpp -o TagManager.o
+
+# linking with TagManager.o
+test-%: %.cpp TagManager.o ../../third-party/Catch/single_include/catch2/catch.hpp
+	$(CXX) $(FLAGS) $< TagManager.o -o $@.out
+	./$@.out
 
 # Prepare test directory
 test-prep:

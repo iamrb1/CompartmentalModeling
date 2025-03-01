@@ -135,18 +135,3 @@ TEST_CASE("Test ClearTags remove all associations", "[TagManager]") {
 }
 
 
-TEST_CASE("Test ClearTags remove all associations", "[TagManager]") {
-    cse::TagManager tm;
-
-    tm.AddTag("CSE498", "urgent");
-    tm.AddTag("CSE498", "work");
-    tm.AddTag("school", "urgent");
-
-    tm.ClearTags("urgent");
-
-    assert(tm.HasTag("CSE498", "work"));
-    CHECK_FALSE(tm.HasTag("CSE498", "urgent"));
-    CHECK_FALSE(tm.HasTag("school", "urgent"));
-}
-
-
