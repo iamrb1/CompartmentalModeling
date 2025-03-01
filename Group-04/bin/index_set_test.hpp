@@ -43,26 +43,26 @@ void test_range_operations() {
 
   // Test range creation
   assert(set.size() == 5);
-  auto range = set.getContainingRange(7);
+  auto range = set.get_containing_range(7);
   assert(range.has_value());
   assert(range->first == 5);
   assert(range->second == 10);
   print_test_result("Range creation", true);
 
   // Test range queries
-  auto next_range = set.getNextRange(4);
+  auto next_range = set.get_next_range(4);
   assert(next_range.has_value());
   assert(next_range->first == 5);
   assert(next_range->second == 10);
 
-  auto prev_range = set.getPrevRange(12);
+  auto prev_range = set.get_prev_range(12);
   assert(prev_range.has_value());
   assert(prev_range->first == 5);
   assert(prev_range->second == 10);
   print_test_result("Range queries", true);
 
-  // Test getAllIndices
-  auto indices = set.getAllIndices();
+  // Test get_all_indices
+  auto indices = set.get_all_indices();
   assert(indices.size() == 5);
   for (size_t i = 0; i < indices.size(); ++i) {
     assert(indices[i] == i + 5);
@@ -82,7 +82,7 @@ void test_range_merging() {
   set.insert(3);  // This should merge all into one range
 
   assert(set.size() == 5);
-  auto range = set.getContainingRange(3);
+  auto range = set.get_containing_range(3);
   assert(range.has_value());
   assert(range->first == 1);
   assert(range->second == 6);
@@ -102,8 +102,8 @@ void test_range_splitting() {
   assert(set.size() == 4);
   assert(!set.contains(3));
 
-  auto first_range = set.getContainingRange(2);
-  auto second_range = set.getContainingRange(4);
+  auto first_range = set.get_containing_range(2);
+  auto second_range = set.get_containing_range(4);
   assert(first_range.has_value());
   assert(second_range.has_value());
   assert(first_range->first == 1);

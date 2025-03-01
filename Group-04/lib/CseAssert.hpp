@@ -15,8 +15,8 @@
 #define cse_assert(condition_msg...)                                  \
   internal_cse_assert_(internal_cse_assert_args_head_(condition_msg), \
                        {condition_msg})
-#define cse_assert_never(...)                   \
-  ::cse::_assert_internal::AssertNeverNoReturn( \
+#define cse_assert_never(...)                     \
+  ::cse::_assert_internal::assert_never_noreturn( \
       __FILE__, __LINE__, __func__ __VA_OPT__(, __VA_ARGS__))
 #define cse_assert_eq(args...)                                  \
   internal_cse_assert_eq_(internal_cse_assert_args_head_(args), \
@@ -39,15 +39,15 @@
 
 // Internal macros which fill in the file, line number, etc. and call into the
 // actual C++ functions.
-#define internal_cse_assert_(condition_text, condition_msg...)             \
-  ::cse::_assert_internal::Assert(condition_msg, condition_text, __FILE__, \
-                                  __LINE__, __func__)
-#define internal_cse_assert_eq_(lhs_text, rhs_text, rest...)            \
-  ::cse::_assert_internal::AssertEq(rest, lhs_text, rhs_text, __FILE__, \
-                                    __LINE__, __func__)
-#define internal_cse_assert_neq_(lhs_text, rhs_text, rest...)            \
-  ::cse::_assert_internal::AssertNeq(rest, lhs_text, rhs_text, __FILE__, \
-                                     __LINE__, __func__)
+#define internal_cse_assert_(condition_text, condition_msg...)        \
+  ::cse::_assert_internal::assert_impl(condition_msg, condition_text, \
+                                       __FILE__, __LINE__, __func__)
+#define internal_cse_assert_eq_(lhs_text, rhs_text, rest...)                  \
+  ::cse::_assert_internal::assert_eq_impl(rest, lhs_text, rhs_text, __FILE__, \
+                                          __LINE__, __func__)
+#define internal_cse_assert_neq_(lhs_text, rhs_text, rest...)                  \
+  ::cse::_assert_internal::assert_neq_impl(rest, lhs_text, rhs_text, __FILE__, \
+                                           __LINE__, __func__)
 
 // Debug macros
 #ifdef NDEBUG
@@ -60,8 +60,8 @@
 #define dbg_assert_neq(...) (void)0
 #else
 #define dbg_assert(...) cse_assert(__VA_ARGS__)
-#define dbg_assert_never(...)                 \
-  ::cse::_assert_internal::AssertNeverReturn( \
+#define dbg_assert_never(...)                   \
+  ::cse::_assert_internal::assert_never_return( \
       __FILE__, __LINE__, __func__ __VA_OPT__(, __VA_ARGS__))
 #define dbg_assert_eq(...) cse_assert_eq(__VA_ARGS__)
 #define dbg_assert_neq(...) cse_assert_neq(__VA_ARGS__)
@@ -71,7 +71,7 @@
 namespace cse::_assert_internal {
 #ifdef TEST_CSE_ASSERT
 class AssertTestException : std::exception {};
-void Fail() { throw AssertTestException(); }
+void assert_fail() { throw AssertTestException(); }
 
 // helper macros for catch2 tests
 #ifdef CATCH_VERSION_MAJOR
@@ -81,7 +81,7 @@ void Fail() { throw AssertTestException(); }
 #endif
 
 #else
-[[noreturn]] void Fail() { std::abort(); }
+[[noreturn]] void assert_fail() { std::abort(); }
 #endif
 
 // This class allows us to accept both a condition and an optional message.
@@ -114,7 +114,7 @@ class BinaryAssertArgs {
       : lhs(lhs), rhs(rhs), message(message) {};
 };
 
-void PrintAssertMessage(
+void print_assert_message(
     std::optional<const char *> message_opt = std::nullopt) {
   std::cerr << "Assertion ";
   if (auto message = message_opt) {
@@ -123,24 +123,24 @@ void PrintAssertMessage(
   std::cerr << "failed!";
 }
 
-void PrintLocation(const char *file, int line, const char *function) {
+void print_location(const char *file, int line, const char *function) {
   std::cerr << "\nLocated at: " << file << ":" << line << " (in function "
             << function << ")\n";
 }
 
-void Assert(AssertArgs const &args, const char *args_text, const char *file,
-            int line, const char *function) {
+void assert_impl(AssertArgs const &args, const char *args_text,
+                 const char *file, int line, const char *function) {
   if (args.condition) {
     return;
   }
   std::string cond_string = std::string{args_text};
 
-  PrintAssertMessage(args.message);
+  print_assert_message(args.message);
   std::cerr << "\n  Condition evaluated to "
                "false: "
             << cond_string << "\n";
-  PrintLocation(file, line, function);
-  Fail();
+  print_location(file, line, function);
+  assert_fail();
 }
 
 template <typename T>
@@ -148,76 +148,77 @@ concept printable = requires(T output) { std::cerr << output; };
 
 template <typename T>
   requires std::equality_comparable<T>
-void AssertEq(BinaryAssertArgs<T> const &args, const char *lhs_text,
-              const char *rhs_text, const char *file, int line,
-              const char *function) {
+void assert_eq_impl(BinaryAssertArgs<T> const &args, const char *lhs_text,
+                    const char *rhs_text, const char *file, int line,
+                    const char *function) {
   if (args.lhs == args.rhs) {
     return;
   }
   std::string lhs_string = std::string{lhs_text};
   std::string rhs_string = std::string{rhs_text};
 
-  PrintAssertMessage(args.message);
+  print_assert_message(args.message);
   if constexpr (printable<T>) {
     std::cerr << " These values are different:\n"
               << "   left: " << args.lhs << "\n  right: " << args.rhs << "\n";
-    PrintLocation(file, line, function);
+    print_location(file, line, function);
   } else {
     std::cerr << "  These expressions evaluated to different values:\n"
               << "   left: " << lhs_string << "\n  right: " << rhs_string
               << "\n";
-    PrintLocation(file, line, function);
+    print_location(file, line, function);
     std::cerr << "hint: implement operator<< to see the underlying values\n";
   }
 
-  Fail();
+  assert_fail();
 }
 
 template <typename T>
   requires std::equality_comparable<T>
-void AssertNeq(BinaryAssertArgs<T> const &args, const char *lhs_text,
-               const char *rhs_text, const char *file, int line,
-               const char *function) {
+void assert_neq_impl(BinaryAssertArgs<T> const &args, const char *lhs_text,
+                     const char *rhs_text, const char *file, int line,
+                     const char *function) {
   if (args.lhs != args.rhs) {
     return;
   }
   std::string lhs_string = std::string{lhs_text};
   std::string rhs_string = std::string{rhs_text};
 
-  PrintAssertMessage(args.message);
+  print_assert_message(args.message);
   if constexpr (printable<T>) {
     std::cerr << " These values are the same:\n"
               << "   left: " << args.lhs << "\n  right: " << args.rhs << "\n";
-    PrintLocation(file, line, function);
+    print_location(file, line, function);
   } else {
     std::cerr << "  These expressions evaluated to the same value:\n"
               << "   left: " << lhs_string << "\n  right: " << rhs_string
               << "\n";
-    PrintLocation(file, line, function);
+    print_location(file, line, function);
     std::cerr << "hint: implement operator<< to see the underlying values\n";
   }
 
-  Fail();
+  assert_fail();
 }
 
 // technically does return when in test mode
 #ifndef TEST_CSE_ASSERT
 [[noreturn]]
 #endif
-void AssertNeverNoReturn(
+void assert_never_noreturn(
     const char *file, int line, const char *function,
     std::optional<const char *> message_opt = std::nullopt) {
-  PrintAssertMessage(message_opt);
-  PrintLocation(file, line, function);
-  Fail();
+  print_assert_message(message_opt);
+  print_location(file, line, function);
+  assert_fail();
 }
 
 // dbg_assert_never doesn't uphold noreturn in release mode (since it is a
 // no-op), so this function acts like AssertNeverNoReturn but without the
 // [[noreturn]] marker
-void AssertNeverReturn(const char *file, int line, const char *function,
-                       std::optional<const char *> message_opt = std::nullopt) {
-  AssertNeverNoReturn(file, line, function, message_opt);
+void assert_never_return(
+    const char *file, int line, const char *function,
+    std::optional<const char *> message_opt = std::nullopt) {
+  assert_never_noreturn(file, line, function, message_opt);
 }
 
 }  // namespace cse::_assert_internal
