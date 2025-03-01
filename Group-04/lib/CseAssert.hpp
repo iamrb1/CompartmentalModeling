@@ -96,9 +96,9 @@ void assert_fail() { throw AssertTestException(); }
 class AssertArgs {
  public:
   bool condition;
-  std::optional<const char *> message = std::nullopt;
+  std::optional<std::string> message = std::nullopt;
   AssertArgs(bool condition) : condition(condition) {};
-  AssertArgs(bool condition, const char *message)
+  AssertArgs(bool condition, std::string message)
       : condition(condition), message(message) {};
 };
 
@@ -107,15 +107,15 @@ class BinaryAssertArgs {
  public:
   T lhs;
   T rhs;
-  std::optional<const char *> message = std::nullopt;
+  std::optional<std::string> message = std::nullopt;
 
   BinaryAssertArgs(T lhs, T rhs) : lhs(lhs), rhs(rhs) {};
-  BinaryAssertArgs(T lhs, T rhs, const char *message)
+  BinaryAssertArgs(T lhs, T rhs, std::string message)
       : lhs(lhs), rhs(rhs), message(message) {};
 };
 
 void print_assert_message(
-    std::optional<const char *> message_opt = std::nullopt) {
+    std::optional<std::string> message_opt = std::nullopt) {
   std::cerr << "Assertion ";
   if (auto message = message_opt) {
     std::cerr << "'" << message.value() << "' ";
@@ -206,7 +206,7 @@ void assert_neq_impl(BinaryAssertArgs<T> const &args, const char *lhs_text,
 #endif
 void assert_never_noreturn(
     const char *file, int line, const char *function,
-    std::optional<const char *> message_opt = std::nullopt) {
+    std::optional<std::string> message_opt = std::nullopt) {
   print_assert_message(message_opt);
   print_location(file, line, function);
   assert_fail();
@@ -217,7 +217,7 @@ void assert_never_noreturn(
 // [[noreturn]] marker
 void assert_never_return(
     const char *file, int line, const char *function,
-    std::optional<const char *> message_opt = std::nullopt) {
+    std::optional<std::string> message_opt = std::nullopt) {
   assert_never_noreturn(file, line, function, message_opt);
 }
 
