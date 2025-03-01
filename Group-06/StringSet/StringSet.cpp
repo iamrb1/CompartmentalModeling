@@ -73,15 +73,15 @@ cse::StringSet cse::StringSet::Difference(const cse::StringSet& other) const {
 void cse::StringSet::Filter(const std::function<bool(const std::string &)> filter, bool erase) {
     std::vector<std::string> filteredElements;
 
-    for(const auto& str : mElements) {
-        if(erase == filter(str)){
-            filteredElements.push_back(str);
-        }
+  for(const auto& str : mElements) {
+    if(erase == filter(str)){
+      filteredElements.push_back(str);
     }
+  }
 
-    for(const auto& str : filteredElements){
-        mElements.erase(str);
-    }
+  for(const auto& str : filteredElements){
+    mElements.erase(str);
+  }
 }
 
 /**
