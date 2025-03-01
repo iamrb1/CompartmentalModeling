@@ -1,20 +1,23 @@
-#include "catch.hpp"
-
 #include <format>
+
+#include "catch.hpp"
 
 // Mocks
 namespace cse {
-template <typename T> class RichText;
-template <typename T> class TextSerializer;
-template <typename T> class OutputBackend;
-} // namespace cse
+template <typename T>
+class RichText;
+template <typename T>
+class TextSerializer;
+template <typename T>
+class OutputBackend;
+}  // namespace cse
 
 using RichString = cse::RichText<std::string>;
 
 // Example of what a backend would look like
-template <typename T> class HtmlBackend : cse::OutputBackend<T> {
-
-public:
+template <typename T>
+class HtmlBackend : cse::OutputBackend<T> {
+ public:
   // TODO: should metadata be optional for properties like Bold?
   T Bold(T const &src) override {
     return std::format("<strong>{}</strong>", src);
