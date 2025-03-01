@@ -1,6 +1,7 @@
-#include "catch.hpp"
-#include "BitVector.hpp"
 #include <string>
+
+#include "BitVector.hpp"
+#include "catch.hpp"
 
 TEST_CASE("Test basic BitVector constructors", "[bitvector]") {
   // Basic constructors with number of bits
@@ -17,20 +18,16 @@ TEST_CASE("Test basic BitVector constructors", "[bitvector]") {
   CHECK(bv4 == bv5);
 }
 
-
-
-
 TEST_CASE("Test setting bits", "[bitvector]") {
   // Single byte case
   cse::BitVector bv1(8);
 
-  for(size_t i = 0; i < bv1.size(); i++)
-  {
+  for (size_t i = 0; i < bv1.size(); i++) {
     bv1[i] = true;
     CHECK(bv1[i] == true);
     CHECK(bv1.count() == i + 1);
   }
-  
+
   // Set all function (single byte)
   cse::BitVector bv2(8), bc2("11111111");
   bv2.set();
@@ -41,8 +38,7 @@ TEST_CASE("Test setting bits", "[bitvector]") {
   // Single byte case (set function)
   cse::BitVector bv3(8);
 
-  for(size_t i = 0; i < bv3.size(); i++)
-  {
+  for (size_t i = 0; i < bv3.size(); i++) {
     bv3.set(i);
     CHECK(bv3.test(i) == true);
     CHECK(bv3.count() == i + 1);
@@ -54,7 +50,6 @@ TEST_CASE("Test setting bits", "[bitvector]") {
   CHECK(bv4.count() == bc4.count());
   CHECK(bv4 == bc4);
 
-
   // Set all function (multi-byte case)
   cse::BitVector bv5(16), bc5("1111111111111111");
   bv5.set();
@@ -65,8 +60,7 @@ TEST_CASE("Test setting bits", "[bitvector]") {
   // Multi byte case (set function)
   cse::BitVector bv6(16);
 
-  for(size_t i = 0; i < bv6.size(); i++)
-  {
+  for (size_t i = 0; i < bv6.size(); i++) {
     bv6.set(i);
     CHECK(bv6.test(i));
     CHECK(bv6.count() == i + 1);
@@ -78,9 +72,6 @@ TEST_CASE("Test setting bits", "[bitvector]") {
   CHECK(bv7.count() == bc7.count());
   CHECK(bv7 == bc7);
 }
-
-
-
 
 TEST_CASE("Test pattern setting bits", "[bitvector]") {
   // Pattern set whole byte
@@ -106,16 +97,13 @@ TEST_CASE("Test pattern setting bits", "[bitvector]") {
   bv4.pattern_set(0, 16, std::byte{0b10110000});
   CHECK(bv4.count() == bc4.count());
   CHECK(bv4 == bc4);
-  
+
   // Pattern set multiple bytes (offset)
   cse::BitVector bv5(16), bc5("0000010010100000");
   bv5.pattern_set(5, 6, std::byte{0b11100101});
   CHECK(bv5.count() == bc5.count());
   CHECK(bv5 == bc5);
 }
-
-
-
 
 TEST_CASE("Test resetting bits", "[bitvector]") {
   // Single byte case
@@ -130,7 +118,7 @@ TEST_CASE("Test resetting bits", "[bitvector]") {
   bv1.reset();
 
   cse::BitVector bv2(8);
-  
+
   CHECK(bv1.count() == 0);
   CHECK(bv1 == bv2);
   CHECK(!bv2.test(0));
@@ -138,9 +126,6 @@ TEST_CASE("Test resetting bits", "[bitvector]") {
   CHECK(!bv2.test(4));
   CHECK(!bv2.test(7));
 }
-
-
-
 
 void AND_TEST(cse::BitVector& a, cse::BitVector& b) {
   cse::BitVector chk(a.size());
@@ -160,8 +145,7 @@ void AND_TEST(cse::BitVector& a, cse::BitVector& b) {
       for (size_t k = 0; (j >> k) > 0; k++) {
         if ((j >> k) & 1) {
           b[k] = true;
-          if (k < a.size() && a[k] == true)
-            chk[k] = true;
+          if (k < a.size() && a[k] == true) chk[k] = true;
         }
       }
 
@@ -187,7 +171,6 @@ TEST_CASE("Test AND operation on BitVectors", "[bitvector]") {
   AND_TEST(a3, b3);
 }
 
-
 void OR_TEST(cse::BitVector& a, cse::BitVector& b) {
   cse::BitVector chk(a.size());
 
@@ -207,8 +190,7 @@ void OR_TEST(cse::BitVector& a, cse::BitVector& b) {
       for (size_t k = 0; (j >> k) > 0; k++) {
         if ((j >> k) & 1) {
           b[k] = true;
-          if (k < chk.size())
-            chk[k] = true;
+          if (k < chk.size()) chk[k] = true;
         }
       }
 
@@ -234,7 +216,6 @@ TEST_CASE("Test OR operation on BitVectors", "[bitvector]") {
   OR_TEST(a3, b3);
 }
 
-
 void XOR_TEST(cse::BitVector& a, cse::BitVector& b) {
   cse::BitVector chk(a.size());
 
@@ -254,8 +235,7 @@ void XOR_TEST(cse::BitVector& a, cse::BitVector& b) {
       for (size_t k = 0; (j >> k) > 0; k++) {
         if ((j >> k) & 1) {
           b[k] = true;
-          if (k < chk.size())
-            chk[k] = !chk[k];
+          if (k < chk.size()) chk[k] = !chk[k];
         }
       }
 
@@ -291,7 +271,7 @@ TEST_CASE("Test bitwise shifting", "[bitvector]") {
   bv1.pattern_set(0, 8, std::byte{0b01010101});
   bv1 <<= 3;
   CHECK(bv1 == bc1);
-  
+
   // Multi-byte
   cse::BitVector bv2(14), bc2("10101010000000");
   bv2.pattern_set(0, 14, std::byte{0b01010101});
@@ -312,10 +292,9 @@ TEST_CASE("Test bitwise NOT", "[bitvector]") {
   bc2 = bv2;
 
   bv2.flip(6, 13);
-  for(size_t i = 6; i < 19; i++) {
+  for (size_t i = 6; i < 19; i++) {
     bc2.flip(i);
   }
 
   CHECK(bv2 == bc2);
 }
-

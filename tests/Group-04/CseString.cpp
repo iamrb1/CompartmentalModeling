@@ -11,7 +11,6 @@
 
 #define TEST_CSE_ASSERT
 #include "CseAssert.hpp"
-
 #include "CseString.hpp"
 
 /**
@@ -35,7 +34,7 @@ TEST_CASE("Test basic operations", "[csestring]") {
 
   // Test assignment from another cse::String
   cse::String s4;
-  s4 = s2; // uses cse::String &operator=(const std::string&)
+  s4 = s2;  // uses cse::String &operator=(const std::string&)
   REQUIRE(s4 == "Hello");
 }
 
@@ -57,9 +56,9 @@ TEST_CASE("Test safe access", "[csestring]") {
 
   // Attempting out-of-range access in debug mode will trigger dbg_assert.
   // The following lines are commented out to avoid halting the test suite.
-  REQUIRE_ASSERT(s[4]); // Should fail in debug
+  REQUIRE_ASSERT(s[4]);  // Should fail in debug
   REQUIRE_ASSERT(
-      s.at(10)); // Should throw std::out_of_range or trigger dbg_assert
+      s.at(10));  // Should throw std::out_of_range or trigger dbg_assert
 }
 
 /**
@@ -105,7 +104,7 @@ TEST_CASE("Test insertion", "[csestring]") {
 
   // Uncomment to test out-of-range behavior in debug mode:
   REQUIRE_ASSERT(
-      s.insert(s.size() + 5, "OutOfRange")); // should trigger dbg_assert
+      s.insert(s.size() + 5, "OutOfRange"));  // should trigger dbg_assert
 }
 
 /**
@@ -115,11 +114,11 @@ TEST_CASE("Test erasure", "[csestring]") {
   cse::String s("Hello World!");
 
   // Erase from the middle
-  s.erase(5, 1); // remove the space
+  s.erase(5, 1);  // remove the space
   REQUIRE(s == "HelloWorld!");
 
   // Erase a portion from the end
-  s.erase(5, 5); // remove 'World'
+  s.erase(5, 5);  // remove 'World'
   REQUIRE(s == "Hello!");
 
   // Erase everything
@@ -128,7 +127,7 @@ TEST_CASE("Test erasure", "[csestring]") {
 
   // Uncomment to test out-of-range behavior:
   cse::String s2("Short");
-  REQUIRE_ASSERT(s2.erase(10)); // should trigger dbg_assert if pos > size()
+  REQUIRE_ASSERT(s2.erase(10));  // should trigger dbg_assert if pos > size()
 }
 
 /**
@@ -138,11 +137,11 @@ TEST_CASE("Test replacement", "[csestring]") {
   cse::String s("12345");
 
   // Replace the middle part
-  s.replace(1, 3, "ABC"); // replaces '234' with 'ABC'
+  s.replace(1, 3, "ABC");  // replaces '234' with 'ABC'
   REQUIRE(s == "1ABC5");
 
   // Replace at the end
-  s.replace(4, 1, "XYZ"); // replaces '5' with 'XYZ'
+  s.replace(4, 1, "XYZ");  // replaces '5' with 'XYZ'
   REQUIRE(s == "1ABCXYZ");
 
   // Replace entire string
@@ -151,7 +150,7 @@ TEST_CASE("Test replacement", "[csestring]") {
 
   // Uncomment to test out-of-range behavior:
   REQUIRE_ASSERT(
-      s.replace(s.size() + 1, 2, "Oops")); // should trigger dbg_assert
+      s.replace(s.size() + 1, 2, "Oops"));  // should trigger dbg_assert
 }
 
 /**
@@ -166,15 +165,15 @@ TEST_CASE("Test advanced operations", "[csestring]") {
     REQUIRE(s.at(s.size() - 1) == 'e');
 
     // Uncomment to test boundary overrun:
-    REQUIRE_ASSERT(s[s.size()]); // should trigger dbg_assert
+    REQUIRE_ASSERT(s[s.size()]);  // should trigger dbg_assert
     REQUIRE_ASSERT(
-        s.at(s.size())); // should throw std::out_of_range or dbg_assert
+        s.at(s.size()));  // should throw std::out_of_range or dbg_assert
   }
 
   {
     // Substring edge cases
     cse::String s("Hello");
-    cse::String sub_end = s.substr(4, 1); // last character
+    cse::String sub_end = s.substr(4, 1);  // last character
     REQUIRE(sub_end == "o");
 
     // Starting exactly at size() => yields empty substring

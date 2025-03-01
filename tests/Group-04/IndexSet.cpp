@@ -1,18 +1,19 @@
+#include "IndexSet.hpp"
+
 #include <vector>
 
-#include "IndexSet.hpp"
 #include "catch.hpp"
 
 // Test constructor and size calculation
 TEST_CASE("Constructor", "[IndexSetTest]") {
-  cse::IndexSet set1(0, 5); // [0,5)
+  cse::IndexSet set1(0, 5);  // [0,5)
   REQUIRE(set1.size() == 5);
 
-  cse::IndexSet set2(10, 15); // [10,15)
+  cse::IndexSet set2(10, 15);  // [10,15)
   REQUIRE(set2.size() == 5);
 
   // Empty range
-  cse::IndexSet set3(3, 3); // [3,3)
+  cse::IndexSet set3(3, 3);  // [3,3)
   REQUIRE(set3.size() == 0);
 }
 
@@ -21,32 +22,32 @@ TEST_CASE("InsertRange", "[IndexSetTest]") {
   cse::IndexSet set;
 
   // Basic range insertion
-  set.insert_range(0, 5); // [0,5)
+  set.insert_range(0, 5);  // [0,5)
   REQUIRE(set.size() == 5);
 
   // Overlapping range
-  set.insert_range(3, 8); // Should merge with [0,5) to become [0,8)
+  set.insert_range(3, 8);  // Should merge with [0,5) to become [0,8)
   REQUIRE(set.size() == 8);
 
   // Adjacent range
-  set.insert_range(8, 10); // Should merge with [0,8) to become [0,10)
+  set.insert_range(8, 10);  // Should merge with [0,8) to become [0,10)
   REQUIRE(set.size() == 10);
 
   // Disjoint range
-  set.insert_range(12, 15); // Should add [12,15)
+  set.insert_range(12, 15);  // Should add [12,15)
   REQUIRE(set.size() == 13);
 
   // Invalid range (start >= end)
   set.insert_range(5, 3);
-  REQUIRE(set.size() == 13); // Size should not change
+  REQUIRE(set.size() == 13);  // Size should not change
 }
 
 // Test iterator functionality
 TEST_CASE("Iterator", "[IndexSetTest]") {
   cse::IndexSet set;
-  set.insert_range(0, 3);   // [0,3)
-  set.insert_range(5, 8);   // [5,8)
-  set.insert_range(10, 12); // [10,12)
+  set.insert_range(0, 3);    // [0,3)
+  set.insert_range(5, 8);    // [5,8)
+  set.insert_range(10, 12);  // [10,12)
 
   // Test forward iteration
   std::vector<std::size_t> expected = {0, 1, 2, 5, 6, 7, 10, 11};
@@ -79,10 +80,10 @@ TEST_CASE("Iterator", "[IndexSetTest]") {
 // Original AppendAt test
 TEST_CASE("AppendAt", "[IndexSetTest]") {
   cse::IndexSet set1;
-  set1.insert_range(0, 3); // [0,3)
+  set1.insert_range(0, 3);  // [0,3)
 
   cse::IndexSet set2;
-  set2.insert_range(0, 4); // [0,4)
+  set2.insert_range(0, 4);  // [0,4)
 
   // Append set2 starting at index 5
   set1.append_at(set2, 5);
@@ -101,8 +102,8 @@ TEST_CASE("AppendAt", "[IndexSetTest]") {
 
   // Test merging case
   cse::IndexSet set3;
-  set3.insert_range(0, 2); // [0,2)
-  set1.append_at(set3, 3); // Should merge with [0,3)
+  set3.insert_range(0, 2);  // [0,2)
+  set1.append_at(set3, 3);  // Should merge with [0,3)
 
   // Expected: [0,5), [5,9)
   REQUIRE(set1.contains(3));
@@ -113,9 +114,9 @@ TEST_CASE("AppendAt", "[IndexSetTest]") {
 // Test copy operations
 TEST_CASE("CopyOperations", "[IndexSetTest]") {
   cse::IndexSet original;
-  original.insert_range(0, 3);   // [0,3)
-  original.insert_range(5, 8);   // [5,8)
-  original.insert_range(10, 12); // [10,12)
+  original.insert_range(0, 3);    // [0,3)
+  original.insert_range(5, 8);    // [5,8)
+  original.insert_range(10, 12);  // [10,12)
 
   // Test copy constructor
   cse::IndexSet copied(original);
@@ -127,7 +128,7 @@ TEST_CASE("CopyOperations", "[IndexSetTest]") {
   REQUIRE(copied_indices == original_indices);
 
   // Modify copy and verify original is unchanged
-  copied.insert(3); // Should merge with [0,3) to become [0,4)
+  copied.insert(3);  // Should merge with [0,3) to become [0,4)
   REQUIRE(copied.contains(3));
   REQUIRE_FALSE(original.contains(3));
 
@@ -144,9 +145,9 @@ TEST_CASE("CopyOperations", "[IndexSetTest]") {
 // Test move operations
 TEST_CASE("MoveOperations", "[IndexSetTest]") {
   cse::IndexSet original;
-  original.insert_range(0, 3);   // [0,3)
-  original.insert_range(5, 8);   // [5,8)
-  original.insert_range(10, 12); // [10,12)
+  original.insert_range(0, 3);    // [0,3)
+  original.insert_range(5, 8);    // [5,8)
+  original.insert_range(10, 12);  // [10,12)
 
   std::vector<std::size_t> original_indices = original.get_all_indices();
 
@@ -161,9 +162,9 @@ TEST_CASE("MoveOperations", "[IndexSetTest]") {
 
   // Create new set for move assignment test
   cse::IndexSet another;
-  another.insert_range(0, 3);   // [0,3)
-  another.insert_range(5, 8);   // [5,8)
-  another.insert_range(10, 12); // [10,12)
+  another.insert_range(0, 3);    // [0,3)
+  another.insert_range(5, 8);    // [5,8)
+  another.insert_range(10, 12);  // [10,12)
 
   std::vector<std::size_t> another_indices = another.get_all_indices();
 
@@ -231,16 +232,16 @@ TEST_CASE("SetOperations", "[IndexSetTest]") {
   // Expected: [0,2) ∪ [3,5) ∪ [6,7)
   REQUIRE(sym_diff_set.contains(0));
   REQUIRE(sym_diff_set.contains(1));
-  REQUIRE_FALSE(sym_diff_set.contains(2)); // In both sets
+  REQUIRE_FALSE(sym_diff_set.contains(2));  // In both sets
   REQUIRE(sym_diff_set.contains(3));
   REQUIRE(sym_diff_set.contains(4));
-  REQUIRE_FALSE(sym_diff_set.contains(5)); // In both sets
+  REQUIRE_FALSE(sym_diff_set.contains(5));  // In both sets
   REQUIRE(sym_diff_set.contains(6));
   REQUIRE_FALSE(sym_diff_set.contains(7));
 
   // Test subset/superset
   cse::IndexSet subset;
-  subset.insert_range(1, 2); // [1,2)
+  subset.insert_range(1, 2);  // [1,2)
 
   // Test subset (<=)
   REQUIRE(subset <= set1);
@@ -254,13 +255,13 @@ TEST_CASE("SetOperations", "[IndexSetTest]") {
 
   // Edge cases
   cse::IndexSet empty_set;
-  REQUIRE(empty_set <= set1); // Empty set is subset of all sets
-  REQUIRE(set1 >= empty_set); // All sets are superset of empty set
-  REQUIRE((empty_set | set1).size() == set1.size()); // Union with empty set
-  REQUIRE((empty_set & set1).size() == 0); // Intersection with empty set
+  REQUIRE(empty_set <= set1);  // Empty set is subset of all sets
+  REQUIRE(set1 >= empty_set);  // All sets are superset of empty set
+  REQUIRE((empty_set | set1).size() == set1.size());  // Union with empty set
+  REQUIRE((empty_set & set1).size() == 0);  // Intersection with empty set
   REQUIRE((set1 - empty_set).size() ==
-          set1.size());                    // Difference with empty set
-  REQUIRE((empty_set - set1).size() == 0); // Empty difference
+          set1.size());                     // Difference with empty set
+  REQUIRE((empty_set - set1).size() == 0);  // Empty difference
 }
 
 // Test basic operations
@@ -328,7 +329,7 @@ TEST_CASE("Test range merging", "[IndexSetTest]") {
   set.insert(2);
   set.insert(4);
   set.insert(5);
-  set.insert(3); // This should merge all into one range
+  set.insert(3);  // This should merge all into one range
 
   REQUIRE(set.size() == 5);
   auto range = set.get_containing_range(3);

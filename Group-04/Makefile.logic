@@ -5,8 +5,8 @@ LIB_DIR = ./lib
 PROJECT_NAME = app
 PROJECT_TYPE = exe
 
-SRCS = $(addsuffix .cpp, $(NAMES))
 HEADS = $(shell find -type f -name *.hpp)
+TESTS = $(shell find ../tests/Group-04 -type f -name *.cpp)
 
 CXX ?= g++
 
@@ -47,5 +47,5 @@ $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
 format:
-	echo $(addprefix $(SRC_DIR)/, $(SRCS)) $(HEADS) | xargs clang-format --style=file -i
+	echo $(HEADS) $(TESTS) | xargs clang-format --style=file -i
 

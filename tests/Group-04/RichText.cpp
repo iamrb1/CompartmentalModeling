@@ -1,6 +1,8 @@
 #include "RichText.hpp"
-#include "catch.hpp"
+
 #include <string>
+
+#include "catch.hpp"
 
 // Test constructor and size calculation
 TEST_CASE("Constructor", "[RichTextTest]") {
