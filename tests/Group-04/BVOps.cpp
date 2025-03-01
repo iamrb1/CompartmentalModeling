@@ -84,23 +84,34 @@ TEST_CASE("Test setting bits", "[bitvector]") {
 
 TEST_CASE("Test pattern setting bits", "[bitvector]") {
   // Pattern set whole byte
-  cse::BitVector bv2(8), bc2("10010110");
-  bv2.pattern_set(0, 8, std::byte{0b10010110});
-  CHECK(bv2.count() == 4);
-  CHECK(bv2 == bc2);
+  cse::BitVector bv1(8), bc1("10010110");
+  bv1.pattern_set(0, 8, std::byte{0b10010110});
+  CHECK(bv1.count() == 4);
+  CHECK(bv1 == bc1);
 
   // Pattern set part of byte
-  cse::BitVector bv4(8), bc4("00011000");
-  bv4.pattern_set(2, 3, std::byte{0b01010110});
-
-  CHECK(bv4.count() == bc4.count());
-  CHECK(bv4 == bc4);
+  cse::BitVector bv2(8), bc2("00000110");
+  bv2.pattern_set(0, 3, std::byte{0b01010110});
+  CHECK(bv2.count() == bc2.count());
+  CHECK(bv2 == bc2);
 
   // Pattern set part of byte (offset)
+  cse::BitVector bv3(8), bc3("00010000");
+  bv3.pattern_set(4, 3, std::byte{0b10110001});
+  CHECK(bv3.count() == bc3.count());
+  CHECK(bv3 == bc3);
 
   // Pattern set multiple bytes
+  cse::BitVector bv4(16), bc4("1011000010110000");
+  bv4.pattern_set(0, 16, std::byte{0b10110000});
+  CHECK(bv4.count() == bc4.count());
+  CHECK(bv4 == bc4);
   
   // Pattern set multiple bytes (offset)
+  cse::BitVector bv5(16), bc5("0000010010100000");
+  bv5.pattern_set(5, 6, std::byte{0b11100101});
+  CHECK(bv5.count() == bc5.count());
+  CHECK(bv5 == bc5);
 }
 
 
