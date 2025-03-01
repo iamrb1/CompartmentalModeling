@@ -1,7 +1,7 @@
-TEST_NAMES = AuditedPointerDebugTest AuditedPointerNonDebugTest
+TEST_NAMES = AnnotatedWrapperTest
 
 # -O3	  -Wl,--stack,8388608 -ftrack-macro-expansion=0
-FLAGS = -std=c++20 -g -pthread -Wall -Wextra -I../../ -DCATCH_CONFIG_MAIN
+FLAGS = -std=c++2a -g -pthread -Wall -Wextra -I../../ -DCATCH_CONFIG_MAIN
 
 default: test
 
@@ -17,6 +17,11 @@ cov-%: %.cpp ../../third-party/Catch/single_include/catch2/catch.hpp
 test-prep:
 	mkdir -p temp
 
+test-AnnotatedWrapperTest: AnnotatedWrapperTest.cpp ../../AnnotatedWrapper/AnnotatedWrapper.cpp
+	$(CXX) $(FLAGS) AnnotatedWrapperTest.cpp ../../AnnotatedWrapper/AnnotatedWrapper.cpp -o $@.out
+	./$@.out
+
+
 test-%: %.cpp ../../third-party/Catch/single_include/catch2/catch.hpp
 	$(CXX) $(FLAGS) $< -o $@.out
 	./$@.out
@@ -30,11 +35,7 @@ coverage: test-prep $(addprefix cov-, $(TEST_NAMES))
 
 # Test optimized version without debug features
 opt: FLAGS := -std=c++20 -pthread -DNDEBUG -O3 -Wno-unused-function -I../../include/ -I../../third-party/cereal/include/ -I../../ -DCATCH_CONFIG_MAIN
-opt: test-prep
-	$(CXX) $(FLAGS) -NDEBUG AuditedPointerNonDebugTest.cpp -o test-AuditedPointerNonDebugTest.out
-	./test-AuditedPointerNonDebugTest.out
-	$(CXX) $(FLAGS) AuditedPointerDebugTest.cpp -o test-AuditedPointerDebugTest.out
-	./test-AuditedPointerDebugTest.out
+opt: test-prep $(addprefix test-, $(TEST_NAMES))
 	rm -rf test*.out
 
 # Test in debug mode with pointer tracking
