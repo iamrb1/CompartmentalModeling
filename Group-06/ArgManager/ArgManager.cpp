@@ -28,14 +28,9 @@ cse::ArgManager::ArgManager(int argc, char* argv[]) {
  * @param argv the string to check for
  * @return if the string is present in the input arguments
  */
-bool cse::ArgManager::Has(std::string argv) {
+bool cse::ArgManager::HasArg(const std::string& arg) const {
   // Search through each given arg in argv to check if it has the arg value
-  for (int i = 0; i < mArgc; i++) {
-    if (mArgv[i] == argv) {
-      return true;
-    }
-  }
-  return false;
+  return std::find(mArgv.begin(), mArgv.end(), arg) != mArgv.end();
 }
 
 /**
@@ -43,21 +38,21 @@ bool cse::ArgManager::Has(std::string argv) {
  * @param argv the string to find
  * @return the next string as the value of the option
  */
-std::string cse::ArgManager::GetOption(std::string argv) {
+std::string cse::ArgManager::GetSingleOption(const std::string& arg) const {
   // Search through each given arg in argv
   for (int i = 0; i < mArgc; i++) {
-    if (mArgv[i] == argv) {
+    if (mArgv[i] == arg) {
       // Check if the arg given is the last argument in the argv list, with no
       // valid string after
       if (i + 1 >= mArgc) {
-        std::cout << "Invalid output provided for: " << argv << std::endl;
+        std::cout << "Invalid output provided for: " << arg << std::endl;
         return "";
       } else {
         return mArgv[i + 1];
       }
     }
   }
-  std::cout << "This arg does not exist: " << argv << std::endl;
+  std::cout << "This arg does not exist: " << arg << std::endl;
   // Return a blank string if no arg has been found
   return "";
 }
@@ -68,18 +63,18 @@ std::string cse::ArgManager::GetOption(std::string argv) {
  * @param argv the string to find
  * @return the next strings in a list as the value of the option
  */
-std::vector<std::string> cse::ArgManager::GetOptions(std::string argv) {
+std::vector<std::string> cse::ArgManager::GetListOfOptions(const std::string& arg) const {
   int count = -1;
   int startingIndex = -1;
   std::vector<std::string> toReturn = {};
 
   // Search through each given arg in argv
   for (int i = 0; i < mArgc; i++) {
-    if (mArgv[i] == argv) {
+    if (mArgv[i] == arg) {
       // Check if the argv given is the last argument in the arg list, with no
       // valid string after
       if (i + 1 >= mArgc) {
-        std::cout << "Invalid output provided for: " << argv << std::endl;
+        std::cout << "Invalid output provided for: " << arg << std::endl;
         return {""};
       } else if (count == -1) {
         // Check the first value after the arg given, which should be the size
@@ -91,18 +86,18 @@ std::vector<std::string> cse::ArgManager::GetOptions(std::string argv) {
         // Try and convert the value into an into
         try {
           count = std::stoi(mArgv[i + 1]);
+          // There are not enough arg given after the size provided
+          if (startingIndex + count >= mArgc) {
+            // Return a list with an empty string
+            std::cout << "Not enough options provided for: " << arg << std::endl;
+            return {""};
+          }
+
         } catch (const std::exception& caughtError) {
           std::cerr << "\"" << mArgv[i + 1] << "\" is not an integer"
                     << std::endl;
 
           // Return a list with an empty string
-          return {""};
-        }
-
-        // There are not enough arg given after the size provided
-        if (startingIndex + count >= mArgc) {
-          // Return a list with an empty string
-          std::cout << "Not enough options provided for: " << argv << std::endl;
           return {""};
         }
       }
@@ -114,7 +109,7 @@ std::vector<std::string> cse::ArgManager::GetOptions(std::string argv) {
 
   // If the arg does not exist
   if (count == -1) {
-    std::cout << "This arg does not exist: " << argv << std::endl;
+    std::cout << "This arg does not exist: " << arg << std::endl;
 
     // Return an empty string
     return {""};

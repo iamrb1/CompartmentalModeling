@@ -207,19 +207,19 @@ void runArgManager(int argc, char* argv[]) {
     // after run, make command
     // run "./Lamport.exe --help" this will trigger help arguments
 
-    if (args.Has("-h") || args.Has("--help")) {
+    if (args.HasArg("-h") || args.HasArg("--help")) {
         args.PrintHelp();
         exit(0);
     }
     // Set a default output filename, then Test if one was specified in the
     // command line arguments sent in.
     std::string out_filename="default_output.dat";
-    if (args.Has("-o")) out_filename = args.GetOption("-o");
+    if (args.HasArg("-o")) out_filename = args.GetSingleOption("-o");
 
     std::cout << "File Name sent out: " << out_filename << "\n";
 
     std::vector<std::string> out_list = {"Default list"};
-    if (args.Has("-l")) out_list = args.GetOptions("-l");
+    if (args.HasArg("-l")) out_list = args.GetListOfOptions("-l");
     for (int i = 0 ; i < (int)out_list.size(); i++)
     {
         if (i == 0)
@@ -238,7 +238,7 @@ void runArgManager(int argc, char* argv[]) {
 
     cse::ArgManager manager(argc, argv);
     std::cout << "Did you pass an argument 'cat' when running executable?: ";
-    if (manager.Has("cat"))
+    if (manager.HasArg("cat"))
         std::cout << "yes\n";
     else
         std::cout << "no\n";
