@@ -2,6 +2,9 @@
 
 #include <iostream>
 #include <memory>
+#include <unordered_map>
+
+namespace cse {
 
 #ifdef NDEBUG
 
@@ -237,3 +240,5 @@ Aptr<TYPE> MakeAudited(Args&&... args)
 }
 
 #endif
+
+}
