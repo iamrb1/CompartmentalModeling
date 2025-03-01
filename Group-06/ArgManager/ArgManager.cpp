@@ -25,7 +25,7 @@ cse::ArgManager::ArgManager(int argc, char* argv[]) {
 
 /**
  * @brief Checks if a string is present in the input arguments
- * @param argv the string to check for
+ * @param arg the string to check for
  * @return if the string is present in the input arguments
  */
 bool cse::ArgManager::HasArg(const std::string& arg) const {
@@ -35,7 +35,7 @@ bool cse::ArgManager::HasArg(const std::string& arg) const {
 
 /**
  * @brief Find a string and return the next string as the value of the option
- * @param argv the string to find
+ * @param arg the string to find
  * @return the next string as the value of the option
  */
 std::string cse::ArgManager::GetSingleOption(const std::string& arg) const {
@@ -60,7 +60,7 @@ std::string cse::ArgManager::GetSingleOption(const std::string& arg) const {
 /**
  * @brief Find an option, then get the number after it to determine the size of
  * the list, then return the next values in a list as the value of the option
- * @param argv the string to find
+ * @param arg the string to find
  * @return the next strings in a list as the value of the option
  */
 std::vector<std::string> cse::ArgManager::GetListOfOptions(const std::string& arg) const {
