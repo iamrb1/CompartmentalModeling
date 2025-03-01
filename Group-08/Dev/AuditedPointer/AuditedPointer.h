@@ -14,9 +14,6 @@ public:
     // Constructor
     explicit Aptr(TYPE* ptr = nullptr) : mPtr(ptr) {}
 
-    // Destructor
-    ~Aptr() { delete mPtr; }
-
     // Copy constructor
     Aptr(const Aptr& other) : mPtr(new TYPE(*other.mPtr)) {}
 
