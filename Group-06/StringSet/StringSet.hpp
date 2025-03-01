@@ -52,8 +52,11 @@ public:
   * @brief Add vector of strings into the string set
   * @param stringVector  Vector of strings
   */
-  void insert(const std::vector<std::string> &stringVector)
-  {mElements.insert(stringVector.begin(), stringVector.end()+1); }
+  void insert(const std::vector<std::string> &stringVector){
+      for(const std::string& str : stringVector){
+          mElements.insert(str);
+      }
+  }
 
   
   /**
