@@ -223,3 +223,110 @@ TEST_CASE("Tests for SizeFilter", "[SizeFilter]") {
 		REQUIRE(set.count("goose") == 1);
 	}
 }
+
+TEST_CASE("Test for UnionWith", "[UnionWith]"){
+    StringSet set1;
+    StringSet set2;
+
+    // Not empty sets
+    set1.insert("black");
+    set1.insert("blue");
+    set1.insert("brown");
+
+    set2.insert("purple");
+    set2.insert("white");
+    set2.insert("yellow");
+
+    StringSet unionSet = set1.UnionWith(set2, [](const std::string& str){
+        return str.find('l') != std::string::npos;
+    });
+    REQUIRE(unionSet.size() == 4);
+    REQUIRE(unionSet.count("black") == 1);
+    REQUIRE(unionSet.count("blue") == 1);
+    REQUIRE(unionSet.count("purple") == 1);
+    REQUIRE(unionSet.count("yellow") == 1);
+
+    // One empty set
+
+    set2.clear();
+    unionSet.clear();
+
+    unionSet = set1.UnionWith(set2, [](const std::string& str){
+        return str.find('l') != std::string::npos;
+    });
+
+    REQUIRE(unionSet.size() == 2);
+    REQUIRE(unionSet.count("black") == 1);
+    REQUIRE(unionSet.count("blue") == 1);
+
+    // Two empty sets
+
+    set1.clear();
+    unionSet.clear();
+
+    unionSet = set1.UnionWith(set2, [](const std::string& str){
+        return str.find('l') != std::string::npos;
+    });
+
+    REQUIRE(unionSet.size() == 0);
+}
+
+TEST_CASE("Test for SymmetricDifference", "[SymmetricDifference]"){
+    StringSet set1;
+    StringSet set2;
+
+    // Empty sets
+    symmetricSet = set1.SymmetricDifference(set2);
+
+    REQUIRE(symmetricSet.size() == 0);
+
+    // One empty set
+    set1.insert("black");
+    set1.insert("blue");
+    set1.insert("green");
+
+    symmetricSet = set1.SymmetricDifference(set2);
+    REQUIRE(symmetricSet.size() == 3);
+    REQUIRE(symmetricSet.count("black") == 1);
+    REQUIRE(symmetricSet.count("blue") == 1);
+    REQUIRE(symmetricSet.count("green") == 1);
+
+    // Not empty sets
+    symmetricSet.clear();
+    set2.insert("black");
+    set2.insert("yellow");
+    set2.insert("white");
+
+    symmetricSet = set1.SymmetricDifference(set2);
+    REQUIRE(symmetricSet.size() == 4);
+    REQUIRE(symmetricSet.count("blue") == 1);
+    REQUIRE(symmetricSet.count("green") == 1);
+    REQUIRE(symmetricSet.count("yellow") == 1);
+    REQUIRE(symmetricSet.count("white") == 1);
+
+    // Try same set
+    symmetricSet.clear();
+    symmetricSet = set1.SymmetricDifference(set1);
+    REQUIRE(symmetricSet.size() == 0);
+}
+
+TEST_CASE("Test for ToVector", "[ToVector]"){
+    StringSet set1;
+
+    set1.insert("black");
+    set1.insert("blue");
+    set1.insert("green");
+    set1.insert("yellow");
+
+    std::vector<std::string> vec1 = set1.ToVector();
+
+    REQUIRE(vec1.size() == 4);
+
+    // Empty set
+
+    StringSet set2;
+
+    std::vector<std::string> vec2 = set2.ToVector();
+    REQUIRE(vec2.size() == 0);
+
+}
