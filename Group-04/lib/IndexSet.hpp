@@ -8,7 +8,6 @@
 #include <vector>
 
 namespace cse {
-
 /**
  * @brief A class that efficiently stores and recalls ranges of numbers in a
  * set.
@@ -223,7 +222,7 @@ class IndexSet {
     }
   }
 
-  void insertRange(const std::size_t start, const std::size_t end) {
+  void insert_range(const std::size_t start, const std::size_t end) {
     if (start >= end) return;  // Invalid range
 
     // Insert new range directly
@@ -297,7 +296,7 @@ class IndexSet {
    * @brief Returns a vector containing all indices in the set
    * @return Vector of indices in ascending order
    */
-  std::vector<std::size_t> getAllIndices() const {
+  std::vector<std::size_t> get_all_indices() const {
     std::vector<std::size_t> result;
     result.reserve(total_size_);  // Preallocate to avoid reallocations
 
@@ -319,7 +318,7 @@ class IndexSet {
    * If the index is within a range, returns the next range after the
    * containing range. If the index is between ranges, returns the next range.
    */
-  std::optional<std::pair<std::size_t, std::size_t>> getNextRange(
+  std::optional<std::pair<std::size_t, std::size_t>> get_next_range(
       std::size_t index) const {
     auto range_idx = find_range_index(index);
 
@@ -341,7 +340,7 @@ class IndexSet {
    * @param index The reference index
    * @return The previous range if it exists, std::nullopt otherwise
    */
-  std::optional<std::pair<std::size_t, std::size_t>> getPrevRange(
+  std::optional<std::pair<std::size_t, std::size_t>> get_prev_range(
       std::size_t index) const {
     auto range_idx = find_range_index(index);
 
@@ -366,7 +365,7 @@ class IndexSet {
    * @param index The index to find
    * @return The containing range if it exists, std::nullopt otherwise
    */
-  std::optional<std::pair<std::size_t, std::size_t>> getContainingRange(
+  std::optional<std::pair<std::size_t, std::size_t>> get_containing_range(
       std::size_t index) const {
     auto range_idx = find_range_index(index);
 
@@ -390,14 +389,14 @@ class IndexSet {
    * @param indexSet The IndexSet to append
    * @param index The index to start appending
    */
-  void appendAt(const IndexSet& indexSet, const std::size_t index) {
+  void append_at(const IndexSet& indexSet, const std::size_t index) {
     // Create a copy of the input IndexSet and offset it by the starting index
     IndexSet offsetSet = indexSet;
     offsetSet.offset(index);
 
     // Add all ranges from the offset set to this set
     for (const auto& range : offsetSet.ranges_) {
-      insertRange(range.first, range.second);
+      insert_range(range.first, range.second);
     }
   }
 
@@ -410,7 +409,7 @@ class IndexSet {
     IndexSet result = *this;  // Start with a copy of this set
     // Add all ranges from the other set
     for (const auto& range : other.ranges_) {
-      result.insertRange(range.first, range.second);
+      result.insert_range(range.first, range.second);
     }
     return result;
   }
@@ -433,7 +432,7 @@ class IndexSet {
 
         // If ranges overlap, add their intersection
         if (start < end) {
-          result.insertRange(start, end);
+          result.insert_range(start, end);
         }
       }
     }

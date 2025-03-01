@@ -39,8 +39,8 @@ class RichText {
   };
 
  private:
-  std::string text;
-  std::map<Format, cse::IndexSet> formatting;
+  std::string m_text;
+  std::map<Format, cse::IndexSet> m_formatting;
 
  public:
   RichText() = default;
@@ -50,29 +50,31 @@ class RichText {
   RichText& operator=(RichText&&) = default;
   ~RichText() = default;
 
-  explicit RichText(std::string text) : text(std::move(text)) {}
-  explicit RichText(const char* text) : text(text) {}
+  explicit RichText(std::string text) : m_text(std::move(text)) {}
+  explicit RichText(const char* text) : m_text(text) {}
 
-  size_t size() const noexcept { return text.size(); }
+  size_t size() const noexcept { return m_text.size(); }
 
-  const char& char_at(size_t pos) const { return text.at(pos); }
+  const char& char_at(size_t pos) const { return m_text.at(pos); }
+
+  std::string to_string() const { return m_text; }
 
   std::unique_ptr<std::vector<Format>> formats_at(size_t pos) const {
     auto result = std::make_unique<std::vector<Format>>();
-    for (const auto& [format, index] : formatting) {
+    for (const auto& [format, index] : m_formatting) {
       if (index.contains(pos)) result->push_back(format);
     }
     return result;
   }
 
   RichText& append(const RichText& str) {
-    auto left = formatting.begin();
-    auto const left_end = formatting.end();
-    auto right = str.formatting.begin();
-    auto const right_end = str.formatting.end();
+    auto left = m_formatting.begin();
+    auto const left_end = m_formatting.end();
+    auto right = str.m_formatting.begin();
+    auto const right_end = str.m_formatting.end();
     while (left != left_end && right != right_end) {
       if (left->first == right->first) {
-        left->second.appendAt(right->second, text.size());
+        left->second.append_at(right->second, m_text.size());
         ++left;
         ++right;
         continue;
@@ -82,27 +84,32 @@ class RichText {
         continue;
       }
 
-      formatting.insert({right->first, right->second})
-          .first->second.offset(text.size());
+      m_formatting.insert({right->first, right->second})
+          .first->second.offset(m_text.size());
       ++right;
     }
-    text += str.text;
+    while (right != right_end) {
+      m_formatting.insert({right->first, right->second})
+          .first->second.offset(m_text.size());
+      ++right;
+    }
+    m_text += str.m_text;
     return *this;
   }
 
-  void applyFormatToRange(const Format& format, const size_t begin,
-                          const size_t end) {
-    auto [item, inserted] = formatting.insert({format, IndexSet(begin, end)});
+  void apply_format_to_range(const Format& format, const size_t begin,
+                             const size_t end) {
+    auto [item, inserted] = m_formatting.insert({format, IndexSet(begin, end)});
     if (!inserted) {
-      item->second.insertRange(begin, end);
+      item->second.insert_range(begin, end);
     }
   }
 
   RichText& operator+=(const RichText& str) { return append(str); }
 
-  std::optional<IndexSet> getFormatRange(const Format& format) const {
-    auto iter = formatting.find(format);
-    if (iter == formatting.end()) return {};
+  std::optional<IndexSet> get_format_range(const Format& format) const {
+    auto iter = m_formatting.find(format);
+    if (iter == m_formatting.end()) return {};
     return {iter->second};
   }
 };
