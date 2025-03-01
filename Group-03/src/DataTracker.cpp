@@ -21,21 +21,24 @@ void DataTracker::add_value(double value) {
     assert(values.size() == old_size + 1 && "Size did not increase by one");
 }
 
-// Finds a specified value and then deletes the first instance of it
-void DataTracker::delete_value(double value) {
+// Finds a specified value and deletes the first instance of it, returning true if successful
+bool DataTracker::delete_value(double value) {
     size_t old_size = values.size();
     
     // Find the first occurrence of the value in the vector
     auto it = std::find(values.begin(), values.end(), value);
     
-    // If found, erase the element from the vector
+    // If found, erase the element and return true
     if (it != values.end()) {
         values.erase(it);
+        assert(values.size() < old_size && "Size should decrease after deletion");
+        return true;
     }
 
-    // Assertion to check that the size has not increased unexpectedly
-    assert(values.size() <= old_size && "Size increased");
+    // Return false if the value was not found
+    return false;
 }
+
 
 // Calculates and returns the average (mean) of the data in the object
 double DataTracker::mean() const {
@@ -99,8 +102,7 @@ double DataTracker::max() const {
 
 // Returns the total number of elements in the dataset
 size_t DataTracker::total() const {
-    size_t size = values.size();
-    return size;
+    return values.size();
 }
 
 } // namespace cse
