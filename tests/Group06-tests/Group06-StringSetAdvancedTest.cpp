@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <unordered_set>
+#include <set>
 #include <algorithm>
 #include <random>
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
@@ -328,5 +329,31 @@ TEST_CASE("Test for ToVector", "[ToVector]"){
 
     std::vector<std::string> vec2 = set2.ToVector();
     REQUIRE(vec2.size() == 0);
+}
+
+TEST_CASE("Test for sort", "[sort]"){
+    StringSet set;
+
+    // Empty set
+
+    std::set<std::string> sortedSet = set.sort([](const std::string& str1, const std::string& str2){
+        return str1.size() < str2.size();
+    });
+
+    std::set<std::string> expected = {};
+
+    REQUIRE(sortedSet == expected);
+
+    set.insert("black");
+    set.insert("red");
+    set.insert("purple");
+
+    sortedSet = set.sort([](const std::string& str1, const std::string& str2){
+        return str1.size() < str2.size();
+    });
+
+    expected = {"red", "black", "purple"};
+
+    REQUIRE(sortedSet == expected);
 
 }
