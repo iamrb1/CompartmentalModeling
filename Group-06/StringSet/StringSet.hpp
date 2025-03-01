@@ -53,9 +53,9 @@ public:
   * @param stringVector  Vector of strings
   */
   void insert(const std::vector<std::string> &stringVector){
-      for(const std::string& str : stringVector){
-          mElements.insert(str);
-      }
+    for(const std::string& str : stringVector){
+      mElements.insert(str);
+    }
   }
 
   
@@ -64,8 +64,8 @@ public:
   * @param str Deleted from string set
   */
   void erase(const std::string &str) {
-      assert(!str.empty() && "Erasing empty string");
-      mElements.erase(str);
+    assert(!str.empty() && "Erasing empty string");
+    mElements.erase(str);
   }
   
   /**

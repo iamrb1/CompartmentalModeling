@@ -10,6 +10,7 @@
 #include <functional>
 #include <iostream>
 #include <vector>
+#include <string>
  
 namespace cse {
  
@@ -19,10 +20,9 @@ namespace cse {
 class ArgManager {
  public:
   ArgManager(int argc, char *argv[]);
-  void LoadArgManager();
-  bool Has(std::string argv);
-  std::string GetOption(std::string argv);
-  std::vector<std::string> GetOptions(std::string argv);
+  bool HasArg(const std::string& arg) const;
+  std::string GetSingleOption(const std::string& arg) const;
+  std::vector<std::string> GetListOfOptions(const std::string& arg) const;
   void PrintHelp();
 
  private:

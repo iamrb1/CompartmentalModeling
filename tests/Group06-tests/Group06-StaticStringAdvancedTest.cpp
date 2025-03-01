@@ -200,6 +200,17 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     REQUIRE(std::strcmp(s.get_str(), "acd") == 0);
   }
 
+  SECTION("TESTS: Remove member function") {
+    StaticString<40> s("aaabbbcccaaa");
+
+    s.remove(0,2);
+    REQUIRE(std::strcmp(s.get_str(), "bbbcccaaa") == 0);
+
+    s = "aaabbbcccaaa";
+    s.remove(3,8);
+    REQUIRE(std::strcmp(s.get_str(), "aaaaaa") == 0);
+  }
+
   SECTION("TESTS: Swap  member function") {
     StaticString<40> s("Hello World Hello");
 
