@@ -277,7 +277,7 @@ TEST_CASE("Test for SymmetricDifference", "[SymmetricDifference]"){
     StringSet set2;
 
     // Empty sets
-    symmetricSet = set1.SymmetricDifference(set2);
+    StringSet symmetricSet = set1.SymmetricDifference(set2);
 
     REQUIRE(symmetricSet.size() == 0);
 
