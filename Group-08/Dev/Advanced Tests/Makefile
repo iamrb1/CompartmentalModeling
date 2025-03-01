@@ -1,4 +1,4 @@
-TEST_NAMES = AuditedPointerAdvancedTest AnnotatedWrapperAdvancedTest
+TEST_NAMES = AnnotatedWrapperAdvancedTest AuditedPointerAdvancedTest
 
 # Compilation Flags
 # Statically linking or else it wont work

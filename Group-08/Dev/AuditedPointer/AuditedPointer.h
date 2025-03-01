@@ -196,9 +196,36 @@ public:
         mPtr = nullptr;
     }
 
+    // Get the ID of this AuditedPointer
+    int GetID() const
+    {
+        return 0;
+    }
+
+    // Get a set of all active AuditedPointer IDs and their pointers
+    static std::unordered_map<int, void*> GetActiveAptrs()
+    {
+        return {};
+    }
+    
+        // Find an AuditedPointer by ID in the active set
+    static void* Find(int id)
+    {
+        return nullptr;
+    }
+    
+    // Reset all active AuditedPointers (delete and clear the active set)
+    static void Reset()
+    {
+
+    }
+
 private:
     // Base raw pointer
     TYPE* mPtr;
+
+    int mID;
+
 };
 
 // Stand-alone MakeAudited function
