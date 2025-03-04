@@ -98,6 +98,57 @@ namespace cse
 		 */
 		void SetMode(Mode mode) { mode_ = mode; }
 
+		// Specializations for implemented serializable types
+		template <typename T, std::enable_if_t<std::is_arithmetic_v<T>, int> = 0>
+		bool IsSerializable(T &) { return true; }
+
+		bool IsSerializable(std::string &) { return true; }
+
+		template <typename T>
+		bool IsSerializable(std::vector<T> &) { return true; }
+
+		template <typename T, std::size_t N>
+		bool IsSerializable(std::array<T, N> &) { return true; }
+
+		template <typename T>
+		bool IsSerializable(std::set<T> &) { return true; }
+
+		template <typename T>
+		bool IsSerializable(std::unordered_set<T> &) { return true; }
+
+		template <typename T>
+		bool IsSerializable(std::multiset<T> &) { return true; }
+
+		template <typename T>
+		bool IsSerializable(std::unordered_multiset<T> &) { return true; }
+
+		template <typename K, typename V>
+		bool IsSerializable(std::map<K, V> &) { return true; }
+
+		template <typename K, typename V>
+		bool IsSerializable(std::unordered_map<K, V> &) { return true; }
+
+		template <typename K, typename V>
+		bool IsSerializable(std::multimap<K, V> &) { return true; }
+
+		template <typename K, typename V>
+		bool IsSerializable(std::unordered_multimap<K, V> &) { return true; }
+
+		template <typename T>
+		bool IsSerializable(std::stack<T> &) { return true; }
+
+		template <typename T>
+		bool IsSerializable(std::queue<T> &) { return true; }
+
+		template <typename T>
+		bool IsSerializable(std::priority_queue<T> &) { return true; }
+
+		template <typename T>
+		bool IsSerializable(std::deque<T> &) { return true; }
+
+		template <typename T, std::enable_if_t<!std::is_arithmetic_v<T>, int> = 0>
+		bool IsSerializable(T &) { return false; }
+
 		/**
 		 * @brief Serializes or deserializes an arithmetic type (e.g., int, float, double) to/from a binary file.
 		 * @tparam T An arithmetic type (integral or floating-point).
