@@ -38,3 +38,4 @@
 # Build files
 build/
 cmake-build-*/
+**.dSYM
