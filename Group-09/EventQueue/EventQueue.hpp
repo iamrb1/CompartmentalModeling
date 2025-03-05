@@ -34,9 +34,9 @@ class EventQueue {
   void print();
   [[nodiscard]] inline size_t size() const { return eventCount; }
  private:
-  std::priority_queue<Event, std::vector<Event>, EventCompare> heap;
-  std::unordered_set<int> ids;
-  size_t eventCount = 0;
+  std::priority_queue<Event, std::vector<Event>, EventCompare> heap; // min heap to store events
+  std::unordered_set<int> ids; // set of ID currently in the queue
+  size_t eventCount = 0; // Number of events in the queue
 };
 
 }
