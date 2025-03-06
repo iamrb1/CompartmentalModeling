@@ -30,5 +30,8 @@
 *.exe
 *.out
 *.app
-.vscode
 **.dSYM
+
+# IDEs
+.idea
+.vscode
