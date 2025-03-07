@@ -1,4 +1,4 @@
-TEST_NAMES = Matrix
+TEST_NAMES = Any Matrix
 
 # -O3	  -Wl,--stack,8388608 -ftrack-macro-expansion=0
 FLAGS = -std=c++20 -g -pthread -Wall -Wextra -I../../ -DCATCH_CONFIG_MAIN

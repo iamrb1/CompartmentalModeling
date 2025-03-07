@@ -41,7 +41,8 @@ TEST_CASE("Test cse::Matrix", "[base]")
   CHECK(m1.At(2,0) == 1);
 
 
-  m1[1,0] = 15;
+  // m1[1,0] = 15;
+  m1.At(1,0) = 15;
 
   CHECK(m1.At(0,0) == 106);
   CHECK(m1.At(0,1) == 12);
