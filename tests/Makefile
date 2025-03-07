@@ -1,4 +1,4 @@
-TEST_NAMES := Example
+TEST_NAMES := Example Group-01 Group-02 Group-03 Group-04 InClass
 
 CXX = clang++
 
