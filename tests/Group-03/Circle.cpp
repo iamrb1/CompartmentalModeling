@@ -1,7 +1,7 @@
 #define CATCH_CONFIG_MAIN
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
-#include "../src/Circle.h"
-#include "../src/Surface.h"
+#include "../../Group-03/src/Circle.h"
+#include "../../Group-03/src/Surface.h"
 
 TEST_CASE("CircleTest1", "CircleInitialization") {
     Circle circle(5.0, 10.0, 3.0);
