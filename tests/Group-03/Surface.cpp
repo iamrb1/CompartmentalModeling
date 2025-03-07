@@ -1,9 +1,9 @@
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 
 #include <vector>
-#include "../src/Sector.h"
-#include "../src/Surface.h"
-#include "../src/Circle.h"
+#include "../../Group-03/src/Sector.h"
+#include "../../Group-03/src/Surface.h"
+#include "../../Group-03/src/Circle.h"
 
 namespace cse {
     TEST_CASE("SectorTest 1", "Add") {

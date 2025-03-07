@@ -1,7 +1,7 @@
 
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 
-#include "../src/FixedPoint.h"
+#include "../../Group-03/src/FixedPoint.h"
 #include <vector>
 #include <sstream>
 
