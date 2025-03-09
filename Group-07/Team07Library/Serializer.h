@@ -239,9 +239,21 @@ namespace cse
 				}
 				size_t size = vec.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				outFile.write(reinterpret_cast<const char *>(vec.data()), size * sizeof(T));
+				for (size_t i = 0; i < size; i++)
+				{
+					if (IsSerializable(vec[i]))
+					{
+						std::string newFile = filename + "_" + std::to_string(i);
+						Serialize(vec[i], newFile);
+					}
+					else
+					{
+						std::cerr << "This type is not implemented yet." << std::endl;
+						return;
+					}
+				}
 			}
-			else
+			else // LOAD mode
 			{
 				std::ifstream inFile(filename, std::ios::binary);
 				if (!inFile)
@@ -252,7 +264,19 @@ namespace cse
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				vec.resize(size);
-				inFile.read(reinterpret_cast<char *>(vec.data()), size * sizeof(T));
+				for (size_t i = 0; i < size; i++)
+				{
+					if (IsSerializable(vec[i]))
+					{
+						std::string newFile = filename + "_" + std::to_string(i);
+						Serialize(vec[i], newFile);
+					}
+					else
+					{
+						std::cerr << "This type is not implemented yet." << std::endl;
+						return;
+					}
+				}
 			}
 		}
 
@@ -272,22 +296,44 @@ namespace cse
 				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
 				if (!outFile)
 				{
-					std::cerr << "Error opening file for writing: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for writing: " << filename << std::endl;
 					return;
 				}
-				outFile.write(reinterpret_cast<const char *>(arr.data()), sizeof(T) * N);
+				for (size_t i = 0; i < N; i++)
+				{
+					if (IsSerializable(arr[i]))
+					{
+						std::string newFile = filename + "_" + std::to_string(i);
+						Serialize(arr[i], newFile);
+					}
+					else
+					{
+						std::cerr << "This type is not implemented yet." << std::endl;
+						return;
+					}
+				}
 			}
-			else // Mode::LOAD
+			else // LOAD mode
 			{
 				std::ifstream inFile(filename, std::ios::binary);
 				if (!inFile)
 				{
-					std::cerr << "Error opening file for reading: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for reading: " << filename << std::endl;
 					return;
 				}
-				inFile.read(reinterpret_cast<char *>(arr.data()), sizeof(T) * N);
+				for (size_t i = 0; i < N; i++)
+				{
+					if (IsSerializable(arr[i]))
+					{
+						std::string newFile = filename + "_" + std::to_string(i);
+						Serialize(arr[i], newFile);
+					}
+					else
+					{
+						std::cerr << "This type is not implemented yet." << std::endl;
+						return;
+					}
+				}
 			}
 		}
 
@@ -306,15 +352,24 @@ namespace cse
 				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
 				if (!outFile)
 				{
-					std::cerr << "Error opening file for writing: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for writing: " << filename << std::endl;
 					return;
 				}
 				size_t size = set.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				for (const T &item : set)
+				for (auto item = set.begin(), i = 0; item != set.end(); item++, i++)
 				{
-					outFile.write(reinterpret_cast<const char *>(&item), sizeof(T));
+					T data = *item;
+					if (IsSerializable(data))
+					{
+						std::string newFile = filename + "_" + std::to_string(i);
+						Serialize(data, newFile);
+					}
+					else
+					{
+						std::cerr << "This type is not implemented yet." << std::endl;
+						return;
+					}
 				}
 			}
 			else
@@ -322,27 +377,28 @@ namespace cse
 				std::ifstream inFile(filename, std::ios::binary);
 				if (!inFile)
 				{
-					std::cerr << "Error opening file for reading: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for reading: " << filename << std::endl;
 					return;
 				}
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				if (!inFile)
 				{
-					std::cerr << "Error: Unable to read set size from file: " << filename
-							  << std::endl;
+					std::cerr << "Error: Unable to read set size from file: " << filename << std::endl;
 					return;
 				}
 				set.clear();
 				for (size_t i = 0; i < size; i++)
 				{
 					T item;
-					inFile.read(reinterpret_cast<char *>(&item), sizeof(T));
-					if (!inFile)
+					if (IsSerializable(item))
 					{
-						std::cerr << "Error: Unable to read element " << i
-								  << " from file: " << filename << std::endl;
+						std::string newFile = filename + "_" + std::to_string(i);
+						Serialize(item, newFile);
+					}
+					else
+					{
+						std::cerr << "This type is not implemented yet." << std::endl;
 						return;
 					}
 					set.insert(item);
@@ -365,15 +421,24 @@ namespace cse
 				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
 				if (!outFile)
 				{
-					std::cerr << "Error opening file for writing: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for writing: " << filename << std::endl;
 					return;
 				}
 				size_t size = uset.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				for (const T &item : uset)
+				for (auto item = uset.begin(), i = 0; item != uset.end(); item++, i++)
 				{
-					outFile.write(reinterpret_cast<const char *>(&item), sizeof(T));
+					T data = *item;
+					if (IsSerializable(data))
+					{
+						std::string newFile = filename + "_" + std::to_string(i);
+						Serialize(data, newFile);
+					}
+					else
+					{
+						std::cerr << "This type is not implemented yet." << std::endl;
+						return;
+					}
 				}
 			}
 			else
@@ -381,27 +446,28 @@ namespace cse
 				std::ifstream inFile(filename, std::ios::binary);
 				if (!inFile)
 				{
-					std::cerr << "Error opening file for reading: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for reading: " << filename << std::endl;
 					return;
 				}
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				if (!inFile)
 				{
-					std::cerr << "Error: Unable to read set size from file: " << filename
-							  << std::endl;
+					std::cerr << "Error: Unable to read set size from file: " << filename << std::endl;
 					return;
 				}
 				uset.clear();
 				for (size_t i = 0; i < size; i++)
 				{
 					T item;
-					inFile.read(reinterpret_cast<char *>(&item), sizeof(T));
-					if (!inFile)
+					if (IsSerializable(item))
 					{
-						std::cerr << "Error: Unable to read element " << i
-								  << " from file: " << filename << std::endl;
+						std::string newFile = filename + "_" + std::to_string(i);
+						Serialize(item, newFile);
+					}
+					else
+					{
+						std::cerr << "This type is not implemented yet." << std::endl;
 						return;
 					}
 					uset.insert(item);
@@ -424,15 +490,24 @@ namespace cse
 				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
 				if (!outFile)
 				{
-					std::cerr << "Error opening file for writing: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for writing: " << filename << std::endl;
 					return;
 				}
 				size_t size = mset.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				for (const T &item : mset)
+				for (auto item = mset.begin(), i = 0; item != mset.end(); item++, i++)
 				{
-					outFile.write(reinterpret_cast<const char *>(&item), sizeof(T));
+					T data = *item;
+					if (IsSerializable(data))
+					{
+						std::string newFile = filename + "_" + std::to_string(i);
+						Serialize(data, newFile);
+					}
+					else
+					{
+						std::cerr << "This type is not implemented yet." << std::endl;
+						return;
+					}
 				}
 			}
 			else
@@ -440,27 +515,28 @@ namespace cse
 				std::ifstream inFile(filename, std::ios::binary);
 				if (!inFile)
 				{
-					std::cerr << "Error opening file for reading: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for reading: " << filename << std::endl;
 					return;
 				}
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				if (!inFile)
 				{
-					std::cerr << "Error: Unable to read set size from file: " << filename
-							  << std::endl;
+					std::cerr << "Error: Unable to read set size from file: " << filename << std::endl;
 					return;
 				}
 				mset.clear();
 				for (size_t i = 0; i < size; i++)
 				{
 					T item;
-					inFile.read(reinterpret_cast<char *>(&item), sizeof(T));
-					if (!inFile)
+					if (IsSerializable(item))
 					{
-						std::cerr << "Error: Unable to read element " << i
-								  << " from file: " << filename << std::endl;
+						std::string newFile = filename + "_" + std::to_string(i);
+						Serialize(item, newFile);
+					}
+					else
+					{
+						std::cerr << "This type is not implemented yet." << std::endl;
 						return;
 					}
 					mset.insert(item);
@@ -476,23 +552,31 @@ namespace cse
 		 * @param filename Path to the binary file.
 		 */
 		template <typename T>
-		void Serialize(std::unordered_multiset<T> &umset,
-					   const std::string &filename)
+		void Serialize(std::unordered_multiset<T> &umset, const std::string &filename)
 		{
 			if (mode_ == Mode::SAVE)
 			{
 				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
 				if (!outFile)
 				{
-					std::cerr << "Error opening file for writing: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for writing: " << filename << std::endl;
 					return;
 				}
 				size_t size = umset.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				for (const T &item : umset)
+				for (auto item = umset.begin(), i = 0; item != umset.end(); item++, i++)
 				{
-					outFile.write(reinterpret_cast<const char *>(&item), sizeof(T));
+					T data = *item;
+					if (IsSerializable(data))
+					{
+						std::string newFile = filename + "_" + std::to_string(i);
+						Serialize(data, newFile);
+					}
+					else
+					{
+						std::cerr << "This type is not implemented yet." << std::endl;
+						return;
+					}
 				}
 			}
 			else
@@ -500,27 +584,28 @@ namespace cse
 				std::ifstream inFile(filename, std::ios::binary);
 				if (!inFile)
 				{
-					std::cerr << "Error opening file for reading: " << filename
-							  << std::endl;
+					std::cerr << "Error opening file for reading: " << filename << std::endl;
 					return;
 				}
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				if (!inFile)
 				{
-					std::cerr << "Error: Unable to read set size from file: " << filename
-							  << std::endl;
+					std::cerr << "Error: Unable to read set size from file: " << filename << std::endl;
 					return;
 				}
 				umset.clear();
 				for (size_t i = 0; i < size; i++)
 				{
 					T item;
-					inFile.read(reinterpret_cast<char *>(&item), sizeof(T));
-					if (!inFile)
+					if (IsSerializable(item))
 					{
-						std::cerr << "Error: Unable to read element " << i
-								  << " from file: " << filename << std::endl;
+						std::string newFile = filename + "_" + std::to_string(i);
+						Serialize(item, newFile);
+					}
+					else
+					{
+						std::cerr << "This type is not implemented yet." << std::endl;
 						return;
 					}
 					umset.insert(item);
@@ -546,12 +631,29 @@ namespace cse
 					std::cerr << "Error opening file for writing: " << filename << std::endl;
 					return;
 				}
+
 				size_t size = map.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				for (const auto &[key, value] : map)
+				for (auto item = map.begin(), i = 0; item != map.end(); item++, i++)
 				{
-					outFile.write(reinterpret_cast<const char *>(&key), sizeof(K));
-					outFile.write(reinterpret_cast<const char *>(&value), sizeof(V));
+					K key = (*item)->first;
+					V val = (*item)->second;
+					std::string KeyFile = filename + "_K" + std::to_string(i);
+					std::string ValFile = filename + "_V" + std::to_string(i);
+					if (IsSerializable(key))
+						Serialize(key, KeyFile);
+					else
+					{
+						std::cerr << "Key type is not implemented yet." << std::endl;
+						return;
+					}
+					if (IsSerializable(val))
+						Serialize(val, ValFile);
+					else
+					{
+						std::cerr << "Value type is not implemented yet." << std::endl;
+						return;
+					}
 				}
 			}
 			else
@@ -567,19 +669,30 @@ namespace cse
 				if (!inFile)
 				{
 					std::cerr << "Error reading map size from file: " << filename << std::endl;
+					return;
 				}
 				map.clear();
 				for (size_t i = 0; i < size; i++)
 				{
 					K key;
-					V value;
-					inFile.read(reinterpret_cast<char *>(&key), sizeof(K));
-					inFile.read(reinterpret_cast<char *>(&value), sizeof(V));
-					if (!inFile)
+					V val;
+					std::string KeyFile = filename + "_K" + std::to_string(index);
+					std::string ValFile = filename + "_V" + std::to_string(index);
+					if (IsSerializable(key))
+						Serialize(key, KeyFile);
+					else
 					{
-						std::cerr << "Error reading element " << i << " from file: " << filename << std::endl;
+						std::cerr << "Key type is not implemented yet." << std::endl;
+						return;
 					}
-					map[key] = value;
+					if (IsSerializable(val))
+						Serialize(val, ValFile);
+					else
+					{
+						std::cerr << "Value type is not implemented yet." << std::endl;
+						return;
+					}
+					map[key] = val;
 				}
 			}
 		}
@@ -604,10 +717,26 @@ namespace cse
 				}
 				size_t size = umap.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				for (const auto &[key, value] : umap)
+				for (auto item = umap.begin(), i = 0; item != umap.end(); item++, i++)
 				{
-					outFile.write(reinterpret_cast<const char *>(&key), sizeof(K));
-					outFile.write(reinterpret_cast<const char *>(&value), sizeof(V));
+					K key = (*item)->first;
+					V val = (*item)->second;
+					std::string KeyFile = filename + "_K" + std::to_string(i);
+					std::string ValFile = filename + "_V" + std::to_string(i);
+					if (IsSerializable(key))
+						Serialize(key, KeyFile);
+					else
+					{
+						std::cerr << "Key type is not implemented yet." << std::endl;
+						return;
+					}
+					if (IsSerializable(val))
+						Serialize(val, ValFile);
+					else
+					{
+						std::cerr << "Value type is not implemented yet." << std::endl;
+						return;
+					}
 				}
 			}
 			else
@@ -623,19 +752,30 @@ namespace cse
 				if (!inFile)
 				{
 					std::cerr << "Error reading map size from file: " << filename << std::endl;
+					return;
 				}
 				umap.clear();
 				for (size_t i = 0; i < size; i++)
 				{
 					K key;
-					V value;
-					inFile.read(reinterpret_cast<char *>(&key), sizeof(K));
-					inFile.read(reinterpret_cast<char *>(&value), sizeof(V));
-					if (!inFile)
+					V val;
+					std::string KeyFile = filename + "_K" + std::to_string(index);
+					std::string ValFile = filename + "_V" + std::to_string(index);
+					if (IsSerializable(key))
+						Serialize(key, KeyFile);
+					else
 					{
-						std::cerr << "Error reading element " << i << " from file: " << filename << std::endl;
+						std::cerr << "Key type is not implemented yet." << std::endl;
+						return;
 					}
-					umap[key] = value;
+					if (IsSerializable(val))
+						Serialize(val, ValFile);
+					else
+					{
+						std::cerr << "Value type is not implemented yet." << std::endl;
+						return;
+					}
+					umap[key] = val;
 				}
 			}
 		}
@@ -660,10 +800,26 @@ namespace cse
 				}
 				size_t size = mmap.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				for (const auto &[key, value] : mmap)
+				for (auto item = mmap.begin(), i = 0; item != mmap.end(); item++, i++)
 				{
-					outFile.write(reinterpret_cast<const char *>(&key), sizeof(K));
-					outFile.write(reinterpret_cast<const char *>(&value), sizeof(V));
+					K key = (*item)->first;
+					V val = (*item)->second;
+					std::string KeyFile = filename + "_K" + std::to_string(index);
+					std::string ValFile = filename + "_V" + std::to_string(index);
+					if (IsSerializable(key))
+						Serialize(key, KeyFile);
+					else
+					{
+						std::cerr << "Key type is not implemented yet." << std::endl;
+						return;
+					}
+					if (IsSerializable(val))
+						Serialize(val, ValFile);
+					else
+					{
+						std::cerr << "Value type is not implemented yet." << std::endl;
+						return;
+					}
 				}
 			}
 			else
@@ -679,19 +835,30 @@ namespace cse
 				if (!inFile)
 				{
 					std::cerr << "Error reading map size from file: " << filename << std::endl;
+					return;
 				}
 				mmap.clear();
 				for (size_t i = 0; i < size; i++)
 				{
 					K key;
-					V value;
-					inFile.read(reinterpret_cast<char *>(&key), sizeof(K));
-					inFile.read(reinterpret_cast<char *>(&value), sizeof(V));
-					if (!inFile)
+					V val;
+					std::string KeyFile = filename + "_K" + std::to_string(index);
+					std::string ValFile = filename + "_V" + std::to_string(index);
+					if (IsSerializable(key))
+						Serialize(key, KeyFile);
+					else
 					{
-						std::cerr << "Error reading element " << i << " from file: " << filename << std::endl;
+						std::cerr << "Key type is not implemented yet." << std::endl;
+						return;
 					}
-					mmap.insert({key, value});
+					if (IsSerializable(val))
+						Serialize(val, ValFile);
+					else
+					{
+						std::cerr << "Value type is not implemented yet." << std::endl;
+						return;
+					}
+					mmap.insert({key, val});
 				}
 			}
 		}
@@ -716,10 +883,26 @@ namespace cse
 				}
 				size_t size = ummap.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				for (const auto &[key, value] : ummap)
+				for (auto item = ummap.begin(), i = 0; item != ummap.end(); item++, i++)
 				{
-					outFile.write(reinterpret_cast<const char *>(&key), sizeof(K));
-					outFile.write(reinterpret_cast<const char *>(&value), sizeof(V));
+					K key = (*item)->first;
+					V val = (*item)->second;
+					std::string KeyFile = filename + "_K" + std::to_string(i);
+					std::string ValFile = filename + "_V" + std::to_string(i);
+					if (IsSerializable(key))
+						Serialize(key, KeyFile);
+					else
+					{
+						std::cerr << "Key type is not implemented yet." << std::endl;
+						return;
+					}
+					if (IsSerializable(val))
+						Serialize(val, ValFile);
+					else
+					{
+						std::cerr << "Value type is not implemented yet." << std::endl;
+						return;
+					}
 				}
 			}
 			else
@@ -735,19 +918,30 @@ namespace cse
 				if (!inFile)
 				{
 					std::cerr << "Error reading map size from file: " << filename << std::endl;
+					return;
 				}
 				ummap.clear();
 				for (size_t i = 0; i < size; i++)
 				{
 					K key;
-					V value;
-					inFile.read(reinterpret_cast<char *>(&key), sizeof(K));
-					inFile.read(reinterpret_cast<char *>(&value), sizeof(V));
-					if (!inFile)
+					V val;
+					std::string KeyFile = filename + "_K" + std::to_string(index);
+					std::string ValFile = filename + "_V" + std::to_string(index);
+					if (IsSerializable(key))
+						Serialize(key, KeyFile);
+					else
 					{
-						std::cerr << "Error reading element " << i << " from file: " << filename << std::endl;
+						std::cerr << "Key type is not implemented yet." << std::endl;
+						return;
 					}
-					ummap.insert({key, value});
+					if (IsSerializable(val))
+						Serialize(val, ValFile);
+					else
+					{
+						std::cerr << "Value type is not implemented yet." << std::endl;
+						return;
+					}
+					ummap.insert({key, val});
 				}
 			}
 		}
@@ -984,13 +1178,13 @@ namespace cse
 		 * Your custom class must define its own `Serialize(Serializer&, const
 		 * std::string&)` method.
 		 */
-		template <typename T,
-				  typename std::enable_if_t<
-					  std::is_class_v<T> && !std::is_same_v<T, std::string>, int> = 0>
-		void Serialize(T &obj, const std::string &filename)
-		{
-			obj.Serialize(*this, filename);
-		}
+		// template <typename T,
+		// 		  typename std::enable_if_t<
+		// 			  std::is_class_v<T> && !std::is_same_v<T, std::string>, int> = 0>
+		// void Serialize(T &obj, const std::string &filename)
+		// {
+		// 	obj.Serialize(*this, filename);
+		// }
 	};
 } // namespace cse
 
