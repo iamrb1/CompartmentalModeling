@@ -61,7 +61,6 @@ TEST_CASE("Test cse::Graph", "[base]")
   CHECK_THROWS_AS(graph.RemoveEdge(e2), std::out_of_range);
   CHECK_THROWS_AS(v4->GetEdge(v5), std::runtime_error);
 
-  // No bidirectional edges
   auto e3 = graph.AddEdge("id1", "id2", 2);
   CHECK(graph.IsConnected(v1, v2));
   CHECK(!graph.IsConnected(v2, v1));

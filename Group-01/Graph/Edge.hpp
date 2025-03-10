@@ -46,11 +46,11 @@ namespace cse {
     void SetId(std::string newId) override { id = newId; };
 
   public:
-    Edge() = delete;
     virtual ~Edge() = default;
     Edge(const std::string id, std::shared_ptr<cse::Vertex> &from, std::shared_ptr<cse::Vertex> &to,
          double const weight = 0.0)
         : id(id), from(from), to(to), weight(weight) {};
+    Edge() = delete;
 
     virtual bool IsConnected(std::shared_ptr<cse::Vertex> const &v1, std::shared_ptr<cse::Vertex> const &v2) {
       return v1 == from && v2 == to;
