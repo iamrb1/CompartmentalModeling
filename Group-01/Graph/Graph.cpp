@@ -14,10 +14,6 @@ namespace cse {
   }
 
   /**
-   * TODO @lspecht: Add integration with GraphPosition
-   * TODO @lspecht: Add GetAllEdges from vertex
-   */
-  /**
    * Adds a new vertex to the graph
    * @param id Unique identifier for the vertex
    * @param X X-coordinate position
@@ -26,9 +22,10 @@ namespace cse {
    * @throws runtime_error if vertex ID already exists
    */
   cse::Vertex &cse::Graph::AddVertex(std::string const id, double X, double Y) {
-    if (vertices.find(id) != vertices.end()) {
+    if (HasVertex(id)) {
       throw std::runtime_error("Vertex already exists: " + id);
     }
+
     auto v = std::make_shared<cse::Vertex>(id, X, Y);
     vertices[id] = v;
     return *vertices[id];
@@ -58,20 +55,7 @@ namespace cse {
       std::cout << "Did not find vertex to remove" << std::endl;
       throw std::out_of_range("Vertex does not exist: " + id);
     }
-    auto removedVertex = it->second;
     vertices.erase(it);
-  }
-
-  /**
-   * Validates that both vertices exist in the graph
-   * @param v1_id First vertex ID
-   * @param v2_id Second vertex ID
-   * @throws out_of_range if either vertex doesn't exist
-   */
-  void Graph::ValidateVerticesExist(const std::string &v1_id, const std::string &v2_id) const {
-    if (vertices.find(v1_id) == vertices.end() || vertices.find(v2_id) == vertices.end()) {
-      throw std::out_of_range("One or both vertices do not exist.");
-    }
   }
 
   /**
@@ -96,8 +80,10 @@ namespace cse {
    * @param weight Edge weight
    * @return Weak pointer to the created edge
    */
-  std::weak_ptr<cse::Edge> cse::Graph::AddEdge(std::string const v1_id, std::string const v2_id, double const &weight) {
-    ValidateVerticesExist(v1_id, v2_id);
+  cse::Edge &cse::Graph::AddEdge(std::string const v1_id, std::string const v2_id, double const &weight) {
+    if (!HasVertex(v1_id) || !HasVertex(v2_id)) {
+      throw std::out_of_range("Both vertices must exist to create an edge");
+    }
 
     std::string edge_id = v1_id + "-" + v2_id;
     auto edge = CreateEdge(edge_id, v1_id, v2_id, weight);
@@ -105,7 +91,7 @@ namespace cse {
     cse::Vertex &v1 = GetVertex(v1_id);
     v1.AddEdge(edge);
     edges[edge_id] = edge;
-    return edge;
+    return *edge;
   }
 
   /**
@@ -115,8 +101,42 @@ namespace cse {
    * @param weight Edge weight
    * @return Weak pointer to the created edge
    */
-  std::weak_ptr<cse::Edge> cse::Graph::AddEdge(cse::Vertex const &v1, cse::Vertex const &v2, double const &weight) {
+  cse::Edge &cse::Graph::AddEdge(cse::Vertex const &v1, cse::Vertex const &v2, double const &weight) {
     return AddEdge(v1.GetId(), v2.GetId(), weight);
+  }
+
+  /**
+   * Gets an edge from the graph by ID
+   * @param edge_id ID of the edge to retrieve
+   * @return Weak pointer to the edge
+   * @throws out_of_range if edge doesn't exist
+   */
+  cse::Edge &cse::Graph::GetEdge(std::string const &edge_id) const {
+    if (edges.find(edge_id) == edges.end()) {
+      throw std::out_of_range("Edge does not exist.");
+    }
+    auto edge_ptr = edges.at(edge_id);
+    return *edge_ptr;
+  }
+
+  /**
+   * Gets an edge between two vertices
+   * @param from Source vertex
+   * @param to Destination vertex
+   * @return Weak pointer to the edge
+   */
+  cse::Edge &cse::Graph::GetEdge(cse::Vertex const &from, cse::Vertex const &to) const {
+    return GetEdge(from.GetEdge(to)->GetId());
+  }
+
+  /**
+   * Gets an edge between two vertices using their IDs
+   * @param from_id Source vertex ID
+   * @param to_id Destination vertex ID
+   * @return Weak pointer to the edge
+   */
+  cse::Edge &cse::Graph::GetEdge(std::string const &from_id, std::string const &to_id) {
+    return GetEdge(GetVertex(from_id), GetVertex(to_id));
   }
 
   /**
@@ -138,46 +158,8 @@ namespace cse {
    * @param edge Weak pointer to the edge to remove
    * @throws out_of_range if edge doesn't exist or is expired
    */
-  void Graph::RemoveEdge(std::weak_ptr<cse::Edge> edge) {
-    if (edge.expired()) {
-      throw std::out_of_range("Edge does not exist");
-    }
-    auto sh = edge.lock();
-    RemoveEdge(sh->GetId());
-  }
-
-  /**
-   * Gets an edge from the graph by ID
-   * @param edge_id ID of the edge to retrieve
-   * @return Weak pointer to the edge
-   * @throws out_of_range if edge doesn't exist
-   */
-  std::weak_ptr<cse::Edge> cse::Graph::GetEdge(std::string const &edge_id) const {
-    if (edges.find(edge_id) == edges.end()) {
-      throw std::out_of_range("Edge does not exist.");
-    }
-    auto edge_ptr = edges.at(edge_id);
-    return edge_ptr;
-  }
-
-  /**
-   * Gets an edge between two vertices
-   * @param from Source vertex
-   * @param to Destination vertex
-   * @return Weak pointer to the edge
-   */
-  std::weak_ptr<cse::Edge> cse::Graph::GetEdge(cse::Vertex const &from, cse::Vertex const &to) const {
-    return GetEdge(from.GetEdge(to)->GetId());
-  }
-
-  /**
-   * Gets an edge between two vertices using their IDs
-   * @param from_id Source vertex ID
-   * @param to_id Destination vertex ID
-   * @return Weak pointer to the edge
-   */
-  std::weak_ptr<cse::Edge> cse::Graph::GetEdge(std::string const &from_id, std::string const &to_id) {
-    return GetEdge(GetVertex(from_id), GetVertex(to_id));
+  void Graph::RemoveEdge(cse::Edge const &edge) {
+    RemoveEdge(edge.GetId());
   }
 
   /**
@@ -189,8 +171,7 @@ namespace cse {
   bool Graph::IsConnected(cse::Vertex const &v1, cse::Vertex const &v2) const {
     try {
       auto e = GetEdge(v1, v2);
-      auto e_sh = e.lock();
-      return e_sh->IsConnected(v1, v2);
+      return e.IsConnected(v1, v2);
     } catch (std::runtime_error) {
       // If there is a runtime error, the edge does not exist
     }

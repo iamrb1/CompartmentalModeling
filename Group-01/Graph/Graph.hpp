@@ -13,10 +13,10 @@ namespace cse {
 
   class Graph : public FileSerializable {
   private:
-    /** Collection of vertices in the graph, mapped by vertex ID */
-    std::unordered_map<std::string, std::shared_ptr<cse::Vertex>> vertices{};
-    /** Collection of edges in the graph, mapped by edge ID */
-    std::unordered_map<std::string, std::shared_ptr<cse::Edge>> edges{};
+    std::unordered_map<std::string, std::shared_ptr<cse::Vertex>>
+        vertices{}; ///< Collection of vertices in the graph, mapped by vertex ID
+    std::unordered_map<std::string, std::shared_ptr<cse::Edge>>
+        edges{}; ///< Collection of edges in the graph, mapped by edge ID
 
     // File parsing helpers
     void ParseSection(std::istream &f, const std::string &expected_section);
@@ -24,7 +24,6 @@ namespace cse {
     void ParseEdges(std::istream &f, size_t indent_level);
 
     // Edge management
-    void ValidateVerticesExist(const std::string &v1_id, const std::string &v2_id) const;
     std::shared_ptr<Edge> CreateEdge(const std::string &edge_id, const std::string &v1_id, const std::string &v2_id,
                                      double const &weight);
 
@@ -44,14 +43,15 @@ namespace cse {
     cse::Vertex &AddVertex(std::string const id, double X = 0.0, double Y = 0.0);
     cse::Vertex &GetVertex(std::string const &id) const;
     void RemoveVertex(std::string const id);
+    bool HasVertex(std::string id) const { return vertices.find(id) != vertices.end(); };
 
-    std::weak_ptr<cse::Edge> AddEdge(std::string const v1_id, std::string const v2_id, double const &weight = 0.0);
-    std::weak_ptr<cse::Edge> AddEdge(cse::Vertex const &v1, cse::Vertex const &v2, double const &weight = 0.0);
+    cse::Edge &AddEdge(std::string const v1_id, std::string const v2_id, double const &weight = 0.0);
+    cse::Edge &AddEdge(cse::Vertex const &v1, cse::Vertex const &v2, double const &weight = 0.0);
+    cse::Edge &GetEdge(std::string const &edge_id) const;
+    cse::Edge &GetEdge(cse::Vertex const &from, cse::Vertex const &to) const;
+    cse::Edge &GetEdge(std::string const &from_id, std::string const &to_id);
     void RemoveEdge(std::string const &edge_id);
-    void RemoveEdge(std::weak_ptr<cse::Edge> edge);
-    std::weak_ptr<cse::Edge> GetEdge(std::string const &edge_id) const;
-    std::weak_ptr<cse::Edge> GetEdge(cse::Vertex const &from, cse::Vertex const &to) const;
-    std::weak_ptr<cse::Edge> GetEdge(std::string const &from_id, std::string const &to_id);
+    void RemoveEdge(cse::Edge const &edge);
 
     bool IsConnected(cse::Vertex const &v1, cse::Vertex const &v2) const;
     bool IsConnected(std::string const &v1_id, std::string const &v2_id) const;

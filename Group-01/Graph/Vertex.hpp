@@ -11,14 +11,11 @@ namespace cse {
   class Edge;
   class Vertex : public FileSerializable {
   private:
-    /** Unique identifier for the vertex */
-    std::string id;
-    /** X coordinate position of the vertex */
-    double x{0};
-    /** Y coordinate position of the vertex */
-    double y{0};
-    /** Map of edges connected to this vertex, keyed by destination vertex ID */
-    std::map<std::string, std::weak_ptr<Edge>> edges{};
+    std::string id; ///< Unique identifier for the vertex
+    double x{0};    ///< X coordinate position of the vertex
+    double y{0};    ///< Y coordinate position of the vertex
+    std::map<std::string, std::weak_ptr<Edge>>
+        edges{}; ///< Map of edges connected to this vertex, keyed by destination vertex ID
 
   protected:
     std::string GetTypeName() const override { return "VERTEX"; }

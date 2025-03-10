@@ -27,14 +27,12 @@ TEST_CASE("Test cse::Graph", "[base]")
 
   // Test adding edges
   v1 = graph.AddVertex("id1");
-  auto e1 = graph.AddEdge("id1", "id2");
+  graph.AddEdge("id1", "id2");
 
   CHECK(graph.IsConnected(v1, v2));
   CHECK(!graph.IsConnected(v2, v1));
   CHECK(graph.IsConnected("id1", "id2"));
   CHECK(!graph.IsConnected("id2", "id1"));
-  // Edge should only be owned by graph
-  CHECK(e1.use_count() == 1);
 
   // Testing Adding Edges by reference
   cse::Vertex &v4 = graph.AddVertex("id4");
@@ -46,37 +44,28 @@ TEST_CASE("Test cse::Graph", "[base]")
   auto e2 = graph.AddEdge(v4, v5);
   CHECK(graph.IsConnected(v4, v5));
   CHECK(!graph.IsConnected(v5, v4));
-  CHECK(e2.use_count() == 1);
 
   // Testing removing Edges
-  auto v4_v5_edge = graph.GetEdge(v4.GetId(), v5.GetId());
-  CHECK(!v4_v5_edge.expired());
-  {
-    auto e = v4_v5_edge.lock();
-    REQUIRE_THAT(e->GetWeight(), WithinAbs(0, cse_test_utils::FLOAT_DELTA));
-  }
+  auto &v4_v5_edge = graph.GetEdge(v4.GetId(), v5.GetId());
+  REQUIRE_THAT(v4_v5_edge.GetWeight(), WithinAbs(0, cse_test_utils::FLOAT_DELTA));
 
   graph.RemoveEdge(e2);
-  CHECK(v4_v5_edge.expired());
   CHECK_THROWS_AS(graph.GetEdge(v4.GetId(), v5.GetId()), std::runtime_error);
   CHECK_THROWS_AS(graph.RemoveEdge(e2), std::out_of_range);
   CHECK_THROWS_AS(v4.GetEdge(v5), std::runtime_error);
 
-  auto e3 = graph.AddEdge("id1", "id2", 2);
+  auto &e3 = graph.AddEdge("id1", "id2", 2);
   CHECK(graph.IsConnected(v1, v2));
   CHECK(!graph.IsConnected(v2, v1));
-  {
-    auto e = e3.lock();
-    REQUIRE_THAT(e->GetWeight(), WithinAbs(2, cse_test_utils::FLOAT_DELTA));
-  }
+  REQUIRE_THAT(e3.GetWeight(), WithinAbs(2, cse_test_utils::FLOAT_DELTA));
 }
 
 TEST_CASE("Test cse::Graph - To file", "Export to file")
 {
   cse::Graph graph;
   // Test adding vertices
-  auto v1 = graph.AddVertex("id1");
-  auto v2 = graph.AddVertex("id2", 1.5);
+  auto &v1 = graph.AddVertex("id1");
+  auto &v2 = graph.AddVertex("id2", 1.5);
   graph.AddEdge(v1, v2);
   std::stringstream s;
 
@@ -178,9 +167,6 @@ TEST_CASE("Test cse::Graph - From advanced file", "Complex graph")
   CHECK(!destinationGraph.IsConnected("id2", "id1"));
   CHECK(destinationGraph.IsConnected("id1", "id3"));
   CHECK(!destinationGraph.IsConnected("id3", "id1"));
-  auto edgePointer = graph.GetEdge("id1", "id3");
-  {
-    auto e = edgePointer.lock();
-    REQUIRE_THAT(e->GetWeight(), WithinAbs(2, cse_test_utils::FLOAT_DELTA));
-  }
+  auto e = graph.GetEdge("id1", "id3");
+  REQUIRE_THAT(e.GetWeight(), WithinAbs(2, cse_test_utils::FLOAT_DELTA));
 }
