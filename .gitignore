@@ -31,6 +31,12 @@
 *.out
 *.app
 
-# macOS system files & local settings files
+# IDE files
+.idea/
+.vscode/
+
+# Build files
+build/
+cmake-build-*/
+**.dSYM
 .DS_Store
-.vscode/settings.json
