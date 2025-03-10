@@ -50,7 +50,7 @@ class OutputLog {
    * @return A string representing the current time in the format "[YYYY-MM-DD
    * HH:MM:SS] ".
    */
-  std::string getCurrentTime() const {
+  static std::string getCurrentTime()  {
     auto now = std::chrono::system_clock::now();
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::ostringstream oss;
@@ -92,7 +92,6 @@ class OutputLog {
    * configuration, the message is output to both the console and the log file.
    *
    * @tparam T The type of the message (should support stream insertion).
-   * @param message The message to log.
    * @param msgLevel The verbosity level of the message.
    */
   bool shouldLog(LogLevel msgLevel) const {
