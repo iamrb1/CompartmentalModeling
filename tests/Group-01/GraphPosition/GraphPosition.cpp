@@ -159,8 +159,8 @@ TEST_CASE("GraphPosition ResetTraversal Tests", "[GraphPosition]") {
 TEST_CASE("GraphPosition Iterator Traversal Tests", "[GraphPosition]") {
   cse::Graph graph;
   auto &v1 = graph.AddVertex("A");
-  auto &v2 = graph.AddVertex("B");
-  auto &v3 = graph.AddVertex("C");
+  auto v2 = graph.AddVertex("B");
+  auto v3 = graph.AddVertex("C");
 
   graph.AddEdge("A", "B");
   graph.AddEdge("B", "C");
@@ -187,9 +187,9 @@ TEST_CASE("GraphPosition Iterator Traversal Tests", "[GraphPosition]") {
 TEST_CASE("GraphPosition Depth-First Search Traversal", "[GraphPosition]") {
   cse::Graph graph;
   auto &v1 = graph.AddVertex("A");
-  auto &v2 = graph.AddVertex("B");
-  auto &v3 = graph.AddVertex("C");
-  auto &v4 = graph.AddVertex("D");
+  auto v2 = graph.AddVertex("B");
+  auto v3 = graph.AddVertex("C");
+  auto v4 = graph.AddVertex("D");
 
   graph.AddEdge("A", "B");
   graph.AddEdge("A", "C");
@@ -212,9 +212,9 @@ TEST_CASE("GraphPosition Depth-First Search Traversal", "[GraphPosition]") {
 TEST_CASE("GraphPosition Breadth-First Search Traversal", "[GraphPosition]") {
   cse::Graph graph;
   auto &v1 = graph.AddVertex("A");
-  auto &v2 = graph.AddVertex("B");
-  auto &v3 = graph.AddVertex("C");
-  auto &v4 = graph.AddVertex("D");
+  auto v2 = graph.AddVertex("B");
+  auto v3 = graph.AddVertex("C");
+  auto v4 = graph.AddVertex("D");
 
   graph.AddEdge("A", "B");
   graph.AddEdge("A", "C");
@@ -237,8 +237,8 @@ TEST_CASE("GraphPosition Breadth-First Search Traversal", "[GraphPosition]") {
 TEST_CASE("GraphPosition Random Walk Traversal", "[GraphPosition]") {
   cse::Graph graph;
   auto &v1 = graph.AddVertex("A");
-  auto &v2 = graph.AddVertex("B");
-  auto &v3 = graph.AddVertex("C");
+  auto v2 = graph.AddVertex("B");
+  auto v3 = graph.AddVertex("C");
 
   graph.AddEdge("A", "B");
   graph.AddEdge("A", "C");

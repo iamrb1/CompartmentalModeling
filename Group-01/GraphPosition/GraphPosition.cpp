@@ -29,7 +29,6 @@ namespace cse {
     // NEED TO MODIFY CODE TO SUPPORT DIFFERENT TRAVERSAL MODES
     // Get the current vertex's edges
     assert(currentVertex != nullptr && "Current vertex should never be nullptr!");
-    std::cout << currentVertex->GetEdges().size() << std::endl;
     for (auto &[neighborID, weakEdge] : currentVertex->GetEdges()) {
       if (auto edge = weakEdge.lock()) { // Lock weak_ptr to access Edge
         cse::Vertex const &neighbor = edge->GetTo();
