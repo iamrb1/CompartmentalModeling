@@ -33,6 +33,9 @@
 
 # IDE files
 .idea/
-
-# VSCode files
 .vscode/
+
+# Build files
+build/
+cmake-build-*/
+**.dSYM
