@@ -3,12 +3,12 @@
 project(Team07Library)
 
 set(SOURCE_FILES
-        AuditedArray.h
+        AuditedArray.hpp
         DataFileManager.cpp
-        DataFileManager.h
-        OutputLog.h
-        Scheduler.h
-        Serializer.h
+        DataFileManager.hpp
+        OutputLog.hpp
+        Scheduler.hpp
+        Serializer.hpp
 )
 
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
