@@ -30,9 +30,7 @@ namespace cse {
       throw std::runtime_error("Vertex already exists: " + id);
     }
     auto v = std::make_shared<cse::Vertex>(id, X, Y);
-    std::cout << "Created vertex" << std::endl;
     vertices[id] = v;
-    std::cout << "Added vertex" << std::endl;
     return *vertices[id];
   }
 

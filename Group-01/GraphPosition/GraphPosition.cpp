@@ -3,16 +3,20 @@
 namespace cse {
 
   void GraphPosition::MarkVisited(Vertex const &vertex) {
-    visitedVertices.insert(&vertex); // Store the actual vertex object
+    visitedVertices.insert(vertex.GetId()); // Store the actual vertex object
     traversalPath.push_back(&vertex);
   }
 
   GraphPosition::GraphPosition(const Graph &g, Vertex const *startVertex, TraversalMode mode)
       : graph(g), currentVertex(startVertex), traversalMode(mode) {
+    if (!startVertex) {
+      throw std::invalid_argument("GraphPosition must be initialized with a non-null vertex!");
+    }
     MarkVisited(*startVertex);
   }
 
   Vertex const &GraphPosition::GetCurrentVertex() const {
+    assert(currentVertex != nullptr && "GetCurrentVertex() should never return nullptr!");
     return *currentVertex;
   }
 
@@ -24,12 +28,14 @@ namespace cse {
   bool GraphPosition::AdvanceToNextNeighbor() {
     // NEED TO MODIFY CODE TO SUPPORT DIFFERENT TRAVERSAL MODES
     // Get the current vertex's edges
+    assert(currentVertex != nullptr && "Current vertex should never be nullptr!");
+    std::cout << currentVertex->GetEdges().size() << std::endl;
     for (auto &[neighborID, weakEdge] : currentVertex->GetEdges()) {
       if (auto edge = weakEdge.lock()) { // Lock weak_ptr to access Edge
-        Vertex const &neighbor = (edge->GetFrom() == *currentVertex) ? edge->GetTo() : edge->GetFrom();
+        cse::Vertex const &neighbor = edge->GetTo();
 
         // If neighbor has not been visited, move to it
-        if (visitedVertices.find(&neighbor) == visitedVertices.end()) {
+        if (visitedVertices.find(neighbor.GetId()) == visitedVertices.end()) {
           SetCurrentVertex(neighbor);
           return true;
         }

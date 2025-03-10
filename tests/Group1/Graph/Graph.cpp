@@ -14,8 +14,8 @@ TEST_CASE("Test cse::Graph", "[base]")
   cse::Graph graph;
 
   // Test adding vertices
-  cse::Vertex &v1 = graph.AddVertex("id1");
-  cse::Vertex &v2 = graph.AddVertex("id2");
+  auto &v1 = graph.AddVertex("id1");
+  auto &v2 = graph.AddVertex("id2");
   CHECK(graph.GetVertex("id1").GetId() == "id1");
   CHECK(graph.GetVertex("id2").GetId() == "id2");
 

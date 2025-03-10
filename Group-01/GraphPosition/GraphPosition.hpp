@@ -16,7 +16,8 @@ namespace cse {
   private:
     [[maybe_unused]] const Graph &graph;
     Vertex const *currentVertex;
-    std::set<Vertex const *> visitedVertices;
+    // Set of strings of visited vertices by ID
+    std::set<std::string> visitedVertices;
     std::vector<Vertex const *> traversalPath;
     [[maybe_unused]] TraversalMode traversalMode = TraversalMode::DFS; // Default to DFS
     std::deque<Vertex const *> traversalQueue;                         // Needed for BFS

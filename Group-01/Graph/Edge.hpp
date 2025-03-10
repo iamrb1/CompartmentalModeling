@@ -54,8 +54,8 @@ namespace cse {
 
     virtual bool IsConnected(cse::Vertex const &v1, cse::Vertex const &v2) { return v1 == *from && v2 == *to; };
 
-    std::shared_ptr<cse::Vertex> &GetFrom() { return from; };
-    std::shared_ptr<cse::Vertex> &GetTo() { return to; };
+    cse::Vertex &GetFrom() { return *from; };
+    cse::Vertex &GetTo() { return *to; };
     std::string GetId() const override { return id; };
     double GetWeight() const { return weight; };
 
