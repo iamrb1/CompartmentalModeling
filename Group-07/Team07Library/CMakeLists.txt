@@ -3,15 +3,11 @@
 project(Team07Library)
 
 set(SOURCE_FILES
-        AuditedArray.cpp
         AuditedArray.h
         DataFileManager.cpp
         DataFileManager.h
-        OutputLog.cpp
         OutputLog.h
-        Scheduler.cpp
         Scheduler.h
-        Serializer.cpp
         Serializer.h
 )
 
