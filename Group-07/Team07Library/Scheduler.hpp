@@ -39,67 +39,6 @@ class Scheduler {
   /// Indicator if we need to sort the scheduler again
   bool needUpdate = true;
 
-  // Use a custom merge sort since std::sort is not stable, which can lead to the scheduling order for 'tied' processes being
-  // changed during the sorting process when they should not be changed. Using a stable custom merge sort fixes this issue
-  // Code for merge and merge sort taken from
-  // https://www.geeksforgeeks.org/merge-sort/
-  void merge(std::vector<int>& arr, int left, int mid, int right) {
-    int n1 = mid - left + 1;
-    int n2 = right - mid;
-
-    // Create temp vectors
-    std::vector<int> L(n1), R(n2);
-
-    // Copy data to temp vectors L[] and R[]
-    for (int i = 0; i < n1; i++) L[i] = arr[left + i];
-    for (int j = 0; j < n2; j++) R[j] = arr[mid + 1 + j];
-
-    int i = 0, j = 0;
-    int k = left;
-
-    // Merge the temp vectors back
-    // into arr[left..right]
-    while (i < n1 && j < n2) {
-      // Determine scheduling using all time frequency of the process ID being
-      // added to the schedule, higher frequency = higher priority
-      if (timesCalled[L[i]] >= timesCalled[R[j]]) {
-        arr[k] = L[i];
-        i++;
-      } else {
-        arr[k] = R[j];
-        j++;
-      }
-      k++;
-    }
-
-    // Copy the remaining elements of L[],
-    // if there are any
-    while (i < n1) {
-      arr[k] = L[i];
-      i++;
-      k++;
-    }
-
-    // Copy the remaining elements of R[],
-    // if there are any
-    while (j < n2) {
-      arr[k] = R[j];
-      j++;
-      k++;
-    }
-  }
-
-  // begin is for left index and end is right index
-  // of the sub-array of arr to be sorted
-  void mergeSort(std::vector<int>& arr, int left, int right) {
-    if (left >= right) return;
-
-    int mid = left + (right - left) / 2;
-    mergeSort(arr, left, mid);
-    mergeSort(arr, mid + 1, right);
-    merge(arr, left, mid, right);
-  }
-
  public:
   /**
    * Default Constructor
@@ -115,7 +54,7 @@ class Scheduler {
    * Adds a process to the Scheduler
    * @param id ID of the process we are adding to the scheduler
    */
-  void AddProcess(const int &id) {
+  void AddProcess(const int id) {
     processCount[id]++;
     timesCalled[id]++;
     if (processCount[id] == 1) {
@@ -130,7 +69,7 @@ class Scheduler {
    * Removes the process of a given ID from the scheduler
    * @param id ID of the process we are removing from the scheduler
    */
-  void RemoveProcess(const int &id) {
+  void RemoveProcess(const int id) {
     if (processCount.find(id) != processCount.end() && processCount[id] > 0) {
       processCount[id]--;
       timesCalled[id]--;
@@ -148,7 +87,7 @@ class Scheduler {
    * @param id ID of the process we are updating the process count for
    * @param x The new process count
    */
-  void SetProcessCount(const int &id, const int &x) {
+  void SetProcessCount(const int id, const int x) {
     if (x < 0) { // Check we are given a valid count for the process
       return;
     }
@@ -179,7 +118,7 @@ class Scheduler {
       return std::nullopt;
     }
     if (needUpdate) {
-      mergeSort(currIds, 0, currIds.size() - 1);
+      std::stable_sort(currIds.begin(),currIds.end());
     }
     int outID = currIds[0];
     processCount[outID]--;
