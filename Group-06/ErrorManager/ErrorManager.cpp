@@ -54,7 +54,7 @@ class ErrorManager {
     try {
       function();
     } catch (const std::exception& e) {
-      printError(message, level);
+      printMessage(message, level);
     }
   }
   /**
@@ -64,9 +64,36 @@ class ErrorManager {
    * @param message Message to be sent to user
    * @param level Error level of a message. Defaults to "Info" if not specified
    */
-  void printError(const std::string& message,
+  void printMessage(const std::string& message,
                   ErrorLevel level = ErrorLevel::Info) {
-    printError(0, message, level);
+    printMessage(0, message, level);
+  }
+/**
+ * @brief Prints an Info message
+ * 
+ * @param message message to be printed
+ * @param line line number (optional)
+ */
+  void printInfo(const std::string& message, int32_t line = 0) {
+    printMessage(line, message, ErrorLevel::Info);
+  }
+/**
+ * @brief Prints a Warning message
+ * 
+ * @param message  message to be printed
+ * @param line line number (optional)
+ */
+  void printWarning(const std::string& message, int32_t line = 0) {
+    printMessage(line, message, ErrorLevel::Warning);
+  }
+/**
+ * @brief Prints a Fatal message
+ * 
+ * @param message message to be printed
+ * @param line line number (optional)
+ */
+  void printError(const std::string& message, int32_t line = 0) {
+    printMessage(line, message, ErrorLevel::Fatal);
   }
 
   /**
@@ -76,51 +103,20 @@ class ErrorManager {
    * @param message Message to be sent to user
    * @param level Error level of a message. Defaults to "Info"
    */
-  void printError(int32_t line, const std::string& message,
+  void printMessage(int32_t line, const std::string& message,
                   ErrorLevel level = ErrorLevel::Info) {
     assert(!message.empty());
     assert(static_cast<std::size_t>(level) < mStringColorCodes.size());
     assert(static_cast<std::size_t>(level) < mTerminationEnabled.size());
+
     std::stringstream ss;
-    ss << "[";
-    if (mColorsEnabled) {
-      ss << mStringColorCodes[static_cast<int>(level)];
-    }
-    ss << errorLevelToString(level);
-    if (mColorsEnabled) {
-      ss << COLOR_RESET;
-    }
-    ss << "]";
-
-    assert(line >= 0);
-
-    if (line > 0) {
-      ss << " (line " << line << ")";
-    }
-    ss << ": " << message << "\n";
+    formatConsoleOutput(ss, line, message, level);
 
     std::string output = ss.str();
     std::cout << output;  // output error to the console
 
     // Format for logging into a file
-    if (mLogFile.is_open()) {
-      if (mColorsEnabled) {
-        // Remove ANSI color codes for output in the file
-        // Tried to use RegEx, as suggested by a reviewer,
-        // but it was too difficult to implement
-
-        size_t pos = 0;
-        while ((pos = output.find("\033[")) != std::string::npos) {
-          size_t endPos = output.find('m', pos);
-          if (endPos != std::string::npos) {
-            output.erase(pos, endPos - pos + 1);  // erase color code
-          }
-        }
-
-        mLogFile << output;
-        mLogFile.flush();
-      }
-    }
+    logToFile(output);
 
     if (mActions[static_cast<int>(level)]) {
       mActions[static_cast<int>(level)]();
@@ -263,6 +259,61 @@ class ErrorManager {
         return "Unknown";  // to prevent compiler warnings
         break;
     }
+  }
+
+  /**
+   * @brief Helper function which logs output to a file
+   * 
+   * @param output String that will be logged
+   */
+  void logToFile(std::string& output) {
+    if (mLogFile.is_open()) {
+      if (mColorsEnabled) {
+        // Remove ANSI color codes for output in the file
+        // Tried to use RegEx, as suggested by a reviewer,
+        // but it was too difficult to implement
+
+        size_t pos = 0;
+        while ((pos = output.find("\033[")) != std::string::npos) {
+          size_t endPos = output.find('m', pos);
+          if (endPos != std::string::npos) {
+            output.erase(pos, endPos - pos + 1);  // erase color code
+          }
+        }
+
+        mLogFile << output;
+        mLogFile.flush();
+      }
+    }
+  }
+
+  /**
+   * @brief Helper function which formats console output into a stringstream
+   * 
+   * @param ss StringStream that the message will be written to
+   * @param line Line number
+   * @param message String message
+   * @param level Error level of a message 
+   */
+  void formatConsoleOutput(std::stringstream& ss, 
+    int32_t line, const std::string& message,
+                  ErrorLevel level) {
+    ss << "[";
+    if (mColorsEnabled) {
+      ss << mStringColorCodes[static_cast<int>(level)];
+    }
+    ss << errorLevelToString(level);
+    if (mColorsEnabled) {
+      ss << COLOR_RESET;
+    }
+    ss << "]";
+
+    assert(line >= 0);
+
+    if (line > 0) {
+      ss << " (line " << line << ")";
+    }
+    ss << ": " << message << "\n";
   }
 };
 }  // namespace cse
