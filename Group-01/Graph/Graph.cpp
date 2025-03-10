@@ -16,52 +16,52 @@ namespace cse {
   /**
    * TODO @lspecht: Add integration with GraphPosition
    * TODO @lspecht: Add GetAllEdges from vertex
-   * TODO @lspecht: Add data parameter
    */
   /**
    * Adds a new vertex to the graph
    * @param id Unique identifier for the vertex
    * @param X X-coordinate position
    * @param Y Y-coordinate position
-   * @return Shared pointer to the created vertex
+   * @return Reference to the created vertex
    * @throws runtime_error if vertex ID already exists
    */
-  std::shared_ptr<cse::Vertex> cse::Graph::AddVertex(std::string const id, double X, double Y) {
+  cse::Vertex &cse::Graph::AddVertex(std::string const id, double X, double Y) {
     if (vertices.find(id) != vertices.end()) {
       throw std::runtime_error("Vertex already exists: " + id);
     }
     auto v = std::make_shared<cse::Vertex>(id, X, Y);
+    std::cout << "Created vertex" << std::endl;
     vertices[id] = v;
-    return v;
+    std::cout << "Added vertex" << std::endl;
+    return *vertices[id];
   }
 
   /**
    * Retrieves a vertex from the graph
    * @param id ID of the vertex to retrieve
-   * @return Shared pointer to the vertex
+   * @return Reference to the vertex
    * @throws out_of_range if vertex doesn't exist
    */
-  std::shared_ptr<cse::Vertex> cse::Graph::GetVertex(std::string const &id) const {
+  cse::Vertex &cse::Graph::GetVertex(std::string const &id) const {
     if (vertices.find(id) == vertices.end()) {
       throw std::out_of_range("Vertex does not exist: " + id);
     }
-    return vertices.at(id);
+    return *(vertices.at(id));
   }
 
   /**
    * Removes a vertex from the graph
    * @param id ID of the vertex to remove
-   * @return Shared pointer to the removed vertex
    * @throws out_of_range if vertex doesn't exist
    */
-  std::shared_ptr<cse::Vertex> cse::Graph::RemoveVertex(std::string const id) {
+  void cse::Graph::RemoveVertex(std::string const id) {
     auto it = vertices.find(id);
     if (it == vertices.end()) {
+      std::cout << "Did not find vertex to remove" << std::endl;
       throw std::out_of_range("Vertex does not exist: " + id);
     }
     auto removedVertex = it->second;
     vertices.erase(it);
-    return removedVertex;
   }
 
   /**
@@ -86,8 +86,8 @@ namespace cse {
    */
   std::shared_ptr<Edge> Graph::CreateEdge(const std::string &edge_id, const std::string &v1_id,
                                           const std::string &v2_id, double const &weight) {
-    auto v1 = vertices[v1_id];
-    auto v2 = vertices[v2_id];
+    auto v1 = *(vertices[v1_id]);
+    auto v2 = *(vertices[v2_id]);
     return std::make_shared<Edge>(edge_id, v1, v2, weight);
   }
 
@@ -104,7 +104,8 @@ namespace cse {
     std::string edge_id = v1_id + "-" + v2_id;
     auto edge = CreateEdge(edge_id, v1_id, v2_id, weight);
 
-    GetVertex(v1_id)->AddEdge(edge);
+    auto v1 = GetVertex(v1_id);
+    v1.AddEdge(edge);
     edges[edge_id] = edge;
     return edge;
   }
@@ -116,9 +117,8 @@ namespace cse {
    * @param weight Edge weight
    * @return Weak pointer to the created edge
    */
-  std::weak_ptr<cse::Edge> cse::Graph::AddEdge(std::shared_ptr<cse::Vertex> &v1, std::shared_ptr<cse::Vertex> &v2,
-                                               double const &weight) {
-    return AddEdge(v1->GetId(), v2->GetId(), weight);
+  std::weak_ptr<cse::Edge> cse::Graph::AddEdge(cse::Vertex const &v1, cse::Vertex const &v2, double const &weight) {
+    return AddEdge(v1.GetId(), v2.GetId(), weight);
   }
 
   /**
@@ -168,9 +168,8 @@ namespace cse {
    * @param to Destination vertex
    * @return Weak pointer to the edge
    */
-  std::weak_ptr<cse::Edge> cse::Graph::GetEdge(std::shared_ptr<cse::Vertex> const from,
-                                               std::shared_ptr<cse::Vertex> const to) const {
-    return GetEdge(from->GetEdge(to)->GetId());
+  std::weak_ptr<cse::Edge> cse::Graph::GetEdge(cse::Vertex const &from, cse::Vertex const &to) const {
+    return GetEdge(from.GetEdge(to)->GetId());
   }
 
   /**
@@ -189,7 +188,7 @@ namespace cse {
    * @param v2 Second vertex
    * @return true if vertices are connected, false otherwise
    */
-  bool Graph::IsConnected(std::shared_ptr<cse::Vertex> const &v1, std::shared_ptr<cse::Vertex> const &v2) const {
+  bool Graph::IsConnected(cse::Vertex const &v1, cse::Vertex const &v2) const {
     try {
       auto e = GetEdge(v1, v2);
       auto e_sh = e.lock();

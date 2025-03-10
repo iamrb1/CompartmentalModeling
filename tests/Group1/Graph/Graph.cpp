@@ -16,8 +16,8 @@ TEST_CASE("Test cse::Graph", "[base]")
   // Test adding vertices
   auto v1 = graph.AddVertex("id1");
   auto v2 = graph.AddVertex("id2");
-  CHECK(graph.GetVertex("id1")->GetId() == "id1");
-  CHECK(graph.GetVertex("id2")->GetId() == "id2");
+  CHECK(graph.GetVertex("id1").GetId() == "id1");
+  CHECK(graph.GetVertex("id2").GetId() == "id2");
 
   CHECK_THROWS_AS(graph.AddVertex("id1"), std::runtime_error);
 
@@ -25,15 +25,20 @@ TEST_CASE("Test cse::Graph", "[base]")
   graph.RemoveVertex("id1");
   CHECK_THROWS_AS(graph.GetVertex("id1"), std::out_of_range);
 
+  std::cout << "Passed initial" << std::endl;
   // Test adding edges
   v1 = graph.AddVertex("id1");
+  std::cout << "Passed initial 1.5" << std::endl;
   auto e1 = graph.AddEdge("id1", "id2");
+  std::cout << "Passed initial2" << std::endl;
+
   CHECK(graph.IsConnected(v1, v2));
   CHECK(!graph.IsConnected(v2, v1));
   CHECK(graph.IsConnected("id1", "id2"));
   CHECK(!graph.IsConnected("id2", "id1"));
   // Edge should only be owned by graph
   CHECK(e1.use_count() == 1);
+  std::cout << "Passed initial3" << std::endl;
 
   // Testing Adding Edges by reference
   auto v4 = graph.AddVertex("id4");
@@ -48,7 +53,7 @@ TEST_CASE("Test cse::Graph", "[base]")
   CHECK(e2.use_count() == 1);
 
   // Testing removing Edges
-  auto v4_v5_edge = graph.GetEdge(v4->GetId(), v5->GetId());
+  auto v4_v5_edge = graph.GetEdge(v4.GetId(), v5.GetId());
   CHECK(!v4_v5_edge.expired());
   {
     auto e = v4_v5_edge.lock();
@@ -57,9 +62,9 @@ TEST_CASE("Test cse::Graph", "[base]")
 
   graph.RemoveEdge(e2);
   CHECK(v4_v5_edge.expired());
-  CHECK_THROWS_AS(graph.GetEdge(v4->GetId(), v5->GetId()), std::runtime_error);
+  CHECK_THROWS_AS(graph.GetEdge(v4.GetId(), v5.GetId()), std::runtime_error);
   CHECK_THROWS_AS(graph.RemoveEdge(e2), std::out_of_range);
-  CHECK_THROWS_AS(v4->GetEdge(v5), std::runtime_error);
+  CHECK_THROWS_AS(v4.GetEdge(v5), std::runtime_error);
 
   auto e3 = graph.AddEdge("id1", "id2", 2);
   CHECK(graph.IsConnected(v1, v2));

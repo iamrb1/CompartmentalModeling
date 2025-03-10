@@ -2,42 +2,34 @@
 
 namespace cse {
 
-  void GraphPosition::MarkVisited(std::shared_ptr<Vertex> vertex) {
-    assert(vertex != nullptr && "MarkVisited must be given a valid vertex!");
-    visitedVertices.insert(vertex); // Store the actual vertex object
-    traversalPath.push_back(vertex);
+  void GraphPosition::MarkVisited(Vertex const &vertex) {
+    visitedVertices.insert(&vertex); // Store the actual vertex object
+    traversalPath.push_back(&vertex);
   }
 
-  GraphPosition::GraphPosition(const Graph &g, std::shared_ptr<Vertex> startVertex, TraversalMode mode)
+  GraphPosition::GraphPosition(const Graph &g, Vertex const *startVertex, TraversalMode mode)
       : graph(g), currentVertex(startVertex), traversalMode(mode) {
-    if (!startVertex) {
-      throw std::invalid_argument("GraphPosition must be initialized with a non-null vertex!");
-    }
-    MarkVisited(startVertex);
+    MarkVisited(*startVertex);
   }
 
-  std::shared_ptr<Vertex> GraphPosition::GetCurrentVertex() const {
-    assert(currentVertex != nullptr && "GetCurrentVertex() should never return nullptr!");
-    return currentVertex;
+  Vertex const &GraphPosition::GetCurrentVertex() const {
+    return *currentVertex;
   }
 
-  void GraphPosition::SetCurrentVertex(std::shared_ptr<Vertex> vertex) {
-    assert(vertex != nullptr && "SetCurrentVertex must receive a non-null vertex!");
-    currentVertex = vertex;
-    MarkVisited(currentVertex);
+  void GraphPosition::SetCurrentVertex(Vertex const &vertex) {
+    currentVertex = &vertex;
+    MarkVisited(*currentVertex);
   }
 
   bool GraphPosition::AdvanceToNextNeighbor() {
     // NEED TO MODIFY CODE TO SUPPORT DIFFERENT TRAVERSAL MODES
-    assert(currentVertex != nullptr && "Current vertex should never be nullptr!");
     // Get the current vertex's edges
     for (auto &[neighborID, weakEdge] : currentVertex->GetEdges()) {
       if (auto edge = weakEdge.lock()) { // Lock weak_ptr to access Edge
-        std::shared_ptr<Vertex> neighbor = (edge->GetFrom() == currentVertex) ? edge->GetTo() : edge->GetFrom();
-        assert(neighbor != nullptr && "Neighbor vertex should not be nullptr!");
+        Vertex const &neighbor = (edge->GetFrom() == *currentVertex) ? edge->GetTo() : edge->GetFrom();
 
         // If neighbor has not been visited, move to it
-        if (visitedVertices.find(neighbor) == visitedVertices.end()) {
+        if (visitedVertices.find(&neighbor) == visitedVertices.end()) {
           SetCurrentVertex(neighbor);
           return true;
         }
@@ -48,13 +40,11 @@ namespace cse {
     return false;
   }
 
-  const std::vector<std::shared_ptr<Vertex>> &GraphPosition::GetTraversalPath() const {
+  const std::vector<Vertex const *> &GraphPosition::GetTraversalPath() const {
     return traversalPath;
   }
 
-  void GraphPosition::ResetTraversal(std::shared_ptr<Vertex> newStartVertex) {
-    assert(newStartVertex != nullptr && "ResetTraversal must receive a non-null vertex!");
-
+  void GraphPosition::ResetTraversal(Vertex const &newStartVertex) {
     // Clear traversal history
     visitedVertices.clear();
     traversalPath.clear();
