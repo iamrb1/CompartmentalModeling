@@ -11,6 +11,8 @@
 #include <algorithm>
 #include <map>
 #include <vector>
+#include <cassert>
+#include <deque>
 
 namespace cse {
 /*
@@ -19,31 +21,37 @@ namespace cse {
  */
 class Scheduler {
  private:
-  /// Maps each process ID to the number of times that the process is currently
-  /// in the scheduler
-  std::map<int, int> processCount;
+  /// Struct containing a process's id and its priority value
+  struct Process {
+    int id;
+    double priorityWeight;
+  };
 
-  /// Maps each process ID to the number of times that process has been added to
-  /// the scheduler
-  std::map<int, int> timesCalled;
-
-  /// List holding the IDs of all the items added to the scheduler
-  std::vector<int> currIds;
-
-  /// The current number of processes that are in the scheduler
-  int currProcesses = 0;
-
-  /// The total number of processes that have been called to the scheduler
-  int totalProcesses = 0;
+  /// List holding the IDs of all the items added to the scheduler and their priority weights
+  std::vector<Process> currIds;
 
   /// Indicator if we need to sort the scheduler again
   bool needUpdate = true;
 
+  /// Vector holding the weights used for each priority value given by a Process
+  std::vector<double> weightList;
+
+  /// Queue holding all the Processes that have had their priority values overridden to be pushed to the front of the Scheduler
+  std::deque<Process> overrideQueue;
+
  public:
   /**
-   * Default Constructor
+   * Default Constructor is deleted
    */
-  Scheduler() = default;
+  Scheduler() = delete;
+
+  /**
+   * Constructor for Scheduler with a given set of weights
+   * @param weights
+   */
+  Scheduler(const std::vector<double> &weights) {
+    weightList=weights;
+  }
 
   /**
    * Default Destructor
@@ -54,14 +62,18 @@ class Scheduler {
    * Adds a process to the Scheduler
    * @param id ID of the process we are adding to the scheduler
    */
-  void AddProcess(const int id) {
-    processCount[id]++;
-    timesCalled[id]++;
-    if (processCount[id] == 1) {
-      currIds.push_back(id);
+  void AddProcess(const int id,const std::vector<double> &weights,const int processCount=1) {
+    assert(weights.size()==weightList.size());
+    double priority=0;
+    int n=weights.size();
+    for(int i=0;i<n;i++) {
+      priority+=(weights[i]*weightList[i]);
     }
-    totalProcesses++;
-    currProcesses++;
+
+    Process process={id,priority};
+    for(int i=0;i<processCount;i++) {
+      currIds.push_back(process);
+    }
     needUpdate = true;
   }
 
@@ -69,42 +81,22 @@ class Scheduler {
    * Removes the process of a given ID from the scheduler
    * @param id ID of the process we are removing from the scheduler
    */
-  void RemoveProcess(const int id) {
-    if (processCount.find(id) != processCount.end() && processCount[id] > 0) {
-      processCount[id]--;
-      timesCalled[id]--;
-      totalProcesses--;
-      currProcesses--;
-      if (processCount[id] == 0) {
-        currIds.erase(std::find(currIds.begin(), currIds.end(), id));
+  void RemoveProcess(const int id,int removeCount=1) {
+    for(int i=currIds.size()-1;i>=0 && removeCount>0;i--) {
+      if(currIds[i].id==id) {
+        removeCount--;
+        currIds.erase(currIds.begin()+i);
       }
     }
-    needUpdate = true;
-  }
 
-  /**
-   * Updates the number of times a process ID occurs in the scheduler
-   * @param id ID of the process we are updating the process count for
-   * @param x The new process count
-   */
-  void SetProcessCount(const int id, const int x) {
-    if (x < 0) { // Check we are given a valid count for the process
-      return;
-    }
-    if (processCount.find(id) != processCount.end()) {
-      totalProcesses -= processCount[id];
-      currProcesses -= processCount[id];
-      timesCalled[id] -= processCount[id];
-      if (x == 0 && processCount[id] != 0) {
-        currIds.erase(std::find(currIds.begin(), currIds.end(), id));
+    if(removeCount>0 && !overrideQueue.empty()) {
+      for(int i=overrideQueue.size()-1;i>=0 && removeCount>0;i--) {
+        if(overrideQueue.at(i).id==id) {
+          removeCount--;
+          overrideQueue.erase(overrideQueue.begin()+i);
+        }
       }
-    } else if (x != 0) {
-      currIds.push_back(id);
     }
-    processCount[id] = x;
-    timesCalled[id] += x;
-    totalProcesses += x;
-    currProcesses += x;
     needUpdate = true;
   }
 
@@ -114,47 +106,48 @@ class Scheduler {
    * @return ID of the highest priority process
    */
   std::optional<int> PopNextProcess() {
-    if (currProcesses == 0) { // Make sure the Scheduler isn't empty before popping a process from it
+    if (empty()) { // Make sure the Scheduler isn't empty before popping a process from it
       return std::nullopt;
     }
+
+    if(overrideQueue.size()>0) {
+      int outID=overrideQueue.front().id;
+      overrideQueue.pop_front();
+      return outID;
+    }
+
     if (needUpdate) {
-      std::stable_sort(currIds.begin(),currIds.end(),[this](int a,int b) {
-          return timesCalled[a]>timesCalled[b];
+      std::stable_sort(currIds.begin(),currIds.end(),[this](const Process& a,const Process& b) {
+          return a.priorityWeight>b.priorityWeight;
       });
     }
-    int outID = currIds[0];
-    processCount[outID]--;
-    currProcesses--;
-    if (processCount[outID] == 0) {
-      currIds.erase(std::find(currIds.begin(), currIds.end(), outID));
-    }
+    int outID = currIds[0].id;
+    currIds.erase(currIds.begin());
     needUpdate = false;
     return outID;
+  }
+
+  void OverridePriority(const int id) {
+    for(int i=currIds.size()-1;i>=0;i--) {
+      if(id==currIds[i].id) {
+        overrideQueue.push_back(currIds[i]);
+        currIds.erase(currIds.begin()+1);
+        return;
+      }
+    }
   }
 
   /**
    * Check if the scheduler is empty
    * @return True if scheduler is empty, false otherwise
    */
-  bool empty() { return currProcesses == 0; }
-
-  /**
-   * Get the number of unique processes in the scheduler
-   * @return Number of unique processes in the scheduler
-   */
-  int GetUniqueProcesses() const { return currIds.size(); }
+  bool empty() { return currIds.size() == 0 && overrideQueue.empty(); }
 
   /**
    * Get the number of processes currently in the scheduler
    * @return Number of processes currently in the scheduler
    */
-  int GetCurrProcesses() const { return currProcesses; }
-
-  /**
-   * Get the total number of processes that have been in the scheduler
-   * @return Total number of processes that have been in the scheduler
-   */
-  int GetTotalProcesses() const { return totalProcesses; }
+  int GetCurrProcesses() const { return currIds.size()+overrideQueue.size(); }
 };
 }  // namespace cse
 #endif  // PROJECT_CSE498_SPRING2025_GROUP_07_TEAM07LIBRARY_SCHEDULER_H
