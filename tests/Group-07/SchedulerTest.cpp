@@ -1,6 +1,6 @@
 #include <vector>
 
-#include "../../Group-07/Team07Library/Scheduler.h"
+#include "../../Group-07/Team07Library/Scheduler.hpp"
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 
 TEST_CASE("SchedulerTest Construct", "[Scheduler]") {
@@ -90,8 +90,8 @@ TEST_CASE("SchedulerTest Queue", "[Scheduler]") {
   CHECK(1 == scheduler.PopNextProcess());
   CHECK(std::nullopt == scheduler.PopNextProcess());
 
-  scheduler.AddProcess(2);
   scheduler.AddProcess(1);
+  scheduler.AddProcess(2);
   scheduler.AddProcess(3);
   std::vector<std::optional<int>> expected = {1, 2, 3}, actual = {};
   while (!scheduler.empty()) {

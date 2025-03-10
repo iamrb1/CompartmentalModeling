@@ -3,7 +3,7 @@
 #include <iostream>
 #include <random>
 
-#include "../../Group-07/Team07Library/Serializer.h"
+#include "../../Group-07/Team07Library/Serializer.hpp"
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 
 const int MAX_CASE = 100;

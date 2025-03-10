@@ -4,7 +4,7 @@
  */
 #include <sstream>
 
-#include "../../Group-07/Team07Library/OutputLog.h"
+#include "../../Group-07/Team07Library/OutputLog.hpp"
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 // Test construction of the logger object.
 TEST_CASE("OutputLogTest Construction", "[OutputLog]") {

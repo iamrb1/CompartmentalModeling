@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "../../Group-07/Team07Library/DataFileManager.cpp"
-#include "../../Group-07/Team07Library/DataFileManager.h"
+#include "../../Group-07/Team07Library/DataFileManager.hpp"
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 
 using std::cerr;

@@ -118,7 +118,9 @@ class Scheduler {
       return std::nullopt;
     }
     if (needUpdate) {
-      std::stable_sort(currIds.begin(),currIds.end());
+      std::stable_sort(currIds.begin(),currIds.end(),[this](int a,int b) {
+          return timesCalled[a]>timesCalled[b];
+      });
     }
     int outID = currIds[0];
     processCount[outID]--;
