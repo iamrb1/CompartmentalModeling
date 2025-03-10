@@ -70,7 +70,10 @@ class OutputLog {
    */
   OutputLog(LogLevel logLevel, const std::string& filename) : level(logLevel) {
     logFile.open(filename, std::ios::app);  // Open file in append mode
-    assert(logFile.is_open() && "Error: Could not open log file!");
+    if (!logFile.is_open()) {
+      throw std::runtime_error("Error: Could not open log file: " + filename);
+    }
+
   }
 
   /**
@@ -92,15 +95,12 @@ class OutputLog {
    * @param message The message to log.
    * @param msgLevel The verbosity level of the message.
    */
+  bool shouldLog(LogLevel msgLevel) const {
+    return level != LogLevel::SILENT && static_cast<int>(msgLevel) <= static_cast<int>(level);
+  }
   template <typename T>
   void log(const T& message, LogLevel msgLevel) {
-    if (level == LogLevel::SILENT) {
-      return;
-    }
-
-    if (static_cast<int>(msgLevel) > static_cast<int>(level)) {
-      return;  // Ignore messages above the current log level
-    }
+    if (!shouldLog(msgLevel)) return;
 
     std::ostringstream oss;
     oss << getCurrentTime() << message;
