@@ -71,127 +71,116 @@ TEST_CASE("Test cse::Graph", "[base]")
   }
 }
 
-// TEST_CASE("Test cse::Graph - To file", "Export to file")
-// {
-//   cse::Graph graph;
-//   // Test adding vertices
-//   auto v1 = graph.AddVertex("id1");
-//   auto v2 = graph.AddVertex("id2", 1.5);
-//   graph.AddEdge(v1, v2);
-//   std::stringstream s;
-
-//   graph.ToFile(s);
-
-//   std::vector<std::string> lines{"GRAPH:",
-//                                  "  Vertices:",
-//                                  "    VERTEX:id2",
-//                                  "      X:1.5",
-//                                  "      Y:0",
-//                                  "    VERTEX:id1",
-//                                  "      X:0",
-//                                  "      Y:0",
-//                                  "",
-//                                  "  Edges:",
-//                                  "    EDGE:id1-id2",
-//                                  "      from:id1",
-//                                  "      to:id2",
-//                                  "      weigth:0",
-//                                  ""};
-//   REQUIRE(cse_test_utils::CheckForStringFile(lines, s));
-// }
-
-// TEST_CASE("Test cse::Graph - From file", "Read from file")
-// {
-//   std::vector<std::string> lines{"GRAPH:",
-//                                  "  Vertices:",
-//                                  "    VERTEX:id2",
-//                                  "      X:1.5",
-//                                  "      Y:0",
-//                                  "    VERTEX:id1",
-//                                  "      X:1",
-//                                  "      Y:1",
-//                                  "",
-//                                  "  Edges:",
-//                                  "    EDGE:id1-id2",
-//                                  "      from:id1",
-//                                  "      to:id2",
-//                                  "      weigth:0",
-//                                  ""};
-//   std::stringstream s;
-//   cse_test_utils::BuildFileFromVector(lines, s);
-
-//   cse::Graph graph(s);
-//   CHECK(graph.GetVertex("id1")->GetId() == "id1");
-//   REQUIRE_THAT(graph.GetVertex("id1")->GetX(), WithinAbs(1, cse_test_utils::FLOAT_DELTA));
-//   REQUIRE_THAT(graph.GetVertex("id1")->GetY(), WithinAbs(1, cse_test_utils::FLOAT_DELTA));
-//   REQUIRE_THAT(graph.GetVertex("id2")->GetX(), WithinAbs(1.5, cse_test_utils::FLOAT_DELTA));
-//   REQUIRE_THAT(graph.GetVertex("id2")->GetY(), WithinAbs(0, cse_test_utils::FLOAT_DELTA));
-//   CHECK(graph.GetVertex("id2")->GetId() == "id2");
-//   CHECK(graph.IsConnected("id1", "id2"));
-//   CHECK(!graph.IsConnected("id2", "id1"));
-
-//   lines = {"GRAPH:",
-//            "  Vertices:",
-//            "    VERTEX:id2",
-//            "      X:1.5",
-//            "      Y:0",
-//            "    VERTEX:id1",
-//            "      X:1",
-//            "      Y:1",
-//            "",
-//            "  Edges:",
-//            ""};
-//   s.str(std::string());
-//   cse_test_utils::BuildFileFromVector(lines, s);
-
-//   graph = cse::Graph(s);
-//   CHECK(graph.GetVertex("id1")->GetId() == "id1");
-//   REQUIRE_THAT(graph.GetVertex("id1")->GetX(), WithinAbs(1, cse_test_utils::FLOAT_DELTA));
-//   REQUIRE_THAT(graph.GetVertex("id1")->GetY(), WithinAbs(1, cse_test_utils::FLOAT_DELTA));
-//   REQUIRE_THAT(graph.GetVertex("id2")->GetX(), WithinAbs(1.5, cse_test_utils::FLOAT_DELTA));
-//   REQUIRE_THAT(graph.GetVertex("id2")->GetY(), WithinAbs(0, cse_test_utils::FLOAT_DELTA));
-//   CHECK(graph.GetVertex("id2")->GetId() == "id2");
-//   CHECK(!graph.IsConnected("id1", "id2"));
-//   CHECK(!graph.IsConnected("id2", "id1"));
-// }
-
-// TEST_CASE("Test cse::Graph - From advanced file", "Complex graph")
-// {
-//   cse::Graph graph;
-//   // Test adding vertices
-//   auto v1 = graph.AddVertex("id1");
-//   auto v2 = graph.AddVertex("id2", 1.5);
-//   auto v3 = graph.AddVertex("id3");
-
-//   graph.AddEdge(v1, v2);
-//   // Add bidirectional graph
-//   graph.AddEdge(v1, v3, true);
-//   std::stringstream s;
-
-//   graph.ToFile(s);
-
-//   cse::Graph destinationGraph(s);
-//   CHECK(destinationGraph.GetVertex("id1")->GetId() == "id1");
-//   CHECK(destinationGraph.GetVertex("id2")->GetId() == "id2");
-//   CHECK(destinationGraph.GetVertex("id3")->GetId() == "id3");
-
-//   CHECK(destinationGraph.IsConnected("id1", "id2"));
-//   CHECK(!destinationGraph.IsConnected("id2", "id1"));
-//   CHECK(destinationGraph.IsConnected("id1", "id3"));
-//   CHECK(destinationGraph.IsConnected("id3", "id1"));
-// }
-
-/**
-
-TEST_CASE("Test cse::Graph - Check for templated vertex", "Testing templated Vertex")
+TEST_CASE("Test cse::Graph - To file", "Export to file")
 {
   cse::Graph graph;
   // Test adding vertices
-  auto v1 = graph.AddVertex("id1", 0, 0, 10);
-  CHECK(v1->GetValue<int>() == 10);
+  auto v1 = graph.AddVertex("id1");
+  auto v2 = graph.AddVertex("id2", 1.5);
+  graph.AddEdge(v1, v2);
+  std::stringstream s;
 
-  auto v2 = graph.AddVertex("id1", 0, 0, "value");
-  CHECK(v1->GetValue<std::string>() == "value");
+  graph.ToFile(s);
+
+  std::vector<std::string> lines{"GRAPH:",
+                                 "  Vertices:",
+                                 "    VERTEX:id2",
+                                 "      X:1.5",
+                                 "      Y:0",
+                                 "    VERTEX:id1",
+                                 "      X:0",
+                                 "      Y:0",
+                                 "",
+                                 "  Edges:",
+                                 "    EDGE:id1-id2",
+                                 "      from:id1",
+                                 "      to:id2",
+                                 "      weight:0",
+                                 ""};
+  REQUIRE(cse_test_utils::CheckForStringFile(lines, s));
 }
 
-*/
+TEST_CASE("Test cse::Graph - From file", "Read from file")
+{
+  std::vector<std::string> lines{"GRAPH:",
+                                 "  Vertices:",
+                                 "    VERTEX:id2",
+                                 "      X:1.5",
+                                 "      Y:0",
+                                 "    VERTEX:id1",
+                                 "      X:1",
+                                 "      Y:1",
+                                 "",
+                                 "  Edges:",
+                                 "    EDGE:id1-id2",
+                                 "      from:id1",
+                                 "      to:id2",
+                                 "      weight:0",
+                                 ""};
+  std::stringstream s;
+  cse_test_utils::BuildFileFromVector(lines, s);
+
+  cse::Graph graph(s);
+  CHECK(graph.GetVertex("id1").GetId() == "id1");
+  REQUIRE_THAT(graph.GetVertex("id1").GetX(), WithinAbs(1, cse_test_utils::FLOAT_DELTA));
+  REQUIRE_THAT(graph.GetVertex("id1").GetY(), WithinAbs(1, cse_test_utils::FLOAT_DELTA));
+  REQUIRE_THAT(graph.GetVertex("id2").GetX(), WithinAbs(1.5, cse_test_utils::FLOAT_DELTA));
+  REQUIRE_THAT(graph.GetVertex("id2").GetY(), WithinAbs(0, cse_test_utils::FLOAT_DELTA));
+  CHECK(graph.GetVertex("id2").GetId() == "id2");
+  CHECK(graph.IsConnected("id1", "id2"));
+  CHECK(!graph.IsConnected("id2", "id1"));
+
+  lines = {"GRAPH:",
+           "  Vertices:",
+           "    VERTEX:id2",
+           "      X:1.5",
+           "      Y:0",
+           "    VERTEX:id1",
+           "      X:1",
+           "      Y:1",
+           "",
+           "  Edges:",
+           ""};
+  s.str(std::string());
+  cse_test_utils::BuildFileFromVector(lines, s);
+
+  graph = cse::Graph(s);
+  CHECK(graph.GetVertex("id1").GetId() == "id1");
+  REQUIRE_THAT(graph.GetVertex("id1").GetX(), WithinAbs(1, cse_test_utils::FLOAT_DELTA));
+  REQUIRE_THAT(graph.GetVertex("id1").GetY(), WithinAbs(1, cse_test_utils::FLOAT_DELTA));
+  REQUIRE_THAT(graph.GetVertex("id2").GetX(), WithinAbs(1.5, cse_test_utils::FLOAT_DELTA));
+  REQUIRE_THAT(graph.GetVertex("id2").GetY(), WithinAbs(0, cse_test_utils::FLOAT_DELTA));
+  CHECK(graph.GetVertex("id2").GetId() == "id2");
+  CHECK(!graph.IsConnected("id1", "id2"));
+  CHECK(!graph.IsConnected("id2", "id1"));
+}
+
+TEST_CASE("Test cse::Graph - From advanced file", "Complex graph")
+{
+  cse::Graph graph;
+  // Test adding vertices
+  auto v1 = graph.AddVertex("id1");
+  auto v2 = graph.AddVertex("id2", 1.5);
+  auto v3 = graph.AddVertex("id3");
+
+  graph.AddEdge(v1, v2);
+  graph.AddEdge(v1, v3, 2);
+  std::stringstream s;
+
+  graph.ToFile(s);
+
+  cse::Graph destinationGraph(s);
+  CHECK(destinationGraph.GetVertex("id1").GetId() == "id1");
+  CHECK(destinationGraph.GetVertex("id2").GetId() == "id2");
+  CHECK(destinationGraph.GetVertex("id3").GetId() == "id3");
+
+  CHECK(destinationGraph.IsConnected("id1", "id2"));
+  CHECK(!destinationGraph.IsConnected("id2", "id1"));
+  CHECK(destinationGraph.IsConnected("id1", "id3"));
+  CHECK(!destinationGraph.IsConnected("id3", "id1"));
+  auto edgePointer = graph.GetEdge("id1", "id3");
+  {
+    auto e = edgePointer.lock();
+    REQUIRE_THAT(e->GetWeight(), WithinAbs(2, cse_test_utils::FLOAT_DELTA));
+  }
+}
