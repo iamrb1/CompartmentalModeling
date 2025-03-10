@@ -13,8 +13,8 @@ namespace cse {
    * @param e The edge to add
    * @param destination The destination vertex of the edge
    */
-  void cse::Vertex::AddEdge(std::weak_ptr<Edge> const &e, std::shared_ptr<cse::Vertex> const &destination) {
-    this->edges[destination->GetId()] = e;
+  void cse::Vertex::AddEdge(std::weak_ptr<Edge> const &e, cse::Vertex const &destination) {
+    this->edges[destination.GetId()] = e;
   }
 
   /**
@@ -27,17 +27,14 @@ namespace cse {
   }
 
   /**
-   * Adds an edge to this vertex and handles bidirectional edge setup
+   * Adds an edge to this vertex
    * @param e The edge to add
    */
   void cse::Vertex::AddEdge(std::weak_ptr<Edge> const &e) {
+    CleanupExpiredEdges();
     if (auto edge = e.lock()) {
-      auto &origin = edge->GetFrom();
-      auto &destination = edge->GetTo();
-      AddEdge(e, destination);
-      if (edge->IsBidirectional() && !(destination->IsConnected(origin))) {
-        destination->AddEdge(e, origin);
-      }
+      cse::Vertex const &toVertex = edge->GetTo();
+      AddEdge(e, toVertex);
     }
   }
 
@@ -72,8 +69,8 @@ namespace cse {
    * @param destination The vertex to check connection with
    * @return true if vertices are connected, false otherwise
    */
-  bool cse::Vertex::IsConnected(std::shared_ptr<cse::Vertex> const &destination) {
-    auto it = edges.find(destination->GetId());
+  bool cse::Vertex::IsConnected(cse::Vertex const &destination) {
+    auto it = edges.find(destination.GetId());
     if (it == edges.end()) {
       return false;
     }
@@ -92,11 +89,10 @@ namespace cse {
    * @return Shared pointer to the edge
    * @throws runtime_error if edge doesn't exist
    */
-  std::shared_ptr<cse::Edge> const cse::Vertex::GetEdge(std::shared_ptr<cse::Vertex> const &to) {
-    CleanupExpiredEdges();
-    auto it = edges.find(to->GetId());
+  std::shared_ptr<cse::Edge> const cse::Vertex::GetEdge(cse::Vertex const &to) const {
+    auto it = edges.find(to.GetId());
     if (it == edges.end() || it->second.expired()) {
-      throw std::runtime_error("Edge from " + id + " to " + to->GetId() + " does not exist");
+      throw std::runtime_error("Edge from " + id + " to " + to.GetId() + " does not exist");
     }
     return it->second.lock();
   }
