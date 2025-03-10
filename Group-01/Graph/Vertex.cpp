@@ -33,7 +33,7 @@ namespace cse {
   void cse::Vertex::AddEdge(std::weak_ptr<Edge> const &e) {
     CleanupExpiredEdges();
     if (auto edge = e.lock()) {
-      cse::Vertex const &toVertex = edge->GetTo();
+      cse::Vertex const &toVertex = *(edge->GetTo());
       AddEdge(e, toVertex);
     }
   }
@@ -92,6 +92,7 @@ namespace cse {
   std::shared_ptr<cse::Edge> const cse::Vertex::GetEdge(cse::Vertex const &to) const {
     auto it = edges.find(to.GetId());
     if (it == edges.end() || it->second.expired()) {
+      std::cout << "Did not find edge" << std::endl;
       throw std::runtime_error("Edge from " + id + " to " + to.GetId() + " does not exist");
     }
     return it->second.lock();

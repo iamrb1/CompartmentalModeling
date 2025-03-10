@@ -52,9 +52,7 @@ namespace cse {
         : id(id), from(from), to(to), weight(weight) {};
     Edge() = delete;
 
-    virtual bool IsConnected(std::shared_ptr<cse::Vertex> const &v1, std::shared_ptr<cse::Vertex> const &v2) {
-      return v1 == from && v2 == to;
-    };
+    virtual bool IsConnected(cse::Vertex const &v1, cse::Vertex const &v2) { return v1 == *from && v2 == *to; };
 
     std::shared_ptr<cse::Vertex> &GetFrom() { return from; };
     std::shared_ptr<cse::Vertex> &GetTo() { return to; };

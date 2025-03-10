@@ -86,8 +86,8 @@ namespace cse {
    */
   std::shared_ptr<Edge> Graph::CreateEdge(const std::string &edge_id, const std::string &v1_id,
                                           const std::string &v2_id, double const &weight) {
-    auto v1 = *(vertices[v1_id]);
-    auto v2 = *(vertices[v2_id]);
+    auto v1 = vertices[v1_id];
+    auto v2 = vertices[v2_id];
     return std::make_shared<Edge>(edge_id, v1, v2, weight);
   }
 
@@ -104,7 +104,7 @@ namespace cse {
     std::string edge_id = v1_id + "-" + v2_id;
     auto edge = CreateEdge(edge_id, v1_id, v2_id, weight);
 
-    auto v1 = GetVertex(v1_id);
+    cse::Vertex &v1 = GetVertex(v1_id);
     v1.AddEdge(edge);
     edges[edge_id] = edge;
     return edge;

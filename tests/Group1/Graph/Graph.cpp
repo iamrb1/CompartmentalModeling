@@ -14,8 +14,8 @@ TEST_CASE("Test cse::Graph", "[base]")
   cse::Graph graph;
 
   // Test adding vertices
-  auto v1 = graph.AddVertex("id1");
-  auto v2 = graph.AddVertex("id2");
+  cse::Vertex &v1 = graph.AddVertex("id1");
+  cse::Vertex &v2 = graph.AddVertex("id2");
   CHECK(graph.GetVertex("id1").GetId() == "id1");
   CHECK(graph.GetVertex("id2").GetId() == "id2");
 
@@ -25,12 +25,9 @@ TEST_CASE("Test cse::Graph", "[base]")
   graph.RemoveVertex("id1");
   CHECK_THROWS_AS(graph.GetVertex("id1"), std::out_of_range);
 
-  std::cout << "Passed initial" << std::endl;
   // Test adding edges
   v1 = graph.AddVertex("id1");
-  std::cout << "Passed initial 1.5" << std::endl;
   auto e1 = graph.AddEdge("id1", "id2");
-  std::cout << "Passed initial2" << std::endl;
 
   CHECK(graph.IsConnected(v1, v2));
   CHECK(!graph.IsConnected(v2, v1));
@@ -38,11 +35,10 @@ TEST_CASE("Test cse::Graph", "[base]")
   CHECK(!graph.IsConnected("id2", "id1"));
   // Edge should only be owned by graph
   CHECK(e1.use_count() == 1);
-  std::cout << "Passed initial3" << std::endl;
 
   // Testing Adding Edges by reference
-  auto v4 = graph.AddVertex("id4");
-  auto v5 = graph.AddVertex("id5");
+  cse::Vertex &v4 = graph.AddVertex("id4");
+  cse::Vertex &v5 = graph.AddVertex("id5");
   CHECK(!graph.IsConnected(v1, v4));
   CHECK(!graph.IsConnected(v4, v5));
   CHECK(!graph.IsConnected(v4, v4));
