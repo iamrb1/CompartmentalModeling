@@ -104,19 +104,19 @@ TEST_CASE("Test cse::Graph - From file", "Read from file") {
   CHECK(graph.IsConnected("id1", "id2"));
   CHECK(!graph.IsConnected("id2", "id1"));
 
-  //   lines = {"GRAPH:",
-  //            "  Vertices:",
-  //            "    VERTEX:id2",
-  //            "      X:1.5",
-  //            "      Y:0",
-  //            "    VERTEX:id1",
-  //            "      X:1",
-  //            "      Y:1",
-  //            "",
-  //            "  Edges:",
-  //            ""};
-  //   s.str(std::string());
-  //   cse_test_utils::BuildFileFromVector(lines, s);
+  lines = {"GRAPH:",
+           "  Vertices:",
+           "    VERTEX:id2",
+           "      X:1.5",
+           "      Y:0",
+           "    VERTEX:id1",
+           "      X:1",
+           "      Y:1",
+           "",
+           "  Edges:",
+           ""};
+  s.str(std::string());
+  cse_test_utils::BuildFileFromVector(lines, s);
 
   graph = cse::Graph(s);
   CHECK(graph.GetVertex("id1").GetId() == "id1");
