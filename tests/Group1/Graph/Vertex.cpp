@@ -32,11 +32,6 @@ TEST_CASE("Test cse::Vertex - Edges", "[base] - Edge")
   v1->AddEdge(e1);
   CHECK(v1->IsConnected(v2));
   CHECK(!v1->IsConnected(v3));
-
-  std::shared_ptr<cse::Edge> e2 = std::make_shared<cse::BidirectionalEdge>("edge2", v1, v3);
-  v1->AddEdge(e2);
-  CHECK(v1->IsConnected(v3));
-  CHECK(v3->IsConnected(v1));
 }
 
 TEST_CASE("Test cse::Vertex - To file", "Export to file")

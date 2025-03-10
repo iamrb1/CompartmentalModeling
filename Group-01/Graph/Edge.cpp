@@ -19,5 +19,5 @@ void cse::Edge::CreateFromFile(std::istream &f, size_t indent_level, Graph &grap
   auto props = ParseProperties(f, indent_level);
   auto from = graph.GetVertex(props.from_id);
   auto to = graph.GetVertex(props.to_id);
-  graph.AddEdge(from, to, props.bidirectional);
+  graph.AddEdge(from, to, props.weight);
 }

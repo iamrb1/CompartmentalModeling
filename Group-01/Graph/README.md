@@ -115,8 +115,8 @@ namespace cse {
     std::shared_ptr<cse::Vertex> AddVertex(std::string id, double X = 0.0, double Y = 0.0, std::optional<T> value = std::nullopt);
 
     // Changed to support adding weights
-    std::weak_ptr<cse::Edge> AddEdge(std::string v1_id, std::string v2_id, double weigth = 0.0);
-    std::weak_ptr<cse::Edge> AddEdge(std::shared_ptr<cse::Vertex> &v1, std::shared_ptr<cse::Vertex> &v2, , double weigth = 0.0);
+    std::weak_ptr<cse::Edge> AddEdge(std::string v1_id, std::string v2_id, double weight = 0.0);
+    std::weak_ptr<cse::Edge> AddEdge(std::shared_ptr<cse::Vertex> &v1, std::shared_ptr<cse::Vertex> &v2, , double weight = 0.0);
     /**
      * Saves this into a JS Canvas
      * Maybe we could save to a file and JS use that file

@@ -81,29 +81,28 @@ namespace cse {
    * @param edge_id Unique identifier for the edge
    * @param v1_id Source vertex ID
    * @param v2_id Destination vertex ID
-   * @param bidirectional Whether the edge is bidirectional
+   * @param weight Edge weight
    * @return Shared pointer to the created edge
    */
   std::shared_ptr<Edge> Graph::CreateEdge(const std::string &edge_id, const std::string &v1_id,
-                                          const std::string &v2_id, bool bidirectional) {
+                                          const std::string &v2_id, double const &weight) {
     auto v1 = vertices[v1_id];
     auto v2 = vertices[v2_id];
-    return bidirectional ? std::make_shared<BidirectionalEdge>(edge_id, v1, v2)
-                         : std::make_shared<Edge>(edge_id, v1, v2);
+    return std::make_shared<Edge>(edge_id, v1, v2, weight);
   }
 
   /**
    * Adds a new edge to the graph using vertex IDs
    * @param v1_id Source vertex ID
    * @param v2_id Destination vertex ID
-   * @param bidirectional Whether the edge is bidirectional
+   * @param weight Edge weight
    * @return Weak pointer to the created edge
    */
-  std::weak_ptr<cse::Edge> cse::Graph::AddEdge(std::string const v1_id, std::string const v2_id, bool bidirectional) {
+  std::weak_ptr<cse::Edge> cse::Graph::AddEdge(std::string const v1_id, std::string const v2_id, double const &weight) {
     ValidateVerticesExist(v1_id, v2_id);
 
     std::string edge_id = v1_id + "-" + v2_id;
-    auto edge = CreateEdge(edge_id, v1_id, v2_id, bidirectional);
+    auto edge = CreateEdge(edge_id, v1_id, v2_id, weight);
 
     GetVertex(v1_id)->AddEdge(edge);
     edges[edge_id] = edge;
@@ -114,12 +113,12 @@ namespace cse {
    * Adds a new edge to the graph using vertex pointers
    * @param v1 Source vertex
    * @param v2 Destination vertex
-   * @param bidirectional Whether the edge is bidirectional
+   * @param weight Edge weight
    * @return Weak pointer to the created edge
    */
   std::weak_ptr<cse::Edge> cse::Graph::AddEdge(std::shared_ptr<cse::Vertex> &v1, std::shared_ptr<cse::Vertex> &v2,
-                                               bool bidirectional) {
-    return AddEdge(v1->GetId(), v2->GetId(), bidirectional);
+                                               double const &weight) {
+    return AddEdge(v1->GetId(), v2->GetId(), weight);
   }
 
   /**

@@ -32,12 +32,8 @@ namespace cse {
    */
   void cse::Vertex::AddEdge(std::weak_ptr<Edge> const &e) {
     if (auto edge = e.lock()) {
-      auto &origin = edge->GetFrom();
       auto &destination = edge->GetTo();
       AddEdge(e, destination);
-      if (edge->IsBidirectional() && !(destination->IsConnected(origin))) {
-        destination->AddEdge(e, origin);
-      }
     }
   }
 

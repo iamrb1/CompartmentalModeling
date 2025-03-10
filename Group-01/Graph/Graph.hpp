@@ -26,7 +26,7 @@ namespace cse {
     // Edge management
     void ValidateVerticesExist(const std::string &v1_id, const std::string &v2_id) const;
     std::shared_ptr<Edge> CreateEdge(const std::string &edge_id, const std::string &v1_id, const std::string &v2_id,
-                                     bool bidirectional);
+                                     double const &weight);
 
   protected:
     /** Gets the type name of the graph for serialization */
@@ -45,9 +45,9 @@ namespace cse {
     std::shared_ptr<cse::Vertex> GetVertex(std::string const &id) const;
     std::shared_ptr<cse::Vertex> RemoveVertex(std::string const id);
 
-    std::weak_ptr<cse::Edge> AddEdge(std::string const v1_id, std::string const v2_id, bool bidirectional = false);
+    std::weak_ptr<cse::Edge> AddEdge(std::string const v1_id, std::string const v2_id, double const &weight = 0.0);
     std::weak_ptr<cse::Edge> AddEdge(std::shared_ptr<cse::Vertex> &v1, std::shared_ptr<cse::Vertex> &v2,
-                                     bool bidirectional = false);
+                                     double const &weight = 0.0);
     void RemoveEdge(std::string const &edge_id);
     void RemoveEdge(std::weak_ptr<cse::Edge> edge);
     std::weak_ptr<cse::Edge> GetEdge(std::string const &edge_id) const;
