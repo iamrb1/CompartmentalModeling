@@ -226,12 +226,51 @@ class ReferenceVector {
     bool operator!=(const iterator &other) const { return it_ != other.it_; }
   };
 
+  // Cite: Used ChatGPT to create a const iterator. Very similar to the regular iterator
+  class const_iterator {
+   private:
+    typename std::vector<template_type *>::const_iterator it_;
+
+   public:
+    explicit const_iterator(typename std::vector<template_type *>::const_iterator it) : it_(it) {}
+
+    const template_type &operator*() const { return **it_; }
+
+    const template_type *operator->() const { return *it_; }
+
+    const_iterator &operator++() {
+      ++it_;
+      return *this;
+    }
+
+    const_iterator operator++(int) {
+      const_iterator temp = *this;
+      ++(*this);
+      return temp;
+    }
+
+    const_iterator &operator--() {
+      --it_;
+      return *this;
+    }
+
+    const_iterator operator--(int) {
+      const_iterator temp = *this;
+      --(*this);
+      return temp;
+    }
+
+    bool operator==(const const_iterator &other) const { return it_ == other.it_; }
+    bool operator!=(const const_iterator &other) const { return it_ != other.it_; }
+  };
+
   /**
    * Returns an iterator to the beginning of the reference vector.
    * @return std::vector<template_type*>::iterator An iterator pointing to the first
    * element.
    */
   iterator begin() { return iterator(references_.begin()); }
+  const_iterator begin() const { return const_iterator(references_.cbegin()); }
 
   /**
    * Returns an iterator to the end of the reference vector.
@@ -239,6 +278,7 @@ class ReferenceVector {
    * element.
    */
   iterator end() { return iterator(references_.end()); }
+  const_iterator end() const { return const_iterator(references_.cend()); }
 };
 
 } // namespace cse

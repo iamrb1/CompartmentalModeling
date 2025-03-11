@@ -28,6 +28,8 @@ private:
   /// A 2D vector holding datums
   std::vector<row_t> grid_;
 
+  static std::vector<double> getDoubleValues(const ReferenceVector<Datum>& reference_vector);
+
 public:
   explicit DataGrid(const std::vector<std::vector<Datum>> &data) {
     assert(!data.empty());
@@ -93,34 +95,48 @@ public:
   row_t &operator[](std::size_t row_index_);
   row_t &getRow(std::size_t row_index_);
   [[nodiscard]] const row_t &getRow(std::size_t row_index_) const;
+  cse::ReferenceVector<Datum> getColumn(std::size_t column_index_);
   Datum &getValue(std::size_t row_index_, std::size_t column_index_);
   [[nodiscard]] const Datum &getValue(std::size_t row_index_,
                         std::size_t column_index_) const;
+
   [[nodiscard]] std::tuple<std::size_t, std::size_t> shape() const;
-  cse::ReferenceVector<Datum> getColumn(std::size_t column_index_);
+
   void insertDefaultRow(
       std::size_t row_index_ = std::numeric_limits<std::size_t>::max(),
       double default_value_ = 0);
   void insertDefaultRow(
       std::size_t row_index_ = std::numeric_limits<std::size_t>::max(),
       std::string default_value_ = "");
+
   void insertDefaultColumn(
       std::size_t column_index_ = std::numeric_limits<std::size_t>::max(),
       double default_value_ = 0);
   void insertDefaultColumn(
       std::size_t column_index_ = std::numeric_limits<std::size_t>::max(),
       const std::string &default_value_ = "");
+
   void deleteRow(std::size_t row_index_);
   void deleteColumn(std::size_t column_index_);
+
   void resize(std::size_t num_rows_, std::size_t num_columns_,
               double default_value_ = 0);
   void resize(std::size_t num_rows_, std::size_t num_columns_,
               const std::string& default_value_);
-  std::ostream &print(std::ostream &os_) const;
+
   Datum &at(std::size_t row_index_, std::size_t column_index_);
   [[nodiscard]] const Datum &at(std::size_t row_index_, std::size_t column_index_) const;
   row_t &at(std::size_t row_index_);
   [[nodiscard]] const row_t &at(std::size_t row_index_) const;
+
+  double columnMean(std::size_t column_index);
+  double columnMedian(std::size_t column_index);
+  std::vector<double> columnMode(std::size_t column_index);
+  double columnStandardDeviation(std::size_t column_index);
+  double columnMin(std::size_t column_index);
+  double columnMax(std::size_t column_index);
+
+  std::ostream &print(std::ostream &os_) const;
 };
 
 /**

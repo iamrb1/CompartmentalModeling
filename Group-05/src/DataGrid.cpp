@@ -7,8 +7,11 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <iostream>
 #include <limits>
+#include <numeric>
+#include <unordered_map>
 #include <vector>
 
 #include "Datum.h"
@@ -365,6 +368,161 @@ const DataGrid::row_t &DataGrid::at(std::size_t row_index_) const {
   }
 
   return grid_[row_index_];
+}
+
+/**
+ * Calculates the mean of the column
+ * @param column_index The desired column index
+ * @return The mean of the desired column
+ */
+double DataGrid::columnMean(std::size_t column_index) {
+  if (grid_.empty() || column_index >= grid_[0].size()) {
+    throw std::out_of_range("Column index out of range.");
+  }
+
+  std::vector<double> double_values = getDoubleValues(getColumn(column_index));
+  if (double_values.empty()) {
+    return std::numeric_limits<double>::quiet_NaN();
+  }
+
+  return std::accumulate(double_values.begin(), double_values.end(), 0.0) /
+    static_cast<int>(double_values.size());
+}
+
+/**
+ * Calculates the median of the column
+ * @param column_index The desired column index
+ * @return The median of the desired column
+ */
+double DataGrid::columnMedian(std::size_t column_index) {
+  if (grid_.empty() || column_index >= grid_[0].size()) {
+    throw std::out_of_range("Column index out of range.");
+  }
+
+  std::vector<double> double_values = getDoubleValues(getColumn(column_index));
+  if (double_values.empty()) {
+    return std::numeric_limits<double>::quiet_NaN();
+  }
+
+  std::sort(double_values.begin(), double_values.end());
+
+  int size = static_cast<int>(double_values.size());
+  if (size % 2 == 0) {
+    return (double_values[size / 2] + double_values[size / 2 - 1]) / 2;
+  }
+  return double_values[size / 2];
+}
+
+// CITE: Took inspiration from https://www.geeksforgeeks.org/how-to-find-the-mode-of-all-elements-in-a-list-in-cpp/,
+// but modified it so it would return multiple modes.
+/**
+ * Calculates the modes of the column
+ * @param column_index The desired column index
+ * @return A list of modes from the desired column
+ */
+std::vector<double> DataGrid::columnMode(std::size_t column_index) {
+  if (grid_.empty() || column_index >= grid_[0].size()) {
+    throw std::out_of_range("Column index out of range.");
+  }
+
+  std::vector<double> double_values = getDoubleValues(getColumn(column_index));
+  if (double_values.empty()) {
+    return {};
+  }
+
+  std::unordered_map<double, int> frequency_counter;
+  for (double values : double_values) {
+    frequency_counter[values]++;
+  }
+
+  std::vector<double> modes;
+  int current_max_frequency = -1;
+  for (auto value_frequency : frequency_counter) {
+    if (current_max_frequency < value_frequency.second) {
+      modes.clear();
+      modes.push_back(value_frequency.first);
+      current_max_frequency = value_frequency.second;
+    } else if (current_max_frequency == value_frequency.second) {
+      modes.push_back(value_frequency.first);
+    }
+  }
+  return modes;
+}
+
+/**
+ * Calculates the standard deviation of a column
+ * @param column_index The desired column index
+ * @return The standard deviation of the desired column
+ */
+double DataGrid::columnStandardDeviation(std::size_t column_index) {
+  if (grid_.empty() || column_index >= grid_[0].size()) {
+    throw std::out_of_range("Column index out of range.");
+  }
+
+  std::vector<double> double_values = getDoubleValues(getColumn(column_index));
+  if (double_values.empty()) {
+    return std::numeric_limits<double>::quiet_NaN();
+  }
+
+  double current_total = 0;
+  double mean = columnMean(column_index);
+  for (double value : double_values) {
+    current_total += pow(value - mean, 2);
+  }
+  return sqrt(current_total / static_cast<int>(double_values.size()));
+}
+
+/**
+ * Determines the smallest element of a column
+ * @param column_index The desired column index
+ * @return The minimum element of the desired column
+ */
+double DataGrid::columnMin(std::size_t column_index) {
+  if (grid_.empty() || column_index >= grid_[0].size()) {
+    throw std::out_of_range("Column index out of range.");
+  }
+
+  std::vector<double> double_values = getDoubleValues(getColumn(column_index));
+  if (double_values.empty()) {
+    return std::numeric_limits<double>::quiet_NaN();
+  }
+
+  // Used https://en.cppreference.com/w/cpp/algorithm/min_element for min element
+  return *std::min_element(double_values.begin(), double_values.end());
+}
+
+/**
+ * Determines the largest element of a column
+ * @param column_index The desired column index
+ * @return The maximum element of the desired column
+ */
+double DataGrid::columnMax(std::size_t column_index) {
+  if (grid_.empty() || column_index >= grid_[0].size()) {
+    throw std::out_of_range("Column index out of range.");
+  }
+
+  std::vector<double> double_values = getDoubleValues(getColumn(column_index));
+  if (double_values.empty()) {
+    return std::numeric_limits<double>::quiet_NaN();
+  }
+
+  // Used https://en.cppreference.com/w/cpp/algorithm/max_element for max element
+  return *std::max_element(double_values.begin(), double_values.end());
+}
+
+/**
+ * Helper function that removes any strings from a column for the math functions.
+ * @param reference_vector The column
+ * @return A vector that contains only double data
+ */
+std::vector<double> DataGrid::getDoubleValues(const ReferenceVector<Datum>& reference_vector) {
+  std::vector<double> double_values;
+  for (const auto& value : reference_vector) {
+    if (value.IsDouble()) {
+      double_values.push_back(value.GetDouble());
+    }
+  }
+  return double_values;
 }
 
 } // namespace cse
