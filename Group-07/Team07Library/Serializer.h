@@ -976,9 +976,18 @@ namespace cse
 				}
 				size_t size = vec.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				for (const T &item : vec)
+				for (auto i = 0; i < size; i++)
 				{
-					outFile.write(reinterpret_cast<const char *>(&item), sizeof(T));
+					if (IsSerializable(vec[i]))
+					{
+						std::string newFile = filename + "_" + std::to_string(i);
+						Serialize(vec[i], newFile);
+					}
+					else
+					{
+						std::cerr << "This type is not implemented yet." << std::endl;
+						return;
+					}
 				}
 			}
 			else
@@ -996,7 +1005,19 @@ namespace cse
 					std::cerr << "Error reading stack size from file: " << filename << std::endl;
 				}
 				std::vector<T> vec(size);
-				inFile.read(reinterpret_cast<char *>(vec.data()), sizeof(T) * size);
+				for (auto i = 0; i < size; i++)
+				{
+					if (IsSerializable(vec[i]))
+					{
+						std::string newFile = filename + "_" + std::to_string(i);
+						Serialize(vec[i], newFile);
+					}
+					else
+					{
+						std::cerr << "This type is not implemented yet." << std::endl;
+						return;
+					}
+				}
 				stk = std::stack<T>();
 				for (auto it = vec.rbegin(); it != vec.rend(); ++it)
 				{
@@ -1029,11 +1050,22 @@ namespace cse
 					vec.push_back(temp.front());
 					temp.pop();
 				}
+
 				size_t size = vec.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				for (const T &item : vec)
+
+				for (size_t i = 0; i < size; i++)
 				{
-					outFile.write(reinterpret_cast<const char *>(&item), sizeof(T));
+					if (IsSerializable(vec[i]))
+					{
+						std::string newFile = filename + "_" + std::to_string(i);
+						Serialize(vec[i], newFile);
+					}
+					else
+					{
+						std::cerr << "This type is not implemented yet." << std::endl;
+						return;
+					}
 				}
 			}
 			else
@@ -1044,16 +1076,31 @@ namespace cse
 					std::cerr << "Error opening file for reading: " << filename << std::endl;
 					return;
 				}
+
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 
 				if (!inFile)
 				{
-					std::cerr << "Error reading queue size from file: " << filename
-							  << std::endl;
+					std::cerr << "Error reading queue size from file: " << filename << std::endl;
+					return;
 				}
+
 				std::vector<T> vec(size);
-				inFile.read(reinterpret_cast<char *>(vec.data()), sizeof(T) * size);
+				for (size_t i = 0; i < size; i++)
+				{
+					if (IsSerializable(vec[i]))
+					{
+						std::string newFile = filename + "_" + std::to_string(i);
+						Serialize(vec[i], newFile);
+					}
+					else
+					{
+						std::cerr << "This type is not implemented yet." << std::endl;
+						return;
+					}
+				}
+
 				q = std::queue<T>();
 				for (const T &item : vec)
 				{
@@ -1086,11 +1133,22 @@ namespace cse
 					vec.push_back(temp.top());
 					temp.pop();
 				}
+
 				size_t size = vec.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				for (const T &item : vec)
+
+				for (size_t i = 0; i < size; i++)
 				{
-					outFile.write(reinterpret_cast<const char *>(&item), sizeof(T));
+					if (IsSerializable(vec[i]))
+					{
+						std::string newFile = filename + "_" + std::to_string(i);
+						Serialize(vec[i], newFile);
+					}
+					else
+					{
+						std::cerr << "This type is not implemented yet." << std::endl;
+						return;
+					}
 				}
 			}
 			else
@@ -1101,14 +1159,31 @@ namespace cse
 					std::cerr << "Error opening file for reading: " << filename << std::endl;
 					return;
 				}
+
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+
 				if (!inFile)
 				{
 					std::cerr << "Error reading priority queue size from file: " << filename << std::endl;
+					return;
 				}
+
 				std::vector<T> vec(size);
-				inFile.read(reinterpret_cast<char *>(vec.data()), sizeof(T) * size);
+				for (size_t i = 0; i < size; i++)
+				{
+					if (IsSerializable(vec[i]))
+					{
+						std::string newFile = filename + "_" + std::to_string(i);
+						Serialize(vec[i], newFile);
+					}
+					else
+					{
+						std::cerr << "This type is not implemented yet." << std::endl;
+						return;
+					}
+				}
+
 				pq = std::priority_queue<T>(vec.begin(), vec.end());
 			}
 		}
@@ -1178,13 +1253,13 @@ namespace cse
 		 * Your custom class must define its own `Serialize(Serializer&, const
 		 * std::string&)` method.
 		 */
-		// template <typename T,
-		// 		  typename std::enable_if_t<
-		// 			  std::is_class_v<T> && !std::is_same_v<T, std::string>, int> = 0>
-		// void Serialize(T &obj, const std::string &filename)
-		// {
-		// 	obj.Serialize(*this, filename);
-		// }
+		template <typename T,
+				  typename std::enable_if_t<
+					  std::is_class_v<T> && !std::is_same_v<T, std::string>, int> = 0>
+		void Serialize(T &obj, const std::string &filename)
+		{
+			obj.Serialize(*this, filename);
+		}
 	};
 } // namespace cse
 
