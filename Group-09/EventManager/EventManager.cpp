@@ -74,7 +74,9 @@ bool EventManager::ResumeEvent(Event &event) {
   if (running_events_.count(event_id)) {
     return true;
   } else if (paused_events_.find(event_id) != paused_events_.end()) {
-    event_queue_.add(paused_events_.at(event_id));
+    if (event.getTime() <= clock_time_){
+      event_queue_.add(paused_events_.at(event_id));
+    }
     paused_events_.erase(event_id);
     running_events_.insert(event_id);
     return true;
