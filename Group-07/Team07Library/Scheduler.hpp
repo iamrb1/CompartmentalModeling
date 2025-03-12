@@ -22,14 +22,14 @@ namespace cse {
  */
 class Scheduler {
  private:
-  /// Struct containing a process's id and its priority value
+  /// Struct containing a process's id, its priority value, and its weights
   struct Process {
     int id;
     double priorityWeight;
     std::vector<double> processWeights;
   };
 
-  /// List holding the IDs of all the items added to the scheduler and their priority weights
+  /// List holding the Processes added to the Scheduler
   std::vector<Process> currIds;
 
   /// Indicator if we need to sort the scheduler again
@@ -52,7 +52,7 @@ class Scheduler {
 
   /**
    * Constructor for Scheduler with a given set of weights
-   * @param weights
+   * @param weights Weights used to determine the priority for processes added to the Scheduler
    */
   Scheduler(const std::vector<double> &weights) {
     weightList=weights;
@@ -66,6 +66,7 @@ class Scheduler {
   /**
    * Adds a process to the Scheduler
    * @param id ID of the process we are adding to the scheduler
+   * @param weights Priority weights for this process
    */
   void AddProcess(const int id,const std::vector<double> &weights) {
     assert(weights.size()==weightList.size());
@@ -141,6 +142,10 @@ class Scheduler {
     return outID;
   }
 
+  /**
+   * Overrides the scheduling order to bring a process to the front of the Schedule
+   * @param id ID of the process which we are overriding the scheduling order for
+   */
   void OverridePriority(const int id) {
     int currIdsSize=currIds.size();
     for(int i=0;i<currIdsSize;i++) {
@@ -152,6 +157,11 @@ class Scheduler {
     }
   }
 
+  /**
+   * Updates the priority value for a process in the Scheduler
+   * @param id Id of the process which we are the updating the priority value for
+   * @param newWeights New priority weights for the process, which will be used to calculate the new priority value
+   */
   void UpdateProcessPriority(const int id,const std::vector<double> &newWeights) {
       assert(newWeights.size()==weightList.size());
       int weightsSize=weightList.size(),currIdsSize=currIds.size(),overrideQueueSize=overrideQueue.size();
@@ -178,6 +188,10 @@ class Scheduler {
       }
   }
 
+  /**
+   * Updates the weights used by the Scheduler
+   * @param newWeights The new weights set to be used by the Scheduler
+   */
   void UpdateSchedulerWeights(std::vector<double> &newWeights) {
       assert(newWeights.size()==weightList.size());
       weightList=newWeights;
@@ -193,6 +207,11 @@ class Scheduler {
       needUpdate=true;
   }
 
+  /**
+   * Gets the priority value for a process
+   * @param id ID of the process we are getting the priority for
+   * @return Priority value for the given process if it is in the Scheduler, returns std::nullopt otherwise
+   */
   std::optional<double> GetProcessPriority(const int id) {
       int currIdsSize=currIds.size(),overrideQueueSize=overrideQueue.size();
 
@@ -210,6 +229,11 @@ class Scheduler {
       return std::nullopt;
   }
 
+  /**
+   * Gets the weights set for a given process
+   * @param id ID of the process we are getting the weights set for
+   * @return Weights set for the given process if it is in the Scheduler, returns std::nullopt otherwise
+   */
   std::optional<std::vector<double>> GetProcessWeights(const int id) {
       int currIdsSize=currIds.size(),overrideQueueSize=overrideQueue.size();
 
