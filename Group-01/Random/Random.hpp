@@ -1,6 +1,3 @@
-/*
-Random class 
-*/
 #pragma once
 
 #include <cassert>
@@ -23,7 +20,8 @@ class Random {
 
  public:
   Random(unsigned int seed);
-  double GetDouble(double min, double max);
+  //double GetDouble(double min, double max);
+  double GetDouble(double min, double max) { return Get<double>(min,max); }
   int GetInt(int min, int max);
   bool P(double probability);
   void SetSeed(unsigned int seed);
