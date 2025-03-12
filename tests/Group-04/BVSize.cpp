@@ -1,6 +1,7 @@
-#include "catch.hpp"
-#include "BitVector.hpp"
 #include <string>
+
+#include "BitVector.hpp"
+#include "catch.hpp"
 
 TEST_CASE("Test basic resize operation", "[bitvector]") {
   // Basic constructors with number of bits
@@ -29,4 +30,3 @@ TEST_CASE("Test basic append and prepend operations", "[bitvector]") {
   CHECK(bv3[17]);
   CHECK(bv3 == bc3);
 }
-

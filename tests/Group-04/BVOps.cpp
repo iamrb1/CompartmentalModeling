@@ -11,6 +11,8 @@
 #include "BitVector.hpp"
 #include <string>
 
+#include "BitVector.hpp"
+
 TEST_CASE("Test basic BitVector constructors", "[bitvector]") {
   // Basic constructors with number of bits
   cse::BitVector bv1;
@@ -34,20 +36,16 @@ TEST_CASE("Test basic BitVector constructors", "[bitvector]") {
   REQUIRE_ASSERT(bv5[31]);
 }
 
-
-
-
 TEST_CASE("Test setting bits", "[bitvector]") {
   // Single byte case
   cse::BitVector bv1(8);
 
-  for(size_t i = 0; i < bv1.size(); i++)
-  {
+  for (size_t i = 0; i < bv1.size(); i++) {
     bv1[i] = true;
     CHECK(bv1[i] == true);
     CHECK(bv1.count() == i + 1);
   }
-  
+
   // Set all function (single byte)
   cse::BitVector bv2(8), bc2("11111111");
   bv2.set();
@@ -58,8 +56,7 @@ TEST_CASE("Test setting bits", "[bitvector]") {
   // Single byte case (set function)
   cse::BitVector bv3(8);
 
-  for(size_t i = 0; i < bv3.size(); i++)
-  {
+  for (size_t i = 0; i < bv3.size(); i++) {
     bv3.set(i);
     CHECK(bv3.test(i) == true);
     CHECK(bv3.count() == i + 1);
@@ -81,8 +78,7 @@ TEST_CASE("Test setting bits", "[bitvector]") {
   // Multi element case (set function)
   cse::BitVector bv6(123);
 
-  for(size_t i = 0; i < bv6.size(); i++)
-  {
+  for (size_t i = 0; i < bv6.size(); i++) {
     bv6.set(i);
     CHECK(bv6.test(i));
     CHECK(bv6.count() == i + 1);
@@ -102,9 +98,6 @@ TEST_CASE("Test setting bits", "[bitvector]") {
   REQUIRE_ASSERT(bv1.set(0, 9));
   REQUIRE_ASSERT(bv1.set(4, 100));
 }
-
-
-
 
 TEST_CASE("Test pattern setting bits", "[bitvector]") {
   // Pattern set whole byte
@@ -136,9 +129,6 @@ TEST_CASE("Test pattern setting bits", "[bitvector]") {
   REQUIRE_ASSERT(bv1.pattern_set(3, 7, 0b11111111));
 }
 
-
-
-
 TEST_CASE("Test resetting bits", "[bitvector]") {
   // Single byte case
   cse::BitVector bv1(8);
@@ -152,7 +142,7 @@ TEST_CASE("Test resetting bits", "[bitvector]") {
   bv1.reset();
 
   cse::BitVector bv2(8);
-  
+
   CHECK(bv1.count() == 0);
   CHECK(bv1 == bv2);
   CHECK(!bv1.test(0));
@@ -163,8 +153,6 @@ TEST_CASE("Test resetting bits", "[bitvector]") {
   REQUIRE_ASSERT(bv1.test(8));
   REQUIRE_ASSERT(bv1.test(100));
 }
-
-
 
 
 template<typename F, typename G, typename H>
@@ -292,7 +280,7 @@ TEST_CASE("Test bitwise shifting", "[bitvector]") {
   bv1.pattern_set(0, 8, 0b01010101);
   bv1 <<= 3;
   CHECK(bv1 == bc1);
-  
+
   // Multi-byte
   cse::BitVector bv2(14), bc2("10101010000000");
   bv2.pattern_set(0, 14, 0b01010101);
@@ -313,10 +301,9 @@ TEST_CASE("Test bitwise NOT", "[bitvector]") {
   bc2 = bv2;
 
   bv2.flip(6, 13);
-  for(size_t i = 6; i < 19; i++) {
+  for (size_t i = 6; i < 19; i++) {
     bc2.flip(i);
   }
 
   CHECK(bv2 == bc2);
 }
-
