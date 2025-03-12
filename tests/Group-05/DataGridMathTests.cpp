@@ -47,55 +47,50 @@ TEST_CASE("DataGrid: Mathematical Functions", "[mathematics]") {
 
   DataGrid grid(test);
 
-  SECTION("Mean Column Tests") {
-    CHECK_THAT(grid.columnMean(0),
-    Catch::WithinAbs(-0.2, kEpsilon));
-    CHECK(std::isnan(grid.columnMean(1)));
-    CHECK_THAT(grid.columnMean(2),
-    Catch::WithinAbs(95.25, kEpsilon));
+  // Mean Column Tests
+  CHECK_THAT(grid.columnMean(0),
+  Catch::WithinAbs(-0.2, kEpsilon));
+  CHECK(std::isnan(grid.columnMean(1)));
+  CHECK_THAT(grid.columnMean(2),
+  Catch::WithinAbs(95.25, kEpsilon));
 
-    CHECK_THROWS(grid.columnMean(99));
-  }
+  CHECK_THROWS(grid.columnMean(99));
 
-  SECTION("Median Column Tests") {
-    CHECK_THAT(grid.columnMedian(0),
-    Catch::WithinAbs(3.5, kEpsilon));
-    CHECK(std::isnan(grid.columnMedian(1)));
-    CHECK_THAT(grid.columnMedian(2),
-    Catch::WithinAbs(85.375, kEpsilon));
+  // Median Column Tests
+  CHECK_THAT(grid.columnMedian(0),
+  Catch::WithinAbs(3.5, kEpsilon));
+  CHECK(std::isnan(grid.columnMedian(1)));
+  CHECK_THAT(grid.columnMedian(2),
+  Catch::WithinAbs(85.375, kEpsilon));
 
-    CHECK_THROWS(grid.columnMedian(99));
-  }
+  CHECK_THROWS(grid.columnMedian(99));
 
-  SECTION("Standard Deviation Column Tests") {
-    CHECK_THAT(grid.columnStandardDeviation(0),
-    Catch::WithinAbs(7.5056645275418, kEpsilon));
-    CHECK(std::isnan(grid.columnStandardDeviation(1)));
-    CHECK_THAT(grid.columnStandardDeviation(2),
-    Catch::WithinAbs(81.968172176766, kEpsilon));
+  // Standard Deviation Column Tests
+  CHECK_THAT(grid.columnStandardDeviation(0),
+  Catch::WithinAbs(7.5056645275418, kEpsilon));
+  CHECK(std::isnan(grid.columnStandardDeviation(1)));
+  CHECK_THAT(grid.columnStandardDeviation(2),
+  Catch::WithinAbs(81.968172176766, kEpsilon));
 
-    CHECK_THROWS(grid.columnStandardDeviation(99));
-  }
+  CHECK_THROWS(grid.columnStandardDeviation(99));
 
-  SECTION("Min Column Tests") {
-    CHECK_THAT(grid.columnMin(0),
-    Catch::WithinAbs(-15, kEpsilon));
-    CHECK(std::isnan(grid.columnMax(1)));
-    CHECK_THAT(grid.columnMin(2),
-    Catch::WithinAbs(10.25, kEpsilon));
+  // Min Column Tests
+  CHECK_THAT(grid.columnMin(0),
+  Catch::WithinAbs(-15, kEpsilon));
+  CHECK(std::isnan(grid.columnMax(1)));
+  CHECK_THAT(grid.columnMin(2),
+  Catch::WithinAbs(10.25, kEpsilon));
 
-    CHECK_THROWS(grid.columnMin(99));
-  }
+  CHECK_THROWS(grid.columnMin(99));
 
-  SECTION("Max Column Tests") {
-    CHECK_THAT(grid.columnMax(0),
-    Catch::WithinAbs(5.0, kEpsilon));
-    CHECK(std::isnan(grid.columnMax(1)));
-    CHECK_THAT(grid.columnMax(2),
-    Catch::WithinAbs(200, kEpsilon));
+  // Max Column Tests
+  CHECK_THAT(grid.columnMax(0),
+  Catch::WithinAbs(5.0, kEpsilon));
+  CHECK(std::isnan(grid.columnMax(1)));
+  CHECK_THAT(grid.columnMax(2),
+  Catch::WithinAbs(200, kEpsilon));
 
-    CHECK_THROWS(grid.columnMax(99));
-  }
+  CHECK_THROWS(grid.columnMax(99));
 
 }
 
