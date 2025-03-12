@@ -12,6 +12,7 @@
 #include <map>
 #include <vector>
 #include <cassert>
+#include <set>
 #include <deque>
 
 namespace cse {
@@ -25,6 +26,7 @@ class Scheduler {
   struct Process {
     int id;
     double priorityWeight;
+    std::vector<double> processWeights;
   };
 
   /// List holding the IDs of all the items added to the scheduler and their priority weights
@@ -38,6 +40,9 @@ class Scheduler {
 
   /// Queue holding all the Processes that have had their priority values overridden to be pushed to the front of the Scheduler
   std::deque<Process> overrideQueue;
+
+  /// Set containing all the IDs of Processes currently in the Scheduler
+  std::set<int> seenIds;
 
  public:
   /**
@@ -62,18 +67,24 @@ class Scheduler {
    * Adds a process to the Scheduler
    * @param id ID of the process we are adding to the scheduler
    */
-  void AddProcess(const int id,const std::vector<double> &weights,const int processCount=1) {
+  void AddProcess(const int id,const std::vector<double> &weights) {
     assert(weights.size()==weightList.size());
+
+    size_t numProcesses=seenIds.size();
+    seenIds.insert(id);
+    if(numProcesses == seenIds.size()) {
+        return;
+    }
+
     double priority=0;
-    int n=weights.size();
-    for(int i=0;i<n;i++) {
+    int weightsSize=weights.size();
+    for(int i=0;i<weightsSize;i++) {
       priority+=(weights[i]*weightList[i]);
     }
 
-    Process process={id,priority};
-    for(int i=0;i<processCount;i++) {
-      currIds.push_back(process);
-    }
+    Process process={id,priority,weights};
+    currIds.push_back(process);
+
     needUpdate = true;
   }
 
@@ -81,23 +92,24 @@ class Scheduler {
    * Removes the process of a given ID from the scheduler
    * @param id ID of the process we are removing from the scheduler
    */
-  void RemoveProcess(const int id,int removeCount=1) {
-    for(int i=currIds.size()-1;i>=0 && removeCount>0;i--) {
+  void RemoveProcess(const int id) {
+    int currIdsSize=currIds.size(),overrideQueueSize=overrideQueue.size();
+    for(int i=0;i<currIdsSize;i++) {
       if(currIds[i].id==id) {
-        removeCount--;
         currIds.erase(currIds.begin()+i);
+        seenIds.erase(id);
+        needUpdate=true;
+        return;
       }
     }
 
-    if(removeCount>0 && !overrideQueue.empty()) {
-      for(int i=overrideQueue.size()-1;i>=0 && removeCount>0;i--) {
-        if(overrideQueue.at(i).id==id) {
-          removeCount--;
-          overrideQueue.erase(overrideQueue.begin()+i);
-        }
+    for(int i=0;i<overrideQueueSize;i++) {
+      if(overrideQueue.at(i).id==id) {
+        overrideQueue.erase(overrideQueue.begin()+i);
+        seenIds.erase(id);
+        return;
       }
     }
-    needUpdate = true;
   }
 
   /**
@@ -110,9 +122,10 @@ class Scheduler {
       return std::nullopt;
     }
 
-    if(overrideQueue.size()>0) {
+    if(!overrideQueue.empty()) {
       int outID=overrideQueue.front().id;
       overrideQueue.pop_front();
+      seenIds.erase(outID);
       return outID;
     }
 
@@ -123,18 +136,95 @@ class Scheduler {
     }
     int outID = currIds[0].id;
     currIds.erase(currIds.begin());
+    seenIds.erase(outID);
     needUpdate = false;
     return outID;
   }
 
   void OverridePriority(const int id) {
-    for(int i=currIds.size()-1;i>=0;i--) {
+    int currIdsSize=currIds.size();
+    for(int i=0;i<currIdsSize;i++) {
       if(id==currIds[i].id) {
         overrideQueue.push_back(currIds[i]);
-        currIds.erase(currIds.begin()+1);
+        currIds.erase(currIds.begin()+i);
         return;
       }
     }
+  }
+
+  void UpdateProcessPriority(const int id,const std::vector<double> &newWeights) {
+      assert(newWeights.size()==weightList.size());
+      int weightsSize=weightList.size(),currIdsSize=currIds.size(),overrideQueueSize=overrideQueue.size();
+      double newPriority=0;
+      for(int i=0;i<weightsSize;i++) {
+          newPriority+=(weightList[i]*newWeights[i]);
+      }
+
+      for(int i=0;i<currIdsSize;i++) {
+          if(id==currIds[i].id) {
+              currIds[i].priorityWeight=newPriority;
+              currIds[i].processWeights=newWeights;
+              needUpdate=true;
+              return;
+          }
+      }
+
+      for(int i=0;i<overrideQueueSize;i++) {
+         if(overrideQueue.at(i).id==id) {
+            overrideQueue.at(i).processWeights=newWeights;
+            overrideQueue.at(i).priorityWeight=newPriority;
+            return;
+         }
+      }
+  }
+
+  void UpdateSchedulerWeights(std::vector<double> &newWeights) {
+      assert(newWeights.size()==weightList.size());
+      weightList=newWeights;
+
+      int currIdsSize=currIds.size(),weightListSize=weightList.size();
+      for(int i=0;i<currIdsSize;i++) {
+          double newProcessWeight=0;
+          for(int j=0;j<weightListSize;j++) {
+              newProcessWeight+=(weightList[i]*currIds[i].processWeights[i]);
+          }
+          currIds[i].priorityWeight=newProcessWeight;
+      }
+      needUpdate=true;
+  }
+
+  std::optional<double> GetProcessPriority(const int id) {
+      int currIdsSize=currIds.size(),overrideQueueSize=overrideQueue.size();
+
+      for(int i=0;i<currIdsSize;i++) {
+          if(id==currIds[i].id) {
+              return currIds[i].priorityWeight;
+          }
+      }
+
+      for(int i=0;i<overrideQueueSize;i++) {
+          if(overrideQueue.at(i).id==id) {
+              return overrideQueue.at(i).priorityWeight;
+          }
+      }
+      return std::nullopt;
+  }
+
+  std::optional<std::vector<double>> GetProcessWeights(const int id) {
+      int currIdsSize=currIds.size(),overrideQueueSize=overrideQueue.size();
+
+      for(int i=0;i<currIdsSize;i++) {
+          if(id==currIds[i].id) {
+              return currIds[i].processWeights;
+          }
+      }
+
+      for(int i=0;i<overrideQueueSize;i++) {
+          if(overrideQueue.at(i).id==id) {
+              return overrideQueue.at(i).processWeights;
+          }
+      }
+      return std::nullopt;
   }
 
   /**
