@@ -1,5 +1,5 @@
 BUILD_PROFILE?=
-BUILD_DIR = target/$(BUILD_PROFILE)
+BUILD_DIR = app/web/$(BUILD_PROFILE)
 BIN_DIR = ./app
 LIB_DIR = ./lib
 PROJECT_NAME = app
@@ -8,17 +8,13 @@ PROJECT_TYPE = exe
 SRCS = $(addsuffix .cpp, $(NAMES))
 HEADS = $(shell find -type f -name *.hpp)
 
-CXX ?= g++
+CXX ?= em++
 
 CXX_FLAGS_all ?= -std=c++23 -Wextra -Wall -I$(BIN_DIR) -I$(LIB_DIR)
 
 BUILD_FLAGS?=
 BUILD_PREFIX=
-ifeq ($(OS),Windows_NT)
-	BUILD_FILE_TYPE=.wat
-else
-	BUILD_FILE_TYPE=.wat
-endif
+BUILD_FILE_TYPE=.js
 
 CXX_FLAGS ?= -O2 -DNDEBUG
 CXX_FLAGS += $(CXX_FLAGS_all)
