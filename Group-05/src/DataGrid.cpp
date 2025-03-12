@@ -11,6 +11,7 @@
 #include <iostream>
 #include <limits>
 #include <numeric>
+#include <ranges>
 #include <unordered_map>
 #include <vector>
 
@@ -524,5 +525,74 @@ std::vector<double> DataGrid::getDoubleValues(const ReferenceVector<Datum>& refe
   }
   return double_values;
 }
+
+// CITE: Used chatgpt and claude to help write this code which removed a lot of duplication. Although there is still some with
+// the switch statements, it's much nicer now. WIP
+cse::ReferenceVector<Datum> DataGrid::determineColumnComparisons(std::size_t column_index, Datum& value, operations operation) {
+  ReferenceVector<Datum> values;
+  ReferenceVector<Datum> column = getColumn(column_index);
+
+  auto compare_and_store = [&values, operation](const auto& current_value, const auto& compare_value, Datum& datum) {
+    switch (operation) {
+      case operations::LESS_THAN:
+        if (current_value < compare_value) values.PushBack(datum);
+        break;
+      case operations::LESS_THAN_OR_EQUAL:
+        if (current_value <= compare_value) values.PushBack(datum);
+        break;
+      case operations::GREATER_THAN:
+        if (current_value > compare_value) values.PushBack(datum);
+        break;
+      case operations::GREATER_THAN_OR_EQUAL:
+        if (current_value >= compare_value) values.PushBack(datum);
+        break;
+      case operations::EQUAL:
+        if (current_value == compare_value) values.PushBack(datum);
+        break;
+      case operations::NOT_EQUAL:
+        if (current_value != compare_value) values.PushBack(datum);
+        break;
+      default:
+        break;
+    }
+  };
+
+  for (Datum& datum : column) {
+    if (datum.IsDouble() && value.IsDouble()) {
+      compare_and_store(datum.GetDouble(), value.GetDouble(), datum);
+    }
+    if (datum.IsString() && value.IsString()) {
+      compare_and_store(datum.GetString(), value.GetString(), datum);
+    }
+  }
+  return values;
+}
+
+
+cse::ReferenceVector<Datum> DataGrid::columnLessThan(std::size_t column_index, Datum& value) {
+  return determineColumnComparisons(column_index, value, operations::LESS_THAN);
+}
+
+cse::ReferenceVector<Datum> DataGrid::columnLessThanOrEqual(std::size_t column_index, Datum& value) {
+  return determineColumnComparisons(column_index, value, operations::LESS_THAN_OR_EQUAL);
+}
+
+cse::ReferenceVector<Datum> DataGrid::columnGreaterThan(size_t column_index, cse::Datum &value) {
+  return determineColumnComparisons(column_index, value, operations::GREATER_THAN);
+}
+
+cse::ReferenceVector<Datum> DataGrid::columnGreaterThanOrEqual(size_t column_index, cse::Datum &value) {
+  return determineColumnComparisons(column_index, value, operations::GREATER_THAN_OR_EQUAL);
+}
+
+cse::ReferenceVector<Datum> DataGrid::columnEqual(size_t column_index, cse::Datum &value) {
+  return determineColumnComparisons(column_index, value, operations::EQUAL);
+}
+
+cse::ReferenceVector<Datum> DataGrid::columnNotEqual(size_t column_index, cse::Datum &value) {
+  return determineColumnComparisons(column_index, value, operations::NOT_EQUAL);
+}
+
+
 
 } // namespace cse

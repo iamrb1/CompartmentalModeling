@@ -28,7 +28,18 @@ private:
   /// A 2D vector holding datums
   std::vector<row_t> grid_;
 
+  enum class operations {
+    LESS_THAN,
+    LESS_THAN_OR_EQUAL,
+    GREATER_THAN,
+    GREATER_THAN_OR_EQUAL,
+    EQUAL,
+    NOT_EQUAL
+  };
+
   static std::vector<double> getDoubleValues(const ReferenceVector<Datum>& reference_vector);
+
+  ReferenceVector<Datum> determineColumnComparisons(size_t column_index, Datum &value, operations operation);
 
 public:
   explicit DataGrid(const std::vector<std::vector<Datum>> &data) {
@@ -135,6 +146,13 @@ public:
   double columnStandardDeviation(std::size_t column_index);
   double columnMin(std::size_t column_index);
   double columnMax(std::size_t column_index);
+
+  ReferenceVector<Datum> columnLessThan(size_t column_index, Datum& value);
+  ReferenceVector<Datum> columnLessThanOrEqual(size_t column_index, Datum& value);
+  ReferenceVector<Datum> columnGreaterThan(size_t column_index, Datum& value);
+  ReferenceVector<Datum> columnGreaterThanOrEqual(size_t column_index, Datum& value);
+  ReferenceVector<Datum> columnEqual(size_t column_index, Datum& value);
+  ReferenceVector<Datum> columnNotEqual(size_t column_index, Datum& value);
 
   std::ostream &print(std::ostream &os_) const;
 };
