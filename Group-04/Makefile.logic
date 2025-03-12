@@ -1,12 +1,12 @@
 BUILD_PROFILE?=
 BUILD_DIR = target/$(BUILD_PROFILE)
-BIN_DIR = ./app
+BIN_DIR = ./bin
 LIB_DIR = ./lib
 PROJECT_NAME = app
 PROJECT_TYPE = exe
 
-SRCS = $(addsuffix .cpp, $(NAMES))
 HEADS = $(shell find -type f -name *.hpp)
+TESTS = $(shell find ../tests/Group-04 -type f -name *.cpp)
 
 CXX ?= g++
 
@@ -15,9 +15,9 @@ CXX_FLAGS_all ?= -std=c++23 -Wextra -Wall -I$(BIN_DIR) -I$(LIB_DIR)
 BUILD_FLAGS?=
 BUILD_PREFIX=
 ifeq ($(OS),Windows_NT)
-	BUILD_FILE_TYPE=.wat
+	BUILD_FILE_TYPE=.exe
 else
-	BUILD_FILE_TYPE=.wat
+	BUILD_FILE_TYPE=
 endif
 
 CXX_FLAGS ?= -O2 -DNDEBUG
@@ -47,5 +47,5 @@ $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
 format:
-	echo $(addprefix $(SRC_DIR)/, $(SRCS)) $(HEADS) | xargs clang-format --style=file -i
+	echo $(HEADS) $(TESTS) | xargs clang-format --style=file -i
 

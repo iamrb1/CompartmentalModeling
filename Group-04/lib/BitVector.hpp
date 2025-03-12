@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
-#include <format>
 #include <iostream>
+#include <format>
 #include <ranges>
 #include <vector>
 #include <bitset>
@@ -305,31 +305,28 @@ BitVector::BitVector(const std::string& bstr, char zero, char one) {
     size_t idx = m_num_bits - (i + 1);
     if (bstr[idx] == one) {
       (*this)[i] = true;
-    } else if (bstr[idx] != zero) {
-      throw std::invalid_argument(std::format(
-          "Unexpected character in bit string (1 = '{}') (0 = '{}'): '{}'", one,
-          zero, bstr[idx]));
+    } else {
+      cse_assert_eq(
+          bstr[idx], zero,
+          std::format(
+              "Unexpected character in bit string (1 = '{}') (0 = '{}'): '{}'",
+              one, zero, bstr[idx]));
     }
   }
 }
 
 // Get the index as a reference
 BitVector::proxy BitVector::operator[](size_t idx) {
-  dbg_assert(idx < m_num_bits,
-             std::format("Invalid index into BitVector: idx - {}, max - {}",
-                         idx, m_num_bits)
-                 .c_str());
+  dbg_assert(idx < m_num_bits, std::format("Invalid index into BitVector: idx - {}, max - {}", idx, m_num_bits).c_str());
   return proxy(this, &m_underlying[idx / BITS_PER_EL],
                (uint8_t)(idx % BITS_PER_EL));
 }
 
 // Get the index as a const bool
 bool BitVector::operator[](size_t idx) const {
-#ifndef NDEBUG
-  if (m_num_bits <= idx)
-    throw std::out_of_range(std::format(
-        "Invalid index into BitVector: idx - {}, max - {}", idx, m_num_bits));
-#endif
+  dbg_assert(m_num_bits > idx,
+             std::format("Invalid index into BitVector: idx - {}, max - {}",
+                         idx, m_num_bits));
   const uint64_t bit =
       (ONE_ONE << (idx % BITS_PER_EL)) & m_underlying[idx / BITS_PER_EL];
   return bit != ALL_ZERO;
