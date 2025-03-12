@@ -5,6 +5,8 @@
 
 #include "EventManager.hpp"
 #include <optional>
+#include <chrono>
+#include <stdexcept>
 
 namespace cse {
 
@@ -12,8 +14,11 @@ namespace cse {
  * @brief Increments time on clock_thread and checks for events to trigger
  */
 void EventManager::AdvanceTime() {
+  //https://chatgpt.com/share/67d0f10d-2464-8005-8cc2-7420f14ea783
+  auto nextTime = std::chrono::steady_clock::now();
   while (running_) {
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    nextTime += std::chrono::seconds(1);
+    std::this_thread::sleep_until(nextTime);
     clock_time_++;
     TriggerEvents();
   }
@@ -90,6 +95,9 @@ bool EventManager::ResumeEvent(Event &event) {
  * @return added Event
  */
 std::optional<Event> EventManager::AddEvent(int time, std::string data) {
+  if(time < 0){
+    throw std::invalid_argument("Time must be positive");
+  }
   Event event(next_id_, time, data);
   ++next_id_;
   event_queue_.add(event);
@@ -128,7 +136,6 @@ void EventManager::StartQueue() {
   if (running_) { //Queue is already running
     return;
   }
-  clock_time_ = 0;
   running_ = true;
   clock_thread_ = std::thread(&EventManager::AdvanceTime, this); //Create thread that executes AdvanceTime
 }
@@ -141,5 +148,6 @@ void EventManager::RestartQueue() {
   clock_time_ = 0;
   StartQueue();
 }
+
 
 }
