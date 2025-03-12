@@ -210,7 +210,6 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
 
     s2.insert("---", 7);
     CHECK(std::strcmp(s2.get_str(), "a1TEST2---") == 0);
-
   }
 
   SECTION("TESTS: Erase  member function") {

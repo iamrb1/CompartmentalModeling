@@ -602,7 +602,7 @@ public:
    * @param str String to be inserted
    * @param index size_t index to insert string.
    */
-  template<typename T>
+  template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
   void insert(const T& str, const std::size_t& index) {
     std::string_view temp_view = str;
 
