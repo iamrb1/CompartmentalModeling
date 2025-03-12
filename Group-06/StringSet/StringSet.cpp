@@ -5,7 +5,6 @@
  */
 
 #include "StringSet.hpp"
-
 /**
  * @brief Union of two sets
  * @param other The second set
@@ -130,5 +129,19 @@ void cse::StringSet::SubstringFilter(const std::string &substring) {
   };
 
   RemoveFilter(substringPredicate);
+}
+cse::StringSet cse::StringSet::Search(const std::string &wildcard){
+  StringSet result;
+  return result;
+}
 
+int cse::StringSet::countOccurence(const std::string &substring){
+  return 0;
+}
+cse::StringSet cse::StringSet::RandomSample(int sampleSize){
+  StringSet result;
+  return result;
+}
+std::tuple<std::tuple<int, int>, std::tuple<std::string, std::string>> cse::StringSet::Statistics(){
+  return std::make_tuple(std::make_tuple(0, 0), std::make_tuple("", ""));
 }

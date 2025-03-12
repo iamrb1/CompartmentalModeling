@@ -106,7 +106,7 @@ TEST_CASE("Test for Search", "[Search]") {
     set.insert("xyz");
 
     // Perform a search with a pattern and check if the result matches the expected output
-    auto result = set.Search("a?c*");
+    StringSet result = set.Search("a?c*");
     std::vector<std::string> expected = {"abc", "aXcY", "aXcZ"};
     REQUIRE(result == expected);
 }

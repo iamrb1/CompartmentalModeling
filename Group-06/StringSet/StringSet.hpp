@@ -110,5 +110,12 @@ public:
 
   void SubstringFilter(const std::string &substring);
 
+  StringSet Search(const std::string &wildcard);
+
+  int countOccurence(const std::string &substring);
+
+  StringSet RandomSample(int sampleSize);
+
+  std::tuple<std::tuple<int, int>, std::tuple<std::string, std::string>>Statistics();
 };
 }  // namespace cse
