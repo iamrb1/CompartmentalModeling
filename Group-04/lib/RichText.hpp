@@ -12,6 +12,7 @@
 #include <utility>
 #include <variant>
 #include <vector>
+#include <format>
 
 #include "CseAssert.hpp"
 #include "IndexSet.hpp"
