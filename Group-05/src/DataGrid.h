@@ -42,11 +42,24 @@ private:
   ReferenceVector<Datum> determineColumnComparisons(size_t column_index, Datum &value, operations operation);
 
 public:
+  /**
+   * Constructor using 2D Vector of Datums
+   * @param data
+   */
   explicit DataGrid(const std::vector<std::vector<Datum>> &data) {
-    assert(!data.empty());
-    assert(!data[0].empty());
+    assert(data.empty() || !data[0].empty());
+    assert(isRectangle(data));
 
     grid_ = data;
+  }
+
+  [[nodiscard]] static bool isRectangle(const std::vector<std::vector<Datum>> &data) {
+    if (data.empty()) return true;
+
+    const size_t row_one_length = data[0].size();
+    for (auto &row : data) {
+      if (row.size() != row_one_length) return false;
+    } return true;
   }
 
   /**
@@ -58,7 +71,7 @@ public:
    */
   explicit DataGrid(const std::size_t num_rows_ = 0, const std::size_t num_columns_ = 0,
            const double default_value_ = 0) {
-    this->resize(num_rows_, num_columns_, default_value_);
+    resize(num_rows_, num_columns_, default_value_);
   }
 
   /**
@@ -70,7 +83,7 @@ public:
    */
   DataGrid(const std::size_t num_rows_, const std::size_t num_columns_,
            const std::string& default_value_) {
-    this->resize(num_rows_, num_columns_, default_value_);
+    resize(num_rows_, num_columns_, default_value_);
   }
 
   /**
@@ -103,11 +116,30 @@ public:
    */
   void clear() { grid_.clear(); }
 
-  row_t &operator[](std::size_t row_index_);
-  row_t &getRow(std::size_t row_index_);
+  /**
+   * @brief Index a row of the DataGrid
+   * @param row_index_ Index of the row
+   * @return Indexed vector row from DataGrid
+   */
+  [[nodiscard]] row_t &operator[](const std::size_t row_index_) {
+    assert(row_index_ < grid_.size());
+    return at(row_index_);
+  }
+
+  /**
+   * @brief Index a const row of the DataGrid
+   * @param row_index_ Index of the row
+   * @return Indexed const vector row from DataGrid
+   */
+  [[nodiscard]] const row_t &operator[](const std::size_t row_index_) const {
+    assert(row_index_ < grid_.size());
+    return at(row_index_);
+  }
+
+  [[nodiscard]] row_t &getRow(std::size_t row_index_);
   [[nodiscard]] const row_t &getRow(std::size_t row_index_) const;
-  cse::ReferenceVector<Datum> getColumn(std::size_t column_index_);
-  Datum &getValue(std::size_t row_index_, std::size_t column_index_);
+  [[nodiscard]] ReferenceVector<Datum> getColumn(std::size_t column_index_);
+  [[nodiscard]] Datum &getValue(std::size_t row_index_, std::size_t column_index_);
   [[nodiscard]] const Datum &getValue(std::size_t row_index_,
                         std::size_t column_index_) const;
 

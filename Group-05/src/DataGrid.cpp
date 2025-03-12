@@ -25,17 +25,14 @@ namespace cse {
  * @param row_index_ Index of the row
  * @return Indexed vector row from DataGrid
  */
-DataGrid::row_t &DataGrid::operator[](const std::size_t row_index_) {
-  return this->at(row_index_);
-}
-
-/**
- * @brief Index a row of the DataGrid
- * @param row_index_ Index of the row
- * @return Indexed vector row from DataGrid
- */
 DataGrid::row_t &DataGrid::getRow(const std::size_t row_index_) {
-  return this->at(row_index_);
+  assert(row_index_ < grid_.size());
+
+  if (grid_.empty() || row_index_ >= grid_.size()) {
+    throw std::out_of_range("Row index out of bounds");
+  }
+
+  return grid_.at(row_index_);
 }
 
 /**
@@ -47,7 +44,6 @@ DataGrid::row_t &DataGrid::getRow(const std::size_t row_index_) {
  * @return A const reference to the indexed vector row from the DataGrid.
  */
 const DataGrid::row_t &DataGrid::getRow(const std::size_t row_index_) const {
-  assert(!grid_.empty());
   assert(row_index_ < grid_.size());
 
   if (grid_.empty() || row_index_ >= grid_.size()) {
@@ -123,6 +119,7 @@ cse::ReferenceVector<Datum> DataGrid::getColumn(const std::size_t column_index_)
   ReferenceVector<Datum> column;
 
   for (auto &row : grid_) {
+    assert(column_index_ < row.size());
     column.PushBack(row.at(column_index_));
   }
   return column;
@@ -145,7 +142,7 @@ void DataGrid::insertDefaultRow(std::size_t row_index_, double default_value_) {
     row_index_ = grid_.size();
   }
 
-  std::size_t num_columns = std::get<1>(this->shape());
+  const std::size_t num_columns = std::get<1>(shape());
 
   // Source ChatGPT
   // Inserts row at row_index_
@@ -171,7 +168,7 @@ void DataGrid::insertDefaultRow(std::size_t row_index_,
     row_index_ = grid_.size();
   }
 
-  std::size_t num_columns = std::get<1>(this->shape());
+  const std::size_t num_columns = std::get<1>(shape());
 
   // Source ChatGPT
   // Inserts row at row_index_
@@ -299,13 +296,12 @@ void DataGrid::resize(std::size_t num_rows_, std::size_t num_columns_,
  * @return Modified output stream
  */
 std::ostream &DataGrid::print(std::ostream &os_) const {
-  auto [rows, columns] = this->shape();
+  auto [rows, columns] = shape();
   os_ << "Grid Shape: " << rows << " x " << columns << "\n";
 
   for (std::size_t i = 0; i < rows; ++i) {
     for (std::size_t j = 0; j < columns; ++j) {
-      auto value = this->getValue(i, j);
-      if (value.IsString()) {
+      if (auto value = getValue(i, j); value.IsString()) {
         os_ << value.GetString() << " ";
       } else if (value.IsDouble()) {
         os_ << value.GetDouble() << " ";
