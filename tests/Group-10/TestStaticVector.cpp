@@ -1,5 +1,5 @@
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
-#include "../../Group-10/Classes/StaticVector.h" 
+#include "../../Group-10/Classes/StaticVector.hpp" 
 
 /// Tests for StaticVector functionality
 

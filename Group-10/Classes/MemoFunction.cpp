@@ -5,7 +5,7 @@ Author: Bellman - Ephraim
 date: 1/31/2025
 ------------------------------------------ */
 
-#include "MemoFunction.h"
+#include "MemoFunction.hpp"
 
 #include <chrono>
 #include <iomanip>

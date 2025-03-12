@@ -1,5 +1,5 @@
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
-#include "../../Group-10/Classes/BruteForceOptimizer.h"
+#include "../../Group-10/Classes/BruteForceOptimizer.hpp"
 
 /// Tests for BruteForceOptimizer functionality
 TEST_CASE("BruteForceOptimizer basic tests", "[BruteForceOptimizer]")

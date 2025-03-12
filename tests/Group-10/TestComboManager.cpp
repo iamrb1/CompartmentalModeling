@@ -1,5 +1,5 @@
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
-#include "../../Group-10/Classes/ComboManager.h"
+#include "../../Group-10/Classes/ComboManager.hpp"
 
 #include <vector>
 #include <list>

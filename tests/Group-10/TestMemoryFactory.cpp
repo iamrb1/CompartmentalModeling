@@ -7,7 +7,7 @@
 #include <string>
 
 // Class Header
-#include "../../Group-10/Classes/MemoryFactory.h"
+#include "../../Group-10/Classes/MemoryFactory.hpp"
 
 TEST_CASE("MemoryFactory Construction", "[constructor]") {
   SECTION("Testing default construction") {
