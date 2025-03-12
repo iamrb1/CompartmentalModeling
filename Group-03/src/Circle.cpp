@@ -1,9 +1,6 @@
 // Circle.cpp : implementation of the Circle class
 #include "Circle.h"
 
-
-
-
 // Constructor
 Circle::Circle(double x, double y, double radius, double baseSpeed, double speed, const std::string& circleType)
     : x_(x), y_(y), radius_(radius), baseSpeed_(baseSpeed), speed_(speed), circleType_(circleType), energy_(100), regen_(false) {
@@ -12,56 +9,33 @@ Circle::Circle(double x, double y, double radius, double baseSpeed, double speed
     }
 }
 
-
-
-
 // Destructor
 Circle::~Circle() {}
-
-
-
 
 // Getters
 double Circle::getX() const {
     return x_;
 }
 
-
-
-
 double Circle::getY() const {
     return y_;
 }
-
-
-
 
 double Circle::getRadius() const {
     return radius_;
 }
 
-
-
-
 double Circle::getSpeed() const {
     return speed_;
 }
-
-
-
 
 int Circle::getEnergy() const {
     return energy_;
 }
 
-
-
-
 std::string Circle::getCircleType() const {
     return circleType_;
 }
-
-
 
 
 // Setters
@@ -70,9 +44,6 @@ void Circle::setPosition(double x, double y) {
     y_ = y;
 }
 
-
-
-
 void Circle::setRadius(double radius) {
     if (radius <= 0) {
         throw std::invalid_argument("Radius must be positive");
@@ -80,22 +51,13 @@ void Circle::setRadius(double radius) {
     radius_ = radius;
 }
 
-
-
-
 void Circle::setSpeed(int speed) {
     speed_ = speed;
 }
 
-
-
-
 void Circle::setCircleType(const std::string& circleType) {
     circleType_ = circleType;
 }
-
-
-
 
 // Check if this circle overlaps with another circle
 bool Circle::overlaps(const Circle& other) const {
@@ -105,27 +67,14 @@ bool Circle::overlaps(const Circle& other) const {
     return distance < (radius_ + other.radius_);
 }
 
-
-
-
 // Miscellaneous characteristics
 void Circle::setCharacteristic(const std::string& characteristic) {
     characteristic_ = characteristic;
 }
 
-
-
-
 std::string Circle::getCharacteristic() const {
     return characteristic_;
 }
-
-
-
-
-
-
-
 
 void Circle::decreaseEnergy(int energy) {
     if (energy_ > 0 && !regen_) {
@@ -140,7 +89,6 @@ void Circle::decreaseEnergy(int energy) {
     }
 }
 
-
 void Circle::regenEnergy(int energy) {
     if (regen_) {
         energy_ += energy;
@@ -150,7 +98,6 @@ void Circle::regenEnergy(int energy) {
         }
     }
 }
-
 
 void Circle::updateSpeed() {
     if (!regen_) {
