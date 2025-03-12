@@ -7,49 +7,14 @@
  * 
  */
 
-#ifndef CSE_ERROR_MANAGER_CPP_
-#define CSE_ERROR_MANAGER_CPP_
-
-#include <cassert>
-#include <cstdint>
-#include <cstdlib>
-#include <fstream>
-#include <functional>
-#include <iostream>
-#include <optional>
-#include <sstream>
-#include <stdexcept>
-#include <unordered_map>
-#include <array>
-#include <regex>
+#include "ErrorManager.hpp"
 
 namespace cse {
-/**
- * @brief A class for convenient management and output of different types of
- * errors
- *
- *
- */
-class ErrorManager {
- public:
-  /**
-   * @brief Possible levels of errors
-   *
-   */
-  enum class ErrorLevel { Info = 0, Warning = 1, Fatal = 2 };
 
-  /**
-   * @brief Executes a function and displays an error if function throws during
-   * execution
-   *
-   * @param function Function to be executed
-   * @param message Error message to be displayed if a function fails
-   * @param level Error level of a message
-   */
-  void executeAndHandleError(const std::function<void()>& function,
+
+  void ErrorManager::executeAndHandleError(const std::function<void()>& function,
                              const std::string& message,
-                             ErrorLevel level = ErrorLevel::Info) {
-    // assert(function);
+                             ErrorLevel level) {
 
     try {
       function();
@@ -57,98 +22,36 @@ class ErrorManager {
       printMessage(message, level);
     }
   }
-  /**
-   * @brief Writes a message to console with a message type at the start of a
-   * line
-   *
-   * @param message Message to be sent to user
-   * @param level Error level of a message. Defaults to "Info" if not specified
-   */
-  void printMessage(const std::string& message,
-                  ErrorLevel level = ErrorLevel::Info) {
+  
+  void ErrorManager::printMessage(const std::string& message,
+                  ErrorLevel level) {
     printMessage(0, message, level);
   }
-/**
- * @brief Prints an Info message
- * 
- * @param message message to be printed
- * @param line line number (optional)
- */
-  void printInfo(const std::string& message, int32_t line = 0) {
+
+  void ErrorManager::printInfo(const std::string& message, int32_t line) {
     printMessage(line, message, ErrorLevel::Info);
   }
-/**
- * @brief Prints a Warning message
- * 
- * @param message  message to be printed
- * @param line line number (optional)
- */
-  void printWarning(const std::string& message, int32_t line = 0) {
+
+  void ErrorManager::printWarning(const std::string& message, int32_t line) {
     printMessage(line, message, ErrorLevel::Warning);
   }
-/**
- * @brief Prints a Fatal message
- * 
- * @param message message to be printed
- * @param line line number (optional)
- */
-  void printError(const std::string& message, int32_t line = 0) {
+
+  void ErrorManager::printError(const std::string& message, int32_t line) {
     printMessage(line, message, ErrorLevel::Fatal);
   }
 
-  /**
-   * @brief Writes a message to console with a message type at line number
-   *
-   * @param line Line number where error occured
-   * @param message Message to be sent to user
-   * @param level Error level of a message. Defaults to "Info"
-   */
-  void printMessage(int32_t line, const std::string& message,
-                  ErrorLevel level = ErrorLevel::Info) {
-    assert(!message.empty());
-    assert(static_cast<std::size_t>(level) < mStringColorCodes.size());
-    assert(static_cast<std::size_t>(level) < mTerminationEnabled.size());
-
-    std::stringstream ss;
-    formatConsoleOutput(ss, line, message, level);
-
-    std::string output = ss.str();
-    std::cout << output;  // output error to the console
-
-    // Format for logging into a file
-    logToFile(output);
-
-    if (mActions[static_cast<int>(level)]) {
-      mActions[static_cast<int>(level)]();
-    }
-
-    int code = mTerminationEnabled[static_cast<int>(level)];
-    if (code > 0) {
-      exit(code);
-    }
-  }
-
-  /**
-   * @brief Set the Action that will be invoked when an error of a certain
-   * ErrorType occurs
-   *
-   * @param level Error Level to which action will be assigned
-   * @param action Function that will be called. Does not accept arguments and
-   * returns void
-   */
-  void setAction(ErrorLevel level, const std::function<void()>& action) {
+  void ErrorManager::setAction(ErrorLevel level, const std::function<void()>& action) {
     assert(action);
 
     mActions[static_cast<int>(level)] = action;
   }
 
-  /**
-   * @brief Constructs a new Error Manager object
-   *
-   * @param filePath Optional parameter for a file path where errors will be
-   * logged
-   */
-  ErrorManager(const std::optional<std::string>& filePath = std::nullopt) {
+  
+  ErrorManager::ErrorManager(const std::optional<std::string>& filePath) {
+    mStringColorCodes = {COLOR_GREEN, COLOR_YELLOW, COLOR_RED};
+    mTerminationEnabled = {0, 0, 0};
+    mColorsEnabled = true;
+
     if (filePath.has_value()) {
       mLogFile.open(filePath.value(), std::ios::app);
       if (!mLogFile.is_open()) {
@@ -158,37 +61,18 @@ class ErrorManager {
     }
   }
 
-  /**
-   * @brief Destroy the Error Manager object and close logging file if it was
-   * opened
-   *
-   */
-  ~ErrorManager() {
+ 
+  ErrorManager::~ErrorManager() {
     if (mLogFile.is_open()) {
       mLogFile.close();
     }
   }
 
-  /**
-   * @brief Allows to enable or disable coloring for ErrorLevel tag in console
-   * output
-   *
-   * @param enabled Specifies whether to enable or disable coloring
-   */
-  void enableColors(bool enabled) { this->mColorsEnabled = enabled; }
 
-  /**
-   * @brief Allows to enable termination via exit() if an error of a specified
-   * type occurs
-   *
-   * @param level The error level for which termination will be enabled or
-   * disabled
-   * @param enabled Enables or disables termination of the program
-   * @param statusCode optional parameter: specifies which status code to use
-   * for exit()
-   */
-  void enableTermination(ErrorLevel level, bool enabled,
-                         int32_t statusCode = 1) {
+  void ErrorManager::enableColors(bool enabled) { this->mColorsEnabled = enabled; }
+
+  void ErrorManager::enableTermination(ErrorLevel level, bool enabled,
+                         int32_t statusCode) {
     assert(statusCode >= 0);
 
     if (enabled) {
@@ -198,51 +82,8 @@ class ErrorManager {
     }
   }
 
- private:
  
-  /// @brief Green ANSI color code for Info
-  static constexpr const char* COLOR_GREEN = "\033[32m";
-
-  /// @brief Yellow ANSI color code for Warning
-  static constexpr const char* COLOR_YELLOW = "\033[33m";
-
-  /// @brief Red ANSI color code for Fatal
-  static constexpr const char* COLOR_RED = "\033[31m";
-
-  /// @brief Reset color code
-  static constexpr const char* COLOR_RESET = "\033[0m";
-
-  /// @brief Info string constant
-  static constexpr const char* INFO_STRING = "Info";
-
-  /// @brief Warning string constant
-  static constexpr const char* WARNING_STRING = "Warning";
-  
-  /// @brief Fatal string constant
-  static constexpr const char* FATAL_STRING = "Fatal";
-
-  /// @brief Tracks whether color messages are enabled
-
-  bool mColorsEnabled = true;
-
-  /// @brief File for logging errors
-  std::ofstream mLogFile;
-
-  /// @brief Array that matches ErrorLevel to the corresponding ANSI color code
-  std::array<std::string, 3> mStringColorCodes = {
-      COLOR_GREEN, COLOR_YELLOW, COLOR_RED};
-
-  /// @brief Tracks whether termination of a program upon invoking an error is
-  /// enabled
-  std::array<int32_t, 3> mTerminationEnabled = {0, 0, 0};
-  /// @brief Array of actions to be invoked when a corresponding ErrorLevel is
-  /// invoked
-  std::array<std::function<void()>, 3> mActions;
-
-  /// @brief Returns string representation of ErrorLevel
-  /// @param level Corresponding ErrorLevel enum
-  /// @return String representation of ErrorLevel
-  std::string errorLevelToString(ErrorLevel level) const {
+  std::string ErrorManager::errorLevelToString(ErrorLevel level) const {
     switch (level) {
       case ErrorLevel::Info:
         return INFO_STRING;
@@ -261,12 +102,7 @@ class ErrorManager {
     }
   }
 
-  /**
-   * @brief Helper function which logs output to a file
-   * 
-   * @param output String that will be logged
-   */
-  void logToFile(std::string& output) {
+  void ErrorManager::logToFile(std::string& output) {
     if (mLogFile.is_open()) {
       if (mColorsEnabled) {
         // Remove ANSI color codes for output in the file
@@ -287,15 +123,8 @@ class ErrorManager {
     }
   }
 
-  /**
-   * @brief Helper function which formats console output into a stringstream
-   * 
-   * @param ss StringStream that the message will be written to
-   * @param line Line number
-   * @param message String message
-   * @param level Error level of a message 
-   */
-  void formatConsoleOutput(std::stringstream& ss, 
+ 
+  void ErrorManager::formatConsoleOutput(std::stringstream& ss, 
     int32_t line, const std::string& message,
                   ErrorLevel level) {
     ss << "[";
@@ -315,7 +144,5 @@ class ErrorManager {
     }
     ss << ": " << message << "\n";
   }
-};
-}  // namespace cse
 
-#endif  // CSE_ERROR_MANAGER_CPP_
+}  // namespace cse
