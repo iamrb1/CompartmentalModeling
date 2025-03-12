@@ -28,8 +28,15 @@ TEST_CASE("Test cse::Random", "[base]") {
   CHECK(large_val <= 100.0);
 
   // Test probability extremes
-  CHECK(random.P(1.0));
-  CHECK(!random.P(0.0));
+  CHECK(random.P(1.0));  
+  CHECK(!random.P(0.0)); 
+  
+  // Test min == max edge case
+  auto equal_int = random.GetInt(9, 9);
+  CHECK(equal_int == 9);
+  
+  auto equal_double = random.GetDouble(2.22, 2.22);
+  CHECK(equal_double == 2.22);
 }
 
 TEST_CASE("Test cse::Random - Seeds", "[base]") {
@@ -37,7 +44,7 @@ TEST_CASE("Test cse::Random - Seeds", "[base]") {
   cse::Random r1(42);
   cse::Random r2(42);
 
-  // Same seeds should produce same values
+  // Same seeds should produce same values 
   {
     auto val1 = r1.GetInt(1, 100);
     auto val2 = r2.GetInt(1, 100);
@@ -48,7 +55,7 @@ TEST_CASE("Test cse::Random - Seeds", "[base]") {
     CHECK(dval1 == dval2);
   }
 
-  // Different seeds should produce different values
+  // Different seeds should produce different values 
   {
     cse::Random r3(43);
     auto val1 = r1.GetInt(1, 100);
@@ -56,12 +63,32 @@ TEST_CASE("Test cse::Random - Seeds", "[base]") {
     CHECK(val1 != val3);
   }
 
-  // SetSeed should change sequence
+  // SetSeed should change the random sequence
   {
     r1.SetSeed(100);
     auto val1 = r1.GetInt(1, 100);
     auto val2 = r2.GetInt(1, 100);
     CHECK(val1 != val2);
+  }
+  
+  // Test extreme seed values (created with assistance from ChatGPT)
+  {
+    cse::Random r_min(0);
+    cse::Random r_max(UINT_MAX);
+    
+    // Verify they produce different sequences
+    CHECK(r_min.GetInt(1, 1000) != r_max.GetInt(1, 1000));
+  }
+  
+  // Test that setting the same seed twice produces the same sequence
+  {
+    r1.SetSeed(12345);
+    auto first = r1.GetInt(1, 100);
+    
+    r1.SetSeed(12345);
+    auto second = r1.GetInt(1, 100);
+    
+    CHECK(first == second);
   }
 }
 
@@ -75,7 +102,7 @@ TEST_CASE("Test cse::Random - Distribution", "[base]") {
     counts[roll - 1]++;
   }
 
-  // Each value should appear at least once
+  // Each value should appear at least once 
   for (auto count : counts) {
     CHECK(count > 0);
   }
@@ -84,7 +111,7 @@ TEST_CASE("Test cse::Random - Distribution", "[base]") {
 TEST_CASE("Test cse::Random - Template", "[base]") {
   cse::Random random(42);
 
-  // Test with different numeric types
+  // Test template with different numeric types
   {
     auto val = random.Get<float>(0.0, 1.0);
     CHECK(val >= 0.0);
