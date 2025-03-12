@@ -6,34 +6,77 @@
 
 #pragma once
 
+#include <cstdint>
+#include <format>
 #include <map>
 #include <optional>
 #include <string>
 #include <utility>
 #include <variant>
 #include <vector>
-#include <format>
 
 #include "CseAssert.hpp"
 #include "IndexSet.hpp"
 
 namespace cse {
+
+/**
+ * Stores Rich Text.
+ * RichText stores and manipulates formatted rich text.
+ * Provides tools to represent various formats.
+ * Provides tools to serialize formatted text into various formats.
+ */
 class RichText {
  public:
+  /**
+   * A format in rich text.
+   * The Format struct is specialized to represent various kinds of formats in
+   * rich text. Can support simple formats like: bold, italic, strikethrough.
+   * Can support more complex formats with metadata like: font size, web links.
+   */
   struct Format {
+    /**
+     * The name of the format.
+     */
     std::string name;
+    /**
+     * The metadata associated with the format.
+     * It may be an int to represent the size of the font, a string to represent
+     * the target of a hyperlink, etc.
+     */
     std::variant<std::string, int32_t, std::monostate> metadata;
 
+    /**
+     * Constructs a format with metadata
+     * @param name The name of the format
+     * @param metadata The metadata of the format
+     */
     Format(std::string name,
            std::variant<std::string, int32_t, std::monostate> metadata)
         : name(std::move(name)), metadata(std::move(metadata)) {}
-    Format(std::string name)
+
+    /**
+     * Constructs a simple format without metadata
+     * @param name The name of the format
+     */
+    explicit(false) Format(std::string name)
         : name(std::move(name)), metadata(std::monostate()) {}
 
+    /**
+     * Compares the name first then the metadata
+     * @param r right hand side
+     * @return True if this is less than the right hand side
+     */
     bool operator<(const RichText::Format& r) const {
       if (name == r.name) return metadata < r.metadata;
       return name < r.name;
     }
+
+    /**
+     * Compares the name and the metadata
+     * @param r right hand side
+     * @return True if equivalent
+     */
     bool operator==(const RichText::Format& r) const {
       return name == r.name && metadata == r.metadata;
     }
@@ -54,13 +97,13 @@ class RichText {
   explicit RichText(std::string text) : m_text(std::move(text)) {}
   explicit RichText(const char* text) : m_text(text) {}
 
-  size_t size() const noexcept { return m_text.size(); }
+  [[nodiscard]] size_t size() const noexcept { return m_text.size(); }
 
-  const char& char_at(size_t pos) const { return m_text.at(pos); }
+  [[nodiscard]] const char& char_at(size_t pos) const { return m_text.at(pos); }
 
-  std::string to_string() const { return m_text; }
+  [[nodiscard]] std::string to_string() const { return m_text; }
 
-  std::vector<Format> formats_at(size_t pos) const {
+  [[nodiscard]] std::vector<Format> formats_at(size_t pos) const {
     dbg_assert(pos < m_text.size(),
                std::format("Out of bounds access, idx: {} size: {}", pos,
                            m_text.size()));
@@ -116,8 +159,8 @@ class RichText {
 
   RichText& operator+=(const RichText& str) { return append(str); }
 
-  std::optional<IndexSet> get_format_range(const Format& format) const {
-    auto iter = m_formatting.find(format);
+  [[nodiscard]] std::optional<IndexSet> get_format_range(const Format& format) const {
+    const auto iter = m_formatting.find(format);
     if (iter == m_formatting.end()) return {};
     return {iter->second};
   }
