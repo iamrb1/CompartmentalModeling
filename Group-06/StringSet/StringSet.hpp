@@ -112,6 +112,8 @@ public:
 
   void SubstringFilter(const std::string &substring);
 
+  void SizeFilter(int size);
+
   StringSet Search(const std::string &wildcard);
 
   int countOccurence(const std::string &substring);

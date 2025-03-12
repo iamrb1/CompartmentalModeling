@@ -212,3 +212,18 @@ std::tuple<int, double, std::string, std::string> cse::StringSet::Statistics() {
 
     return std::make_tuple(numStrings, avgLength, longestString, shortestString);
 }
+
+/**
+ * @brief Removes strings of length not equal to size
+ * 
+ * @param size length of strings that will be retained
+ */
+void cse::StringSet::SizeFilter(int length) {
+  assert(length > 0);
+  
+  auto sizePredicate = [length] (const std::string& element) {
+    return element.size() == static_cast<std::size_t>(length);
+  };
+
+  RetainFilter(sizePredicate);
+}

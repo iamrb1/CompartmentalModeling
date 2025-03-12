@@ -160,47 +160,6 @@ TEST_CASE("Test for Statistic", "[Statistic]") {
     REQUIRE(std::get<2>(stats).size() == 4); // Longest string
     REQUIRE(std::get<3>(stats).size() == 3); // Shortest string
 }
-/*
-TEST_CASE("Insert using vector", "[Insert]") {
-    StringSet set;
-
-    SECTION("Insert an empty vector") {
-        std::vector<std::string> vector;
-        set.Insert(vector);
-        REQUIRE(set.size() == 0);
-    }
-
-    SECTION("Insert a one-element vector") {
-        std::vector<std::string> vector = {"cat"};
-        set.Insert(vector);
-        REQUIRE(set.size() == 1);
-        REQUIRE(set.count("red") == 1);
-    }
-
-    SECTION("Inserting duplicate elements") {
-        std::vector<std::string> vector = {"cat", "dogg", "cat"};
-        set.Insert(vector);
-        REQUIRE(set.size() == 2);
-        REQUIRE(set.count("cat") == 1);
-        REQUIRE(set.count("dogg") == 1);
-    }
-
-    SECTION("Inserting a vector with other elements present") {
-        set.Insert("cat");
-        set.Insert("dog");
-        REQUIRE(set.size() == 2);
-
-        std::vector<std::string> vector = {"monkey", "ivan", "llama", "cat"};
-        set.Insert(vector);
-
-        REQUIRE(set.size() == 5);
-        REQUIRE(set.count("cat") == 1);
-        REQUIRE(set.count("dog") == 1);
-        REQUIRE(set.count("monkey") == 1);
-        REQUIRE(set.count("ivan") == 1);
-	REQUIRE(set.count("llama") == 1);
-    }
-}
 
 TEST_CASE("Tests for SizeFilter", "[SizeFilter]") {
 	StringSet set;
@@ -226,6 +185,7 @@ TEST_CASE("Tests for SizeFilter", "[SizeFilter]") {
 		REQUIRE(set.count("goose") == 1);
 	}
 }
+/*
 
 TEST_CASE("Test for UnionWith", "[UnionWith]"){
     StringSet set1;
