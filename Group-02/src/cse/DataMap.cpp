@@ -18,18 +18,6 @@ namespace cse {
 }
 
 /**
-* Check if key is within the DataMap
-* @param name std::string name to be found
-* @return bool if key exists or not
- *
- * (For grading purposes of initial specs, this function function was renamed from keyContains to better fit naming
- * convention)
-*/
-bool DataMap::contains(const std::string& name) const {
-  return (m_map.find(name) != m_map.end());
-}
-
-/**
  * Operator overload for Datamap []
  * Defaults to 0 if called DataMap["key"]
  * Allows for assignment DataMap["key"] = 90
