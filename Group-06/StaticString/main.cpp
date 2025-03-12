@@ -10,6 +10,25 @@ int main() {
 
   using namespace std::chrono;
 
+  //----------------------------------------------------------------------------
+  cse::StaticString<40> s("hello world");
+
+   [[maybe_unused]]auto val = s.find('h'); // 0
+   [[maybe_unused]]auto val2 = s.find('o'); // 4
+
+   [[maybe_unused]]auto val3 = s.find("hello"); // 0
+   [[maybe_unused]]auto val4 = s.find("world"); // 6
+   [[maybe_unused]]auto val5 = s.find("xyz"); // npos
+
+   [[maybe_unused]]auto val6 = s.find(std::string("hello")); // 0
+   [[maybe_unused]]auto val7 = s.find(std::string("world")); // 6
+   [[maybe_unused]]auto val8 = s.find(std::string("xyz")); // npos
+
+   [[maybe_unused]]auto val9 = s.find(std::string_view("hello")); // 0
+   [[maybe_unused]]auto val10 = s.find(std::string_view("world")); // 6
+   [[maybe_unused]]auto val11 = s.find(std::string_view("xyz")); // npos
+
+  //----------------------------------------------------------------------------
   // ----------------------- std::string OPERATIONS -----------------------
   auto start_std = high_resolution_clock::now();
   for (int i = 0; i < iterations; ++i) {

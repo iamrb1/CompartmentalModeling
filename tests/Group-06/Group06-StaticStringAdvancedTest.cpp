@@ -174,7 +174,7 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     s2.insert("1234", 1);
     REQUIRE(std::strcmp(s2.get_str(), "a1234bcd") == 0);
 
-    s2.insert("!!!", 7);
+    s2.insert("!!!", 8);
     REQUIRE(std::strcmp(s2.get_str(), "a1234bcd!!!") == 0);
 
     s2.insert('*', 3);
@@ -182,7 +182,35 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
 
     s3.insert(std::string_view("Test"), 3);
     std::string_view inserted(s3.get_str() + 3, 4);
-    REQUIRE(inserted == "123Test4567890");
+    REQUIRE(inserted == "Test");
+
+    // Error Checking
+    StaticString<10> s4("1234567890");
+    CHECK_THROWS_AS(s4.insert('x',0), std::out_of_range);
+    CHECK_THROWS_AS(s4.insert('x',5), std::out_of_range);
+    CHECK_THROWS_AS(s4.insert('x',10), std::out_of_range);
+    CHECK_THROWS_AS(s4.insert('x',9), std::out_of_range);
+
+    CHECK_THROWS_AS(s4.insert("TEST",0), std::out_of_range);
+    CHECK_THROWS_AS(s4.insert(std::string_view("Test"),4), std::out_of_range);
+
+    CHECK_THROWS_AS(s4.insert("TEST", 10), std::out_of_range);
+    CHECK_THROWS_AS(s4.insert(std::string("test"),0), std::out_of_range);
+
+    StaticString<10> s5("12345678");
+    CHECK_THROWS_AS(s5.insert("TEST",0), std::out_of_range);
+
+    // Check if nullptr handled correctly
+    // S2 is a12*34bcd!!!
+    s2.set(3,'\0');
+    CHECK(std::strcmp(s2.get_str(), "a12") == 0);
+
+    s2.insert("TEST", 2);
+    CHECK(std::strcmp(s2.get_str(), "a1TEST2") == 0);
+
+    s2.insert("---", 7);
+    CHECK(std::strcmp(s2.get_str(), "a1TEST2---") == 0);
+
   }
 
   SECTION("TESTS: Erase  member function") {
@@ -204,11 +232,23 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     StaticString<40> s("aaabbbcccaaa");
 
     s.remove(0,2);
-    REQUIRE(std::strcmp(s.get_str(), "bbbcccaaa") == 0);
+    REQUIRE(std::strcmp(s.get_str(), "abbbcccaaa") == 0);
 
     s = "aaabbbcccaaa";
-    s.remove(3,8);
+    s.remove(3,9);
     REQUIRE(std::strcmp(s.get_str(), "aaaaaa") == 0);
+
+    s = "aaabbbcccaaa";
+    s.remove(9,12);
+    REQUIRE(std::strcmp(s.get_str(), "aaabbbccc") == 0);
+
+    // Check Error cases 
+    CHECK_THROWS_AS(s.remove(2,0), std::out_of_range);
+    CHECK_THROWS_AS(s.remove(0,0), std::out_of_range);
+    CHECK_THROWS_AS(s.remove(2,10), std::out_of_range);
+
+    s.remove(0,1);
+    REQUIRE(std::strcmp(s.get_str(), "aabbbccc") == 0);
   }
 
   SECTION("TESTS: Swap  member function") {

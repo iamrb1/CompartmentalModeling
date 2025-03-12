@@ -2,7 +2,7 @@
  * @file StaticString.hpp
  * @author Mehmet Efe Caylan
  * @brief StaticString Class implementation file.
- * @version 0.1
+ * @version 0.2
  * @date 2025-02-06
  *
  */
@@ -44,23 +44,22 @@ public:
   }
 
   /**
-  * @brief Construct a new Static String object with a non-empty string
-  *
-  * Copies characters from the provided c style string to StaticString object.
-  * @attention Make sure to check string provided is shorter than maximum size
-  * defined.
-  *
-  * @param cstr Pointer to an array of characters that corresponds
-  * to our string value.
-  */
-  constexpr StaticString(const char* cstr) : mCurrentSize(0) {
-    // Loop over given array of characters until find null terminator
-    // or the size exceeds static size initialized
+   * @brief Construct a new Static String object with a non-empty string
+   * 
+   * Copies characters from the provided c style string to StaticString object.
+   * @attention Make sure to check string provided is shorter than maximum size
+   * defined.
+   * 
+   * @tparam T Templated type compatible to work with std::string, string_view, char *
+   */
+  template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
+  constexpr StaticString(const T& cstr) : mCurrentSize(0) {
+
     while (cstr[mCurrentSize] != null_terminator && mCurrentSize < MaxSize) {
       mString[mCurrentSize] = cstr[mCurrentSize];
       ++mCurrentSize;
     }
-
+  
     // The provided string is longer than MaxSize defined.
     assert(mCurrentSize <= MaxSize &&
           "Error: Input string exceeds StaticString defined maximum size.");
@@ -116,22 +115,20 @@ public:
   */
   StaticString& operator=(const StaticString& staticString) {
     // Avoid assigning to itself
-    assert(this != &staticString && "Assigning object itself is not allowed.");
+    // assert(this != &staticString && "Assigning object itself is not allowed.");
     if (this == &staticString) {
       return *this;
     }
 
-    if (this != &staticString) {
-      // Check if the string that we will copy is larger than MaxSize defined
-      assert(
-          staticString.length() <= MaxSize &&
-          "Error: The length of copied string exceeds static limit defined.");
-      std::copy(staticString.mString,
-                staticString.mString + staticString.length(), mString);
+    // Check if the string that we will copy is larger than MaxSize defined
+    assert(
+        staticString.length() <= MaxSize &&
+        "Error: The length of copied string exceeds static limit defined.");
+    std::copy(staticString.mString,
+              staticString.mString + staticString.length(), mString);
 
-      mCurrentSize = staticString.mCurrentSize;
-      mString[mCurrentSize] = null_terminator;
-    }
+    mCurrentSize = staticString.mCurrentSize;
+    mString[mCurrentSize] = null_terminator;
     return *this;
   }
 
@@ -187,7 +184,7 @@ public:
   * @param index size_t The index of character.
   * @return Indexed char value.
   */
-  char operator[](std::size_t index) const {
+  char operator[](std::size_t index) const noexcept {
     // Indexed value is out of range or
     // trying to index to the null terminator at the end
     assert(index < mCurrentSize && "Index value is out of range.");
@@ -366,33 +363,51 @@ public:
   * @return char* A pointer to the character array.
   */
   constexpr char* get_str() noexcept { return mString; }
-
+  
   /**
-  * @brief Finds the first occurrence of a character in the string.
-  *
-  * @param character Character to be searched.
-  * @return std::size_t The index of the character if found;
-  * if not found StaticString::npos.
-  */
-  constexpr std::size_t find(const char& character) const noexcept {
-    for (std::size_t i = 0; i < mCurrentSize; ++i) {
-      if (mString[i] == character) return i;
+   * @brief Finds the first occurrence of a character, string, string_view,
+   *  char* in the string.
+   * 
+   * @tparam T Templated types are string, string_view, char*
+   * @param str Templated parameter to searched in the string
+   * @return constexpr std::size_t The index of the character if found;
+   * if not found StaticString::npos.
+   */
+  template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
+  constexpr std::size_t find(const T& str) const noexcept {
+    // std::string, char*, char[N] are all convertible to string_view, thus
+    // We convert templated input to convert into string_view to perform find
+    std::string_view size(str);
+
+    for (std::size_t i = 0; i <= mCurrentSize - size.length(); ++i) {
+      std::size_t j = 0;
+      for (; j < size.length(); ++j) {
+        if (mString[i + j] != str[j]) break;
+      }
+      if (j == size.length()) return i;
     }
     return npos;
   }
 
+  // Overloading find for char because  string_view is not convertible from char
+  constexpr std::size_t find(char ch) const noexcept {
+      for (std::size_t i = 0; i < mCurrentSize; ++i) {
+          if (mString[i] == ch) return i;
+      }
+      return npos;
+  }
+  
   /**
   * @brief Sets the given character at given index.
   *
   * Indexing starts from 0; if the MaxSize is 10 then last possible index is 9.
   * If inserted character is a null terminator, StaticString will behave as
-  * a new string creation and the rest of the string after the null terminated
-  * part will be assigned to '\0' again.
+  * the rest of the string will be ignored and won't be able to recover it.
   *
   * @attention If '\0' is explicitly set as a character,
   * rest of the string will be terminated.
   *
-  * @param index Index to be changed.
+  * @param index size_t Index to be changed.
   * @param character Char value to be assigned.
   * @throws std::out_of_range if the index is invalid.
   */
@@ -573,6 +588,81 @@ public:
       throw std::out_of_range("Invalid substring request");
     }
     return std::string_view(mString + start, end - start);
+  }
+
+  /**
+   * @brief Insert provided string to the given index and shift the rest.
+   * 
+   * Insert adds given string to starting from the given index such that 
+   * StaticString s("123456789");
+   * s.insert("Test", 0); -> "Test123456789"
+   * Allowed types for insert is char, string, char*, string_view
+   * 
+   * @tparam T Templated type 
+   * @param str String to be inserted
+   * @param index size_t index to insert string.
+   */
+  template<typename T>
+  void insert(const T& str, const std::size_t& index) {
+    std::string_view temp_view = str;
+
+    if(index > mCurrentSize || mCurrentSize + temp_view.size() > MaxSize) {
+      throw std::out_of_range("Static limit exceeded, inserted string must be within MaxSize with current string size.");
+    }
+
+    // Move the curent characters to create space for insert
+    std::memmove(mString + index + temp_view.size(), mString + index, mCurrentSize - index);
+
+    std::memcpy(mString + index, temp_view.data(), temp_view.size());
+
+    mCurrentSize += temp_view.size();
+    mString[mCurrentSize] = null_terminator;
+  }
+
+  /**
+   * @brief Insert provided string to the given index and shift the rest.
+   * 
+   * Overload for char as parameter.
+   * Insert adds given string to starting from the given index such that 
+   * StaticString s("123456789");
+   * s.insert('T', 0); -> "T123456789"
+   * Allowed types for insert is char, string, char*, string_view
+   * 
+   * @param chr charater to be inserted
+   * @param index size_t index to insert character
+   */
+  void insert(const char& chr, const std::size_t& index) {
+    if(index > mCurrentSize || mCurrentSize + 1 > MaxSize) {
+      throw std::out_of_range("Static limit exceeded, inserted string must be within MaxSize with current string size.");
+    }
+
+    // Move the curent characters to create space for insert
+    std::memmove(mString + index + 1, mString + index, mCurrentSize - index);
+
+    mString[index] = chr;
+    ++mCurrentSize;
+    mString[mCurrentSize] = null_terminator;
+  }
+
+  /**
+   * @brief Removes characters of a range from the StaticString.
+   * 
+   * Removes charaters within a valid range of indexes, start index is inclusive
+   * while end index is exclusive. 
+   * 
+   * @param start size_t start index of the range (inclusive).
+   * @param end size_t end index of the range (exclusive).
+   */
+  void remove(const size_t& start, const size_t& end) {
+    if(start >= end || end > mCurrentSize) {
+      throw std::out_of_range("Index is out of bound , start and end index for remove must be withing static limits.");
+    }
+    size_t length = end - start;
+
+    std::memmove(mString + start, mString + end, mCurrentSize - end);
+
+    mCurrentSize -= length;
+    mString[mCurrentSize] = null_terminator;
   }
 
 private:
