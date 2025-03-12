@@ -23,7 +23,7 @@ TEST_CASE("Test basic append and prepend operations", "[bitvector]") {
   CHECK(bv2 == bc2);
 
   cse::BitVector bv3(16), bc3("101010101010101010");
-  bv3.pattern_set(0, 16, std::byte{0b01010101});
+  bv3.pattern_set(0, 16, 0b0101010101010101);
   bv3.append(true);
   bv3.prepend(false);
   CHECK(bv3[17]);

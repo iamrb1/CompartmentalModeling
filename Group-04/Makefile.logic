@@ -1,6 +1,6 @@
 BUILD_PROFILE?=
 BUILD_DIR = target/$(BUILD_PROFILE)
-BIN_DIR = ./bin
+BIN_DIR = ./app
 LIB_DIR = ./lib
 PROJECT_NAME = app
 PROJECT_TYPE = exe
@@ -15,9 +15,9 @@ CXX_FLAGS_all ?= -std=c++23 -Wextra -Wall -I$(BIN_DIR) -I$(LIB_DIR)
 BUILD_FLAGS?=
 BUILD_PREFIX=
 ifeq ($(OS),Windows_NT)
-	BUILD_FILE_TYPE=.exe
+	BUILD_FILE_TYPE=.wat
 else
-	BUILD_FILE_TYPE=
+	BUILD_FILE_TYPE=.wat
 endif
 
 CXX_FLAGS ?= -O2 -DNDEBUG
