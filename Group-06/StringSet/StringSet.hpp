@@ -12,6 +12,8 @@
 #include <unordered_set>
 #include <vector>
 #include <cassert>
+#include <ranges>
+#include <algorithm>
 
 namespace cse {
 
@@ -103,6 +105,10 @@ public:
   void RetainFilter(const std::function<bool(const std::string &str)> filter);
   
   void RemoveFilter(const std::function<bool(const std::string &str)> filter);
+
+  bool IsSubset(const StringSet &other) const;
+
+  void SubstringFilter(const std::string &substring);
 
 };
 }  // namespace cse
