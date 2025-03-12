@@ -1,6 +1,7 @@
 /**
  * @file StringSet.hpp
  * @author Orhan Aydin
+ * @author Emil Rahn-Siegel
  * @brief Header file for StringSet class
  */
 
@@ -14,7 +15,8 @@
 #include <cassert>
 #include <ranges>
 #include <algorithm>
-
+#include <regex>
+#include <random>
 namespace cse {
 
 /**
@@ -116,6 +118,6 @@ public:
 
   StringSet RandomSample(int sampleSize);
 
-  std::tuple<std::tuple<int, int>, std::tuple<std::string, std::string>>Statistics();
+  std::tuple<int, double, std::string, std::string>Statistics();
 };
 }  // namespace cse
