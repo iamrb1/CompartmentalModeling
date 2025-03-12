@@ -74,7 +74,7 @@ class DataMap {
   * @return
   */
   template <typename T>
-  inline T at(const std::string& name) {
+  inline T at(const std::string& name) const {
     assert(contains(name) && "Key does not exist in DataMap");
     const std::any& val = m_map.find(name)->second;
     assert(val.type() == typeid(T) && "Wrong type requested from what is contained within DataMap for value");
