@@ -190,7 +190,7 @@ TEST_CASE("Program terminates with a specific error code",
   std::cout.rdbuf(oldCout);
 }
 
-/*TEST_CASE("Program writes errors into a text file", "[printMessage]") {
+TEST_CASE("Program writes errors into a text file", "[printMessage]") {
   const std::string file = "file.log";
   // Assist from ChatGPT: Clear the file before test
   std::ofstream clearFile(file, std::ios::trunc);
@@ -306,5 +306,5 @@ TEST_CASE("Tests for printError", "[printError]") {
   }
 
   std::cout.rdbuf(oldCout);
-}*/
+}
 #undef exit  // undefine exit
