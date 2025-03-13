@@ -198,14 +198,13 @@ TEST_CASE("GraphPosition Depth-First Search Traversal", "[GraphPosition]") {
   cse::GraphPosition pos(graph, &v1);
 
   SECTION("DFS follows deep traversal first") {
-    ++pos;
-    CHECK(pos.GetCurrentVertex() == v4);  // First deeper neighbor
-    ++pos;
-    CHECK(pos.GetCurrentVertex() == v2);  // Goes as deep as possible first
-    ++pos;
-    CHECK(pos.GetCurrentVertex() == v3);  // Backtracks to remaining
-    ++pos;
-    CHECK(pos.GetCurrentVertex() == v1);  // Backtracks to remaining
+    std::vector<cse::Vertex *> order{&v4, &v2, &v3, &v1};
+    size_t ind = 0;
+    while ((bool)++pos) {
+      auto &v = *(order.at(ind));
+      CHECK(pos.GetCurrentVertex() == v);
+      ind++;
+    }
   }
 }
 

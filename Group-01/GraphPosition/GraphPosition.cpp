@@ -5,7 +5,6 @@ namespace cse {
     if (!startVertex) {
       throw std::invalid_argument("GraphPosition must be initialized with a non-null vertex!");
     }
-    MarkVisited(*startVertex);
   }
 
   void GraphPosition::MarkVisited(Vertex const &vertex) {
@@ -20,7 +19,6 @@ namespace cse {
 
   void GraphPosition::SetCurrentVertex(Vertex const &vertex) {
     currentVertex = &vertex;
-    MarkVisited(*currentVertex);
   }
 
   bool GraphPosition::AdvanceToNextNeighbor() {
@@ -62,6 +60,9 @@ namespace cse {
             stack.push_back(&gp.GetCurrentVertex());
           }
           cse::Vertex const &current = *stack.back();
+          if (gp.IsVisited(current)) {
+            return false;
+          }
 
           // Collect and sort neighbors alphabetically by Vertex ID
           std::vector<std::pair<std::string, std::weak_ptr<cse::Edge>>> neighbors(current.GetEdges().begin(),
@@ -86,12 +87,12 @@ namespace cse {
           if (nonVisited == neighbors.end()) {
             stack.pop_back();
             gp.SetCurrentVertex(current);
+            gp.MarkVisited(current);
             return true;
           }
 
           auto &c = (nonVisited->second.lock())->GetTo();
           stack.push_back(&c);
-          gp.MarkVisited(current);
           return dfs(gp, dfs); // Recursive call
         };
 
