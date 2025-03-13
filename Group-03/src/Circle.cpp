@@ -3,13 +3,9 @@
 
 // Constructor
 Circle::Circle(double x, double y, double radius, double baseSpeed, double speed, const std::string& circleType)
-<<<<<<< HEAD
     : x_(x), y_(y), radius_(radius), baseSpeed_(baseSpeed), speed_(speed), circleType_(circleType), energy_(100), 
-    regen_(false), proximityRadius_(radius * 2), speedBoost_(false) {
-    
-=======
-    : x_(x), y_(y), radius_(radius), baseSpeed_(baseSpeed), speed_(speed), circleType_(circleType), energy_(100), regen_(false), repopulate_(false), eatingCounter_(0) {
->>>>>>> 2b9d2bfb91487e1037ddf86880d9e31018472cea
+    regen_(false), repopulate_(false), eatingCounter_(0), proximityRadius_(radius * 2), speedBoost_(false) {
+
     if (radius <= 0) {
         throw std::invalid_argument("Radius must be positive");
     }
@@ -125,7 +121,6 @@ void Circle::updateSpeed() {
     }
 }
 
-<<<<<<< HEAD
 void Circle::checkProximity(const Circle& other) {
     double dx = x_ - other.x_;
     double dy = y_ - other.y_;
@@ -140,7 +135,6 @@ void Circle::checkProximity(const Circle& other) {
         updateSpeed();
     }
 }
-=======
 
 bool Circle::canRepopulate() const {
     return repopulate_;
@@ -155,4 +149,3 @@ void Circle::eatPreyCircle() {
         }
     }
 }
->>>>>>> 2b9d2bfb91487e1037ddf86880d9e31018472cea
