@@ -37,12 +37,17 @@ public:
     void setCharacteristic(const std::string& characteristic);
     std::string getCharacteristic() const;
 
+    //Energy methods
     void decreaseEnergy(int energy);
     void regenEnergy(int energy);
     void updateSpeed();
 
     void checkProximity(const Circle& other);
     bool ActiveSpeedBoost() const;
+
+    // Repopulation methods and check
+    bool canRepopulate() const;
+    void eatPreyCircle();
 
 private:
     double x_;
@@ -56,6 +61,6 @@ private:
     bool regen_;
     double proximityRadius_;
     bool speedBoost_;
-    // int preyEaten_;
-    // int repopulateAmount_;
+    bool repopulate_;
+    int eatingCounter_;
 };
