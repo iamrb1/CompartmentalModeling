@@ -7,11 +7,10 @@
 
 #pragma once
 
-#include <cse/StateGrid.h>
+#include "StateGrid.h"
 #include <optional>
 
-#ifndef CSEG2_INCLUDE_CSE_STATEGRIDPOSITION_H
-#define CSEG2_INCLUDE_CSE_STATEGRIDPOSITION_H
+
 
 namespace cse {
 ///Point object for the position
@@ -66,4 +65,4 @@ class StateGridPosition {
 };
 }  // namespace cse
 
-#endif  //CSEG2_INCLUDE_CSE_STATEGRIDPOSITION_H
+
