@@ -21,12 +21,14 @@ public:
     int getEnergy() const;
     std::string getCircleType() const;
     bool getRegen() const;
+    bool getSpeedBoost() const;
 
     // Setters
     void setPosition(double x, double y);
     void setRadius(double radius);
     void setSpeed(int speed);
     void setCircleType(const std::string& circleType);
+    void setEaten(int eaten);
 
     // Check if this circle overlaps with another circle
     bool overlaps(const Circle& other) const;
@@ -39,6 +41,9 @@ public:
     void regenEnergy(int energy);
     void updateSpeed();
 
+    void checkProximity(const Circle& other);
+    bool ActiveSpeedBoost() const;
+
 private:
     double x_;
     double y_;
@@ -49,4 +54,8 @@ private:
     int energy_;
     std::string circleType_;
     bool regen_;
+    double proximityRadius_;
+    bool speedBoost_;
+    // int preyEaten_;
+    // int repopulateAmount_;
 };

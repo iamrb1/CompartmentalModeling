@@ -3,7 +3,9 @@
 
 // Constructor
 Circle::Circle(double x, double y, double radius, double baseSpeed, double speed, const std::string& circleType)
-    : x_(x), y_(y), radius_(radius), baseSpeed_(baseSpeed), speed_(speed), circleType_(circleType), energy_(100), regen_(false) {
+    : x_(x), y_(y), radius_(radius), baseSpeed_(baseSpeed), speed_(speed), circleType_(circleType), energy_(100), 
+    regen_(false), proximityRadius_(radius * 2), speedBoost_(false) {
+    
     if (radius <= 0) {
         throw std::invalid_argument("Radius must be positive");
     }
@@ -37,6 +39,13 @@ std::string Circle::getCircleType() const {
     return circleType_;
 }
 
+bool Circle::getRegen() const {
+    return regen_;
+}
+
+bool Circle::getSpeedBoost() const {
+    return speedBoost_;
+}
 
 // Setters
 void Circle::setPosition(double x, double y) {
@@ -103,5 +112,23 @@ void Circle::updateSpeed() {
     if (!regen_) {
         double speedFactor = energy_ / 100.0; //makes percentage of energy left
         speed_ = baseSpeed_ * speedFactor;
+    }
+    if (speedBoost_) {
+        speed_ = speed_ * 2;
+    }
+}
+
+void Circle::checkProximity(const Circle& other) {
+    double dx = x_ - other.x_;
+    double dy = y_ - other.y_;
+    double distance = std::sqrt(dx * dx + dy * dy);
+
+    if (distance < proximityRadius_ && circleType_ != other.circleType_) {
+        speedBoost_ = true;
+        updateSpeed();
+    }
+    else {
+        speedBoost_ = false;
+        updateSpeed();
     }
 }
