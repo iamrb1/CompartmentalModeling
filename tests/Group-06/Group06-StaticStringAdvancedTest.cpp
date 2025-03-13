@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <vector>
 
 #include "../../Group-06/StaticString/StaticString.hpp"
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
@@ -19,18 +20,18 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     StaticString<20> s2("abcdabcdabcdabcd");
     StaticString<20> s3("1234567890123545");
 
-    REQUIRE(s.findAll("Hello") == [0,10]);
-    REQUIRE(s2.findAll("ab") == [0,4,8,12]);
-    REQUIRE(s3.findAll("34") == [2]);
+    REQUIRE(s.findAll("Hello") == std::vector<size_t>{0,10});
+    REQUIRE(s2.findAll("ab") == std::vector<size_t>{0,4,8,12});
+    REQUIRE(s3.findAll("34") ==std::vector<size_t>{2});
     
-    REQUIRE(s.findAll('e') == [1,11]);
-    REQUIRE(s.findAll('E') == cse::StaticString::npos);
-    REQUIRE(s.findAll('d') == [9,19]);
+    REQUIRE(s.findAll('e') == std::vector<size_t>{1,11});
+    REQUIRE(s.findAll('E') == std::vector<size_t>{});//cse::StaticString::npos2);
+    REQUIRE(s.findAll('d') == std::vector<size_t>{9,19});
 
-    REQUIRE(s2.findAll("abcD") == cse::StaticString::npos);
-    REQUIRE(s2.findAll("abcd") == [0,4,8,12]);
+    REQUIRE(s2.findAll("abcD") == std::vector<size_t>{});//cse::StaticString::npos2);
+    REQUIRE(s2.findAll("abcd") == std::vector<size_t>{0,4,8,12});
 
-    REQUIRE(s3.findAll("0") == [9]);
+    REQUIRE(s3.findAll("0") == std::vector<size_t>{9});
 
   }
 
@@ -39,18 +40,18 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     StaticString<20> s2("abcdabcdabcdabcd");
     StaticString<20> s3("1234567890123545");
 
-    REQUIRE(s.rFind("Hello") == [10,0]);
-    REQUIRE(s2.rFind("ab") == [12,8,4,0]);
-    REQUIRE(s3.rFind("34") == [2]);
+    REQUIRE(s.rFind("Hello") == std::vector<size_t>{10,0});
+    REQUIRE(s2.rFind("ab") == std::vector<size_t>{12,8,4,0});
+    REQUIRE(s3.rFind("34") == std::vector<size_t>{2});
     
-    REQUIRE(s.rFind('e') == [11,1]);
-    REQUIRE(s.rFind('E') == cse::StaticString::npos);
-    REQUIRE(s.rFind('d') == [19,9]);
+    REQUIRE(s.rFind('e') == std::vector<size_t>{11,1});
+    REQUIRE(s.rFind('E') == std::vector<size_t>{});//cse::StaticString::npos);
+    REQUIRE(s.rFind('d') == std::vector<size_t>{19,9});
 
-    REQUIRE(s2.rFind("abcD") == cse::StaticString::npos);
-    REQUIRE(s2.rFind("abcd") == [12,8,4,0]);
+    REQUIRE(s2.rFind("abcD") == std::vector<size_t>{});//cse::StaticString::npos);
+    REQUIRE(s2.rFind("abcd") == std::vector<size_t>{12,8,4,0});
 
-    REQUIRE(s3.rFind("0") == [9]);
+    REQUIRE(s3.rFind("0") == std::vector<size_t>{9});
   }
 
   SECTION("TESTS: Replace  member function") {
@@ -70,7 +71,7 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
 
     // Replace by greater or smaller size
     // Replace checks if replace occurs size would be exceeded or not
-    s3.replace("1234", "00")
+    s3.replace("1234", "00");
     REQUIRE(std::strcmp(s3.get_str(), "00567890123545") == 0);
 
     s3.replace("00", "1234");

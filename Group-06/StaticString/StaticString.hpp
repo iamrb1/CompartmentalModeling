@@ -13,6 +13,9 @@
 #include <cassert>
 #include <cstring>
 #include <stdexcept>
+#include <vector>
+#include <iterator>
+#include <array>
 
 namespace cse {
 
@@ -29,6 +32,19 @@ namespace cse {
 template <std::size_t MaxSize>
 class StaticString {
 public:
+
+  /**
+  * @brief Iterator to the beginning of static string (begin iterator)
+  * @return Iterator pointing to beginning of static string
+  */
+  constexpr char* begin() { return mString; }
+
+  /**
+  * @brief Iterator to the end of static string (end iterator)
+  * @return Iterator pointing past the end of static string
+  */
+  constexpr char* end() { return mString + MaxSize + 1; }
+
   /// @brief Constant value for StaticString npos, not found value.
   static constexpr std::size_t npos = static_cast<std::size_t>(-1);
 
@@ -665,6 +681,151 @@ public:
     mString[mCurrentSize] = null_terminator;
   }
 
+
+
+  /**
+   * @brief Finds every occurrence of a character, string, string_view,
+   *  char* in the string.
+   * 
+   * @tparam T Templated types are string, string_view, char*
+   * @param str Templated parameter to be searched in the string
+   * @return constexpr std::vector<std::size_t>, a vector of the indexes of the character if found;
+   * if not found {}.
+  */
+  template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
+  constexpr  std::vector<std::size_t> findAll(const T& str) const noexcept {
+    // std::string, char*, char[N] are all convertible to string_view, thus
+    // We convert templated input to convert into string_view to perform findAll
+    std::string_view size(str);
+
+    // A list of all of the indexes found
+    std::vector<size_t> indexesFound = std::vector<size_t>{};
+    int counter = 0;
+    
+    for (std::size_t i = 0; i <= mCurrentSize - size.length(); ++i) {
+      std::size_t j = 0;
+      for (; j < size.length(); ++j) {
+        if (mString[i + j] != str[j]) break;
+      }
+      if (j == size.length()) {
+        indexesFound[counter] = i;
+        counter++;
+      }
+    }
+    return indexesFound;
+  }
+
+  // Overloading findAll for char because string_view is not convertible from char
+  constexpr std::vector<std::size_t> findAll(char ch) const noexcept {
+      std::vector<std::size_t> indexesFound = std::vector<size_t>{};
+      int counter = 0;
+
+      for (std::size_t i = 0; i < mCurrentSize; ++i) {
+          if (mString[i] == ch) {
+            indexesFound[counter] = i;
+            counter++;
+          };
+      }
+      return indexesFound;
+  }
+  
+  /**
+   * @brief Finds the first occurrence of a character, string, string_view,
+   * char* in the string, in reverse search order.
+   * 
+   * @tparam T Templated types are string, string_view, char*
+   * @param str Templated parameter to searched in the string
+   * @return constexpr std::size_t The index of the character if found;
+   * if not found StaticString::npos.
+   */
+  template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
+  constexpr std::vector<std::size_t> rFind(const T& str) const noexcept {
+    // std::string, char*, char[N] are all convertible to string_view, thus
+    // We convert templated input to convert into string_view to perform find
+    std::string_view size(str);
+
+    std::vector<size_t> indexesFound = std::vector<size_t>{};
+    int counter = 0;
+    
+    for (std::size_t i = 0; i <= mCurrentSize - size.length(); ++i) {
+      std::size_t j = 0;
+      for (; j < size.length(); ++j) {
+        if (mString[i + j] != str[j]) break;
+      }
+      if (j == size.length()) {
+        indexesFound[counter] = i;//return i;
+        counter++;
+      }
+    }
+    return indexesFound;//npos;
+  }
+
+
+  // Overloading rFind for char because  string_view is not convertible from char
+  constexpr std::vector<std::size_t> rFind(char ch) const noexcept {
+      std::vector<std::size_t> indexesFound = std::vector<size_t>{};
+      int counter = 0;
+
+      for (std::size_t i = 0; i < mCurrentSize; ++i) {
+          if (mString[i] == ch) {
+            indexesFound[counter] = i;
+            counter++;
+          };
+      }
+      return indexesFound;
+  }
+
+  /**
+  * @brief replaces all instances of the first string given with the second string 
+  * 
+  * @tparam T Templated types are string, string_view, char*
+  * @param the string to replace
+  * @param the string to replace the string
+  */
+  template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
+  void replace(const T& str1, const char* str2)
+  {
+    std::vector<size_t> index = findAll(str1);
+    for (int i = 0; i < (int)index.size(); i++) {
+      remove(index[i], size_t(str1));
+      insert(str2, index[i]);
+    }
+  }
+
+  // Overloading replace for char because string_view is not convertible from char
+  void replace(char ch, char ch2)
+  {
+    std::vector<size_t> index = findAll(ch);
+    for (int i = 0; i < (int)index.size(); i++) {
+      remove(index[i], index[i] + size_t(1));
+      insert(ch2, index[i]);
+    }
+  }
+
+  // Overloading replace for char because string_view is not convertible from char
+  template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
+  void replace(const T& str1, char ch2)
+  {
+    std::vector<size_t> index = findAll(str1);
+    for (int i = 0; i < (int)index.size(); i++) {
+      remove(index[i], size_t(str1));
+      insert(ch2, index[i]);
+    }
+  }
+
+  // Overloading replace for char because string_view is not convertible from char
+  template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
+  void replace(char ch, const T& str2)
+  {
+    std::vector<size_t> index = findAll(ch);
+    for (int i = 0; i < (int)index.size(); i++) {
+      remove(index[i], std::size_t(1));
+      insert(str2, index[i]);
+    }
+  }
+
+
+  
 private:
   /// @brief Constant value for StaticString null terminator used.
   static constexpr char null_terminator = '\0';
