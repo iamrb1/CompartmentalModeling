@@ -2,7 +2,7 @@
  * @file AuditedArrayTest.cpp
  * @author Siddhartha Bhattacharya
  */
-#include "../../Group-07/Team07Library/AuditedArray.h"
+#include "../../Group-07/Team07Library/AuditedArray.hpp"
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 
 #if defined(NDEBUG) || !defined(AUDIT)
