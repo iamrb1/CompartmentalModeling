@@ -636,8 +636,8 @@ namespace cse
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
 				for (auto item = map.begin(), i = 0; item != map.end(); item++, i++)
 				{
-					K key = (*item)->first;
-					V val = (*item)->second;
+					K key = (*item).first;
+					V val = (*item).second;
 					std::string KeyFile = filename + "_K" + std::to_string(i);
 					std::string ValFile = filename + "_V" + std::to_string(i);
 					if (IsSerializable(key))
@@ -676,8 +676,8 @@ namespace cse
 				{
 					K key;
 					V val;
-					std::string KeyFile = filename + "_K" + std::to_string(index);
-					std::string ValFile = filename + "_V" + std::to_string(index);
+					std::string KeyFile = filename + "_K" + std::to_string(i);
+					std::string ValFile = filename + "_V" + std::to_string(i);
 					if (IsSerializable(key))
 						Serialize(key, KeyFile);
 					else
@@ -719,8 +719,8 @@ namespace cse
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
 				for (auto item = umap.begin(), i = 0; item != umap.end(); item++, i++)
 				{
-					K key = (*item)->first;
-					V val = (*item)->second;
+					K key = (*item).first;
+					V val = (*item).second;
 					std::string KeyFile = filename + "_K" + std::to_string(i);
 					std::string ValFile = filename + "_V" + std::to_string(i);
 					if (IsSerializable(key))
@@ -759,8 +759,8 @@ namespace cse
 				{
 					K key;
 					V val;
-					std::string KeyFile = filename + "_K" + std::to_string(index);
-					std::string ValFile = filename + "_V" + std::to_string(index);
+					std::string KeyFile = filename + "_K" + std::to_string(i);
+					std::string ValFile = filename + "_V" + std::to_string(i);
 					if (IsSerializable(key))
 						Serialize(key, KeyFile);
 					else
@@ -802,10 +802,10 @@ namespace cse
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
 				for (auto item = mmap.begin(), i = 0; item != mmap.end(); item++, i++)
 				{
-					K key = (*item)->first;
-					V val = (*item)->second;
-					std::string KeyFile = filename + "_K" + std::to_string(index);
-					std::string ValFile = filename + "_V" + std::to_string(index);
+					K key = (*item).first;
+					V val = (*item).second;
+					std::string KeyFile = filename + "_K" + std::to_string(i);
+					std::string ValFile = filename + "_V" + std::to_string(i);
 					if (IsSerializable(key))
 						Serialize(key, KeyFile);
 					else
@@ -842,8 +842,8 @@ namespace cse
 				{
 					K key;
 					V val;
-					std::string KeyFile = filename + "_K" + std::to_string(index);
-					std::string ValFile = filename + "_V" + std::to_string(index);
+					std::string KeyFile = filename + "_K" + std::to_string(i);
+					std::string ValFile = filename + "_V" + std::to_string(i);
 					if (IsSerializable(key))
 						Serialize(key, KeyFile);
 					else
@@ -885,8 +885,8 @@ namespace cse
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
 				for (auto item = ummap.begin(), i = 0; item != ummap.end(); item++, i++)
 				{
-					K key = (*item)->first;
-					V val = (*item)->second;
+					K key = (*item).first;
+					V val = (*item).second;
 					std::string KeyFile = filename + "_K" + std::to_string(i);
 					std::string ValFile = filename + "_V" + std::to_string(i);
 					if (IsSerializable(key))
@@ -925,8 +925,8 @@ namespace cse
 				{
 					K key;
 					V val;
-					std::string KeyFile = filename + "_K" + std::to_string(index);
-					std::string ValFile = filename + "_V" + std::to_string(index);
+					std::string KeyFile = filename + "_K" + std::to_string(i);
+					std::string ValFile = filename + "_V" + std::to_string(i);
 					if (IsSerializable(key))
 						Serialize(key, KeyFile);
 					else
@@ -976,7 +976,7 @@ namespace cse
 				}
 				size_t size = vec.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				for (auto i = 0; i < size; i++)
+				for (size_t i = 0; i < size; i++)
 				{
 					if (IsSerializable(vec[i]))
 					{
@@ -1005,7 +1005,7 @@ namespace cse
 					std::cerr << "Error reading stack size from file: " << filename << std::endl;
 				}
 				std::vector<T> vec(size);
-				for (auto i = 0; i < size; i++)
+				for (size_t i = 0; i < size; i++)
 				{
 					if (IsSerializable(vec[i]))
 					{
@@ -1207,9 +1207,18 @@ namespace cse
 				}
 				size_t size = deq.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				for (const T &item : deq)
+				for (size_t i = 0; i < size; i++)
 				{
-					outFile.write(reinterpret_cast<const char *>(&item), sizeof(T));
+					if (IsSerializable(deq[i]))
+					{
+						std::string newFile = filename + "_" + std::to_string(i);
+						Serialize(deq[i], newFile);
+					}
+					else
+					{
+						std::cerr << "This type is not implemented yet." << std::endl;
+						return;
+					}
 				}
 			}
 			else
@@ -1220,22 +1229,34 @@ namespace cse
 					std::cerr << "Error opening file for reading: " << filename << std::endl;
 					return;
 				}
+
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+
 				if (!inFile || inFile.eof())
 				{
 					std::cerr << "Error reading deque size from file: " << filename << std::endl;
 					std::abort();
 				}
-				deq.clear();
+
+				std::vector<T> vec(size);
 				for (size_t i = 0; i < size; i++)
 				{
-					T item;
-					inFile.read(reinterpret_cast<char *>(&item), sizeof(T));
-					if (!inFile)
+					if (IsSerializable(vec[i]))
 					{
-						std::cerr << "Error reading element " << i << " from file: " << filename << std::endl;
+						std::string newFile = filename + "_" + std::to_string(i);
+						Serialize(vec[i], newFile);
 					}
+					else
+					{
+						std::cerr << "This type is not implemented yet." << std::endl;
+						return;
+					}
+				}
+
+				deq.clear();
+				for (const T &item : vec)
+				{
 					deq.push_back(item);
 				}
 			}
@@ -1256,9 +1277,9 @@ namespace cse
 		template <typename T,
 				  typename std::enable_if_t<
 					  std::is_class_v<T> && !std::is_same_v<T, std::string>, int> = 0>
-		void Serialize(T &obj, const std::string &filename)
+		void Serialize(T &obj)
 		{
-			obj.Serialize(*this, filename);
+			obj.Serialize(*this);
 		}
 	};
 } // namespace cse
