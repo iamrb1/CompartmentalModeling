@@ -37,9 +37,12 @@ private:
     NOT_EQUAL
   };
 
-  static std::vector<double> getDoubleValues(const ReferenceVector<Datum>& reference_vector);
+  static std::vector<double>
+  getDoubleValues(const ReferenceVector<Datum> &reference_vector);
 
-  ReferenceVector<Datum> determineColumnComparisons(size_t column_index, Datum &value, operations operation);
+  ReferenceVector<Datum> determineColumnComparisons(size_t column_index,
+                                                    const Datum &value,
+                                                    operations operation);
 
 public:
   /**
@@ -53,13 +56,23 @@ public:
     grid_ = data;
   }
 
-  [[nodiscard]] static bool isRectangle(const std::vector<std::vector<Datum>> &data) {
-    if (data.empty()) return true;
+  /**
+   * Checks if DataGrid is a rectangle
+   * @param data
+   * @return bool
+   */
+  [[nodiscard]] static bool
+  isRectangle(const std::vector<std::vector<Datum>> &data) {
+    if (data.empty())
+      return true;
 
-    const size_t row_one_length = data[0].size();
-    for (auto &row : data) {
-      if (row.size() != row_one_length) return false;
-    } return true;
+    // Used ChatGPT to replace my range based loop with range method recommended
+    // by clang
+    return data.empty() ||
+           std::ranges::all_of(
+               data, [row_one_length = data[0].size()](const auto &row) {
+                 return row.size() == row_one_length;
+               });
   }
 
   /**
@@ -69,8 +82,9 @@ public:
    * @param num_columns_
    * @param default_value_
    */
-  explicit DataGrid(const std::size_t num_rows_ = 0, const std::size_t num_columns_ = 0,
-           const double default_value_ = 0) {
+  explicit DataGrid(const std::size_t num_rows_ = 0,
+                    const std::size_t num_columns_ = 0,
+                    const double default_value_ = 0) {
     resize(num_rows_, num_columns_, default_value_);
   }
 
@@ -82,7 +96,7 @@ public:
    * @param default_value_
    */
   DataGrid(const std::size_t num_rows_, const std::size_t num_columns_,
-           const std::string& default_value_) {
+           const std::string &default_value_) {
     resize(num_rows_, num_columns_, default_value_);
   }
 
@@ -139,9 +153,10 @@ public:
   [[nodiscard]] row_t &getRow(std::size_t row_index_);
   [[nodiscard]] const row_t &getRow(std::size_t row_index_) const;
   [[nodiscard]] ReferenceVector<Datum> getColumn(std::size_t column_index_);
-  [[nodiscard]] Datum &getValue(std::size_t row_index_, std::size_t column_index_);
+  [[nodiscard]] Datum &getValue(std::size_t row_index_,
+                                std::size_t column_index_);
   [[nodiscard]] const Datum &getValue(std::size_t row_index_,
-                        std::size_t column_index_) const;
+                                      std::size_t column_index_) const;
 
   [[nodiscard]] std::tuple<std::size_t, std::size_t> shape() const;
 
@@ -165,12 +180,20 @@ public:
   void resize(std::size_t num_rows_, std::size_t num_columns_,
               double default_value_ = 0);
   void resize(std::size_t num_rows_, std::size_t num_columns_,
-              const std::string& default_value_);
+              const std::string &default_value_);
 
   Datum &at(std::size_t row_index_, std::size_t column_index_);
-  [[nodiscard]] const Datum &at(std::size_t row_index_, std::size_t column_index_) const;
+  [[nodiscard]] const Datum &at(std::size_t row_index_,
+                                std::size_t column_index_) const;
   row_t &at(std::size_t row_index_);
   [[nodiscard]] const row_t &at(std::size_t row_index_) const;
+
+  [[nodiscard]] DataGrid merge(const DataGrid &grid_two, bool row_append) const;
+  DataGrid slice(std::size_t start_row_index, std::size_t end_row_index,
+                 std::size_t start_column_index, std::size_t end_column_index);
+  void sortColumn(std::size_t column_index, bool ascending = true);
+  void sort(bool ascending = true);
+  std::vector<std::size_t> search(std::size_t column_index, const Datum &value);
 
   double columnMean(std::size_t column_index);
   double columnMedian(std::size_t column_index);
@@ -179,12 +202,17 @@ public:
   double columnMin(std::size_t column_index);
   double columnMax(std::size_t column_index);
 
-  ReferenceVector<Datum> columnLessThan(size_t column_index, Datum& value);
-  ReferenceVector<Datum> columnLessThanOrEqual(size_t column_index, Datum& value);
-  ReferenceVector<Datum> columnGreaterThan(size_t column_index, Datum& value);
-  ReferenceVector<Datum> columnGreaterThanOrEqual(size_t column_index, Datum& value);
-  ReferenceVector<Datum> columnEqual(size_t column_index, Datum& value);
-  ReferenceVector<Datum> columnNotEqual(size_t column_index, Datum& value);
+  ReferenceVector<Datum> columnLessThan(size_t column_index,
+                                        const Datum &value);
+  ReferenceVector<Datum> columnLessThanOrEqual(size_t column_index,
+                                               const Datum &value);
+  ReferenceVector<Datum> columnGreaterThan(size_t column_index,
+                                           const Datum &value);
+  ReferenceVector<Datum> columnGreaterThanOrEqual(size_t column_index,
+                                                  const Datum &value);
+  ReferenceVector<Datum> columnEqual(size_t column_index, const Datum &value);
+  ReferenceVector<Datum> columnNotEqual(size_t column_index,
+                                        const Datum &value);
 
   std::ostream &print(std::ostream &os_) const;
 };
