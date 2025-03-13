@@ -11,24 +11,11 @@
 namespace cse {
 
 /**
- * @brief Increments time on clock_thread and checks for events to trigger
- */
-void EventManager::AdvanceTime() {
-  //https://chatgpt.com/share/67d0f10d-2464-8005-8cc2-7420f14ea783
-  auto nextTime = std::chrono::steady_clock::now();
-  while (running_) {
-    nextTime += std::chrono::seconds(1);
-    std::this_thread::sleep_until(nextTime);
-    clock_time_++;
-    TriggerEvents();
-  }
-}
-
-/**
  * @brief Checks for and triggers events
  */
 void EventManager::TriggerEvents() {
-  while ((event_queue_.size() > 0) && event_queue_.peek().getTime() <= clock_time_) {
+  double clockTime = this->getTime();
+  while ((event_queue_.size() > 0) && event_queue_.peek().getTime() <= clockTime) {
     cse::Event e = event_queue_.peek();
     if (paused_events_.find(e.getID()) != paused_events_.end()) {
       event_queue_.pop();
@@ -79,7 +66,7 @@ bool EventManager::ResumeEvent(Event &event) {
   if (running_events_.count(event_id)) {
     return true;
   } else if (paused_events_.find(event_id) != paused_events_.end()) {
-    if (event.getTime() <= clock_time_){
+    if (event.getTime() <= this->getTime()){
       event_queue_.add(paused_events_.at(event_id));
     }
     paused_events_.erase(event_id);
@@ -124,20 +111,19 @@ bool EventManager::RepeatEvent(cse::Event &event, int time_interval) {
  */
 void EventManager::StopQueue() {
   running_ = false;
-  if (clock_thread_.joinable()) {
-    clock_thread_.join();
+  if (start_time_ == std::chrono::steady_clock::time_point{}){
+    total_runtime_ += std::chrono::steady_clock::now() - start_time_;
   }
 }
 
 /**
- * @brief Starts clock and begins checking for events to trigger
+ * @brief Starts queue allowing for time updates
  */
 void EventManager::StartQueue() {
-  if (running_) { //Queue is already running
-    return;
+  if (!running_){
+    running_ = true;
+    start_time_ = std::chrono::steady_clock::now();
   }
-  running_ = true;
-  clock_thread_ = std::thread(&EventManager::AdvanceTime, this); //Create thread that executes AdvanceTime
 }
 
 /**
@@ -145,7 +131,7 @@ void EventManager::StartQueue() {
  */
 void EventManager::RestartQueue() {
   StopQueue();
-  clock_time_ = 0;
+  total_runtime_ = std::chrono::duration<double>::zero();
   StartQueue();
 }
 

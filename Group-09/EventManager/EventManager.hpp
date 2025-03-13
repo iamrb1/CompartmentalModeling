@@ -3,6 +3,16 @@
  * @author Grace Fitzgerald
  *
  *
+ * @brief Coordinates scheduled events, allowing for pausing, resuming,
+ * and handling of recurring events.
+ *
+ *
+ * Key Features:
+ *  - Starts and stops event queue
+ *  - Uniquely assigns ids to and creates events
+ *  - Tracks paused and currently running events
+ *  - Allows events to repeat at time intervals
+ *
  */
 
 #pragma once
@@ -24,21 +34,20 @@ namespace cse {
 class EventManager {
  private:
   EventQueue event_queue_;
-  std::atomic<int> clock_time_{0};
+  // Tracks if queue is currently running
+  bool running_{0};
   //The ID for the next event to be created
   int next_id_{0};
-  //Flag indicating if the clock_thread is running
-  std::atomic<bool> running_{false};
-  //Thread to keep time and trigger events whose time has been reached
-  std::thread clock_thread_;
+  // Time when queue was last started
+  std::chrono::steady_clock::time_point start_time_;
+  // Total time queue has been running in seconds
+  std::chrono::duration<double> total_runtime_{0};
   //Set of event ids that are not paused
   std::set<int> running_events_;
   //Map of paused events <id, event>
   std::unordered_map<int, Event> paused_events_;
   //Map of events to repeat <id, time interval>
   std::unordered_map<int, int> repeat_events_;
-  void AdvanceTime();
-  void TriggerEvents();
 
  public:
   EventManager() = default;
@@ -47,6 +56,7 @@ class EventManager {
   bool ResumeEvent(Event &event_id);
   std::optional<Event> AddEvent(int time, std::string data);
   bool RepeatEvent(cse::Event &event, int time_interval);
+  void TriggerEvents();
   void StopQueue();
   void StartQueue();
   void RestartQueue();
@@ -67,7 +77,13 @@ class EventManager {
    * @brief Get the current internal time
    * @return The current time in seconds
    */
-  int getTime(){return clock_time_;}
+  double getTime(){
+    if(start_time_ == std::chrono::steady_clock::time_point{}){
+      return 0;
+    }
+    double nanoSeconds = ((std::chrono::steady_clock::now() - start_time_) + total_runtime_).count();
+    return nanoSeconds/std::pow(10, 9);
+  }
 
   /**
    * @brief Get the set of running events

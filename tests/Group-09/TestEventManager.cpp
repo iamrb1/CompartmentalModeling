@@ -10,38 +10,36 @@
 
 using namespace cse;
 
-
-TEST_CASE("Thread Synchronization", "[EventManager]")
+TEST_CASE("Check empty EventManager", "[EventManager]")
 {
-  EventManager eM;
-
-  Event e1 = eM.AddEvent(1, "Event 1").value();
-  eM.AddEvent(3, "Event 2");
-  eM.AddEvent(9, "Event 3");
-
-  CHECK(eM.getTime() == 0);
-  auto nextTime = std::chrono::steady_clock::now();
-  for(int i = 1; i < 8; i++){
-    eM.StartQueue();
-    nextTime += std::chrono::seconds(1);
-    std::this_thread::sleep_until(nextTime);
-    //Tolerance to account in thread scheduling and sleep function variability
-    CHECK( std::abs(eM.getTime() - i) <= 1);
-    eM.StopQueue();
-  }
-
-  eM.StartQueue();
-  nextTime += std::chrono::seconds(1);
-  std::this_thread::sleep_until(nextTime);
-  //Tolerance to account in thread scheduling and sleep function variability
-  CHECK( std::abs(eM.getTime() - 8) <= 1);
-  nextTime += std::chrono::seconds(1);
-  std::this_thread::sleep_until(nextTime);
-  //Tolerance to account in thread scheduling and sleep function variability
-  CHECK( std::abs(eM.getTime() - 9) <= 1);
-  eM.StopQueue();
+  EventManager eventManager;
+  CHECK(eventManager.getNumEvents() == 0);
+  CHECK(eventManager.getNumPaused() == 0);
+  CHECK(eventManager.getTime() == 0);
 }
 
+TEST_CASE("Check getTime in EventManager", "[EventManager]")
+{
+  EventManager eM;
+  Event e1(0, 10, "Event 1");
+  CHECK(eM.AddEvent(1, "Event 1").value() == e1);
+  std::set<int> runningEvents;
+  runningEvents.insert(0);
+  CHECK(eM.getRunningEvents() == runningEvents);
+  CHECK(eM.getNumEvents() == 1);
+  eM.StartQueue();
+  double totalTimeElapsed = 0;
+  for(int i = 1; i < 22; i++){
+    auto before = std::chrono::steady_clock::now();
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    auto after = std::chrono::steady_clock::now();
+    totalTimeElapsed += std::chrono::duration<double>(after - before).count();
+    CHECK(std::abs(eM.getTime() - totalTimeElapsed) < .01*i); // Account for sleep_for imprecision
+    eM.TriggerEvents();
+  }
+
+
+}
 
 TEST_CASE("Add event to EventManager", "[EventManager]")
 {
@@ -171,14 +169,18 @@ TEST_CASE("Trigger events", "[EventManager]")
   REQUIRE(eM.getNumEvents() == 3);
   eM.StartQueue();
   std::this_thread::sleep_for(std::chrono::seconds(2));
+  eM.TriggerEvents();
   CHECK(eM.getNumEvents() == 2);
   std::this_thread::sleep_for(std::chrono::seconds(2));
+  eM.TriggerEvents();
   CHECK(eM.getNumEvents() == 1);
   eM.AddEvent(7, "Event 4");
   CHECK(eM.getNumEvents() == 2);
   std::this_thread::sleep_for(std::chrono::seconds(2));
+  eM.TriggerEvents();
   CHECK(eM.getNumEvents() == 1);
   std::this_thread::sleep_for(std::chrono::seconds(0));
+  eM.TriggerEvents();
   CHECK(eM.getNumEvents() == 1);
 }
 
@@ -199,11 +201,16 @@ TEST_CASE("Trigger Events with Repeat Events", "[EventManager]")
   REQUIRE(eM.getNumEvents() == 3);
   eM.StartQueue();
   std::this_thread::sleep_for(std::chrono::seconds(2)); //e1 triggered and readd to queue
+  eM.TriggerEvents();
   CHECK(eM.getNumEvents() == 3);
   std::this_thread::sleep_for(std::chrono::seconds(2)); //e2 triggered
+  eM.TriggerEvents();
   CHECK(eM.getNumEvents() == 2);
   std::this_thread::sleep_for(std::chrono::seconds(2)); //e1 and e3 triggered, readd e1
+  eM.TriggerEvents();
   CHECK(eM.getNumEvents() == 1);
+  eM.StopQueue();
+
 }
 
 TEST_CASE("Trigger Events with Pause/Resume", "[EventManager]")
@@ -219,11 +226,14 @@ TEST_CASE("Trigger Events with Pause/Resume", "[EventManager]")
   REQUIRE(eM.getNumEvents() == 3);
   eM.StartQueue();
   std::this_thread::sleep_for(std::chrono::seconds(2));
+  eM.TriggerEvents();
   CHECK(eM.getNumEvents() == 3);
   std::this_thread::sleep_for(std::chrono::seconds(2));
+  eM.TriggerEvents();
   CHECK(eM.getNumEvents() == 2);
   eM.ResumeEvent(e1);
   std::this_thread::sleep_for(std::chrono::seconds(4));
+  eM.TriggerEvents();
   CHECK(eM.getNumEvents() == 0);
 }
 
