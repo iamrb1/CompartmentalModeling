@@ -360,3 +360,31 @@ TEST_CASE("Test range splitting", "[IndexSetTest]") {
   REQUIRE(second_range->first == 4);
   REQUIRE(second_range->second == 6);
 }
+
+TEST_CASE("Test Iterator", "[IndexSetTest]") {
+  cse::IndexSet set;
+
+  auto iterator = set.begin();
+  auto end = set.end();
+  REQUIRE(iterator == end);
+
+  set.insert(2);
+  set.insert(4);
+  set.insert(5);
+
+  iterator = set.begin();
+  end = set.end();
+  REQUIRE(iterator != end);
+  REQUIRE(*iterator == 2);
+  REQUIRE(*iterator == 2);
+
+  iterator++;
+  REQUIRE(*iterator == 4);
+
+  ++iterator;
+  REQUIRE(*iterator == 5);
+
+  ++iterator;
+  REQUIRE(iterator == end);
+
+}
