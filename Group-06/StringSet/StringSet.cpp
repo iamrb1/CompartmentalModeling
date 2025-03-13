@@ -227,3 +227,47 @@ void cse::StringSet::SizeFilter(int length) {
 
   RetainFilter(sizePredicate);
 }
+
+/**
+ * @brief Check both sets and return not common elements from both sets
+ * @param other the second set
+ * @return Symmetric Difference set
+ */
+cse::StringSet cse::StringSet::SymmetricDifference(const cse::StringSet& other) const
+{
+    StringSet result1;
+    StringSet result2;
+    StringSet finalResult;
+
+    result1 = Difference(other);
+    result2 = other.Difference(*this);
+
+    finalResult = result1.Union(result2);
+
+    return finalResult;
+}
+
+/**
+ * @brief Union two sets if their elements meet the custom filter condition
+ * @param other the second set
+ * @param filter custom function(condition)
+ * @return Union of two sets based on the custom filter
+ */
+cse::StringSet cse::StringSet::UnionWith(const cse::StringSet &other, const std::function<bool(const std::string &)> filter)
+{
+    StringSet result = Union(other);
+    result.RetainFilter(filter);
+    return result;
+}
+
+/**
+ * @brief Sort the StringSet
+ * @param comparator sorting condition
+ * @return sorted set
+ */
+std::set<std::string> cse::StringSet::sort(const std::function<bool(const std::string &str, const std::string &str2)> comparator) const
+{
+    std::vector<std::string> sortedElements = ToVector();
+    std::sort(sortedElements.begin(), sortedElements.end(), comparator);
+    return std::set<std::string>(sortedElements.begin(), sortedElements.end());
+}

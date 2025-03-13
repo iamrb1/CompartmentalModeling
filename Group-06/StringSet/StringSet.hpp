@@ -11,6 +11,7 @@
 #include <iostream>
 #include <string>
 #include <unordered_set>
+#include <set>
 #include <vector>
 #include <cassert>
 #include <ranges>
@@ -95,7 +96,15 @@ public:
   * @return 0 or 1. If str in the set returns 1 otherwise 0
   */
   size_t count(const std::string &str) const { return mElements.count(str); }
-  
+
+  /**
+  * @brief Convert set to vector
+  * @return Vector of strings
+  */
+  std::vector<std::string> ToVector() const
+  {return std::vector<std::string>(mElements.begin(), mElements.end()); }
+
+
   StringSet Union(const StringSet &other) const;
   
   StringSet Intersection(const StringSet &other) const;
@@ -121,5 +130,11 @@ public:
   StringSet RandomSample(int sampleSize);
 
   std::tuple<int, double, std::string, std::string>Statistics();
+
+  StringSet SymmetricDifference(const StringSet &other) const;
+
+  StringSet UnionWith(const StringSet &other, const std::function<bool(const std::string &str)> filter);
+
+  std::set<std::string> sort(const std::function<bool(const std::string &str, const std::string &str2)> comparator) const;
 };
 }  // namespace cse

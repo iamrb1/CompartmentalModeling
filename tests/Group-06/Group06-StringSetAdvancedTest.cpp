@@ -185,7 +185,7 @@ TEST_CASE("Tests for SizeFilter", "[SizeFilter]") {
 		REQUIRE(set.count("goose") == 1);
 	}
 }
-/*
+
 
 TEST_CASE("Test for UnionWith", "[UnionWith]"){
     StringSet set1;
@@ -318,4 +318,4 @@ TEST_CASE("Test for sort", "[sort]"){
 
     REQUIRE(sortedSet == expected);
 
-}*/
+}
