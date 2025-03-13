@@ -3,6 +3,7 @@
 #include <iostream>
 #include <memory>
 #include <unordered_map>
+#include <set>
 
 namespace cse {
 
@@ -78,42 +79,86 @@ Aptr<TYPE> MakeAudited(Args&&... args)
 
 // ==================== Debug Mode (Audited Pointer) ====================
 
-// Global counter and LeakChecker
-int globalCounter = 0; 
+template <typename TYPE>
+class Aptr;
 
+// LeakChecker struct to track active Aptr objects
 struct LeakChecker
 {
+    // Map to store active Aptr objects (ID -> pointer)
+    std::unordered_map<int, const void*> activeAptrs;
+
     ~LeakChecker()
     {
-        if (globalCounter != 0)
+        if (!activeAptrs.empty())
         {
-            std::cerr << "Memory leak detected: " << globalCounter << " objects not deleted." << std::endl;
+            std::cerr << "Memory leak detected: " << activeAptrs.size() << " objects not deleted." << std::endl;
+            for (const auto& pair : activeAptrs)
+            {
+                std::cerr << "Leaked object ID: " << pair.first << std::endl;
+            }
             std::terminate();
         }
     }
+
+    // Add an Aptr to the active set
+    void AddAptr(int id, const void* ptr)
+    {
+        activeAptrs[id] = ptr;
+    }
+
+    // Remove an Aptr from the active set
+    void RemoveAptr(int id)
+    {
+        activeAptrs.erase(id);
+    }
+
+    // Get the active Aptr map
+    std::unordered_map<int, const void*> GetActiveAptrs() const
+    {
+        return activeAptrs;
+    }
+
+    // Find an Aptr by ID
+    const void* FindAptr(int id) const
+    {
+        auto it = activeAptrs.find(id);
+        if (it != activeAptrs.end())
+        {
+            return it->second;
+        }
+        return nullptr;
+    }
+
+    // Reset all active Aptr objects
+    void Reset()
+    {
+        activeAptrs.clear();
+    }
 };
 
-LeakChecker leakChecker; // Global instance of LeakChecker
+// Global instance of LeakChecker
+static LeakChecker leakChecker;
 
 template <typename TYPE>
 class Aptr
 {
 public:
     // Constructor
-    explicit Aptr(TYPE* ptr = nullptr) : mPtr(ptr)
+    explicit Aptr(TYPE* ptr = nullptr) : mPtr(ptr), mID(GetNextID())
     {
         if (mPtr)
         {
-            ++globalCounter;
+            leakChecker.AddAptr(mID, mPtr);
         }
     }
 
     // Copy constructor
-    Aptr(const Aptr& other) : mPtr(other.mPtr ? new TYPE(*other.mPtr) : nullptr)
+    Aptr(const Aptr& other) : mPtr(other.mPtr ? new TYPE(*other.mPtr) : nullptr), mID(GetNextID())
     {
         if (mPtr)
         {
-            ++globalCounter;
+            leakChecker.AddAptr(mID, mPtr);
         }
     }
 
@@ -124,22 +169,23 @@ public:
         {
             if (mPtr)
             {
-                --globalCounter;
+                leakChecker.RemoveAptr(mID);
             }
             delete mPtr;
             mPtr = other.mPtr ? new TYPE(*other.mPtr) : nullptr;
             if (mPtr)
             {
-                ++globalCounter;
+                leakChecker.AddAptr(mID, mPtr);
             }
         }
         return *this;
     }
 
     // Move constructor
-    Aptr(Aptr&& other) : mPtr(other.mPtr)
+    Aptr(Aptr&& other) : mPtr(other.mPtr), mID(other.mID)
     {
         other.mPtr = nullptr;
+        other.mID = 0;
     }
 
     // Move assignment operator
@@ -149,11 +195,13 @@ public:
         {
             if (mPtr)
             {
-                --globalCounter;
+                leakChecker.RemoveAptr(mID);
             }
             delete mPtr;
             mPtr = other.mPtr;
+            mID = other.mID;
             other.mPtr = nullptr;
+            other.mID = 0;
         }
         return *this;
     }
@@ -163,7 +211,7 @@ public:
     {
         if (!mPtr)
         {
-            std::cerr << "Dereferencing a null pointer" << std::endl;
+            std::cerr << "Dereferencing a null pointer (ID: " << mID << ")" << std::endl;
             std::terminate();
         }
         return *mPtr;
@@ -174,7 +222,7 @@ public:
     {
         if (!mPtr)
         {
-            std::cerr << "Accessing a null pointer" << std::endl;
+            std::cerr << "Accessing a null pointer (ID: " << mID << ")" << std::endl;
             std::terminate();
         }
         return mPtr;
@@ -191,10 +239,10 @@ public:
     {
         if (!mPtr)
         {
-            std::cerr << "Deleting a null pointer" << std::endl;
+            std::cerr << "Deleting a null pointer (ID: " << mID << ")" << std::endl;
             std::terminate();
         }
-        --globalCounter;
+        leakChecker.RemoveAptr(mID);
         delete mPtr;
         mPtr = nullptr;
     }
@@ -202,43 +250,50 @@ public:
     // Get the ID of this AuditedPointer
     int GetID() const
     {
-        return 0;
+        return mID;
     }
 
     // Get a set of all active AuditedPointer IDs and their pointers
-    static std::unordered_map<int, void*> GetActiveAptrs()
+    static std::unordered_map<int, const void*> GetActiveAptrs()
     {
-        return {};
+        return leakChecker.GetActiveAptrs();
     }
     
-        // Find an AuditedPointer by ID in the active set
-    static void* Find(int id)
+    // Find an AuditedPointer by ID in the active set
+    static const void* Find(int id)
     {
-        return nullptr;
+        return leakChecker.FindAptr(id);
     }
     
     // Reset all active AuditedPointers (delete and clear the active set)
     static void Reset()
     {
-
+        leakChecker.Reset();
     }
 
 private:
     // Base raw pointer
     TYPE* mPtr;
 
+    // Unique ID for this AuditedPointer
     int mID;
 
+    // Static counter for generating unique IDs
+    static int GetNextID()
+    {
+        static int nextID = 1;
+        return nextID++;
+    }
 };
 
 // Stand-alone MakeAudited function
 template <typename TYPE, typename... Args>
 Aptr<TYPE> MakeAudited(Args&&... args)
 {
-    return Aptr<TYPE>(new TYPE(std::forward<Args>(args)...));
-    ++globalCounter;
+    TYPE* ptr = new TYPE(std::forward<Args>(args)...);
+    return Aptr<TYPE>(ptr);
 }
 
 #endif
 
-}
+} 

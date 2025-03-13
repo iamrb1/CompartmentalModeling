@@ -2,8 +2,10 @@
 #include "../AnnotatedWrapper/AnnotatedWrapper.h"
 #include <sstream>
 
+using namespace cse;
+
 TEST_CASE("Test AnnotatedWrapper default construction", "[AnnotatedWrapper]") {
-    cse::AnnotatedWrapper wrapper;
+    AnnotatedWrapper wrapper;
 
     // Test adding annotations with different types (string, number, key-value pairs)
     wrapper.addAnnotation("fontSize", 12.5f); // Add a float annotation
