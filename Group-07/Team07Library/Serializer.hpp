@@ -1268,7 +1268,6 @@ namespace cse
 		 * @tparam T A user-defined class or struct that implements a `Serialize`
 		 * member function.
 		 * @param obj Reference to the object to write or read.
-		 * @param filename Path to the binary file.
 		 *
 		 * This function calls `obj.Serialize(*this, filename);`.
 		 * Your custom class must define its own `Serialize(Serializer&, const
