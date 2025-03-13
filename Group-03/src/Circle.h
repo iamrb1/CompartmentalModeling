@@ -35,9 +35,14 @@ public:
     void setCharacteristic(const std::string& characteristic);
     std::string getCharacteristic() const;
 
+    //Energy methods
     void decreaseEnergy(int energy);
     void regenEnergy(int energy);
     void updateSpeed();
+
+    // Repopulation methods and check
+    bool canRepopulate() const;
+    void eatPreyCircle();
 
 private:
     double x_;
@@ -49,4 +54,6 @@ private:
     int energy_;
     std::string circleType_;
     bool regen_;
+    bool repopulate_;
+    int eatingCounter_;
 };

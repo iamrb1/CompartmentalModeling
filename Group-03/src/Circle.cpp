@@ -3,9 +3,12 @@
 
 // Constructor
 Circle::Circle(double x, double y, double radius, double baseSpeed, double speed, const std::string& circleType)
-    : x_(x), y_(y), radius_(radius), baseSpeed_(baseSpeed), speed_(speed), circleType_(circleType), energy_(100), regen_(false) {
+    : x_(x), y_(y), radius_(radius), baseSpeed_(baseSpeed), speed_(speed), circleType_(circleType), energy_(100), regen_(false), repopulate_(false), eatingCounter_(0) {
     if (radius <= 0) {
         throw std::invalid_argument("Radius must be positive");
+    }
+    if (circleType_ == "blue") {
+        repopulate_ = true;
     }
 }
 
@@ -103,5 +106,20 @@ void Circle::updateSpeed() {
     if (!regen_) {
         double speedFactor = energy_ / 100.0; //makes percentage of energy left
         speed_ = baseSpeed_ * speedFactor;
+    }
+}
+
+
+bool Circle::canRepopulate() const {
+    return repopulate_;
+}
+
+void Circle::eatPreyCircle() {
+    if (circleType_ == "red") {
+        eatingCounter_++;
+        if (eatingCounter_ >= 5) {
+            repopulate_ = true;
+            eatingCounter_ = 0;
+        }
     }
 }
