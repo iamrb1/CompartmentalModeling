@@ -72,8 +72,8 @@ TEST_CASE("GraphPosition Depth and Breadth-First Search Traversal Tests", "[Grap
   auto &v4 = graph.AddVertex("D", "Vertex D Data");
 
   graph.AddEdge("A", "B");
-  graph.AddEdge("B", "C");
-  graph.AddEdge("C", "D");
+  graph.AddEdge("A", "C");
+  graph.AddEdge("B", "D");
 
   cse::GraphPosition<std::string> pos(graph, &v1);
 
