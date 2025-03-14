@@ -55,7 +55,7 @@ TEST_CASE("Test cse::Graph", "[base]") {
   REQUIRE_THAT(v4_v5_edge.GetWeight(), WithinAbs(0, cse_test_utils::FLOAT_DELTA));
 
   graph.RemoveEdge(e2);
-  CHECK_THROWS_AS(graph.GetEdge(v4.GetId(), v5.GetId()), std::runtime_error);
+  CHECK_THROWS_AS(graph.GetEdge(v4, v5), std::runtime_error);
   CHECK_THROWS_AS(graph.RemoveEdge(e2), std::out_of_range);
 
   auto &e3 = graph.AddEdge("id1", "id2", 2);
