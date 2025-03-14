@@ -10,7 +10,7 @@
 #include "../Team07Library/OutputLog.hpp"
 #include "Animals.hpp"
 using namespace cse;
-using namespace cse;  // To simplify OutputLog usage
+
 
 void runSimulation(SimulationState& state, OutputLog& log) {
     std::random_device rd;
