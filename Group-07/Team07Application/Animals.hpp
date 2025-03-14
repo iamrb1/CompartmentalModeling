@@ -53,7 +53,7 @@ struct SimulationState {
     int timeSteps;
     int loggingInterval;
 
-    Environment environment;
+    // Environment environment;
     std::vector<Species> speciesList;
     std::vector<Interaction> interactions;
 
