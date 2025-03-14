@@ -1,6 +1,7 @@
 /**
  * @file DataGrid.cpp
- * @author Shahaab Ali
+ *
+ * @author Shahaab Ali and Max Krawec
  */
 
 #include "DataGrid.h"
@@ -118,6 +119,29 @@ DataGrid::getColumn(const std::size_t column_index_) {
   }
 
   ReferenceVector<Datum> column;
+
+  for (auto &row : grid_) {
+    assert(column_index_ < row.size());
+    column.PushBack(row.at(column_index_));
+  }
+  return column;
+}
+
+/**
+ * @brief Const version of index a column from DataGrid
+ * @param column_index_ Column index to retrieve
+ * @return Indexed vector column from DataGrid
+ */
+cse::ReferenceVector<const Datum>
+DataGrid::getColumn(const std::size_t column_index_) const {
+  assert(!grid_.empty());
+  assert(column_index_ < grid_[0].size());
+
+  if (grid_.empty() || column_index_ >= grid_.front().size()) {
+    throw std::out_of_range("Column index out of bounds");
+  }
+
+  ReferenceVector<const Datum> column;
 
   for (auto &row : grid_) {
     assert(column_index_ < row.size());
@@ -547,7 +571,7 @@ std::vector<size_t> DataGrid::search(std::size_t column_index,
  * @param column_index The desired column index
  * @return The mean of the desired column
  */
-double DataGrid::columnMean(std::size_t column_index) {
+double DataGrid::columnMean(std::size_t column_index) const {
   if (grid_.empty() || column_index >= grid_[0].size()) {
     throw std::out_of_range("Column index out of range.");
   }
@@ -566,7 +590,7 @@ double DataGrid::columnMean(std::size_t column_index) {
  * @param column_index The desired column index
  * @return The median of the desired column
  */
-double DataGrid::columnMedian(std::size_t column_index) {
+double DataGrid::columnMedian(std::size_t column_index) const {
   if (grid_.empty() || column_index >= grid_[0].size()) {
     throw std::out_of_range("Column index out of range.");
   }
@@ -593,7 +617,7 @@ double DataGrid::columnMedian(std::size_t column_index) {
  * @param column_index The desired column index
  * @return A list of modes from the desired column
  */
-std::vector<double> DataGrid::columnMode(std::size_t column_index) {
+std::vector<double> DataGrid::columnMode(std::size_t column_index) const {
   if (grid_.empty() || column_index >= grid_[0].size()) {
     throw std::out_of_range("Column index out of range.");
   }
@@ -627,7 +651,7 @@ std::vector<double> DataGrid::columnMode(std::size_t column_index) {
  * @param column_index The desired column index
  * @return The standard deviation of the desired column
  */
-double DataGrid::columnStandardDeviation(std::size_t column_index) {
+double DataGrid::columnStandardDeviation(std::size_t column_index) const {
   if (grid_.empty() || column_index >= grid_[0].size()) {
     throw std::out_of_range("Column index out of range.");
   }
@@ -638,9 +662,8 @@ double DataGrid::columnStandardDeviation(std::size_t column_index) {
   }
 
   double current_total = 0;
-  double mean = columnMean(column_index);
   for (double value : double_values) {
-    current_total += pow(value - mean, 2);
+    current_total += pow(value - columnMean(column_index), 2);
   }
   return sqrt(current_total / static_cast<int>(double_values.size()));
 }
@@ -650,7 +673,7 @@ double DataGrid::columnStandardDeviation(std::size_t column_index) {
  * @param column_index The desired column index
  * @return The minimum element of the desired column
  */
-double DataGrid::columnMin(std::size_t column_index) {
+double DataGrid::columnMin(std::size_t column_index) const {
   if (grid_.empty() || column_index >= grid_[0].size()) {
     throw std::out_of_range("Column index out of range.");
   }
@@ -670,7 +693,7 @@ double DataGrid::columnMin(std::size_t column_index) {
  * @param column_index The desired column index
  * @return The maximum element of the desired column
  */
-double DataGrid::columnMax(std::size_t column_index) {
+double DataGrid::columnMax(std::size_t column_index) const {
   if (grid_.empty() || column_index >= grid_[0].size()) {
     throw std::out_of_range("Column index out of range.");
   }
@@ -692,7 +715,7 @@ double DataGrid::columnMax(std::size_t column_index) {
  * @return A vector that contains only double data
  */
 std::vector<double>
-DataGrid::getDoubleValues(const ReferenceVector<Datum> &reference_vector) {
+DataGrid::getDoubleValues(const ReferenceVector<const Datum> &reference_vector) {
   std::vector<double> double_values;
   for (const auto &value : reference_vector) {
     if (value.IsDouble()) {
@@ -702,45 +725,125 @@ DataGrid::getDoubleValues(const ReferenceVector<Datum> &reference_vector) {
   return double_values;
 }
 
-// CITE: Used chatgpt and claude to help write this code which removed a lot of
-// duplication. Although there is still some with the switch statements, it's
-// much nicer now. WIP
+/**
+ * Returns Datums than are less than a given value for the specified column.
+ * @param column_index The index for the column.
+ * @param value The value to compare with.
+ * @return Datums than are less than a given value for the specified column.
+ */
+cse::ReferenceVector<Datum> DataGrid::columnLessThan(std::size_t column_index,
+                                                     const Datum &value) {
+  return determineColumnComparisons(column_index, value, operations::LESS_THAN);
+}
+
+/**
+ * Returns Datums than are less than or equal to a given value for the specified column.
+ * @param column_index The index for the column.
+ * @param value The value to compare with.
+ * @return Datums than are less than or equal to a given value for the specified column.
+ */
+cse::ReferenceVector<Datum>
+DataGrid::columnLessThanOrEqual(std::size_t column_index, const Datum &value) {
+  return determineColumnComparisons(column_index, value,
+                                    operations::LESS_THAN_OR_EQUAL);
+}
+
+/**
+ * Returns Datums than are greater than a given value for the specified column.
+ * @param column_index The index for the column.
+ * @param value The value to compare with.
+ * @return Datums than are greater than a given value for the specified column.
+ */
+cse::ReferenceVector<Datum> DataGrid::columnGreaterThan(size_t column_index,
+                                                        const Datum &value) {
+  return determineColumnComparisons(column_index, value,
+                                    operations::GREATER_THAN);
+}
+
+/**
+ * Returns Datums than are greater than or equal to a given value for the specified column.
+ * @param column_index The index for the column.
+ * @param value The value to compare with.
+ * @return Datums than are greater than or equal to a given value for the specified column.
+ */
+cse::ReferenceVector<Datum>
+DataGrid::columnGreaterThanOrEqual(size_t column_index, const Datum &value) {
+  return determineColumnComparisons(column_index, value,
+                                    operations::GREATER_THAN_OR_EQUAL);
+}
+
+/**
+ * Returns Datums than are equal to a given value for the specified column.
+ * @param column_index The index for the column.
+ * @param value The value to compare with.
+ * @return Datums than are equal to a given value for the specified column.
+ */
+cse::ReferenceVector<Datum> DataGrid::columnEqual(size_t column_index,
+                                                  const Datum &value) {
+  return determineColumnComparisons(column_index, value, operations::EQUAL);
+}
+
+/**
+ * Returns Datums than are not equal to a given value for the specified column.
+ * @param column_index The index for the column.
+ * @param value The value to compare with.
+ * @return Datums than are not equal to a value for the specified column.
+ */
+cse::ReferenceVector<Datum> DataGrid::columnNotEqual(size_t column_index,
+                                                     const Datum &value) {
+  return determineColumnComparisons(column_index, value, operations::NOT_EQUAL);
+}
+
+/**
+ * Helper function that determines what Datum type to compare (double or string) and what comparison to do.
+ * @param column_index The index for the column.
+ * @param value  The value to compare with.
+ * @param operation The comparison operation
+ * @return A ReferenceVector of Datums based on the comparison for the specified column.
+ */
 cse::ReferenceVector<Datum>
 DataGrid::determineColumnComparisons(std::size_t column_index,
                                      const Datum &value, operations operation) {
+
+  if (grid_.empty() || column_index >= grid_[0].size()) {
+    throw std::out_of_range("Column index out of range.");
+  }
+
   ReferenceVector<Datum> values;
   ReferenceVector<Datum> column = getColumn(column_index);
 
+  // CITE: Used chatgpt and claude to help write this code which removed a lot of duplication.
+  // Mostly received help for the lamda.
   auto compare_and_store = [&values, operation](const auto &current_value,
                                                 const auto &compare_value,
                                                 Datum &datum) {
     switch (operation) {
-    case operations::LESS_THAN:
-      if (current_value < compare_value)
-        values.PushBack(datum);
-      break;
-    case operations::LESS_THAN_OR_EQUAL:
-      if (current_value <= compare_value)
-        values.PushBack(datum);
-      break;
-    case operations::GREATER_THAN:
-      if (current_value > compare_value)
-        values.PushBack(datum);
-      break;
-    case operations::GREATER_THAN_OR_EQUAL:
-      if (current_value >= compare_value)
-        values.PushBack(datum);
-      break;
-    case operations::EQUAL:
-      if (current_value == compare_value)
-        values.PushBack(datum);
-      break;
-    case operations::NOT_EQUAL:
-      if (current_value != compare_value)
-        values.PushBack(datum);
-      break;
-    default:
-      break;
+      case operations::LESS_THAN:
+        if (current_value < compare_value)
+          values.PushBack(datum);
+        break;
+      case operations::LESS_THAN_OR_EQUAL:
+        if (current_value <= compare_value)
+          values.PushBack(datum);
+        break;
+      case operations::GREATER_THAN:
+        if (current_value > compare_value)
+          values.PushBack(datum);
+        break;
+      case operations::GREATER_THAN_OR_EQUAL:
+        if (current_value >= compare_value)
+          values.PushBack(datum);
+        break;
+      case operations::EQUAL:
+        if (current_value == compare_value)
+          values.PushBack(datum);
+        break;
+      case operations::NOT_EQUAL:
+        if (current_value != compare_value)
+          values.PushBack(datum);
+        break;
+      default:
+        throw std::invalid_argument("Invalid comparison argument");
     }
   };
 
@@ -754,38 +857,4 @@ DataGrid::determineColumnComparisons(std::size_t column_index,
   }
   return values;
 }
-
-cse::ReferenceVector<Datum> DataGrid::columnLessThan(std::size_t column_index,
-                                                     const Datum &value) {
-  return determineColumnComparisons(column_index, value, operations::LESS_THAN);
-}
-
-cse::ReferenceVector<Datum>
-DataGrid::columnLessThanOrEqual(std::size_t column_index, const Datum &value) {
-  return determineColumnComparisons(column_index, value,
-                                    operations::LESS_THAN_OR_EQUAL);
-}
-
-cse::ReferenceVector<Datum> DataGrid::columnGreaterThan(size_t column_index,
-                                                        const Datum &value) {
-  return determineColumnComparisons(column_index, value,
-                                    operations::GREATER_THAN);
-}
-
-cse::ReferenceVector<Datum>
-DataGrid::columnGreaterThanOrEqual(size_t column_index, const Datum &value) {
-  return determineColumnComparisons(column_index, value,
-                                    operations::GREATER_THAN_OR_EQUAL);
-}
-
-cse::ReferenceVector<Datum> DataGrid::columnEqual(size_t column_index,
-                                                  const Datum &value) {
-  return determineColumnComparisons(column_index, value, operations::EQUAL);
-}
-
-cse::ReferenceVector<Datum> DataGrid::columnNotEqual(size_t column_index,
-                                                     const Datum &value) {
-  return determineColumnComparisons(column_index, value, operations::NOT_EQUAL);
-}
-
 } // namespace cse
