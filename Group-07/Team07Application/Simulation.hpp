@@ -43,7 +43,7 @@ void runSimulation(SimulationState& state, OutputLog& log) {
 
             if (predator && prey && prey->population > 0) {
                 int preyEaten = std::min(prey->population, static_cast<int>(predator->population * interaction.huntRate));
-
+                std::cout << "Prey eaten: " << preyEaten << std::endl;
                 prey->population -= preyEaten;
                 predator->population += preyEaten / 2;
             }
@@ -52,6 +52,10 @@ void runSimulation(SimulationState& state, OutputLog& log) {
         for (size_t i = 0; i < state.speciesList.size(); ++i) {
             state.speciesList[i].population += birthCounts[i] - deathCounts[i];
             state.speciesList[i].population = std::max(0, state.speciesList[i].population);
+
+            // log birth and death counts
+            log.log(state.speciesList[i].name + " Births: " + std::to_string(birthCounts[i]), LogLevel::DEBUG);
+            log.log(state.speciesList[i].name + " Deaths: " + std::to_string(deathCounts[i]), LogLevel::DEBUG);
         }
 
         for (const auto& species : state.speciesList) {
