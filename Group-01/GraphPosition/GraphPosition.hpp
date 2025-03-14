@@ -18,7 +18,8 @@ namespace cse {
 
   namespace TraversalModes {
     auto DFS() -> std::function<bool(GraphPosition &)>; // Forward declare the function
-  }
+    auto BFS() -> std::function<bool(GraphPosition &)>; // Forward declare the function
+  } // namespace TraversalModes
 
   class GraphPosition {
   private:
@@ -29,10 +30,11 @@ namespace cse {
     std::vector<Vertex const *> traversalPath;
     std::function<bool(GraphPosition &)> traversalFunction = TraversalModes::DFS();
     std::deque<Vertex const *> traversalQueue;
-    std::vector<Vertex const *> traversalStack; // Add this line
+    std::vector<Vertex const *> traversalStack;
 
   public:
     std::vector<Vertex const *> &GetTraversalStack() { return traversalStack; }
+    std::deque<Vertex const *> &GetTraversalQueue() { return traversalQueue; }
     void MarkVisited(Vertex const &vertex);
     bool IsVisited(Vertex const &vertex) { return visitedVertices.find(vertex.GetId()) != visitedVertices.end(); };
     GraphPosition(const Graph &g, Vertex const *startVertex);

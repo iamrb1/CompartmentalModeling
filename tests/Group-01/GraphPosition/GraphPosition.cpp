@@ -206,6 +206,18 @@ TEST_CASE("GraphPosition Depth-First Search Traversal", "[GraphPosition]") {
       ind++;
     }
   }
+
+  SECTION("BFS follows breadth traversal first") {
+    std::vector<cse::Vertex *> order{&v1, &v2, &v3, &v4};
+    pos.SetTraversalMode(cse::TraversalModes::BFS());
+    pos.ResetTraversal(v1);
+    size_t ind = 0;
+    while ((bool)++pos) {
+      auto &v = *(order.at(ind));
+      CHECK(pos.GetCurrentVertex() == v);
+      ind++;
+    }
+  }
 }
 
 // // FAILS SO FAR

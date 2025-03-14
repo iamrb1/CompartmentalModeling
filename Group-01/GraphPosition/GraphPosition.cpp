@@ -98,7 +98,49 @@ namespace cse {
 
         return dfs_implementation(graphPosition, dfs_implementation); // Start DFS from the current position
       };
-    }
+    };
+
+    auto BFS() -> std::function<bool(GraphPosition &)> {
+      return [](GraphPosition &graphPosition) {
+        auto &queue = graphPosition.GetTraversalQueue();
+
+        // Initialize queue with start vertex if empty
+        if (queue.empty()) {
+          queue.push_back(&graphPosition.GetCurrentVertex());
+          graphPosition.MarkVisited(graphPosition.GetCurrentVertex());
+        }
+
+        // If queue is empty after initialization, traversal is complete
+        if (queue.empty()) {
+          return false;
+        }
+
+        // Get the front vertex from queue
+        Vertex const *current = queue.front();
+        queue.pop_front();
+        graphPosition.SetCurrentVertex(*current);
+
+        // Collect and sort neighbors alphabetically by Vertex ID
+        std::vector<std::pair<std::string, std::weak_ptr<Edge>>> neighbors(current->GetEdges().begin(),
+                                                                           current->GetEdges().end());
+        std::sort(neighbors.begin(), neighbors.end(), [](const auto &edge1, const auto &edge2) {
+          return edge1.second.lock()->GetTo().GetId() < edge2.second.lock()->GetTo().GetId();
+        });
+
+        // Add unvisited neighbors to queue
+        for (const auto &edge : neighbors) {
+          if (auto edgePtr = edge.second.lock()) {
+            Vertex const &neighbor = edgePtr->GetTo();
+            if (!graphPosition.IsVisited(neighbor)) {
+              queue.push_back(&neighbor);
+              graphPosition.MarkVisited(neighbor);
+            }
+          }
+        }
+
+        return !queue.empty();
+      };
+    };
   } // namespace TraversalModes
 
 } // namespace cse
