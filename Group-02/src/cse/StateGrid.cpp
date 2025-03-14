@@ -66,6 +66,17 @@ void StateGrid::set_condition(char changestate, std::string property, std::strin
   assert(m_dictionary.find(changestate) && "This state is not in the map!");
   m_dictionary.change_property(changestate,property,std::move(changeprop));
 }
+
+/**
+ * This removes the specified states/conditions from an object
+ * @param changestate state to alter
+ * @param property property to change
+ */
+void StateGrid::remove_conditions(char changestate, std::string property)
+{
+    assert(m_dictionary.find(changestate) && "This state is not in the map!");
+    ///need to remove the property from the state
+}
 /**
  * Will be called from set_state, and makes calls depending on most recent agent move
  * and the properties of the new agent state
