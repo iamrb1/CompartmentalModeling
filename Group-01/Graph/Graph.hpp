@@ -36,23 +36,23 @@ namespace cse {
     void FromFile(std::istream &f, size_t prefix_size) override;
 
   public:
-    Graph() = default;
+    Graph() {};
     Graph(std::istream &f) { FromFile(f, 0); }
-    Vertex<VERTEX_DATA_T> &AddVertex(const std::string &id, VERTEX_DATA_T data, double X = 0.0, double Y = 0.0);
-    Vertex<VERTEX_DATA_T> &GetVertex(const std::string &id) const;
+    Vertex<VERTEX_DATA_T> &AddVertex(std::string const id, VERTEX_DATA_T data, double X = 0.0, double Y = 0.0);
+    Vertex<VERTEX_DATA_T> &GetVertex(std::string const &id) const;
     void RemoveVertex(std::string const id);
     bool HasVertex(std::string id) const { return vertices.find(id) != vertices.end(); };
 
-    Edge<VERTEX_DATA_T> &AddEdge(const std::string &v1_id, const std::string &v2_id, double weight = 0.0);
-    Edge<VERTEX_DATA_T> &AddEdge(Vertex<VERTEX_DATA_T> &v1, Vertex<VERTEX_DATA_T> &v2, double weight = 0.0);
-    Edge<VERTEX_DATA_T> &GetEdge(const std::string &edge_id) const;
-    Edge<VERTEX_DATA_T> &GetEdge(Vertex<VERTEX_DATA_T> &from, Vertex<VERTEX_DATA_T> &to) const;
+    Edge<VERTEX_DATA_T> &AddEdge(std::string const v1_id, std::string const v2_id, double const &weight = 0.0);
+    Edge<VERTEX_DATA_T> &AddEdge(Vertex<VERTEX_DATA_T> const &v1, Vertex<VERTEX_DATA_T> const &v2, double const &weight = 0.0);
+    Edge<VERTEX_DATA_T> &GetEdge(std::string const &edge_id) const;
+    Edge<VERTEX_DATA_T> &GetEdge(Vertex<VERTEX_DATA_T> const &from, Vertex<VERTEX_DATA_T> const &to) const;
     Edge<VERTEX_DATA_T> &GetEdge(std::string const &from_id, std::string const &to_id);
-    void RemoveEdge(const std::string &edge_id);
-    void RemoveEdge(Edge<VERTEX_DATA_T> &edge);
+    void RemoveEdge(std::string const &edge_id);
+    void RemoveEdge(Edge<VERTEX_DATA_T> const &edge);
 
-    bool IsConnected(const Vertex<VERTEX_DATA_T> &v1, const Vertex<VERTEX_DATA_T> &v2) const;
-    bool IsConnected(const std::string &v1_id, const std::string &v2_id) const;
+    bool IsConnected(Vertex<VERTEX_DATA_T> const &v1, Vertex<VERTEX_DATA_T> const &v2) const;
+    bool IsConnected(std::string const &v1_id, std::string const &v2_id) const;
   };
 
 
@@ -68,14 +68,14 @@ namespace cse {
    * @throws runtime_error if vertex ID already exists
    */
   template <typename VERTEX_DATA_T>
-  Vertex<VERTEX_DATA_T> &Graph<VERTEX_DATA_T>::AddVertex(const std::string &id, VERTEX_DATA_T data, double X, double Y) {
+  Vertex<VERTEX_DATA_T> &Graph<VERTEX_DATA_T>::AddVertex(std::string const id, VERTEX_DATA_T data, double X, double Y) {
     if (HasVertex(id)) {
       throw std::runtime_error("Vertex already exists: " + id);
     }
 
     auto v = std::make_shared<Vertex<VERTEX_DATA_T>>(id, data, X, Y);
     vertices[id] = v;
-    return *v;
+    return *vertices[id];
   }
 
   /**
@@ -85,11 +85,11 @@ namespace cse {
    * @throws out_of_range if vertex doesn't exist
    */
   template <typename VERTEX_DATA_T>
-  Vertex<VERTEX_DATA_T> &Graph<VERTEX_DATA_T>::GetVertex(const std::string &id) const {
+  Vertex<VERTEX_DATA_T> &Graph<VERTEX_DATA_T>::GetVertex(std::string const &id) const {
     if (vertices.find(id) == vertices.end()) {
       throw std::out_of_range("Vertex does not exist: " + id);
     }
-    return *vertices.at(id);
+    return *(vertices.at(id));
   }
 
   /**
@@ -98,7 +98,7 @@ namespace cse {
    * @throws out_of_range if vertex doesn't exist
    */
   template <typename VERTEX_DATA_T>
-  void Graph<VERTEX_DATA_T>::RemoveVertex(const std::string &id) {
+  void Graph<VERTEX_DATA_T>::RemoveVertex(std::string const id) {
     auto it = vertices.find(id);
     if (it == vertices.end()) {
       std::cout << "Did not find vertex to remove" << std::endl;
@@ -115,14 +115,14 @@ namespace cse {
    * @return Weak pointer to the created edge
    */
   template <typename VERTEX_DATA_T>
-  Edge<VERTEX_DATA_T> &Graph<VERTEX_DATA_T>::AddEdge(const std::string &v1_id, const std::string &v2_id, double weight) {
+  Edge<VERTEX_DATA_T> &Graph<VERTEX_DATA_T>::AddEdge(std::string const v1_id, std::string const v2_id, double const &weight) {
     if (!HasVertex(v1_id) || !HasVertex(v2_id)) {
       throw std::out_of_range("Both vertices must exist to create an edge");
     }
 
     std::string edge_id = v1_id + "-" + v2_id;
-    auto v1 = GetVertex(v1_id);
-    auto v2 = GetVertex(v2_id);
+    auto v1 = vertices[v1_id];
+    auto v2 = vertices[v2_id]; 
     auto edge = std::make_shared<Edge<VERTEX_DATA_T>>(edge_id, v1, v2, weight);
 
     v1->AddEdge(edge);
@@ -138,7 +138,7 @@ namespace cse {
    * @return Weak pointer to the created edge
    */
   template <typename VERTEX_DATA_T>
-  Edge<VERTEX_DATA_T> &Graph<VERTEX_DATA_T>::AddEdge(Vertex<VERTEX_DATA_T> &v1, Vertex<VERTEX_DATA_T> &v2, double weight) {
+  Edge<VERTEX_DATA_T> &Graph<VERTEX_DATA_T>::AddEdge(Vertex<VERTEX_DATA_T> const &v1, Vertex<VERTEX_DATA_T> const &v2, double const &weight) {
     return AddEdge(v1.GetId(), v2.GetId(), weight);
   }
 
@@ -149,11 +149,12 @@ namespace cse {
    * @throws out_of_range if edge doesn't exist
    */
   template <typename VERTEX_DATA_T>
-  Edge<VERTEX_DATA_T> &Graph<VERTEX_DATA_T>::GetEdge(const std::string &edge_id) const {
+  Edge<VERTEX_DATA_T> &Graph<VERTEX_DATA_T>::GetEdge(std::string const &edge_id) const {
     if (edges.find(edge_id) == edges.end()) {
       throw std::out_of_range("Edge does not exist.");
     }
-    return *edges.at(edge_id);
+    auto edge_ptr = edges.at(edge_id);
+    return *edge_ptr;
   }
 
   /**
@@ -163,7 +164,7 @@ namespace cse {
    * @return Weak pointer to the edge
    */
   template <typename VERTEX_DATA_T>
-  Edge<VERTEX_DATA_T> &Graph<VERTEX_DATA_T>::GetEdge(Vertex<VERTEX_DATA_T> &from, Vertex<VERTEX_DATA_T> &to) const {
+  Edge<VERTEX_DATA_T> &Graph<VERTEX_DATA_T>::GetEdge(Vertex<VERTEX_DATA_T> const &from, Vertex<VERTEX_DATA_T> const &to) const {
     return GetEdge(from.GetEdge(to)->GetId());
   }
 
@@ -184,11 +185,12 @@ namespace cse {
    * @throws out_of_range if edge doesn't exist
    */
   template <typename VERTEX_DATA_T>
-  void Graph<VERTEX_DATA_T>::RemoveEdge(const std::string &edge_id) {
+  void Graph<VERTEX_DATA_T>::RemoveEdge(std::string const &edge_id) {
     auto it = edges.find(edge_id);
     if (it == edges.end()) {
       throw std::out_of_range("Edge does not exist: " + edge_id);
     }
+    auto edge = std::move(it->second);
     edges.erase(it);
   }
 
@@ -198,7 +200,7 @@ namespace cse {
    * @throws out_of_range if edge doesn't exist or is expired
    */
   template <typename VERTEX_DATA_T>
-  void Graph<VERTEX_DATA_T>::RemoveEdge(Edge<VERTEX_DATA_T> &edge) {
+  void Graph<VERTEX_DATA_T>::RemoveEdge(Edge<VERTEX_DATA_T> const &edge) {
     RemoveEdge(edge.GetId());
   }
 
@@ -209,7 +211,7 @@ namespace cse {
    * @return true if vertices are connected, false otherwise
    */
   template <typename VERTEX_DATA_T>
-  bool Graph<VERTEX_DATA_T>::IsConnected(const Vertex<VERTEX_DATA_T> &v1, const Vertex<VERTEX_DATA_T> &v2) const {
+  bool Graph<VERTEX_DATA_T>::IsConnected(Vertex<VERTEX_DATA_T> const &v1, Vertex<VERTEX_DATA_T> const &v2) const {
     try {
       auto e = GetEdge(v1, v2);
       return e.IsConnected(v1, v2);
@@ -226,7 +228,7 @@ namespace cse {
    * @return true if vertices are connected, false otherwise
    */
   template <typename VERTEX_DATA_T>
-  bool Graph<VERTEX_DATA_T>::IsConnected(const std::string &v1_id, const std::string &v2_id) const {
+  bool Graph<VERTEX_DATA_T>::IsConnected(std::string const &v1_id, std::string const &v2_id) const {
     return IsConnected(GetVertex(v1_id), GetVertex(v2_id));
   }
 
