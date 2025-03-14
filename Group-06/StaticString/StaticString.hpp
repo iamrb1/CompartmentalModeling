@@ -43,7 +43,7 @@ public:
   * @brief Iterator to the end of static string (end iterator)
   * @return Iterator pointing past the end of static string
   */
-  constexpr char* end() { return mString + MaxSize + 1; }
+  constexpr char* end() { return mString + mCurrentSize; }
 
   /// @brief Constant value for StaticString npos, not found value.
   static constexpr std::size_t npos = static_cast<std::size_t>(-1);
@@ -708,7 +708,7 @@ public:
         if (mString[i + j] != str[j]) break;
       }
       if (j == size.length()) {
-        indexesFound[counter] = i;
+        indexesFound.push_back(i);
         counter++;
       }
     }
@@ -722,7 +722,7 @@ public:
 
       for (std::size_t i = 0; i < mCurrentSize; ++i) {
           if (mString[i] == ch) {
-            indexesFound[counter] = i;
+            indexesFound.push_back(i);
             counter++;
           };
       }
@@ -753,11 +753,11 @@ public:
         if (mString[i + j] != str[j]) break;
       }
       if (j == size.length()) {
-        indexesFound[counter] = i;//return i;
+        indexesFound.insert(indexesFound.begin(), i);
         counter++;
       }
     }
-    return indexesFound;//npos;
+    return indexesFound;
   }
 
 
@@ -768,7 +768,7 @@ public:
 
       for (std::size_t i = 0; i < mCurrentSize; ++i) {
           if (mString[i] == ch) {
-            indexesFound[counter] = i;
+            indexesFound.insert(indexesFound.begin(), i);
             counter++;
           };
       }
@@ -786,8 +786,13 @@ public:
   void replace(const T& str1, const char* str2)
   {
     std::vector<size_t> index = findAll(str1);
+    std::string_view size(str1);
+    std::string_view size2(str2);
+    if (index.size() * size2.length() > MaxSize)
+      throw std::out_of_range("replace exceeds the size allowed");
+
     for (int i = 0; i < (int)index.size(); i++) {
-      remove(index[i], size_t(str1));
+      remove(index[i], index[i] + size.length());
       insert(str2, index[i]);
     }
   }
@@ -807,8 +812,9 @@ public:
   void replace(const T& str1, char ch2)
   {
     std::vector<size_t> index = findAll(str1);
+    std::string_view size(str1);
     for (int i = 0; i < (int)index.size(); i++) {
-      remove(index[i], size_t(str1));
+      remove(index[i], index[i] + size.length());
       insert(ch2, index[i]);
     }
   }
@@ -818,8 +824,13 @@ public:
   void replace(char ch, const T& str2)
   {
     std::vector<size_t> index = findAll(ch);
+
+    std::string_view size2(str2);
+    if (index.size() * size2.length() > MaxSize)
+      throw std::out_of_range("replace exceeds the size allowed");
+
     for (int i = 0; i < (int)index.size(); i++) {
-      remove(index[i], std::size_t(1));
+      remove(index[i], index[i] + std::size_t(1));
       insert(str2, index[i]);
     }
   }
