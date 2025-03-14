@@ -7,10 +7,13 @@ FLAGS = -std=c++23 -g -pthread -Wall -Wextra -I../../ -DCATCH_CONFIG_MAIN
 
 # Two lines below were added so that ErrorManager .cpp could be linked with .hpp properly
 # I have used DeepSeek to help me do this (Ivan)
-OBJS = ErrorManager.o
+OBJS = ErrorManager.o StringSet.o
 
 ErrorManager.o: ../../Group-06/ErrorManager/ErrorManager.cpp ../../Group-06/ErrorManager/ErrorManager.hpp
 	$(CXX) $(FLAGS) -c ../../Group-06/ErrorManager/ErrorManager.cpp -o ErrorManager.o
+
+StringSet.o: ../../Group-06/StringSet/StringSet.cpp ../../Group-06/StringSet/StringSet.hpp
+	$(CXX) $(FLAGS) -c ../../Group-06/StringSet/StringSet.cpp -o StringSet.o
 
 
 cov-%: %.cpp ../../third-party/Catch/single_include/catch2/catch.hpp

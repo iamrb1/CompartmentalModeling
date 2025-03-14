@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <random>
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
-#include "../../Group-06/StringSet/StringSet.cpp"
+#include "../../Group-06/StringSet/StringSet.hpp"
 
 using namespace cse;
 
