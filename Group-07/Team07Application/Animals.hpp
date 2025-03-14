@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
-
+#include <iostream>
+#include <vector>
+#include <random>
 
 struct Species {
         std::string name;
@@ -49,4 +51,5 @@ struct SimulationState {
         }
         return nullptr;
     }
+
 };
