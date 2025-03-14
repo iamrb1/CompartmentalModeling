@@ -10,9 +10,44 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "cse/DataMap.h"
+#include "DataMap.h"
+#include "AuditedVector.h"
 
 namespace cse {
+
+/**
+ * StateDictionary
+ * Struct to hold each StateGrid state, along with any (and future) properties it has
+ */
+struct StateDictionary {
+  std::map<char, cse::AuditedVector<std::string>> m_state_dictionary;
+
+  StateDictionary() {
+    m_state_dictionary = {{' ', {"EmptySpace", "Open"}},
+                          {'#', {"Wall", "Closed"}},
+                          {'X', {"Enemy", "Open"}},
+                          {'0', {"Exit", "Open"}},
+                          {'P', {"Player", "Closed"}}};
+  }
+  bool find(char searchchar)
+  {
+    return m_state_dictionary.find(searchchar) != m_state_dictionary.end();
+  }
+  bool traversable(char searchchar)
+  {
+    return m_state_dictionary.at(searchchar)[1] == "Open";
+  }
+  cse::AuditedVector<std::string> get_info(char searchchar)
+  {
+    return m_state_dictionary.at(searchchar);
+  }
+  void change_property(char changestate, std::string& property, std::string changeprop)
+  {
+    cse::AuditedVector<std::string> properties = m_state_dictionary.at(changestate);
+    auto found = std::find(properties.begin(), properties.end(), property);
+    if(found != properties.end()){*found = std::move(changeprop);};
+  }
+};
 
 class StateGrid {
  private:
@@ -21,16 +56,10 @@ class StateGrid {
   ///Rows in grid
   int m_cols = 0;
   ///Grid to represent game map
-  std::vector<std::string> m_grid;
-  ///Map to represent the name and (future) properties of each state <<< Soon to be DataMap type
-  ///REVIEW COMMENT: Had a review saying to make this a dedicated struct, this will become a DataMap object in Advanced version
-  std::map<char, std::vector<std::string>> m_dictionary = {
-      {' ', {"EmptySpace", "Open"} },
-      {'#', {"Wall", "Closed"}},
-      {'X', {"Enemy", "Open"}},
-      {'0', {"Exit", "Open"}},
-      {'P', {"Player", "Closed"}}
-  };
+  cse::AuditedVector<std::string> m_grid;
+
+  StateDictionary m_dictionary;
+
  public:
 
   /**
@@ -41,7 +70,13 @@ class StateGrid {
     load_map("test");
   }
 
-  [[maybe_unused]] explicit StateGrid(const std::string& diff);
+  /**
+ * @brief Contructor for StateGrid object
+ * @param diff string representing requested difficulty
+ */
+  explicit StateGrid(const std::string& diff) {
+    load_map(diff);
+  }
 
   void load_map(const std::string& diff);
 
@@ -54,6 +89,10 @@ class StateGrid {
   char get_state(int row, int col);
 
   std::vector<std::string> define_state(char state);
+
+  void set_condition(char changestate, std::string property, std::string changeprop);
+
+  void find_properties();
 
   bool validate_position(std::pair<int, int> move);
 
