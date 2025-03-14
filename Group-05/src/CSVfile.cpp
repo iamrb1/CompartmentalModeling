@@ -67,6 +67,8 @@ std::string CSVFile::SanitizeCsvField(const std::string &input, char delimiter) 
     std::string result = "\"";
     for (char character : input) {
       // CITE: Used ChatGPT to help develop this logic for escaping double quotes in CSV fields.
+      // REF: According to CSV standard (RFC 4180) and resaerch on it, double quotes in a field should be escaped by doubling them.
+      // So using that, this line replaces each " with "" to properly escape quotes in CSV fields. 
       result += (character == '"') ? "\"\"" : std::string(1, character);
     }
     result += "\"";
@@ -89,12 +91,10 @@ std::string CSVFile::SanitizeCsvField(const std::string &input, char delimiter) 
 DataGrid CSVFile::LoadCsv(const std::string &file_name, char delimiter) {
   std::ifstream file(file_name);
 
-  // First, it checks if the file stream is open.
+  // First, it checks if the file stream is open; if not, throw an exception.
   if (!file.is_open()) {
     throw std::runtime_error("Cannot open file: " + file_name);
   }
-  // Assert that the file stream is open (which is for debug builds).
-  assert(file.is_open() && "File must be open for reading.");
 
   std::vector<std::vector<cse::Datum>> data;
   std::string line;
@@ -109,14 +109,12 @@ DataGrid CSVFile::LoadCsv(const std::string &file_name, char delimiter) {
     while (std::getline(line_stream, token, delimiter)) {
       // Trim any leading/trailing whitespace from the token.
       token = TrimWhitespaces(token);
-      // If the token starts with a quote but doesn't end with one,
-      // it likely contains the delimiter as part of the field.
+      // If the token starts with a quote but doesn't end with one, it likely contains the delimiter as part of the field.
       // Continue reading and appending tokens until we find the closing quote.
       if (!token.empty() && token.front() == '"' && token.back() != '"') {
         std::string next_token;
         while (std::getline(line_stream, next_token, delimiter)) {
-          // Append the delimiter and the next part without extra trimming
-          // to preserve any spaces inside the quoted field.
+          // Append the delimiter and the next part without extra trimming to preserve any spaces inside the quoted field.
           token += delimiter + next_token;
           // Once the token ends with a quote, we've captured the entire field.
           if (!token.empty() && token.back() == '"') {
@@ -179,9 +177,6 @@ bool CSVFile::ExportCsv(const std::string &file_name, const DataGrid &grid,
     throw std::runtime_error("Cannot write to file: " + file_name);
   }
 
-  // Assert that the output file stream is open and is active in debug mode.
-  assert(out_file.is_open() && "Output file must be open for writing.");
-
   //CITE: Used GPT to think through and extract grid's dimensions (rows and columns) for further processing
   std::tuple<const std::size_t, const std::size_t> shape = grid.shape();
   std::size_t num_rows = std::get<0>(shape);
@@ -199,10 +194,9 @@ bool CSVFile::ExportCsv(const std::string &file_name, const DataGrid &grid,
       std::string out_value;
       if (row[j].IsDouble()) {
         double val = row[j].GetDouble();
-        // Convert the numeric value to a string—this ensures that even 0.0 is properly represented.
+        // Convert the numeric value to a string—this ensures that even 0.0 is properly represented. Otherwise, use the string stored in the cell.
         out_value = std::to_string(val);
       } else {
-        // Otherwise, use the string stored in the cell.
         out_value = row[j].GetString();
       }
 
