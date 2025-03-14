@@ -215,8 +215,9 @@ namespace cse {
     try {
       auto e = GetEdge(v1, v2);
       return e.IsConnected(v1, v2);
-    } catch (std::runtime_error) {
+    } catch (const std::runtime_error&) {
       // If there is a runtime error, the edge does not exist
+      return false;
     }
     return false;
   }

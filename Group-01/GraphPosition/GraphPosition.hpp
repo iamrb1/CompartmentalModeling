@@ -142,7 +142,6 @@ namespace cse {
                                         [&](auto &p) {
                                           auto weakEdge = p.second;
                                           if (auto edge = weakEdge.lock()) {
-                                            auto &neighbor = edge->GetTo();
                                             return !gp.IsVisited(edge->GetTo());
                                           }
                                           return false;
