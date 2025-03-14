@@ -22,8 +22,8 @@ void runSimulation(SimulationState& state, OutputLog& log) {
         log.log("=== Time Step " + std::to_string(t) + " ===", LogLevel::VERBOSE);
 
         // Update environment
-        state.environment.UpdateResources();
-        state.environment.UpdateConditions(t);
+        // state.environment.UpdateResources();
+        // state.environment.UpdateConditions(t);
 
         std::vector<int> birthCounts(state.speciesList.size(), 0);
         std::vector<int> deathCounts(state.speciesList.size(), 0);
