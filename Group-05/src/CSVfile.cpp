@@ -105,7 +105,7 @@ DataGrid CSVFile::LoadCsv(const std::string &file_name, char delimiter) {
     std::string token;
     std::vector<Datum> row;
 
-    // CITE: Used StackOverflow to learn how to tokenize each CSV line and trim whitespace effectively for the code below.
+    // CITE: Used https://www.cse.msu.edu/~cse450/Emplex.html to learn how to tokenize each CSV line and trim whitespace effectively.
     while (std::getline(line_stream, token, delimiter)) {
       // Trim any leading/trailing whitespace from the token.
       token = TrimWhitespaces(token);
