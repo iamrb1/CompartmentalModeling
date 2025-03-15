@@ -138,5 +138,17 @@ class AdvDataMap {
   [[nodiscard]] inline size_t count(const std::string& name) const {
     return m_map.count(name);
   }
+
+  /**
+   * Operator overload for []
+   * @param name
+   * @return
+   */
+  Base& operator[](const std::string& name) {
+    if (!m_map.contains(name)) {
+      m_map[name] = std::make_unique<Val<int>>(0);
+    }
+    return *m_map[name];
+  }
 };
 }  // namespace cse
