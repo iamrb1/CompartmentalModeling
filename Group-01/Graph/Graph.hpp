@@ -208,7 +208,7 @@ namespace cse {
    * Checks if two vertices are connected by an edge
    * @param v1 First vertex
    * @param v2 Second vertex
-   * @return true if vertices are connected, false otherwise
+   * @return true if vertices are connected or false otherwise
    */
   template <typename VERTEX_DATA_T>
   bool Graph<VERTEX_DATA_T>::IsConnected(Vertex<VERTEX_DATA_T> const &v1, Vertex<VERTEX_DATA_T> const &v2) const {
