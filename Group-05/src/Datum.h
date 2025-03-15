@@ -23,18 +23,21 @@ private:
   /// Stores the string or double value.
   std::variant<std::string, double> value_;
 
+  [[nodiscard]] std::string DoubleToStringConversion() const;
+  [[nodiscard]] double StringToDoubleConversion() const;
+
 public:
   /**
    * Constructor for a string value.
    * @param value The string value
    */
-  explicit Datum(std::string value) { value_ = value; }
+  Datum(std::string value) { value_ = value; }
 
   /**
    * Constructor for a double value.
    * @param value The double value
    */
-  explicit Datum(double value = 0.0) { value_ = value; }
+  Datum(double value = 0.0) { value_ = value; }
 
   // CITE: Used https://www.geeksforgeeks.org/rule-of-five-in-cpp/ for the
   // default constructors
@@ -75,31 +78,73 @@ public:
   [[nodiscard]] bool IsDouble() const { return std::holds_alternative<double>(value_); }
 
   /**
+   * Returns the Datum as a string.
+   * @return The Datum as a string.
+   */
+  [[maybe_unused]] [[nodiscard]] std::string AsString() const {
+    return DoubleToStringConversion();
+  }
+
+  /**
+   * Returns the Datum as a double.
+   * @return The Datum as a double.
+   */
+  [[maybe_unused]] [[nodiscard]] double AsDouble() const {
+    return StringToDoubleConversion();
+  }
+
+  /**
    * Returns the Datum as a variant.
    * @return the variant value.
    */
   [[nodiscard]] std::variant<std::string, double> GetVariant() const { return value_; };
 
-  [[nodiscard]] std::string GetString() const;
+  /**
+   * Returns the string value of the Datum.
+   * @return The string value of the Datum
+   */
+  [[nodiscard]] std::string GetString() const {
+    assert(IsString());
+    return std::get<std::string>(GetVariant());
+  };
 
-  [[nodiscard]] double GetDouble() const;
+  /**
+   * Returns the double value of the Datum.
+   * @return The double value of the Datum
+   */
+  [[nodiscard]] double GetDouble() const {
+    assert(IsDouble());
+    return std::get<double>(GetVariant());
+  };
 
-  [[maybe_unused]] void AsString();
+  /**
+   * Sets the datum value to a specified variant
+   * @param value The new variant value
+   */
+  void SetVariant(std::variant<std::string, double> value) { value_ = value; };
 
-  [[maybe_unused]] void AsDouble();
+  /**
+   * Sets the datum value to a specified string
+   * @param value The new string value
+   */
+  void SetVariant(std::string value) { value_ = value; };
+
+  /**
+   * Sets the datum value to a s specified double
+   * @param value The new double value
+   */
+  void SetVariant(double value) { value_ = value; };
+
+  [[maybe_unused]] std::string ToString();
+  [[maybe_unused]] double ToDouble();
 
   Datum &operator=(const Datum &datum);
-
   Datum &operator=(const double &double_value);
-
   Datum &operator=(const std::string &string_value);
 
   Datum operator+(const Datum &datum) const;
-
   Datum operator-(const Datum &datum) const;
-
   Datum operator*(const Datum &datum) const;
-
   Datum operator/(const Datum &datum) const;
 
   bool operator==(const Datum &datum) const;
