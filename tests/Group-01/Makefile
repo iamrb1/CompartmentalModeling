@@ -1,8 +1,6 @@
 # List of folders containing test files
 TEST_FOLDERS = Graph GraphPosition Distribution
 
-BUILD_CPP_FILES = ../../Group-01/Graph/Vertex.cpp ../../Group-01/Graph/Graph.cpp ../../Group-01/GraphPosition/GraphPosition.cpp ../../Group-01/Graph/Edge.cpp
-
 # Find all test files across the specified folders
 TEST_NAMES = $(basename $(notdir $(wildcard $(addsuffix /*.cpp, $(TEST_FOLDERS)))))
 
@@ -24,7 +22,7 @@ test-prep:
 	mkdir -p temp
 
 test-%: 
-	$(CXX) $(FLAGS) $(BUILD_CPP_FILES) $(shell find $(TEST_FOLDERS) -name $(@:test-%=%.cpp)) -o $@.out
+	$(CXX) $(FLAGS) $(shell find $(TEST_FOLDERS) -name $(@:test-%=%.cpp)) -o $@.out
 	./$@.out
 
 # Test in debug mode without pointer tracker
