@@ -576,13 +576,7 @@ double DataGrid::columnMean(std::size_t column_index) const {
     throw std::out_of_range("Column index out of range.");
   }
 
-  std::vector<double> double_values = getDoubleValues(getColumn(column_index));
-  if (double_values.empty()) {
-    return std::numeric_limits<double>::quiet_NaN();
-  }
-
-  return std::accumulate(double_values.begin(), double_values.end(), 0.0) /
-         static_cast<int>(double_values.size());
+  return calculateMean(getDoubleValues(getColumn(column_index)));
 }
 
 /**
@@ -595,7 +589,106 @@ double DataGrid::columnMedian(std::size_t column_index) const {
     throw std::out_of_range("Column index out of range.");
   }
 
-  std::vector<double> double_values = getDoubleValues(getColumn(column_index));
+  return calculateMedian(getDoubleValues(getColumn(column_index)));
+}
+
+/**
+ * Calculates the modes of the column
+ * @param column_index The desired column index
+ * @return A list of modes from the desired column
+ */
+std::vector<double> DataGrid::columnMode(std::size_t column_index) const {
+  if (grid_.empty() || column_index >= grid_[0].size()) {
+    throw std::out_of_range("Column index out of range.");
+  }
+
+  return calculateMode(getDoubleValues(getColumn(column_index)));
+}
+
+/**
+ * Calculates the standard deviation of a column
+ * @param column_index The desired column index
+ * @return The standard deviation of the desired column
+ */
+double DataGrid::columnStandardDeviation(std::size_t column_index) const {
+  if (grid_.empty() || column_index >= grid_[0].size()) {
+    throw std::out_of_range("Column index out of range.");
+  }
+
+  return calculateStandardDeviation(getDoubleValues(getColumn(column_index)));
+}
+
+/**
+ * Determines the smallest element of a column
+ * @param column_index The desired column index
+ * @return The minimum element of the desired column
+ */
+double DataGrid::columnMin(std::size_t column_index) const {
+  if (grid_.empty() || column_index >= grid_[0].size()) {
+    throw std::out_of_range("Column index out of range.");
+  }
+
+  return calculateMin(getDoubleValues(getColumn(column_index)));
+}
+
+/**
+ * Determines the largest element of a column
+ * @param column_index The desired column index
+ * @return The maximum element of the desired column
+ */
+double DataGrid::columnMax(std::size_t column_index) const {
+  if (grid_.empty() || column_index >= grid_[0].size()) {
+    throw std::out_of_range("Column index out of range.");
+  }
+
+  return calculateMax(getDoubleValues(getColumn(column_index)));
+}
+
+/**
+ * Calculates the mean, median, mode, standard deviation, min, and max of the data grid.
+ * @return The mean, median, mode, standard deviation, min, and max of the data grid
+ */
+DataGrid::DataGridMathSummary DataGrid::dataGridMathSummary() const {
+  std::vector<double> double_values;
+  for (std::vector<Datum> row : getDataGrid()) {
+    for (Datum value : row) {
+      if (value.IsDouble() && !std::isnan(value.GetDouble())) {
+        double_values.push_back(value.GetDouble());
+      }
+    }
+  }
+
+  DataGridMathSummary data_grid_math_summary;
+  data_grid_math_summary.mean = calculateMean(double_values);
+  data_grid_math_summary.median = calculateMedian(double_values);
+  data_grid_math_summary.mode = calculateMode(double_values);
+  data_grid_math_summary.standardDeviation = calculateStandardDeviation(double_values);
+  data_grid_math_summary.min = calculateMin(double_values);
+  data_grid_math_summary.max = calculateMax(double_values);
+  return data_grid_math_summary;
+}
+
+/**
+ * Calculates the mean of the vector.
+ * @param double_values The given doubles vector.
+ * @return The mean of the vector
+ */
+double DataGrid::calculateMean(std::vector<double> double_values) {
+  if (double_values.empty()) {
+    return std::numeric_limits<double>::quiet_NaN();
+  }
+
+  assert(!double_values.empty());
+  return std::accumulate(double_values.begin(), double_values.end(), 0.0) /
+      static_cast<int>(double_values.size());
+}
+
+/**
+ * Calculates the median of the vector.
+ * @param double_values The given doubles vector.
+ * @return The median of the vector
+ */
+double DataGrid::calculateMedian(std::vector<double> double_values) {
   if (double_values.empty()) {
     return std::numeric_limits<double>::quiet_NaN();
   }
@@ -613,16 +706,11 @@ double DataGrid::columnMedian(std::size_t column_index) const {
 // https://www.geeksforgeeks.org/how-to-find-the-mode-of-all-elements-in-a-list-in-cpp/,
 // but modified it so it would return multiple modes.
 /**
- * Calculates the modes of the column
- * @param column_index The desired column index
- * @return A list of modes from the desired column
+ * Calculates the mode(s) of the vector.
+ * @param double_values The given doubles vector.
+ * @return The mode(s) of the vector
  */
-std::vector<double> DataGrid::columnMode(std::size_t column_index) const {
-  if (grid_.empty() || column_index >= grid_[0].size()) {
-    throw std::out_of_range("Column index out of range.");
-  }
-
-  std::vector<double> double_values = getDoubleValues(getColumn(column_index));
+std::vector<double> DataGrid::calculateMode(std::vector<double> double_values) {
   if (double_values.empty()) {
     return {};
   }
@@ -647,38 +735,30 @@ std::vector<double> DataGrid::columnMode(std::size_t column_index) const {
 }
 
 /**
- * Calculates the standard deviation of a column
- * @param column_index The desired column index
- * @return The standard deviation of the desired column
+ * Calculates the standard deviation of the vector.
+ * @param double_values The given doubles vector.
+ * @return The standard deviation of the vector
  */
-double DataGrid::columnStandardDeviation(std::size_t column_index) const {
-  if (grid_.empty() || column_index >= grid_[0].size()) {
-    throw std::out_of_range("Column index out of range.");
-  }
-
-  std::vector<double> double_values = getDoubleValues(getColumn(column_index));
+double DataGrid::calculateStandardDeviation(std::vector<double> double_values) {
   if (double_values.empty()) {
     return std::numeric_limits<double>::quiet_NaN();
   }
 
   double current_total = 0;
   for (double value : double_values) {
-    current_total += pow(value - columnMean(column_index), 2);
+    current_total += pow(value - calculateMean(double_values), 2);
   }
+
+  assert(!double_values.empty());
   return sqrt(current_total / static_cast<int>(double_values.size()));
 }
 
 /**
- * Determines the smallest element of a column
- * @param column_index The desired column index
- * @return The minimum element of the desired column
+ * Calculates the min value of the vector.
+ * @param double_values The given doubles vector.
+ * @return The min value of the vector
  */
-double DataGrid::columnMin(std::size_t column_index) const {
-  if (grid_.empty() || column_index >= grid_[0].size()) {
-    throw std::out_of_range("Column index out of range.");
-  }
-
-  std::vector<double> double_values = getDoubleValues(getColumn(column_index));
+double DataGrid::calculateMin(std::vector<double> double_values) {
   if (double_values.empty()) {
     return std::numeric_limits<double>::quiet_NaN();
   }
@@ -689,16 +769,11 @@ double DataGrid::columnMin(std::size_t column_index) const {
 }
 
 /**
- * Determines the largest element of a column
- * @param column_index The desired column index
- * @return The maximum element of the desired column
+ * Calculates the max value of the vector.
+ * @param double_values The given doubles vector.
+ * @return The max value of the vector
  */
-double DataGrid::columnMax(std::size_t column_index) const {
-  if (grid_.empty() || column_index >= grid_[0].size()) {
-    throw std::out_of_range("Column index out of range.");
-  }
-
-  std::vector<double> double_values = getDoubleValues(getColumn(column_index));
+double DataGrid::calculateMax(std::vector<double> double_values) {
   if (double_values.empty()) {
     return std::numeric_limits<double>::quiet_NaN();
   }
@@ -718,7 +793,8 @@ std::vector<double>
 DataGrid::getDoubleValues(const ReferenceVector<const Datum> &reference_vector) {
   std::vector<double> double_values;
   for (const auto &value : reference_vector) {
-    if (value.IsDouble()) {
+    if (value.IsDouble() && !std::isnan(value.GetDouble())) {
+      assert(!std::isnan(value.IsDouble()));
       double_values.push_back(value.GetDouble());
     }
   }

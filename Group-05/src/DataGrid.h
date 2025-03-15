@@ -47,7 +47,24 @@ private:
                                                     const Datum &value,
                                                     operations operation);
 
+  [[nodiscard]] static double calculateMean(std::vector<double> double_values);
+  [[nodiscard]] static double calculateMedian(std::vector<double> double_values);
+  [[nodiscard]] static std::vector<double> calculateMode(std::vector<double> double_values);
+  [[nodiscard]] static double calculateStandardDeviation(std::vector<double> double_values);
+  [[nodiscard]] static double calculateMin(std::vector<double> double_values);
+  [[nodiscard]] static double calculateMax(std::vector<double> double_values);
+
 public:
+  /// Struct for the DataGrid mathematical summary
+  struct DataGridMathSummary {
+    double mean;
+    double median;
+    std::vector<double> mode;
+    double standardDeviation;
+    double min;
+    double max;
+  };
+
   /**
    * Constructor using 2D Vector of Datums
    * @param data
@@ -161,6 +178,7 @@ public:
                                 std::size_t column_index_);
   [[nodiscard]] const Datum &getValue(std::size_t row_index_,
                                       std::size_t column_index_) const;
+  [[nodiscard]] std::vector<row_t> getDataGrid() const { return grid_; };
 
   [[nodiscard]] std::tuple<std::size_t, std::size_t> shape() const;
 
@@ -205,6 +223,7 @@ public:
   [[nodiscard]] double columnStandardDeviation(std::size_t column_index) const;
   [[nodiscard]] double columnMin(std::size_t column_index) const;
   [[nodiscard]] double columnMax(std::size_t column_index) const;
+  [[nodiscard]] DataGridMathSummary dataGridMathSummary() const;
 
   [[nodiscard]] ReferenceVector<Datum> columnLessThan(
       size_t column_index,

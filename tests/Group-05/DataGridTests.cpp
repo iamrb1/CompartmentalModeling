@@ -839,6 +839,13 @@ TEST_CASE("DataGrid: Mathematical Functions", "[mathematics]") {
 
   CHECK_THROWS(grid.columnMax(99));
 
+  DataGrid empty_data_grid;
+  CHECK_THROWS(empty_data_grid.columnMean(99));
+  CHECK_THROWS(empty_data_grid.columnMedian(99));
+  CHECK_THROWS(empty_data_grid.columnStandardDeviation(99));
+  CHECK_THROWS(empty_data_grid.columnMin(99));
+  CHECK_THROWS(empty_data_grid.columnMax(99));
+
 }
 
 /**
@@ -883,6 +890,106 @@ TEST_CASE("Mode Column Tests", "[mathematics]") {
              Catch::WithinAbs(10.25, kEpsilon));
 
   CHECK_THROWS(grid_mode.columnMode(99));
+
+  // Empty test
+  DataGrid empty_data_grid;
+  CHECK_THROWS(empty_data_grid.columnMode(99));
+}
+
+/**
+ * @brief DataGrid Mathematical Summary
+ */
+TEST_CASE("DataGrid Mathematical Summary", "[mathematics]") {
+  // Regular test (doubles and strings)
+  std::vector<std::vector<Datum>> grid_test(5, std::vector<Datum>(3));
+
+  grid_test[0][0] = Datum(5.0);
+  grid_test[1][0] = Datum(3.5);
+  grid_test[2][0] = Datum(1.25);
+  grid_test[3][0] = Datum(-15);
+  grid_test[4][0] = Datum(4.25);
+
+  grid_test[0][1] = Datum("test1");
+  grid_test[1][1] = Datum("test2");
+  grid_test[2][1] = Datum("test4");
+  grid_test[3][1] = Datum("test5");
+  grid_test[4][1] = Datum("test6");
+
+  grid_test[0][2] = Datum(5.0);
+  grid_test[1][2] = Datum("test3");
+  grid_test[2][2] = Datum(10.25);
+  grid_test[3][2] = Datum(1.25);
+  grid_test[4][2] = Datum(20.25);
+
+  DataGrid grid(grid_test);
+
+  DataGrid::DataGridMathSummary data_grid_math_summary = grid.dataGridMathSummary();
+
+  CHECK_THAT(data_grid_math_summary.mean,
+             Catch::WithinAbs(3.97222, kEpsilon));
+  CHECK_THAT(data_grid_math_summary.median,
+             Catch::WithinAbs(4.25, kEpsilon));
+  CHECK_THAT(data_grid_math_summary.standardDeviation,
+             Catch::WithinAbs(8.7022063329783, kEpsilon));
+  CHECK_THAT(data_grid_math_summary.min,
+             Catch::WithinAbs(-15, kEpsilon));
+  CHECK_THAT(data_grid_math_summary.max,
+             Catch::WithinAbs(20.25, kEpsilon));
+
+  std::sort(data_grid_math_summary.mode.begin(), data_grid_math_summary.mode.end());
+  CHECK(data_grid_math_summary.mode.size() == 2);
+  CHECK_THAT(data_grid_math_summary.mode[0],
+             Catch::WithinAbs(1.25, kEpsilon));
+  CHECK_THAT(data_grid_math_summary.mode[1],
+             Catch::WithinAbs(5.0, kEpsilon));
+
+  // DataGrid with NaN
+  std::vector<std::vector<Datum>> vector_nan(2, std::vector<Datum>(2));
+
+  vector_nan[0][0] = Datum(5.0);
+  vector_nan[1][0] = Datum(std::numeric_limits<double>::quiet_NaN());
+
+  vector_nan[0][1] = Datum(5.0);
+  vector_nan[1][1] = Datum(3.5);
+
+  DataGrid nan_grid(vector_nan);
+
+  DataGrid::DataGridMathSummary nan_data_grid_math_summary = nan_grid.dataGridMathSummary();
+
+  CHECK_THAT(nan_data_grid_math_summary.mean,
+             Catch::WithinAbs(4.5, kEpsilon));
+  CHECK_THAT(nan_data_grid_math_summary.median,
+             Catch::WithinAbs(5, kEpsilon));
+  CHECK_THAT(nan_data_grid_math_summary.standardDeviation,
+             Catch::WithinAbs(0.70710678118655, kEpsilon));
+  CHECK_THAT(nan_data_grid_math_summary.min,
+             Catch::WithinAbs(3.5, kEpsilon));
+  CHECK_THAT(nan_data_grid_math_summary.max,
+             Catch::WithinAbs(5.0, kEpsilon));
+
+  CHECK(nan_data_grid_math_summary.mode.size() == 1);
+  CHECK_THAT(nan_data_grid_math_summary.mode[0],
+             Catch::WithinAbs(5.0, kEpsilon));
+
+  // Strings only
+  std::vector<std::vector<Datum>> vector_strings(2, std::vector<Datum>(2));
+
+  vector_strings[0][0] = Datum("a");
+  vector_strings[1][0] = Datum("b");
+
+  vector_strings[0][1] = Datum("c");
+  vector_strings[1][1] = Datum("d");
+
+  DataGrid string_grid(vector_strings);
+
+  DataGrid::DataGridMathSummary string_data_grid_math_summary = string_grid.dataGridMathSummary();
+
+  CHECK(std::isnan(string_data_grid_math_summary.mean));
+  CHECK(std::isnan(string_data_grid_math_summary.median));
+  CHECK(std::isnan(string_data_grid_math_summary.standardDeviation));
+  CHECK(std::isnan(string_data_grid_math_summary.min));
+  CHECK(std::isnan(string_data_grid_math_summary.max));
+  CHECK(string_data_grid_math_summary.mode.size() == 0);
 }
 
 TEST_CASE("Comparison Tests", "[comparison]") {
@@ -1036,6 +1143,7 @@ TEST_CASE("Comparison Tests", "[comparison]") {
   CHECK(greater_than_values_mix_doubles[0] == Datum(55.55));
   CHECK(greater_than_values_mix_doubles[1] == Datum(123.123));
 
+
   // *** Greater Than Or Equal Comparisons ***
 
   cse::ReferenceVector<Datum> greater_than_or_equal_values_doubles =
@@ -1154,7 +1262,6 @@ TEST_CASE("Comparison Tests", "[comparison]") {
   CHECK(not_equal_values_mix_doubles.Size() == 2);
   CHECK(not_equal_values_mix_doubles[0] == Datum(-150.50));
   CHECK(not_equal_values_mix_doubles[1] == Datum(123.123));
-
 
   // Out of bounds column error check
   CHECK_THROWS(grid.columnLessThan(999, Datum(25.0)));
