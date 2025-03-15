@@ -1,5 +1,5 @@
 # List of folders containing test files
-TEST_FOLDERS = GraphPosition Graph
+TEST_FOLDERS = Graph GraphPosition Distribution
 
 # Find all test files across the specified folders
 TEST_NAMES = $(basename $(notdir $(wildcard $(addsuffix /*.cpp, $(TEST_FOLDERS)))))
