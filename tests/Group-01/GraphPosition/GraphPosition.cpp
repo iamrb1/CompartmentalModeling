@@ -41,6 +41,7 @@ TEST_CASE("GraphPosition Getters and Setters Tests", "[GraphPosition]") {
   SECTION("SetCurrentVertex marks the new vertex as visited") {
     pos.SetCurrentVertex(v2);
     REQUIRE(!pos.IsVisited(pos.GetCurrentVertex()));
+    REQUIRE(!pos.IsVisited(pos.GetCurrentVertex()));
   }
 }
 
@@ -64,7 +65,8 @@ TEST_CASE("GraphPosition Visited Vertices Tests", "[GraphPosition]") {
   }
 }
 
-TEST_CASE("GraphPosition Depth and Breadth-First Search Traversal Tests", "[GraphPosition]") {
+TEST_CASE("GraphPosition Depth and Breadth-First Search Traversal Tests",
+          "[GraphPosition]") {
   cse::Graph<std::string> graph;
   auto &v1 = graph.AddVertex("A", "Vertex A Data");
   auto &v2 = graph.AddVertex("B", "Vertex B Data");

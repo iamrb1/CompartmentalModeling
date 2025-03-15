@@ -3,6 +3,9 @@
 #include "../Graph/Graph.hpp"
 #include "../Graph/Vertex.hpp"
 
+#include "../Graph/Vertex.hpp"
+#include <algorithm>
+
 #include <algorithm>
 #include <cassert>
 #include <deque>
@@ -14,8 +17,7 @@
 
 namespace cse {
 
-  template <typename VERTEX_DATA_T>
-  class GraphPosition; // Forward declaration
+  template <typename VERTEX_DATA_T> class GraphPosition; // Forward declaration
 
   namespace TraversalModes {
     template <typename VERTEX_DATA_T>
@@ -25,8 +27,7 @@ namespace cse {
     auto BFS() -> std::function<bool(GraphPosition<VERTEX_DATA_T> &)>; // Forward declare the function
   } // namespace TraversalModes
 
-  template <typename VERTEX_DATA_T>
-  class GraphPosition {
+  template <typename VERTEX_DATA_T> class GraphPosition {
   private:
     [[maybe_unused]] const Graph<VERTEX_DATA_T> &graph;
     Vertex<VERTEX_DATA_T> const *currentVertex;
@@ -41,7 +42,9 @@ namespace cse {
     std::vector<Vertex<VERTEX_DATA_T> const *> &GetTraversalStack() { return traversalStack; }
     std::deque<Vertex<VERTEX_DATA_T> const *> &GetTraversalQueue() { return traversalQueue; }
     void MarkVisited(Vertex<VERTEX_DATA_T> const &vertex);
-    bool IsVisited(Vertex<VERTEX_DATA_T> const &vertex) { return visitedVertices.find(vertex.GetId()) != visitedVertices.end(); };
+    bool IsVisited(Vertex<VERTEX_DATA_T> const &vertex) {
+      return visitedVertices.find(vertex.GetId()) != visitedVertices.end();
+    };
 
     GraphPosition(const Graph<VERTEX_DATA_T> &g, Vertex<VERTEX_DATA_T> const *startVertex);
 
@@ -56,7 +59,6 @@ namespace cse {
       traversalFunction = newTraversalFunction;
     }
   };
-
 
   // Function Implementations
 
@@ -85,8 +87,7 @@ namespace cse {
     currentVertex = &vertex;
   }
 
-  template <typename VERTEX_DATA_T>
-  bool GraphPosition<VERTEX_DATA_T>::AdvanceToNextNeighbor() {
+  template <typename VERTEX_DATA_T> bool GraphPosition<VERTEX_DATA_T>::AdvanceToNextNeighbor() {
     return traversalFunction(*this);
   }
 
@@ -102,22 +103,19 @@ namespace cse {
     SetCurrentVertex(newStartVertex);
   }
 
-  template <typename VERTEX_DATA_T>
-  GraphPosition<VERTEX_DATA_T> &GraphPosition<VERTEX_DATA_T>::operator++() {
+  template <typename VERTEX_DATA_T> GraphPosition<VERTEX_DATA_T> &GraphPosition<VERTEX_DATA_T>::operator++() {
     if (!AdvanceToNextNeighbor()) {
       currentVertex = nullptr;
     }
     return *this;
   }
 
-  template <typename VERTEX_DATA_T>
-  GraphPosition<VERTEX_DATA_T>::operator bool() const {
+  template <typename VERTEX_DATA_T> GraphPosition<VERTEX_DATA_T>::operator bool() const {
     return currentVertex != nullptr;
   }
 
   namespace TraversalModes {
-    template <typename VERTEX_DATA_T>
-    auto DFS() -> std::function<bool(GraphPosition<VERTEX_DATA_T> &)> {
+    template <typename VERTEX_DATA_T> auto DFS() -> std::function<bool(GraphPosition<VERTEX_DATA_T> &)> {
       return [](GraphPosition<VERTEX_DATA_T> &graphPosition) {
         auto dfs_implementation = [&](GraphPosition<VERTEX_DATA_T> &gp, auto &dfs) -> bool {
           auto &stack = gp.GetTraversalStack();
@@ -130,22 +128,20 @@ namespace cse {
             return false;
           }
 
-          std::vector<std::pair<std::string, std::weak_ptr<Edge<VERTEX_DATA_T>>>> neighbors(
-              current.GetEdges().begin(), current.GetEdges().end());
+          std::vector<std::pair<std::string, std::weak_ptr<Edge<VERTEX_DATA_T>>>> neighbors(current.GetEdges().begin(),
+                                                                                            current.GetEdges().end());
 
-          std::sort(neighbors.begin(), neighbors.end(),
-                    [](auto &edge1, auto &edge2) {
-                      return edge1.second.lock()->GetTo().GetId() < edge2.second.lock()->GetTo().GetId();
-                    });
+          std::sort(neighbors.begin(), neighbors.end(), [](auto &edge1, auto &edge2) {
+            return edge1.second.lock()->GetTo().GetId() < edge2.second.lock()->GetTo().GetId();
+          });
 
-          auto nonVisited = std::find_if(neighbors.begin(), neighbors.end(),
-                                        [&](auto &p) {
-                                          auto weakEdge = p.second;
-                                          if (auto edge = weakEdge.lock()) {
-                                            return !gp.IsVisited(edge->GetTo());
-                                          }
-                                          return false;
-                                        });
+          auto nonVisited = std::find_if(neighbors.begin(), neighbors.end(), [&](auto &p) {
+            auto weakEdge = p.second;
+            if (auto edge = weakEdge.lock()) {
+              return !gp.IsVisited(edge->GetTo());
+            }
+            return false;
+          });
 
           if (nonVisited == neighbors.end()) {
             stack.pop_back();
@@ -156,15 +152,14 @@ namespace cse {
 
           auto &c = (nonVisited->second.lock())->GetTo();
           stack.push_back(&c);
-          return dfs(gp, dfs);  // recursive call
+          return dfs(gp, dfs); // recursive call
         };
 
         return dfs_implementation(graphPosition, dfs_implementation);
       };
     }
 
-    template <typename VERTEX_DATA_T>
-    auto BFS() -> std::function<bool(GraphPosition<VERTEX_DATA_T> &)> {
+    template <typename VERTEX_DATA_T> auto BFS() -> std::function<bool(GraphPosition<VERTEX_DATA_T> &)> {
       return [](GraphPosition<VERTEX_DATA_T> &graphPosition) {
         auto &queue = graphPosition.GetTraversalQueue();
 
@@ -181,13 +176,12 @@ namespace cse {
         queue.pop_front();
         graphPosition.SetCurrentVertex(*current);
 
-        std::vector<std::pair<std::string, std::weak_ptr<Edge<VERTEX_DATA_T>>>> neighbors(
-            current->GetEdges().begin(), current->GetEdges().end());
+        std::vector<std::pair<std::string, std::weak_ptr<Edge<VERTEX_DATA_T>>>> neighbors(current->GetEdges().begin(),
+                                                                                          current->GetEdges().end());
 
-        std::sort(neighbors.begin(), neighbors.end(),
-                  [](const auto &edge1, const auto &edge2) {
-                    return edge1.second.lock()->GetTo().GetId() < edge2.second.lock()->GetTo().GetId();
-                  });
+        std::sort(neighbors.begin(), neighbors.end(), [](const auto &edge1, const auto &edge2) {
+          return edge1.second.lock()->GetTo().GetId() < edge2.second.lock()->GetTo().GetId();
+        });
 
         for (const auto &edge : neighbors) {
           if (auto edgePtr = edge.second.lock()) {
