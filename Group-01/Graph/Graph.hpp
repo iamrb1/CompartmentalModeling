@@ -190,7 +190,7 @@ namespace cse {
     if (it == edges.end()) {
       throw std::out_of_range("Edge does not exist: " + edge_id);
     }
-    auto edge = std::move(it->second);
+    it->second.reset();
     edges.erase(it);
   }
 
