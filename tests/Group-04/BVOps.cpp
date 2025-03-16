@@ -3,12 +3,11 @@
 #define TEST_CSE_ASSERT
 #include "CseAssert.hpp"
 
-#define REQUIRE_ASSERT(...)                                                    \
+#define REQUIRE_ASSERT(...) \
   REQUIRE_THROWS_AS(__VA_ARGS__, cse::_assert_internal::AssertTestException)
 
 #define REQUIRE_NOASSERT(...) REQUIRE_NOTHROW(__VA_ARGS__)
 
-#include "BitVector.hpp"
 #include <string>
 
 #include "BitVector.hpp"
@@ -121,9 +120,9 @@ TEST_CASE("Test pattern setting bits", "[bitvector]") {
   CHECK(bv3 == bc3);
 
   // Pattern set multiple elements
-  
+
   // Pattern set multiple elements (offset)
-  
+
   // Asserts for setting bits out of range
   REQUIRE_ASSERT(bv1.pattern_set(0, 9, 0b11111111));
   REQUIRE_ASSERT(bv1.pattern_set(3, 7, 0b11111111));
@@ -154,21 +153,19 @@ TEST_CASE("Test resetting bits", "[bitvector]") {
   REQUIRE_ASSERT(bv1.test(100));
 }
 
-
-template<typename F, typename G, typename H>
+template <typename F, typename G, typename H>
 void LAMBDA_TEST(F&& gen, G&& gen_chk, H&& op) {
   // Test with one byte
   cse::BitVector a(8), b(8), chk(8);
   for (size_t i = 0; i < (1 << 8); i++) {
     for (size_t j = 0; j < (1 << 8); j++) {
-
       gen(a, i);
       gen(b, j);
 
       gen_chk(a, b, chk);
 
       op(a, b);
-      
+
       CHECK(a == chk);
       CHECK(a.count() == chk.count());
     }
@@ -180,7 +177,6 @@ void LAMBDA_TEST(F&& gen, G&& gen_chk, H&& op) {
   chk.resize(128);
   for (size_t i = 0; i < (1 << 7); i++) {
     for (size_t j = 0; j < (1 << 7); j++) {
-
       gen(a, i);
       gen(b, j);
 
@@ -190,49 +186,44 @@ void LAMBDA_TEST(F&& gen, G&& gen_chk, H&& op) {
       gen_chk(a, b, chk);
 
       op(a, b);
-      
+
       CHECK(a == chk);
       CHECK(a.count() == chk.count());
     }
   }
-
 }
 
-
 TEST_CASE("Test AND operation on BitVectors", "[bitvector]") {
-  auto gen = [](cse::BitVector& bv, size_t i){
-    for(size_t j = 0; j < bv.size(); j++) {
-      if (1 & (i >> j))
-        bv[j] = true;
+  auto gen = [](cse::BitVector& bv, size_t i) {
+    for (size_t j = 0; j < bv.size(); j++) {
+      if (1 & (i >> j)) bv[j] = true;
     }
   };
 
-  auto gen_chk = [](const cse::BitVector& a, const cse::BitVector& b, cse::BitVector& chk){
-    for(size_t i = 0; i < chk.size(); i++) {
-      if(a.size() <= i || b.size() <= i)
-        break;
+  auto gen_chk = [](const cse::BitVector& a, const cse::BitVector& b,
+                    cse::BitVector& chk) {
+    for (size_t i = 0; i < chk.size(); i++) {
+      if (a.size() <= i || b.size() <= i) break;
       chk[i] = a[i] && b[i];
     }
   };
-  
-  auto op = [](cse::BitVector& bv1, cse::BitVector& bv2){
-    bv1 &= bv2;
-  };
+
+  auto op = [](cse::BitVector& bv1, cse::BitVector& bv2) { bv1 &= bv2; };
 
   LAMBDA_TEST(gen, gen_chk, op);
 }
 
 TEST_CASE("Test OR operation on BitVectors", "[bitvector]") {
-  auto gen = [](cse::BitVector& bv, size_t i){
-    for(size_t j = 0; j < bv.size(); j++) {
-      if (1 & (i >> j))
-        bv[j] = true;
+  auto gen = [](cse::BitVector& bv, size_t i) {
+    for (size_t j = 0; j < bv.size(); j++) {
+      if (1 & (i >> j)) bv[j] = true;
     }
   };
 
-  auto gen_chk = [](const cse::BitVector& a, const cse::BitVector& b, cse::BitVector& chk){
-    for(size_t i = 0; i < chk.size(); i++) {
-      if(a.size() < i)
+  auto gen_chk = [](const cse::BitVector& a, const cse::BitVector& b,
+                    cse::BitVector& chk) {
+    for (size_t i = 0; i < chk.size(); i++) {
+      if (a.size() < i)
         chk[i] = b[i];
       else if (b.size() < i)
         chk[i] = a[i];
@@ -240,25 +231,23 @@ TEST_CASE("Test OR operation on BitVectors", "[bitvector]") {
         chk[i] = a[i] || b[i];
     }
   };
-  
-  auto op = [](cse::BitVector& bv1, cse::BitVector& bv2){
-    bv1 |= bv2;
-  };
+
+  auto op = [](cse::BitVector& bv1, cse::BitVector& bv2) { bv1 |= bv2; };
 
   LAMBDA_TEST(gen, gen_chk, op);
 }
 
 TEST_CASE("Test bitwise XOR on BitVectors", "[bitvector]") {
-  auto gen = [](cse::BitVector& bv, size_t i){
-    for(size_t j = 0; j < bv.size(); j++) {
-      if (1 & (i >> j))
-        bv[j] = true;
+  auto gen = [](cse::BitVector& bv, size_t i) {
+    for (size_t j = 0; j < bv.size(); j++) {
+      if (1 & (i >> j)) bv[j] = true;
     }
   };
 
-  auto gen_chk = [](const cse::BitVector& a, const cse::BitVector& b, cse::BitVector& chk){
-    for(size_t i = 0; i < chk.size(); i++) {
-      if(a.size() < i)
+  auto gen_chk = [](const cse::BitVector& a, const cse::BitVector& b,
+                    cse::BitVector& chk) {
+    for (size_t i = 0; i < chk.size(); i++) {
+      if (a.size() < i)
         chk[i] = b[i];
       else if (b.size() < i)
         chk[i] = a[i];
@@ -266,10 +255,8 @@ TEST_CASE("Test bitwise XOR on BitVectors", "[bitvector]") {
         chk[i] = a[i] != b[i];
     }
   };
-  
-  auto op = [](cse::BitVector& bv1, cse::BitVector& bv2){
-    bv1 ^= bv2;
-  };
+
+  auto op = [](cse::BitVector& bv1, cse::BitVector& bv2) { bv1 ^= bv2; };
 
   LAMBDA_TEST(gen, gen_chk, op);
 }

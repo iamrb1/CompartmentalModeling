@@ -159,7 +159,8 @@ class RichText {
 
   RichText& operator+=(const RichText& str) { return append(str); }
 
-  [[nodiscard]] std::optional<IndexSet> get_format_range(const Format& format) const {
+  [[nodiscard]] std::optional<IndexSet> get_format_range(
+      const Format& format) const {
     const auto iter = m_formatting.find(format);
     if (iter == m_formatting.end()) return {};
     return {iter->second};

@@ -386,5 +386,4 @@ TEST_CASE("Test Iterator", "[IndexSetTest]") {
 
   ++iterator;
   REQUIRE(iterator == end);
-
 }
