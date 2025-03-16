@@ -141,6 +141,36 @@ TEST_CASE("Test for random_sample", "[random_sample]") {
     for (const auto& sample : samples) {
         REQUIRE(set.count(sample) == 1);
     }
+
+    // Get a random sample of 2 strings from the set with a filter and check if the sample size is correct
+    auto filteredSamples = set.RandomSample(2, [](const std::string& str) {
+        return str.find('a') != std::string::npos;
+    });
+    REQUIRE(filteredSamples.size() == 2);
+    // Ensure each sample exists in the set and matches the filter
+    for (const auto& sample : filteredSamples) {
+        REQUIRE(set.count(sample) == 1);
+        REQUIRE(sample.find('a') != std::string::npos);
+    }
+
+    // Get a random sample of 3 strings from the set with a filter and check if the sample size is correct
+    auto filteredSamples2 = set.RandomSample(3, [](const std::string& str) {
+        return str.find('X') != std::string::npos;
+    });
+    REQUIRE(filteredSamples2.size() == 2); // Only 2 strings match the filter
+    // Ensure each sample exists in the set and matches the filter
+    for (const auto& sample : filteredSamples2) {
+        REQUIRE(set.count(sample) == 1);
+        REQUIRE(sample.find('X') != std::string::npos);
+    }
+
+    // Get a random sample of 3 strings from the set without a filter and check if the sample size is correct
+    auto samplesWithoutFilter = set.RandomSample(3);
+    REQUIRE(samplesWithoutFilter.size() == 3);
+    // Ensure each sample exists in the set
+    for (const auto& sample : samplesWithoutFilter) {
+        REQUIRE(set.count(sample) == 1);
+    }
 }
 
 TEST_CASE("Test for Statistic", "[Statistic]") {

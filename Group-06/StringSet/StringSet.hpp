@@ -91,6 +91,14 @@ public:
   * @return True if the set is empty, false otherwise
   */
   bool empty() const { return mElements.empty(); }
+
+  /**
+   * @brief Check if two string sets are equal
+   * @param other The second set
+   */
+  bool operator==(const StringSet &other) const {
+    return mElements == other.mElements;
+  }
   
   /**
   * @brief Check if a specific string in the set or not
@@ -129,7 +137,7 @@ public:
 
   int countOccurence(const T &substring);
 
-  StringSet RandomSample(int sampleSize);
+  StringSet RandomSample(int sampleSize, const std::function<bool(const T&)> filter = [](const T&) { return true; });
 
   std::tuple<int, double, T, T>Statistics();
 
@@ -138,6 +146,7 @@ public:
   StringSet UnionWith(const StringSet &other, const std::function<bool(const T &str)> filter);
 
   std::set<T> sort(const std::function<bool(const T &str, const T &str2)> comparator) const;
+
 };
 
 /**
@@ -317,22 +326,32 @@ int cse::StringSet<T>::countOccurence(const T &substring) {
 }
 
 template<typename T>
-cse::StringSet<T> cse::StringSet<T>::RandomSample(int sampleSize) {
-  StringSet<T> result;
-  if (sampleSize <= 0 || static_cast<std::unordered_set<T>::size_type>(sampleSize) > mElements.size()) {
-      return result;
-  }
+cse::StringSet<T> cse::StringSet<T>::RandomSample(int sampleSize, const std::function<bool(const T&)> filter) {
+    StringSet<T> result;
+    if (sampleSize <= 0) {
+        return result;
+    }
 
-  std::vector<T> elements(mElements.begin(), mElements.end());
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::shuffle(elements.begin(), elements.end(), gen);
+    std::vector<T> elements;
+    for (const auto& element : mElements) {
+        if (filter(element)) {
+            elements.push_back(element);
+        }
+    }
 
-  for (int i = 0; i < sampleSize; ++i) {
-      result.insert(elements[i]);
-  }
+    if (static_cast<std::unordered_set<T>::size_type>(sampleSize) > elements.size()) {
+        sampleSize = elements.size();
+    }
 
-  return result;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::shuffle(elements.begin(), elements.end(), gen);
+
+    for (int i = 0; i < sampleSize; ++i) {
+        result.insert(elements[i]);
+    }
+
+    return result;
 }
 
 template<typename T>
