@@ -7,6 +7,7 @@
 
 #include <any>
 #include <cassert>
+#include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -15,21 +16,75 @@
 
 namespace cse {
 
-class AdvDataMap {
+class [[maybe_unused]] AdvDataMap {
  private:
-  /// Inspired by Dr.Ofria's in class Any implementation
-  struct Base {
-    virtual ~Base() = default;
+  /// Inspired by Dr.Ofria's in class Any implementation (refactored to use unique ptrs)
+  class Any {
+   private:
+    struct Base {
+      virtual ~Base() = default;
+      [[nodiscard]] virtual std::unique_ptr<Base> clone() const = 0;
+    };
+
+    template <typename T>
+    struct Val : Base {
+      T value;
+
+      explicit Val(T value) : value(value){};
+
+      [[nodiscard]] std::unique_ptr<Base> clone() const override {
+        return std::make_unique<Val<T>>(value);
+      }
+    };
+
+    std::unique_ptr<Base> value_ptr;
+
+   public:
+    Any() = default;
+
+    Any(const Any& in) {
+      if (in.value_ptr) {
+        value_ptr = in.value_ptr->clone();
+      } else {
+        value_ptr = nullptr;
+      }
+    }
+
+    Any(Any&& in) noexcept {
+      value_ptr = std::move(in.value_ptr);
+      in.value_ptr = nullptr;
+    }
+
+    template <typename T>
+    explicit Any(T value) {
+      value_ptr = std::make_unique<Val<T>>(value);
+    }
+
+    Any& operator=(const Any& in) {
+      if (in.value_ptr) {
+        value_ptr = in.value_ptr->clone();
+      } else {
+        value_ptr = nullptr;
+      }
+      return *this;
+    }
+
+    template <typename T>
+    Any& operator=(T value) {
+      value_ptr = std::make_unique<Val<T>>(value);
+      return *this;
+    }
+
+    template <typename T>
+    [[nodiscard]] const T& get() const {
+      using derive_t = Val<T>;
+      auto* derive_ptr = dynamic_cast<derive_t*>(value_ptr.get());
+      assert(derive_ptr != nullptr && "Wrong type requested from what is contained within Any");
+      return derive_ptr->value;
+    }
   };
 
-  template <typename T>
-  struct Val : Base {
-    T value;
-
-    explicit Val(T value) : value(value){};
-  };
-
-  std::unordered_map<std::string, std::unique_ptr<Base>> m_map;
+  std::unordered_map<std::string, Any> m_map;
 
  public:
   /**
@@ -55,32 +110,24 @@ class AdvDataMap {
   }
 
   template <typename T>
-  inline void insert(const std::string& name, const T& val) {
+  [[maybe_unused]] inline void insert(const std::string& name, const T& val) {
     // https://stackoverflow.com/questions/3692954/add-custom-messages-in-assert custom messages in assert trick I have implemented within
     assert(!contains(name) && "Key already exists within DataMap");
-    m_map[name] = std::make_unique<Val<T>>(val);
+    m_map[name] = Any(val);
   }
 
   template <typename T>
   inline T get(const std::string& name) {
     if (!m_map.contains(name)) {
-      m_map[name] = std::make_unique<Val<T>>(T{});
+      m_map[name] = Any(T{});
     }
-    /// GPT 4 assisted me with the bottom line of code
-    /// I prompted GPT to show how to successfully safely downcast using dynamic_cast as taught in class
-    /// We get the raw pointer from the std::unique_ptr using .get and then utilize dynamic_cast to case
-    /// Base * into Val *. auto keyword is for conciseness
-    auto* holder = dynamic_cast<Val<T>*>(m_map[name].get());
-    assert(holder != nullptr && "Wrong type requested from what is contained within DataMap for value");
-    return holder->value;
+    return m_map[name].get<T>();
   }
 
   template <typename T>
-  inline T at(const std::string& name) const {
+  [[maybe_unused]] inline T at(const std::string& name) const {
     assert(contains(name) && "Key does not exist in DataMap");
-    auto* holder = dynamic_cast<Val<T>*>(m_map.at(name).get());
-    assert(holder != nullptr && "Wrong type requested from what is contained within DataMap for value");
-    return holder->value;
+    return m_map.at(name).get<T>();
   }
 
   /**
@@ -90,7 +137,7 @@ class AdvDataMap {
    * @return std::string of value
    */
   template <typename T>
-  inline std::string to_string(const std::string& name) {
+  [[maybe_unused]] inline std::string to_string(const std::string& name) {
     assert(contains(name) && "Key does not exist in DataMap");
     T value = get<T>(name);
     std::stringstream ss;
@@ -102,7 +149,7 @@ class AdvDataMap {
     * Delete a key from the map
     * @param name key to be deleted
     */
-  inline void erase(const std::string& name) {
+  [[maybe_unused]] inline void erase(const std::string& name) {
     assert(contains(name) && "Key does not exist in DataMap");
     m_map.erase(name);
   }
@@ -110,7 +157,7 @@ class AdvDataMap {
   /**
     * Clear the AdvDataMap
     */
-  inline void clear() {
+  [[maybe_unused]] inline void clear() {
     assert(!empty() && "Datamap is not empty");
     m_map.clear();
   }
@@ -119,7 +166,7 @@ class AdvDataMap {
     * Gives the size of the map
     * @return unsigned long map size
     */
-  [[nodiscard]] inline size_t size() const {
+  [[maybe_unused]] [[nodiscard]] inline size_t size() const {
     return m_map.size();
   }
 
@@ -135,7 +182,7 @@ class AdvDataMap {
     * @param name key to be found
     * @return unsigned long # of keys
     */
-  [[nodiscard]] inline size_t count(const std::string& name) const {
+  [[nodiscard]] [[maybe_unused]] inline size_t count(const std::string& name) const {
     return m_map.count(name);
   }
 
@@ -144,11 +191,11 @@ class AdvDataMap {
    * @param name
    * @return
    */
-  Base& operator[](const std::string& name) {
+  Any& operator[](const std::string& name) {
     if (!m_map.contains(name)) {
-      m_map[name] = std::make_unique<Val<int>>(0);
+      m_map[name] = Any(0);
     }
-    return *m_map[name];
+    return m_map[name];
   }
 };
 }  // namespace cse

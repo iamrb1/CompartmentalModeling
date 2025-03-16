@@ -3,7 +3,7 @@
 * @author Rahul Baragur
 */
 
-#include <cse/DataMap.h>
+#include <cse/DataMap.hpp>
 
 namespace cse {
 
