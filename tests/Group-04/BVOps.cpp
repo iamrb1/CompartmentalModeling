@@ -1,11 +1,10 @@
+#include <string>
+
 #include "catch.hpp"
 
 #define TEST_CSE_ASSERT
-#include "CseAssert.hpp"
-
-#include <string>
-
 #include "BitVector.hpp"
+#include "CseAssert.hpp"
 
 TEST_CASE("Test basic BitVector constructors", "[bitvector]") {
   // Basic constructors with number of bits
@@ -191,16 +190,14 @@ void LAMBDA_TEST(F &&gen, G &&gen_chk, H &&op) {
 TEST_CASE("Test AND operation on BitVectors", "[bitvector]") {
   auto gen = [](cse::BitVector &bv, size_t i) {
     for (size_t j = 0; j < bv.size(); j++) {
-      if (1 & (i >> j))
-        bv[j] = true;
+      if (1 & (i >> j)) bv[j] = true;
     }
   };
 
   auto gen_chk = [](const cse::BitVector &a, const cse::BitVector &b,
                     cse::BitVector &chk) {
     for (size_t i = 0; i < chk.size(); i++) {
-      if (a.size() <= i || b.size() <= i)
-        break;
+      if (a.size() <= i || b.size() <= i) break;
       chk[i] = a[i] && b[i];
     }
   };
@@ -213,8 +210,7 @@ TEST_CASE("Test AND operation on BitVectors", "[bitvector]") {
 TEST_CASE("Test OR operation on BitVectors", "[bitvector]") {
   auto gen = [](cse::BitVector &bv, size_t i) {
     for (size_t j = 0; j < bv.size(); j++) {
-      if (1 & (i >> j))
-        bv[j] = true;
+      if (1 & (i >> j)) bv[j] = true;
     }
   };
 
@@ -238,8 +234,7 @@ TEST_CASE("Test OR operation on BitVectors", "[bitvector]") {
 TEST_CASE("Test bitwise XOR on BitVectors", "[bitvector]") {
   auto gen = [](cse::BitVector &bv, size_t i) {
     for (size_t j = 0; j < bv.size(); j++) {
-      if (1 & (i >> j))
-        bv[j] = true;
+      if (1 & (i >> j)) bv[j] = true;
     }
   };
 
