@@ -61,8 +61,7 @@ class String : public std::string {
   char &operator[](std::size_t pos) {
     dbg_assert(pos < size(),
                build_error_msg("cse::String operator[] index out of range", pos,
-                               size())
-                   .c_str());
+                               size()));
     return std::string::operator[](pos);
   }
 
@@ -74,8 +73,7 @@ class String : public std::string {
   const char &operator[](std::size_t pos) const {
     dbg_assert(pos < size(),
                build_error_msg("cse::String operator[] index out of range", pos,
-                               size())
-                   .c_str());
+                               size()));
     return std::string::operator[](pos);
   }
 
@@ -87,8 +85,7 @@ class String : public std::string {
   char &at(std::size_t pos) {
     dbg_assert(
         pos < size(),
-        build_error_msg("cse::String at() index out of range", pos, size())
-            .c_str());
+        build_error_msg("cse::String at() index out of range", pos, size()));
     return std::string::at(
         pos);  // std::string::at() also throws std::out_of_range
   }
@@ -101,8 +98,7 @@ class String : public std::string {
   const char &at(std::size_t pos) const {
     dbg_assert(
         pos < size(),
-        build_error_msg("cse::String at() index out of range", pos, size())
-            .c_str());
+        build_error_msg("cse::String at() index out of range", pos, size()));
     return std::string::at(pos);
   }
 
@@ -116,8 +112,7 @@ class String : public std::string {
     dbg_assert(
         pos <= size(),
         build_error_msg("cse::String substr() start position out of range", pos,
-                        size())
-            .c_str());
+                        size()));
     return cse::String(std::string::substr(pos, count));
   }
 
@@ -132,8 +127,7 @@ class String : public std::string {
   String &insert(std::size_t pos, const String &str) {
     dbg_assert(pos <= size(),
                build_error_msg("cse::String insert() position out of range",
-                               pos, size())
-                   .c_str());
+                               pos, size()));
     std::string::insert(pos, str);
     return *this;
   }
@@ -149,8 +143,7 @@ class String : public std::string {
     dbg_assert(
         pos <= size(),
         build_error_msg("cse::String erase() start position out of range", pos,
-                        size())
-            .c_str());
+                        size()));
     std::string::erase(pos, count);
     return *this;
   }
@@ -168,8 +161,7 @@ class String : public std::string {
     dbg_assert(
         pos <= size(),
         build_error_msg("cse::String replace() start position out of range",
-                        pos, size())
-            .c_str());
+                        pos, size()));
     std::string::replace(pos, count, str);
     return *this;
   }
