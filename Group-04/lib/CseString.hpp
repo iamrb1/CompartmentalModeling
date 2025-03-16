@@ -38,9 +38,17 @@ class String : public std::string {
   String(const std::string &other) : std::string(other) {}
 
   /**
-   * @brief Assignment operator from std::string.
+   * @brief Assignment operator from std::string for other std::string.
    */
   String &operator=(const std::string &other) {
+    std::string::operator=(other);
+    return *this;
+  }
+
+  /**
+   * @brief Assignment operator from std::string for char*.
+   */
+  String &operator=(const char *other) {
     std::string::operator=(other);
     return *this;
   }
