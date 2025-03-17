@@ -1,4 +1,4 @@
-TEST_NAMES = Assert BVOps BVSize IndexSet RichText CseString
+TEST_NAMES = Assert BitVector IndexSet RichText CseString
 #TEST_NAMES = RichTextAdvanced TextSerializer
 
 # -O3	  -Wl,--stack,8388608 -ftrack-macro-expansion=0
