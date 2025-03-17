@@ -14,6 +14,7 @@ Date: 02/07/2025
 #include <iterator>
 #include <numeric>   
 #include <algorithm> 
+#include <cassert>
 
 namespace cse {
 
@@ -43,16 +44,19 @@ class ComboManager {
   ComboManager(const Container &container, std::size_t combinationSize)
       : items_(std::begin(container), std::end(container)), // Copy container elements for random access.
         n_(items_.size()),                                  // Total number of items.
-        k_(combinationSize),                               // Number of items in each combination.
+        k_(combinationSize),                                // Number of items in each combination.
         totalCombinations_(0) {
-    if (k_ > n_) {
-      throw std::invalid_argument("Combination size cannot be greater than the number of items in the container.");
-    }
+    // Assert that the combination size is not greater than the number of items.
+    assert(k_ <= n_ && "Combination size cannot be greater than the number of items in the container.");
+
     // Precompute the total number of combinations using the binomial coefficient.
     totalCombinations_ = BinomialCoefficient_(n_, k_);
+
     // Resize indices vector to hold the indices of the current combination.
     indices_.resize(k_);
-    Reset(); // Initialize indices to the first combination: [0, 1, 2, ..., k_-1].
+
+    // Initialize indices to the first combination: [0, 1, 2, ..., k_-1].
+    Reset();
   }
 
   /**
@@ -139,14 +143,14 @@ class ComboManager {
    *
    * @return The total number of combinations (n choose k).
    */
-  unsigned long long TotalCombinations() const { return totalCombinations_; }
+  std::size_t TotalCombinations() const { return totalCombinations_; }
 
   /**
    * @brief Returns the current combination indices.
    *
    * @return A vector of indices representing the current combination.
    */
-  std::vector<std::size_t> GetCurrentIndices() const { return indices_; }
+  const std::vector<std::size_t> & GetCurrentIndices() const { return indices_; }
 
  private:
   /**
@@ -156,7 +160,7 @@ class ComboManager {
    * @param k Number of items per combination.
    * @return The binomial coefficient.
    */
-  static unsigned long long BinomialCoefficient_(std::size_t n, std::size_t k) {
+  static std::size_t BinomialCoefficient_(std::size_t n, std::size_t k) {
     if (k > n) {
       return 0;
     }
@@ -167,7 +171,7 @@ class ComboManager {
     if (k > n - k) {
       k = n - k;
     }
-    unsigned long long result = 1;
+    std::size_t result = 1;
     // Iteratively compute the binomial coefficient.
     // The loop multiplies by (n - k + i) and divides by i at each step.
     // This method avoids computing large factorials directly.
@@ -221,7 +225,7 @@ class ComboManager {
   std::vector<std::size_t> indices_;
 
   // Precomputed total number of combinations (n choose k).
-  unsigned long long totalCombinations_;
+  std::size_t totalCombinations_;
 };
 
 } // namespace cse
