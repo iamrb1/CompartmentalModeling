@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include <stdexcept>
+#include <iostream>
 
 namespace cse {
 
@@ -138,12 +139,14 @@ private:
     if (std::next_permutation(indices_.begin(), indices_.end()))
       return;
 
+    //std::cout << "new combo" << std::endl;
+
     std::sort(indices_.begin(), indices_.end());
 
     size_t i = k_ - 1;
     // Find the first index from the right that can be incremented.
     // The condition indices_[i] == i + n_ - k_ indicates that the current index is at its maximum allowable value.
-    while (i >= 0 && indices_[i] == i + n_ - k_) {
+    while (i >= 0 && indices_[i] == n_ - k_ + i) {
       --i; // Move to the left if the current index is "maxed out".
     }
 
@@ -152,10 +155,20 @@ private:
       return;
     }
 
+    // upgrade the valid indice
+    ++indices_[i];
+
     // For every index position after i, set it to be one greater than its predecessor.
     for (std::size_t j = i + 1; j < k_; ++j) {
       indices_[j] = indices_[j - 1] + 1;
     }
+
+    //std::cout << "Updated the indice: " << i << std::endl;
+    //std::cout << "New indices: ";
+    for (auto x : indices_) {
+      //std::cout << x << " ";
+    }
+    //std::cout << std::endl; 
   }
 
 
