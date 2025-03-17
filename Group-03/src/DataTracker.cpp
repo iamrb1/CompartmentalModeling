@@ -64,8 +64,9 @@ T DataTracker<T>::mode() const {
         frequency[val]++;
     }
 
-    return std::max_element(frequency.begin(), frequency.end(),
-        [](const auto& a, const auto& b) { return a.second < b.second; })->first;
+    auto max_freq = [](const auto& a, const auto& b) { return a.second < b.second; };
+
+    return std::max_element(frequency.begin(), frequency.end(), max_freq)->first;
 }
 // Calculates and returns the variance
 template <typename T>
