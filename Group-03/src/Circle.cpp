@@ -122,17 +122,23 @@ void Circle::updateSpeed() {
 }
 
 void Circle::checkProximity(const Circle& other) {
-    double dx = x_ - other.x_;
-    double dy = y_ - other.y_;
-    double distance = std::sqrt(dx * dx + dy * dy);
+    auto calculateDistance = [this](const Circle& other) {
+        double dx = x_ - other.x_;
+        double dy = y_ - other.y_;
+        return std::sqrt(dx * dx + dy * dy);
+    };
+
+    double distance = calculateDistance(other);
+
+    auto updateSpeedBoost = [this](bool boost) {
+        speedBoost_ = boost;
+        updateSpeed();
+    };
 
     if (distance < proximityRadius_ && circleType_ != other.circleType_) {
-        speedBoost_ = true;
-        updateSpeed();
-    }
-    else {
-        speedBoost_ = false;
-        updateSpeed();
+        updateSpeedBoost(true);
+    } else {
+        updateSpeedBoost(false);
     }
 }
 
