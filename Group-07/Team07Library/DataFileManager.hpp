@@ -1,7 +1,10 @@
 #ifndef DATAFILEMANAGER_H
 #define DATAFILEMANAGER_H
 
-#include <fstream>
+// https://www.boost.org/doc/libs/1_58_0/doc/html/property_tree.html
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+#include <fstream> // https://stackoverflow.com/questions/13035674/how-to-read-a-file-line-by-line-or-a-whole-text-file-at-include <fstream>
 #include <functional>
 #include <iostream>
 #include <sstream>
@@ -26,9 +29,10 @@ class DataFileManager {
   // https://stackoverflow.com/questions/55520876/creating-an-unordered-map-of-stdfunctions-with-any-arguments
   unordered_map<string, function<int()>> functionMap{};  ///< Stores functions for data generation.
   string fileLocation{};  ///< Path to the file we want to read.
-  vector<vector<string>> csvData{};  ///< Data read from the CSV file.
   bool updateMade{};  ///< Flag indicating if an update has been made to the data.
+  vector<vector<string>> csvData{};  ///< Data read from a CSV file.
   void writeRowsToCSV(ofstream &file, const vector<vector<string>> &data);
+  boost::property_tree::ptree jsonData{};  ///< Data read from a JSON file.
 
  public:
   /**
@@ -81,10 +85,22 @@ class DataFileManager {
   void setDataCSV(const vector<vector<string>> &data) { csvData = data; }
 
   /**
+   * @brief Sets the data read from the file.
+   * @param data The data read from the file.
+   */
+  void setDataJSON(const boost::property_tree::ptree &data) { jsonData = data; }
+
+  /**
    * @brief Returns data read from the current file.
    * @return The data read from the current file.
    */
   vector<vector<string>> getDataCSV() const { return csvData; }
+
+  /**
+   * @brief Returns data read from the current file.
+   * @return The data read from the current file.
+   */
+  boost::property_tree::ptree getDataJSON() const { return jsonData; }
 
   /**
    * @brief Clears all stored functions.
@@ -134,6 +150,22 @@ class DataFileManager {
    * @brief Closes the CSV file and writes any updates made to the data.
    */
   void closeCSV();
+
+  /**
+   * @brief Opens a CSV file to read its contents.
+   * @param path The file path of the CSV to open.
+   */
+  void openJSON(const string &path);
+
+  /**
+   * @brief Updates the CSV file with new data generated from functions.
+   */
+  void updateJSON();
+
+  /**
+   * @brief Closes the CSV file and writes any updates made to the data.
+   */
+  void closeJSON();
 };
 
 }  // namespace cse
