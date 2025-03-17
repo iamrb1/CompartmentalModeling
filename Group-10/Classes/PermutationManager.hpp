@@ -1,6 +1,9 @@
 #ifndef PERMUTATION_MANAGER_H
 #define PERMUTATION_MANAGER_H
 
+#include <vector>
+#include <algorithm>
+
 namespace cse {
 
 /**
@@ -29,16 +32,57 @@ public:
   PermutationManager(const Container & container, size_t permutation_size) : 
   items_(std::begin(container), std::end(container)),
   k_(permutation_size),
-  n_(container.size()) {
+  n_(container.size()),
+  currentPermutation() {
     
     // ensure k is less than or equal to n
     if (k_ > n_) {
       throw std::invalid_argument("Combination size cannot be greater than the number of items in the container.");
     }
     
-    totalCombinations_ = permutationNumber(n_, k_);
+    totalPermutations_ = permutationNumber(n_, k_);
+
+    reset();
   }
 
+  /**
+   * @brief resets the permutation generator to the initial state
+   */
+  void reset() {
+    currentIndex_ = 0;
+    currentPermutation_.resize(k_);
+    indices_.clear();
+
+    // the initial permutation is just the first k items
+    for (size_t i = 0; i < k_; ++i) {
+      currentPermutation_[i] = items_[i];
+      indices_.push_back(i);
+    }
+  }
+
+  /**
+   * @brief generates the next permutation
+   * @return false if we've reached the end, true otherwise
+   */
+  bool next() {
+    // end condition
+    if (currentIndex_ >= totalPermutations_ - 1)
+      return false;
+
+    // either generate the next permutation w/the std algorithm (if n == k) or make a k permutation
+    if (n_ == k_) {
+      std::next_permutation(indices_.begin(), indices_.end());
+    } else {
+      nextKPermutation();
+    }
+  }
+
+  /**
+   * @brief calculates the total number of permutatins
+   * @param n - the number of items
+   * @param k - the number of items we choose
+   * @return size_t for the number
+   */
   size_t permutationNumber(std::size_t n, std::size_t k) {
     return factorial(n) / factorial(n - k);
   }
@@ -54,8 +98,25 @@ private:
   // Items chosen
   std::size_t k_;
 
-  // Total Combinationsw
-  std::size_t totalCombinations_;
+  // Total Permutations
+  std::size_t totalPermutations_;
+
+  // The current permutation
+  std::size_t currentIndex_;
+
+  // Indices which indicate which items are in the current permutation
+  std::vector<size_t> indices_;
+
+  // The current permutation
+  std::vector<ValueType> currentPermutation_;
+
+
+  /**
+   * @brief this function generates the next K permutation 
+   */
+  void nextKPermutation() {
+
+  }
 
 
   /**
