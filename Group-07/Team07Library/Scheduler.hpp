@@ -16,6 +16,8 @@
 #include <deque>
 
 namespace cse {
+template <typename ProcessID=int>
+
 /*
  * Priority queue to schedule processes to run based on how often each process
  * is used
@@ -24,7 +26,7 @@ class Scheduler {
  private:
   /// Struct containing a process's id, its priority value, and its weights
   struct Process {
-    int id;
+    ProcessID id;
     double priorityWeight;
     std::vector<double> processWeights;
   };
@@ -42,7 +44,7 @@ class Scheduler {
   std::deque<Process> overrideQueue;
 
   /// Set containing all the IDs of Processes currently in the Scheduler
-  std::set<int> seenIds;
+  std::set<ProcessID> seenIds;
 
  public:
   /**
@@ -68,7 +70,7 @@ class Scheduler {
    * @param id ID of the process we are adding to the scheduler
    * @param weights Priority weights for this process
    */
-  void AddProcess(const int id,const std::vector<double> &weights) {
+  void AddProcess(const ProcessID &id,const std::vector<double> &weights) {
     assert(weights.size()==weightList.size());
 
     size_t numProcesses=seenIds.size();
@@ -93,7 +95,7 @@ class Scheduler {
    * Removes the process of a given ID from the scheduler
    * @param id ID of the process we are removing from the scheduler
    */
-  void RemoveProcess(const int id) {
+  void RemoveProcess(const ProcessID &id) {
     int currIdsSize=currIds.size(),overrideQueueSize=overrideQueue.size();
     for(int i=0;i<currIdsSize;i++) {
       if(currIds[i].id==id) {
@@ -118,13 +120,13 @@ class Scheduler {
    * and removes it from the scheduler
    * @return ID of the highest priority process
    */
-  std::optional<int> PopNextProcess() {
+  std::optional<ProcessID> PopNextProcess() {
     if (empty()) { // Make sure the Scheduler isn't empty before popping a process from it
       return std::nullopt;
     }
 
     if(!overrideQueue.empty()) {
-      int outID=overrideQueue.front().id;
+      ProcessID outID=overrideQueue.front().id;
       overrideQueue.pop_front();
       seenIds.erase(outID);
       return outID;
@@ -135,7 +137,7 @@ class Scheduler {
           return a.priorityWeight>b.priorityWeight;
       });
     }
-    int outID = currIds[0].id;
+    ProcessID outID = currIds[0].id;
     currIds.erase(currIds.begin());
     seenIds.erase(outID);
     needUpdate = false;
@@ -146,7 +148,7 @@ class Scheduler {
    * Overrides the scheduling order to bring a process to the front of the Schedule
    * @param id ID of the process which we are overriding the scheduling order for
    */
-  void OverridePriority(const int id) {
+  void OverridePriority(const ProcessID &id) {
     int currIdsSize=currIds.size();
     for(int i=0;i<currIdsSize;i++) {
       if(id==currIds[i].id) {
@@ -162,7 +164,7 @@ class Scheduler {
    * @param id Id of the process which we are the updating the priority value for
    * @param newWeights New priority weights for the process, which will be used to calculate the new priority value
    */
-  void UpdateProcessPriority(const int id,const std::vector<double> &newWeights) {
+  void UpdateProcessPriority(const ProcessID &id,const std::vector<double> &newWeights) {
       assert(newWeights.size()==weightList.size());
       int weightsSize=weightList.size(),currIdsSize=currIds.size(),overrideQueueSize=overrideQueue.size();
       double newPriority=0;
@@ -192,7 +194,7 @@ class Scheduler {
    * Updates the weights used by the Scheduler
    * @param newWeights The new weights set to be used by the Scheduler
    */
-  void UpdateSchedulerWeights(std::vector<double> &newWeights) {
+  void UpdateSchedulerWeights(const std::vector<double> &newWeights) {
       assert(newWeights.size()==weightList.size());
       weightList=newWeights;
 
@@ -212,7 +214,7 @@ class Scheduler {
    * @param id ID of the process we are getting the priority for
    * @return Priority value for the given process if it is in the Scheduler, returns std::nullopt otherwise
    */
-  std::optional<double> GetProcessPriority(const int id) {
+  std::optional<double> GetProcessPriority(const ProcessID &id) {
       int currIdsSize=currIds.size(),overrideQueueSize=overrideQueue.size();
 
       for(int i=0;i<currIdsSize;i++) {
@@ -234,7 +236,7 @@ class Scheduler {
    * @param id ID of the process we are getting the weights set for
    * @return Weights set for the given process if it is in the Scheduler, returns std::nullopt otherwise
    */
-  std::optional<std::vector<double>> GetProcessWeights(const int id) {
+  std::optional<std::vector<double>> GetProcessWeights(const ProcessID &id) {
       int currIdsSize=currIds.size(),overrideQueueSize=overrideQueue.size();
 
       for(int i=0;i<currIdsSize;i++) {
@@ -255,7 +257,7 @@ class Scheduler {
    * Check if the scheduler is empty
    * @return True if scheduler is empty, false otherwise
    */
-  bool empty() { return currIds.size() == 0 && overrideQueue.empty(); }
+  bool empty() const { return currIds.size() == 0 && overrideQueue.empty(); }
 
   /**
    * Get the number of processes currently in the scheduler

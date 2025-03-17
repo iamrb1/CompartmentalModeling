@@ -180,3 +180,28 @@ TEST_CASE("SchedulerTest UpdateProcessPriority", "[Scheduler]") {
     CHECK(expected == scheduler.GetProcessWeights(0));
     CHECK(4 == scheduler.GetProcessPriority(0));
 }
+
+TEST_CASE("SchedulerTest TemplateTest", "[Scheduler]") {
+    cse::Scheduler<std::string> scheduler({1});
+
+    scheduler.AddProcess("a",{2});
+    CHECK(false == scheduler.empty());
+    CHECK(1 == scheduler.GetCurrProcesses());
+
+    scheduler.AddProcess("b",{3});
+    CHECK("b" == scheduler.PopNextProcess());
+
+    scheduler.RemoveProcess("a");
+    CHECK(true == scheduler.empty());
+
+    scheduler.AddProcess("c",{1});
+    scheduler.UpdateProcessPriority("c",{2});
+    scheduler.UpdateSchedulerWeights({2});
+    scheduler.OverridePriority("b");
+    scheduler.OverridePriority("c");
+    CHECK(4 == scheduler.GetProcessPriority("c"));
+
+    std::optional<std::vector<double>> expected=std::vector<double>{2.0};
+    CHECK(expected == scheduler.GetProcessWeights("c"));
+    CHECK("c" == scheduler.PopNextProcess());
+}
