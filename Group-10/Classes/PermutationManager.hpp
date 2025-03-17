@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <stdexcept>
 
 namespace cse {
 
@@ -33,7 +34,7 @@ public:
   items_(std::begin(container), std::end(container)),
   k_(permutation_size),
   n_(container.size()),
-  currentPermutation() {
+  currentPermutation_() {
     
     // ensure k is less than or equal to n
     if (k_ > n_) {
@@ -75,6 +76,21 @@ public:
     } else {
       nextKPermutation();
     }
+
+    for (size_t i = 0; i < k_; ++i) {
+      currentPermutation_[i] = items_[indices_[i]];
+    }
+
+    ++currentIndex_;
+    return true;
+  }
+
+  /**
+   * @brief getter for the current permutation
+   * @return vector size k of the value type
+   */
+  std::vector<ValueType> getCurrentPermutation() {
+    return currentPermutation_;
   }
 
   /**
@@ -113,9 +129,33 @@ private:
 
   /**
    * @brief this function generates the next K permutation 
+   * The general idea is that we either just permute the existing indices again, OR that we need a new combination
+   * Because in theory we are just stepping through each combination, and grabbing each permutation of such
+   * so much of this algorithm will look similar to the one in combo manager
    */
   void nextKPermutation() {
+    // check if we can permute the existing set 
+    if (std::next_permutation(indices_.begin(), indices_.end()))
+      return;
 
+    std::sort(indices_.begin(), indices_.end());
+
+    size_t i = k_ - 1;
+    // Find the first index from the right that can be incremented.
+    // The condition indices_[i] == i + n_ - k_ indicates that the current index is at its maximum allowable value.
+    while (i >= 0 && indices_[i] == i + n_ - k_) {
+      --i; // Move to the left if the current index is "maxed out".
+    }
+
+    // If no index can be incremented, we've reached the final combination.
+    if (i < 0) {
+      return;
+    }
+
+    // For every index position after i, set it to be one greater than its predecessor.
+    for (std::size_t j = i + 1; j < k_; ++j) {
+      indices_[j] = indices_[j - 1] + 1;
+    }
   }
 
 
@@ -129,7 +169,7 @@ private:
       return 1;
     
     size_t res = 1;
-    for (size_t i = 2; i <= num; ++i) {
+    for (size_t i = 2; i <= x; ++i) {
       res *= i;
     }
     return res;
