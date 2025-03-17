@@ -1,4 +1,3 @@
-#define CATCH_CONFIG_MAIN
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 #include "../../Group-03/src/Circle.h"
 #include "../../Group-03/src/Surface.h"
