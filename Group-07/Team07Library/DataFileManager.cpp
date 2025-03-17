@@ -1,12 +1,5 @@
 #include "DataFileManager.hpp"
 
-#include <fstream>  // https://stackoverflow.com/questions/13035674/how-to-read-a-file-line-by-line-or-a-whole-text-file-at-include <fstream>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <unordered_map>
-#include <vector>
-
 using std::cerr;
 using std::cout;
 using std::endl;
@@ -145,6 +138,77 @@ void DataFileManager::closeCSV() {
 
   // Clear the file data after writing
   csvData.clear();
+}
+
+/**
+ * Opens a JSON file and reads its content into csvData.
+ * @param path The file path of the CSV to open.
+ */
+void DataFileManager::openJSON(const string &path) {
+  // Check if a file is already open
+  if (!fileLocation.empty()) {
+    cerr << "Please close the current file before attempting to open a new one." << endl;
+    return;
+  }
+
+  // Handles Error Case
+  if (path.substr(path.find_last_of(".") + 1) != "json") {
+    cerr << "File extension is not valid." << endl;
+    return;
+  }
+
+  // Check if the file can be opened
+  ifstream file(path);
+  if (!file.is_open()) {
+    cerr << "Error opening file: " << path << endl;
+    return;
+  }
+
+  try {
+    // Create an empty property tree
+    boost::property_tree::ptree pt;
+
+    // Read the JSON file into the property tree
+    boost::property_tree::read_json(path, pt);
+
+    // Record the file location and read in data
+    setFile(path);
+    setDataJSON(pt);
+  }
+
+  catch (const std::exception& e) {
+    std::cerr << "Error: " << e.what() << std::endl;
+  }
+
+}
+
+/**
+ * Updates the JSON based on added functions.
+ */
+void DataFileManager::updateJSON() {
+  if (fileLocation.empty() or fileLocation.substr(fileLocation.find_last_of(".") + 1) != "json") {
+    cerr << "No valid file is currently open." << endl;
+    return;
+  }
+
+  // Saves the current state of jsonData to the file
+  // {}
+}
+
+/**
+ * Closes the JSON file and writes any updates made to the data.
+ */
+void DataFileManager::closeJSON() {
+  // No need to write if no updates have been made
+  if (!updateMade) {
+    return;
+  }
+
+  // Write each row of data to the file
+  // {}
+
+  // Clear the file data after writing
+  // {}
 }
 
 }
