@@ -5,19 +5,17 @@
 
 // Mocks
 namespace cse {
-template <typename T>
-class RichText;
+template <typename T> class RichText;
 
 struct Format {
   std::string name;
   std::variant<std::string, int32_t, std::monostate> metadata;
 }
 
-}  // namespace cse
+} // namespace cse
 
 // example composite template usage
-template <typename T>
-class Document {
+template <typename T> class Document {
   using text_t = cse::RichText<T>;
 
   // tree structure
@@ -82,19 +80,20 @@ TEST_CASE("RichText update container functionality", "[RichTextAdvanced]") {
   RichString text{"hello"};
   text.apply_format_to_range(red, 0, text.size() - 1);
 
-  text.update_container([](std::string &string) {
+  text.update([](std::string &string) {
     string[0] = 'j';
     // nullopt for substitutions only
     return std::nullopt;
   });
   REQUIRE(text.to_string() == "jello");
 
-  text.update_container([](std::string &string) {
+  text.update([](std::string &string) {
     // substitutions can be performed at the same time as insertions or
     // deletions (but insertions and deletions cannot be performed at the same
     // time)
     string[0] = 'p';
-    string.append('w');
+    string[1] = 'i';
+    string.push_back('w');
 
     // insertion: return indices in the original string that had
     // characters inserted after them.
@@ -108,7 +107,7 @@ TEST_CASE("RichText update container functionality", "[RichTextAdvanced]") {
   // expand format from insertion
   REQUIRE(text.formats_at(5).size() == 1);
 
-  text.update_container([](std::string &string) {
+  text.update([](std::string &string) {
     string.erase(4, 2);
     string.erase(0, 1);
     // deletion: return indices removed in old string

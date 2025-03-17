@@ -6,10 +6,13 @@
 
 #pragma once
 
+#include <algorithm>
+#include <concepts>
 #include <cstdint>
 #include <format>
 #include <map>
 #include <optional>
+#include <ranges>
 #include <string>
 #include <utility>
 #include <variant>
@@ -164,6 +167,60 @@ class RichText {
     const auto iter = m_formatting.find(format);
     if (iter == m_formatting.end()) return {};
     return {iter->second};
+  }
+
+  // TODO change std::invocable argument to T& once RichText is templated
+  template <std::invocable<std::string&> Callable>
+  void update(Callable const& callable) {
+    size_t const old_size = m_text.size();
+    std::optional<IndexSet> const indices_opt = callable(m_text);
+    size_t const new_size = m_text.size();
+
+    if (new_size > old_size) {
+      // insertion
+      // extend formatting options following each indicated index
+      cse_assert(indices_opt.has_value(),
+                 "size increased during update, but no indices returned");
+      IndexSet indices{*indices_opt};
+
+      // TODO: how to handle multiple discontinuous insertions?
+
+      // TODO
+    } else if (new_size < old_size) {
+      // deletion
+      // reduce formatting at each indicated index
+      cse_assert(indices_opt.has_value(),
+                 "size decreased during update, but no indices returned");
+      IndexSet indices{*indices_opt};
+
+      for (auto& [_, fmt_indices] : m_formatting) {
+        // move this into IndexSet?
+        size_t offset = 0;
+        IndexSet new_indices{};
+
+        auto max = std::max_element(fmt_indices.cbegin(), fmt_indices.cend());
+        if (max == fmt_indices.cend()) continue;
+
+        for (size_t idx = 0; idx <= *max; idx++) {
+          if (indices.contains(idx)) {
+            // index was deleted, advance offset
+            offset++;
+            continue;
+          }
+          if (fmt_indices.contains(idx)) {
+            new_indices.insert(idx - offset);
+          }
+        }
+        fmt_indices = new_indices;
+      }
+
+    } else {
+      // substitution
+      // no formatting changes necessary
+      cse_assert(
+          !indices_opt.has_value(),
+          "size did not change during update, but some indices returned");
+    }
   }
 };
 
