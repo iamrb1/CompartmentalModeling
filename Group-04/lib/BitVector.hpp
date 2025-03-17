@@ -168,6 +168,8 @@ class BitVector {
   BitVector& pattern_set(size_t start, size_t count, uint64_t pattern);
   BitVector& pattern_set(uint64_t pattern);
 
+  // Set a range of the bitvector based on a function which generates
+  // boolean values
   template<typename T>
     requires BoolGenerator<T>
   BitVector& generator_set(size_t start, size_t count, T gen) {
@@ -185,6 +187,8 @@ class BitVector {
     return *this;
   }
 
+  // Set the entire bitvector based on a function which generates
+  // boolean values
   template<typename T>
     requires BoolGenerator<T>
   BitVector& generator_set(T gen) {
