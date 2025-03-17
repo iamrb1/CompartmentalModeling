@@ -349,14 +349,12 @@ TEST_CASE("Test advanced append and prepend operations", "[bitvector]") {
   ba4.pattern_set(0xB5B5B5B5B5);
   bv4.append(ba4);
   CHECK(bv4.count() == 30 + 25);
-  for(size_t i = 0; i < 5; i++)
-  {
+  for (size_t i = 0; i < 5; i++) {
     size_t idx = i * 8;
     CHECK(!bv4[idx]);
     CHECK(!bv4[idx + 2]);
   }
-  for(size_t i = 0; i < 5; i++)
-  {
+  for (size_t i = 0; i < 5; i++) {
     size_t idx = (i + 5) * 8;
     CHECK(bv4[idx]);
     CHECK(bv4[idx + 2]);
@@ -369,5 +367,9 @@ TEST_CASE("Test advanced append and prepend operations", "[bitvector]") {
 }
 
 TEST_CASE("Test class template features", "[bitvector]") {
-  // TODO
+  // Template constructor
+  cse::BitVector bv1(34, [](size_t i) -> bool { return i % 3 == 0; });
+  for (size_t i = 0; i < bv1.size(); ++i) {
+    CHECK(bv1[i] == (i % 3 == 0));
+  }
 }

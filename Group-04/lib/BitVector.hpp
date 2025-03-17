@@ -1,5 +1,6 @@
 #pragma once
 #include <bitset>
+#include <concepts>
 #include <cstdint>
 #include <format>
 #include <iostream>
@@ -18,6 +19,10 @@ constexpr uint64_t ALL_ZERO = 0;
 constexpr uint64_t ONE_ONE = 1;
 // Number of bits per element in the underlying vector
 constexpr size_t BITS_PER_EL = 64;
+
+template <typename T>
+concept BoolGenerator = (std::invocable<T, size_t> &&
+                         std::same_as<bool, std::invoke_result_t<T, size_t>>);
 
 // Author(s): Kyle Gunger
 // BitVector represents a dynamic array of bits, packed into bytes for space
@@ -99,6 +104,7 @@ class BitVector {
   // Generate a bitvector from a function which returns booleans
   // based on the index
   template <typename T>
+    requires BoolGenerator<T>
   BitVector(size_t bits, T generator) {
     m_num_bits = bits;
     m_underlying.resize(bits_to_el_count(bits), ALL_ZERO);
@@ -840,7 +846,7 @@ BitVector BitVector::operator>>(size_t pos) const {
 // Current decision: groups of 8 bits space separated,
 // and with max groupings of 32 bits per line
 std::ostream& operator<<(std::ostream& os, const BitVector& bv) {
-  for(size_t i = 0; i < bv.m_num_bits; ++i) {
+  for (size_t i = 0; i < bv.m_num_bits; ++i) {
     os << bv[bv.m_num_bits - 1 - i];
   }
 
@@ -853,11 +859,10 @@ BitVector& BitVector::resize(size_t size, uint64_t fill) {
   m_num_bits = size;
   m_underlying.resize(bits_to_el_count(size), ALL_ZERO);
 
-  if (size > prev_last && fill)
-    pattern_set(prev_last, size - prev_last, fill);
+  if (size > prev_last && fill) pattern_set(prev_last, size - prev_last, fill);
   if (m_underlying.size() > 0)
     truncate_element(m_underlying.size() - 1, m_num_bits);
-  
+
   return (*this);
 }
 
