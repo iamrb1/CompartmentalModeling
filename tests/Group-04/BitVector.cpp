@@ -372,4 +372,11 @@ TEST_CASE("Test class template features", "[bitvector]") {
   for (size_t i = 0; i < bv1.size(); ++i) {
     CHECK(bv1[i] == (i % 3 == 0));
   }
+
+  // Template set
+  bv1.generator_set([](size_t i) {return i % 2 == 0;});
+  for (size_t i = 0; i < bv1.size(); ++i) {
+    CHECK(bv1[i] == (i % 2 == 0));
+  }
 }
+

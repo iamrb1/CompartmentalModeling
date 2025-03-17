@@ -168,6 +168,29 @@ class BitVector {
   BitVector& pattern_set(size_t start, size_t count, uint64_t pattern);
   BitVector& pattern_set(uint64_t pattern);
 
+  template<typename T>
+    requires BoolGenerator<T>
+  BitVector& generator_set(size_t start, size_t count, T gen) {
+    if (count == 0) return *this;
+    cse_assert(
+        (start + count) <= m_num_bits,
+        std::format("Invalid range to generator_set BitVector: start: {}, count: "
+                    "{}, number of bits is: {}",
+                    start, count, m_num_bits));
+
+    for (size_t i = 0; i < count; i++) {
+      (*this)[i + start] = gen(i);
+    }
+
+    return *this;
+  }
+
+  template<typename T>
+    requires BoolGenerator<T>
+  BitVector& generator_set(T gen) {
+    return generator_set(0, m_num_bits, gen);
+  }
+
   // Set all bits in the vector to true
   BitVector& set();
   // Set a specific bit in the vector to true
@@ -404,8 +427,7 @@ BitVector& BitVector::pattern_set(size_t start, size_t count,
       (start + count) <= m_num_bits,
       std::format("Invalid range to pattern_set BitVector: start: {}, count: "
                   "{}, number of bits is: {}",
-                  start, count, m_num_bits)
-          .c_str());
+                  start, count, m_num_bits));
 
   // Case where we only need to change one byte (helper function)
   if (start % BITS_PER_EL + count <= BITS_PER_EL)
