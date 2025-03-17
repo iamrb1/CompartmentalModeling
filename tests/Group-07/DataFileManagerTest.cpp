@@ -46,12 +46,12 @@ TEST_CASE("File Operations", "[DataFileManager]") {
   resetFile(filePath);  // Clear our file before running the test
 
   cse::DataFileManager dfm;
-  dfm.openFile(filePath);
+  dfm.openCSV(filePath);
 
   REQUIRE(dfm.getFile() == filePath);
-  REQUIRE(dfm.getData().size() == 0);  // Ensure file is initially empty
+  REQUIRE(dfm.getDataCSV().size() == 0);  // Ensure file is initially empty
 
-  dfm.closeFile();
+  dfm.closeCSV();
   ifstream file(filePath);
   REQUIRE(file.is_open());
 
@@ -68,7 +68,7 @@ TEST_CASE("Function Management", "[DataFileManager]") {
   resetFile(filePath);  // Clear the file before running the test
 
   cse::DataFileManager dfm;
-  dfm.openFile(filePath);
+  dfm.openCSV(filePath);
 
   // Add functions
   int x = 5;
@@ -77,15 +77,15 @@ TEST_CASE("Function Management", "[DataFileManager]") {
   dfm.addFunction("Y Value", [&y]() { return y; });
 
   REQUIRE_NOTHROW(dfm.listFunctions());
-  REQUIRE(dfm.getData().size() == 0);  // File is initially empty
+  REQUIRE(dfm.getDataCSV().size() == 0);  // File is initially empty
 
   // Update CSV file with functions
-  dfm.updateFile();
+  dfm.updateCSV();
   REQUIRE(dfm.checkUpdate() == false);  // Update made, flag reset to false
   x++;
-  dfm.updateFile();
+  dfm.updateCSV();
   y++;
-  dfm.updateFile();
+  dfm.updateCSV();
 
   // Read the file to check the updates
   ifstream file(filePath);
@@ -121,14 +121,14 @@ TEST_CASE("File and Data Management", "[DataFileManager]") {
   resetFile(filePath);
 
   cse::DataFileManager dfm;
-  dfm.openFile(filePath);
+  dfm.openCSV(filePath);
 
   // Add dummy data
   int dummy = 42;
   dfm.addFunction("Dummy", [&dummy]() { return dummy; });
 
   // Update CSV file with dummy data
-  dfm.updateFile();
+  dfm.updateCSV();
 
   // Read the file to check the updates
   ifstream file(filePath);
@@ -170,10 +170,10 @@ TEST_CASE("Setters and Getters", "[DataFileManager]") {
   dfm.setUpdate(false);
   REQUIRE(dfm.checkUpdate() == false);
 
-  // Test setData and getData
+  // Test setDataCSV and getDataCSV
   vector<vector<string>> testData = {{"Header1", "Header2"}, {"Data1", "Data2"}};
-  dfm.setData(testData);
-  REQUIRE(dfm.getData() == testData);
+  dfm.setDataCSV(testData);
+  REQUIRE(dfm.getDataCSV() == testData);
 }
 
 TEST_CASE("Function Management Edge Cases", "[DataFileManager]") {
@@ -182,7 +182,7 @@ TEST_CASE("Function Management Edge Cases", "[DataFileManager]") {
   resetFile(filePath);
 
   cse::DataFileManager dfm;
-  dfm.openFile(filePath);
+  dfm.openCSV(filePath);
 
   // Add a function and then a duplicate
   int x = 5;
@@ -190,7 +190,7 @@ TEST_CASE("Function Management Edge Cases", "[DataFileManager]") {
   dfm.addFunction("X Value", [&x]() { return x + 1; });  // Duplicate
 
   // Update CSV file with functions
-  dfm.updateFile();
+  dfm.updateCSV();
 
   // Read the file to check the updates
   ifstream file(filePath);
@@ -219,7 +219,7 @@ TEST_CASE("Invalid File Operations", "[DataFileManager]") {
   string invalidPath = "/invalid/path/to/sample.csv";
 
   // Attempt to open an invalid file path
-  dfm.openFile(invalidPath);
+  dfm.openCSV(invalidPath);
 
   // Ensure file location is not set
   REQUIRE(dfm.getFile().empty());
