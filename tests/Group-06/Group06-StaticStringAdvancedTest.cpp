@@ -286,7 +286,8 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     s.trim();
     REQUIRE(std::strcmp(s.get_str(), "test") == 0);
   }
-
+  */
+  
   SECTION("TESTS: Foreach with lambda  member function") {
     StaticString<20> s("abc");
     std::string collected;
@@ -313,18 +314,19 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     REQUIRE(vowelCount == 3);
     REQUIRE(std::strcmp(s2.get_str(), "HEllO WOrld") == 0);
   }
-
-  SECTION("TESTS: Transform with lambda  member function") {
+  
+  SECTION("TESTS: Transform with lambda member function") {
     StaticString<20> s("abc");
 
-    s.transform([](char ch) -> char {
+    auto transformed = s.transform([](char ch) -> char {
         if (ch >= 'a' && ch <= 'z')
             return static_cast<char>(ch - 'a' + 'A');
         return ch;
     });
-    REQUIRE(std::strcmp(s.get_str(), "ABC") == 0);
+    REQUIRE(std::strcmp(s.get_str(), "abc") == 0);
+    REQUIRE(std::strcmp(transformed.get_str(), "ABC") == 0);
   }
-
+  
   SECTION("TESTS: Count member function") { 
     StaticString<40> s("aabbccddeeff");
 
@@ -342,7 +344,7 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     StaticString<30> s("Hello,World,Test");
     std::vector<StaticString<30>> result;
 
-    s.split(',', result);
+    result = s.split(',');
 
     REQUIRE(result.size() == 3);
     REQUIRE(result[0].to_string() == "Hello");
@@ -357,5 +359,5 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
 
     REQUIRE(s1.compare(s2, [](char a, char b) { return a == b; }) == true);
     REQUIRE(s1.compare(s3, [](char a, char b) { return a == b; }) == false);
-  }*/
+  }
 }

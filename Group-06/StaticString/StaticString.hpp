@@ -1,6 +1,7 @@
 /**
  * @file StaticString.hpp
  * @author Mehmet Efe Caylan
+ * @author Will Crawford
  * @brief StaticString Class implementation file.
  * @version 0.2
  * @date 2025-02-06
@@ -10,6 +11,7 @@
 #ifndef CSE_STATIC_STRING_HPP_
 #define CSE_STATIC_STRING_HPP_
 
+#include <unordered_map>
 #include <cassert>
 #include <cstring>
 #include <stdexcept>
@@ -62,11 +64,18 @@ public:
   /**
    * @brief Construct a new Static String object with a non-empty string
    * 
-   * Copies characters from the provided c style string to StaticString object.
+   * This constructor initializes the StaticString object by copying characters from 
+   * the provided objects `std::string`, `std::string_view`, or `const char*`
+   * into the fixed size character array. It ensures that no more than MaxSize
+   * characters are copied and appends a null terminator at the end.
+   * 
    * @attention Make sure to check string provided is shorter than maximum size
    * defined.
    * 
-   * @tparam T Templated type compatible to work with std::string, string_view, char *
+   * @tparam T A type that is implicitly convertible to `std::string_view`, such as 
+   * `const char*`, `std::string`, or `std::string_view`.
+   * @tparam typename 
+   * @tparam std::string_view>> 
    */
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
   constexpr StaticString(const T& cstr) : mCurrentSize(0) {
@@ -230,28 +239,6 @@ public:
     assert(rhs != nullptr && "Nullptr comparisons not a legal comparison");
     if (!rhs) return false;
     return std::strcmp(mString, rhs) == 0;
-  }
-
-  /**
-  * @brief Inequality comparison with another StaticString.
-  *
-  * @param rhs The StaticString to compare with.
-  * @return true if both strings are not equal.
-  * @return false if both strings are equal.
-  */
-  bool operator!=(const StaticString& rhs) const noexcept {
-    return !(*this == rhs);
-  }
-
-  /**
-  * @brief Inequality comparison with a C-string.
-  *
-  * @param rhs The StaticString to compare with.
-  * @return true if both strings are not equal.
-  * @return false if both strings are equal.
-  */
-  bool operator!=(const char* rhs) const noexcept {
-    return std::strcmp(mString, rhs) != 0;
   }
 
   /**
@@ -681,8 +668,6 @@ public:
     mString[mCurrentSize] = null_terminator;
   }
 
-
-
   /**
    * @brief Finds every occurrence of a character, string, string_view,
    *  char* in the string.
@@ -783,8 +768,7 @@ public:
   * @param the string to replace the string
   */
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
-  void replace(const T& str1, const char* str2)
-  {
+  void replace(const T& str1, const char* str2) {
     std::vector<size_t> index = findAll(str1);
     std::string_view size(str1);
     std::string_view size2(str2);
@@ -798,8 +782,7 @@ public:
   }
 
   // Overloading replace for char because string_view is not convertible from char
-  void replace(char ch, char ch2)
-  {
+  void replace(char ch, char ch2) {
     std::vector<size_t> index = findAll(ch);
     for (int i = 0; i < (int)index.size(); i++) {
       remove(index[i], index[i] + size_t(1));
@@ -809,8 +792,7 @@ public:
 
   // Overloading replace for char because string_view is not convertible from char
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
-  void replace(const T& str1, char ch2)
-  {
+  void replace(const T& str1, char ch2) {
     std::vector<size_t> index = findAll(str1);
     std::string_view size(str1);
     for (int i = 0; i < (int)index.size(); i++) {
@@ -821,8 +803,7 @@ public:
 
   // Overloading replace for char because string_view is not convertible from char
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
-  void replace(char ch, const T& str2)
-  {
+  void replace(char ch, const T& str2) {
     std::vector<size_t> index = findAll(ch);
 
     std::string_view size2(str2);
@@ -835,9 +816,125 @@ public:
     }
   }
 
+  /**
+   * @brief Applies a given function to each character in the StaticString.
+   * 
+   * This is a utility function and can be used to perform operations or 
+   * custom changes over the string using your own functions. 
+   * Foreach iterates over each charater and applies changes to each character
+   * if advised.
+   * 
+   * @tparam Func The function type to be applied to each character.
+   * @param lambda A function or lambda that accepts a character.
+   */
+  template <typename Func>
+  void foreach(Func lambda) {
 
+    for (size_t i = 0; i < mCurrentSize; ++i) {
+      lambda(mString[i]);
+    }
+  }
+
+  /**
+   * @brief Transforms the StaticString by applying a function to each character
+   * 
+   * This is not an in place function, changes made on StaticString by the 
+   * function will be applied to a copy of the current object, and 
+   * new modified object will be returned. 
+   * 
+   * @tparam Func The function type to be applied to each character.
+   * @param lambda A function or lambda that accepts a character.
+   * @return StaticString A new transformed StaticString.
+   */
+  template <typename Func>
+  [[nodiscard]] StaticString transform(Func lambda) const {
+    StaticString result(*this);
+
+    for (std::size_t i = 0; i < result.length(); ++i) {
+      result.get_str()[i] = lambda(result.get_str()[i]);
+    }
+    return std::move(result);
+  }
+
+  /**
+   * @brief Counts the occurrences of each character in the StaticString.
+   * 
+   * @return constexpr std::unordered_map<char, std::size_t> A map of character to its count.
+   */
+  constexpr std::unordered_map<char, std::size_t> char_count() const noexcept {
+    std::unordered_map<char, std::size_t> counts;
+
+    for (std::size_t i = 0; i < mCurrentSize; ++i) {
+      ++counts[mString[i]];
+    }
+    return counts;
+  }
   
-private:
+  /**
+   * @brief Splits the given StaticString based on delimiter defined.
+   * 
+   * Splits the given StaticStrings into smaller staticString objects from
+   * delimiter provided and returns a vector of new StaticString objects
+   * splitted from delimiter.
+   * 
+   * @param delimiter char The delimiter to split StaticString.
+   * @return std::vector<StaticString<MaxSize>> Collection of splitted StaticString objects.
+   */
+  std::vector<StaticString<MaxSize>> split(char delimiter) const {
+
+    std::vector<StaticString<MaxSize>> result;
+
+    StaticString<MaxSize> new_string;
+    
+    for (std::size_t i = 0; i < mCurrentSize; ++i) {
+      if (mString[i] == delimiter) {
+        result.push_back(new_string);
+        new_string = StaticString<MaxSize>(); 
+      } else {
+        new_string.append(mString[i]);
+      }
+    }
+    
+    result.push_back(new_string);
+
+    return result;
+  }
+
+  /**
+   * @brief Compares this StaticString to another using a custom comparator.
+   * 
+   * Useful for lexicographical or conditional comparison beyond equality.
+   * @attention Inorder to make comparison both StaticString objects must be 
+   * equal length.
+   * 
+   * @tparam Func A comparator function taking two characters and returning a bool.
+   * @param rhs The StaticString to compare against.
+   * @param lambda The comparator function.
+   * @return true If all character comparisons return true.
+   * @return false Otherwise.
+   */
+  template <typename Func>
+  constexpr bool compare(const StaticString& rhs, Func lambda) const noexcept {
+    if (mCurrentSize != rhs.mCurrentSize) return false;
+
+    for (std::size_t i = 0; i < mCurrentSize; ++i) {
+      if (!lambda(mString[i], rhs.mString[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * @brief Returns a string_view of the current StaticString content.
+   * 
+   * @return constexpr std::string_view A view of the current string data.
+   */
+  constexpr std::string_view view() const noexcept { 
+    return std::string_view(mString, mCurrentSize); 
+  }
+
+private: 
   /// @brief Constant value for StaticString null terminator used.
   static constexpr char null_terminator = '\0';
 
@@ -846,6 +943,29 @@ private:
 
   /// @brief size_t The current length of the string.
   std::size_t mCurrentSize = 0;  // Tracks the current length of the string.
+};
+
+/**
+ * @brief This is a custom hasher for StaticString class.
+ * 
+ * To use custom hasher for operations in unorderd_map pass the hasher as param.
+ * std::unordered_map<cse::StaticString<32>, int, cse::StaticStringHasher<32>> myMap;
+ * 
+ * @tparam MaxSize Max limit defined for StaticString.
+ */
+template <std::size_t MaxSize>
+struct StaticStringHasher {
+  /**
+   * @brief Hash function operator for StaticString.
+   * 
+   * Allows StaticString to be used in hashed containers like std::unordered_map.
+   * 
+   * @param obj The StaticString object to hash.
+   * @return std::size_t The hash value.
+   */
+  std::size_t operator()(const cse::StaticString<MaxSize>& obj) const noexcept {
+    return std::hash<std::string_view>{}(obj.view());
+  }
 };
 
 }  // namespace cse
