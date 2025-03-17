@@ -2,7 +2,7 @@ CXX = g++
 CXXFLAGS = -std=c++2a -g -pthread -Wall -Wextra -I../src -I../../third-party/Catch/single_include/catch2/
 
 # Directories
-SRC_DIR = ../src
+SRC_DIR = ../../Group-03/src
 TEST_DIR = .
 
 # Source and Test Files
