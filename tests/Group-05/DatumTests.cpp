@@ -21,10 +21,6 @@ TEST_CASE("GetString() functionality", "[datum]") {
   // When a Datum contains a string
   cse::Datum string_test("test");
   CHECK(string_test.GetString() == "test");
-
-  // When a Datum contains a double
-  cse::Datum double_test(123.123);
-  CHECK_THROWS(double_test.GetString());
 }
 
 TEST_CASE("GetDouble() functionality", "[datum]") {
@@ -32,10 +28,6 @@ TEST_CASE("GetDouble() functionality", "[datum]") {
   cse::Datum double_test(999.777);
   CHECK_THAT(double_test.GetDouble(),
                Catch::WithinAbs(999.777, kEpsilon));
-
-  // When Datum contains a string
-  cse::Datum string_test("hello");
-  CHECK_THROWS(string_test.GetDouble());
 }
 
 TEST_CASE("AsString() functionality", "[datum]") {
@@ -43,21 +35,45 @@ TEST_CASE("AsString() functionality", "[datum]") {
 
   // When the value is NOT NaN
   cse::Datum double_test(123.456);
-  double_test.AsString();
-  CHECK(double_test.GetString() == "123.456");
+  CHECK(double_test.AsString() == "123.456");
+  CHECK(double_test.GetDouble() == 123.456);
 
   // When the value is NaN
   cse::Datum double_test1(std::numeric_limits<double>::quiet_NaN());
-  double_test1.AsString();
-  CHECK(double_test1.GetString() == "");
+  CHECK(double_test1.AsString() == "");
+  CHECK(std::isnan(double_test1.GetDouble()));
 
 
   // When Datum contains a double
 
   // When Datum contains a string
   cse::Datum string_test("hello");
-  string_test.AsString();
-  CHECK(string_test.GetString() == "hello");
+  CHECK(string_test.AsString() == "hello");
+  string_test = "modify";
+  CHECK(string_test.AsString() == "modify");
+}
+
+TEST_CASE("ToString() functionality", "[datum]") {
+  // When Datum contains a double
+
+  // When the value is NOT NaN
+  cse::Datum double_test(123.456);
+  CHECK(double_test.ToString() == "123.456");
+  CHECK(double_test.GetString() == "123.456");
+
+  // When the value is NaN
+  cse::Datum double_test1(std::numeric_limits<double>::quiet_NaN());
+  CHECK(double_test1.ToString() == "");
+  CHECK(double_test1.GetString() == "");
+
+
+  // When Datum contains a double
+
+  // When Datum is modified
+  cse::Datum string_test("hello");
+  CHECK(string_test.ToString() == "hello");
+  string_test = "modify";
+  CHECK(string_test.ToString() == "modify");
 }
 
 TEST_CASE("AsDouble() functionality", "[datum]") {
@@ -65,24 +81,56 @@ TEST_CASE("AsDouble() functionality", "[datum]") {
 
   // The string contains all valid numbers
   cse::Datum string_test("987.654");
-  string_test.AsDouble();
+  CHECK_THAT(string_test.AsDouble(),
+             Catch::WithinAbs(987.654, kEpsilon));
+  CHECK(string_test.GetString() == "987.654");
+
+  // The string contains invalid numbers at the start
+  cse::Datum string_test1("123Hello");
+  CHECK(std::isnan(string_test1.AsDouble()));
+  CHECK(string_test1.GetString() == "123Hello");
+
+  // The string contains invalid numbers
+  cse::Datum string_test2("test");
+  CHECK(std::isnan(string_test2.AsDouble()));
+  CHECK(string_test2.GetString() == "test");
+
+  // When the Datum is a double
+  cse::Datum double_test(123.123);
+  CHECK(double_test.AsDouble() == 123.123);
+
+  // When the Datum is modified
+  double_test = 420;
+  CHECK(double_test.AsDouble() == 420);
+}
+
+TEST_CASE("ToDouble() functionality", "[datum]") {
+  // When the Datum is a string
+
+  // The string contains all valid numbers
+  cse::Datum string_test("987.654");
+  CHECK_THAT(string_test.ToDouble(),
+             Catch::WithinAbs(987.654, kEpsilon));
   CHECK_THAT(string_test.GetDouble(),
              Catch::WithinAbs(987.654, kEpsilon));
 
   // The string contains valid numbers at the start
   cse::Datum string_test1("123Hello");
-  string_test1.AsDouble();
+  CHECK(std::isnan(string_test1.ToDouble()));
   CHECK(std::isnan(string_test1.GetDouble()));
 
   // The string contains invalid numbers
   cse::Datum string_test2("test");
-  string_test2.AsDouble();
+  CHECK(std::isnan(string_test2.ToDouble()));
   CHECK(std::isnan(string_test2.GetDouble()));
 
   // When the Datum is a double
   cse::Datum double_test(123.123);
-  double_test.AsDouble();
-  CHECK(double_test.GetDouble() == 123.123);
+  CHECK(double_test.ToDouble() == 123.123);
+
+  // When the string is modified
+  double_test = 420;
+  CHECK(double_test.ToDouble() == 420);
 }
 
 TEST_CASE("Addition functionality", "[datum]") {
@@ -100,6 +148,12 @@ TEST_CASE("Addition functionality", "[datum]") {
   cse::Datum result1 = datum_string1 + datum_string2;
   CHECK(result1.GetString() == "123ABCtest");
 
+  // Checking case when AsDouble is called
+  cse::Datum datum_string3("20.00");
+  cse::Datum result2 = datum_double1 + datum_string3.AsDouble();
+  CHECK_THAT(result2.GetDouble(),
+             Catch::WithinAbs(63.26, kEpsilon));
+
   // Adding 1 double datum and 1 string datum
   CHECK_THROWS(datum_double1 + datum_string1);
 
@@ -116,6 +170,13 @@ TEST_CASE("Subtraction functionality", "[datum]") {
   cse::Datum result = datum_double1 - datum_double2;
   CHECK_THAT(result.GetDouble(),
                Catch::WithinAbs(19.37, kEpsilon));
+
+  // Checking case when AsDouble is called
+  cse::Datum datum_string3("23.26");
+  cse::Datum result1 = datum_double1 - datum_string3.AsDouble();
+  CHECK_THAT(result1.GetDouble(),
+             Catch::WithinAbs(20, kEpsilon));
+
 
   // Subtracting 1 double datum and 1 string datum
   CHECK_THROWS(datum_double1 - datum_string1);
@@ -137,6 +198,12 @@ TEST_CASE("Multiplication functionality", "[datum]") {
   cse::Datum result = datum_double1 * datum_double2;
   CHECK_THAT(result.GetDouble(),
                Catch::WithinAbs(1033.4814, kEpsilon));
+
+  // Checking case when AsDouble is called
+  cse::Datum datum_string3("2");
+  cse::Datum result1 = datum_double1 * datum_string3.AsDouble();
+  CHECK_THAT(result1.GetDouble(),
+             Catch::WithinAbs(86.52, kEpsilon));
 
   // Multiplying 1 double datum and 1 string datum
   CHECK_THROWS(datum_double1 * datum_string1);
@@ -160,6 +227,12 @@ TEST_CASE("Division functionality", "[datum]") {
   cse::Datum result = datum_double1 / datum_double2;
   CHECK_THAT(result.GetDouble(),
                Catch::WithinAbs(1.811, kEpsilon));
+
+  // Checking case when AsDouble is called
+  cse::Datum datum_string3("2");
+  cse::Datum result1 = datum_double1 / datum_string3.AsDouble();
+  CHECK_THAT(result1.GetDouble(),
+             Catch::WithinAbs(21.63, kEpsilon));
 
   // Denominator IS 0
   cse::Datum datum_double3(0.000);
@@ -213,4 +286,4 @@ TEST_CASE("Assignment functionality", "[datum]") {
   cse::Datum datum_string("test");
   datum_string = "testUpdate";
   CHECK(datum_string.GetString() == "testUpdate");
- }
+}

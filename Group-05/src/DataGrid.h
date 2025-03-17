@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <cassert>
 #include <iomanip>
 #include <limits>
@@ -28,6 +29,7 @@ private:
   /// A 2D vector holding datums
   std::vector<row_t> grid_;
 
+  /// Operations for column comparison
   enum class operations {
     LESS_THAN,
     LESS_THAN_OR_EQUAL,
@@ -37,14 +39,32 @@ private:
     NOT_EQUAL
   };
 
-  static std::vector<double>
-  getDoubleValues(const ReferenceVector<Datum> &reference_vector);
+  [[nodiscard]] static std::vector<double>
+  getDoubleValues(const ReferenceVector<const Datum> &reference_vector);
 
-  ReferenceVector<Datum> determineColumnComparisons(size_t column_index,
+  [[nodiscard]] ReferenceVector<Datum> determineColumnComparisons(
+                                                    size_t column_index,
                                                     const Datum &value,
                                                     operations operation);
 
+  [[nodiscard]] static double calculateMean(std::vector<double> double_values);
+  [[nodiscard]] static double calculateMedian(std::vector<double> double_values);
+  [[nodiscard]] static std::vector<double> calculateMode(std::vector<double> double_values);
+  [[nodiscard]] static double calculateStandardDeviation(std::vector<double> double_values);
+  [[nodiscard]] static double calculateMin(std::vector<double> double_values);
+  [[nodiscard]] static double calculateMax(std::vector<double> double_values);
+
 public:
+  /// Struct for the DataGrid mathematical summary
+  struct DataGridMathSummary {
+    double mean;
+    double median;
+    std::vector<double> mode;
+    double standardDeviation;
+    double min;
+    double max;
+  };
+
   /**
    * Constructor using 2D Vector of Datums
    * @param data
@@ -153,10 +173,12 @@ public:
   [[nodiscard]] row_t &getRow(std::size_t row_index_);
   [[nodiscard]] const row_t &getRow(std::size_t row_index_) const;
   [[nodiscard]] ReferenceVector<Datum> getColumn(std::size_t column_index_);
+  [[nodiscard]] ReferenceVector<const Datum> getColumn(size_t column_index_) const;
   [[nodiscard]] Datum &getValue(std::size_t row_index_,
                                 std::size_t column_index_);
   [[nodiscard]] const Datum &getValue(std::size_t row_index_,
                                       std::size_t column_index_) const;
+  [[nodiscard]] std::vector<row_t> getDataGrid() const { return grid_; };
 
   [[nodiscard]] std::tuple<std::size_t, std::size_t> shape() const;
 
@@ -195,24 +217,32 @@ public:
   void sort(bool ascending = true);
   std::vector<std::size_t> search(std::size_t column_index, const Datum &value);
 
-  double columnMean(std::size_t column_index);
-  double columnMedian(std::size_t column_index);
-  std::vector<double> columnMode(std::size_t column_index);
-  double columnStandardDeviation(std::size_t column_index);
-  double columnMin(std::size_t column_index);
-  double columnMax(std::size_t column_index);
+  [[nodiscard]] double columnMean(std::size_t column_index) const;
+  [[nodiscard]] double columnMedian(std::size_t column_index) const;
+  [[nodiscard]] std::vector<double> columnMode(std::size_t column_index) const;
+  [[nodiscard]] double columnStandardDeviation(std::size_t column_index) const;
+  [[nodiscard]] double columnMin(std::size_t column_index) const;
+  [[nodiscard]] double columnMax(std::size_t column_index) const;
+  [[nodiscard]] DataGridMathSummary dataGridMathSummary() const;
 
-  ReferenceVector<Datum> columnLessThan(size_t column_index,
-                                        const Datum &value);
-  ReferenceVector<Datum> columnLessThanOrEqual(size_t column_index,
-                                               const Datum &value);
-  ReferenceVector<Datum> columnGreaterThan(size_t column_index,
-                                           const Datum &value);
-  ReferenceVector<Datum> columnGreaterThanOrEqual(size_t column_index,
-                                                  const Datum &value);
-  ReferenceVector<Datum> columnEqual(size_t column_index, const Datum &value);
-  ReferenceVector<Datum> columnNotEqual(size_t column_index,
-                                        const Datum &value);
+  [[nodiscard]] ReferenceVector<Datum> columnLessThan(
+      size_t column_index,
+      const Datum &value);
+  [[nodiscard]] ReferenceVector<Datum> columnLessThanOrEqual(
+      size_t column_index,
+      const Datum &value);
+  [[nodiscard]] ReferenceVector<Datum> columnGreaterThan(
+      size_t column_index,
+      const Datum &value);
+  [[nodiscard]] ReferenceVector<Datum> columnGreaterThanOrEqual(
+      size_t column_index,
+      const Datum &value);
+  [[nodiscard]] ReferenceVector<Datum> columnNotEqual(
+      size_t column_index,
+      const Datum &value);
+  [[nodiscard]] ReferenceVector<Datum> columnEqual(
+      size_t column_index,
+      const Datum &value);
 
   std::ostream &print(std::ostream &os_) const;
 };

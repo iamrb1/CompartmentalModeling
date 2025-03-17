@@ -6,20 +6,18 @@
 // Made with the help of ChatGPT
 
 #include "../../Group-05/src/DataGrid.cpp"
-#include "../../Group-05/src/DataGrid.h"
 #include "../../Group-05/src/Datum.cpp"
-#include "../../Group-05/src/Datum.h"
-#include "../../Group-05/src/ReferenceVector.h"
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
-#include <string>
 #include <vector>
 
 using cse::DataGrid;
 using cse::Datum;
+
+static const double kEpsilon = 0.0001;
 
 /**
  * @brief Test parameterized constructor
@@ -766,4 +764,512 @@ TEST_CASE("DataGrid: Comprehensive Test", "[comprehensive]") {
   if (rows6 > 2 && cols6 > 2) {
     CHECK(grid.getValue(2, 2).GetString() == "Water");
   }
+}
+
+/**
+ * @brief Mathematical Tests (Except mode)
+ */
+TEST_CASE("DataGrid: Mathematical Functions", "[mathematics]") {
+  // Cite: Used https://stackoverflow.com/questions/17663186/initializing-a-two-dimensional-stdvector
+  // to help with creating a 2D vector.
+  std::vector<std::vector<Datum>> math_vector(5, std::vector<Datum>(3));
+
+  math_vector[0][0] = Datum(5.0);
+  math_vector[1][0] = Datum(3.5);
+  math_vector[2][0] = Datum(1.25);
+  math_vector[3][0] = Datum(-15);
+  math_vector[4][0] = Datum(4.25);
+
+  math_vector[0][1] = Datum("test1");
+  math_vector[1][1] = Datum("test2");
+  math_vector[2][1] = Datum("test4");
+  math_vector[3][1] = Datum("test5");
+
+  math_vector[0][2] = Datum(10.25);
+  math_vector[1][2] = Datum("test3");
+  math_vector[2][2] = Datum(150.50);
+  math_vector[3][2] = Datum(200);
+  math_vector[4][1] = Datum("test6");
+  math_vector[4][2] = Datum(20.25);
+
+  DataGrid grid(math_vector);
+
+  // Mean Column Tests
+  CHECK_THAT(grid.columnMean(0),
+             Catch::WithinAbs(-0.2, kEpsilon));
+  CHECK(std::isnan(grid.columnMean(1)));
+  CHECK_THAT(grid.columnMean(2),
+             Catch::WithinAbs(95.25, kEpsilon));
+
+  CHECK_THROWS(grid.columnMean(99));
+
+  // Median Column Tests
+  CHECK_THAT(grid.columnMedian(0),
+             Catch::WithinAbs(3.5, kEpsilon));
+  CHECK(std::isnan(grid.columnMedian(1)));
+  CHECK_THAT(grid.columnMedian(2),
+             Catch::WithinAbs(85.375, kEpsilon));
+
+  CHECK_THROWS(grid.columnMedian(99));
+
+  // Standard Deviation Column Tests
+  CHECK_THAT(grid.columnStandardDeviation(0),
+             Catch::WithinAbs(7.5056645275418, kEpsilon));
+  CHECK(std::isnan(grid.columnStandardDeviation(1)));
+  CHECK_THAT(grid.columnStandardDeviation(2),
+             Catch::WithinAbs(81.968172176766, kEpsilon));
+
+  CHECK_THROWS(grid.columnStandardDeviation(99));
+
+  // Min Column Tests
+  CHECK_THAT(grid.columnMin(0),
+             Catch::WithinAbs(-15, kEpsilon));
+  CHECK(std::isnan(grid.columnMax(1)));
+  CHECK_THAT(grid.columnMin(2),
+             Catch::WithinAbs(10.25, kEpsilon));
+
+  CHECK_THROWS(grid.columnMin(99));
+
+  // Max Column Tests
+  CHECK_THAT(grid.columnMax(0),
+             Catch::WithinAbs(5.0, kEpsilon));
+  CHECK(std::isnan(grid.columnMax(1)));
+  CHECK_THAT(grid.columnMax(2),
+             Catch::WithinAbs(200, kEpsilon));
+
+  CHECK_THROWS(grid.columnMax(99));
+
+  DataGrid empty_data_grid;
+  CHECK_THROWS(empty_data_grid.columnMean(99));
+  CHECK_THROWS(empty_data_grid.columnMedian(99));
+  CHECK_THROWS(empty_data_grid.columnStandardDeviation(99));
+  CHECK_THROWS(empty_data_grid.columnMin(99));
+  CHECK_THROWS(empty_data_grid.columnMax(99));
+
+}
+
+/**
+ * @brief Mathematical Test: Mode
+ */
+TEST_CASE("Mode Column Tests", "[mathematics]") {
+  std::vector<std::vector<Datum>> mode_test(5, std::vector<Datum>(3));
+
+  mode_test[0][0] = Datum(5.55);
+  mode_test[1][0] = Datum(5.55);
+  mode_test[2][0] = Datum(1.25);
+  mode_test[3][0] = Datum(-15);
+  mode_test[4][0] = Datum(1.25);
+
+  mode_test[0][1] = Datum("test1");
+  mode_test[1][1] = Datum("test2");
+  mode_test[2][1] = Datum("test4");
+  mode_test[3][1] = Datum("test5");
+  mode_test[4][1] = Datum("test6");
+
+  mode_test[0][2] = Datum(10.25);
+  mode_test[1][2] = Datum("test3");
+  mode_test[2][2] = Datum(10.25);
+  mode_test[3][2] = Datum(10.25);
+  mode_test[4][2] = Datum(20.25);
+
+  DataGrid grid_mode(mode_test);
+
+  std::vector<double> multipleModes = grid_mode.columnMode(0);
+  std::sort(multipleModes.begin(), multipleModes.end());
+  CHECK(multipleModes.size() == 2);
+  CHECK_THAT(multipleModes[0],
+             Catch::WithinAbs(1.25, kEpsilon));
+  CHECK_THAT(multipleModes[1],
+             Catch::WithinAbs(5.55, kEpsilon));
+
+  CHECK(grid_mode.columnMode(1).empty());
+
+  std::vector<double> singleMode = grid_mode.columnMode(2);
+  CHECK(singleMode.size() == 1);
+  CHECK_THAT(singleMode[0],
+             Catch::WithinAbs(10.25, kEpsilon));
+
+  CHECK_THROWS(grid_mode.columnMode(99));
+
+  // Empty test
+  DataGrid empty_data_grid;
+  CHECK_THROWS(empty_data_grid.columnMode(99));
+}
+
+/**
+ * @brief DataGrid Mathematical Summary
+ */
+TEST_CASE("DataGrid Mathematical Summary", "[mathematics]") {
+  // Regular test (doubles and strings)
+  std::vector<std::vector<Datum>> grid_test(5, std::vector<Datum>(3));
+
+  grid_test[0][0] = Datum(5.0);
+  grid_test[1][0] = Datum(3.5);
+  grid_test[2][0] = Datum(1.25);
+  grid_test[3][0] = Datum(-15);
+  grid_test[4][0] = Datum(4.25);
+
+  grid_test[0][1] = Datum("test1");
+  grid_test[1][1] = Datum("test2");
+  grid_test[2][1] = Datum("test4");
+  grid_test[3][1] = Datum("test5");
+  grid_test[4][1] = Datum("test6");
+
+  grid_test[0][2] = Datum(5.0);
+  grid_test[1][2] = Datum("test3");
+  grid_test[2][2] = Datum(10.25);
+  grid_test[3][2] = Datum(1.25);
+  grid_test[4][2] = Datum(20.25);
+
+  DataGrid grid(grid_test);
+
+  DataGrid::DataGridMathSummary data_grid_math_summary = grid.dataGridMathSummary();
+
+  CHECK_THAT(data_grid_math_summary.mean,
+             Catch::WithinAbs(3.97222, kEpsilon));
+  CHECK_THAT(data_grid_math_summary.median,
+             Catch::WithinAbs(4.25, kEpsilon));
+  CHECK_THAT(data_grid_math_summary.standardDeviation,
+             Catch::WithinAbs(8.7022063329783, kEpsilon));
+  CHECK_THAT(data_grid_math_summary.min,
+             Catch::WithinAbs(-15, kEpsilon));
+  CHECK_THAT(data_grid_math_summary.max,
+             Catch::WithinAbs(20.25, kEpsilon));
+
+  std::sort(data_grid_math_summary.mode.begin(), data_grid_math_summary.mode.end());
+  CHECK(data_grid_math_summary.mode.size() == 2);
+  CHECK_THAT(data_grid_math_summary.mode[0],
+             Catch::WithinAbs(1.25, kEpsilon));
+  CHECK_THAT(data_grid_math_summary.mode[1],
+             Catch::WithinAbs(5.0, kEpsilon));
+
+  // DataGrid with NaN
+  std::vector<std::vector<Datum>> vector_nan(2, std::vector<Datum>(2));
+
+  vector_nan[0][0] = Datum(5.0);
+  vector_nan[1][0] = Datum(std::numeric_limits<double>::quiet_NaN());
+
+  vector_nan[0][1] = Datum(5.0);
+  vector_nan[1][1] = Datum(3.5);
+
+  DataGrid nan_grid(vector_nan);
+
+  DataGrid::DataGridMathSummary nan_data_grid_math_summary = nan_grid.dataGridMathSummary();
+
+  CHECK_THAT(nan_data_grid_math_summary.mean,
+             Catch::WithinAbs(4.5, kEpsilon));
+  CHECK_THAT(nan_data_grid_math_summary.median,
+             Catch::WithinAbs(5, kEpsilon));
+  CHECK_THAT(nan_data_grid_math_summary.standardDeviation,
+             Catch::WithinAbs(0.70710678118655, kEpsilon));
+  CHECK_THAT(nan_data_grid_math_summary.min,
+             Catch::WithinAbs(3.5, kEpsilon));
+  CHECK_THAT(nan_data_grid_math_summary.max,
+             Catch::WithinAbs(5.0, kEpsilon));
+
+  CHECK(nan_data_grid_math_summary.mode.size() == 1);
+  CHECK_THAT(nan_data_grid_math_summary.mode[0],
+             Catch::WithinAbs(5.0, kEpsilon));
+
+  // Strings only
+  std::vector<std::vector<Datum>> vector_strings(2, std::vector<Datum>(2));
+
+  vector_strings[0][0] = Datum("a");
+  vector_strings[1][0] = Datum("b");
+
+  vector_strings[0][1] = Datum("c");
+  vector_strings[1][1] = Datum("d");
+
+  DataGrid string_grid(vector_strings);
+
+  DataGrid::DataGridMathSummary string_data_grid_math_summary = string_grid.dataGridMathSummary();
+
+  CHECK(std::isnan(string_data_grid_math_summary.mean));
+  CHECK(std::isnan(string_data_grid_math_summary.median));
+  CHECK(std::isnan(string_data_grid_math_summary.standardDeviation));
+  CHECK(std::isnan(string_data_grid_math_summary.min));
+  CHECK(std::isnan(string_data_grid_math_summary.max));
+  CHECK(string_data_grid_math_summary.mode.size() == 0);
+}
+
+TEST_CASE("Comparison Tests", "[comparison]") {
+  std::vector<std::vector<Datum>> comparison_vector(5, std::vector<Datum>(3));
+
+  comparison_vector[0][0] = Datum(5.0);
+  comparison_vector[1][0] = Datum(10.0);
+  comparison_vector[2][0] = Datum(15.0);
+  comparison_vector[3][0] = Datum(20.0);
+  comparison_vector[4][0] = Datum(25.0);
+
+  comparison_vector[0][1] = Datum("a");
+  comparison_vector[1][1] = Datum("c");
+  comparison_vector[2][1] = Datum("e");
+  comparison_vector[3][1] = Datum("g");
+  comparison_vector[4][1] = Datum("i");
+
+  comparison_vector[0][2] = Datum(55.55);
+  comparison_vector[1][2] = Datum("aa");
+  comparison_vector[2][2] = Datum(-150.50);
+  comparison_vector[3][2] = Datum("cc");
+  comparison_vector[4][2] = Datum(123.123);
+
+  DataGrid grid(comparison_vector);
+
+
+  // *** Less Than Comparisons ***
+
+  cse::ReferenceVector<Datum> less_than_values_doubles =
+      grid.columnLessThan(0, Datum(16.0));
+  CHECK(less_than_values_doubles.Size() == 3);
+  CHECK(less_than_values_doubles[0] == Datum(5.0));
+  CHECK(less_than_values_doubles[1] == Datum(10.0));
+  CHECK(less_than_values_doubles[2] == Datum(15.0));
+
+  cse::ReferenceVector<Datum> less_than_values_doubles1 =
+      grid.columnLessThan(0, Datum(25.0));
+  CHECK(less_than_values_doubles1.Size() == 4);
+  CHECK(less_than_values_doubles1[0] == Datum(5.0));
+  CHECK(less_than_values_doubles1[1] == Datum(10.0));
+  CHECK(less_than_values_doubles1[2] == Datum(15.0));
+  CHECK(less_than_values_doubles1[3] == Datum(20.0));
+
+  cse::ReferenceVector<Datum> less_than_values_strings =
+      grid.columnLessThan(1, Datum("f"));
+  CHECK(less_than_values_strings.Size() == 3);
+  CHECK(less_than_values_strings[0] == Datum("a"));
+  CHECK(less_than_values_strings[1] == Datum("c"));
+  CHECK(less_than_values_strings[2] == Datum("e"));
+
+  cse::ReferenceVector<Datum> less_than_values_strings1 =
+      grid.columnLessThan(1, Datum("i"));
+  CHECK(less_than_values_strings1.Size() == 4);
+  CHECK(less_than_values_strings1[0] == Datum("a"));
+  CHECK(less_than_values_strings1[1] == Datum("c"));
+  CHECK(less_than_values_strings1[2] == Datum("e"));
+  CHECK(less_than_values_strings1[3] == Datum("g"));
+
+  cse::ReferenceVector<Datum> less_than_values_mix_strings =
+      grid.columnLessThan(2, Datum("bb"));
+  CHECK(less_than_values_mix_strings.Size() == 1);
+  CHECK(less_than_values_mix_strings[0] == Datum("aa"));
+
+  cse::ReferenceVector<Datum> less_than_values_mix_doubles =
+      grid.columnLessThan(2, Datum(100.0));
+  CHECK(less_than_values_mix_doubles.Size() == 2);
+  CHECK(less_than_values_mix_doubles[0] == Datum(55.55));
+  CHECK(less_than_values_mix_doubles[1] == Datum(-150.50));
+
+
+  // *** Less Than Or Equal Comparisons ***
+
+  cse::ReferenceVector<Datum> less_than_or_equal_values_doubles =
+      grid.columnLessThanOrEqual(0, Datum(16.0));
+  CHECK(less_than_or_equal_values_doubles.Size() == 3);
+  CHECK(less_than_or_equal_values_doubles[0] == Datum(5.0));
+  CHECK(less_than_or_equal_values_doubles[1] == Datum(10.0));
+  CHECK(less_than_or_equal_values_doubles[2] == Datum(15.0));
+
+  cse::ReferenceVector<Datum> less_than_or_equal_values_doubles1 =
+      grid.columnLessThanOrEqual(0, Datum(25.0));
+  CHECK(less_than_or_equal_values_doubles1.Size() == 5);
+  CHECK(less_than_or_equal_values_doubles1[0] == Datum(5.0));
+  CHECK(less_than_or_equal_values_doubles1[1] == Datum(10.0));
+  CHECK(less_than_or_equal_values_doubles1[2] == Datum(15.0));
+  CHECK(less_than_or_equal_values_doubles1[3] == Datum(20.0));
+  CHECK(less_than_or_equal_values_doubles1[4] == Datum(25.0));
+
+  cse::ReferenceVector<Datum> less_than_or_equal_values_strings =
+      grid.columnLessThanOrEqual(1, Datum("f"));
+  CHECK(less_than_or_equal_values_strings.Size() == 3);
+  CHECK(less_than_or_equal_values_strings[0] == Datum("a"));
+  CHECK(less_than_or_equal_values_strings[1] == Datum("c"));
+  CHECK(less_than_or_equal_values_strings[2] == Datum("e"));
+
+  cse::ReferenceVector<Datum> less_than_or_equal_values_strings1 =
+      grid.columnLessThanOrEqual(1, Datum("i"));
+  CHECK(less_than_or_equal_values_strings1.Size() == 5);
+  CHECK(less_than_or_equal_values_strings1[0] == Datum("a"));
+  CHECK(less_than_or_equal_values_strings1[1] == Datum("c"));
+  CHECK(less_than_or_equal_values_strings1[2] == Datum("e"));
+  CHECK(less_than_or_equal_values_strings1[3] == Datum("g"));
+  CHECK(less_than_or_equal_values_strings1[4] == Datum("i"));
+
+  cse::ReferenceVector<Datum> less_than_or_equal_values_mix_strings =
+      grid.columnLessThanOrEqual(2, Datum("bb"));
+  CHECK(less_than_or_equal_values_mix_strings.Size() == 1);
+  CHECK(less_than_or_equal_values_mix_strings[0] == Datum("aa"));
+
+  cse::ReferenceVector<Datum> less_than_or_equal_values_mix_doubles =
+      grid.columnLessThanOrEqual(2, Datum(100.0));
+  CHECK(less_than_or_equal_values_mix_doubles.Size() == 2);
+  CHECK(less_than_or_equal_values_mix_doubles[0] == Datum(55.55));
+  CHECK(less_than_or_equal_values_mix_doubles[1] == Datum(-150.50));
+
+
+  // *** Greater Than Comparisons ***
+
+  cse::ReferenceVector<Datum> greater_than_values_doubles =
+      grid.columnGreaterThan(0, Datum(16.0));
+  CHECK(greater_than_values_doubles.Size() == 2);
+  CHECK(greater_than_values_doubles[0] == Datum(20.0));
+  CHECK(greater_than_values_doubles[1] == Datum(25.0));
+
+  cse::ReferenceVector<Datum> greater_than_values_doubles1 =
+      grid.columnGreaterThan(0, Datum(20.0));
+  CHECK(greater_than_values_doubles1.Size() == 1);
+  CHECK(greater_than_values_doubles1[0] == Datum(25.0));
+
+  cse::ReferenceVector<Datum> greater_than_values_strings =
+      grid.columnGreaterThan(1, Datum("f"));
+  CHECK(greater_than_values_strings.Size() == 2);
+  CHECK(greater_than_values_strings[0] == Datum("g"));
+  CHECK(greater_than_values_strings[1] == Datum("i"));
+
+  cse::ReferenceVector<Datum> greater_than_values_strings1 =
+      grid.columnGreaterThan(1, Datum("c"));
+  CHECK(greater_than_values_strings1.Size() == 3);
+  CHECK(greater_than_values_strings1[0] == Datum("e"));
+  CHECK(greater_than_values_strings1[1] == Datum("g"));
+  CHECK(greater_than_values_strings1[2] == Datum("i"));
+
+  cse::ReferenceVector<Datum> greater_than_values_mix_strings =
+      grid.columnGreaterThan(2, Datum("bb"));
+  CHECK(greater_than_values_mix_strings.Size() == 1);
+  CHECK(greater_than_values_mix_strings[0] == Datum("cc"));
+
+  cse::ReferenceVector<Datum> greater_than_values_mix_doubles =
+      grid.columnGreaterThan(2, Datum(1.23));
+  CHECK(greater_than_values_mix_doubles.Size() == 2);
+  CHECK(greater_than_values_mix_doubles[0] == Datum(55.55));
+  CHECK(greater_than_values_mix_doubles[1] == Datum(123.123));
+
+
+  // *** Greater Than Or Equal Comparisons ***
+
+  cse::ReferenceVector<Datum> greater_than_or_equal_values_doubles =
+      grid.columnGreaterThanOrEqual(0, Datum(16.0));
+  CHECK(greater_than_or_equal_values_doubles.Size() == 2);
+  CHECK(greater_than_or_equal_values_doubles[0] == Datum(20.0));
+  CHECK(greater_than_or_equal_values_doubles[1] == Datum(25.0));
+
+  cse::ReferenceVector<Datum> greater_than_or_equal_values_doubles1 =
+      grid.columnGreaterThanOrEqual(0, Datum(20.0));
+  CHECK(greater_than_or_equal_values_doubles1.Size() == 2);
+  CHECK(greater_than_or_equal_values_doubles1[0] == Datum(20.0));
+  CHECK(greater_than_or_equal_values_doubles1[1] == Datum(25.0));
+
+  cse::ReferenceVector<Datum> greater_than_or_equal_values_strings =
+      grid.columnGreaterThanOrEqual(1, Datum("f"));
+  CHECK(greater_than_or_equal_values_strings.Size() == 2);
+  CHECK(greater_than_or_equal_values_strings[0] == Datum("g"));
+  CHECK(greater_than_or_equal_values_strings[1] == Datum("i"));
+
+  cse::ReferenceVector<Datum> greater_than_or_equal_values_strings1 =
+      grid.columnGreaterThanOrEqual(1, Datum("c"));
+  CHECK(greater_than_or_equal_values_strings1.Size() == 4);
+  CHECK(greater_than_or_equal_values_strings1[0] == Datum("c"));
+  CHECK(greater_than_or_equal_values_strings1[1] == Datum("e"));
+  CHECK(greater_than_or_equal_values_strings1[2] == Datum("g"));
+  CHECK(greater_than_or_equal_values_strings1[3] == Datum("i"));
+
+  cse::ReferenceVector<Datum> greater_than_or_equal_values_mix_strings =
+      grid.columnGreaterThanOrEqual(2, Datum("aa"));
+  CHECK(greater_than_or_equal_values_mix_strings.Size() == 2);
+  CHECK(greater_than_or_equal_values_mix_strings[0] == Datum("aa"));
+  CHECK(greater_than_or_equal_values_mix_strings[1] == Datum("cc"));
+
+  cse::ReferenceVector<Datum> greater_than_or_equal_values_mix_doubles =
+      grid.columnGreaterThanOrEqual(2, Datum(55.55));
+  CHECK(greater_than_or_equal_values_mix_doubles.Size() == 2);
+  CHECK(greater_than_or_equal_values_mix_doubles[0] == Datum(55.55));
+  CHECK(greater_than_or_equal_values_mix_doubles[1] == Datum(123.123));
+
+
+  // *** Equal Comparisons ***
+
+  cse::ReferenceVector<Datum> equal_values_doubles =
+      grid.columnEqual(0, Datum(16.0));
+  CHECK(equal_values_doubles.Size() == 0);
+
+  cse::ReferenceVector<Datum> equal_values_doubles1 =
+      grid.columnEqual(0, Datum(20.0));
+  CHECK(equal_values_doubles1.Size() == 1);
+  CHECK(equal_values_doubles1[0] == Datum(20.0));
+
+  cse::ReferenceVector<Datum> equal_values_strings =
+      grid.columnEqual(1, Datum("f"));
+  CHECK(equal_values_strings.Size() == 0);
+
+  cse::ReferenceVector<Datum> equal_values_strings1 =
+      grid.columnEqual(1, Datum("c"));
+  CHECK(equal_values_strings1.Size() == 1);
+  CHECK(equal_values_strings1[0] == Datum("c"));
+
+  cse::ReferenceVector<Datum> equal_values_mix_strings =
+      grid.columnEqual(2, Datum("aa"));
+  CHECK(equal_values_mix_strings.Size() == 1);
+  CHECK(equal_values_mix_strings[0] == Datum("aa"));
+
+  cse::ReferenceVector<Datum> equal_values_mix_doubles =
+      grid.columnEqual(2, Datum(55.55));
+  CHECK(equal_values_mix_doubles.Size() == 1);
+  CHECK(equal_values_mix_doubles[0] == Datum(55.55));
+
+
+  // *** Not Equal Comparisons ***
+
+  cse::ReferenceVector<Datum> not_equal_values_doubles =
+      grid.columnNotEqual(0, Datum(16.0));
+  CHECK(not_equal_values_doubles.Size() == 5);
+  CHECK(not_equal_values_doubles[0] == Datum(5.0));
+  CHECK(not_equal_values_doubles[1] == Datum(10.0));
+  CHECK(not_equal_values_doubles[2] == Datum(15.0));
+  CHECK(not_equal_values_doubles[3] == Datum(20.0));
+  CHECK(not_equal_values_doubles[4] == Datum(25.0));
+
+  cse::ReferenceVector<Datum> not_equal_values_doubles1 =
+      grid.columnNotEqual(0, Datum(20.0));
+  CHECK(not_equal_values_doubles1.Size() == 4);
+  CHECK(not_equal_values_doubles1[0] == Datum(5.0));
+  CHECK(not_equal_values_doubles1[1] == Datum(10.0));
+  CHECK(not_equal_values_doubles1[2] == Datum(15.0));
+  CHECK(not_equal_values_doubles1[3] == Datum(25.0));
+
+  cse::ReferenceVector<Datum> not_equal_values_strings =
+      grid.columnNotEqual(1, Datum("f"));
+  CHECK(not_equal_values_strings.Size() == 5);
+  CHECK(not_equal_values_strings[0] == Datum("a"));
+  CHECK(not_equal_values_strings[1] == Datum("c"));
+  CHECK(not_equal_values_strings[2] == Datum("e"));
+  CHECK(not_equal_values_strings[3] == Datum("g"));
+  CHECK(not_equal_values_strings[4] == Datum("i"));
+
+  cse::ReferenceVector<Datum> not_equal_values_strings1 =
+      grid.columnNotEqual(1, Datum("c"));
+  CHECK(not_equal_values_strings1.Size() == 4);
+  CHECK(not_equal_values_strings1[0] == Datum("a"));
+  CHECK(not_equal_values_strings1[1] == Datum("e"));
+  CHECK(not_equal_values_strings1[2] == Datum("g"));
+  CHECK(not_equal_values_strings1[3] == Datum("i"));
+
+  cse::ReferenceVector<Datum> not_equal_values_mix_strings =
+      grid.columnNotEqual(2, Datum("aa"));
+  CHECK(not_equal_values_mix_strings.Size() == 1);
+  CHECK(not_equal_values_mix_strings[0] == Datum("cc"));
+
+  cse::ReferenceVector<Datum> not_equal_values_mix_doubles =
+      grid.columnNotEqual(2, Datum(55.55));
+  CHECK(not_equal_values_mix_doubles.Size() == 2);
+  CHECK(not_equal_values_mix_doubles[0] == Datum(-150.50));
+  CHECK(not_equal_values_mix_doubles[1] == Datum(123.123));
+
+  // Out of bounds column error check
+  CHECK_THROWS(grid.columnLessThan(999, Datum(25.0)));
+
+  // Checks if updating the comparison ReferenceVector updates the grid
+  less_than_values_doubles[2] = Datum(100);
+  CHECK(grid.at(2,0) == Datum(100));
+
+  less_than_or_equal_values_strings[0] = Datum("x");
+  CHECK(grid.at(0,1) == Datum("x"));
 }
