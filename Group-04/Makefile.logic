@@ -8,7 +8,7 @@ PROJECT_TYPE = exe
 HEADS = $(shell find -type f -name *.hpp)
 TESTS = $(shell find ../tests/Group-04 -type f -name *.cpp)
 
-CXX ?= em++
+CXX = em++
 
 CXX_FLAGS_all ?= -std=c++23 -Wextra -Wall -I$(BIN_DIR) -I$(LIB_DIR)
 

@@ -124,10 +124,60 @@ class BitVector {
 
   // &= operation between two BitVectors
   BitVector& operator&=(const BitVector& rhs);
+  // Bitwise AND with an integral type
+  template<std::integral T>
+  BitVector& operator&=(T rhs) {
+    size_t i = 0;
+    size_t num_set = 0;
+    for(; i < m_underlying.size() && i * sizeof(uint64_t) < sizeof(T); ++i)
+    {
+      m_underlying[i] &= static_cast<uint64_t>(rhs);
+      if constexpr (sizeof(T) > sizeof(uint64_t))
+        rhs >>= BITS_PER_EL;
+      num_set += BIT_LOOKUP(m_underlying[i]);
+    }
+
+    for(;i < m_underlying.size(); ++i)
+      m_underlying[i] = 0;
+    m_num_set = num_set;
+
+    return *this;
+  }
+  
   // |= operation between two BitVectors
   BitVector& operator|=(const BitVector& rhs);
+  // Bitwise OR with an integral type
+  template<std::integral T>
+  BitVector& operator|=(T rhs) {
+    for(size_t i = 0; i < m_underlying.size() && i * sizeof(uint64_t) < sizeof(T); ++i)
+    {
+      m_num_set -= BIT_LOOKUP(m_underlying[i]);
+      m_underlying[i] |= static_cast<uint64_t>(rhs);
+      if constexpr (sizeof(T) > sizeof(uint64_t))
+        rhs >>= BITS_PER_EL;
+      m_num_set += BIT_LOOKUP(m_underlying[i]);
+    }
+
+    return *this;
+  }
+
   // ^= operation between two BitVectors
   BitVector& operator^=(const BitVector& rhs);
+  // Bitwise XOR with an integral type
+  template<std::integral T>
+  BitVector& operator^=(T rhs) {
+    for(size_t i = 0; i < m_underlying.size() && i * sizeof(uint64_t) < sizeof(T); ++i)
+    {
+      m_num_set -= BIT_LOOKUP(m_underlying[i]);
+      m_underlying[i] ^= static_cast<uint64_t>(rhs);
+      if constexpr (sizeof(T) > sizeof(uint64_t))
+        rhs >>= BITS_PER_EL;
+      m_num_set += BIT_LOOKUP(m_underlying[i]);
+    }
+
+    return *this;
+  }
+
   // ~ operation on a BitVector, produces a new BitVector
   BitVector operator~() const;
 
@@ -151,10 +201,29 @@ class BitVector {
 
   // & operation between two BitVectors
   BitVector operator&(const BitVector& rhs) const;
+  template<std::integral T>
+  BitVector operator&(T rhs) const {
+    BitVector cpy = (*this);
+    cpy &= rhs;
+    return cpy;
+  }
+
   // | operation between two BitVectors
   BitVector operator|(const BitVector& rhs) const;
+  template<std::integral T>
+  BitVector operator|(T rhs) const {
+    BitVector cpy = (*this);
+    cpy |= rhs;
+    return cpy;
+  }
   // ^ operation between two BitVectors
   BitVector operator^(const BitVector& rhs) const;
+  template<std::integral T>
+  BitVector operator^(T rhs) const {
+    BitVector cpy = (*this);
+    cpy ^= rhs;
+    return cpy;
+  }
 
   // Get the bool representation of the bit at idx
   bool operator[](size_t idx) const;
@@ -163,6 +232,23 @@ class BitVector {
 
   // Copy assignment
   BitVector& operator=(const BitVector& bv);
+  // Assign from an integral type
+  template<std::integral T = uint64_t>
+  BitVector& operator=(T value) {
+    m_num_bits = sizeof(T) * 8;
+    m_num_set = 0;
+    m_underlying.resize(bits_to_el_count(m_num_bits));
+
+    for(size_t i = 0; i < m_underlying.size(); ++i)
+    {
+      m_underlying[i] = static_cast<uint64_t>(value);
+      if constexpr (sizeof(T) > sizeof(uint64_t))
+        value >>= BITS_PER_EL;
+      m_num_set += BIT_LOOKUP(m_underlying[i]);
+    }
+
+    return *this;
+  }
 
   // Set count bits in a repeating pattern starting at the index start
   BitVector& pattern_set(size_t start, size_t count, uint64_t pattern);

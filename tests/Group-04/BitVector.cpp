@@ -378,5 +378,41 @@ TEST_CASE("Test class template features", "[bitvector]") {
   for (size_t i = 0; i < bv1.size(); ++i) {
     CHECK(bv1[i] == (i % 2 == 0));
   }
+
+  // Assign from number
+  bv1 = (uint64_t)5;
+  CHECK(bv1.size() == 64);
+  cse::BitVector bc1(64);
+  bc1.pattern_set(0, 5, 5);
+  CHECK(bv1 == bc1);
+  
+  // Or, and, and xor
+  bv1 |= 3;
+  bc1.pattern_set(0, 5, 7);
+  CHECK(bv1 == bc1);
+
+  bv1 &= 1;
+  bc1.pattern_set(0, 5, 1);
+  CHECK(bv1 == bc1);
+
+  bv1 ^= 7;
+  bc1.pattern_set(0, 5, 6);
+  CHECK(bv1 == bc1);
+
+  // Test template assign with other integral types
+  bv1 = (uint16_t)5;
+  CHECK(bv1.size() == 16);
+
+  // Test exporting to a bitset
+  std::bitset<8> bs1 = bv1.to_bitset<8>();
+  for(size_t i = 0; i < bs1.size(); i++) {
+    CHECK(bs1[i] == bv1[i]);
+  }
+
+  // Test exporting to a vector of bools
+  std::vector<bool> vb1 = bv1.vectorize();
+  for(size_t i = 0; i < vb1.size(); i++) {
+    CHECK(vb1[i] == bv1[i]);
+  }
 }
 
