@@ -11,6 +11,50 @@
       "exit exception")  // redefine exit for testing purposes
 #include "../../Group-06/ErrorManager/ErrorManager.hpp"
 
+
+TEST_CASE("Tests for generic printMessage without line number", "[printMessage]") {
+  cse::ErrorManager manager;
+
+  std::stringstream buffer;
+  std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
+  manager.enableColors(0);
+
+  SECTION("Two simple strings") {
+    buffer.str("");
+    manager.printMessage(cse::ErrorManager::ErrorLevel::Info, "hello", " world");
+    REQUIRE(buffer.str() == "[Info]: hello world\n");
+  }
+
+  SECTION("A string and an int") {
+    buffer.str("");
+    manager.printMessage(cse::ErrorManager::ErrorLevel::Info, "hello", " world ", 100);
+    REQUIRE(buffer.str() == "[Info]: hello world 100\n");
+  }
+
+  std::cout.rdbuf(oldCout);
+}
+
+TEST_CASE("Tests for generic printMessage with the line number", "[printMessage]") {
+  cse::ErrorManager manager;
+
+  std::stringstream buffer;
+  std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
+  manager.enableColors(0);
+
+  SECTION("Two simple strings") {
+    buffer.str("");
+    manager.printMessage(5, cse::ErrorManager::ErrorLevel::Info, "hello", " world");
+    REQUIRE(buffer.str() == "[Info] (line 5): hello world\n");
+  }
+
+  SECTION("A string and an int") {
+    buffer.str("");
+    manager.printMessage(5, cse::ErrorManager::ErrorLevel::Info, "hello", " world ", 100);
+    REQUIRE(buffer.str() == "[Info] (line 5): hello world 100\n");
+  }
+
+  std::cout.rdbuf(oldCout);
+}
 TEST_CASE("Tests for printMessage messages with color", "[printMessage]") {
   // this resource was used to redirect cout to stringstream:
   // https://truong.io/posts/capturing_stdout_for_c++_unit_testing.html

@@ -66,11 +66,43 @@ class ErrorManager {
 /**
  * @brief Prints a Fatal message
  * 
+ * 
  * @param message message to be printed
  * @param line line number (optional)
  */
+  
   void printError(const std::string& message, int32_t line = 0);
 
+  /**
+   * @brief Generic printMessage to print everything you pass in it
+   * 
+   * @tparam Ts Type pack
+   * @param level ErrorLevel of a message
+   * @param message list of parameters to be printer
+   */
+  template <typename... Ts>
+  void printMessage(ErrorLevel level, Ts... message) {
+    // this function was suggested by Dr. Ofria
+    
+    printMessage(0, level, std::forward<Ts>(message)...);
+}
+
+  /**
+   * @brief Generic printMessage function to print everything you pass in it
+   * 
+   * @tparam Ts Parameter pack
+   * @param line Line number in code
+   * @param level ErrorLevel of a message
+   * @param message Message (list of parameters) to be printer
+   */
+  template <typename... Ts>
+  void printMessage(int32_t line, ErrorLevel level, Ts... message) {
+    // this function was suggested by Dr. Ofria
+    std::stringstream ss;
+    (ss << ... << std::forward<Ts>(message));
+    
+    printMessage(line, ss.str(), level);
+}
   /**
    * @brief Writes a message to console with a message type at line number
    *
