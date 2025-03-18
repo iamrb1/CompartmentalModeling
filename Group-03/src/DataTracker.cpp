@@ -129,6 +129,7 @@ std::optional<T> DataTracker<T>::winner() const {
 
     return false;
 }
+
 template class DataTracker<int>;
 template class DataTracker<double>;
 } // namespace cse

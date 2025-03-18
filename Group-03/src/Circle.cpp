@@ -59,6 +59,7 @@ void Circle::setPosition(double x, double y) {
 double Circle::getBaseSpeed() const {
   return baseSpeed_;
 }
+
 void Circle::setRadius(double radius) {
     if (radius <= 0) {
         throw std::invalid_argument("Radius must be positive");
