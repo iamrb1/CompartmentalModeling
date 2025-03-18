@@ -141,5 +141,17 @@ void StateGrid::load_map(const std::string& diff) {
   m_rows = static_cast<int>(m_grid.size());
 }
 
+/**
+ * @brief iterates through each cell and applies the passed function or lambda
+ * @param func function or lambda to be applied to each cell
+ */
+void StateGrid::modify_all_cells(const std::function<void(int, int, char&)> &func) {
+  for (int i = 0; i < m_rows; ++i) {
+    for (int j = 0; j < m_cols; ++j) {
+      func(i, j, m_grid[i][j]);
+    }
+  }
+}
+
 
 }  // namespace cse
