@@ -6,7 +6,7 @@
 */
 
 #include "DataTracker.h"
-
+#include <string>
 namespace cse {
 
 // Adds a specified value to the vector
@@ -92,7 +92,7 @@ template <typename T>
 T DataTracker<T>::min() const {
     if (values.empty()) return T();
     if constexpr (std::is_arithmetic_v<T>){
-        return std::min_element(values.begin(), values.end());
+        return *std::min_element(values.begin(), values.end());
     }
     else return T();
 }
@@ -102,7 +102,7 @@ template <typename T>
 T DataTracker<T>::max() const {
     if (values.empty()) return T();
     if constexpr (std::is_arithmetic_v<T>){
-        return std::max_element(values.begin(), values.end());
+        return *std::max_element(values.begin(), values.end());
     }
     else{
         return T();
@@ -129,5 +129,6 @@ std::optional<T> DataTracker<T>::winner() const {
 
     return false;
 }
-
+template class DataTracker<int>;
+template class DataTracker<double>;
 } // namespace cse

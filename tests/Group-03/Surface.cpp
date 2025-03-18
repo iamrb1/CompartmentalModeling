@@ -4,7 +4,7 @@
 #include "../../Group-03/src/Sector.h"
 #include "../../Group-03/src/Surface.h"
 #include "../../Group-03/src/Circle.h"
-
+#define CATCH_CONFIG_MAIN
 namespace cse {
     TEST_CASE("SectorTest 1", "Add") {
         Sector sector(0, 0);

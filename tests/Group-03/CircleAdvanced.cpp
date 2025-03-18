@@ -1,7 +1,7 @@
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 #include "../../Group-03/src/Circle.h"
 #include "../../Group-03/src/Surface.h"
-
+#define CATCH_CONFIG_MAIN
 // TEST_CASE("CircleTest_SpeedChangeInProximity", "[Circle]") {
 //     Circle predator(10.0, 10.0, 5.0, 2.0, 2.0, "red");
 //     Circle prey(12.0, 12.0, 3.0, 2.0, 2.0, "blue");

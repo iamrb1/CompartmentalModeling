@@ -4,7 +4,7 @@
 #include "../../Group-03/src/FixedPoint.h"
 #include <vector>
 #include <sstream>
-
+#define CATCH_CONFIG_MAIN
 using Ratio1 = std::ratio<100>;
 using Fixed1 = cse::FixedPoint<Ratio1>;
 
