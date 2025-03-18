@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <algorithm>
+#include <functional>
 #include <map>
 #include <string>
 #include <vector>
@@ -99,5 +101,7 @@ class StateGrid {
   bool validate_position(std::pair<int, int> move);
 
   std::vector<std::pair<int,int>> find_moves(int row, int col);
+
+  void modify_all_cells(const std::function<void(int, int, char&)>& func);
 };
 }  // namespace cse
