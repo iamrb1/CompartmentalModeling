@@ -25,7 +25,6 @@
 #include <set>
 #include <cassert>
 #include <map>
-#include <mutex>
 #include "../Event/Event.hpp"
 #include "../EventQueue/EventQueue.hpp"
 

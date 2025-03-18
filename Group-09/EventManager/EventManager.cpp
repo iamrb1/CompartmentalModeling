@@ -5,25 +5,33 @@
 
 #include "EventManager.hpp"
 #include <optional>
-#include <chrono>
-#include <stdexcept>
 
 namespace cse {
+
+/**
+ * @brief Increments time on clock_thread and checks for events to trigger
+ */
+void EventManager::AdvanceTime() {
+  while (running_) {
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    clock_time_++;
+    TriggerEvents();
+  }
+}
 
 /**
  * @brief Checks for and triggers events
  */
 void EventManager::TriggerEvents() {
-  double clockTime = this->getTime();
-  while ((event_queue_.size() > 0) && event_queue_.peek().getTime() <= clockTime) {
+  while (event_queue_.size() && event_queue_.peek().getTime() <= clock_time_) { //Events to be popped
     cse::Event e = event_queue_.peek();
     if (paused_events_.find(e.getID()) != paused_events_.end()) {
-      event_queue_.pop();
+      event_queue_.pop(); //Skip over paused events
       continue;
     }
     std::cout << event_queue_.peek().getData() << "\n"; //Placeholder for handling events
     if (repeat_events_.find(e.getID()) != repeat_events_.end()) {
-      cse::Event event(e.getID(), e.getTime() + repeat_events_[e.getID()], e.getData());
+      cse::Event event(e.getID(), e.getTime() + repeat_events_[e.getID()], e.getData()); //Readd repeats to the queue
       event_queue_.update(event);
     } else {
       running_events_.erase(e.getID());
@@ -40,7 +48,7 @@ void EventManager::TriggerEvents() {
  * @param event The event to be paused
  * @return true if successful, false if event does not exist in queue
  */
-bool EventManager::PauseEvent(Event &event) {
+bool EventManager::PauseEvent(const Event &event) {
   int id = event.getID();
   assert(((paused_events_.find(id) != paused_events_.end()) ||
       (running_events_.count(id) > 0)) && "Event ID must be a managed ID.");
@@ -97,7 +105,7 @@ std::optional<Event> EventManager::AddEvent(int time, std::string data) {
  * @param event The event to be repeated
  * @return true if successfully added to repeat_events, false if unsuccessful
  */
-bool EventManager::RepeatEvent(cse::Event &event, int time_interval) {
+bool EventManager::RepeatEvent(const cse::Event &event, int time_interval) {
   assert(time_interval > 0);
   if (time_interval > 0 && (paused_events_.count(event.getID()) + running_events_.count(event.getID()))) {
     repeat_events_.insert({event.getID(), time_interval});
@@ -134,6 +142,5 @@ void EventManager::RestartQueue() {
   total_runtime_ = std::chrono::duration<double>::zero();
   StartQueue();
 }
-
 
 }
