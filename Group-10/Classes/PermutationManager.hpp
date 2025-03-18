@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <iostream>
+#include <functional>
 
 namespace cse {
 
@@ -87,6 +88,30 @@ public:
   }
 
   /**
+   * @brief generates the lexographically lower permutation
+   * @return - true if it exists, false otherwise
+   */
+  bool prev() {
+    // end condition
+    if (currentIndex_ == 0)
+      return false;
+
+    // do it w/the standard lib algorithm if n == k
+    if (n_ == k_) {
+      std::prev_permutation(indices_.begin(), indices_.end());
+    } else {
+      prevKPermutation();
+    }
+
+    for (size_t i = 0; i < k_; ++i) {
+      currentPermutation_[i] = items_[indices_[i]];
+    }
+
+    --currentIndex_;
+    return true;
+  }
+
+  /**
    * @brief getter for the current permutation
    * @return vector size k of the value type
    */
@@ -126,6 +151,43 @@ private:
 
   // The current permutation
   std::vector<ValueType> currentPermutation_;
+
+
+  /**
+   * @brief same as next k permutation but in the opposite direction
+   * 
+   */
+  void prevKPermutation() {
+    if (std::prev_permutation(indices_.begin(), indices_.end()))
+      return;
+
+    // sort them in ascending, this allows us to find the "largest" index that can be decremented.
+    std::sort(indices_.begin(), indices_.end());
+    
+    // use long long instead of size_t because it could be negative
+    long long i = static_cast<long long>(k_) - 1;
+    // Find the first index from the right that can be decremented. 2, 3, 4 => 1, 3, 4 => 1, 2, 4 => 1, 2, 3
+    // For each index, the minimum allowed value is:
+    //   - 0 for the first index, or
+    //   - one more than the previous index for subsequent indices.
+    while (i >= 0) {
+      std::size_t minValue = (i == 0) ? 0 : (indices_[i - 1] + 1);
+      if (indices_[i] > minValue) {  // This index can be decremented.
+        break;
+      }
+      --i; // Move left if the current index is at its minimum allowable value.
+    }
+    // Should not happen if currentIndex_ is > 0, but check nonetheless.
+    if (i < 0) {
+      return;
+    }
+    // Decrement the identified index.
+    --indices_[i];
+
+    // We want to sort by descending here, becuase we want the largest lexographical combination to be given to 
+    // the std::prev_permutation algorithm
+    std::sort(indices_.begin(), indices_.end(), std::greater<size_t>());
+  }
 
 
   /**

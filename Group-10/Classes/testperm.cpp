@@ -17,8 +17,18 @@ int main() {
           std::cout << item << " ";
       }
       std::cout << std::endl;
-      t += 1;
   } while (permManager.next());
+
+  std::cout << "going backwards now" << std::endl;
+  // Print all permutations
+  do {
+    const auto& perm = permManager.getCurrentPermutation();
+    for (auto item : perm) {
+        std::cout << item << " ";
+    }
+    std::cout << std::endl;
+    t += 1;
+} while (permManager.prev());
 
   std::cout << total << " " << t << std::endl; 
 }
