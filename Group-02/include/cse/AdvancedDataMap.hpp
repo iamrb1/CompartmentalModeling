@@ -13,8 +13,19 @@
 #include <string>
 #include <typeinfo>
 #include <unordered_map>
+#include <vector>
 
 namespace cse {
+
+template <typename T>
+concept uses_to_string = requires(T & value) {
+  std::to_string(value);
+};
+
+template <typename T>
+concept has_ToString = requires(T & value) {
+  value.ToString();
+};
 
 class [[maybe_unused]] AdvDataMap {
  private:
@@ -24,6 +35,7 @@ class [[maybe_unused]] AdvDataMap {
     struct Base {
       virtual ~Base() = default;
       [[nodiscard]] virtual std::unique_ptr<Base> clone() const = 0;
+      [[nodiscard]] virtual const std::type_info& type() const = 0;
     };
 
     template <typename T>
@@ -34,6 +46,10 @@ class [[maybe_unused]] AdvDataMap {
 
       [[nodiscard]] std::unique_ptr<Base> clone() const override {
         return std::make_unique<Val<T>>(value);
+      }
+
+      [[nodiscard]] const std::type_info & type() const override {
+        return typeid(T);
       }
     };
 
@@ -81,6 +97,11 @@ class [[maybe_unused]] AdvDataMap {
       auto* derive_ptr = dynamic_cast<derive_t*>(value_ptr.get());
       assert(derive_ptr != nullptr && "Wrong type requested from what is contained within Any");
       return derive_ptr->value;
+    }
+
+    [[nodiscard]] const std::type_info& type() const {
+      assert(value_ptr && "Any is empty");
+      return value_ptr->type();
     }
   };
 
@@ -140,9 +161,17 @@ class [[maybe_unused]] AdvDataMap {
   [[maybe_unused]] inline std::string to_string(const std::string& name) {
     assert(contains(name) && "Key does not exist in DataMap");
     T value = get<T>(name);
-    std::stringstream ss;
-    ss << value;
-    return ss.str();
+    if constexpr (std::convertible_to<T, std::string>) {
+      return value;
+    } else if constexpr (uses_to_string<T>) {
+      return std::to_string(value);
+    } else if constexpr (has_ToString<T>) {
+      return value.ToString();
+    } else {
+      std::stringstream ss;
+      ss << value;
+      return ss.str();
+    }
   }
 
   /**
@@ -196,6 +225,22 @@ class [[maybe_unused]] AdvDataMap {
       m_map[name] = Any(0);
     }
     return m_map[name];
+  }
+
+  template <typename T>
+  [[maybe_unused]] [[nodiscard]] inline std::vector<std::string> GetTypeKeys() const {
+    std::vector<std::string> names;
+    if (m_map.empty()) {
+      return names;
+    }
+    const auto& type = typeid(T);
+
+    for (const auto& pair : m_map) {
+      if (pair.second.type() == type) {
+        names.push_back(pair.first);
+      }
+    }
+    return names;
   }
 };
 }  // namespace cse
