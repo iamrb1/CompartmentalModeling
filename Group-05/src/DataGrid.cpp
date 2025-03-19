@@ -556,8 +556,7 @@ void DataGrid::sortColumn(std::size_t column_index, bool ascending) {
           return ascending ? datumA.GetString() < datumB.GetString()
                            : datumA.GetString() > datumB.GetString();
         }
-
-        return false; // Shouldn't reach here
+        return false;
       });
 }
 
@@ -596,8 +595,6 @@ void DataGrid::sort(bool ascending) {
         }
       }
     }
-
-    // Preserve order if all elements are equal
     return false;
   });
 }
