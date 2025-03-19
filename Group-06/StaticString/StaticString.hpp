@@ -99,7 +99,7 @@ public:
   *
   * @param staticString Static String object to be copied.
   */
-  constexpr StaticString(const StaticString& staticString) noexcept
+  StaticString(const StaticString& staticString) noexcept
       : mCurrentSize(staticString.mCurrentSize) {
     std::copy(staticString.mString, staticString.mString + MaxSize + 1,
               mString);
@@ -435,33 +435,63 @@ public:
   */
   std::string to_string() const { return std::string(mString, mCurrentSize); }
 
-  /*--------------------- STRING OPERATIONS ----------------------*/
+  /*-------------------- - STRING OPERATIONS ----------------------*/
 
   /**
-  * @brief Appends a C-string to the end of the current string.
-  *
-  * @param cstr The C-string to append.
-  * @throws std::out_of_range if the resulting string would exceed the MaxSize.
-  */
-  void append(const char* cstr) {
-    // Calculate the length of the given string.
-    const std::size_t cstr_length = std::strlen(cstr);
+   * @brief Appends a basic string type objects to the end of the current string.
+   * 
+   * Appends the given basic string objects to the end of StaticString, if 
+   * the maxsize is not exceeded.
+   * 
+   * @tparam T The templated type of basic string convertible to std::string_view
+   * @throw out_of_range If the resulting operation exceeds the static limit
+   * out_of_range error is thrown.
+   * @param str basic string type object to be appended.
+   */
+  template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
+  void append(const T& str) {
+    std::string_view temp_view = str;
 
-    // Validate that given string fits into our string within static limit.
-    assert((mCurrentSize + cstr_length <= MaxSize) &&
-          "Appending string exceeds maximum size");
-    if (mCurrentSize + cstr_length > MaxSize) {
+    // assert((mCurrentSize + cstr_length <= MaxSize) &&
+    // "Appending string exceeds maximum size");
+    if (mCurrentSize + temp_view.size() > MaxSize) {
       throw std::out_of_range(
-          "Static limit exceeded, appended string must be within limits "
-          "defined");
+        "Static limit exceeded, appended string must be within limits "
+        "defined");
     }
 
-    std::copy(cstr, cstr + cstr_length, mString + mCurrentSize);
-
+    std::copy(temp_view.data(), temp_view.data() + temp_view.size(), mString + mCurrentSize);
+    
     // Update the length.
-    mCurrentSize += cstr_length;
+    mCurrentSize += temp_view.size();
     mString[mCurrentSize] = null_terminator;
   }
+
+  // /**
+  // * @brief Appends a C-string to the end of the current string.
+  // *
+  // * @param cstr The C-string to append.
+  // * @throws std::out_of_range if the resulting string would exceed the MaxSize.
+  // */
+  // void append(const char* cstr) {
+  //   // Calculate the length of the given string.
+  //   const std::size_t cstr_length = std::strlen(cstr);
+
+  //   // Validate that given string fits into our string within static limit.
+  //   assert((mCurrentSize + cstr_length <= MaxSize) &&
+  //         "Appending string exceeds maximum size");
+  //   if (mCurrentSize + cstr_length > MaxSize) {
+  //     throw std::out_of_range(
+  //         "Static limit exceeded, appended string must be within limits "
+  //         "defined");
+  //   }
+
+  //   std::copy(cstr, cstr + cstr_length, mString + mCurrentSize);
+
+  //   // Update the length.
+  //   mCurrentSize += cstr_length;
+  //   mString[mCurrentSize] = null_terminator;
+  // }
 
   /**
   * @brief Appends a character to the end of the current string.
@@ -486,59 +516,59 @@ public:
     mString[mCurrentSize] = null_terminator;
   }
 
-  /**
-  * @brief Appends an std::string to the end of the current string.
-  *
-  * @param str The std::string to append.
-  * @throws std::out_of_range if the resulting string would exceed
-  * the maximum size.
-  */
-  void append(const std::string& str) {
-    // Calculate the length of the given string.
-    const std::size_t str_length = str.length();
+  // /**
+  // * @brief Appends an std::string to the end of the current string.
+  // *
+  // * @param str The std::string to append.
+  // * @throws std::out_of_range if the resulting string would exceed
+  // * the maximum size.
+  // */
+  // void append(const std::string& str) {
+  //   // Calculate the length of the given string.
+  //   const std::size_t str_length = str.length();
 
-    // Validate that given string fits into our string within static limit.
-    assert((mCurrentSize + str_length < MaxSize) &&
-          "Appending string exceeds maximum size");
-    if (mCurrentSize + str_length >= MaxSize) {
-      throw std::out_of_range(
-          "Static limit exceeded, appended string must be within limits "
-          "defined");
-    }
+  //   // Validate that given string fits into our string within static limit.
+  //   assert((mCurrentSize + str_length < MaxSize) &&
+  //         "Appending string exceeds maximum size");
+  //   if (mCurrentSize + str_length >= MaxSize) {
+  //     throw std::out_of_range(
+  //         "Static limit exceeded, appended string must be within limits "
+  //         "defined");
+  //   }
 
-    std::copy(str.begin(), str.end(), mString + mCurrentSize);
+  //   std::copy(str.begin(), str.end(), mString + mCurrentSize);
 
-    // Update the length.
-    mCurrentSize += str_length;
-    mString[mCurrentSize] = null_terminator;
-  }
+  //   // Update the length.
+  //   mCurrentSize += str_length;
+  //   mString[mCurrentSize] = null_terminator;
+  // }
 
-  /**
-  * @brief Appends an std::string_view to the end of the current string.
-  *
-  * @param str The std::string_view to append.
-  * @throws std::out_of_range if the resulting string would exceed
-  * the maximum size.
-  */
-  void append(const std::string_view& str) {
-    // Calculate the length of the given string.
-    const std::size_t str_length = str.length();
+  // /**
+  // * @brief Appends an std::string_view to the end of the current string.
+  // *
+  // * @param str The std::string_view to append.
+  // * @throws std::out_of_range if the resulting string would exceed
+  // * the maximum size.
+  // */
+  // void append(const std::string_view& str) {
+  //   // Calculate the length of the given string.
+  //   const std::size_t str_length = str.length();
 
-    // Validate that given string fits into our string within static limit.
-    assert((mCurrentSize + str_length < MaxSize) &&
-          "Appending string exceeds maximum size");
-    if (mCurrentSize + str_length >= MaxSize) {
-      throw std::out_of_range(
-          "Static limit exceeded, appended string must be within limits "
-          "defined");
-    }
+  //   // Validate that given string fits into our string within static limit.
+  //   assert((mCurrentSize + str_length < MaxSize) &&
+  //         "Appending string exceeds maximum size");
+  //   if (mCurrentSize + str_length >= MaxSize) {
+  //     throw std::out_of_range(
+  //         "Static limit exceeded, appended string must be within limits "
+  //         "defined");
+  //   }
 
-    std::copy(str.begin(), str.end(), mString + mCurrentSize);
+  //   std::copy(str.begin(), str.end(), mString + mCurrentSize);
 
-    // Update the length.
-    mCurrentSize += str_length;
-    mString[mCurrentSize] = null_terminator;
-  }
+  //   // Update the length.
+  //   mCurrentSize += str_length;
+  //   mString[mCurrentSize] = null_terminator;
+  // }
 
   /**
   * @brief Concatenates another StaticString onto this StaticString object.
@@ -945,29 +975,47 @@ private:
   std::size_t mCurrentSize = 0;  // Tracks the current length of the string.
 };
 
-/**
- * @brief This is a custom hasher for StaticString class.
- * 
- * To use custom hasher for operations in unorderd_map pass the hasher as param.
- * std::unordered_map<cse::StaticString<32>, int, cse::StaticStringHasher<32>> myMap;
- * 
- * @tparam MaxSize Max limit defined for StaticString.
- */
-template <std::size_t MaxSize>
-struct StaticStringHasher {
-  /**
-   * @brief Hash function operator for StaticString.
-   * 
-   * Allows StaticString to be used in hashed containers like std::unordered_map.
-   * 
-   * @param obj The StaticString object to hash.
-   * @return std::size_t The hash value.
-   */
-  std::size_t operator()(const cse::StaticString<MaxSize>& obj) const noexcept {
-    return std::hash<std::string_view>{}(obj.view());
-  }
-};
+// /**
+//  * @brief This is a custom hasher for StaticString class.
+//  * 
+//  * To use custom hasher for operations in unorderd_map pass the hasher as param.
+//  * std::unordered_map<cse::StaticString<32>, int, cse::StaticStringHasher<32>> myMap;
+//  * 
+//  * @tparam MaxSize Max limit defined for StaticString.
+//  */
+// template <std::size_t MaxSize>
+// struct StaticStringHasher {
+//   /**
+//    * @brief Hash function operator for StaticString.
+//    * 
+//    * Allows StaticString to be used in hashed containers like std::unordered_map.
+//    * 
+//    * @param obj The StaticString object to hash.
+//    * @return std::size_t The hash value.
+//    */
+//   std::size_t operator()(const cse::StaticString<MaxSize>& obj) const noexcept {
+//     return std::hash<std::string_view>{}(obj.view());
+//   }
+// };
 
 }  // namespace cse
+
+
+namespace std {
+  template <std::size_t MaxSize>
+  struct hash<cse::StaticString<MaxSize>> {
+    /**
+     * @brief Hash function operator for StaticString.
+     * 
+     * Allows StaticString to be used in hashed containers like std::unordered_map.
+     * 
+     * @param obj The StaticString object to hash.
+     * @return std::size_t The hash value.
+     */
+    std::size_t operator()(const cse::StaticString<MaxSize>& obj) const noexcept {
+      return std::hash<std::string_view>{}(obj.view());
+    }
+  };
+}
 
 #endif  // CSE_STATIC_STRING_HPP_
