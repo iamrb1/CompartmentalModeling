@@ -115,14 +115,14 @@ TEST_CASE("Test pattern setting bits", "[bitvector]") {
 
   // Pattern set multiple elements
   cse::BitVector bv4(80);
-  bv4.pattern_set(0xFFFFFF);
+  bv4.pattern_set((uint64_t)0xFFFFFF);
   CHECK(bv4.count() == 40);
   CHECK(bv4[64]);
   CHECK(!bv4[63]);
 
   // Pattern set multiple elements (offset)
   cse::BitVector bv5(80);
-  bv5.pattern_set(6, 74, 0xFFFFFF);
+  bv5.pattern_set(6, 74, (uint64_t)0xFFFFFF);
   CHECK(bv5.count() == 34);
   CHECK(bv5[70]);
   CHECK(!bv5[69]);
@@ -414,5 +414,29 @@ TEST_CASE("Test class template features", "[bitvector]") {
   for(size_t i = 0; i < vb1.size(); i++) {
     CHECK(vb1[i] == bv1[i]);
   }
+
+  // Test creating bitvectors from bitsets and vectors of boolean
+  cse::BitVector bv2, bv3;
+  bv2 = bs1;
+  bv3 = vb1;
+  CHECK(bv2.size() == bs1.size());
+  CHECK(bv3.size() == vb1.size());
+  for(size_t i = 0; i < bv2.size(); i++) {
+    CHECK(bv2[i] == bs1[i]);
+  }
+  for(size_t i = 0; i < bv3.size(); i++) {
+    CHECK(bv3[i] == vb1[i]);
+  }
+
+  bv1.resize(34);
+  bv1.pattern_set(0xB2BDBDFAFA);
+
+  // Test integral vectorize
+  std::vector<uint16_t> shorts = bv1.vectorize<uint16_t>();
+  CHECK(shorts.size() == 3);
+  CHECK(shorts[0] == 0xFAFA);
+  CHECK(shorts[1] == 0xBDBD);
+  CHECK(shorts[2] == 0x0002);
 }
+
 

@@ -11,14 +11,6 @@
 
 namespace cse {
 
-// A std::byte filled with ones
-constexpr uint64_t ALL_ONE = 0xFFFFFFFFFFFFFFFF;
-// A std::byte filled with zeros
-constexpr uint64_t ALL_ZERO = 0;
-// One
-constexpr uint64_t ONE_ONE = 1;
-// Number of bits per element in the underlying vector
-constexpr size_t BITS_PER_EL = 64;
 
 template <typename T>
 concept BoolGenerator = (std::invocable<T, size_t> &&
@@ -30,8 +22,19 @@ concept BoolGenerator = (std::invocable<T, size_t> &&
 // BitVectors of varying sizes.
 class BitVector {
  private:
+  // Element type
+  using bv_type = uint64_t;
+  // A std::byte filled with ones
+  static constexpr bv_type ALL_ONE = bv_type(0) - bv_type(1);
+  // A std::byte filled with zeros
+  static constexpr bv_type ALL_ZERO = 0;
+  // One
+  static constexpr bv_type ONE_ONE = 1;
+  // Number of bits per element in the underlying vector
+  static constexpr size_t BITS_PER_EL = sizeof(bv_type) * 8;
+
   // The m_underlying bytes of the vector
-  std::vector<uint64_t> m_underlying = {};
+  std::vector<bv_type> m_underlying = {};
   // The number of bits the vector is currently holding
   size_t m_num_bits = 0;
   // The number of set bits in the BitVector
@@ -39,11 +42,11 @@ class BitVector {
 
   // Keep the bottom "keep" bits of the given byte, discarding the rest and
   // updating the m_num_set
-  void truncate_element(size_t byte, uint8_t keep);
+  void truncate_element(size_t byte, size_t keep);
 
   // Manages the case in pattern set where
   // only one byte needs changing
-  BitVector& pattern_set_one(size_t start, size_t count, uint64_t pattern);
+  BitVector& pattern_set_one(size_t start, size_t count, bv_type pattern);
 
   // Convert a number of bits
   constexpr size_t bits_to_el_count(size_t bits) {
@@ -59,14 +62,14 @@ class BitVector {
     // A pointer to the BitVector which created this instance
     BitVector* parent = nullptr;
     // A pointer to the element where the bit is stored
-    uint64_t* el = nullptr;
+    bv_type* el = nullptr;
     // The index of the bit within the element ((1 << bit_off) & *el gets the
     // specific bit)
-    uint8_t bit_off = 0;
+    size_t bit_off = 0;
 
    public:
     // Constructor
-    proxy(BitVector* bv, uint64_t* e, uint8_t o)
+    proxy(BitVector* bv, bv_type* e, size_t o)
         : parent(bv), el(e), bit_off(o) {}
 
     // Set the value of this bit
@@ -84,6 +87,12 @@ class BitVector {
 
     // Get the value of this bit
     operator bool() const;
+
+    // Only here to comply with bitset references
+    // Gets the flipped value of this proxy
+    bool operator~() const {
+      return !(this->operator bool());
+    }
 
     // Destructor
     ~proxy() = default;
@@ -124,15 +133,16 @@ class BitVector {
 
   // &= operation between two BitVectors
   BitVector& operator&=(const BitVector& rhs);
+  
   // Bitwise AND with an integral type
   template<std::integral T>
   BitVector& operator&=(T rhs) {
     size_t i = 0;
     size_t num_set = 0;
-    for(; i < m_underlying.size() && i * sizeof(uint64_t) < sizeof(T); ++i)
+    for(; i < m_underlying.size() && i * sizeof(bv_type) < sizeof(T); ++i)
     {
-      m_underlying[i] &= static_cast<uint64_t>(rhs);
-      if constexpr (sizeof(T) > sizeof(uint64_t))
+      m_underlying[i] &= static_cast<bv_type>(rhs);
+      if constexpr (sizeof(T) > sizeof(bv_type))
         rhs >>= BITS_PER_EL;
       num_set += BIT_LOOKUP(m_underlying[i]);
     }
@@ -146,14 +156,15 @@ class BitVector {
   
   // |= operation between two BitVectors
   BitVector& operator|=(const BitVector& rhs);
+  
   // Bitwise OR with an integral type
   template<std::integral T>
   BitVector& operator|=(T rhs) {
-    for(size_t i = 0; i < m_underlying.size() && i * sizeof(uint64_t) < sizeof(T); ++i)
+    for(size_t i = 0; i < m_underlying.size() && i * sizeof(bv_type) < sizeof(T); ++i)
     {
       m_num_set -= BIT_LOOKUP(m_underlying[i]);
-      m_underlying[i] |= static_cast<uint64_t>(rhs);
-      if constexpr (sizeof(T) > sizeof(uint64_t))
+      m_underlying[i] |= static_cast<bv_type>(rhs);
+      if constexpr (sizeof(T) > sizeof(bv_type))
         rhs >>= BITS_PER_EL;
       m_num_set += BIT_LOOKUP(m_underlying[i]);
     }
@@ -163,14 +174,15 @@ class BitVector {
 
   // ^= operation between two BitVectors
   BitVector& operator^=(const BitVector& rhs);
+  
   // Bitwise XOR with an integral type
   template<std::integral T>
   BitVector& operator^=(T rhs) {
-    for(size_t i = 0; i < m_underlying.size() && i * sizeof(uint64_t) < sizeof(T); ++i)
+    for(size_t i = 0; i < m_underlying.size() && i * sizeof(bv_type) < sizeof(T); ++i)
     {
       m_num_set -= BIT_LOOKUP(m_underlying[i]);
-      m_underlying[i] ^= static_cast<uint64_t>(rhs);
-      if constexpr (sizeof(T) > sizeof(uint64_t))
+      m_underlying[i] ^= static_cast<bv_type>(rhs);
+      if constexpr (sizeof(T) > sizeof(bv_type))
         rhs >>= BITS_PER_EL;
       m_num_set += BIT_LOOKUP(m_underlying[i]);
     }
@@ -201,6 +213,7 @@ class BitVector {
 
   // & operation between two BitVectors
   BitVector operator&(const BitVector& rhs) const;
+  
   template<std::integral T>
   BitVector operator&(T rhs) const {
     BitVector cpy = (*this);
@@ -210,6 +223,7 @@ class BitVector {
 
   // | operation between two BitVectors
   BitVector operator|(const BitVector& rhs) const;
+  
   template<std::integral T>
   BitVector operator|(T rhs) const {
     BitVector cpy = (*this);
@@ -218,6 +232,7 @@ class BitVector {
   }
   // ^ operation between two BitVectors
   BitVector operator^(const BitVector& rhs) const;
+
   template<std::integral T>
   BitVector operator^(T rhs) const {
     BitVector cpy = (*this);
@@ -232,17 +247,19 @@ class BitVector {
 
   // Copy assignment
   BitVector& operator=(const BitVector& bv);
+
   // Assign from an integral type
-  template<std::integral T = uint64_t>
+  template<std::integral T = bv_type>
   BitVector& operator=(T value) {
     m_num_bits = sizeof(T) * 8;
     m_num_set = 0;
     m_underlying.resize(bits_to_el_count(m_num_bits));
+    std::fill(m_underlying.begin(), m_underlying.end(), 0);
 
-    for(size_t i = 0; i < m_underlying.size(); ++i)
+    for(size_t i = 0; i < m_underlying.size() && i * sizeof(bv_type) < sizeof(T); ++i)
     {
-      m_underlying[i] = static_cast<uint64_t>(value);
-      if constexpr (sizeof(T) > sizeof(uint64_t))
+      m_underlying[i] = static_cast<bv_type>(value);
+      if constexpr (sizeof(T) > sizeof(bv_type))
         value >>= BITS_PER_EL;
       m_num_set += BIT_LOOKUP(m_underlying[i]);
     }
@@ -250,9 +267,67 @@ class BitVector {
     return *this;
   }
 
+  // Assign from a bitset
+  template<size_t B>
+  BitVector& operator=(const std::bitset<B> &bs) {
+    m_num_bits = B;
+    m_num_set = 0;
+    m_underlying.resize(bits_to_el_count(m_num_bits));
+    std::fill(m_underlying.begin(), m_underlying.end(), 0);
+
+    for(size_t i = 0; i < m_num_bits; ++i) {
+      (*this)[i] = bs[i];
+    }
+
+    return *this;
+  }
+
+  // Assign from a vector of bools
+  BitVector& operator=(std::vector<bool> vb) {
+    m_num_bits = vb.size();
+    m_num_set = 0;
+    m_underlying.resize(bits_to_el_count(m_num_bits));
+    std::fill(m_underlying.begin(), m_underlying.end(), 0);
+
+    for(size_t i = 0; i < m_num_bits; ++i) {
+      (*this)[i] = vb[i];
+    }
+
+    return *this;
+  }
+
   // Set count bits in a repeating pattern starting at the index start
-  BitVector& pattern_set(size_t start, size_t count, uint64_t pattern);
-  BitVector& pattern_set(uint64_t pattern);
+  // make sure to set the length of the pattern like 
+  BitVector& pattern_set(size_t start, size_t count, bv_type pattern);
+  // Set all bits in a repeating pattern starting at the beginning of the BitVector
+  BitVector& pattern_set(bv_type pattern) {
+    return pattern_set(0, m_num_bits, pattern);
+  }
+
+  // Pattern set for a smaller integral type.  Pattern in small type
+  // gets expanded to fill one element and then that element is used
+  // as the pattern.
+  // 
+  // NOTE: This may cause issues for types whose length is not a clean
+  //       power of two, but that is way too much work to implement.
+  template<std::integral T>
+  BitVector& pattern_set(size_t start, size_t count, T pattern) {
+    bv_type p = bv_type(pattern & ALL_ONE);
+
+    if constexpr (sizeof(T) < sizeof(bv_type)) {
+      for(size_t i = sizeof(T); i < sizeof(bv_type); i *= 2) {
+        p |= p << (8 * i);
+      }
+    }
+    
+    return pattern_set(start, count, p);
+  }
+
+  // Pattern set for a smaller integral type
+  template<std::integral T>
+  BitVector& pattern_set(T pattern) {
+    return pattern_set(0, m_num_bits, pattern);
+  }
 
   // Set a range of the bitvector based on a function which generates
   // boolean values
@@ -317,12 +392,12 @@ class BitVector {
   size_t size() const { return m_num_bits; }
 
   // Returns the number of bits in this element
-  inline size_t BIT_LOOKUP(uint64_t el) const { return std::popcount(el); }
+  inline size_t BIT_LOOKUP(bv_type el) const { return std::popcount(el); }
 
   // Resize the BitVector to the provided size, filling any new bits with the
   // given value
   BitVector& resize(size_t size);
-  BitVector& resize(size_t size, uint64_t fill);
+  BitVector& resize(size_t size, bv_type fill);
 
   // Append the given bit to the BitVector
   void append(bool value);
@@ -334,11 +409,35 @@ class BitVector {
   // Prepend the given BitVector to this bit vector
   void prepend(const BitVector& bv);
 
+  // Turn the BitVector into a vector of an integral type
+  // if num_bits is zero, then it will export to the end of
+  // the BitVector
+  template<std::integral T>
+    requires (sizeof(T) <= sizeof(bv_type) &&
+              sizeof(bv_type) % sizeof(T) == 0)
+  std::vector<T> vectorize(size_t num_bits = 0) {
+    cse_assert(num_bits <= m_num_bits);
+    if (num_bits == 0) num_bits = m_num_bits;
+
+    std::vector<T> out;
+    constexpr size_t Tb = sizeof(T) * 8;
+    constexpr bv_type mask = ALL_ONE >> (BITS_PER_EL - Tb);
+
+    for(size_t i = 0; i < num_bits; i += Tb) {
+      T add = T(mask & (m_underlying[i / BITS_PER_EL] >> (i % BITS_PER_EL)));
+      out.push_back(add);
+    }
+
+    return out;
+  }
+
   // Turn the BitVector into a vector of type bool
-  // if num_bits is zero, then it will export the entire BitVector
+  // if num_bits is zero, then it will export to the end of
+  // the BitVector
   std::vector<bool> vectorize(size_t num_bits = 0) {
     cse_assert(num_bits <= m_num_bits);
     if (num_bits == 0) num_bits = m_num_bits;
+
     std::vector<bool> out;
 
     for (size_t i = 0; i < num_bits; ++i) {
@@ -368,7 +467,7 @@ class BitVector {
 
     // Add interpolated elements in a loop
     for (--el; el > start_at; --el) {
-      uint64_t add = m_underlying[el - 1] >> shift;
+      bv_type add = m_underlying[el - 1] >> shift;
       add |= m_underlying[el] << (BITS_PER_EL - shift);
       out <<= BITS_PER_EL;
       out |= m_underlying[el - 1];
@@ -390,14 +489,14 @@ class BitVector {
 
 // Convert a reference into a boolean
 BitVector::proxy::operator bool() const {
-  uint64_t bit = (ONE_ONE << bit_off) & *el;
+  bv_type bit = (ONE_ONE << bit_off) & *el;
   return !(bit == ALL_ZERO);
 }
 
 // Assign a boolean value to a reference
 BitVector::proxy& BitVector::proxy::operator=(bool value) {
   if (*this != value) {
-    uint64_t mask = ONE_ONE << bit_off;
+    bv_type mask = ONE_ONE << bit_off;
     if (value) {
       *el |= mask;
       parent->m_num_set++;
@@ -466,8 +565,7 @@ BitVector::proxy BitVector::operator[](size_t idx) {
              std::format("Invalid index into BitVector: idx - {}, max - {}",
                          idx, m_num_bits)
                  .c_str());
-  return proxy(this, &m_underlying[idx / BITS_PER_EL],
-               (uint8_t)(idx % BITS_PER_EL));
+  return proxy(this, &m_underlying[idx / BITS_PER_EL], idx % BITS_PER_EL);
 }
 
 // Get the index as a const bool
@@ -475,16 +573,16 @@ bool BitVector::operator[](size_t idx) const {
   dbg_assert(m_num_bits > idx,
              std::format("Invalid index into BitVector: idx - {}, max - {}",
                          idx, m_num_bits));
-  const uint64_t bit =
+  const bv_type bit =
       (ONE_ONE << (idx % BITS_PER_EL)) & m_underlying[idx / BITS_PER_EL];
   return bit != ALL_ZERO;
 }
 
 // Update a single element with pattern set
 BitVector& BitVector::pattern_set_one(size_t start, size_t count,
-                                      uint64_t pattern) {
+                                      bv_type pattern) {
   // Generate mask (will be exactly the bits we will be changing
-  uint64_t mask = ALL_ONE;
+  bv_type mask = ALL_ONE;
   if (count % BITS_PER_EL != 0) mask >>= (BITS_PER_EL - (count) % BITS_PER_EL);
   mask <<= (start % BITS_PER_EL);
 
@@ -511,7 +609,7 @@ BitVector& BitVector::pattern_set_one(size_t start, size_t count,
 // count - the number of bits to fill with the sequence
 // pattern - the pattern of bits to fill with
 BitVector& BitVector::pattern_set(size_t start, size_t count,
-                                  uint64_t pattern) {
+                                  bv_type pattern) {
   if (count == 0) return *this;
   cse_assert(
       (start + count) <= m_num_bits,
@@ -526,8 +624,8 @@ BitVector& BitVector::pattern_set(size_t start, size_t count,
   // Generate masks for the first element we are changing and the last
   // element we are changing (such that we only change the proper upper bits
   // in the lower element and the proper lower bits in the upper one)
-  uint64_t bot_mask = ALL_ONE << (start % BITS_PER_EL);
-  uint64_t top_mask = ALL_ONE;
+  bv_type bot_mask = ALL_ONE << (start % BITS_PER_EL);
+  bv_type top_mask = ALL_ONE;
   if ((start + count) % BITS_PER_EL)
     top_mask >>= (BITS_PER_EL - (start + count) % BITS_PER_EL);
 
@@ -566,10 +664,6 @@ BitVector& BitVector::pattern_set(size_t start, size_t count,
   m_num_set -= ps_before;
 
   return *this;
-}
-
-BitVector& BitVector::pattern_set(uint64_t pattern) {
-  return this->pattern_set(0, m_num_bits, pattern);
 }
 
 // Set all bits in the vector
@@ -675,7 +769,7 @@ BitVector& BitVector::flip(size_t start, size_t count) {
   // We only need to change one element in this case
   if (start % BITS_PER_EL + count <= BITS_PER_EL) {
     // Constrict the flipped bits to only the ones we want
-    uint64_t flipper = ALL_ONE;
+    bv_type flipper = ALL_ONE;
     if (count % BITS_PER_EL) flipper >>= (BITS_PER_EL - (count % BITS_PER_EL));
 
     m_num_set -= BIT_LOOKUP(m_underlying[idx]);
@@ -711,12 +805,12 @@ BitVector& BitVector::flip(size_t start, size_t count) {
 // Fix the given element by mapping bits to zero after keep bits
 // e.g. 0b10101010 with keep 3 -> 0b00000010 (top 5 bits are cut off)
 // note: keep is modded, so don't worry about putting in too high a number
-void BitVector::truncate_element(size_t byte, uint8_t keep) {
+void BitVector::truncate_element(size_t byte, size_t keep) {
   // No need to cut off if keep is a multiple of 8 (unless we are keeping zero
   // bits)
   if (keep > 0 && keep % BITS_PER_EL == 0) return;
   // Generate cutoff mask
-  uint64_t mask = ALL_ONE >> (BITS_PER_EL - (keep % BITS_PER_EL));
+  bv_type mask = ALL_ONE >> (BITS_PER_EL - (keep % BITS_PER_EL));
 
   // Get set bit diff as well as apply mask
   m_num_set -= BIT_LOOKUP(m_underlying[byte]);
@@ -876,7 +970,7 @@ BitVector& BitVector::operator<<=(size_t pos) {
   // The first element that has information we will keep
   size_t skip = pos / BITS_PER_EL;
   // The number of bits to interpolate between elements
-  uint8_t slide = pos % BITS_PER_EL;
+  size_t slide = pos % BITS_PER_EL;
   // The index of the element we are modifying
   size_t idx = m_underlying.size() - 1;
 
@@ -916,7 +1010,7 @@ BitVector& BitVector::operator>>=(size_t pos) {
   // The first byte that has information we will keep
   size_t skip = pos / BITS_PER_EL;
   // The number of bits to interpolate between elements
-  uint8_t slide = pos % BITS_PER_EL;
+  size_t slide = pos % BITS_PER_EL;
   // The index of the element we are modifying
   size_t idx = 0;
 
@@ -966,7 +1060,7 @@ std::ostream& operator<<(std::ostream& os, const BitVector& bv) {
 }
 
 // Resize this BitVector
-BitVector& BitVector::resize(size_t size, uint64_t fill) {
+BitVector& BitVector::resize(size_t size, bv_type fill) {
   size_t prev_last = m_num_bits;
   m_num_bits = size;
   m_underlying.resize(bits_to_el_count(size), ALL_ZERO);
