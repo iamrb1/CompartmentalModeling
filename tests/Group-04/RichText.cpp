@@ -20,7 +20,7 @@ TEST_CASE("Constructor", "[RichTextTest]") {
 TEST_CASE("MultipleFormatting", "[RichTextTest]") {
   cse::RichText text1("hello world");
   REQUIRE(text1.size() == 11);
-  cse::RichText::Format bold("bold");
+  cse::TextFormat bold("bold");
 
   text1.apply_format_to_range(bold, 0, 5);
   REQUIRE(text1.formats_at(3).size() == 1);
@@ -28,10 +28,10 @@ TEST_CASE("MultipleFormatting", "[RichTextTest]") {
   REQUIRE(text1.formats_at(8).size() == 0);
 
   std::string str2 = "bold";
-  cse::RichText::Format f2(str2);
+  cse::TextFormat f2(str2);
   REQUIRE(text1.formats_at(3).at(0) == f2);
 
-  cse::RichText::Format italic("italic");
+  cse::TextFormat italic("italic");
   text1.apply_format_to_range(italic, 4, 8);
   REQUIRE(text1.formats_at(3).size() == 1);
   REQUIRE(text1.formats_at(3).at(0) == bold);
@@ -45,11 +45,11 @@ TEST_CASE("MultipleFormatting", "[RichTextTest]") {
 
 TEST_CASE("AppendFormattedText", "[RichTextTest]") {
   cse::RichText text1("hello");
-  cse::RichText::Format bold("bold");
+  cse::TextFormat bold("bold");
   text1.apply_format_to_range(bold, 0, 5);
 
   cse::RichText text2(" world");
-  cse::RichText::Format italic("italic");
+  cse::TextFormat italic("italic");
   text2.apply_format_to_range(italic, 0, 6);
 
   text1 += text2;
@@ -65,13 +65,13 @@ TEST_CASE("AppendFormattedText", "[RichTextTest]") {
 TEST_CASE("ComplexFormatting", "[RichTextTest]") {
   cse::RichText text("hello world");
 
-  cse::RichText::Format bold("bold");
+  cse::TextFormat bold("bold");
   text.apply_format_to_range(bold, 0, 11);
 
-  cse::RichText::Format textSize("text size", 11);
+  cse::TextFormat textSize("text size", 11);
   text.apply_format_to_range(textSize, 0, 11);
 
-  cse::RichText::Format link("link", "https://cse498.github.io/");
+  cse::TextFormat link("link", "https://cse498.github.io/");
   text.apply_format_to_range(link, 0, 11);
 
   auto formats = text.formats_at(3);
