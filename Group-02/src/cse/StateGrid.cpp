@@ -8,6 +8,9 @@
 #include <iostream>
 #include <map>
 #include <utility>
+#include <fstream>
+#include <filesystem>
+#include <sstream>
 #include "cse/StateGridPosition.h"
 namespace cse {
 
@@ -75,6 +78,7 @@ void StateGrid::set_condition(char changestate, std::string property, std::strin
 void StateGrid::remove_conditions(char changestate, std::string property)
 {
     assert(m_dictionary.find(changestate) && "This state is not in the map!");
+    std::string tempstring = property;
     ///need to remove the property from the state
 }
 /**
@@ -129,16 +133,30 @@ std::vector<std::pair<int,int>> StateGrid::find_moves(int row, int col) {
  * @brief sets m_grid to specified map
  * @param diff string to choose map of specified difficulty
  */
+///Used ChatGPT for file loading syntax: https://chatgpt.com/share/67da2af9-a22c-8001-8a07-ff125bba08e7
 void StateGrid::load_map(const std::string& diff) {
-  std::map<std::string, cse::AuditedVector<std::string>> maps = {
-      {"test", {"#####", "# P #", "##X##", "## ##", "#0  #", "#####"}}}; ///Could add functionality to load in a map from separate file
-  if (maps.find(diff) != maps.end()) {
-    m_grid = maps[diff];
-  } else {                                          ///<< If wrong map input, default to test map
-    m_grid = maps["test"];
+
+  ///Currently no check for incorrect filename other than thrown exception
+  std::string filename = diff + ".csv";
+  std::ifstream file(filename);
+  cse::AuditedVector<std::string> pregrid;
+
+  if(!file.is_open())
+  {
+    throw std::runtime_error("File could not be opened: " + filename);
   }
+
+  std::string line;
+  while(std::getline(file,line))
+  {
+    pregrid.push_back(line);
+  }
+  file.close();
+
+  m_grid = pregrid;
   m_cols = static_cast<int>(m_grid[0].size());
   m_rows = static_cast<int>(m_grid.size());
+
 }
 
 /**
