@@ -964,6 +964,23 @@ public:
     return std::string_view(mString, mCurrentSize); 
   }
 
+  /**
+   * @brief 
+   * 
+   * @return true 
+   * @return false 
+   */
+  bool empty() const noexcept {
+    if(mCurrentSize == 0) return true;
+    else return false;
+  }
+
+  // Shrink_to_fir returns a new StaticString object shrinked to fit
+  // Clear
+  // resize returns a resized object 
+  // explicit delete maybe
+
+
 private: 
   /// @brief Constant value for StaticString null terminator used.
   static constexpr char null_terminator = '\0';
@@ -974,29 +991,6 @@ private:
   /// @brief size_t The current length of the string.
   std::size_t mCurrentSize = 0;  // Tracks the current length of the string.
 };
-
-// /**
-//  * @brief This is a custom hasher for StaticString class.
-//  * 
-//  * To use custom hasher for operations in unorderd_map pass the hasher as param.
-//  * std::unordered_map<cse::StaticString<32>, int, cse::StaticStringHasher<32>> myMap;
-//  * 
-//  * @tparam MaxSize Max limit defined for StaticString.
-//  */
-// template <std::size_t MaxSize>
-// struct StaticStringHasher {
-//   /**
-//    * @brief Hash function operator for StaticString.
-//    * 
-//    * Allows StaticString to be used in hashed containers like std::unordered_map.
-//    * 
-//    * @param obj The StaticString object to hash.
-//    * @return std::size_t The hash value.
-//    */
-//   std::size_t operator()(const cse::StaticString<MaxSize>& obj) const noexcept {
-//     return std::hash<std::string_view>{}(obj.view());
-//   }
-// };
 
 }  // namespace cse
 
