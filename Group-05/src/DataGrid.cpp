@@ -156,15 +156,14 @@ DataGrid::getColumn(const std::size_t column_index_) const {
  * @param default_value_ of row values
  */
 void DataGrid::insertDefaultRow(std::size_t row_index_, double default_value_) {
-  assert(row_index_ <= grid_.size());
-
-  if (row_index_ > grid_.size()) {
-    throw std::out_of_range("Row index out of bounds");
+  // If row_index_ is not given, update row_index_ to insert to the end of grid
+  if (grid_.empty() || row_index_ == std::numeric_limits<std::size_t>::max()) {
+    row_index_ = grid_.size();
   }
 
-  // If row_index_ is not given, update row_index_ to insert to the end of grid
-  if (row_index_ == std::numeric_limits<std::size_t>::max()) {
-    row_index_ = grid_.size();
+  assert(row_index_ <= grid_.size());
+  if (row_index_ > grid_.size()) {
+    throw std::out_of_range("Row index out of bounds");
   }
 
   const std::size_t num_columns = std::get<1>(shape());
@@ -182,15 +181,14 @@ void DataGrid::insertDefaultRow(std::size_t row_index_, double default_value_) {
  */
 void DataGrid::insertDefaultRow(std::size_t row_index_,
                                 std::string default_value_) {
-  assert(row_index_ <= grid_.size());
-
-  if (row_index_ > grid_.size()) {
-    throw std::out_of_range("Row index out of bounds");
+  // If row_index_ is not given, update row_index_ to insert to the end of grid
+  if (grid_.empty() || row_index_ == std::numeric_limits<std::size_t>::max()) {
+    row_index_ = grid_.size();
   }
 
-  // If row_index_ is not given, update row_index_ to insert to the end of grid
-  if (row_index_ == std::numeric_limits<std::size_t>::max()) {
-    row_index_ = grid_.size();
+  assert(row_index_ <= grid_.size());
+  if (row_index_ > grid_.size()) {
+    throw std::out_of_range("Row index out of bounds");
   }
 
   const std::size_t num_columns = std::get<1>(shape());
@@ -209,20 +207,23 @@ void DataGrid::insertDefaultRow(std::size_t row_index_,
  */
 void DataGrid::insertDefaultColumn(std::size_t column_index_,
                                    double default_value_) {
-  assert(!grid_.empty());
-  assert(column_index_ <= grid_[0].size());
-
-  if (grid_.empty() || column_index_ > grid_.front().size()) {
-    throw std::out_of_range("Column index out of bounds");
+  // If grid is empty, add the column, with each value being a row
+  if (grid_.empty()) {
+    grid_.emplace_back(1, Datum(default_value_));
+    return;
   }
 
-  // If column_index_ is not given, update column_index_ to insert to the end of
-  // grid
+  // If column_index_ is max, update it to insert at the end
   if (column_index_ == std::numeric_limits<std::size_t>::max()) {
     column_index_ = grid_[0].size();
   }
 
-  // Append values to each row
+  assert(column_index_ <= grid_[0].size());
+  if (column_index_ > grid_.front().size()) {
+    throw std::out_of_range("Column index out of bounds");
+  }
+
+  // Insert the new column at the specified index in each row
   for (auto &row : grid_) {
     row.insert(row.begin() + static_cast<std::ptrdiff_t>(column_index_),
                Datum(default_value_));
@@ -236,23 +237,75 @@ void DataGrid::insertDefaultColumn(std::size_t column_index_,
  */
 void DataGrid::insertDefaultColumn(std::size_t column_index_,
                                    const std::string &default_value_) {
-  assert(!grid_.empty());
-  assert(column_index_ <= grid_[0].size());
-
-  if (grid_.empty() || column_index_ > grid_.front().size()) {
-    throw std::out_of_range("Column index out of bounds");
+  // If grid is empty, add the column, with each value being a row
+  if (grid_.empty()) {
+    grid_.emplace_back(1, Datum(default_value_));
+    return;
   }
 
-  // If column_index_ is not given, update column_index_ to insert to the end of
-  // grid
+  // If column_index_ is max, update it to insert at the end
   if (column_index_ == std::numeric_limits<std::size_t>::max()) {
     column_index_ = grid_[0].size();
   }
 
-  // Append values to each row
+  assert(column_index_ <= grid_[0].size());
+  if (column_index_ > grid_.front().size()) {
+    throw std::out_of_range("Column index out of bounds");
+  }
+
+  // Insert the new column at the specified index in each row
   for (auto &row : grid_) {
     row.insert(row.begin() + static_cast<std::ptrdiff_t>(column_index_),
                Datum(default_value_));
+  }
+}
+
+/**
+ * Insert a premade row into the DataGrid
+ * @param row_
+ * @param row_index_
+ */
+void DataGrid::insertRow(std::vector<Datum> row_, std::size_t row_index_) {
+  if (grid_.empty() || row_index_ == std::numeric_limits<std::size_t>::max()) {
+    row_index_ = grid_.size();
+  }
+
+  assert(row_index_ <= grid_.size());
+  grid_.insert(grid_.begin() + static_cast<std::ptrdiff_t>(row_index_), row_);
+}
+
+/**
+ * Insert a premade column into the DataGrid
+ * @param column_
+ * @param column_index_
+ */
+void DataGrid::insertColumn(const std::vector<Datum>& column_, std::size_t column_index_) {
+  // If grid is empty, create rows from column_
+  if (grid_.empty()) {
+    for (const auto& value : column_) {
+      grid_.emplace_back(1, value);
+    }
+    return;
+  }
+
+  // Ensure column size matches the number of rows
+  if (column_.size() != grid_.size()) {
+    throw std::invalid_argument("Column size does not match number of rows");
+  }
+
+  // If column_index_ is max, append to the end
+  if (column_index_ == std::numeric_limits<std::size_t>::max()) {
+    column_index_ = grid_[0].size();
+  }
+
+  assert(column_index_ <= grid_[0].size());
+  if (column_index_ > grid_.front().size()) {
+    throw std::out_of_range("Column index out of bounds");
+  }
+
+  // Insert values from column_ into each row at the specified index
+  for (std::size_t i = 0; i < grid_.size(); ++i) {
+    grid_[i].insert(grid_[i].begin() + static_cast<std::ptrdiff_t>(column_index_), column_[i]);
   }
 }
 
@@ -650,8 +703,8 @@ double DataGrid::columnMax(std::size_t column_index) const {
  */
 DataGrid::DataGridMathSummary DataGrid::dataGridMathSummary() const {
   std::vector<double> double_values;
-  for (std::vector<Datum> row : getDataGrid()) {
-    for (Datum value : row) {
+  for (const std::vector<Datum>& row : getDataGrid()) {
+    for (const Datum& value : row) {
       if (value.IsDouble() && !std::isnan(value.GetDouble())) {
         double_values.push_back(value.GetDouble());
       }
@@ -710,7 +763,7 @@ double DataGrid::calculateMedian(std::vector<double> double_values) {
  * @param double_values The given doubles vector.
  * @return The mode(s) of the vector
  */
-std::vector<double> DataGrid::calculateMode(std::vector<double> double_values) {
+std::vector<double> DataGrid::calculateMode(const std::vector<double>& double_values) {
   if (double_values.empty()) {
     return {};
   }
@@ -739,7 +792,7 @@ std::vector<double> DataGrid::calculateMode(std::vector<double> double_values) {
  * @param double_values The given doubles vector.
  * @return The standard deviation of the vector
  */
-double DataGrid::calculateStandardDeviation(std::vector<double> double_values) {
+double DataGrid::calculateStandardDeviation(const std::vector<double>& double_values) {
   if (double_values.empty()) {
     return std::numeric_limits<double>::quiet_NaN();
   }

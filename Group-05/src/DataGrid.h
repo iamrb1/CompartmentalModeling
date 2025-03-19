@@ -49,8 +49,8 @@ private:
 
   [[nodiscard]] static double calculateMean(std::vector<double> double_values);
   [[nodiscard]] static double calculateMedian(std::vector<double> double_values);
-  [[nodiscard]] static std::vector<double> calculateMode(std::vector<double> double_values);
-  [[nodiscard]] static double calculateStandardDeviation(std::vector<double> double_values);
+  [[nodiscard]] static std::vector<double> calculateMode(const std::vector<double>& double_values);
+  [[nodiscard]] static double calculateStandardDeviation(const std::vector<double>& double_values);
   [[nodiscard]] static double calculateMin(std::vector<double> double_values);
   [[nodiscard]] static double calculateMax(std::vector<double> double_values);
 
@@ -195,6 +195,13 @@ public:
   void insertDefaultColumn(
       std::size_t column_index_ = std::numeric_limits<std::size_t>::max(),
       const std::string &default_value_ = "");
+
+void insertRow(
+  std::vector<Datum> row_,
+  std::size_t row_index_ = std::numeric_limits<std::size_t>::max());
+void insertColumn(
+    const std::vector<Datum>& column_,
+    std::size_t column_index_ = std::numeric_limits<std::size_t>::max());
 
   void deleteRow(std::size_t row_index_);
   void deleteColumn(std::size_t column_index_);

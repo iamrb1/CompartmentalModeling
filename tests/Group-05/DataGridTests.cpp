@@ -97,9 +97,9 @@ TEST_CASE("DataGrid: Copy and Move Constructors", "[constructor]") {
 }
 
 /**
- * @brief Test inserting rows
+ * @brief Test inserting default rows
  */
-TEST_CASE("DataGrid: Insert Row", "[insert]") {
+TEST_CASE("DataGrid: Insert Default Row", "[insert]") {
   // Create a 2x3 grid with default values
   DataGrid grid(2, 3, 1.0);
   auto [rows1, cols1] = grid.shape();
@@ -141,9 +141,9 @@ TEST_CASE("DataGrid: Insert Row", "[insert]") {
 }
 
 /**
- * @brief Test inserting columns
+ * @brief Test inserting default columns
  */
-TEST_CASE("DataGrid: Insert Column", "[insert]") {
+TEST_CASE("DataGrid: Insert Default Column", "[insert]") {
   // Create a 3x2 grid with default value 1.0
   DataGrid grid(3, 2, 1.0);
   auto [rows1, cols1] = grid.shape();
@@ -182,6 +182,72 @@ TEST_CASE("DataGrid: Insert Column", "[insert]") {
   CHECK(cols4 == 5);
   CHECK(grid.getValue(0, 4).GetDouble() == 3.3);
   CHECK(grid.getValue(2, 4).GetDouble() == 3.3);
+}
+
+/**
+ * @brief Test inserting premade rows
+ */
+TEST_CASE("DataGrid: Insert Premade Row", "[insert]") {
+  // Create an empty grid and insert a row
+  DataGrid grid;
+  std::vector<Datum> first_row = {Datum(1.1), Datum(2.2), Datum(3.3)};
+  grid.insertRow(first_row, 0);
+  auto [rows1, cols1] = grid.shape();
+  CHECK(rows1 == 1);
+  CHECK(cols1 == 3);
+  CHECK(grid.getValue(0, 0).GetDouble() == 1.1);
+  CHECK(grid.getValue(0, 2).GetDouble() == 3.3);
+
+  // Insert at the beginning (index 0)
+  std::vector<Datum> new_row = {Datum(9.9), Datum(8.8), Datum(7.7)};
+  grid.insertRow(new_row, 0);
+  auto [rows2, cols2] = grid.shape();
+  CHECK(rows2 == 2);
+  CHECK(cols2 == 3);
+  CHECK(grid.getValue(0, 0).GetDouble() == 9.9);
+  CHECK(grid.getValue(1, 0).GetDouble() == 1.1);
+
+  // Insert at the last index (append at end)
+  std::vector<Datum> last_row = {Datum(4.4), Datum(5.5), Datum(6.6)};
+  grid.insertRow(last_row, 2);
+  auto [rows3, cols3] = grid.shape();
+  CHECK(rows3 == 3);
+  CHECK(cols3 == 3);
+  CHECK(grid.getValue(2, 0).GetDouble() == 4.4);
+  CHECK(grid.getValue(2, 2).GetDouble() == 6.6);
+}
+
+/**
+ * @brief Test inserting premade columns
+ */
+TEST_CASE("DataGrid: Insert Premade Column", "[insert]") {
+  // Create an empty grid and insert a column
+  DataGrid grid;
+  std::vector<Datum> first_column = {Datum(1.1), Datum(2.2), Datum(3.3)};
+  grid.insertColumn(first_column, 0);
+  auto [rows1, cols1] = grid.shape();
+  CHECK(rows1 == 3);
+  CHECK(cols1 == 1);
+  CHECK(grid.getValue(0, 0).GetDouble() == 1.1);
+  CHECK(grid.getValue(2, 0).GetDouble() == 3.3);
+
+  // Insert at the beginning (index 0)
+  std::vector<Datum> new_column = {Datum(9.9), Datum(8.8), Datum(7.7)};
+  grid.insertColumn(new_column, 0);
+  auto [rows2, cols2] = grid.shape();
+  CHECK(rows2 == 3);
+  CHECK(cols2 == 2);
+  CHECK(grid.getValue(0, 0).GetDouble() == 9.9);
+  CHECK(grid.getValue(0, 1).GetDouble() == 1.1);
+
+  // Insert at the last index (append at end)
+  std::vector<Datum> last_column = {Datum(4.4), Datum(5.5), Datum(6.6)};
+  grid.insertColumn(last_column, 2);
+  auto [rows3, cols3] = grid.shape();
+  CHECK(rows3 == 3);
+  CHECK(cols3 == 3);
+  CHECK(grid.getValue(0, 2).GetDouble() == 4.4);
+  CHECK(grid.getValue(2, 2).GetDouble() == 6.6);
 }
 
 /**
