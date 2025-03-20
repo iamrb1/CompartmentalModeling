@@ -5,7 +5,7 @@
 
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 #include "../../Group-09/EventManager/EventManager.cpp"
-#include "../../Group-09/EventQueue/EventQueue.cpp"
+#include "../../Group-09/EventQueue/EventQueue.hpp"
 #include <cmath>
 
 using namespace cse;
