@@ -1164,7 +1164,7 @@ public:
   }
 
   /**
-   * erases all instances of the given string from the static string
+   * @brief erases all instances of the given string from the static string
    * @param str1 the string to erase
    */
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
@@ -1178,7 +1178,7 @@ public:
   }
 
   /**
-   * erases all instances of the given string up to the specified amount
+   * @brief erases all instances of the given string up to the specified amount
    * @param str1 the string to erase
    * @param amount how many instances of the strings should be erased
    */
@@ -1217,6 +1217,32 @@ public:
         std::vector<size_t> index2 = findAll(ch);
         remove(index2[0], index2[0] + size_t(1));
       }
+    }
+  }
+
+  /**
+   * @brief removes the whitespace from the end of static string
+   */
+  void trim() {
+    std::size_t foundStart = -1;
+    std::size_t whiteSpaceLength = 0;
+    bool foundTrailingWhiteSpace = false;
+    for (std::size_t i = 0; i < mCurrentSize; ++i) {
+      if (mString[i] == ' ' || mString[i] == '\t' || mString[i] == '\r') {
+        if (!foundTrailingWhiteSpace) {
+          foundStart = i;
+        }
+        whiteSpaceLength += size_t(1);
+        foundTrailingWhiteSpace = true;
+      }
+      else {
+        foundStart = 0;
+        whiteSpaceLength = 0;
+        foundTrailingWhiteSpace = false;
+      }
+    }
+    if (foundTrailingWhiteSpace) {
+      remove(foundStart, foundStart + whiteSpaceLength);
     }
   }
 

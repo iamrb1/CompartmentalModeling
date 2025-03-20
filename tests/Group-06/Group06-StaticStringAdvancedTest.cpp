@@ -275,7 +275,7 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     REQUIRE(std::strcmp(s1.get_str(), "Temp final TEMP final") == 0);
   }
 
-  /*SECTION("TESTS: Trim  member function") {
+  SECTION("TESTS: Trim  member function") {
     StaticString<30> s("Hello World   ");
 
     s.trim();
@@ -285,7 +285,7 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     s.trim();
     REQUIRE(std::strcmp(s.get_str(), "test") == 0);
   }
-  */
+  
   
   SECTION("TESTS: Foreach with lambda  member function") {
     StaticString<20> s("abc");
