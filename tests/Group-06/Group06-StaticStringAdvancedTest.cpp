@@ -214,7 +214,7 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     CHECK(std::strcmp(s2.get_str(), "a1TEST2---") == 0);
   }
 
-  /*SECTION("TESTS: Erase  member function") {
+  SECTION("TESTS: Erase  member function") {
     StaticString<40> s("aaabbbcccaaa");
 
     s.erase("aaa");
@@ -227,7 +227,7 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     s = "abcbdb";
     s.erase('b');
     REQUIRE(std::strcmp(s.get_str(), "acd") == 0);
-  }*/
+  }
 
   SECTION("TESTS: Remove member function") {
     StaticString<40> s("aaabbbcccaaa");
@@ -252,7 +252,7 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     REQUIRE(std::strcmp(s.get_str(), "aabbbccc") == 0);
   }
 
-  /*SECTION("TESTS: Swap  member function") {
+  SECTION("TESTS: Swap  member function") {
     StaticString<40> s("Hello World Hello");
 
     s.swap("Hello", "Tests", [](const std::string_view& word) { return word == "Hello"; });
@@ -271,12 +271,11 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
          }
          return true;
     };
-
     s1.swap("temp", "final", isAllLower);
     REQUIRE(std::strcmp(s1.get_str(), "Temp final TEMP final") == 0);
   }
 
-  SECTION("TESTS: Trim  member function") {
+  /*SECTION("TESTS: Trim  member function") {
     StaticString<30> s("Hello World   ");
 
     s.trim();
@@ -315,7 +314,7 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     REQUIRE(std::strcmp(s2.get_str(), "HEllO WOrld") == 0);
   }
   
-  SECTION("TESTS: Transform with lambda member function") {
+  /*SECTION("TESTS: Transform with lambda member function") {
     StaticString<20> s("abc");
 
     auto transformed = s.transform([](char ch) -> char {
@@ -325,7 +324,7 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     });
     REQUIRE(std::strcmp(s.get_str(), "abc") == 0);
     REQUIRE(std::strcmp(transformed.get_str(), "ABC") == 0);
-  }
+  }*/
   
   SECTION("TESTS: Count member function") { 
     StaticString<40> s("aabbccddeeff");

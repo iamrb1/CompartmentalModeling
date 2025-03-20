@@ -980,6 +980,245 @@ public:
   // resize returns a resized object 
   // explicit delete maybe
 
+  /** @brief swaps the two string values in the static string
+   * @param str1 the first string to swap
+   * @param str2 the second string to swap
+   * @param lambda The comparator function.
+   */
+  template <typename Func>
+  void swap(const char* str1, const char* str2, Func lambda) {
+    std::vector<size_t> index = findAll(str1);
+    std::vector<size_t> index2 = findAll(str2);
+    std::string_view size(str1);
+    std::string_view size2(str2);
+    if (index.size() * size2.length() > MaxSize)
+      throw std::out_of_range("erase exceeds the size allowed");
+    if (index2.size() * size.length() > MaxSize)
+      throw std::out_of_range("erase exceeds the size allowed");
+
+    for (int i = 0; i < (int)index.size(); i++) {
+      if (lambda(str1)) {
+        std::vector<size_t> index3 = findAll(str1);
+        remove(index3[0], index3[0] + size.length());
+        insert(str2, index3[0]);
+      }
+    }
+    for (int i = 0; i < (int)index2.size(); i++) {
+      if (lambda(str1)) {
+        std::vector<size_t> index3 = findAll(str2);
+        remove(index3[0], index3[0] + size2.length());
+        insert(str1, index3[0]);
+      }
+    }
+  }
+
+  // Overloading for non lambda function
+  template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
+  void swap(const T& str1, const char* str2) {
+    std::vector<size_t> index = findAll(str1);
+    std::vector<size_t> index2 = findAll(str2);
+    std::string_view size(str1);
+    std::string_view size2(str2);
+    if (index.size() * size2.length() > MaxSize)
+      throw std::out_of_range("erase exceeds the size allowed");
+    if (index2.size() * size.length() > MaxSize)
+      throw std::out_of_range("erase exceeds the size allowed");
+
+    for (int i = 0; i < (int)index.size(); i++) {
+      std::vector<size_t> index3 = findAll(str1);
+      remove(index3[0], index3[0] + size.length());
+      insert(str2, index3[0]);
+    }
+    for (int i = 0; i < (int)index2.size(); i++) {
+      std::vector<size_t> index3 = findAll(str2);
+      remove(index3[0], index3[0] + size2.length());
+      insert(str1, index3[0]);
+    }
+  }
+
+  // Overloading swap for char because string_view is not convertible from char
+  template <typename Func>
+  void swap(char ch, char ch2, Func lambda) {
+    std::vector<size_t> index = findAll(ch);
+    std::vector<size_t> index2 = findAll(ch2);
+    for (int i = 0; i < (int)index.size(); i++) {
+      if (lambda(ch)) {
+        remove(index[i], index[i] + size_t(1));
+        insert(ch2, index[i]);
+      }
+    }
+    for (int i = 0; i < (int)index2.size(); i++) {
+      if (lambda(ch)) {
+        remove(index2[i], index2[i] + size_t(1));
+        insert(ch, index2[i]);
+      }
+    }
+  }
+
+  // Overloading for non lambda function
+  void swap(char ch, char ch2) {
+    std::vector<size_t> index = findAll(ch);
+    std::vector<size_t> index2 = findAll(ch2);
+    for (int i = 0; i < (int)index.size(); i++) {
+      remove(index[i], index[i] + size_t(1));
+      insert(ch2, index[i]);
+    }
+    for (int i = 0; i < (int)index2.size(); i++) {
+      remove(index2[i], index2[i] + size_t(1));
+      insert(ch, index2[i]);
+    }
+  }
+
+  // Overloading swap for char because string_view is not convertible from char
+  template <typename Func>
+  void swap(const char* str1, char ch2, Func lambda) {
+    std::vector<size_t> index = findAll(str1);
+    std::vector<size_t> index2 = findAll(ch2);
+    std::string_view size(str1);
+    if (index2.size() * size.length() > MaxSize)
+      throw std::out_of_range("replace exceeds the size allowed");
+
+    for (int i = 0; i < (int)index.size(); i++) {
+      if (lambda(str1)) {
+        std::vector<size_t> index3 = findAll(str1);
+        remove(index[0], index[0] + size.length());
+        insert(ch2, index[0]);
+      }
+    }
+    for (int i = 0; i < (int)index2.size(); i++) {
+      if (lambda(str1)) {
+        std::vector<size_t> index3 = findAll(ch2);
+        remove(index3[0], index3[0] + std::size_t(1));
+        insert(str1, index3[0]);
+      }
+    }
+  }
+
+  // Overloading for non lambda function
+  template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
+  void swap(const T& str1, char ch2) {
+    std::vector<size_t> index = findAll(str1);
+    std::vector<size_t> index2 = findAll(ch2);
+    std::string_view size(str1);
+    if (index2.size() * size.length() > MaxSize)
+      throw std::out_of_range("replace exceeds the size allowed");
+
+    for (int i = 0; i < (int)index.size(); i++) {
+      std::vector<size_t> index3 = findAll(str1);
+      remove(index3[0], index3[0] + size.length());
+      insert(ch2, index3[0]);
+    }
+    for (int i = 0; i < (int)index2.size(); i++) {
+      std::vector<size_t> index3 = findAll(ch2);
+      remove(index3[0], index3[0] + std::size_t(1));
+      insert(str1, index3[0]);
+    }
+  }
+
+  // Overloading swap for char because string_view is not convertible from char
+  template <typename Func>
+  void swap(char ch, const char* str2, Func lambda) {
+    std::vector<size_t> index = findAll(ch);
+    std::vector<size_t> index2 = findAll(str2);
+
+    std::string_view size2(str2);
+    if (index.size() * size2.length() > MaxSize)
+      throw std::out_of_range("replace exceeds the size allowed");
+
+    for (int i = 0; i < (int)index.size(); i++) {
+      if (lambda(ch)) {
+        std::vector<size_t> index3 = findAll(ch);
+        remove(index3[0], index3[0] + std::size_t(1));
+        insert(str2, index3[0]);
+      }
+    }
+    for (int i = 0; i < (int)index.size(); i++) {
+      if (lambda(ch)) {
+        std::vector<size_t> index3 = findAll(str2);
+        remove(index3[0], index3[0] + size2.length());
+        insert(ch, index3[0]);
+      }
+    }
+  }
+
+  // Overloading for non lambda function
+  template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
+  void swap(char ch, const T& str2) {
+    std::vector<size_t> index = findAll(ch);
+    std::vector<size_t> index2 = findAll(str2);
+
+    std::string_view size2(str2);
+    if (index.size() * size2.length() > MaxSize)
+      throw std::out_of_range("replace exceeds the size allowed");
+
+    for (int i = 0; i < (int)index.size(); i++) {
+      std::vector<size_t> index3 = findAll(ch);
+      remove(index3[0], index3[0] + std::size_t(1));
+      insert(str2, index3[0]);
+    }
+    for (int i = 0; i < (int)index.size(); i++) {
+      std::vector<size_t> index3 = findAll(str2);
+      remove(index3[0], index3[0] + size2.length());
+      insert(ch, index3[0]);
+    }
+  }
+
+  /**
+   * erases all instances of the given string from the static string
+   * @param str1 the string to erase
+   */
+  template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
+  void erase(const T& str1) {
+    std::vector<size_t> index = findAll(str1);
+    std::string_view size(str1);
+    for (int i = 0; i < (int)index.size(); i++) {
+      std::vector<size_t> index2 = findAll(str1);
+      remove(index2[0], index2[0] + size.length());
+    }
+  }
+
+  /**
+   * erases all instances of the given string up to the specified amount
+   * @param str1 the string to erase
+   * @param amount how many instances of the strings should be erased
+   */
+  template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
+  void erase(const T& str1, int amount) {
+    std::vector<size_t> index = findAll(str1);
+    std::string_view size(str1);
+    if (index.size() * size.length() > MaxSize)
+      throw std::out_of_range("erase exceeds the size allowed");
+
+    int counter = 0;
+    for (int i = 0; i < (int)index.size(); i++) {
+      if (counter <= amount) {
+        std::vector<size_t> index2 = findAll(str1);
+        remove(index2[0], index2[0] + size.length());
+        counter++;
+      }
+    }
+  }
+
+  // Overloading erase for char because string_view is not convertible from char
+  void erase(char ch) {
+    std::vector<size_t> index = findAll(ch);
+    for (int i = 0; i < (int)index.size(); i++) {
+      std::vector<size_t> index2 = findAll(ch);
+      remove(index2[0], index2[0] + size_t(1));
+    }
+  }
+
+  // Overloading erase for char because string_view is not convertible from char
+  void erase(char ch, int amount) {
+    std::vector<size_t> index = findAll(ch);
+    int counter = 0;
+    for (int i = 0; i < (int)index.size(); i++) {
+      if (counter <= amount) {
+        std::vector<size_t> index2 = findAll(ch);
+        remove(index2[0], index2[0] + size_t(1));
+      }
+    }
+  }
 
 private: 
   /// @brief Constant value for StaticString null terminator used.
