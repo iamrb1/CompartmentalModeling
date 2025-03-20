@@ -270,7 +270,7 @@ bool cse::StringSet<T>::IsSubset(const StringSet<T> &other) const{
 }
 
 /**
- * @brief Returns a StringSet<T> with words that contain a substring
+ * @brief Removes words from a current StringSet that contain a substring
  * 
  * @param substring Substring to check against
  */
@@ -391,7 +391,7 @@ void cse::StringSet<T>::SizeFilter(int length) {
   assert(length > 0);
   
   auto sizePredicate = [length] (const T& element) {
-    return element.size() == static_cast<std::size_t>(length);
+    return element.length() == static_cast<std::size_t>(length);
   };
 
   RetainFilter(sizePredicate);

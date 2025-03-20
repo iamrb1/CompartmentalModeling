@@ -131,6 +131,15 @@ public:
   /*----------------------------OPERATORS-----------------------------------*/
 
   /**
+   * @brief Allows to implicitly convert to std::string_view to make find function work properly
+   * 
+   * @return std::string_view 
+   */
+  constexpr operator std::string_view() const noexcept {
+    // DeepSeek has been used to generate this function
+    return std::string_view(mString, mCurrentSize);
+}
+  /**
   * @brief Assignment operator.
   *
   * Copies the content from another StaticString.
