@@ -7,6 +7,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <ostream>
 
 #include "../../Group-06/StaticString/StaticString.hpp"
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
@@ -117,22 +118,26 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     );
 
     REQUIRE(std::strcmp(s2.get_str(), "a2b3c4d5") == 0);
-  }
+  }*/
 
   SECTION("TESTS: Operators member function") {
     //operator>> for file streams 
     std::istringstream iss("TestInput");
     StaticString<20> s;
     
+    REQUIRE(std::strcmp(s.get_str(), "") == 0);
+    REQUIRE(s.length() == 0);
     iss >> s;
     REQUIRE(std::strcmp(s.get_str(), "TestInput") == 0);
+    REQUIRE(s.length() == 9);
     
     std::istringstream iss2("Hello World");
     StaticString<20> s2;
+
     iss2 >> s2;
     // Due to whitespace only first input read check that
     REQUIRE(std::strcmp(s2.get_str(), "Hello") == 0);
-
+    REQUIRE(s2.length() == 5);
 
     //operator<< for streams
     StaticString<20> s3("HelloWorld");
@@ -140,7 +145,7 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     
     oss << s3;
     REQUIRE(oss.str() == "HelloWorld");
-  }*/
+  }
 
   SECTION("TESTS: Iterators") {
     StaticString<10> s("abcdef");
@@ -157,6 +162,14 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     std::cout << std::to_string(counter);
     REQUIRE(result == "abcdef");
 
+    std::string temp_result;
+    int temp_counter = 0;
+    for(auto item : s) {
+      temp_result.push_back(item);
+      temp_counter++;
+    }
+
+    REQUIRE(temp_result == "abcdef");
   }
 
   SECTION("TESTS: Insert member function") {
@@ -314,7 +327,7 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     REQUIRE(std::strcmp(s2.get_str(), "HEllO WOrld") == 0);
   }
   
-  /*SECTION("TESTS: Transform with lambda member function") {
+  SECTION("TESTS: Transform with lambda member function") {
     StaticString<20> s("abc");
 
     auto transformed = s.transform([](char ch) -> char {
@@ -324,7 +337,7 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     });
     REQUIRE(std::strcmp(s.get_str(), "abc") == 0);
     REQUIRE(std::strcmp(transformed.get_str(), "ABC") == 0);
-  }*/
+  }
   
   SECTION("TESTS: Count member function") { 
     StaticString<40> s("aabbccddeeff");
@@ -337,6 +350,17 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     REQUIRE(counts['d'] == 2);
     REQUIRE(counts['e'] == 2);
     REQUIRE(counts['f'] == 2);
+
+    StaticString<40> s2("a");
+
+    auto counts2 = s2.char_count();
+    REQUIRE(counts2['a'] == 1);
+
+    StaticString<40> s3("ababbabbaab");
+
+    auto counts3 = s3.char_count();
+    REQUIRE(counts3['a'] == 5);
+    REQUIRE(counts3['b'] == 6);
   }
 
   SECTION("TESTS: split member function") {
@@ -349,6 +373,28 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     REQUIRE(result[0].to_string() == "Hello");
     REQUIRE(result[1].to_string() == "World");
     REQUIRE(result[2].to_string() == "Test");
+
+    // Test to see if delimiter at the end
+    StaticString<30> s2("Hello,World,Test,");
+    std::vector<StaticString<30>> result2;
+
+    result2 = s2.split(',');
+
+    REQUIRE(result2.size() == 3);
+    REQUIRE(result2[0].to_string() == "Hello");
+    REQUIRE(result2[1].to_string() == "World");
+    REQUIRE(result2[2].to_string() == "Test");
+
+    // Test to see if delimiter at the beginning
+    StaticString<30> s3(",Hello,World,Test");
+    std::vector<StaticString<30>> result3;
+
+    result3 = s3.split(',');
+
+    REQUIRE(result3.size() == 3);
+    REQUIRE(result3[0].to_string() == "Hello");
+    REQUIRE(result3[1].to_string() == "World");
+    REQUIRE(result3[2].to_string() == "Test");
   }
 
   SECTION("TESTS: compare member function") {
@@ -358,5 +404,67 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
 
     REQUIRE(s1.compare(s2, [](char a, char b) { return a == b; }) == true);
     REQUIRE(s1.compare(s3, [](char a, char b) { return a == b; }) == false);
+
+    /*
+      For the application part 
+      StaticString<10> s1("Hello")
+      StaticString<10> s1("__l*") 
+      with a custom match pattern function or a class will be fed in to 
+      compare function as comparator thus will be able to check if the 
+      pattern matches.
+    */
   }
+
+  SECTION("TESTS: empty and clear") {
+    StaticString<10> s1("Hello");
+    StaticString<10> s2("Hello World");
+    StaticString<10> s3("");
+
+    REQUIRE(s1.empty() == false);
+    s1.clear();
+    REQUIRE(s1.empty() == true);
+
+    for(auto i : s1) {
+      REQUIRE(i == '\0');
+    }
+
+    REQUIRE(s3.empty() == true);
+    s3.clear();
+    REQUIRE(s3.empty() == true);
+
+
+    REQUIRE(s2.empty() == false);
+    s2.set(5,'\0');
+    REQUIRE(s2.empty() == false);
+
+    s2.clear();
+    REQUIRE(s2.empty() == true);
+
+    for(auto i : s2) {
+      REQUIRE(i == '\0');
+    }
+  }
+
+  //cse::StaticString<10> s2("Hello World"); get_Str() = "Hello Worl"
+}
+
+TEST_CASE("Tests for advanced edge case tests", "[StaticString]") {
+  SECTION("TESTS: Constructor templated types") {
+    StaticString<10> s("Hello World");
+    REQUIRE(std::strcmp(s.get_str(), "Hello Worl") == 0); // Longer string but only allowed part used
+
+    StaticString<10> s1("Hello World TEST");
+    REQUIRE(std::strcmp(s1.get_str(), "Hello Worl") == 0); // Longer string but only allowed part used
+
+
+    std::string input = "std::String";
+    StaticString<11> s2(input);
+    REQUIRE(std::strcmp(s2.get_str(), "std::String") == 0);
+
+    std::string_view view{"std::string_view"};
+    StaticString<30> s3(view);
+    REQUIRE(std::strcmp(s3.get_str(), "std::string_view") == 0);
+
+  }
+
 }

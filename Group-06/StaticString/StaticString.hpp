@@ -17,7 +17,7 @@
 #include <stdexcept>
 #include <vector>
 #include <iterator>
-#include <array>
+#include <iomanip>
 
 namespace cse {
 
@@ -74,8 +74,7 @@ public:
    * 
    * @tparam T A type that is implicitly convertible to `std::string_view`, such as 
    * `const char*`, `std::string`, or `std::string_view`.
-   * @tparam typename 
-   * @tparam std::string_view>> 
+   * @param cstr Templated basic string to construct StaticString.
    */
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
   constexpr StaticString(const T& cstr) : mCurrentSize(0) {
@@ -138,7 +137,8 @@ public:
   constexpr operator std::string_view() const noexcept {
     // DeepSeek has been used to generate this function
     return std::string_view(mString, mCurrentSize);
-}
+  }
+
   /**
   * @brief Assignment operator.
   *
@@ -375,6 +375,22 @@ public:
   * @return char* A pointer to the character array.
   */
   constexpr char* get_str() noexcept { return mString; }
+
+  /**
+  * @brief Converts the StaticString to an std::string.
+  *
+  * @return std::string The equivalent std::string.
+  */
+  std::string to_string() const { return std::string(mString, mCurrentSize); }
+
+  /**
+   * @brief Returns a string_view of the current StaticString content.
+   * 
+   * @return constexpr std::string_view A view of the current string data.
+   */
+  constexpr std::string_view view() const noexcept { 
+    return std::string_view(mString, mCurrentSize); 
+  }
   
   /**
    * @brief Finds the first occurrence of a character, string, string_view,
@@ -401,7 +417,12 @@ public:
     return npos;
   }
 
-  // Overloading find for char because  string_view is not convertible from char
+  /**
+   * @brief Finds the first occurrence of a character in the string.
+   * 
+   * @param ch Character to be searched 
+   * @return constexpr std::size_t index of the character found
+   */
   constexpr std::size_t find(char ch) const noexcept {
       for (std::size_t i = 0; i < mCurrentSize; ++i) {
           if (mString[i] == ch) return i;
@@ -437,13 +458,6 @@ public:
     mString[index] = character;
   }
 
-  /**
-  * @brief Converts the StaticString to an std::string.
-  *
-  * @return std::string The equivalent std::string.
-  */
-  std::string to_string() const { return std::string(mString, mCurrentSize); }
-
   /*-------------------- - STRING OPERATIONS ----------------------*/
 
   /**
@@ -476,32 +490,6 @@ public:
     mString[mCurrentSize] = null_terminator;
   }
 
-  // /**
-  // * @brief Appends a C-string to the end of the current string.
-  // *
-  // * @param cstr The C-string to append.
-  // * @throws std::out_of_range if the resulting string would exceed the MaxSize.
-  // */
-  // void append(const char* cstr) {
-  //   // Calculate the length of the given string.
-  //   const std::size_t cstr_length = std::strlen(cstr);
-
-  //   // Validate that given string fits into our string within static limit.
-  //   assert((mCurrentSize + cstr_length <= MaxSize) &&
-  //         "Appending string exceeds maximum size");
-  //   if (mCurrentSize + cstr_length > MaxSize) {
-  //     throw std::out_of_range(
-  //         "Static limit exceeded, appended string must be within limits "
-  //         "defined");
-  //   }
-
-  //   std::copy(cstr, cstr + cstr_length, mString + mCurrentSize);
-
-  //   // Update the length.
-  //   mCurrentSize += cstr_length;
-  //   mString[mCurrentSize] = null_terminator;
-  // }
-
   /**
   * @brief Appends a character to the end of the current string.
   *
@@ -525,60 +513,6 @@ public:
     mString[mCurrentSize] = null_terminator;
   }
 
-  // /**
-  // * @brief Appends an std::string to the end of the current string.
-  // *
-  // * @param str The std::string to append.
-  // * @throws std::out_of_range if the resulting string would exceed
-  // * the maximum size.
-  // */
-  // void append(const std::string& str) {
-  //   // Calculate the length of the given string.
-  //   const std::size_t str_length = str.length();
-
-  //   // Validate that given string fits into our string within static limit.
-  //   assert((mCurrentSize + str_length < MaxSize) &&
-  //         "Appending string exceeds maximum size");
-  //   if (mCurrentSize + str_length >= MaxSize) {
-  //     throw std::out_of_range(
-  //         "Static limit exceeded, appended string must be within limits "
-  //         "defined");
-  //   }
-
-  //   std::copy(str.begin(), str.end(), mString + mCurrentSize);
-
-  //   // Update the length.
-  //   mCurrentSize += str_length;
-  //   mString[mCurrentSize] = null_terminator;
-  // }
-
-  // /**
-  // * @brief Appends an std::string_view to the end of the current string.
-  // *
-  // * @param str The std::string_view to append.
-  // * @throws std::out_of_range if the resulting string would exceed
-  // * the maximum size.
-  // */
-  // void append(const std::string_view& str) {
-  //   // Calculate the length of the given string.
-  //   const std::size_t str_length = str.length();
-
-  //   // Validate that given string fits into our string within static limit.
-  //   assert((mCurrentSize + str_length < MaxSize) &&
-  //         "Appending string exceeds maximum size");
-  //   if (mCurrentSize + str_length >= MaxSize) {
-  //     throw std::out_of_range(
-  //         "Static limit exceeded, appended string must be within limits "
-  //         "defined");
-  //   }
-
-  //   std::copy(str.begin(), str.end(), mString + mCurrentSize);
-
-  //   // Update the length.
-  //   mCurrentSize += str_length;
-  //   mString[mCurrentSize] = null_terminator;
-  // }
-
   /**
   * @brief Concatenates another StaticString onto this StaticString object.
   *
@@ -589,8 +523,8 @@ public:
   */
   StaticString& concat(const StaticString& rhs) {
     // Validate that given string fits into our string within static limit.
-    assert((mCurrentSize + rhs.mCurrentSize <= MaxSize) &&
-          "Concatenated string exceeds maximum size");
+    // assert((mCurrentSize + rhs.mCurrentSize <= MaxSize) &&
+    //       "Concatenated string exceeds maximum size");
 
     if (mCurrentSize + rhs.mCurrentSize > MaxSize) {
       throw std::out_of_range(
@@ -623,8 +557,8 @@ public:
   std::string_view substr(const std::size_t& start,
                           const std::size_t& end) const {
     // Validate that given string fits into our string within static limit.
-    assert((start < end || end <= mCurrentSize) &&
-          "Index provided for substring are invalid");
+    // assert((start < end || end <= mCurrentSize) &&
+    //       "Index provided for substring are invalid");
 
     if (start > end || end > mCurrentSize) {
       throw std::out_of_range("Invalid substring request");
@@ -718,8 +652,6 @@ public:
   */
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
   constexpr  std::vector<std::size_t> findAll(const T& str) const noexcept {
-    // std::string, char*, char[N] are all convertible to string_view, thus
-    // We convert templated input to convert into string_view to perform findAll
     std::string_view size(str);
 
     // A list of all of the indexes found
@@ -739,7 +671,12 @@ public:
     return indexesFound;
   }
 
-  // Overloading findAll for char because string_view is not convertible from char
+  /**
+   * @brief 
+   * 
+   * @param ch 
+   * @return constexpr std::vector<std::size_t> 
+   */
   constexpr std::vector<std::size_t> findAll(char ch) const noexcept {
       std::vector<std::size_t> indexesFound = std::vector<size_t>{};
       int counter = 0;
@@ -784,8 +721,13 @@ public:
     return indexesFound;
   }
 
-
-  // Overloading rFind for char because  string_view is not convertible from char
+  /**
+   * @brief Finds the first occurrence of a character in the string, 
+   * in reverse search order.
+   * 
+   * @param ch Character to be searched 
+   * @return constexpr std::vector<std::size_t> 
+   */
   constexpr std::vector<std::size_t> rFind(char ch) const noexcept {
       std::vector<std::size_t> indexesFound = std::vector<size_t>{};
       int counter = 0;
@@ -800,17 +742,18 @@ public:
   }
 
   /**
-  * @brief replaces all instances of the first string given with the second string 
+  * @brief replaces all instances of the string given with the new string 
   * 
   * @tparam T Templated types are string, string_view, char*
-  * @param the string to replace
-  * @param the string to replace the string
+  * @param str1 string to be replaced
+  * @param str2 string to replace with
   */
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
   void replace(const T& str1, const char* str2) {
     std::vector<size_t> index = findAll(str1);
     std::string_view size(str1);
     std::string_view size2(str2);
+
     if (index.size() * size2.length() > MaxSize)
       throw std::out_of_range("replace exceeds the size allowed");
 
@@ -820,7 +763,12 @@ public:
     }
   }
 
-  // Overloading replace for char because string_view is not convertible from char
+  /**
+   * @brief 
+   * 
+   * @param ch 
+   * @param ch2 
+   */
   void replace(char ch, char ch2) {
     std::vector<size_t> index = findAll(ch);
     for (int i = 0; i < (int)index.size(); i++) {
@@ -829,7 +777,14 @@ public:
     }
   }
 
-  // Overloading replace for char because string_view is not convertible from char
+  /**
+   * @brief 
+   * 
+   * @tparam T 
+   * @tparam typename 
+   * @param str1 
+   * @param ch2 
+   */
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
   void replace(const T& str1, char ch2) {
     std::vector<size_t> index = findAll(str1);
@@ -840,7 +795,14 @@ public:
     }
   }
 
-  // Overloading replace for char because string_view is not convertible from char
+  /**
+   * @brief 
+   * 
+   * @tparam T 
+   * @tparam typename 
+   * @param ch 
+   * @param str2 
+   */
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
   void replace(char ch, const T& str2) {
     std::vector<size_t> index = findAll(ch);
@@ -868,7 +830,6 @@ public:
    */
   template <typename Func>
   void foreach(Func lambda) {
-
     for (size_t i = 0; i < mCurrentSize; ++i) {
       lambda(mString[i]);
     }
@@ -920,22 +881,27 @@ public:
    * @return std::vector<StaticString<MaxSize>> Collection of splitted StaticString objects.
    */
   std::vector<StaticString<MaxSize>> split(char delimiter) const {
-
     std::vector<StaticString<MaxSize>> result;
-
     StaticString<MaxSize> new_string;
     
-    for (std::size_t i = 0; i < mCurrentSize; ++i) {
+    for (std::size_t i = 0; i < mCurrentSize; i++) {
       if (mString[i] == delimiter) {
-        result.push_back(new_string);
-        new_string = StaticString<MaxSize>(); 
+        // Make sure to not add empty string, avoid begin with delimiter
+        if(!new_string.empty()) {
+          result.push_back(new_string);
+        }
+        new_string.clear(); 
       } else {
         new_string.append(mString[i]);
       }
     }
     
     result.push_back(new_string);
-
+    // If the delimiter at the end results extra empty string in the vecto
+    // Get rid of that
+    if (!result.empty() && result.back().empty()) {
+      result.pop_back();
+    }
     return result;
   }
 
@@ -944,7 +910,12 @@ public:
    * 
    * Useful for lexicographical or conditional comparison beyond equality.
    * @attention Inorder to make comparison both StaticString objects must be 
-   * equal length.
+   * equal length for character wise comparison.
+   * 
+   * If you decide to compare using both object not character wise, adjust
+   * arguments of the lambda according to that. Make sure to use in caution.
+   * 
+   * @note Comparing object wise can be used for pattern matching 
    * 
    * @tparam Func A comparator function taking two characters and returning a bool.
    * @param rhs The StaticString to compare against.
@@ -954,40 +925,33 @@ public:
    */
   template <typename Func>
   constexpr bool compare(const StaticString& rhs, Func lambda) const noexcept {
-    if (mCurrentSize != rhs.mCurrentSize) return false;
-
-    for (std::size_t i = 0; i < mCurrentSize; ++i) {
-      if (!lambda(mString[i], rhs.mString[i])) {
-        return false;
+    
+    if constexpr (std::is_invocable_v<Func, char, char>) {
+      if (mCurrentSize != rhs.mCurrentSize) return false;
+    
+      for (std::size_t i = 0; i < mCurrentSize; ++i) {
+        if (!lambda(mString[i], rhs.mString[i])) {
+          return false;
+        }
       }
+      return true;
+    } else if constexpr (std::is_invocable_v<Func, StaticString, StaticString>) {
+      return lambda(*this, rhs);
+    } else {
+      throw std::invalid_argument("Lambda provided is missing arguments.");
     }
-    return true;
   }
 
   /**
-   * @brief Returns a string_view of the current StaticString content.
+   * @brief Checks if the string is empty or not.
    * 
-   * @return constexpr std::string_view A view of the current string data.
-   */
-  constexpr std::string_view view() const noexcept { 
-    return std::string_view(mString, mCurrentSize); 
-  }
-
-  /**
-   * @brief 
-   * 
-   * @return true 
-   * @return false 
+   * @return true If the string is empty
+   * @return false If the string is not empty
    */
   bool empty() const noexcept {
     if(mCurrentSize == 0) return true;
     else return false;
   }
-
-  // Shrink_to_fir returns a new StaticString object shrinked to fit
-  // Clear
-  // resize returns a resized object 
-  // explicit delete maybe
 
   /** @brief swaps the two string values in the static string
    * @param str1 the first string to swap
@@ -1021,7 +985,14 @@ public:
     }
   }
 
-  // Overloading for non lambda function
+  /**
+   * @brief 
+   * 
+   * @tparam T 
+   * @tparam typename 
+   * @param str1 
+   * @param str2 
+   */
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
   void swap(const T& str1, const char* str2) {
     std::vector<size_t> index = findAll(str1);
@@ -1045,7 +1016,14 @@ public:
     }
   }
 
-  // Overloading swap for char because string_view is not convertible from char
+  /**
+   * @brief 
+   * 
+   * @tparam Func 
+   * @param ch 
+   * @param ch2 
+   * @param lambda 
+   */
   template <typename Func>
   void swap(char ch, char ch2, Func lambda) {
     std::vector<size_t> index = findAll(ch);
@@ -1064,7 +1042,12 @@ public:
     }
   }
 
-  // Overloading for non lambda function
+  /**
+   * @brief 
+   * 
+   * @param ch 
+   * @param ch2 
+   */
   void swap(char ch, char ch2) {
     std::vector<size_t> index = findAll(ch);
     std::vector<size_t> index2 = findAll(ch2);
@@ -1078,7 +1061,14 @@ public:
     }
   }
 
-  // Overloading swap for char because string_view is not convertible from char
+  /**
+   * @brief 
+   * 
+   * @tparam Func 
+   * @param str1 
+   * @param ch2 
+   * @param lambda 
+   */
   template <typename Func>
   void swap(const char* str1, char ch2, Func lambda) {
     std::vector<size_t> index = findAll(str1);
@@ -1103,7 +1093,14 @@ public:
     }
   }
 
-  // Overloading for non lambda function
+  /**
+   * @brief 
+   * 
+   * @tparam T 
+   * @tparam typename 
+   * @param str1 
+   * @param ch2 
+   */
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
   void swap(const T& str1, char ch2) {
     std::vector<size_t> index = findAll(str1);
@@ -1124,7 +1121,14 @@ public:
     }
   }
 
-  // Overloading swap for char because string_view is not convertible from char
+  /**
+   * @brief 
+   * 
+   * @tparam Func 
+   * @param ch 
+   * @param str2 
+   * @param lambda 
+   */
   template <typename Func>
   void swap(char ch, const char* str2, Func lambda) {
     std::vector<size_t> index = findAll(ch);
@@ -1150,7 +1154,15 @@ public:
     }
   }
 
-  // Overloading for non lambda function
+  /**
+   * @brief 
+   * 
+   * @tparam T 
+   * @tparam typename 
+   * @tparam std::string_view>> 
+   * @param ch 
+   * @param str2 
+   */
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
   void swap(char ch, const T& str2) {
     std::vector<size_t> index = findAll(ch);
@@ -1208,7 +1220,11 @@ public:
     }
   }
 
-  // Overloading erase for char because string_view is not convertible from char
+  /**
+   * @brief 
+   * 
+   * @param ch 
+   */
   void erase(char ch) {
     std::vector<size_t> index = findAll(ch);
     for (int i = 0; i < (int)index.size(); i++) {
@@ -1217,7 +1233,12 @@ public:
     }
   }
 
-  // Overloading erase for char because string_view is not convertible from char
+  /**
+   * @brief 
+   * 
+   * @param ch 
+   * @param amount 
+   */
   void erase(char ch, int amount) {
     std::vector<size_t> index = findAll(ch);
     int counter = 0;
@@ -1236,6 +1257,7 @@ public:
     std::size_t foundStart = -1;
     std::size_t whiteSpaceLength = 0;
     bool foundTrailingWhiteSpace = false;
+
     for (std::size_t i = 0; i < mCurrentSize; ++i) {
       if (mString[i] == ' ' || mString[i] == '\t' || mString[i] == '\r') {
         if (!foundTrailingWhiteSpace) {
@@ -1255,6 +1277,15 @@ public:
     }
   }
 
+  /**
+   * @brief clears the StaticString string
+   * 
+   */
+  constexpr void clear() noexcept {
+    std::fill(mString, mString + MaxSize, '\0');
+    mCurrentSize = 0;
+  }
+
 private: 
   /// @brief Constant value for StaticString null terminator used.
   static constexpr char null_terminator = '\0';
@@ -1266,10 +1297,48 @@ private:
   std::size_t mCurrentSize = 0;  // Tracks the current length of the string.
 };
 
+/**
+ * @brief << output stream operator implementation
+ * 
+ * @tparam MaxSize Static limit size
+ * @param oss ostream to ouput
+ * @param str StaticString object to get output
+ * @return std::ostream& ostream output string collected
+ */
+template <std::size_t MaxSize>
+std::ostream& operator<<(std::ostream& oss, const StaticString<MaxSize>& str) {
+  oss << str.get_str();
+  return oss;
+}
+
+/**
+ * @brief >> input stream operator implementation
+ * 
+ * @tparam MaxSize Static limit size 
+ * @param iss istream to get input
+ * @param str StaticString object to assign input
+ * @return std::istream& istream input collected
+ */
+template <std::size_t MaxSize>
+std::istream& operator>>(std::istream& iss, StaticString<MaxSize>& str) {
+  char buffer[MaxSize + 1];
+  // Read input until MaxSize reached 
+  iss >> std::setw(MaxSize + 1) >> buffer; 
+  // Assign the temporary array to object
+  str = buffer; 
+  return iss;
+}
+
 }  // namespace cse
 
-
 namespace std {
+
+  /**
+   * @brief This is a templated hasher class used to customized hash for 
+   * StaticString class to be used.
+   * 
+   * @tparam MaxSize Limit defined for the StaticString
+   */
   template <std::size_t MaxSize>
   struct hash<cse::StaticString<MaxSize>> {
     /**
@@ -1284,6 +1353,7 @@ namespace std {
       return std::hash<std::string_view>{}(obj.view());
     }
   };
-}
+
+} // namespace std
 
 #endif  // CSE_STATIC_STRING_HPP_

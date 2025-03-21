@@ -1,24 +1,41 @@
-// #include <chrono>
-// #include <iostream>
-// #include <string>
-// #include <string_view>
-
-// #include "StaticString.hpp"
-
 #include <chrono>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <algorithm>
-#include <unordered_map>
+#include <unordered_set>
 #include <cctype>
 
 #include "StaticString.hpp"
+#include "../StringSet/StringSet.hpp"
 
 //CITE: https://chatgpt.com/share/67d78a2c-17a4-800e-b4f6-d9a48297fa9e
 int main() {
   const int iterations = 100000;  // number of iterations for each test
   using namespace std::chrono;
+  // TEST -----------------
+  std::unordered_set<cse::StaticString<10>> myMap;
+  cse::StaticString<10> s("Hello");
+  myMap.insert(s);
+
+  for(auto i : myMap)
+  {
+    std::cout << i.get_str() << std::endl;
+  }
+
+  cse::StringSet<cse::StaticString<10>> mySet;
+  mySet.insert(s);
+
+  std::cout << "MYSET PRINT: \n";
+  
+  for(auto i : mySet) {
+    std::cout << i.get_str() << std::endl;
+  }
+
+  // cse::StaticString<10> s("Hello");
+
+  // s.resize(20);
+  // std::cout << "TEST DONE!\n"; 
 
   // Test 1: Construction, Copy, Assignment, and Element Access
   {
@@ -309,7 +326,6 @@ int main() {
 
   return 0;
 }
-
 
 
 // int main() {

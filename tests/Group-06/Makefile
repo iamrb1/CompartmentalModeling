@@ -1,6 +1,6 @@
 default: test
 
-TEST_NAMES = Group06-ErrorManagerTest Group06-StringSetAdvancedTest Group06-CommandLineTest Group06-StaticStringTest Group06-StringSetTest Group06-ArgManagerTest 
+TEST_NAMES = Group06-ErrorManagerTest Group06-StringSetAdvancedTest Group06-CommandLineTest Group06-StaticStringTest Group06-StaticStringAdvancedTest Group06-StringSetTest Group06-ArgManagerTest 
 
 # -O3	  -Wl,--stack,8388608 -ftrack-macro-expansion=0
 FLAGS = -std=c++23 -g -pthread -Wall -Wextra -I../../ -DCATCH_CONFIG_MAIN
