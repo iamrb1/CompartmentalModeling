@@ -32,26 +32,35 @@ public:
    * @param container the container of items
    * @param permutation_size k, or the size of the items chosen at once.
    */
-  PermutationManager(const Container & container, size_t permutation_size) : 
+  PermutationManager(const Container & container, size_t permutation_size, bool required=false,
+    ValueType toRequire = ValueType{}) : 
   items_(std::begin(container), std::end(container)),
   k_(permutation_size),
   n_(container.size()),
+  requiredValue_(toRequire),
+  isRequired_(required),
+  requiredIndex_(0),
   currentPermutation_() {
+
+    if (required) {
+      k_ -= 1;
+      std::remove(items_.begin(), items_.end(), toRequire);
+    }
     
     // ensure k is less than or equal to n
     if (k_ > n_) {
       throw std::invalid_argument("Combination size cannot be greater than the number of items in the container.");
     }
     
-    totalPermutations_ = permutationNumber(n_, k_);
+    totalPermutations_ = PermutationNumber(n_, k_);
 
-    reset();
+    Reset();
   }
 
   /**
    * @brief resets the permutation generator to the initial state
    */
-  void reset() {
+  void Reset() {
     currentIndex_ = 0;
     currentPermutation_.resize(k_);
     indices_.clear();
@@ -67,17 +76,32 @@ public:
    * @brief generates the next permutation
    * @return false if we've reached the end, true otherwise
    */
-  bool next() {
+  bool Next() {
     // end condition
     if (currentIndex_ >= totalPermutations_ - 1)
       return false;
 
     // either generate the next permutation w/the std algorithm (if n == k) or make a k permutation
-    if (n_ == k_) {
-      std::next_permutation(indices_.begin(), indices_.end());
+    if (isRequired_) {
+      if (n_ == k_) {
+        std::next_permutation(indices_.begin(), indices_.end());
+      } else if (requiredIndex_ < k_) { // 
+        ++requiredIndex_;
+      } else {
+        // handle required elements here...
+        NextKPermutation_();
+        requiredIndex_ = 0;
+      }
     } else {
-      nextKPermutation();
+      if (n_ == k_) {
+        std::next_permutation(indices_.begin(), indices_.end());
+      } else {
+        // handle required elements here...
+        NextKPermutation_();
+        requiredIndex_ = 0;
+      }
     }
+    
 
     for (size_t i = 0; i < k_; ++i) {
       currentPermutation_[i] = items_[indices_[i]];
@@ -91,7 +115,7 @@ public:
    * @brief generates the lexographically lower permutation
    * @return - true if it exists, false otherwise
    */
-  bool prev() {
+  bool Prev() {
     // end condition
     if (currentIndex_ == 0)
       return false;
@@ -100,7 +124,7 @@ public:
     if (n_ == k_) {
       std::prev_permutation(indices_.begin(), indices_.end());
     } else {
-      prevKPermutation();
+      PrevKPermutation_();
     }
 
     for (size_t i = 0; i < k_; ++i) {
@@ -115,7 +139,13 @@ public:
    * @brief getter for the current permutation
    * @return vector size k of the value type
    */
-  std::vector<ValueType> getCurrentPermutation() {
+  std::vector<ValueType> GetCurrentPermutation() {
+    if (isRequired_) {
+      auto temp = currentPermutation_;
+      temp.insert(temp.begin() + requiredIndex_, requiredValue_);
+      return temp;
+    }
+      
     return currentPermutation_;
   }
 
@@ -125,8 +155,8 @@ public:
    * @param k - the number of items we choose
    * @return size_t for the number
    */
-  size_t permutationNumber(std::size_t n, std::size_t k) {
-    return factorial(n) / factorial(n - k);
+  size_t PermutationNumber(std::size_t n, std::size_t k) {
+    return Factorial_(n) / Factorial_(n - k);
   }
 
 private:
@@ -152,12 +182,21 @@ private:
   // The current permutation
   std::vector<ValueType> currentPermutation_;
 
+  // Determines if we have any required values
+  bool isRequired_;
+
+  // The value that is required
+  ValueType requiredValue_;
+
+  // The index of the required value
+  size_t requiredIndex_;
+
 
   /**
    * @brief same as next k permutation but in the opposite direction
    * 
    */
-  void prevKPermutation() {
+  void PrevKPermutation_() {
     if (std::prev_permutation(indices_.begin(), indices_.end()))
       return;
 
@@ -196,12 +235,10 @@ private:
    * Because in theory we are just stepping through each combination, and grabbing each permutation of such
    * so much of this algorithm will look similar to the one in combo manager
    */
-  void nextKPermutation() {
+  void NextKPermutation_() {
     // check if we can permute the existing set 
     if (std::next_permutation(indices_.begin(), indices_.end()))
       return;
-
-    //std::cout << "new combo" << std::endl;
 
     std::sort(indices_.begin(), indices_.end());
 
@@ -239,7 +276,7 @@ private:
    * @param x - the number we are performing the factorial operation on
    * @return x!
    */
-  static size_t factorial(size_t x) {
+  static size_t Factorial_(size_t x) {
     if (x == 0 || x == 1)
       return 1;
     
