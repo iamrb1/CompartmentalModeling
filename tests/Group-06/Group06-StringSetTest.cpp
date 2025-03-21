@@ -149,12 +149,18 @@ TEST_CASE("Test for Union", "[Union]"){
     set1.insert("blue");
     set1.insert("yellow");
     set1.insert("black");
+    REQUIRE(set1.count("blue") == 1);
+    REQUIRE(set1.count("yellow") == 1);
+    REQUIRE(set1.count("black") == 1);
 
     set2.insert("green");
     set2.insert("pink");
     set2.insert("black");
     set2.insert("green");
     REQUIRE(set2.size() == 3);
+    REQUIRE(set2.count("green") == 1);
+    REQUIRE(set2.count("pink") == 1);
+    REQUIRE(set2.count("black") == 1);
 
     unionSet = set1.Union(set2);
     REQUIRE(unionSet.count("blue") == 1);
@@ -164,6 +170,14 @@ TEST_CASE("Test for Union", "[Union]"){
     REQUIRE(unionSet.count("pink") == 1);
     REQUIRE(unionSet.count("white") == 0);
     REQUIRE(unionSet.size() == 5); // blue, yellow, black, green, pink
+
+    REQUIRE(set2.count("green") == 1);
+    REQUIRE(set2.count("pink") == 1);
+    REQUIRE(set2.count("black") == 1);
+
+    REQUIRE(set1.count("blue") == 1);
+    REQUIRE(set1.count("yellow") == 1);
+    REQUIRE(set1.count("black") == 1);
 
     // One set empty other one is not
     set1.clear();
@@ -192,12 +206,18 @@ TEST_CASE("Test for Intersection", "[Intersection]"){
     set1.insert("blue");
     set1.insert("yellow");
     set1.insert("black");
+    REQUIRE(set1.count("blue") == 1);
+    REQUIRE(set1.count("yellow") == 1);
+    REQUIRE(set1.count("black") == 1);
 
     set2.insert("green");
     set2.insert("blue");
     set2.insert("black");
     set2.insert("green");
     REQUIRE(set2.size() == 3);
+    REQUIRE(set2.count("green") == 1);
+    REQUIRE(set2.count("blue") == 1);
+    REQUIRE(set2.count("black") == 1);
 
     intersectionSet = set1.Intersection(set2);
     REQUIRE(intersectionSet.count("blue") == 1);
@@ -205,6 +225,15 @@ TEST_CASE("Test for Intersection", "[Intersection]"){
     REQUIRE(intersectionSet.count("green") == 0);
     REQUIRE(intersectionSet.count("yellow") == 0);
     REQUIRE(intersectionSet.size() == 2); // blue, black
+
+    REQUIRE(set2.count("green") == 1);
+    REQUIRE(set2.count("blue") == 1);
+    REQUIRE(set2.count("black") == 1);
+
+    REQUIRE(set1.count("blue") == 1);
+    REQUIRE(set1.count("yellow") == 1);
+    REQUIRE(set1.count("black") == 1);
+
 
     // One empty set
     set1.clear();
@@ -222,10 +251,18 @@ TEST_CASE("Test for Difference", "[Difference]"){
     set1.insert("blue");
     set1.insert("yellow");
     set1.insert("black");
+    REQUIRE(set1.count("blue") == 1);
+    REQUIRE(set1.count("yellow") == 1);
+    REQUIRE(set1.count("black") == 1);
+
 
     set2.insert("green");
     set2.insert("blue");
     set2.insert("purple");
+    REQUIRE(set2.count("green") == 1);
+    REQUIRE(set2.count("blue") == 1);
+    REQUIRE(set2.count("purple") == 1);
+
 
     StringSet differenceSet1 = set1.Difference(set2);
     REQUIRE(differenceSet1.count("yellow") == 1);
@@ -240,6 +277,14 @@ TEST_CASE("Test for Difference", "[Difference]"){
     REQUIRE(differenceSet2.count("blue") == 0);
     REQUIRE_FALSE(differenceSet2.count("yellow") == 1);
     REQUIRE(differenceSet2.size() == 2); // green and purple (present in set2 but not in set1)
+
+    REQUIRE(set1.count("blue") == 1);
+    REQUIRE(set1.count("yellow") == 1);
+    REQUIRE(set1.count("black") == 1);
+
+    REQUIRE(set2.count("green") == 1);
+    REQUIRE(set2.count("blue") == 1);
+    REQUIRE(set2.count("purple") == 1);
 
     // Try same set, needs to return empty set
     StringSet differenceSet3 = set2.Difference(set2);
