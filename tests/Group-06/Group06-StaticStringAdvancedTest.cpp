@@ -26,10 +26,10 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     REQUIRE(s3.findAll("34") ==std::vector<size_t>{2});
     
     REQUIRE(s.findAll('e') == std::vector<size_t>{1,11});
-    REQUIRE(s.findAll('E') == std::vector<size_t>{});//cse::StaticString::npos2);
+    REQUIRE(s.findAll('E') == std::vector<size_t>{});
     REQUIRE(s.findAll('d') == std::vector<size_t>{9,19});
 
-    REQUIRE(s2.findAll("abcD") == std::vector<size_t>{});//cse::StaticString::npos2);
+    REQUIRE(s2.findAll("abcD") == std::vector<size_t>{});
     REQUIRE(s2.findAll("abcd") == std::vector<size_t>{0,4,8,12});
 
     REQUIRE(s3.findAll("0") == std::vector<size_t>{9});
@@ -240,6 +240,12 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     s = "abcbdb";
     s.erase('b');
     REQUIRE(std::strcmp(s.get_str(), "acd") == 0);
+
+    s.erase('f');
+    REQUIRE(std::strcmp(s.get_str(), "acd") == 0);
+
+    s.erase("acd");
+    REQUIRE(std::strcmp(s.get_str(), "") == 0);
   }
 
   SECTION("TESTS: Remove member function") {
@@ -297,6 +303,17 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     s = "test";
     s.trim();
     REQUIRE(std::strcmp(s.get_str(), "test") == 0);
+
+    // Removes the leading space 
+    s = "   Hello World";
+
+    s.trim();
+    CHECK(std::strcmp(s.get_str(), "Hello World") == 0);
+
+    s = "   Hello World   ";
+
+    s.trim();
+    CHECK(std::strcmp(s.get_str(), "Hello World") == 0);
   }
   
   
@@ -444,8 +461,6 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
       REQUIRE(i == '\0');
     }
   }
-
-  //cse::StaticString<10> s2("Hello World"); get_Str() = "Hello Worl"
 }
 
 TEST_CASE("Tests for advanced edge case tests", "[StaticString]") {
@@ -465,6 +480,22 @@ TEST_CASE("Tests for advanced edge case tests", "[StaticString]") {
     StaticString<30> s3(view);
     REQUIRE(std::strcmp(s3.get_str(), "std::string_view") == 0);
 
+  }
+
+  SECTION("TESTS: Memory tests") {
+    // Test to see beyond memeory is still preserverd or not
+    StaticString<10> s("HelloWorld");
+    s.set(5,'\0');
+
+    REQUIRE(std::strcmp(s.get_str(), "Hello") == 0);
+
+    std::size_t count = 0;
+    char expected[11] = {'H','e','l','l','o','\0','o','r','l','d','\0'};
+
+    for(auto item : s) {
+      REQUIRE(item == expected[count]);
+      count++;
+    }
   }
 
 }

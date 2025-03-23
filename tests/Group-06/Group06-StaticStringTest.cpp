@@ -351,6 +351,9 @@ TEST_CASE("Tests for member functions", "[StaticString]") {
     s6.append(sub_str);
     REQUIRE(s6.length() == 5);
     REQUIRE(s6.to_string() == "Hello");
+
+    // Test to see if error is thrown
+    CHECK_THROWS_AS(s2.append("DHELLOWORLD!!!"), std::out_of_range);
   }
 
   SECTION("TESTS: concat member function") {
@@ -384,6 +387,11 @@ TEST_CASE("Tests for member functions", "[StaticString]") {
     s3.concat(s);
     REQUIRE(s3.length() == 15);
     REQUIRE(s3.to_string() == "Hello12345Hello");
+
+    // test is the error thrown
+    s = "HELLOWORLDHELLOWORLD";
+    CHECK_THROWS_AS(s.concat(s5), std::out_of_range);
+    CHECK_THROWS_AS(s.concat(s), std::out_of_range);
   }
 
   SECTION("TESTS: substr member function") {
@@ -400,5 +408,10 @@ TEST_CASE("Tests for member functions", "[StaticString]") {
 
     std::string_view temp = s3.substr(1, 6);
     REQUIRE(temp == "23456");
+
+    CHECK_THROWS_AS(s.substr(-1, 5), std::out_of_range);
+    CHECK_THROWS_AS(s.substr(6, 5), std::out_of_range);
+    CHECK_THROWS_AS(s.substr(1, -1), std::out_of_range);
+    CHECK_THROWS_AS(s.substr(0, 11), std::out_of_range);
   }
 }

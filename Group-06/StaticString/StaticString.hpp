@@ -167,46 +167,49 @@ public:
   }
 
   /**
-  * @brief Assignment operator from a C-string.
-  *
-  * New string to be assigned must be shorter than size limit or exact length
-  * with maximum size limit. When a StaticString assigned to a nullptr,
-  * it will automatically clear itself and will be empty
-  * as well as empty string initialization.
-  *
-  * @param cstr C-string to be assigned.
-  * @return StaticString& Reference to this StaticString object.
-  */
-  StaticString& operator=(const char* cstr) {
-    // Empty string or nullptr assign handle
-    if (!cstr) {
-      // Set all indexes to null terminator
-      for (std::size_t i = 0; i <= MaxSize; ++i) {
-        mString[i] = null_terminator;
-      }
-      mCurrentSize = 0;
-      return *this;
+   * @brief Assignment operator from StaticString.
+   * 
+   * New string to be assigned must be shorter than size limit or exact length
+   * with maximum size limit. When a StaticString assigned to a nullptr,
+   * it will automatically clear itself and will be empty
+   * as well as empty string initialization.
+   * 
+   * @tparam T The templated type of basic string convertible to std::string_view
+   * @param str basic string to be assigned.
+   * @return StaticString& Reference to this StaticString object.
+   */
+  template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
+  constexpr StaticString& operator=(const T& str) {
+    std::string_view view = str;
+
+    if (view.size() > MaxSize) {
+      throw std::out_of_range("Invalid size for assign input, input string is too long.");
     }
 
-    size_t newLength = 0;
-    // Copy the new string
-    while (cstr[newLength] != null_terminator && newLength < MaxSize) {
-      mString[newLength] = cstr[newLength];
-      ++newLength;
-    }
+    std::copy(view.begin(), view.end(), mString);
+    mCurrentSize = view.size();
+    mString[mCurrentSize] = null_terminator;
 
-    // Check new copied string is under static limits
-    assert((newLength < MaxSize || cstr[newLength] == null_terminator) &&
-          "Invalid size for assign input, input string is too long.");
-
-    // Replace remaining part of the string with null terminator
-    for (size_t i = newLength; i <= MaxSize; ++i) {
+    for (std::size_t i = mCurrentSize + 1; i <= MaxSize; ++i) {
       mString[i] = null_terminator;
     }
 
-    mCurrentSize = newLength;
     return *this;
   }
+
+  /**
+   * @brief Overload of nullptr assign for StaticString.
+   * 
+   * Nullptr assign will lead to clear the buffer of the string and assign 
+   * all charaters to null terminator.
+   * 
+   * @return StaticString& Reference to this StaticString object.
+   */
+  constexpr StaticString& operator=(std::nullptr_t) noexcept {
+    clear();
+    return *this;
+  }
+
 
   /**
   * @brief Index operator to get value in the specific index of string.
@@ -499,8 +502,8 @@ public:
   */
   void append(const char& character) {
     // Validate that given string fits into our string within static limit.
-    assert((mCurrentSize + 1 <= MaxSize) &&
-          "Appending string exceeds maximum size");
+    // assert((mCurrentSize + 1 <= MaxSize) &&
+    //       "Appending string exceeds maximum size");
     if (mCurrentSize + 1 > MaxSize) {
       throw std::out_of_range(
           "Static limit exceeded, appended string must be within limits "
@@ -1254,26 +1257,29 @@ public:
    * @brief removes the whitespace from the end of static string
    */
   void trim() {
-    std::size_t foundStart = -1;
-    std::size_t whiteSpaceLength = 0;
-    bool foundTrailingWhiteSpace = false;
-
-    for (std::size_t i = 0; i < mCurrentSize; ++i) {
-      if (mString[i] == ' ' || mString[i] == '\t' || mString[i] == '\r') {
-        if (!foundTrailingWhiteSpace) {
-          foundStart = i;
-        }
-        whiteSpaceLength += size_t(1);
-        foundTrailingWhiteSpace = true;
-      }
-      else {
-        foundStart = 0;
-        whiteSpaceLength = 0;
-        foundTrailingWhiteSpace = false;
-      }
+    std::size_t start = 0;
+    std::size_t end = mCurrentSize;
+  
+    // Trim leading whitespace
+    while (start < mCurrentSize && (mString[start] == ' ' || mString[start] == '\t' || mString[start] == '\r')) {
+      ++start;
     }
-    if (foundTrailingWhiteSpace) {
-      remove(foundStart, foundStart + whiteSpaceLength);
+  
+    // Trim trailing whitespace
+    while (end > start && (mString[end - 1] == ' ' || mString[end - 1] == '\t' || mString[end - 1] == '\r')) {
+      --end;
+    }
+  
+    if (start > 0 || end < mCurrentSize) {
+      // Remove the trailing or leading white spaces from the string
+      std::memmove(mString, mString + start, end - start);
+      mCurrentSize = end - start;
+      mString[mCurrentSize] = null_terminator;
+  
+      // Clear the remaining part of the string, make sure properly handled
+      for (std::size_t i = mCurrentSize + 1; i <= MaxSize; ++i) {
+        mString[i] = null_terminator;
+      }
     }
   }
 
