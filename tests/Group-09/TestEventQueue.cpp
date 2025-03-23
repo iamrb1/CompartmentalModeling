@@ -5,33 +5,65 @@
  */
 
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
-#include "../../Group-09/EventQueue/EventQueue.cpp"
+#include "../../Group-09/EventQueue/EventQueue.hpp"
 
 using namespace cse;
 
+void funcInt(int x) {
+}
+
+void funcString(std::string x) {
+}
+
+/**
+ * @brief Assert the queue is empty upon creation
+ */
 TEST_CASE("Test EventQueue", "[base]")
 {
-  EventQueue eq;
+  EventQueue<int> eq;
   CHECK(eq.size() == 0);
 }
 
-TEST_CASE("Test EventQueue Add", "[base]")
+/**
+ * @brief Assert adding an event to the queue increments the size and adds to the heap
+ */
+TEST_CASE("Test EventQueue<int> Add", "[base]")
 {
-  EventQueue eq;
-  Event e1(0, 1, "data");
-  Event e2(1, 2, "data");
+  EventQueue<int> eq;
+  Event<int> e1(0, 1, funcInt);
+  Event<int> e2(1, 2, funcInt);
   eq.add(e1);
   eq.add(e2);
   CHECK(eq.size() == 2);
+  CHECK(eq.peek() == e1);
+  eq.pop();
+  CHECK(eq.size() == 1);
+  CHECK(eq.peek() == e2);
+  eq.pop();
+  CHECK(!eq.size());
 }
 
-TEST_CASE("Test EventQueue Peek", "[base]")
+/**
+ * @brief Assert adding an event with the same ID as an existing event throws an exception.
+ */
+TEST_CASE("Test EventQueue<int> Add Duplicate ID", "[base]")
 {
-  EventQueue eq;
-  Event e1(0, 0, "data");
-  Event e2(1, 1, "data");
-  Event e3(3, 3, "data");
-  Event e4(4, 4, "data");
+  EventQueue<int> eq;
+  Event<int> e1(0, 1, funcInt);
+  eq.add(e1);
+  REQUIRE_THROWS(eq.add(e1));
+}
+
+/**
+ * @brief Assert peeking at the queue returns the event at the top of the heap
+ */
+TEST_CASE("Test EventQueue<int> Peek", "[base]")
+{
+  EventQueue<int> eq;
+  Event<int> e1(0, 0, funcInt);
+  Event<int> e2(1, 1, funcInt);
+  Event<int> e3(3, 3, funcInt);
+  Event<int> e4(4, 4, funcInt);
   eq.add(e1);
   eq.add(e2);
   eq.add(e3);
@@ -39,13 +71,16 @@ TEST_CASE("Test EventQueue Peek", "[base]")
   CHECK(eq.peek() == e1);
 }
 
-TEST_CASE("Test EventQueue Pop", "[base]")
+/**
+ * @brief Assert popping an event from the queue decrements the size and removes the event from the heap
+ */
+TEST_CASE("Test EventQueue<int> Pop", "[base]")
 {
-  EventQueue eq;
-  Event e1(0, 0, "data");
-  Event e2(1, 1, "data");
-  Event e3(3, 3, "data");
-  Event e4(4, 4, "data");
+  EventQueue<int> eq;
+  Event<int> e1(0, 0, funcInt);
+  Event<int> e2(1, 1, funcInt);
+  Event<int> e3(3, 3, funcInt);
+  Event<int> e4(4, 4, funcInt);
   eq.add(e1);
   eq.add(e2);
   eq.add(e3);
@@ -58,13 +93,16 @@ TEST_CASE("Test EventQueue Pop", "[base]")
   CHECK(eq.size() == 0);
 }
 
-TEST_CASE("Test EventQueue Valid Remove", "[base]")
+/**
+ * @brief Assert removing an event from the queue decrements the size and removes the event from the heap
+ */
+TEST_CASE("Test EventQueue<int> Valid Remove", "[base]")
 {
-  EventQueue eq;
-  Event e1(0, 0, "data");
-  Event e2(1, 1, "data");
-  Event e3(3, 3, "data");
-  Event e4(4, 4, "data");
+  EventQueue<int> eq;
+  Event<int> e1(0, 0, funcInt);
+  Event<int> e2(1, 1, funcInt);
+  Event<int> e3(3, 3, funcInt);
+  Event<int> e4(4, 4, funcInt);
   eq.add(e1);
   eq.add(e2);
   eq.add(e3);
@@ -77,13 +115,16 @@ TEST_CASE("Test EventQueue Valid Remove", "[base]")
   CHECK(eq.size() == 0);
 }
 
-TEST_CASE("Test EventQueue Invalid Remove", "[base]")
+/**
+ * @brief Assert removing an event that does not exist in the queue does not change the queue
+ */
+TEST_CASE("Test EventQueue<int> Invalid Remove", "[base]")
 {
-  EventQueue eq;
-  Event e1(0, 0, "data");
-  Event e2(1, 1, "data");
-  Event e3(3, 3, "data");
-  Event e4(4, 4, "data");
+  EventQueue<int> eq;
+  Event<int> e1(0, 0, funcInt);
+  Event<int> e2(1, 1, funcInt);
+  Event<int> e3(3, 3, funcInt);
+  Event<int> e4(4, 4, funcInt);
   eq.add(e1);
   eq.add(e2);
   eq.add(e3);
@@ -94,14 +135,17 @@ TEST_CASE("Test EventQueue Invalid Remove", "[base]")
   CHECK(!remove.has_value());
 }
 
-TEST_CASE("Test EventQueue Valid Update", "[base]")
+/**
+ * @brief Assert updating an event in the queue updates the event's time and maintains the heap
+ */
+TEST_CASE("Test EventQueue<int> Valid Update", "[base]")
 {
-  EventQueue eq;
-  Event e1(0, 0, "data");
-  Event e2(1, 1, "data");
-  Event e3(3, 3, "data");
-  Event e4(4, 4, "data");
-  Event e1_updated(0, 100, "data");
+  EventQueue<int> eq;
+  Event<int> e1(0, 0, funcInt);
+  Event<int> e2(1, 1, funcInt);
+  Event<int> e3(3, 3, funcInt);
+  Event<int> e4(4, 4, funcInt);
+  Event<int> e1_updated(0, 100, funcInt);
   eq.add(e1);
   eq.add(e2);
   eq.add(e3);
@@ -115,15 +159,19 @@ TEST_CASE("Test EventQueue Valid Update", "[base]")
   CHECK(eq.pop().getTime() == 100);
 }
 
-TEST_CASE("Test EventQueue Invalid Update", "[base]")
+/**
+ * @brief Assert updating an event that does not exist in the queue throws an exception
+ */
+TEST_CASE("Test EventQueue<int> Invalid Update", "[base]")
 {
-  EventQueue eq;
-  Event e2(1, 1, "data");
-  Event e3(3, 3, "data");
-  Event e4(4, 4, "data");
-  Event e1_updated(0, 100, "data");
+  EventQueue<int> eq;
+  Event<int> e2(1, 1, funcInt);
+  Event<int> e3(3, 3, funcInt);
+  Event<int> e4(4, 4, funcInt);
+  Event<int> e1_updated(0, 100, funcInt);
   eq.add(e2);
   eq.add(e3);
   eq.add(e4);
   REQUIRE_THROWS(eq.update(e1_updated));
 }
+
