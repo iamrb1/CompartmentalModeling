@@ -62,9 +62,10 @@ class EventManager {
         event_queue_.pop(); //Skip over paused events
         continue;
       }
-      std::cout << event_queue_.peek().getData() << "\n"; //Placeholder for handling events
+      const std::function<void(Args...)> func = e.getFunction();
+      func(e.getID()); //Eventually will call Weblayout manager to handle changes
       if (repeat_events_.find(e.getID()) != repeat_events_.end()) {
-        cse::Event event(e.getID(), e.getTime() + repeat_events_[e.getID()], e.getData()); //Readd repeats to the queue
+        cse::Event event(e.getID(), e.getTime() + repeat_events_[e.getID()], e.getFunction()); //Readd repeats to the queue
         event_queue_.update(event);
       } else {
         running_events_.erase(e.getID());
@@ -110,11 +111,11 @@ class EventManager {
    * @param event The event to be added
    * @return added Event
    */
-  std::optional<Event<Args...>> AddEvent(int time, std::string data) {
+  std::optional<Event<Args...>> AddEvent(int time, std::function<void(Args...)> func) {
     if (time < 0) {
       throw std::invalid_argument("Time must be positive");
     }
-    Event event(next_id_, time, data);
+    Event event(next_id_, time, func);
     ++next_id_;
     event_queue_.add(event);
     running_events_.insert(event.getID());
