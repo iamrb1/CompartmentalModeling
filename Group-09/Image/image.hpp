@@ -16,7 +16,7 @@ namespace cse {
  */
 class Image {
  public:
-  Image(const std::string& url, int width, int height, const std::string& altText = "");
+  Image(const std::string& url, int width, int height, const std::string& altText = "",  const std::string imageID = "");
 
   /** @return The url of the image */
   std::string getURL() const { return url; }
@@ -26,6 +26,8 @@ class Image {
   int getHeight() const { return height; }
   /** @return The alternative text of the image */
   std::string getAltText() const { return altText; }
+  /** @return The unique id of the image */
+  std::string getID() const { return id; }
 
   void setURL(const std::string& newURL);
   void resize(int newWidth, int newHeight, bool maintainAspect = true);
@@ -38,11 +40,18 @@ class Image {
 
   void preview() const;
 
+  /** @return std::string unique ID for Image */
+  static std::string generateID() {
+    static int counter = 1;
+    return "image-" + std::to_string(counter++);
+  }
+
  private:
   std::string url;
   int width;
   int height;
   std::string altText;
+  std::string id;
   // bool validateURL(const std::string& url) const;
 
 };
