@@ -1,4 +1,6 @@
 /**
+ * Holds various text boxes and images to create "slides"
+ *
  * @file WebLayout.h
  * @author Mary Holt
  *
@@ -51,12 +53,25 @@ class WebLayout {
  private:
   std::vector<TextBoxLayout> textBoxes;
   std::vector<ImageLayout> images;
+  std::string id;
 
-  void const renderTextBox(const std::string &msg, const int &width, const int &height, const int &x, const int &y);
-  void const renderImage(const std::string &url, const int &width, const int &height, const int &x, const int &y);
+  const void renderTextBox(const std::string &layoutID,
+                           const std::string &msg,
+                           const int &width,
+                           const int &height,
+                           const int &x,
+                           const int &y,
+                           const std::string &textboxID);
+  void const renderImage(const std::string &layoutID,
+                         const std::string &url,
+                         const int &width,
+                         const int &height,
+                         const int &x,
+                         const int &y,
+                         const std::string &imageID);
 
  public:
-  WebLayout() = default;
+  WebLayout() : id(generateID()) {}
   ~WebLayout() = default;
   void addImage(const ImageLayout &image);
   void removeImage(const ImageLayout &image);
@@ -66,7 +81,12 @@ class WebLayout {
   const std::vector<ImageLayout> &getImages();
   const std::vector<TextBoxLayout> &getTextBoxes();
 
+  static std::string generateID();
+  const std::string getID() { return id; }
+
   //TODO: Future Implement Clear Layout Function
+  void activateLayout();
+  void deactivateLayout();
 
 };
 }

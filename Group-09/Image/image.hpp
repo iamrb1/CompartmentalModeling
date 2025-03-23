@@ -19,11 +19,12 @@ private:
     int width;
     int height;
     std::string altText;
+    std::string id;
 
     // bool validateURL(const std::string& url) const; 
 
 public:
-    Image(const std::string& url, int width, int height, const std::string& altText = "");
+    Image(const std::string& url, int width, int height, const std::string& altText = "", const std::string imageID = "");
 
   /**
   * @brief Compares two Image objects and determine if they are the same values
@@ -53,6 +54,18 @@ public:
     void injectJS() const;
 
     void preview() const;
+
+  /** @return std::string unique ID for Image */
+  static std::string generateID() {
+    static int counter = 1;
+    return "image-" + std::to_string(counter++);
+  }
+
+
+  /** @return std::string ID of object */
+  std::string getID() const {
+    return id;
+  }
 };
 
 }
