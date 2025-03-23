@@ -374,7 +374,7 @@ TEST_CASE("Test class template features", "[bitvector]") {
   }
 
   // Template set
-  bv1.generator_set([](size_t i) {return i % 2 == 0;});
+  bv1.generator_set([](size_t i) { return i % 2 == 0; });
   for (size_t i = 0; i < bv1.size(); ++i) {
     CHECK(bv1[i] == (i % 2 == 0));
   }
@@ -385,7 +385,7 @@ TEST_CASE("Test class template features", "[bitvector]") {
   cse::BitVector bc1(64);
   bc1.pattern_set(0, 5, 5);
   CHECK(bv1 == bc1);
-  
+
   // Or, and, and xor
   bv1 |= 3;
   bc1.pattern_set(0, 5, 7);
@@ -405,13 +405,13 @@ TEST_CASE("Test class template features", "[bitvector]") {
 
   // Test exporting to a bitset
   std::bitset<8> bs1 = bv1.to_bitset<8>();
-  for(size_t i = 0; i < bs1.size(); i++) {
+  for (size_t i = 0; i < bs1.size(); i++) {
     CHECK(bs1[i] == bv1[i]);
   }
 
   // Test exporting to a vector of bools
   std::vector<bool> vb1 = bv1.vectorize();
-  for(size_t i = 0; i < vb1.size(); i++) {
+  for (size_t i = 0; i < vb1.size(); i++) {
     CHECK(vb1[i] == bv1[i]);
   }
 
@@ -421,10 +421,10 @@ TEST_CASE("Test class template features", "[bitvector]") {
   bv3 = vb1;
   CHECK(bv2.size() == bs1.size());
   CHECK(bv3.size() == vb1.size());
-  for(size_t i = 0; i < bv2.size(); i++) {
+  for (size_t i = 0; i < bv2.size(); i++) {
     CHECK(bv2[i] == bs1[i]);
   }
-  for(size_t i = 0; i < bv3.size(); i++) {
+  for (size_t i = 0; i < bv3.size(); i++) {
     CHECK(bv3[i] == vb1[i]);
   }
 
@@ -438,5 +438,3 @@ TEST_CASE("Test class template features", "[bitvector]") {
   CHECK(shorts[1] == 0xBDBD);
   CHECK(shorts[2] == 0x0002);
 }
-
-

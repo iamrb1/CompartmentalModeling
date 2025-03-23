@@ -11,7 +11,6 @@
 
 namespace cse {
 
-
 template <typename T>
 concept BoolGenerator = (std::invocable<T, size_t> &&
                          std::same_as<bool, std::invoke_result_t<T, size_t>>);
@@ -90,9 +89,7 @@ class BitVector {
 
     // Only here to comply with bitset references
     // Gets the flipped value of this proxy
-    bool operator~() const {
-      return !(this->operator bool());
-    }
+    bool operator~() const { return !(this->operator bool()); }
 
     // Destructor
     ~proxy() = default;
@@ -133,39 +130,35 @@ class BitVector {
 
   // &= operation between two BitVectors
   BitVector& operator&=(const BitVector& rhs);
-  
+
   // Bitwise AND with an integral type
-  template<std::integral T>
+  template <std::integral T>
   BitVector& operator&=(T rhs) {
     size_t i = 0;
     size_t num_set = 0;
-    for(; i < m_underlying.size() && i * sizeof(bv_type) < sizeof(T); ++i)
-    {
+    for (; i < m_underlying.size() && i * sizeof(bv_type) < sizeof(T); ++i) {
       m_underlying[i] &= static_cast<bv_type>(rhs);
-      if constexpr (sizeof(T) > sizeof(bv_type))
-        rhs >>= BITS_PER_EL;
+      if constexpr (sizeof(T) > sizeof(bv_type)) rhs >>= BITS_PER_EL;
       num_set += BIT_LOOKUP(m_underlying[i]);
     }
 
-    for(;i < m_underlying.size(); ++i)
-      m_underlying[i] = 0;
+    for (; i < m_underlying.size(); ++i) m_underlying[i] = 0;
     m_num_set = num_set;
 
     return *this;
   }
-  
+
   // |= operation between two BitVectors
   BitVector& operator|=(const BitVector& rhs);
-  
+
   // Bitwise OR with an integral type
-  template<std::integral T>
+  template <std::integral T>
   BitVector& operator|=(T rhs) {
-    for(size_t i = 0; i < m_underlying.size() && i * sizeof(bv_type) < sizeof(T); ++i)
-    {
+    for (size_t i = 0;
+         i < m_underlying.size() && i * sizeof(bv_type) < sizeof(T); ++i) {
       m_num_set -= BIT_LOOKUP(m_underlying[i]);
       m_underlying[i] |= static_cast<bv_type>(rhs);
-      if constexpr (sizeof(T) > sizeof(bv_type))
-        rhs >>= BITS_PER_EL;
+      if constexpr (sizeof(T) > sizeof(bv_type)) rhs >>= BITS_PER_EL;
       m_num_set += BIT_LOOKUP(m_underlying[i]);
     }
 
@@ -174,16 +167,15 @@ class BitVector {
 
   // ^= operation between two BitVectors
   BitVector& operator^=(const BitVector& rhs);
-  
+
   // Bitwise XOR with an integral type
-  template<std::integral T>
+  template <std::integral T>
   BitVector& operator^=(T rhs) {
-    for(size_t i = 0; i < m_underlying.size() && i * sizeof(bv_type) < sizeof(T); ++i)
-    {
+    for (size_t i = 0;
+         i < m_underlying.size() && i * sizeof(bv_type) < sizeof(T); ++i) {
       m_num_set -= BIT_LOOKUP(m_underlying[i]);
       m_underlying[i] ^= static_cast<bv_type>(rhs);
-      if constexpr (sizeof(T) > sizeof(bv_type))
-        rhs >>= BITS_PER_EL;
+      if constexpr (sizeof(T) > sizeof(bv_type)) rhs >>= BITS_PER_EL;
       m_num_set += BIT_LOOKUP(m_underlying[i]);
     }
 
@@ -213,8 +205,8 @@ class BitVector {
 
   // & operation between two BitVectors
   BitVector operator&(const BitVector& rhs) const;
-  
-  template<std::integral T>
+
+  template <std::integral T>
   BitVector operator&(T rhs) const {
     BitVector cpy = (*this);
     cpy &= rhs;
@@ -223,8 +215,8 @@ class BitVector {
 
   // | operation between two BitVectors
   BitVector operator|(const BitVector& rhs) const;
-  
-  template<std::integral T>
+
+  template <std::integral T>
   BitVector operator|(T rhs) const {
     BitVector cpy = (*this);
     cpy |= rhs;
@@ -233,7 +225,7 @@ class BitVector {
   // ^ operation between two BitVectors
   BitVector operator^(const BitVector& rhs) const;
 
-  template<std::integral T>
+  template <std::integral T>
   BitVector operator^(T rhs) const {
     BitVector cpy = (*this);
     cpy ^= rhs;
@@ -249,18 +241,17 @@ class BitVector {
   BitVector& operator=(const BitVector& bv);
 
   // Assign from an integral type
-  template<std::integral T = bv_type>
+  template <std::integral T = bv_type>
   BitVector& operator=(T value) {
     m_num_bits = sizeof(T) * 8;
     m_num_set = 0;
     m_underlying.resize(bits_to_el_count(m_num_bits));
     std::fill(m_underlying.begin(), m_underlying.end(), 0);
 
-    for(size_t i = 0; i < m_underlying.size() && i * sizeof(bv_type) < sizeof(T); ++i)
-    {
+    for (size_t i = 0;
+         i < m_underlying.size() && i * sizeof(bv_type) < sizeof(T); ++i) {
       m_underlying[i] = static_cast<bv_type>(value);
-      if constexpr (sizeof(T) > sizeof(bv_type))
-        value >>= BITS_PER_EL;
+      if constexpr (sizeof(T) > sizeof(bv_type)) value >>= BITS_PER_EL;
       m_num_set += BIT_LOOKUP(m_underlying[i]);
     }
 
@@ -268,14 +259,14 @@ class BitVector {
   }
 
   // Assign from a bitset
-  template<size_t B>
-  BitVector& operator=(const std::bitset<B> &bs) {
+  template <size_t B>
+  BitVector& operator=(const std::bitset<B>& bs) {
     m_num_bits = B;
     m_num_set = 0;
     m_underlying.resize(bits_to_el_count(m_num_bits));
     std::fill(m_underlying.begin(), m_underlying.end(), 0);
 
-    for(size_t i = 0; i < m_num_bits; ++i) {
+    for (size_t i = 0; i < m_num_bits; ++i) {
       (*this)[i] = bs[i];
     }
 
@@ -289,7 +280,7 @@ class BitVector {
     m_underlying.resize(bits_to_el_count(m_num_bits));
     std::fill(m_underlying.begin(), m_underlying.end(), 0);
 
-    for(size_t i = 0; i < m_num_bits; ++i) {
+    for (size_t i = 0; i < m_num_bits; ++i) {
       (*this)[i] = vb[i];
     }
 
@@ -297,9 +288,10 @@ class BitVector {
   }
 
   // Set count bits in a repeating pattern starting at the index start
-  // make sure to set the length of the pattern like 
+  // make sure to set the length of the pattern like
   BitVector& pattern_set(size_t start, size_t count, bv_type pattern);
-  // Set all bits in a repeating pattern starting at the beginning of the BitVector
+  // Set all bits in a repeating pattern starting at the beginning of the
+  // BitVector
   BitVector& pattern_set(bv_type pattern) {
     return pattern_set(0, m_num_bits, pattern);
   }
@@ -307,39 +299,40 @@ class BitVector {
   // Pattern set for a smaller integral type.  Pattern in small type
   // gets expanded to fill one element and then that element is used
   // as the pattern.
-  // 
+  //
   // NOTE: This may cause issues for types whose length is not a clean
   //       power of two, but that is way too much work to implement.
-  template<std::integral T>
+  template <std::integral T>
   BitVector& pattern_set(size_t start, size_t count, T pattern) {
     bv_type p = bv_type(pattern & ALL_ONE);
 
     if constexpr (sizeof(T) < sizeof(bv_type)) {
-      for(size_t i = sizeof(T); i < sizeof(bv_type); i *= 2) {
+      for (size_t i = sizeof(T); i < sizeof(bv_type); i *= 2) {
         p |= p << (8 * i);
       }
     }
-    
+
     return pattern_set(start, count, p);
   }
 
   // Pattern set for a smaller integral type
-  template<std::integral T>
+  template <std::integral T>
   BitVector& pattern_set(T pattern) {
     return pattern_set(0, m_num_bits, pattern);
   }
 
   // Set a range of the bitvector based on a function which generates
   // boolean values
-  template<typename T>
+  template <typename T>
     requires BoolGenerator<T>
   BitVector& generator_set(size_t start, size_t count, T gen) {
     if (count == 0) return *this;
     cse_assert(
         (start + count) <= m_num_bits,
-        std::format("Invalid range to generator_set BitVector: start: {}, count: "
-                    "{}, number of bits is: {}",
-                    start, count, m_num_bits));
+        std::format(
+            "Invalid range to generator_set BitVector: start: {}, count: "
+            "{}, number of bits is: {}",
+            start, count, m_num_bits));
 
     for (size_t i = 0; i < count; i++) {
       (*this)[i + start] = gen(i);
@@ -350,7 +343,7 @@ class BitVector {
 
   // Set the entire bitvector based on a function which generates
   // boolean values
-  template<typename T>
+  template <typename T>
     requires BoolGenerator<T>
   BitVector& generator_set(T gen) {
     return generator_set(0, m_num_bits, gen);
@@ -412,9 +405,8 @@ class BitVector {
   // Turn the BitVector into a vector of an integral type
   // if num_bits is zero, then it will export to the end of
   // the BitVector
-  template<std::integral T>
-    requires (sizeof(T) <= sizeof(bv_type) &&
-              sizeof(bv_type) % sizeof(T) == 0)
+  template <std::integral T>
+    requires(sizeof(T) <= sizeof(bv_type) && sizeof(bv_type) % sizeof(T) == 0)
   std::vector<T> vectorize(size_t num_bits = 0) {
     cse_assert(num_bits <= m_num_bits);
     if (num_bits == 0) num_bits = m_num_bits;
@@ -423,7 +415,7 @@ class BitVector {
     constexpr size_t Tb = sizeof(T) * 8;
     constexpr bv_type mask = ALL_ONE >> (BITS_PER_EL - Tb);
 
-    for(size_t i = 0; i < num_bits; i += Tb) {
+    for (size_t i = 0; i < num_bits; i += Tb) {
       T add = T(mask & (m_underlying[i / BITS_PER_EL] >> (i % BITS_PER_EL)));
       out.push_back(add);
     }
@@ -608,8 +600,7 @@ BitVector& BitVector::pattern_set_one(size_t start, size_t count,
 // start - the index in the BitVector to start filling with the sequence
 // count - the number of bits to fill with the sequence
 // pattern - the pattern of bits to fill with
-BitVector& BitVector::pattern_set(size_t start, size_t count,
-                                  bv_type pattern) {
+BitVector& BitVector::pattern_set(size_t start, size_t count, bv_type pattern) {
   if (count == 0) return *this;
   cse_assert(
       (start + count) <= m_num_bits,
