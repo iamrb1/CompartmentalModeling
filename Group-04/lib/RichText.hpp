@@ -151,7 +151,8 @@ class RichText {
         std::format("Format range ends after beginning, begin: {}, end: {}",
                     begin, end));
 
-    auto [item, inserted] = m_formatting.insert({format, IndexSet(begin, end)});
+    auto [item, inserted] =
+        m_formatting.insert({format, IndexSet(std::pair{begin, end})});
     if (!inserted) {
       item->second.insert_range(begin, end);
     }

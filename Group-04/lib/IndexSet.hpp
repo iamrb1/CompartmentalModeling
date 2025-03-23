@@ -1,11 +1,16 @@
 #pragma once
 
 #include <algorithm>
+#include <concepts>
 #include <cstddef>
 #include <iterator>
 #include <optional>
+#include <type_traits>
 #include <utility>
 #include <vector>
+
+#include "BitVector.hpp"
+#include "CseAssert.hpp"
 
 namespace cse {
 /**
@@ -150,9 +155,20 @@ class IndexSet {
   // Constructors
   IndexSet() = default;
   ~IndexSet() = default;
-  IndexSet(size_t start, size_t end) {
-    ranges_.emplace_back(start, end);
-    total_size_ = end - start;  // Fix: Set correct total size
+
+  IndexSet(std::pair<std::size_t, std::size_t> const& range) {
+    ranges_.push_back(range);
+    total_size_ = range.second - range.first;
+  }
+
+  template <typename... T>
+    requires std::convertible_to<std::common_type_t<T...>, std::size_t>
+  IndexSet(T... sizes) {
+    // initializer list range-for trick from
+    // https://stackoverflow.com/a/50892567/4678913
+    for (size_t idx : {sizes...}) {
+      insert(idx);
+    }
   }
 
   // Copy operations
@@ -293,6 +309,28 @@ class IndexSet {
   std::size_t size() const { return total_size_; }
 
   /**
+   * @brief Returns the maximum index in the set
+   */
+  std::optional<std::size_t> min_index() const {
+    std::vector<size_t> indices = get_all_indices();
+    auto result = std::ranges::min_element(indices);
+    // the set is empty
+    if (result == indices.end()) return std::nullopt;
+    return *result;
+  }
+
+  /**
+   * @brief Returns the maximum index in the set
+   */
+  std::optional<std::size_t> max_index() const {
+    std::vector<size_t> indices = get_all_indices();
+    auto result = std::ranges::max_element(indices);
+    // the set is empty
+    if (result == indices.end()) return std::nullopt;
+    return *result;
+  }
+
+  /**
    * @brief Returns a vector containing all indices in the set
    * @return Vector of indices in ascending order
    */
@@ -377,7 +415,7 @@ class IndexSet {
     return std::nullopt;
   }
 
-  void offset(const size_t offset) {
+  void offset(const std::size_t offset) {
     for (auto& [start, end] : ranges_) {
       start += offset;
       end += offset;
@@ -385,7 +423,42 @@ class IndexSet {
   }
 
   /**
-   * @brief Adds another index set to the end of this one, starting at the index
+   * @brief Shift all indices within [start, end) left by `shift_by` places
+   *
+   * @param shift_by The number of places to shift by
+   * @param start Start of the range to shift within.
+   * @param end End (exclusive) of the range to shift within.
+   */
+  void shift_left_within(const std::size_t shift_by, const std::size_t start,
+                         const std::size_t end) {
+    dbg_assert(end > start, "Shift range end is not past start");
+
+    // load range into BitVector
+    BitVector indices{end - start};
+    for (size_t i = start; i < end; i++) {
+      indices[i - start] = contains(i);
+    }
+
+    // shifting indices left actually means shifting BitVector right
+    indices >>= shift_by;
+
+    // restore shifted range from BitVector
+    for (size_t i = start; i < end; i++) {
+      if (indices[i - start]) {
+        insert(i);
+      } else {
+        remove(i);
+      }
+    }
+  }
+
+  void shift_left(const std::size_t shift_by) {
+    if (auto max = max_index()) shift_left_within(shift_by, 0, *max + 1);
+  }
+
+  /**
+   * @brief Adds another index set to the end of this one, starting at the
+   * index
    * @param indexSet The IndexSet to append
    * @param index The index to start appending
    */
@@ -495,6 +568,16 @@ class IndexSet {
    * @return true if this set is a superset of other
    */
   bool operator>=(const IndexSet& other) const { return other <= *this; }
+
+  /**
+   * @brief Checks if this set is the same as another
+   * @param other The set to check against
+   * @return true if this set is the same as other
+   */
+  bool operator==(const IndexSet& other) const {
+    // symmetric difference should be empty set
+    return (*this ^ other).ranges_.empty();
+  }
 
   // Iterator methods
   iterator begin() { return iterator(ranges_); }

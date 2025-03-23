@@ -6,15 +6,28 @@
 
 // Test constructor and size calculation
 TEST_CASE("Constructor", "[IndexSetTest]") {
-  cse::IndexSet set1(0, 5);  // [0,5)
-  REQUIRE(set1.size() == 5);
+  // Index constructor
+  cse::IndexSet set1(1, 5, 8);
+  REQUIRE(set1.get_all_indices() == std::vector<size_t>{1, 5, 8});
 
-  cse::IndexSet set2(10, 15);  // [10,15)
-  REQUIRE(set2.size() == 5);
+  // Default constructor
+  cse::IndexSet set2;
+  REQUIRE(set2.get_all_indices() == std::vector<size_t>{});
+
+  // Move constructor
+  cse::IndexSet set3{std::move(set1)};
+  REQUIRE(set3.get_all_indices() == std::vector<size_t>{1, 5, 8});
+
+  // Range constructors
+  cse::IndexSet set4(std::pair{0, 5});  // [0,5)
+  REQUIRE(set4.size() == 5);
+
+  cse::IndexSet set5(std::pair{10, 15});  // [10,15)
+  REQUIRE(set5.size() == 5);
 
   // Empty range
-  cse::IndexSet set3(3, 3);  // [3,3)
-  REQUIRE(set3.size() == 0);
+  cse::IndexSet set6(std::pair{3, 3});  // [3,3)
+  REQUIRE(set6.size() == 0);
 }
 
 // Test insert_range efficiency
@@ -253,6 +266,11 @@ TEST_CASE("SetOperations", "[IndexSetTest]") {
   REQUIRE(set1 >= subset);
   REQUIRE_FALSE(set1 >= set2);
 
+  // Test equality
+  // FIXME: this fails because merge_overlapping_ranges doesn't
+  // collapse identical ranges into a single range
+  REQUIRE(cse::IndexSet{0, 3, 6} == cse::IndexSet{0, 3, 6});
+
   // Edge cases
   cse::IndexSet empty_set;
   REQUIRE(empty_set <= set1);  // Empty set is subset of all sets
@@ -278,6 +296,13 @@ TEST_CASE("Test basic operations", "[IndexSetTest]") {
   REQUIRE(set.contains(5));
   REQUIRE(!set.contains(4));
   REQUIRE(!set.contains(6));
+
+  // Test additional insert
+  set.insert(7);
+  REQUIRE(!set.contains(4));
+  REQUIRE(set.contains(5));
+  REQUIRE(!set.contains(6));  // FIXME
+  REQUIRE(set.contains(7));
 
   // Test single remove
   set.remove(5);
@@ -379,11 +404,58 @@ TEST_CASE("Test Iterator", "[IndexSetTest]") {
   REQUIRE(*iterator == 2);
 
   iterator++;
-  REQUIRE(*iterator == 4);
+  REQUIRE(*iterator == 4);  // FIXME
 
   ++iterator;
   REQUIRE(*iterator == 5);
 
   ++iterator;
   REQUIRE(iterator == end);
+}
+
+TEST_CASE("Test left shift", "[IndexSetLeftShift]") {
+  cse::IndexSet set{};
+
+  set.insert(2);
+  set.insert(5);
+  // set.insert(5);
+  set.insert(8);
+
+  SECTION("Basic shift") {
+    set.shift_left(2);
+    REQUIRE(set.contains(0));
+    REQUIRE(!set.contains(1));
+    REQUIRE(!set.contains(2));
+    REQUIRE(set.contains(3));
+    REQUIRE(!set.contains(4));
+    REQUIRE(!set.contains(5));
+    REQUIRE(set.contains(6));
+    REQUIRE(!set.contains(7));
+    REQUIRE(!set.contains(8));
+    // TODO: change this test to an equality check after
+    // merge_overlapping_ranges is fixed
+    // REQUIRE(set == cse::IndexSet{0, 3, 6});
+  }
+
+  SECTION("Shift all indices out") {
+    set.shift_left(*set.max_index() + 1);
+    REQUIRE(set.get_all_indices().empty());
+  }
+
+  SECTION("Shift range of indices") {
+    set.shift_left_within(2, 3, *set.max_index() + 1);
+    REQUIRE(!set.contains(1));
+    REQUIRE(set.contains(2));
+    REQUIRE(set.contains(3));
+    REQUIRE(!set.contains(4));
+    REQUIRE(!set.contains(5));
+    REQUIRE(set.contains(6));
+    REQUIRE(!set.contains(7));
+    REQUIRE(!set.contains(8));
+    // TODO: change this test to an equality check after
+    // merge_overlapping_ranges is fixed
+    // REQUIRE(set == cse::IndexSet{2, 3, 6});
+  }
+
+  // TODO: more boundary conditions
 }

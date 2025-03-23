@@ -73,7 +73,7 @@ TEST_CASE("New RichText operations", "[RichTextAdvanced]") {
   REQUIRE(text2.to_string() == "hello, world!");
   REQUIRE(text2.get_format_range(red) == std::optional{cse::IndexSet{0, 4}});
   REQUIRE(text2.get_format_range(blue) ==
-          std::optional{cse::IndexSet{7, text2.size() - 1}});
+          std::optional{cse::IndexSet{std::pair{7, text2.size() - 1}}});
   REQUIRE(text2.formats_at(5).size() == 0)
 }
 
@@ -101,7 +101,7 @@ TEST_CASE("RichText update container functionality", "[RichTextAdvanced]") {
     //
     // might be more complex for multi-character discontinuous insertions, or
     // just disallow that
-    return cse::IndexSet{4, 4};
+    return cse::IndexSet{4};
   });
 
   REQUIRE(text.to_string() == "pillow");
@@ -112,7 +112,7 @@ TEST_CASE("RichText update container functionality", "[RichTextAdvanced]") {
     string.erase(4, 2);
     string.erase(0, 1);
     // deletion: return indices removed in old string
-    return cse::IndexSet{0, 0} | cse::IndexSet{4, 5};
+    return cse::IndexSet{0} | cse::IndexSet{4};
   });
 
   REQUIRE(text.to_string() == "ill");
