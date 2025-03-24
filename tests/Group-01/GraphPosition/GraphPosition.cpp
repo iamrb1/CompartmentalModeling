@@ -306,7 +306,7 @@ TEST_CASE("GraphPosition Depth and Breadth-First Search Traversal Tests",
        * 1 X X X X
        * O 1 1 1 O
        * X X X X 1
-       * 1 1 1 1 O
+       * 1 1 1 1 1
        */
       expectedOrder = {
           "4_0", "3_0", "2_0", "1_0", "0_1", "0_2", "0_0", "1_2", "2_2",
