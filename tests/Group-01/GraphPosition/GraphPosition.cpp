@@ -108,7 +108,7 @@ TEST_CASE("GraphPosition Depth and Breadth-First Search Traversal Tests",
   }
 
   auto e4 = graph.AddEdge("C", "D", 2);
-  SECTION("A* finds optimal path to destination") {
+  SECTION("A* finds optimal path to destination - Simple") {
     // Path should be A -> B -> D as it's shorter than A -> C -> D
     std::vector<cse::Vertex<std::string> *> expectedOrder{&v1, &v2, &v4};
     pos.SetTraversalMode(cse::TraversalModes::AStar<std::string>(v4));
@@ -121,5 +121,92 @@ TEST_CASE("GraphPosition Depth and Breadth-First Search Traversal Tests",
       ind++;
     }
     CHECK(ind == expectedOrder.size());
+  }
+
+  SECTION("A* Path that does not exist") {
+    // Path should be A -> B -> D as it's shorter than A -> C -> D
+    std::vector<cse::Vertex<std::string> *> expectedOrder{&v4};
+    pos.ResetTraversal(v4);
+    pos.SetTraversalMode(cse::TraversalModes::AStar<std::string>(v1));
+
+    size_t ind = 0;
+    while ((bool)++pos) {
+      auto &v = *(expectedOrder.at(ind));
+      CHECK(pos.GetCurrentVertex() == v);
+      ind++;
+    }
+    CHECK(ind == expectedOrder.size());
+  }
+
+  SECTION("A* Path on a grid") {
+    cse::Graph<std::string> graph;
+
+    const int GRID_SIZE = 5;
+
+    for (int x = 0; x < GRID_SIZE; x++) {
+      for (int y = 0; y < GRID_SIZE; y++) {
+        std::string v_id = std::to_string(x) + "_" + std::to_string(y);
+        graph.AddVertex(v_id, x, y);
+      }
+    }
+
+    for (int x = 0; x < GRID_SIZE; x++) {
+      for (int y = 0; y < GRID_SIZE; y++) {
+        std::string v_id_1 = std::to_string(x) + "_" + std::to_string(y);
+        std::string v_id_2;
+        bool isXEdge = x == (GRID_SIZE - 1);
+        bool isYEdge = y == (GRID_SIZE - 1);
+
+        if (!isXEdge) {
+          v_id_2 = std::to_string(x + 1) + "_" + std::to_string(y);
+          graph.AddEdge(v_id_1, v_id_2, 1);
+          graph.AddEdge(v_id_2, v_id_1, 1);
+        }
+        if (!isYEdge) {
+          v_id_2 = std::to_string(x) + "_" + std::to_string(y + 1);
+          graph.AddEdge(v_id_1, v_id_2, 1);
+          graph.AddEdge(v_id_2, v_id_1, 1);
+        }
+        if (!isXEdge && !isYEdge) {
+          v_id_2 = std::to_string(x + 1) + "_" + std::to_string(y + 1);
+          graph.AddEdge(v_id_1, v_id_2, 1.41);
+          graph.AddEdge(v_id_2, v_id_1, 1.41);
+        }
+      }
+    }
+
+    std::vector<std::string> expectedOrder{"0_0", "1_1", "2_2", "3_3", "4_4"};
+    std::vector<std::string> finalPath{"0_0", "1_1", "2_2", "3_3", "4_4"};
+    cse::GraphPosition<std::string> pos(graph, &graph.GetVertex("0_0"));
+
+    auto &origin = graph.GetVertex("0_0");
+    auto &destination = graph.GetVertex("4_4");
+    pos.ResetTraversal(origin);
+    pos.SetTraversalMode(cse::TraversalModes::AStar<std::string>(destination));
+
+    size_t ind = 0;
+    while ((bool)++pos) {
+      auto v_id = expectedOrder.at(ind);
+      CHECK(pos.GetCurrentVertex().GetId() == v_id);
+      ind++;
+    }
+    CHECK(ind == expectedOrder.size());
+
+    origin = graph.GetVertex("0_0");
+    destination = graph.GetVertex("4_4");
+    graph.RemoveVertex("1_1");
+    pos.ResetTraversal(origin);
+    pos.SetTraversalMode(cse::TraversalModes::AStar<std::string>(destination));
+
+    while ((bool)++pos) {
+    }
+
+    finalPath = {"0_0", "0_1", "1_2", "2_3", "3_4", "4_4"};
+    auto traversalPath = pos.GetTraversalPath();
+    ind = 0;
+    for (auto v_pointer : traversalPath) {
+      CHECK(v_pointer->GetId() == finalPath.at(ind));
+      ind++;
+    }
   }
 }
