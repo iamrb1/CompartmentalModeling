@@ -24,38 +24,22 @@ static constexpr char kTrailingZero = '0';
 static constexpr char kDecimalPoint = '.';
 
 /**
- * Returns the string value of the Datum.
- * @return The string value of the Datum
+ * Sets the Datum to a string and returns the string.
+ * @return Returns the Datum as a string.
  */
-std::string Datum::GetString() const {
-  if (!IsString()) {
-    // CITE: Used https://www.geeksforgeeks.org/how-to-throw-an-exception-in-cpp/
-    // to help with throwing an error.
-    throw std::runtime_error("Attempted GetString() on a non-string Datum.");
-  }
-
-  assert(IsString());
-  return std::get<std::string>(GetVariant());
+[[maybe_unused]] std::string Datum::ToString() {
+  std::string conversion_string = DoubleToStringConversion();
+  SetVariant(conversion_string);
+  return conversion_string;
 }
 
 /**
- * Returns the double value of the Datum.
- * @return The double value of the Datum
+ * Helper functions that determines the string value of a Datum.
+ * @return The string value of a Datum.
  */
-double Datum::GetDouble() const {
-  if (!IsDouble()) {
-    throw std::runtime_error("Attempted GetDouble() on a non-double Datum.");
-  }
-
-  assert(IsDouble());
-  return std::get<double>(GetVariant());
-}
-
-/**
- * Converts the Datum into a string.
- */
-[[maybe_unused]] void Datum::AsString() {
+std::string Datum::DoubleToStringConversion() const {
   if (IsDouble()) {
+    std::string final_string = "";
     assert(IsDouble());
     if (!std::isnan(GetDouble())) {
       assert(!std::isnan(GetDouble()));
@@ -67,38 +51,47 @@ double Datum::GetDouble() const {
                                  std::string::npos);
       string_numeric_value.erase(string_numeric_value.find_last_not_of(kDecimalPoint) + 1,
                                  std::string::npos);
-      value_ = string_numeric_value;
+      final_string = string_numeric_value;
     } else {
       assert(std::isnan(GetDouble()));
-      value_ = "";
     }
+    return final_string;
   }
+  return GetString();
 }
 
 /**
- * Converts the Datum into a double.
- * @warning If the Datum is an invalid double, converts into NaN.
+ * Sets the Datum to a double and returns the double.
+ * @return Returns the Datum as a double.
  */
-[[maybe_unused]] void Datum::AsDouble() {
+[[maybe_unused]] double Datum::ToDouble() {
+  double conversion_double = StringToDoubleConversion();
+  SetVariant(conversion_double);
+  return conversion_double;
+}
+
+/**
+ * Help function that determines the double value of a Datum.
+ * @warning If the Datum is an invalid double, converts into NaN.
+ * @return The double value of the Datum.
+ */
+double Datum::StringToDoubleConversion() const {
   if (IsString()) {
     assert(IsString());
+    double final_double = std::numeric_limits<double>::quiet_NaN();
     try {
-
       // CITE: Used ChatGPT to write this code. Fixed a bug where strings starting with
       // numbers (e.g., "123Hello") were partially converted instead of setting to NaN.
       std::size_t pos;
       double double_value = std::stod(GetString(), &pos);
       if (pos == GetString().length()) {
         assert(pos == GetString().length());
-        value_ = double_value;
-      } else {
-        // CITE: Used https://stackoverflow.com/questions/16691207/c-c-nan-constant-literal for NaN
-        value_ = std::numeric_limits<double>::quiet_NaN();
+        final_double = double_value;
       }
-    } catch (std::invalid_argument &e) {
-      value_ = std::numeric_limits<double>::quiet_NaN();
-    }
+    } catch (std::invalid_argument &e) {}
+    return final_double;
   }
+  return GetDouble();
 }
 
 // Used https://www.geeksforgeeks.org/operator-overloading-cpp/ to help with
@@ -115,10 +108,10 @@ Datum Datum::operator+(const Datum &datum) const {
 
   if (IsDouble() && datum.IsDouble()) {
     assert(IsDouble() && datum.IsDouble());
-    return Datum(GetDouble() + datum.GetDouble());
+    return {GetDouble() + datum.GetDouble()};
   }
   assert(IsString() && datum.IsString());
-  return Datum(GetString() + datum.GetString());
+  return {GetString() + datum.GetString()};
 }
 
 /**
@@ -132,7 +125,7 @@ Datum Datum::operator-(const Datum &datum) const {
   }
 
   assert(IsDouble() && datum.IsDouble());
-  return Datum(GetDouble() - datum.GetDouble());
+  return {GetDouble() - datum.GetDouble()};
 }
 
 /**
@@ -146,7 +139,7 @@ Datum Datum::operator*(const Datum &datum) const {
   }
 
   assert(IsDouble() && datum.IsDouble());
-  return Datum(GetDouble() * datum.GetDouble());
+  return {GetDouble() * datum.GetDouble()};
 }
 
 /**
@@ -164,7 +157,7 @@ Datum Datum::operator/(const Datum &datum) const {
   }
 
   assert(IsDouble() && datum.IsDouble());
-  return Datum(GetDouble() / datum.GetDouble());
+  return {GetDouble() / datum.GetDouble()};
 }
 
 /**
@@ -194,7 +187,7 @@ bool Datum::operator==(const Datum &datum) const {
 Datum &Datum::operator=(const Datum &datum) {
   // Checks if the object is not assigned to itself (From GeeksForGeeks)
   if (this != &datum) {
-    value_ = datum.value_;
+    SetVariant(datum.GetVariant());
   }
   return *this;
 }
@@ -205,7 +198,7 @@ Datum &Datum::operator=(const Datum &datum) {
  * @return  A reference to this Datum after assignment.
  */
 Datum &Datum::operator=(const double &double_value) {
-  value_ = double_value;
+  SetVariant(double_value);
   return *this;
 }
 
@@ -215,7 +208,7 @@ Datum &Datum::operator=(const double &double_value) {
  * @return  A reference to this Datum after assignment.
  */
 Datum &Datum::operator=(const std::string &string_value) {
-  value_ = string_value;
+  SetVariant(string_value);
   return *this;
 }
 } // namespace cse
