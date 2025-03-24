@@ -2,7 +2,7 @@
 
 #include "../../Group-03/src/DataTracker.h"
 #include <vector>
-
+#define CATCH_CONFIG_MAIN
 
 TEST_CASE("DataTrackerTest Empty", "[DataTracker]") {
     cse::DataTracker<int> tracker;

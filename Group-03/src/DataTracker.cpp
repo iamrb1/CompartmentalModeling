@@ -6,7 +6,7 @@
 */
 
 #include "DataTracker.h"
-#include <type_traits>
+#include <string>#include <type_traits>
 #include <numeric>
 #include <unordered_map>
 #include <algorithm>
@@ -92,14 +92,22 @@ double DataTracker<T>::variance() const {
 template <typename T>
 T DataTracker<T>::min() const {
     if (values.empty()) return T();
-    return *std::min_element(values.begin(), values.end());
+    if constexpr (std::is_arithmetic_v<T>){
+        return *std::min_element(values.begin(), values.end());
+    }
+    else return T();
 }
 
 // Returns the maximum value
 template <typename T>
 T DataTracker<T>::max() const {
     if (values.empty()) return T();
-    return *std::max_element(values.begin(), values.end());
+    if constexpr (std::is_arithmetic_v<T>){
+        return *std::max_element(values.begin(), values.end());
+    }
+    else{
+        return T();
+    }
 }
 
 // Returns the total number of elements
@@ -123,4 +131,6 @@ std::optional<T> DataTracker<T>::winner() const {
     return std::nullopt;
 }
 
+template class DataTracker<int>;
+template class DataTracker<double>;
 } // namespace cse
