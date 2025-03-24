@@ -695,10 +695,6 @@ TEST_CASE("Serialize External Class/Struct", "[Serializer]")
 	const std::string folder = "ClassTest";
 	std::filesystem::remove_all(folder);
 	std::filesystem::create_directory(folder);
-	const std::string fdname = "ClassTest/PName.dat";
-	const std::string fdage = "ClassTest/PAge.dat";
-	const std::string fdheight = "ClassTest/PHeight.dat";
-	const std::string fdhobbies = "ClassTest/PHobbies.dat";
 	struct Person
 	{
 		std::string name;
