@@ -228,32 +228,31 @@ namespace cse {
 
     template <typename VERTEX_DATA_T>
     auto AStar(Vertex<VERTEX_DATA_T> &destination) -> std::function<bool(GraphPosition<VERTEX_DATA_T> &)> {
-      std::priority_queue<VectorDistancePair<VERTEX_DATA_T>, std::vector<VectorDistancePair<VERTEX_DATA_T>>,
-                          std::greater<VectorDistancePair<VERTEX_DATA_T>>>
-          q;
-      // Map of vector id and smallest distance to vector
-      std::map<std::string, double> bestDistances;
+      using VertexPair = VectorDistancePair<VERTEX_DATA_T>;
+      using PriorityQueue = std::priority_queue<VertexPair, std::vector<VertexPair>, std::greater<VertexPair>>;
+      using DistanceMap = std::map<std::string, double>;
+      using EdgePair = std::pair<std::string, std::weak_ptr<Edge<VERTEX_DATA_T>>>;
+
+      PriorityQueue q;
+      DistanceMap bestDistances;
+
       auto distanceCalculator = [&destination](Vertex<VERTEX_DATA_T> const &curr) {
         double xDist = std::abs(destination.GetX() - curr.GetX());
         double yDist = std::abs(destination.GetY() - curr.GetY());
-
         return std::sqrt(xDist * xDist + yDist * yDist);
       };
 
       return [q, distanceCalculator, bestDistances, &destination](GraphPosition<VERTEX_DATA_T> &graphPosition) mutable {
-        // If empty initialize basic variables
         if (q.empty()) {
           if (bestDistances.empty()) {
             auto const &curr = graphPosition.GetCurrentVertex();
-            q.push(VectorDistancePair<VERTEX_DATA_T>(&curr, distanceCalculator(curr)));
+            q.push(VertexPair(&curr, distanceCalculator(curr)));
             bestDistances[curr.GetId()] = 0;
           } else {
-            // If not initializing, path was either already found or not existing;
             return false;
           }
         }
 
-        // Get the next vertex with the closest distance
         auto v_pair = q.top();
         auto const *v = v_pair.v;
         graphPosition.SetCurrentVertex(*v);
@@ -261,30 +260,29 @@ namespace cse {
         q.pop();
 
         if (*v == destination) {
-          q = std::priority_queue<VectorDistancePair<VERTEX_DATA_T>, std::vector<VectorDistancePair<VERTEX_DATA_T>>,
-                                  std::greater<VectorDistancePair<VERTEX_DATA_T>>>();
+          q = PriorityQueue();
           return true;
         }
 
-        std::vector<std::pair<std::string, std::weak_ptr<Edge<VERTEX_DATA_T>>>> neighbors(v->GetEdges().begin(),
-                                                                                          v->GetEdges().end());
+        std::vector<EdgePair> neighbors(v->GetEdges().begin(), v->GetEdges().end());
 
-        // Add each of the edges to the p_queue based on the estimated distance
         for (const auto &edge : neighbors) {
           if (auto edgePtr = edge.second.lock()) {
             auto const &neighbor = edgePtr->GetTo();
             double actual_d = currDistance + edgePtr->GetWeight();
             auto estimated_d = actual_d + distanceCalculator(neighbor);
-            std::map<std::string, double>::const_iterator bd;
-            if ((bd = bestDistances.find(neighbor.GetId())) == bestDistances.end() || actual_d < bd->second) {
+
+            auto bd = bestDistances.find(neighbor.GetId());
+            if (bd == bestDistances.end() || actual_d < bd->second) {
               bestDistances[neighbor.GetId()] = actual_d;
-              q.push(VectorDistancePair<VERTEX_DATA_T>(&neighbor, estimated_d));
+              q.push(VertexPair(&neighbor, estimated_d));
             }
           }
         }
         return true;
       };
     }
+
   } // namespace TraversalModes
 
 } // namespace cse
