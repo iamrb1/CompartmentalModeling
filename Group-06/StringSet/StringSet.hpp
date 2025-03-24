@@ -36,6 +36,9 @@ private:
 public:
   /// @brief Define an iterator type for string set (unordered set)
   using iterator = std::unordered_set<T>::iterator;
+
+  /// @brief Define const iterator
+  using const_iterator = std::unordered_set<T>::const_iterator;
   
   /**
   * @brief Iterator to the first element of string set (begin iterator)
@@ -48,6 +51,18 @@ public:
   * @return Iterator pointing past the last element of string set
   */
   iterator end() { return mElements.end(); }
+
+  /**
+  * @brief Iterator to the first element of string set (const)
+  * @return Const iterator pointing to beginning of string set
+  */
+  const_iterator begin() const { return mElements.begin(); }
+
+  /**
+  * @brief Iterator to the end of string set (const)
+  * @return Const Iterator pointing past the last element of string set
+  */
+  const_iterator end() const { return mElements.end(); }
   
   /**
   * @brief Add string into the string set
@@ -99,8 +114,16 @@ public:
   bool operator==(const StringSet &other) const {
     return mElements == other.mElements;
   }
-  
+
   /**
+   * @brief Check if two string sets are not equal
+   * @param other The second set
+   */
+  bool operator!=(const StringSet &other) const {
+      return mElements != other.mElements;
+  }
+
+    /**
   * @brief Check if a specific string in the set or not
   * @param str that needs to be checked
   * @return 0 or 1. If str in the set returns 1 otherwise 0
@@ -114,6 +137,11 @@ public:
   std::vector<T> ToVector() const
   {return std::vector<T>(mElements.begin(), mElements.end()); }
 
+  /**
+  * @brief Swap the elements of sets
+  * @param other The second set
+  */
+  void Swap(StringSet& other) { std::swap(mElements, other.mElements); }
 
   StringSet Union(const StringSet &other) const;
   
@@ -150,11 +178,27 @@ public:
 };
 
 /**
+ * @brief Output stream operator to print set
+ * @param os output stream to write
+ * @param set String set
+ * @return os
+ */
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const StringSet<T>& set)
+{
+    for(const auto& str : set)
+    {
+        os << str << " ";
+    }
+    return os;
+}
+
+
+/**
  * @brief Union of two sets
  * @param other The second set
  * @return A new set that contains unique elements from both sets
  */
-
 template<typename T>
 cse::StringSet<T> cse::StringSet<T>::Union(const StringSet<T>& other) const {
 

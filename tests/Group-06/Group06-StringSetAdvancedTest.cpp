@@ -349,3 +349,70 @@ TEST_CASE("Test for sort", "[sort]"){
     REQUIRE(sortedSet == expected);
 
 }
+
+TEST_CASE("operator<<", "[operator<<]"){
+    StringSet set;
+    set.insert("blue");
+    set.insert("green");
+    set.insert("black");
+
+    std::ostringstream oss;
+    oss << set;
+
+    std::string output = oss.str();
+
+    REQUIRE(output.find("blue") != std::string::npos);
+    REQUIRE(output.find("green") != std::string::npos);
+    REQUIRE(output.find("black") != std::string::npos);
+
+    // empty set
+    set.clear();
+    std::ostringstream oss2;
+    oss2 << set;
+
+    REQUIRE(oss2.str() == "");
+}
+
+TEST_CASE("Swap", "[Swap]"){
+    StringSet set1;
+    StringSet set2;
+
+    set1.insert("blue");
+    set1.insert("green");
+    set1.insert("black");
+    REQUIRE(set1.count("blue") == 1);
+    REQUIRE(set1.count("green") == 1);
+    REQUIRE(set1.count("black") == 1);
+
+    set2.insert("yellow");
+    set2.insert("white");
+    set2.insert("purple");
+    REQUIRE(set2.count("yellow") == 1);
+    REQUIRE(set2.count("white") == 1);
+    REQUIRE(set2.count("purple") == 1);
+
+    set1.Swap(set2);
+
+    REQUIRE(set1.count("yellow") == 1);
+    REQUIRE(set1.count("white") == 1);
+    REQUIRE(set1.count("purple") == 1);
+    REQUIRE(set1.count("blue") == 0);
+    REQUIRE(set1.count("green") == 0);
+    REQUIRE(set1.count("black") == 0);
+
+    REQUIRE(set2.count("blue") == 1);
+    REQUIRE(set2.count("green") == 1);
+    REQUIRE(set2.count("black") == 1);
+    REQUIRE(set2.count("yellow") == 0);
+    REQUIRE(set2.count("white") == 0);
+    REQUIRE(set2.count("purple") == 0);
+
+    // empty set
+    set1.clear();
+    set2.clear();
+
+    set1.Swap(set2);
+    REQUIRE(set1.empty());
+    REQUIRE(set2.empty());
+
+}
