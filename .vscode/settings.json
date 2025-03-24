@@ -64,6 +64,7 @@
         "vector": "cpp",
         "algorithm": "cpp",
         "iterator": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "hash_map": "cpp"
     }
 }
