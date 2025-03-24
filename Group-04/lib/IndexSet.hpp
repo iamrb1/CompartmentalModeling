@@ -152,6 +152,50 @@ class IndexSet {
     std::size_t current_;
   };
 
+  class const_pair_iterator {
+  public:
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = std::pair<std::size_t, std::size_t>;
+    using difference_type = std::ptrdiff_t;
+    using pointer = const std::size_t*;
+    using reference = const std::size_t&;
+
+    explicit const_pair_iterator(
+        const std::vector<std::pair<std::size_t, std::size_t>>& ranges,
+        std::size_t current = 0)
+        : ranges_(&ranges), current_(current) {}
+
+    std::remove_const_t<value_type> operator*() const {
+      dbg_assert(current_ < ranges_->size(), "Iterator dereferenced out of range.");
+      return ranges_->at(current_);
+    }
+
+    const_pair_iterator& operator++() {
+      dbg_assert(current_ < ranges_->size(), "Iterator moved out of range.");
+
+      current_ += 1;
+      return *this;
+    }
+
+    const_pair_iterator operator++(int) {
+      const_pair_iterator tmp = *this;
+      ++(*this);
+      return tmp;
+    }
+
+    bool operator==(const const_pair_iterator& other) const {
+      return ranges_ == other.ranges_ && current_ == other.current_;
+    }
+
+    bool operator!=(const const_pair_iterator& other) const {
+      return !(*this == other);
+    }
+
+  private:
+    const std::vector<std::pair<std::size_t, std::size_t>>* ranges_;
+    std::size_t current_;
+  };
+
   // Constructors
   IndexSet() = default;
   ~IndexSet() = default;
@@ -590,6 +634,8 @@ class IndexSet {
   const_iterator cend() const {
     return const_iterator(ranges_, ranges_.size(), 0);
   }
+  [[nodiscard]] const_pair_iterator cbegin_pair() const { return const_pair_iterator(ranges_); }
+  [[nodiscard]] const_pair_iterator cend_pair() const { return const_pair_iterator(ranges_, ranges_.size()); }
 
  private:
   // Internal representation - vector of ranges
