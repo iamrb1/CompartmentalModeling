@@ -51,7 +51,7 @@ public:
 
     if (required) {
       k_ -= 1;
-      std::remove(items_.begin(), items_.end(), toRequire);
+      items_.erase(std::remove(items_.begin(), items_.end(), toRequire));
     }
     
     // ensure k is less than or equal to n
@@ -127,12 +127,25 @@ public:
     if (currentIndex_ == 0)
       return false;
 
-    // do it w/the standard lib algorithm if n == k
-    if (n_ == k_) {
-      std::prev_permutation(indices_.begin(), indices_.end());
+    if (isRequired_) {
+      // do it w/the standard lib algorithm if n == k
+      if (n_ == k_) {
+        std::prev_permutation(indices_.begin(), indices_.end());
+      } else if (requiredIndex_ > 0) { // 
+        --requiredIndex_;
+      } else {
+        PrevKPermutation_();
+        requiredIndex_ = k_;
+      }
     } else {
-      PrevKPermutation_();
+      // do it w/the standard lib algorithm if n == k
+      if (n_ == k_) {
+        std::prev_permutation(indices_.begin(), indices_.end());
+      } else {
+        PrevKPermutation_();
+      }
     }
+    
 
     for (size_t i = 0; i < k_; ++i) {
       currentPermutation_[i] = items_[indices_[i]];
