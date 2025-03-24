@@ -7,7 +7,7 @@ debug: BUILD_PROFILE=debug
 debug: build
 
 clean:
-	$(MAKE) -f Makefile.logic clean
+	BUILD_PROFILE=$(BUILD_PROFILE) $(MAKE) -f Makefile.logic clean
 
 format:
 	$(MAKE) -f Makefile.logic format
@@ -20,3 +20,6 @@ install_debug: install
 
 uninstall:
 	$(MAKE) -f Makefile.logic uninstall
+
+run:
+	$(MAKE) -f Makefile.logic run
