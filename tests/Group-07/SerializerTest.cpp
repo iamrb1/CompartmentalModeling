@@ -46,6 +46,8 @@ TEST_CASE("Serializer Swap Mode", "[Serializer]")
 	REQUIRE(Neutral.IsSave());
 	Neutral.SetMode(cse::Mode::LOAD);
 	REQUIRE(Neutral.IsLoad());
+	Neutral.SetMode(cse::Mode::SAVE);
+	REQUIRE(Neutral.IsSave());
 }
 
 TEST_CASE("Serializer Save Load Basic", "[Serializer]")
@@ -641,7 +643,6 @@ TEST_CASE("Implemented Verifier", "[Serializer]")
 	REQUIRE(Saver.IsSerializable(PairIntInt) == false);
 }
 
-// All below tests should fail now, since it is currently not implemented
 TEST_CASE("Serializer Nested Containers and Similars", "[Serializer]")
 {
 	cse::Serializer Saver(cse::Mode::SAVE);
