@@ -61,7 +61,8 @@ namespace cse {
     void AddToTraversalPath(Vertex<VERTEX_DATA_T> const *v);
     void ReverseTraversalPath();
     void ResetTraversal(Vertex<VERTEX_DATA_T> const &newStartVertex);
-    GraphPosition &operator++();    // Advances to next vertex
+    GraphPosition &operator++(); // Advances to next vertex
+    void TraverseGraph();
     explicit operator bool() const; // Checks if more traversal is possible
     void SetTraversalMode(std::function<bool(GraphPosition<VERTEX_DATA_T> &)> newTraversalFunction) {
       traversalFunction = newTraversalFunction;
@@ -130,6 +131,14 @@ namespace cse {
       currentVertex = nullptr;
     }
     return *this;
+  }
+
+  /**
+   * Traverses the graph using the provided traversal strategy
+   */
+  template <typename VERTEX_DATA_T> inline void GraphPosition<VERTEX_DATA_T>::TraverseGraph() {
+    while ((bool)++(*this)) {
+    }
   }
 
   template <typename VERTEX_DATA_T> GraphPosition<VERTEX_DATA_T>::operator bool() const {

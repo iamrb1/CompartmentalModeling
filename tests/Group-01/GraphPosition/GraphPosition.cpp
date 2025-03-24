@@ -143,6 +143,7 @@ TEST_CASE("GraphPosition Depth and Breadth-First Search Traversal Tests",
 
     const int GRID_SIZE = 5;
 
+    // Generates a grid for the graph
     for (int x = 0; x < GRID_SIZE; x++) {
       for (int y = 0; y < GRID_SIZE; y++) {
         std::string v_id = std::to_string(x) + "_" + std::to_string(y);
@@ -154,59 +155,182 @@ TEST_CASE("GraphPosition Depth and Breadth-First Search Traversal Tests",
       for (int y = 0; y < GRID_SIZE; y++) {
         std::string v_id_1 = std::to_string(x) + "_" + std::to_string(y);
         std::string v_id_2;
-        bool isXEdge = x == (GRID_SIZE - 1);
-        bool isYEdge = y == (GRID_SIZE - 1);
+        bool isXRightEdge = x == (GRID_SIZE - 1);
+        bool isYBottomEdge = y == (GRID_SIZE - 1);
+        bool isXLeftEdge = x == 0;
+        bool isYTopEdge = y == 0;
 
-        if (!isXEdge) {
+        if (!isXRightEdge) {
           v_id_2 = std::to_string(x + 1) + "_" + std::to_string(y);
           graph.AddEdge(v_id_1, v_id_2, 1);
           graph.AddEdge(v_id_2, v_id_1, 1);
         }
-        if (!isYEdge) {
+        if (!isXLeftEdge) {
+          v_id_2 = std::to_string(x - 1) + "_" + std::to_string(y);
+          graph.AddEdge(v_id_1, v_id_2, 1);
+          graph.AddEdge(v_id_2, v_id_1, 1);
+        }
+        if (!isYBottomEdge) {
           v_id_2 = std::to_string(x) + "_" + std::to_string(y + 1);
           graph.AddEdge(v_id_1, v_id_2, 1);
           graph.AddEdge(v_id_2, v_id_1, 1);
         }
-        if (!isXEdge && !isYEdge) {
+        if (!isYTopEdge) {
+          v_id_2 = std::to_string(x) + "_" + std::to_string(y - 1);
+          graph.AddEdge(v_id_1, v_id_2, 1);
+          graph.AddEdge(v_id_2, v_id_1, 1);
+        }
+        if (!isXRightEdge && !isYBottomEdge) {
           v_id_2 = std::to_string(x + 1) + "_" + std::to_string(y + 1);
+          graph.AddEdge(v_id_1, v_id_2, 1.41);
+          graph.AddEdge(v_id_2, v_id_1, 1.41);
+        }
+        if (!isXLeftEdge && !isYTopEdge) {
+          v_id_2 = std::to_string(x - 1) + "_" + std::to_string(y - 1);
           graph.AddEdge(v_id_1, v_id_2, 1.41);
           graph.AddEdge(v_id_2, v_id_1, 1.41);
         }
       }
     }
 
+    // Expected order is the order items are visited in
     std::vector<std::string> expectedOrder{"0_0", "1_1", "2_2", "3_3", "4_4"};
+    // Final path is the best path found by a* using the heuristic
     std::vector<std::string> finalPath{"0_0", "1_1", "2_2", "3_3", "4_4"};
     cse::GraphPosition<std::string> pos(graph, &graph.GetVertex("0_0"));
-
-    auto &origin = graph.GetVertex("0_0");
-    auto &destination = graph.GetVertex("4_4");
-    pos.ResetTraversal(origin);
-    pos.SetTraversalMode(cse::TraversalModes::AStar<std::string>(destination));
-
+    auto origin = graph.GetVertex("0_0");
+    auto destination = graph.GetVertex("4_4");
     size_t ind = 0;
-    while ((bool)++pos) {
-      auto v_id = expectedOrder.at(ind);
-      CHECK(pos.GetCurrentVertex().GetId() == v_id);
-      ind++;
-    }
-    CHECK(ind == expectedOrder.size());
 
-    origin = graph.GetVertex("0_0");
-    destination = graph.GetVertex("4_4");
-    graph.RemoveVertex("1_1");
-    pos.ResetTraversal(origin);
-    pos.SetTraversalMode(cse::TraversalModes::AStar<std::string>(destination));
+    SECTION("Initial full matrix") {
+      pos.ResetTraversal(origin);
+      pos.SetTraversalMode(
+          cse::TraversalModes::AStar<std::string>(destination));
 
-    while ((bool)++pos) {
+      while ((bool)++pos) {
+        auto v_id = expectedOrder.at(ind);
+        CHECK(pos.GetCurrentVertex().GetId() == v_id);
+        ind++;
+      }
+      CHECK(ind == expectedOrder.size());
     }
 
-    finalPath = {"0_0", "0_1", "1_2", "2_3", "3_4", "4_4"};
-    auto traversalPath = pos.GetTraversalPath();
-    ind = 0;
-    for (auto v_pointer : traversalPath) {
-      CHECK(v_pointer->GetId() == finalPath.at(ind));
-      ind++;
+    SECTION("Traverse matrix with simple obstacle ") {
+      origin = graph.GetVertex("0_0");
+      destination = graph.GetVertex("4_4");
+      graph.RemoveVertex("1_1");
+      /**
+       * O O O O O
+       * O X O O O
+       * O O O O O
+       * O O O O O
+       * O O O O O
+       */
+      pos.ResetTraversal(origin);
+      pos.SetTraversalMode(
+          cse::TraversalModes::AStar<std::string>(destination));
+
+      pos.TraverseGraph();
+
+      finalPath = {"0_0", "0_1", "1_2", "2_3", "3_4", "4_4"};
+      auto traversalPath = pos.GetTraversalPath();
+      ind = 0;
+      for (auto v_pointer : traversalPath) {
+        CHECK(v_pointer->GetId() == finalPath.at(ind));
+        ind++;
+      }
+    }
+
+    SECTION("Traverse matrix with full more obstacles") {
+      auto &origin = graph.GetVertex("0_0");
+      auto &destination = graph.GetVertex("4_4");
+      pos.ResetTraversal(origin);
+      pos.SetTraversalMode(
+          cse::TraversalModes::AStar<std::string>(destination));
+
+      // Adds additional obstacles
+      graph.RemoveVertex("1_1");
+      graph.RemoveVertex("2_1");
+      graph.RemoveVertex("3_1");
+      graph.RemoveVertex("4_1");
+      /**
+       * O O O O O
+       * O X X X X
+       * O O O O O
+       * O O O O O
+       * O O O O O
+       */
+      expectedOrder = {"0_0", "0_1", "1_0", "1_2", "2_3", "3_4", "4_4"};
+      finalPath = {"0_0", "0_1", "1_2", "2_3", "3_4", "4_4"};
+
+      // Check it visits nodes in the correct order
+      while ((bool)++pos) {
+        auto v_id = expectedOrder.at(ind);
+        CHECK(pos.GetCurrentVertex().GetId() == v_id);
+        ind++;
+      }
+      CHECK(ind == expectedOrder.size());
+
+      // Checks the final path is correct
+      auto traversalPath = pos.GetTraversalPath();
+      ind = 0;
+      for (auto v_pointer : traversalPath) {
+        CHECK(v_pointer->GetId() == finalPath.at(ind));
+        ind++;
+      }
+    }
+
+    SECTION("Traverse matrix with full more complex obstacle") {
+      origin = graph.GetVertex("4_0");
+      destination = graph.GetVertex("0_4");
+      pos.ResetTraversal(origin);
+      pos.SetTraversalMode(
+          cse::TraversalModes::AStar<std::string>(destination));
+
+      // Add diagonal for testing
+      graph.AddEdge("1_0", "0_1", 1.41);
+      graph.AddEdge("0_1", "1_0", 1.41);
+
+      // Adds additional obstacles
+      graph.RemoveVertex("1_1");
+      graph.RemoveVertex("2_1");
+      graph.RemoveVertex("3_1");
+      graph.RemoveVertex("4_1");
+
+      graph.RemoveVertex("0_3");
+      graph.RemoveVertex("1_3");
+      graph.RemoveVertex("2_3");
+      graph.RemoveVertex("3_3");
+      /**
+       * O 1 1 1 1
+       * 1 X X X X
+       * O 1 1 1 O
+       * X X X X 1
+       * 1 1 1 1 O
+       */
+      expectedOrder = {
+          "4_0", "3_0", "2_0", "1_0", "0_1", "0_2", "0_0", "1_2", "2_2",
+          "3_2", "4_2", "4_3", "4_4", "3_4", "2_4", "1_4", "0_4",
+      };
+
+      finalPath = {"4_0", "3_0", "2_0", "1_0", "0_1", "1_2", "2_2",
+                   "3_2", "4_3", "4_4", "3_4", "2_4", "1_4", "0_4"};
+
+      ind = 0;
+      // Check it visits nodes in the correct order
+      while ((bool)++pos) {
+        auto v_id = expectedOrder.at(ind);
+        CHECK(pos.GetCurrentVertex().GetId() == v_id);
+        ind++;
+      }
+
+      // Checks the final path is correct
+      auto traversalPath = pos.GetTraversalPath();
+      ind = 0;
+      for (auto v_pointer : traversalPath) {
+        CHECK(v_pointer->GetId() == finalPath.at(ind));
+        ind++;
+      }
     }
   }
 }
