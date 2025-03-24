@@ -1,3 +1,10 @@
+/* --- PermutationManager.hpp --- */
+
+/* ------------------------------------------
+Author: Ephraim Bennett
+Last Changed Date: 3/22/2025
+------------------------------------------ */
+
 #ifndef PERMUTATION_MANAGER_H
 #define PERMUTATION_MANAGER_H
 
