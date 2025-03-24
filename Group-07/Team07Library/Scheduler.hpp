@@ -46,6 +46,50 @@ class Scheduler {
   /// Set containing all the IDs of Processes currently in the Scheduler
   std::set<ProcessID> seenIds;
 
+  /**
+   * Calculates priority from a given set of weights
+   * @param weights Set of weights to calculate priority with
+   * @return Calculated priority value which is SUM(weights[i]*weightList[i])
+   */
+  constexpr double calculatePriority(const std::vector<double>& weights) {
+      double priority=0;
+      int weightListSize=weightList.size();
+      for(int i=0;i<weightListSize;i++) {
+          priority+=(weightList[i]*weights[i]);
+      }
+      return priority;
+  }
+
+    /**
+     * Finds the position of a process in currIds from its id
+     * @param id ID of the process we are trying to find
+     * @return Process's position in currIds if it is there, returns -1 otherwise
+     */
+  constexpr int findIdInCurrIds(const ProcessID& id) {
+      int currIdsSize=currIds.size();
+      for(int i=0;i<currIdsSize;i++) {
+          if(currIds[i].id==id) {
+              return i;
+          }
+      }
+      return -1;
+  }
+
+  /**
+   * Finds the position of a process in the override queue from its id
+   * @param id ID of the process we are trying to find
+   * @return Process's position in the override queue if it is there, returns -1 otherwise
+   */
+  constexpr int findIdInOverrideQueue(const ProcessID& id) {
+      int overrideQueueSize=overrideQueue.size();
+      for(int i=0;i<overrideQueueSize;i++) {
+          if(overrideQueue.at(i).id==id) {
+              return i;
+          }
+      }
+      return -1;
+  }
+
  public:
   /**
    * Default Constructor is deleted
@@ -79,11 +123,7 @@ class Scheduler {
         return;
     }
 
-    double priority=0;
-    int weightsSize=weights.size();
-    for(int i=0;i<weightsSize;i++) {
-      priority+=(weights[i]*weightList[i]);
-    }
+    double priority = calculatePriority(weights);
 
     Process process={id,priority,weights};
     currIds.push_back(process);
@@ -96,22 +136,19 @@ class Scheduler {
    * @param id ID of the process we are removing from the scheduler
    */
   void RemoveProcess(const ProcessID &id) {
-    int currIdsSize=currIds.size(),overrideQueueSize=overrideQueue.size();
-    for(int i=0;i<currIdsSize;i++) {
-      if(currIds[i].id==id) {
-        currIds.erase(currIds.begin()+i);
+    int currIdsPos = findIdInCurrIds(id);
+    if(currIdsPos!=-1) {
+        currIds.erase(currIds.begin()+currIdsPos);
         seenIds.erase(id);
         needUpdate=true;
         return;
-      }
     }
 
-    for(int i=0;i<overrideQueueSize;i++) {
-      if(overrideQueue.at(i).id==id) {
-        overrideQueue.erase(overrideQueue.begin()+i);
+    int overrideQueuePos = findIdInOverrideQueue(id);
+    if(overrideQueuePos!=-1) {
+        overrideQueue.erase(overrideQueue.begin()+overrideQueuePos);
         seenIds.erase(id);
         return;
-      }
     }
   }
 
@@ -149,13 +186,11 @@ class Scheduler {
    * @param id ID of the process which we are overriding the scheduling order for
    */
   void OverridePriority(const ProcessID &id) {
-    int currIdsSize=currIds.size();
-    for(int i=0;i<currIdsSize;i++) {
-      if(id==currIds[i].id) {
-        overrideQueue.push_back(currIds[i]);
-        currIds.erase(currIds.begin()+i);
+    int currIdsPos = findIdInCurrIds(id);
+    if(currIdsPos!=-1) {
+        overrideQueue.push_back(currIds[currIdsPos]);
+        currIds.erase(currIds.begin()+currIdsPos);
         return;
-      }
     }
   }
 
@@ -166,27 +201,21 @@ class Scheduler {
    */
   void UpdateProcessPriority(const ProcessID &id,const std::vector<double> &newWeights) {
       assert(newWeights.size()==weightList.size());
-      int weightsSize=weightList.size(),currIdsSize=currIds.size(),overrideQueueSize=overrideQueue.size();
-      double newPriority=0;
-      for(int i=0;i<weightsSize;i++) {
-          newPriority+=(weightList[i]*newWeights[i]);
+      int currIdsPos = findIdInCurrIds(id);
+      double newPriority = calculatePriority(newWeights);
+
+      if(currIdsPos != -1) {
+          currIds[currIdsPos].priorityWeight=newPriority;
+          currIds[currIdsPos].processWeights=newWeights;
+          needUpdate=true;
+          return;
       }
 
-      for(int i=0;i<currIdsSize;i++) {
-          if(id==currIds[i].id) {
-              currIds[i].priorityWeight=newPriority;
-              currIds[i].processWeights=newWeights;
-              needUpdate=true;
-              return;
-          }
-      }
-
-      for(int i=0;i<overrideQueueSize;i++) {
-         if(overrideQueue.at(i).id==id) {
-            overrideQueue.at(i).processWeights=newWeights;
-            overrideQueue.at(i).priorityWeight=newPriority;
-            return;
-         }
+      int overrideQueuePos = findIdInOverrideQueue(id);
+      if(overrideQueuePos != -1) {
+          overrideQueue.at(overrideQueuePos).processWeights=newWeights;
+          overrideQueue.at(overrideQueuePos).priorityWeight=newPriority;
+          return;
       }
   }
 
@@ -198,13 +227,10 @@ class Scheduler {
       assert(newWeights.size()==weightList.size());
       weightList=newWeights;
 
-      int currIdsSize=currIds.size(),weightListSize=weightList.size();
+      int currIdsSize=currIds.size();
       for(int i=0;i<currIdsSize;i++) {
-          double newProcessWeight=0;
-          for(int j=0;j<weightListSize;j++) {
-              newProcessWeight+=(weightList[i]*currIds[i].processWeights[i]);
-          }
-          currIds[i].priorityWeight=newProcessWeight;
+          double newProcessWeight = calculatePriority(currIds[i].processWeights);
+          currIds[i].priorityWeight = newProcessWeight;
       }
       needUpdate=true;
   }
@@ -214,19 +240,15 @@ class Scheduler {
    * @param id ID of the process we are getting the priority for
    * @return Priority value for the given process if it is in the Scheduler, returns std::nullopt otherwise
    */
-  std::optional<double> GetProcessPriority(const ProcessID &id) {
-      int currIdsSize=currIds.size(),overrideQueueSize=overrideQueue.size();
-
-      for(int i=0;i<currIdsSize;i++) {
-          if(id==currIds[i].id) {
-              return currIds[i].priorityWeight;
-          }
+  constexpr std::optional<double> GetProcessPriority(const ProcessID &id) {
+      int currIdsPos = findIdInCurrIds(id);
+      if(currIdsPos!=-1) {
+          return currIds[currIdsPos].priorityWeight;
       }
 
-      for(int i=0;i<overrideQueueSize;i++) {
-          if(overrideQueue.at(i).id==id) {
-              return overrideQueue.at(i).priorityWeight;
-          }
+      int overrideQueuePos = findIdInOverrideQueue(id);
+      if(overrideQueuePos != -1) {
+          return overrideQueue.at(overrideQueuePos).priorityWeight;
       }
       return std::nullopt;
   }
@@ -236,34 +258,30 @@ class Scheduler {
    * @param id ID of the process we are getting the weights set for
    * @return Weights set for the given process if it is in the Scheduler, returns std::nullopt otherwise
    */
-  std::optional<std::vector<double>> GetProcessWeights(const ProcessID &id) {
-      int currIdsSize=currIds.size(),overrideQueueSize=overrideQueue.size();
+  constexpr std::optional<std::vector<double>> GetProcessWeights(const ProcessID &id) {
+        int currIdsPos = findIdInCurrIds(id);
+        if(currIdsPos!=-1) {
+            return currIds[currIdsPos].processWeights;
+        }
 
-      for(int i=0;i<currIdsSize;i++) {
-          if(id==currIds[i].id) {
-              return currIds[i].processWeights;
-          }
-      }
-
-      for(int i=0;i<overrideQueueSize;i++) {
-          if(overrideQueue.at(i).id==id) {
-              return overrideQueue.at(i).processWeights;
-          }
-      }
-      return std::nullopt;
+        int overrideQueuePos = findIdInOverrideQueue(id);
+        if(overrideQueuePos != -1) {
+            return overrideQueue.at(overrideQueuePos).processWeights;
+        }
+        return std::nullopt;
   }
 
   /**
    * Check if the scheduler is empty
    * @return True if scheduler is empty, false otherwise
    */
-  bool empty() const { return currIds.size() == 0 && overrideQueue.empty(); }
+  constexpr bool empty() { return currIds.size() == 0 && overrideQueue.empty(); }
 
   /**
    * Get the number of processes currently in the scheduler
    * @return Number of processes currently in the scheduler
    */
-  int GetCurrProcesses() const { return currIds.size()+overrideQueue.size(); }
+  constexpr int GetCurrProcesses() { return currIds.size()+overrideQueue.size(); }
 };
 }  // namespace cse
 #endif  // PROJECT_CSE498_SPRING2025_GROUP_07_TEAM07LIBRARY_SCHEDULER_H
