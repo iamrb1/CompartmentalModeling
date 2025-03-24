@@ -585,7 +585,7 @@ TEST_CASE("Serializer Empty File or Empty Containers", "[Serializer]")
 	Loader.Serialize(res, filename);
 	REQUIRE(res.size() == 0);
 	std::filesystem::remove(filename);
-	Loader.Serialize(res, filename); // It must raise error
+	// Loader.Serialize(res, filename)); // It must raise error, but kinda useless since we have assert in code
 }
 
 TEST_CASE("Implemented Verifier", "[Serializer]")
@@ -691,7 +691,13 @@ TEST_CASE("Serialize External Class/Struct", "[Serializer]")
 {
 	cse::Serializer Saver(cse::Mode::SAVE);
 	cse::Serializer Loader(cse::Mode::LOAD);
-	std::filesystem::remove(filename);
+	const std::string folder = "ClassTest";
+	std::filesystem::remove_all(folder);
+	std::filesystem::create_directory(folder);
+	const std::string fdname = "ClassTest/PName.dat";
+	const std::string fdage = "ClassTest/PAge.dat";
+	const std::string fdheight = "ClassTest/PHeight.dat";
+	const std::string fdhobbies = "ClassTest/PHobbies.dat";
 	struct Person
 	{
 		std::string name;
@@ -700,10 +706,10 @@ TEST_CASE("Serialize External Class/Struct", "[Serializer]")
 		std::vector<std::string> hobbies;
 		void Serialize(cse::Serializer &Ser)
 		{
-			Ser.Serialize(name, "PName.dat");
-			Ser.Serialize(age, "PAge.dat");
-			Ser.Serialize(height, "PHeight.dat");
-			Ser.Serialize(hobbies, "PHobbies.dat");
+			Ser.Serialize(name, "ClassTest/PName.dat");
+			Ser.Serialize(age, "ClassTest/PAge.dat");
+			Ser.Serialize(height, "ClassTest/PHeight.dat");
+			Ser.Serialize(hobbies, "ClassTest/PHobbies.dat");
 		}
 	};
 	Person P1, P2;
@@ -715,18 +721,13 @@ TEST_CASE("Serialize External Class/Struct", "[Serializer]")
 	Saver.Serialize(P1);
 	Loader.Serialize(P2);
 	REQUIRE(P1.name == P2.name);
-	std::filesystem::remove("PName.dat");
 	REQUIRE(P1.age == P2.age);
-	std::filesystem::remove("PAge.dat");
 	REQUIRE(P1.height == P2.height);
-	std::filesystem::remove("PHeight.dat");
 	REQUIRE(P1.hobbies.size() == P2.hobbies.size());
-	std::string filename = "PHobbies.dat";
 	for (size_t i = 0; i < P1.hobbies.size(); i++)
 	{
 		REQUIRE(P1.hobbies[i] == P2.hobbies[i]);
 		std::string dataname = (std::string)filename + "_" + std::to_string(i);
-		std::filesystem::remove(dataname);
 	}
-	std::filesystem::remove(filename);
+	std::filesystem::remove_all(folder);
 }
