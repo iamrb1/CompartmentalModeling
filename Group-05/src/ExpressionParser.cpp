@@ -49,7 +49,7 @@ double cse::ExpressionParser::ParseKey(const std::string &expression, size_t &in
  * @return auto
  */
 auto cse::ExpressionParser::MakeAddFun(double left, const double right) {
-  using map_t = std::map<std::string, double>;
+  //using map_t = std::map<std::string, double>;
   return [left, right]() {
     return left+right;
   };
@@ -63,7 +63,7 @@ auto cse::ExpressionParser::MakeAddFun(double left, const double right) {
  * @return auto
  */
 auto cse::ExpressionParser::MakeSubFun(const double left, const double right) {
-  using map_t = std::map<std::string, double>;
+  //using map_t = std::map<std::string, double>;
   return [left, right]() {
     return left-right;
   };
@@ -77,7 +77,7 @@ auto cse::ExpressionParser::MakeSubFun(const double left, const double right) {
  * @return auto
  */
 auto cse::ExpressionParser::MakeMulFun(const double left, const double right) {
-  using map_t = std::map<std::string, double>;
+  //using map_t = std::map<std::string, double>;
   return [left, right]() {
     return left*right;
   };
@@ -129,7 +129,7 @@ auto cse::ExpressionParser::MakeExpoFun(const std::string &key1, const std::stri
  * @return auto
  */
 auto cse::ExpressionParser::MakeDivFun(const double left, const double right) {
-  using map_t = std::map<std::string, double>;
+  //using map_t = std::map<std::string, double>;
   return [left, right]() {
     return left/right;
   };
@@ -149,7 +149,7 @@ double cse::ExpressionParser::Evaluate( const std::string &expression, int prece
   std::cout<<precedence<<'\n';
 
   left = ParseKey(expression, index);  
-  double result = 0;
+  //double result = 0;
 
 /*   if (expression.find("cos(") != std::string::npos){
     auto fun = MakeCosFun(first_key);
