@@ -10,6 +10,7 @@
 #include <cassert>
 #include <deque>
 #include <iostream>
+#include <queue>
 #include <set>
 #include <stdexcept>
 #include <unordered_set>
@@ -25,11 +26,15 @@ namespace cse {
 
     template <typename VERTEX_DATA_T>
     auto BFS() -> std::function<bool(GraphPosition<VERTEX_DATA_T> &)>; // Forward declare the function
+
+    template <typename VERTEX_DATA_T>
+    auto AStar(Vertex<VERTEX_DATA_T> &destination)
+        -> std::function<bool(GraphPosition<VERTEX_DATA_T> &)>; // Forward declare the function
   } // namespace TraversalModes
 
   template <typename VERTEX_DATA_T> class GraphPosition {
   private:
-    [[maybe_unused]] const Graph<VERTEX_DATA_T> &graph;
+    const Graph<VERTEX_DATA_T> &graph;
     Vertex<VERTEX_DATA_T> const *currentVertex;
     // Set of visited vertices by ID
     std::set<std::string> visitedVertices;
@@ -52,12 +57,16 @@ namespace cse {
     void SetCurrentVertex(Vertex<VERTEX_DATA_T> const &vertex);
     bool AdvanceToNextNeighbor();
     const std::vector<Vertex<VERTEX_DATA_T> const *> &GetTraversalPath() const;
+    void ResetTraversalPath();
+    void AddToTraversalPath(Vertex<VERTEX_DATA_T> const *v);
+    void ReverseTraversalPath();
     void ResetTraversal(Vertex<VERTEX_DATA_T> const &newStartVertex);
     GraphPosition &operator++();    // Advances to next vertex
     explicit operator bool() const; // Checks if more traversal is possible
     void SetTraversalMode(std::function<bool(GraphPosition<VERTEX_DATA_T> &)> newTraversalFunction) {
       traversalFunction = newTraversalFunction;
     }
+    cse::Vertex<VERTEX_DATA_T> &GetVertex(std::string const v_id) { return graph.GetVertex(v_id); }
   };
 
   // Function Implementations
@@ -94,6 +103,19 @@ namespace cse {
   template <typename VERTEX_DATA_T>
   const std::vector<Vertex<VERTEX_DATA_T> const *> &GraphPosition<VERTEX_DATA_T>::GetTraversalPath() const {
     return traversalPath;
+  }
+
+  template <typename VERTEX_DATA_T> void GraphPosition<VERTEX_DATA_T>::ResetTraversalPath() {
+    traversalPath.clear();
+  }
+
+  template <typename VERTEX_DATA_T>
+  void GraphPosition<VERTEX_DATA_T>::AddToTraversalPath(Vertex<VERTEX_DATA_T> const *v) {
+    traversalPath.push_back(v);
+  }
+
+  template <typename VERTEX_DATA_T> void GraphPosition<VERTEX_DATA_T>::ReverseTraversalPath() {
+    std::reverse(traversalPath.begin(), traversalPath.end());
   }
 
   template <typename VERTEX_DATA_T>
@@ -196,6 +218,108 @@ namespace cse {
         return !queue.empty();
       };
     }
+
+    template <typename VERTEX_DATA_T> struct VectorDistancePair {
+      Vertex<VERTEX_DATA_T> const *v;
+      double distance;
+      VectorDistancePair(Vertex<VERTEX_DATA_T> const *vertex, double d) : v(vertex), distance(d) {}
+    };
+
+    template <typename VERTEX_DATA_T>
+    bool operator<(const VectorDistancePair<VERTEX_DATA_T> &lhs, const VectorDistancePair<VERTEX_DATA_T> &rhs) {
+      return lhs.distance < rhs.distance;
+    }
+    template <typename VERTEX_DATA_T>
+    bool operator>(const VectorDistancePair<VERTEX_DATA_T> &lhs, const VectorDistancePair<VERTEX_DATA_T> &rhs) {
+      return operator<(rhs, lhs);
+    }
+    template <typename VERTEX_DATA_T>
+    bool operator<=(const VectorDistancePair<VERTEX_DATA_T> &lhs, const VectorDistancePair<VERTEX_DATA_T> &rhs) {
+      return !operator>(lhs, rhs);
+    }
+    template <typename VERTEX_DATA_T>
+    bool operator>=(const VectorDistancePair<VERTEX_DATA_T> &lhs, const VectorDistancePair<VERTEX_DATA_T> &rhs) {
+      return !operator<(lhs, rhs);
+    }
+
+    struct TraversalHistory {
+      double distance;
+      std::string previousVectorId;
+    };
+
+    template <typename VERTEX_DATA_T>
+    auto AStar(Vertex<VERTEX_DATA_T> &destination) -> std::function<bool(GraphPosition<VERTEX_DATA_T> &)> {
+      using VertexPair = VectorDistancePair<VERTEX_DATA_T>;
+      using PriorityQueue = std::priority_queue<VertexPair, std::vector<VertexPair>, std::greater<VertexPair>>;
+      using DistanceMap = std::map<std::string, TraversalHistory>;
+      using EdgePair = std::pair<std::string, std::weak_ptr<Edge<VERTEX_DATA_T>>>;
+
+      PriorityQueue q;
+      DistanceMap bestDistances;
+
+      auto distanceCalculator = [&destination](Vertex<VERTEX_DATA_T> const &curr) {
+        double xDist = std::abs(destination.GetX() - curr.GetX());
+        double yDist = std::abs(destination.GetY() - curr.GetY());
+        return std::sqrt(xDist * xDist + yDist * yDist);
+      };
+
+      return [q, distanceCalculator, bestDistances, &destination](GraphPosition<VERTEX_DATA_T> &graphPosition) mutable {
+        if (q.empty()) {
+          if (bestDistances.empty()) {
+            auto const &curr = graphPosition.GetCurrentVertex();
+            q.push(VertexPair(&curr, distanceCalculator(curr)));
+            bestDistances[curr.GetId()] = TraversalHistory{0, ""};
+          } else {
+            // Rebuild the path
+            auto const &curr = graphPosition.GetCurrentVertex();
+            auto bd = bestDistances.find(curr.GetId());
+            if (bd != bestDistances.end()) {
+              // Path was found
+              auto traversalHistoryNode = bd;
+              graphPosition.AddToTraversalPath(&curr);
+              while (!traversalHistoryNode->second.previousVectorId.empty()) {
+                auto v_id = traversalHistoryNode->second.previousVectorId;
+                assert(bestDistances.find(v_id) != bestDistances.end());
+                graphPosition.AddToTraversalPath(&graphPosition.GetVertex(v_id));
+                traversalHistoryNode = bestDistances.find(v_id);
+              }
+              graphPosition.ReverseTraversalPath();
+            }
+            return false;
+          }
+        }
+
+        auto v_pair = q.top();
+        auto const *v = v_pair.v;
+        graphPosition.SetCurrentVertex(*v);
+        double currDistance = bestDistances[v->GetId()].distance;
+        q.pop();
+
+        if (*v == destination) {
+          q = PriorityQueue();
+          return true;
+        }
+
+        std::vector<EdgePair> neighbors(v->GetEdges().begin(), v->GetEdges().end());
+
+        for (const auto &edge : neighbors) {
+          if (auto edgePtr = edge.second.lock()) {
+            auto const &neighbor = edgePtr->GetTo();
+            double actual_d = currDistance + edgePtr->GetWeight();
+            auto estimated_d = actual_d + distanceCalculator(neighbor);
+
+            auto bd = bestDistances.find(neighbor.GetId());
+            if (bd == bestDistances.end() || actual_d < bd->second.distance) {
+              bestDistances[neighbor.GetId()].distance = actual_d;
+              bestDistances[neighbor.GetId()].previousVectorId = v->GetId();
+              q.push(VertexPair(&neighbor, estimated_d));
+            }
+          }
+        }
+        return true;
+      };
+    }
+
   } // namespace TraversalModes
 
 } // namespace cse
