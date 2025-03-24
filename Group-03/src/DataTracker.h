@@ -21,7 +21,7 @@ namespace cse {
 template <typename T>
 class DataTracker {
 public:
-    void add_value(const T& value);
+    constexpr void add_value(const T& value);
     bool delete_value(const T& value);
 
     double mean() const;
@@ -30,7 +30,7 @@ public:
     double variance() const;
     T min() const;
     T max() const;
-    size_t total() const;
+    constexpr size_t total() const;
 
     std::optional<T> winner() const;
 

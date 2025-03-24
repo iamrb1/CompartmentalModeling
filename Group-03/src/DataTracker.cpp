@@ -6,12 +6,17 @@
 */
 
 #include "DataTracker.h"
+#include <type_traits>
+#include <numeric>
+#include <unordered_map>
+#include <algorithm>
+#include <optional>
 
 namespace cse {
 
 // Adds a specified value to the vector
 template <typename T>
-void DataTracker<T>::add_value(const T& value) {
+constexpr void DataTracker<T>::add_value(const T& value) {
     values.push_back(value);
 }
 
@@ -30,11 +35,10 @@ bool DataTracker<T>::delete_value(const T& value) {
 template <typename T>
 double DataTracker<T>::mean() const {
     if (values.empty()) return 0.0;
-    if constexpr (std::is_arithmetic_v<T>){
-        return static_cast<double>(std::accumulate(values.begin(), values.end(), 0.0)) / values.size();
-    }
-    else {
-        return T();
+    if constexpr (std::is_arithmetic_v<T>) {
+        return static_cast<double>(std::accumulate(values.begin(), values.end(), static_cast<T>(0))) / values.size();
+    } else {
+        return 0.0;
     }
 }
 
@@ -48,9 +52,9 @@ double DataTracker<T>::median() const {
 
     size_t size = sorted_values.size();
     if (size % 2 == 0) {
-        return (sorted_values[size / 2 - 1] + sorted_values[size / 2]) / 2.0;
+        return (static_cast<double>(sorted_values[size / 2 - 1]) + static_cast<double>(sorted_values[size / 2])) / 2.0;
     } else {
-        return sorted_values[size / 2];
+        return static_cast<double>(sorted_values[size / 2]);
     }
 }
 
@@ -64,26 +68,23 @@ T DataTracker<T>::mode() const {
         frequency[val]++;
     }
 
-    auto max_freq = [](const auto& a, const auto& b) { return a.second < b.second; };
-
-    return std::max_element(frequency.begin(), frequency.end(), max_freq)->first;
+    return std::max_element(frequency.begin(), frequency.end(),
+        [](const auto& a, const auto& b) { return a.second < b.second; })->first;
 }
+
 // Calculates and returns the variance
 template <typename T>
 double DataTracker<T>::variance() const {
     if (values.empty()) return 0.0;
-    if constexpr (std::is_arithmetic_v<T>){
+    if constexpr (std::is_arithmetic_v<T>) {
         double mean_value = mean();
-        double variance_sum = 0.0;
-
-        for (const auto& val : values) {
-            variance_sum += std::pow(val - mean_value, 2);
-        }
-
+        double variance_sum = std::accumulate(values.begin(), values.end(), 0.0,
+            [mean_value](double acc, const T& val) {
+                return acc + std::pow(val - mean_value, 2);
+            });
         return variance_sum / values.size();
-    }
-    else {
-        return T();
+    } else {
+        return 0.0;
     }
 }
 
@@ -91,34 +92,26 @@ double DataTracker<T>::variance() const {
 template <typename T>
 T DataTracker<T>::min() const {
     if (values.empty()) return T();
-    if constexpr (std::is_arithmetic_v<T>){
-        return std::min_element(values.begin(), values.end());
-    }
-    else return T();
+    return *std::min_element(values.begin(), values.end());
 }
 
 // Returns the maximum value
 template <typename T>
 T DataTracker<T>::max() const {
     if (values.empty()) return T();
-    if constexpr (std::is_arithmetic_v<T>){
-        return std::max_element(values.begin(), values.end());
-    }
-    else{
-        return T();
-    }
+    return *std::max_element(values.begin(), values.end());
 }
 
 // Returns the total number of elements
 template <typename T>
-size_t DataTracker<T>::total() const {
+constexpr size_t DataTracker<T>::total() const {
     return values.size();
 }
 
 // Determines if there is a winner (if any value surpasses 80% of total)
 template <typename T>
 std::optional<T> DataTracker<T>::winner() const {
-    if (values.empty()) return false;
+    if (values.empty()) return std::nullopt;
 
     std::unordered_map<T, int> frequency;
     size_t threshold = static_cast<size_t>(values.size() * 0.8);
@@ -127,7 +120,7 @@ std::optional<T> DataTracker<T>::winner() const {
         if (++frequency[val] > threshold) return val;
     }
 
-    return false;
+    return std::nullopt;
 }
 
 } // namespace cse
