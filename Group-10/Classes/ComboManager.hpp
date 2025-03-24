@@ -66,6 +66,43 @@ class ComboManager {
     Reset();
   }
 
+  /**
+   * @brief Constructs a ComboManager.
+   *
+   * @param container The container of items.
+   * @param combination_size The number of items per combination.
+   * @throws std::invalid_argument if combination_size is greater than the
+   * number of items.
+   */
+  ComboManager(const Container& container, std::size_t combinationSize,
+               std::size_t indexRequired)
+      : items_(
+            std::begin(container),
+            std::end(container)),  // Copy container elements for random access.
+        n_(items_.size()),         // Total number of items.
+        k_(combinationSize),       // Number of items in each combination.
+        isRequired_(true),
+        totalCombinations_(0) {
+    assert(k_ <= n_ &&
+           "Combination size cannot be greater than the number of items in the "
+           "container.");
+
+    requiredValue_ = items_.at(indexRequired);
+    --k_;
+    auto foundRequiredValue = std::find(items_.begin(), items_.end(), requiredValue_);
+    items_.erase(foundRequiredValue);
+
+    // Precompute the total number of combinations using the binomial
+    // coefficient.
+    totalCombinations_ = BinomialCoefficient_(n_, k_);
+
+    // Resize indices vector to hold the indices of the current combination.
+    indices_.resize(k_);
+
+    // Initialize indices to the first combination: [0, 1, 2, ..., k_-1].
+    Reset();
+  }
+
   // https://www.internalpointers.com/post/writing-custom-iterators-modern-cpp
   // for the setup and structure of the custom iterator
   /**
@@ -233,6 +270,10 @@ class ComboManager {
     // Transform the indices into actual items from the container.
     std::transform(indices_.begin(), indices_.end(), combo.begin(),
                    [this](std::size_t index) { return items_[index]; });
+
+    if (isRequired_) {
+      combo.push_back(requiredValue_);
+    }
     return combo;
   }
 
@@ -398,6 +439,12 @@ class ComboManager {
 
   // The current combination, stored as indices into items_.
   std::vector<std::size_t> indices_;
+
+  // If there is an element required within the combinations
+  bool isRequired_ = false;
+
+  // Value that is required
+  ValueType requiredValue_;
 
   // Precomputed total number of combinations (n choose k).
   std::size_t totalCombinations_;

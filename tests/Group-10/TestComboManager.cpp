@@ -355,6 +355,34 @@ TEST_CASE("ComboManager: Testing a reverse For Loop", "[ComboManager]") {
   }
 }
 
+TEST_CASE("ComboManager: Testing Basic Required Element functionality",
+          "[ComboManager]") {
+  std::vector<int> testVector1 = {5, 4, 3, 2, 1};
+
+  // Should Require 1 in every combination
+  cse::ComboManager<std::vector<int>> manager(testVector1, 3, 4);
+  std::vector<std::vector<int>> correctCombos = {
+      {3, 2, 1}, {4, 2, 1}, {4, 3, 1}, {5, 2, 1}, {5, 3, 1}, {5, 4, 1}};
+  int index = 0;
+  for (auto iter = manager.end(); iter != manager.begin(); --iter) {
+    REQUIRE(correctCombos.at(index++) == *iter);
+  }
+}
+
+TEST_CASE("ComboManager: Testing Various", "[ComboManager]") {
+  std::vector<int> testVector1 = {5, 4, 3, 3, 1};
+
+  // Should Require 1 in every combination
+  cse::ComboManager<std::vector<int>> manager(testVector1, 3, 2);
+  std::vector<std::vector<int>> correctCombos = {
+      {5, 4, 3}, {5, 3, 3}, {4, 3, 3}, {5, 2, 3}, {4, 2, 3},
+      {3, 2, 3}, {5, 1, 3}, {4, 1, 3}, {3, 1, 3}, {2, 1, 3}};
+  int index = 0;
+  for (auto iter = manager.end(); iter != manager.begin(); --iter) {
+    REQUIRE(correctCombos.at(index++) == *iter);
+  }
+}
+
 /**
  * Repeating determines whether individual elements can repeat within a
  * combination (determined by index) (AllowRepetition) Repeating count
@@ -415,4 +443,4 @@ TEST_CASE("Combo Manager: Test Required Elements", "[ComboManager]") {
   std::sort(valid_combos.begin(), valid_combos.end());
   std::sort(expected.begin(), expected.end());
   REQUIRE(valid_combos == expected);
-}  //
+} 
