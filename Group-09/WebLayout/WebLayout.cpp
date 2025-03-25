@@ -75,23 +75,27 @@ const std::vector<TextBoxLayout> &WebLayout::getTextBoxes() {
  * @param width width of the textbox
  * @param height height of the textbox
  */
-void const WebLayout::renderTextBox(const std::string &msg,
+const void WebLayout::renderTextBox(const std::string &layoutID,
+                                    const std::string &msg,
                                     const int &width,
                                     const int &height,
                                     const int &x,
-                                    const int &y) {
+                                    const int &y,
+                                    const std::string &textboxID) {
 
   assert(width >= MIN_PERCENT && height >= MIN_PERCENT); //assert width and height are positive
   assert(x >= MIN_PERCENT && y >= MIN_PERCENT); //assert x and y are positive
 
   EM_ASM({
-           var msg = UTF8ToString($0);
-           var width = $1;
-           var height = $2;
-           var x = $3;
-           var y = $4;
-           var MAX_WIDTH_PERCENT = $5;
-           var MAX_HEIGHT_PERCENT = $6;
+           var layoutID = UTF8ToString($0);
+           var msg = UTF8ToString($1);
+           var width = $2;
+           var height = $3;
+           var x = $4;
+           var y = $5;
+           var textboxID = UTF8ToString($6);
+           var MAX_WIDTH_PERCENT = $7;
+           var MAX_HEIGHT_PERCENT = $8;
 
            // Calculate the ratio to view height/width (1%)
            var widthRatio = document.documentElement.clientWidth / MAX_WIDTH_PERCENT;
@@ -103,22 +107,30 @@ void const WebLayout::renderTextBox(const std::string &msg,
            if (x > MAX_WIDTH_PERCENT) { x = MAX_WIDTH_PERCENT - width; }
            if (y > MAX_HEIGHT_PERCENT) { y = MAX_HEIGHT_PERCENT - height; }
 
-
            // Finds div with presentation-zone id, where all boxes and images will be placed
            var textBoxDiv = document.getElementById("presentation-zone");
 
+           var layoutDiv = document.getElementById(layoutID);
+           if (!layoutDiv) {
+             // If it doesn't exist, create div
+             layoutDiv = document.createElement("div");
+             layoutDiv.style.visibility = "hidden";
+             layoutDiv.id = layoutID;
+             textBoxDiv.appendChild(layoutDiv);
+           }
+
            //position: absolute; left: x px; top: y px;
 
-           if (textBoxDiv) {
+           if (layoutDiv) {
 
-             textBoxDiv.innerHTML +=
-                 '<p style="position: absolute; left: ' + x + 'vw; top: ' + y
+             layoutDiv.innerHTML +=
+                 '<p id= ' + textboxID + '; style="position: absolute; left: ' + x + 'vw; top: ' + y
                      + 'vh; border: 1px solid black; margin: 0; border-radius: 5px; height: ' + height + 'vh; width: '
                      + width
                      + 'vw;">'
                      + msg + '</p>';
            }
-         }, msg.c_str(), width, height, x, y, MAX_WIDTH_PERCENT, MAX_HEIGHT_PERCENT
+         }, layoutID.c_str(), msg.c_str(), width, height, x, y, textboxID.c_str(), MAX_WIDTH_PERCENT, MAX_HEIGHT_PERCENT
   );
 }
 
@@ -130,21 +142,23 @@ void const WebLayout::renderTextBox(const std::string &msg,
  * @param xLoc of image
  * @param yLoc of image
  */
-void const WebLayout::renderImage(const std::string &url,
+void const WebLayout::renderImage(const std::string &layoutID, const std::string &url,
                                   const int &width,
-                                  const int &height, const int &x, const int &y) {
+                                  const int &height, const int &x, const int &y, const std::string &imageID) {
 
   assert(width >= MIN_PERCENT && height >= MIN_PERCENT); //assert width and height are positive
   assert(x >= MIN_PERCENT && y >= MIN_PERCENT); //assert x and y are positive
 
   EM_ASM({
-           var msg = UTF8ToString($0);
-           var width = $1;
-           var height = $2;
-           var x = $3;
-           var y = $4;
-           var MAX_WIDTH_PERCENT = $5;
-           var MAX_HEIGHT_PERCENT = $6;
+           var layoutID = UTF8ToString($0);
+           var msg = UTF8ToString($1);
+           var width = $2;
+           var height = $3;
+           var x = $4;
+           var y = $5;
+           var imageID = UTF8ToString($6);
+           var MAX_WIDTH_PERCENT = $7;
+           var MAX_HEIGHT_PERCENT = $8;
 
            // Don't let placement exceed 100% of view width/height or 95% height
            if (width > MAX_WIDTH_PERCENT) { width = MAX_WIDTH_PERCENT; }
@@ -154,12 +168,22 @@ void const WebLayout::renderImage(const std::string &url,
 
            // Finds div with presentation-zone id, where all boxes and images will be placed
            var imageBoxDiv = document.getElementById("presentation-zone");
-           if (imageBoxDiv) {
-             imageBoxDiv.innerHTML +=
-                 "<img src='" + msg + "' style='position: absolute; left: " + x + "vw; top: " + y
+
+           var layoutDiv = document.getElementById(layoutID);
+           if (!layoutDiv) {
+             // If it doesn't exist, create div
+             layoutDiv = document.createElement("div");
+             layoutDiv.style.visibility = "hidden";
+             layoutDiv.id = layoutID;
+             imageBoxDiv.appendChild(layoutDiv);
+           }
+
+           if (layoutDiv) {
+             layoutDiv.innerHTML +=
+                 "<img id=" + imageID + "; src='" + msg + "' style='position: absolute; left: " + x + "vw; top: " + y
                      + "vh; margin: 0; object-fit: contain; width:" + width + "vw; height:" + height + "vh;' />";
            }
-         }, url.c_str(), width, height, x, y, MAX_WIDTH_PERCENT, MAX_HEIGHT_PERCENT
+         }, layoutID.c_str(), url.c_str(), width, height, x, y, imageID.c_str(), MAX_WIDTH_PERCENT, MAX_HEIGHT_PERCENT
   );
 }
 
@@ -175,13 +199,12 @@ void WebLayout::loadPage() {
     // Verify values are valid
     if ((layout.textBox->getHeight() > MIN_PERCENT && layout.textBox->getWidth() > MIN_PERCENT)
         && (layout.xPos >= MIN_PERCENT && layout.yPos >= MIN_PERCENT)) {
-      renderTextBox(layout.textBox->getFormattedText().getText(),
+      renderTextBox(getID(), layout.textBox->getFormattedText().getText(),
                     layout.textBox->getWidth(),
                     layout.textBox->getHeight(),
                     layout.xPos,
-                    layout.yPos);
+                    layout.yPos, layout.textBox->getID());
     }
-
   }
 
   // Display images
@@ -190,12 +213,60 @@ void WebLayout::loadPage() {
     // Verify values are valid
     if ((layout.image->getHeight() > MIN_PERCENT && layout.image->getWidth() > MIN_PERCENT)
         && (layout.xPos >= MIN_PERCENT && layout.yPos >= MIN_PERCENT)) {
-      renderImage(layout.image->getURL(),
+      renderImage(getID(), layout.image->getURL(),
                   layout.image->getWidth(),
                   layout.image->getHeight(),
                   layout.xPos,
-                  layout.yPos);
+                  layout.yPos, layout.image->getID());
     }
   }
 }
+
+/**
+ * Generates ID of layout
+ * @return unique ID
+ */
+std::string WebLayout::generateID() {
+  static int counter = 0;
+  return "layout-" + std::to_string(counter++);
+}
+
+/**
+ * Activates layout on html
+ */
+void WebLayout::activateLayout() {
+
+  auto layoutID = getID();
+
+  std::cout << "Activating:  " << layoutID << std::endl;
+
+  EM_ASM({
+           var layoutID = UTF8ToString($0);
+
+           var layoutDiv = document.getElementById(layoutID);
+           if (layoutDiv) {
+             layoutDiv.style.visibility = "visible";
+           }
+         }, layoutID.c_str()
+  );
+}
+
+/**
+ * Deactivates layout on html
+ */
+void WebLayout::deactivateLayout() {
+  auto layoutID = getID();
+
+  std::cout << "Deactivating:  " << layoutID << std::endl;
+
+  EM_ASM({
+           var layoutID = UTF8ToString($0);
+           var layoutDiv = document.getElementById(layoutID);
+           if (layoutDiv) {
+             layoutDiv.style.visibility = "hidden";
+           }
+         }, layoutID.c_str()
+  );
+}
+
 }

@@ -38,8 +38,8 @@ bool validateURL(const std::string& url) {
  * @param altText The alternative text for image
  * @throws std::invalid_argument If url is invalid or dimensions aren't positive
  */
-Image::Image(const std::string& url, int width, int height, const std::string& altText)
-    : url(url), width(width), height(height), altText(altText) {
+Image::Image(const std::string& url, int width, int height, const std::string& altText, const std::string imageID)
+    : url(url), width(width), height(height), altText(altText), id(imageID.empty() ? generateID() : imageID) {
   em_assert(!url.empty() && "URL must not be empty");
   em_assert(width > 0 && height > 0 && "Width and height must be positive integers");
 

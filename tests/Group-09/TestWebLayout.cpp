@@ -185,6 +185,29 @@ void testCase6() {
   std::cout << "Ending Test Case 6 (Edge Cases)\n";
 }
 
+void testCase7() {
+  // Testing WebLayout id
+  std::cout << "Beginning Test Case 7 (ID)\n";
+
+  WebLayout wb;
+
+  std::string idBeforeAdd = wb.getID();
+
+  std::shared_ptr<Image> i = std::make_shared<Image>("https://msu_logo.png", 50, 50);
+  ImageLayout il(i, 10, 10);
+  wb.addImage(il);
+
+  //Check size of images vector
+  if (wb.getImages().size() != 1) { std::cout << "Image adding failure\n"; }
+  // Make sure ID didn't get changed
+  if (wb.getID() != idBeforeAdd) { std::cout << "Image adding corrupted ID\n"; }
+
+  WebLayout wb2;
+  if (wb.getID() == wb2.getID()) { std::cout << "ID incrementation error!\n"; }
+
+  std::cout << "Ending Test Case 7 (ID)\n";
+}
+
 int main() {
 
   testCase1();
@@ -193,6 +216,7 @@ int main() {
   testCase4();
   testCase5();
   testCase6();
+  testCase7();
 
   return 0;
 }
