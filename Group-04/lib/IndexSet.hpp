@@ -605,14 +605,64 @@ class IndexSet {
   /**
    * @brief Computes the union of this set with another
    * @param other The other set to union with
+   * @return A reference to the set
+   */
+  IndexSet& operator|=(const IndexSet& other) {
+    // Add all ranges from the other set
+    for (const auto& range : other.ranges_) {
+      insert_range(range.first, range.second);
+    }
+    return *this;
+  }
+
+  /**
+   * @brief Computes the intersection of this set with another
+   * @param other The other set to intersect with
+   * @return A reference to the set
+   */
+  IndexSet& operator&=(const IndexSet& other) {
+    *this = *this & other;
+    return *this;
+  }
+
+  /**
+   * @brief Computes the difference of this set with another
+   * @param other The set to subtract
+   * @return A reference to the set
+   */
+  IndexSet& operator-=(const IndexSet& other) {
+    // Remove each range from the other set
+    for (const auto& range : other.ranges_) {
+      for (std::size_t i = range.first; i < range.second; ++i) {
+        remove(i);
+      }
+    }
+    return *this;
+  }
+
+  /**
+   * @brief Computes the symmetric difference of this set with another
+   * @param other The other set
+   * @return A reference to the set
+   */
+  IndexSet& operator^=(const IndexSet& other) {
+    // Get the union and intersection
+    IndexSet union_set = *this | other;
+    IndexSet intersect_set = *this & other;
+
+    // Symmetric difference is union minus intersection
+    *this = union_set - intersect_set;
+    return *this;
+  }
+
+  /**
+   * @brief Computes the union of this set with another
+   * @param other The other set to union with
    * @return A new set containing all elements that are in either set
    */
   IndexSet operator|(const IndexSet& other) const {
     IndexSet result = *this;  // Start with a copy of this set
-    // Add all ranges from the other set
-    for (const auto& range : other.ranges_) {
-      result.insert_range(range.first, range.second);
-    }
+    result |= other;
     return result;
   }
 
@@ -648,13 +698,7 @@ class IndexSet {
    */
   IndexSet operator-(const IndexSet& other) const {
     IndexSet result = *this;  // Start with a copy of this set
-
-    // Remove each range from the other set
-    for (const auto& range : other.ranges_) {
-      for (std::size_t i = range.first; i < range.second; ++i) {
-        result.remove(i);
-      }
-    }
+    result -= other;
     return result;
   }
 
@@ -664,15 +708,8 @@ class IndexSet {
    * @return A new set containing elements that are in either set but not both
    */
   IndexSet operator^(const IndexSet& other) const {
-    IndexSet result;
-
-    // Get the union and intersection
-    IndexSet union_set = *this | other;
-    IndexSet intersect_set = *this & other;
-
-    // Symmetric difference is union minus intersection
-    result = union_set - intersect_set;
-
+    IndexSet result = *this;  // Start with a copy of this set
+    result ^= other;
     return result;
   }
 
