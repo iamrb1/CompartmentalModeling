@@ -10,6 +10,7 @@
 #include <cassert>
 #include <deque>
 #include <iostream>
+#include <cmath>
 #include <queue>
 #include <set>
 #include <stdexcept>
@@ -72,6 +73,12 @@ namespace cse {
 
   // Function Implementations
 
+  /**
+   * Constructs a GraphPosition with a reference to a graph and a starting vertex
+   * @param g The graph being traversed
+   * @param startVertex Pointer to the starting vertex
+   * @throws invalid_argument if startVertex is null
+   */
   template <typename VERTEX_DATA_T>
   GraphPosition<VERTEX_DATA_T>::GraphPosition(const Graph<VERTEX_DATA_T> &g, Vertex<VERTEX_DATA_T> const *startVertex)
       : graph(g), currentVertex(startVertex) {
@@ -80,45 +87,81 @@ namespace cse {
     }
   }
 
+  /**
+   * Marks a vertex as visited and adds it to the traversal path
+   * @param vertex The vertex to mark as visited
+   */
   template <typename VERTEX_DATA_T>
   void GraphPosition<VERTEX_DATA_T>::MarkVisited(Vertex<VERTEX_DATA_T> const &vertex) {
     visitedVertices.insert(vertex.GetId());
     traversalPath.push_back(&vertex);
   }
 
+  /**
+   * Retrieves the current vertex in the traversal
+   * @return Reference to the current vertex
+   * @throws assert failure if current vertex is null
+   */
   template <typename VERTEX_DATA_T>
   Vertex<VERTEX_DATA_T> const &GraphPosition<VERTEX_DATA_T>::GetCurrentVertex() const {
     assert(currentVertex != nullptr && "GetCurrentVertex() should never return nullptr!");
     return *currentVertex;
   }
 
+  /**
+   * Updates the current vertex in the traversal
+   * @param vertex The vertex to set as the current
+   */
   template <typename VERTEX_DATA_T>
   void GraphPosition<VERTEX_DATA_T>::SetCurrentVertex(Vertex<VERTEX_DATA_T> const &vertex) {
     currentVertex = &vertex;
   }
 
+  /**
+   * Advances to the next neighbor in the traversal using the current strategy
+   * @return true if a move was made, false otherwise
+   */
   template <typename VERTEX_DATA_T> bool GraphPosition<VERTEX_DATA_T>::AdvanceToNextNeighbor() {
     return traversalFunction(*this);
   }
 
+  /**
+   * Gets the path of vertices visited during traversal
+   * @return A vector of pointers to the visited vertices
+   */
   template <typename VERTEX_DATA_T>
   const std::vector<Vertex<VERTEX_DATA_T> const *> &GraphPosition<VERTEX_DATA_T>::GetTraversalPath() const {
     return traversalPath;
   }
 
+  /**
+   * Resets traversal state and sets a new starting vertex
+   * @param newStartVertex The new starting vertex for traversal
+   */
   template <typename VERTEX_DATA_T> void GraphPosition<VERTEX_DATA_T>::ResetTraversalPath() {
     traversalPath.clear();
   }
 
+  /**
+   * Adds a vertex pointer to the traversal path
+   * @param v Pointer to the vertex to add
+   */
   template <typename VERTEX_DATA_T>
   void GraphPosition<VERTEX_DATA_T>::AddToTraversalPath(Vertex<VERTEX_DATA_T> const *v) {
     traversalPath.push_back(v);
   }
 
+  /**
+   * Reverses the order of the current traversal path
+   */
   template <typename VERTEX_DATA_T> void GraphPosition<VERTEX_DATA_T>::ReverseTraversalPath() {
     std::reverse(traversalPath.begin(), traversalPath.end());
   }
 
+  /**
+   * Resets the traversal state with a new starting vertex
+   * @param newStartVertex The vertex to restart traversal from
+   */
   template <typename VERTEX_DATA_T>
   void GraphPosition<VERTEX_DATA_T>::ResetTraversal(Vertex<VERTEX_DATA_T> const &newStartVertex) {
     visitedVertices.clear();
@@ -126,6 +169,10 @@ namespace cse {
     SetCurrentVertex(newStartVertex);
   }
 
+  /**
+   * Advances to the next vertex in the traversal
+   * @return Reference to the updated GraphPosition object
+   */
   template <typename VERTEX_DATA_T> GraphPosition<VERTEX_DATA_T> &GraphPosition<VERTEX_DATA_T>::operator++() {
     if (!AdvanceToNextNeighbor()) {
       currentVertex = nullptr;
@@ -141,11 +188,20 @@ namespace cse {
     }
   }
 
+  /**
+   * Checks if traversal is still ongoing
+   * @return true if current vertex is valid, false otherwise
+   */
   template <typename VERTEX_DATA_T> GraphPosition<VERTEX_DATA_T>::operator bool() const {
     return currentVertex != nullptr;
   }
 
   namespace TraversalModes {
+
+    /**
+     * Provides a depth-first search traversal strategy
+     * @return A function that performs DFS traversal on a GraphPosition
+     */
     template <typename VERTEX_DATA_T> auto DFS() -> std::function<bool(GraphPosition<VERTEX_DATA_T> &)> {
       return [](GraphPosition<VERTEX_DATA_T> &graphPosition) {
         auto dfs_implementation = [&](GraphPosition<VERTEX_DATA_T> &gp, auto &dfs) -> bool {
@@ -190,6 +246,10 @@ namespace cse {
       };
     }
 
+    /**
+     * Provides a breadth-first search traversal strategy
+     * @return A function that performs BFS traversal on a GraphPosition
+     */
     template <typename VERTEX_DATA_T> auto BFS() -> std::function<bool(GraphPosition<VERTEX_DATA_T> &)> {
       return [](GraphPosition<VERTEX_DATA_T> &graphPosition) {
         auto &queue = graphPosition.GetTraversalQueue();
