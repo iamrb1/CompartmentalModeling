@@ -11,6 +11,64 @@
 
 using Catch::Matchers::WithinAbs;
 
+TEST_CASE("Test cse::Graph (Bidirectional)", "[base]") {
+  // Use std::string as the vertex data type
+  using TestGraph = cse::Graph<std::string, true>;
+
+  TestGraph graph;
+
+  // Test adding vertices
+  auto &v1 = graph.AddVertex("id1", "Vertex1 Data");
+  auto &v2 = graph.AddVertex("id2", "Vertex2 Data");
+  CHECK(graph.GetVertex("id1").GetId() == "id1");
+  CHECK(graph.GetVertex("id2").GetId() == "id2");
+
+  CHECK_THROWS_AS(graph.AddVertex("id1", "Duplicate Data"), std::runtime_error);
+
+  // Test removing vertices
+  graph.RemoveVertex("id1");
+  CHECK_THROWS_AS(graph.GetVertex("id1"), std::out_of_range);
+
+  // Test adding edges
+  v1 = graph.AddVertex("id1", "Vertex1 Data");
+  graph.AddEdge("id1", "id2", 0.0);
+
+  CHECK(graph.IsConnected(v1, v2));
+  CHECK(graph.IsConnected(v2, v1));
+  CHECK(graph.IsConnected("id1", "id2"));
+  CHECK(graph.IsConnected("id2", "id1"));
+
+  // Testing Adding Edges by reference
+  auto &v4 = graph.AddVertex("id4", "Vertex4 Data");
+  auto &v5 = graph.AddVertex("id5", "Vertex5 Data");
+
+  CHECK(!graph.IsConnected(v1, v4));
+  CHECK(!graph.IsConnected(v4, v5));
+  CHECK(!graph.IsConnected(v4, v4));
+
+  auto &e2 = graph.AddEdge(v4, v5, 0.0);
+  CHECK(graph.IsConnected(v4, v5));
+  CHECK(graph.IsConnected(v5, v4));
+
+  // Testing removing edges
+  auto &v4_v5_edge = graph.GetEdge(v4.GetId(), v5.GetId());
+  REQUIRE_THAT(v4_v5_edge.GetWeight(),
+               WithinAbs(0, cse_test_utils::FLOAT_DELTA));
+
+  graph.RemoveEdge(e2);
+  CHECK(!graph.IsConnected(v4, v5));
+  CHECK(!graph.IsConnected(v5, v4));
+  CHECK_THROWS_AS(graph.GetEdge(v4.GetId(), v5.GetId()), std::runtime_error);
+  CHECK_THROWS_AS(v4.GetEdge(v5), std::runtime_error);
+
+  auto &e3 = graph.AddEdge("id1", "id2", 2);
+  CHECK(graph.IsConnected(v1, v2));
+  CHECK(graph.IsConnected(v2, v1));
+  REQUIRE_THAT(e3.GetWeight(), WithinAbs(2, cse_test_utils::FLOAT_DELTA));
+}
+
+
+// Same test case as above but with a not bidirectional graph
 TEST_CASE("Test cse::Graph", "[base]") {
   // Use std::string as the vertex data type
   using TestGraph = cse::Graph<std::string>;
@@ -56,6 +114,8 @@ TEST_CASE("Test cse::Graph", "[base]") {
                WithinAbs(0, cse_test_utils::FLOAT_DELTA));
 
   graph.RemoveEdge(e2);
+  CHECK(!graph.IsConnected(v4, v5));
+  CHECK(!graph.IsConnected(v5, v4));
   CHECK_THROWS_AS(graph.GetEdge(v4.GetId(), v5.GetId()), std::runtime_error);
   CHECK_THROWS_AS(v4.GetEdge(v5), std::runtime_error);
 
@@ -64,6 +124,7 @@ TEST_CASE("Test cse::Graph", "[base]") {
   CHECK(!graph.IsConnected(v2, v1));
   REQUIRE_THAT(e3.GetWeight(), WithinAbs(2, cse_test_utils::FLOAT_DELTA));
 }
+
 
 TEST_CASE("Test cse::Graph - To file", "Export to file") {
   using TestGraph = cse::Graph<std::string>;
@@ -85,6 +146,7 @@ TEST_CASE("Test cse::Graph - To file", "Export to file") {
       "      to:id2", "      weight:0",   ""};
   // REQUIRE(cse_test_utils::CheckForStringFile(lines, s));
 }
+
 
 TEST_CASE("Test cse::Graph - From file", "Read from file") {
   using TestGraph = cse::Graph<std::string>;
@@ -141,6 +203,7 @@ TEST_CASE("Test cse::Graph - From file", "Read from file") {
   CHECK(!graph.IsConnected("id2", "id1"));
 }
 
+
 TEST_CASE("Test cse::Graph - From advanced file", "Complex graph") {
   using TestGraph = cse::Graph<std::string>;
 
@@ -168,6 +231,7 @@ TEST_CASE("Test cse::Graph - From advanced file", "Complex graph") {
   auto e = graph.GetEdge("id1", "id3");
   REQUIRE_THAT(e.GetWeight(), WithinAbs(2, cse_test_utils::FLOAT_DELTA));
 }
+
 
 TEST_CASE("Test cse::Graph - Check removing Vertex removes related edges",
           "Remove Vertex") {
