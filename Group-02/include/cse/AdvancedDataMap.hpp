@@ -36,20 +36,35 @@ class [[maybe_unused]] AdvDataMap {
       virtual ~Base() = default;
       [[nodiscard]] virtual std::unique_ptr<Base> clone() const = 0;
       [[nodiscard]] virtual const std::type_info& type() const = 0;
+      [[nodiscard]] virtual bool is_ref() const = 0;
+      virtual void set() = 0;
     };
 
     template <typename T>
     struct Val : Base {
       T value;
+      bool flag;
+      T* ref_ptr;
 
-      explicit Val(T value) : value(value){};
+      explicit Val(T value, bool flag = false, T* ref = nullptr)
+          : value(value), flag(flag), ref_ptr(ref) {}
 
       [[nodiscard]] std::unique_ptr<Base> clone() const override {
-        return std::make_unique<Val<T>>(value);
+        return std::make_unique<Val<T>>(value, flag, ref_ptr);
       }
 
-      [[nodiscard]] const std::type_info & type() const override {
+      [[nodiscard]] const std::type_info& type() const override {
         return typeid(T);
+      }
+
+      [[nodiscard]] bool is_ref() const override {
+        return flag;
+      }
+
+      void set() override {
+        if (ref_ptr) {
+          value = *ref_ptr;
+        }
       }
     };
 
@@ -72,8 +87,8 @@ class [[maybe_unused]] AdvDataMap {
     }
 
     template <typename T>
-    explicit Any(T value) {
-      value_ptr = std::make_unique<Val<T>>(value);
+    explicit Any(T value, bool flag = false, T* ref_ptr = nullptr) {
+      value_ptr = std::make_unique<Val<T>>(value, flag, ref_ptr);
     }
 
     Any& operator=(const Any& in) {
@@ -96,12 +111,20 @@ class [[maybe_unused]] AdvDataMap {
       using derive_t = Val<T>;
       auto* derive_ptr = dynamic_cast<derive_t*>(value_ptr.get());
       assert(derive_ptr != nullptr && "Wrong type requested from what is contained within Any");
+      if (derive_ptr->is_ref()) {
+        derive_ptr->set();
+      }
       return derive_ptr->value;
     }
 
     [[nodiscard]] const std::type_info& type() const {
       assert(value_ptr && "Any is empty");
       return value_ptr->type();
+    }
+
+    [[nodiscard]] bool is_ref() const {
+      assert(value_ptr && "Any is empty");
+      return value_ptr->is_ref();
     }
   };
 
@@ -135,6 +158,17 @@ class [[maybe_unused]] AdvDataMap {
     // https://stackoverflow.com/questions/3692954/add-custom-messages-in-assert custom messages in assert trick I have implemented within
     assert(!contains(name) && "Key already exists within DataMap");
     m_map[name] = Any(val);
+  }
+
+  template <typename T>
+  [[maybe_unused]] inline void AddRef(const std::string& name, T& val) {
+    assert(!contains(name) && "Key already exists within DataMap");
+    m_map[name] = Any(val, true, &val);
+  }
+
+  [[nodiscard]] inline bool is_ref(const std::string& name) const {
+    assert(contains(name) && "Key does not exist in DataMap");
+    return m_map.at(name).is_ref();
   }
 
   template <typename T>
