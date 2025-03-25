@@ -84,9 +84,12 @@ public:
    * @return false if we've reached the end, true otherwise
    */
   bool Next() {
-    // end condition
-    if (currentIndex_ >= totalPermutations_ - 1)
+    // end condition - only if we aren't repeating elements
+    if (!isRepeating_) {
+      if (currentIndex_ >= totalPermutations_ - 1)
       return false;
+    }
+    
 
     // either generate the next permutation w/the std algorithm (if n == k) or make a k permutation
     if (isRequired_) {
@@ -179,6 +182,22 @@ public:
     return Factorial_(n) / Factorial_(n - k);
   }
 
+  /**
+   * @brief - Setter for the repeating attribute
+   * @param repeating - if it's repearting or not
+   */
+  void SetRepeating(bool repeating) {
+    isRepeating_ = repeating;
+  }
+
+  /**
+   * @brief - Getter for the repeating attribute
+   * @return true if repeating, false otherwise
+   */
+  bool GetRepeating() {
+    return isRepeating_;
+  }
+
 private:
 
   // Container items stored in a vector for random access.
@@ -210,6 +229,9 @@ private:
 
   // The index of the required value
   size_t requiredIndex_;
+
+  // Indicates if we allow indices to be repeated in each combination
+  bool isRepeating_;
 
 
   /**
@@ -262,24 +284,47 @@ private:
 
     std::sort(indices_.begin(), indices_.end());
 
-    size_t i = k_ - 1;
+    // use long long instead of size_t because it could be negative
+    long long i = static_cast<long long>(k_) - 1;
+
     // Find the first index from the right that can be incremented.
-    // The condition indices_[i] == i + n_ - k_ indicates that the current index is at its maximum allowable value.
-    while (i >= 0 && indices_[i] == n_ - k_ + i) {
-      --i; // Move to the left if the current index is "maxed out".
+    if (isRepeating_) { 
+      /**
+       * 1, 2, 3, 4
+       * 2, 3
+       * n - k + (i == 0) = 2
+       */
+      // This allows the same indices to be included more than once in our combo
+      while (i >= 0 && indices_[i] == n_ - 1) {
+        --i;
+      }
+
+    } else {
+      // The condition indices_[i] == i + n_ - k_ indicates that the current index is at its maximum allowable value.
+      while (i >= 0 && indices_[i] == n_ - k_ + i) {
+        --i; // Move to the left if the current index is "maxed out".
+      }
     }
+    
 
     // If no index can be incremented, we've reached the final combination.
-    if (i < 0) {
+    if (i == 0 && indices_[i] == n_ - 1) {
       return;
     }
 
     // upgrade the valid indice
     ++indices_[i];
 
-    // For every index position after i, set it to be one greater than its predecessor.
-    for (std::size_t j = i + 1; j < k_; ++j) {
-      indices_[j] = indices_[j - 1] + 1;
+    if (isRepeating_) {
+      // For every index after i, set t i's index so we get a different combination
+      for (size_t j = i + 1; j < k_; ++j) {
+        indices_[j] = indices_[i];
+      }
+    } else {
+      // For every index position after i, set it to be one greater than its predecessor.
+      for (std::size_t j = i + 1; j < k_; ++j) {
+        indices_[j] = indices_[j - 1] + 1;
+      }
     }
 
     //std::cout << "Updated the indice: " << i << std::endl;
