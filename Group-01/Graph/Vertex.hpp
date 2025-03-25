@@ -53,7 +53,7 @@ namespace cse {
 
     template <typename T> friend std::ostream &operator<<(std::ostream &os, const Vertex<T> &v);
     template <typename T> friend bool operator==(const Vertex<T> &lhs, const Vertex<T> &rhs);
-    template <typename T> friend class Graph;
+    template <typename T, bool IS_BIDIRECTIONAL> friend class Graph;
   };
 
   // Function Implementations
