@@ -102,15 +102,15 @@ class AssertArgs {
       : condition(condition), message(message) {};
 };
 
-template <typename T>
+template <typename T, typename U>
 class BinaryAssertArgs {
  public:
   T lhs;
-  T rhs;
+  U rhs;
   std::optional<std::string> message = std::nullopt;
 
-  BinaryAssertArgs(T lhs, T rhs) : lhs(lhs), rhs(rhs) {};
-  BinaryAssertArgs(T lhs, T rhs, std::string message)
+  BinaryAssertArgs(T lhs, U rhs) : lhs(lhs), rhs(rhs) {};
+  BinaryAssertArgs(T lhs, U rhs, std::string message)
       : lhs(lhs), rhs(rhs), message(message) {};
 };
 
@@ -148,9 +148,9 @@ void assert_impl(AssertArgs const &args, const char *args_text,
 template <typename T>
 concept printable = requires(T output) { std::cerr << output; };
 
-template <typename T>
-  requires std::equality_comparable<T>
-void assert_eq_impl(BinaryAssertArgs<T> const &args, const char *lhs_text,
+template <typename T, typename U>
+  requires std::equality_comparable_with<T, U>
+void assert_eq_impl(BinaryAssertArgs<T, U> const &args, const char *lhs_text,
                     const char *rhs_text, const char *file, int line,
                     const char *function) {
   if (args.lhs == args.rhs) {
@@ -175,9 +175,9 @@ void assert_eq_impl(BinaryAssertArgs<T> const &args, const char *lhs_text,
   assert_fail();
 }
 
-template <typename T>
-  requires std::equality_comparable<T>
-void assert_neq_impl(BinaryAssertArgs<T> const &args, const char *lhs_text,
+template <typename T, typename U>
+  requires std::equality_comparable_with<T, U>
+void assert_neq_impl(BinaryAssertArgs<T, U> const &args, const char *lhs_text,
                      const char *rhs_text, const char *file, int line,
                      const char *function) {
   if (args.lhs != args.rhs) {
