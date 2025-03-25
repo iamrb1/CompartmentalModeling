@@ -6,19 +6,14 @@
 */
 
 #include "DataTracker.h"
-#include <string>#include <type_traits>
+#include <string>
+#include <type_traits>
 #include <numeric>
 #include <unordered_map>
 #include <algorithm>
 #include <optional>
 
 namespace cse {
-
-// Adds a specified value to the vector
-template <typename T>
-constexpr void DataTracker<T>::add_value(const T& value) {
-    values.push_back(value);
-}
 
 // Removes a value if found, returns true if successful
 template <typename T>
@@ -110,11 +105,6 @@ T DataTracker<T>::max() const {
     }
 }
 
-// Returns the total number of elements
-template <typename T>
-constexpr size_t DataTracker<T>::total() const {
-    return values.size();
-}
 
 // Determines if there is a winner (if any value surpasses 80% of total)
 template <typename T>
@@ -125,7 +115,8 @@ std::optional<T> DataTracker<T>::winner() const {
     size_t threshold = static_cast<size_t>(values.size() * 0.8);
 
     for (const auto& val : values) {
-        if (++frequency[val] > threshold) return val;
+        if (++frequency[val] > static_cast<int>(threshold)) return val;
+
     }
 
     return std::nullopt;

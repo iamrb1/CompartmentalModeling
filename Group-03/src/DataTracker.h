@@ -21,7 +21,7 @@ namespace cse {
 template <typename T>
 class DataTracker {
 public:
-    constexpr void add_value(const T& value);
+
     bool delete_value(const T& value);
 
     double mean() const;
@@ -30,9 +30,21 @@ public:
     double variance() const;
     T min() const;
     T max() const;
-    constexpr size_t total() const;
 
     std::optional<T> winner() const;
+
+    // // Returns the total number of elements
+    // constexpr size_t DataTracker<T>::total() const {return values.size();}
+    // // Adds a specified value to the vector
+    // constexpr void DataTracker<T>::add_value(const T& value) {values.push_back(value);}
+
+    constexpr void add_value(const T& value) {
+        values.push_back(value);
+    }
+
+    constexpr size_t total() const {
+        return values.size();
+    }
 
 private:
     std::vector<T> values;

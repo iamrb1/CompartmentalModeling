@@ -23,6 +23,16 @@ TEST_CASE("DataTrackerTest Add", "[DataTracker]") {
     CHECK(tracker.max() == 10.0);
 }
 
+TEST_CASE("DataTrackerTest Add not nice numbers", "[DataTracker]"){
+    cse::DataTracker<double> tracker;
+    tracker.add_value(-400.5);
+    CHECK(tracker.total() == 1);
+    CHECK(tracker.mean() == -400.5);
+    CHECK(tracker.median() == -400.5);
+    CHECK(tracker.min() == -400.5);
+    CHECK(tracker.max() == -400.5);
+}
+
 TEST_CASE("DataTracker Multiple", "[DataTracker]") {
     cse::DataTracker<int> tracker;
     tracker.add_value(5.0);
@@ -46,6 +56,8 @@ TEST_CASE("DataTracker Delete", "[DataTracker]") {
     CHECK(tracker.median() == 10.0);
     CHECK(tracker.min() == 5.0);
     CHECK(tracker.max() == 15.0);
+    tracker.add_value(20.0);
+    CHECK(tracker.median() == 15.0);
 }
 
 
