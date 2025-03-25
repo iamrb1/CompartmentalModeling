@@ -1,6 +1,6 @@
 /**
  * @file DataGridTests.cpp
- * @author Shahaab Ali
+ * @authors Shahaab Ali and Max Krawec
  */
 
 // Made with the help of ChatGPT
@@ -17,7 +17,7 @@
 using cse::DataGrid;
 using cse::Datum;
 
-static const double kEpsilon = 0.0001;
+static constexpr double kEpsilon = 0.0001;
 
 /**
  * @brief Test parameterized constructor

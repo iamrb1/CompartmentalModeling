@@ -723,7 +723,7 @@ DataGrid::DataGridMathSummary DataGrid::dataGridMathSummary() const {
  * @param double_values The given doubles vector.
  * @return The mean of the vector
  */
-double DataGrid::calculateMean(std::vector<double> double_values) {
+constexpr double DataGrid::calculateMean(const std::vector<double>& double_values) const {
   if (double_values.empty()) {
     return std::numeric_limits<double>::quiet_NaN();
   }
@@ -738,7 +738,7 @@ double DataGrid::calculateMean(std::vector<double> double_values) {
  * @param double_values The given doubles vector.
  * @return The median of the vector
  */
-double DataGrid::calculateMedian(std::vector<double> double_values) {
+constexpr double DataGrid::calculateMedian(std::vector<double> double_values) const {
   if (double_values.empty()) {
     return std::numeric_limits<double>::quiet_NaN();
   }
@@ -760,7 +760,7 @@ double DataGrid::calculateMedian(std::vector<double> double_values) {
  * @param double_values The given doubles vector.
  * @return The mode(s) of the vector
  */
-std::vector<double> DataGrid::calculateMode(const std::vector<double>& double_values) {
+std::vector<double> DataGrid::calculateMode(const std::vector<double>& double_values) const {
   if (double_values.empty()) {
     return {};
   }
@@ -789,14 +789,14 @@ std::vector<double> DataGrid::calculateMode(const std::vector<double>& double_va
  * @param double_values The given doubles vector.
  * @return The standard deviation of the vector
  */
-double DataGrid::calculateStandardDeviation(const std::vector<double>& double_values) {
+constexpr double DataGrid::calculateStandardDeviation(const std::vector<double>& double_values) const {
   if (double_values.empty()) {
     return std::numeric_limits<double>::quiet_NaN();
   }
 
   double current_total = 0;
   for (double value : double_values) {
-    current_total += pow(value - calculateMean(double_values), 2);
+    current_total += std::pow(value - calculateMean(double_values), 2);
   }
 
   assert(!double_values.empty());
@@ -808,7 +808,7 @@ double DataGrid::calculateStandardDeviation(const std::vector<double>& double_va
  * @param double_values The given doubles vector.
  * @return The min value of the vector
  */
-double DataGrid::calculateMin(std::vector<double> double_values) {
+constexpr double DataGrid::calculateMin(const std::vector<double>& double_values) const {
   if (double_values.empty()) {
     return std::numeric_limits<double>::quiet_NaN();
   }
@@ -823,7 +823,7 @@ double DataGrid::calculateMin(std::vector<double> double_values) {
  * @param double_values The given doubles vector.
  * @return The max value of the vector
  */
-double DataGrid::calculateMax(std::vector<double> double_values) {
+constexpr double DataGrid::calculateMax(const std::vector<double>& double_values) const {
   if (double_values.empty()) {
     return std::numeric_limits<double>::quiet_NaN();
   }
@@ -840,7 +840,7 @@ double DataGrid::calculateMax(std::vector<double> double_values) {
  * @return A vector that contains only double data
  */
 std::vector<double>
-DataGrid::getDoubleValues(const ReferenceVector<const Datum> &reference_vector) {
+DataGrid::getDoubleValues(const ReferenceVector<const Datum> &reference_vector) const {
   std::vector<double> double_values;
   for (const auto &value : reference_vector) {
     if (value.IsDouble() && !std::isnan(value.GetDouble())) {
