@@ -6,7 +6,8 @@
  * @brief Header file for StringSet class
  */
 
-#pragma once
+ #ifndef CSE_STRING_SET_HPP_
+ #define CSE_STRING_SET_HPP
 
 #include <functional>
 #include <iostream>
@@ -39,6 +40,32 @@ public:
 
   /// @brief Define const iterator
   using const_iterator = std::unordered_set<T>::const_iterator;
+
+  /**
+   * @brief Default constructor for a StringSet
+   * 
+   */
+  StringSet() = default;
+
+  /**
+   * @brief Move constructor
+   * 
+   * @param other StringSet to move from
+   */
+  /// https://www.geeksforgeeks.org/move-constructors-in-c-with-examples/
+  StringSet(StringSet<T>&& other) noexcept : mElements(std::move(other.mElements)) {}
+
+  /**
+   * @brief Move assignment operator
+   * 
+   * @param other StringSet to move from
+   * @return StringSet& A reference to the assigned StringSet
+   */
+  /// https://www.geeksforgeeks.org/move-constructors-in-c-with-examples/
+  StringSet& operator=(StringSet<T>&& other) noexcept {
+    mElements = std::move(other.mElements);
+    return *this;
+}
   
   /**
   * @brief Iterator to the first element of string set (begin iterator)
@@ -93,7 +120,7 @@ public:
   /**
   * @brief Make string set empty
   */
-  void clear() { mElements.clear(); }
+  void clear() noexcept { mElements.clear(); }
   
   /**
   * @brief Get the size of set
@@ -110,6 +137,8 @@ public:
   /**
    * @brief Check if two string sets are equal
    * @param other The second set
+   * @return true Both sets contain same elements
+   * @return false Sets do not contain exactly the same strings
    */
   bool operator==(const StringSet &other) const {
     return mElements == other.mElements;
@@ -118,6 +147,8 @@ public:
   /**
    * @brief Check if two string sets are not equal
    * @param other The second set
+   * @return true Sets do not contain exactly the same strings
+   * @return false Both sets contain same elements
    */
   bool operator!=(const StringSet &other) const {
       return mElements != other.mElements;
@@ -141,7 +172,7 @@ public:
   * @brief Swap the elements of sets
   * @param other The second set
   */
-  void Swap(StringSet& other) { std::swap(mElements, other.mElements); }
+  void Swap(StringSet& other) noexcept { std::swap(mElements, other.mElements); }
 
   StringSet Union(const StringSet &other) const;
   
@@ -428,7 +459,7 @@ std::tuple<int, double, T, T> cse::StringSet<T>::Statistics() {
 /**
  * @brief Removes strings of length not equal to size
  * 
- * @param size length of strings that will be retained
+ * @param length length of strings that will be retained
  */
 template<typename T>
 void cse::StringSet<T>::SizeFilter(int length) {
@@ -489,3 +520,5 @@ std::set<T> cse::StringSet<T>::sort(const std::function<bool(const T &str, const
     return std::set<T>(sortedElements.begin(), sortedElements.end());
 }
 }  // namespace cse
+
+#endif
