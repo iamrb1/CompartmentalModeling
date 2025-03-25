@@ -11,6 +11,8 @@ Date: 1/31/2025
 #include <vector>
 #include <utility>
 #include <string>
+#include <limits>
+#include <cassert>
 
 namespace cse {
 
@@ -41,6 +43,18 @@ public:
     BruteForceOptimizer() = default;
 
     /**
+    * @brief Set whether we want to optimize search.
+    * 
+    * @param optimize Boolean stating whether we want to optimize or not.
+    */
+    void setOptimizer(bool optimize){
+        optimized_ = optimize;
+        ///sort greatest to least
+        ///std::stable_sort(items_.begin(), items_.end(), [](const Item &a, const Item&b){return a.weight < b.weight;});
+        /// Sort makes it slower right now
+    }
+
+    /**
      * @brief Stores the list of items in the optimizer.
      *
      * @param newItems The vector of items to manage.
@@ -68,9 +82,9 @@ public:
      */
     std::pair<double, std::vector<Item>> FindOptimalSolution()
     {
-        bestScore_ = -999999;
+        bestScore_ = std::numeric_limits<double>::lowest();
         currentSelection_.clear();
-        Backtrack(0, 0.0, 0.0);
+        Search(0, 0.0, 0.0);
         return {bestScore_, bestSelection_};
     }
 
@@ -81,8 +95,9 @@ public:
      * @param currentWeight The total weight of the selected items so far.
      * @param currentValue The total value of the selected items so far.
      */
-    void Backtrack(size_t index, double currentWeight, double currentValue)
+    void Search(size_t index, double currentWeight, double currentValue)
     {
+        assert(currentWeight >= 0 && currentValue >= 0);
         if (index >= items_.size())
         {
             if (currentWeight <= capacity_ && currentValue > bestScore_)
@@ -93,17 +108,45 @@ public:
             return;
         }
 
-        // Exclude the current item.
-        Backtrack(index + 1, currentWeight, currentValue);
-        // Include the current item if it does not exceed capacity.
-        const Item& item = items_[index];
-        if (currentWeight + item.weight <= capacity_)
-        {
-            currentSelection_.push_back(item);
-            Backtrack(index + 1, currentWeight + item.weight, currentValue + item.value);
-            currentSelection_.pop_back();
+        if (optimized_){
+            if (currentWeight + items_[index].weight == capacity_ && currentValue + items_[index].value <= bestScore_){
+                Search(index + 1, currentWeight, currentValue);
+            }
+            else{
+                // Exclude the current item.
+                Search(index + 1, currentWeight, currentValue);
+                // Include the current item if it does not exceed capacity.
+                const Item& item = items_[index];
+                if (currentWeight + item.weight <= capacity_)
+                {
+                    currentSelection_.push_back(item);
+                    Search(index + 1, currentWeight + item.weight, currentValue + item.value);
+                    currentSelection_.pop_back();
+                }
+            }
+        }
+        else{
+            // Exclude the current item.
+            Search(index + 1, currentWeight, currentValue);
+            // Include the current item if it does not exceed capacity.
+            const Item& item = items_[index];
+            if (currentWeight + item.weight <= capacity_)
+            {
+                currentSelection_.push_back(item);
+                Search(index + 1, currentWeight + item.weight, currentValue + item.value);
+                currentSelection_.pop_back();
+            }
         }
     }
+
+    /*
+    recursive?
+    if weights under the limit retun -1 over and we return value
+    crono high resolution clock above and below function to test time
+    vec_set
+    rather than continuously creating new vectors
+    preallocate all new vectors and keep reusing them
+    */
 
 private:
     
@@ -112,6 +155,7 @@ private:
     double bestScore_;
     std::vector<T> bestSelection_;
     std::vector<T> currentSelection_;
+    bool optimized_ = false;
 };
 
 } // namespace cse

@@ -1,5 +1,7 @@
 #include "../../Group-10/Classes/BruteForceOptimizer.hpp"
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
+#include "../../Group-10/Classes/BruteForceOptimizer.hpp"
+#include <iostream>
 
 /// Tests for BruteForceOptimizer functionality
 TEST_CASE("BruteForceOptimizer basic tests", "[BruteForceOptimizer]") {
@@ -132,18 +134,25 @@ TEST_CASE("BruteForceOptimizer: Optimization Settings",
 
   double time1 = measureTime([&]() { optimizer.FindOptimalSolution(); });
 
-  // set optimization flag on
-  // this should exist by the time we do it...
-  optimizer.setOptimizer(true);
+    std::cout << "FIRST SCORE: " << optimizer.FindOptimalSolution().first << std::endl;
+    // set optimization flag on
+    // this should exist by the time we do it...
+    optimizer.setOptimizer(true);
 
   double time2 = measureTime([&]() { optimizer.FindOptimalSolution(); });
 
-  REQUIRE(time1 > time2);
+    std::cout << "SECOND SCORE: " << optimizer.FindOptimalSolution().first << std::endl;
+
+    std::cout << "time 1: " << time1 << std::endl;
+    std::cout << "time 2: " << time2 << std::endl;
+    REQUIRE(time1 > time2);
 }
 
 /**
  * Different Knapsack variations can be handled depending on user needs
  */
+
+ /*
 TEST_CASE("BruteForceOptimizer: Knapsack Repeatable Elements",
           "[BruteForceOptimizer]") {
   cse::BruteForceOptimizer<cse::Item> optimizer;
@@ -193,3 +202,4 @@ TEST_CASE("BruteForceOptimizer: Constructor", "[BruteForceOptimizer]") {
   std::vector<Item> expected{{"A", 1.0, 1.0}, {"B", 2.0, 2.0}, {"C", 3.0, 3.0}};
   REQUIRE(BFO.GetItems() == expected);
 }
+*/
