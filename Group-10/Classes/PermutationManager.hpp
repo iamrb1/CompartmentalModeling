@@ -2,7 +2,7 @@
 
 /* ------------------------------------------
 Author: Ephraim Bennett
-Last Changed Date: 3/22/2025
+Last Changed Date: 3/25/2025
 ------------------------------------------ */
 
 #ifndef PERMUTATION_MANAGER_H
@@ -44,8 +44,7 @@ public:
   k_(permutation_size),
   n_(container.size()),
   currentPermutation_(),
-  isRequired_(false),
-  isRepeating_(false) {
+  isRequired_(false) {
     // ensure k is less than or equal to n
     if (k_ > n_) {
       throw std::invalid_argument("Combination size cannot be greater than the number of items in the container.");
@@ -69,8 +68,6 @@ public:
   k_(permutation_size),
   n_(container.size()),
   isRequired_(true),
-  isRepeating_(false),
-  requiredIndex_(requiredIndex),
   currentPermutation_() {
 
     
@@ -83,6 +80,8 @@ public:
     n_ -= 1;
     requiredValue_ = items_.at(requiredIndex);
     items_.erase(std::remove(items_.begin(), items_.end(), requiredValue_));
+
+    requiredIndex_ = 0;
     
     totalPermutations_ = PermutationNumber(n_, k_);
 
@@ -124,7 +123,9 @@ public:
         ++requiredIndex_;
       } else {
         // handle required elements here...
-        NextKPermutation_();
+        if (!NextKPermutation_()) {
+          return false;
+        }
         requiredIndex_ = 0;
       }
     } else {
@@ -160,10 +161,11 @@ public:
       // do it w/the standard lib algorithm if n == k
       if (n_ == k_) {
         std::prev_permutation(indices_.begin(), indices_.end());
-      } else if (requiredIndex_ > 0) { // 
+      } else if (requiredIndex_ > 0) { // at zero we're at the last perm for this combo.
         --requiredIndex_;
       } else {
-        PrevKPermutation_();
+        if (!PrevKPermutation_())
+          return false;
         requiredIndex_ = k_;
       }
     } else {
@@ -312,7 +314,7 @@ private:
     if (isRepeating_) {
       // we want to max out all the values past the one we've decremented
       for (size_t j = i + 1; j < k_; ++j) {
-        indices_[j] = items_[k_ - 1];
+        indices_[j] = n_ - 1;
       }
     }
 
