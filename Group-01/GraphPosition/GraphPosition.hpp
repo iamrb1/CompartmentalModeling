@@ -10,6 +10,7 @@
 #include <cassert>
 #include <deque>
 #include <iostream>
+#include <cmath>
 #include <queue>
 #include <set>
 #include <stdexcept>
