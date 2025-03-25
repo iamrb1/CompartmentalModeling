@@ -136,6 +136,33 @@ class ExpressionParser {
   ExpressionParser() = default;
 
   /**
+ * @brief Adds two values at compile time.
+ *
+ * @tparam T A type that supports the + operator.
+ * @param a First value.
+ * @param b Second value.
+ * @return The sum of a and b.
+ */
+  template <typename T>
+  static constexpr T constexprAdd(T a, T b) {
+    return a + b;
+}
+
+/**
+ * @brief Creates a binary operation function at compile time.
+ *
+ * @tparam Operation A callable type that performs a binary operation.
+ * @param left The left-hand operand.
+ * @param right The right-hand operand.
+ * @param op The binary operation.
+ * @return A constexpr lambda that returns the result of op(left, right).
+ */
+  template <typename Operation>
+  static constexpr auto MakeBinaryFun(double left, double right, Operation op) {
+      return [=]() constexpr { return op(left, right); };
+}
+
+  /**
    * @brief Evaluates equation represented by expression and returns simplified value as a double
    *
    * @param number_map Map with value and key that will be regerences in expression

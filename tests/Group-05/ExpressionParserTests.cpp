@@ -3,6 +3,7 @@
 #include "../../Group-05/src/ExpressionParser.cpp"
 #include "../../Group-05/src/ExpressionParser.h"
 #include <map>
+#include <functional>
 
 TEST_CASE("Parser Evaluations", "[parser]") {
   cse::ExpressionParser parser;
@@ -57,6 +58,31 @@ TEST_CASE("Parser Evaluations", "[parser]") {
   default_index = 0;
   
   }
+
+  /**
+ * @brief Tests the compile-time addition using constexpr lambda.
+ */
+TEST_CASE("ExpressionParser constexprAdd", "[parser][constexpr]") {
+  // This test will validate that the constexprAdd template function computes the sum at compile time.
+  constexpr double result = cse::ExpressionParser::constexprAdd(2.0, 3.0);
+  REQUIRE(result == 5.0);
+}
+
+/* Verifies that the template function correctly creates a lambda that performs the binary operation 
+  (addition and subtraction) at compile time 
+*/
+TEST_CASE("ExpressionParser MakeBinaryFun - Compile-time Binary Operation", "[parser][template]") {
+  // Test compile-time addition:
+  constexpr auto addFun = cse::ExpressionParser::MakeBinaryFun(2.0, 3.0, std::plus<>{});
+  static_assert(addFun() == 5.0, "Compile-time addition failed");
+  REQUIRE(addFun() == 5.0);
+
+  // Test compile-time subtraction:
+  constexpr auto subFun = cse::ExpressionParser::MakeBinaryFun(10.0, 4.0, std::minus<>{});
+  static_assert(subFun() == 6.0, "Compile-time subtraction failed");
+  REQUIRE(subFun() == 6.0);
+}
+
 /* 
   TEST_CASE("Advanced Parser Funcitonality", "[parser]") {
     cse::ExpressionParser parser;
