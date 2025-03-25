@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "../../../Group-01/Graph/Edge.hpp"
+#include "../../../Group-01/Graph/GraphExceptions.hpp"
 #include "../../../Group-01/Graph/Vertex.hpp"
 #include "../../../third-party/Catch/single_include/catch2/catch.hpp"
 #include "../Utils/TestUtils.hpp"
@@ -23,11 +24,11 @@ TEST_CASE("Test cse::Graph", "[base]") {
   CHECK(graph.GetVertex("id1").GetId() == "id1");
   CHECK(graph.GetVertex("id2").GetId() == "id2");
 
-  CHECK_THROWS_AS(graph.AddVertex("id1", "Duplicate Data"), std::runtime_error);
+  CHECK_THROWS_AS(graph.AddVertex("id1", "Duplicate Data"), cse::vertex_already_exists_error);
 
   // Test removing vertices
   graph.RemoveVertex("id1");
-  CHECK_THROWS_AS(graph.GetVertex("id1"), std::out_of_range);
+  CHECK_THROWS_AS(graph.GetVertex("id1"), cse::vertex_not_found_error);
 
   // Test adding edges
   v1 = graph.AddVertex("id1", "Vertex1 Data");
@@ -56,8 +57,8 @@ TEST_CASE("Test cse::Graph", "[base]") {
                WithinAbs(0, cse_test_utils::FLOAT_DELTA));
 
   graph.RemoveEdge(e2);
-  CHECK_THROWS_AS(graph.GetEdge(v4.GetId(), v5.GetId()), std::runtime_error);
-  CHECK_THROWS_AS(v4.GetEdge(v5), std::runtime_error);
+  CHECK_THROWS_AS(graph.GetEdge(v4.GetId(), v5.GetId()), cse::edge_not_found_error);
+  CHECK_THROWS_AS(v4.GetEdge(v5), cse::edge_not_found_error);
 
   auto &e3 = graph.AddEdge("id1", "id2", 2);
   CHECK(graph.IsConnected(v1, v2));
@@ -186,12 +187,12 @@ TEST_CASE("Test cse::Graph - Check removing Vertex removes related edges",
   graph.AddEdge(v3, v4);
 
   graph.RemoveVertex(v1.GetId());
-  CHECK_THROWS_AS(graph.GetEdge("id1_id2"), std::out_of_range);
+  CHECK_THROWS_AS(graph.GetEdge("id1_id2"), cse::edge_not_found_error);
 
   graph.RemoveVertex(v4.GetId());
-  CHECK_THROWS_AS(graph.GetEdge("id2_id4"), std::out_of_range);
-  CHECK_THROWS_AS(graph.GetEdge("id3_id4"), std::out_of_range);
+  CHECK_THROWS_AS(graph.GetEdge("id2_id4"), cse::edge_not_found_error);
+  CHECK_THROWS_AS(graph.GetEdge("id3_id4"), cse::edge_not_found_error);
 
-  CHECK_THROWS_AS(v2.GetEdge("id4"), std::runtime_error);
-  CHECK_THROWS_AS(v3.GetEdge("id4"), std::runtime_error);
+  CHECK_THROWS_AS(v2.GetEdge("id4"), cse::edge_not_found_error);
+  CHECK_THROWS_AS(v3.GetEdge("id4"), cse::edge_not_found_error);
 }
