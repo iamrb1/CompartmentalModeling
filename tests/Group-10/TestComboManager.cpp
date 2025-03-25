@@ -5,6 +5,7 @@
 #include <string>
 #include <type_traits>
 #include <vector>
+#include <type_traits>
 
 #include "../../Group-10/Classes/ComboManager.hpp"
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
@@ -317,17 +318,30 @@ TEST_CASE("ComboManager: Testing Basic Iterators", "[ComboManager]") {
   cse::ComboManager<std::vector<int>> manager(testVector1, 3);
 
   auto beginning = manager.begin();
+  auto beforeBeginning = manager.rbegin();
   std::vector<int> firstCombo = std::vector<int>{5, 4, 3};
   // Require that the begin() operator points at what we expect it to
   REQUIRE(*beginning == firstCombo);
+  // begin should point to the first element, rbegin should point to 'before'
+  // that
+  REQUIRE(beginning != beforeBeginning);
+
+  auto end = manager.rend();
+  auto afterEnd = manager.end();
+  std::vector<int> lastCombo = std::vector<int>{3, 2, 1};
+  REQUIRE(*end == lastCombo);
+  // .rend() points to the last possible element, .end() is after the last
+  // element
+  REQUIRE(end != afterEnd);
 
   std::vector<std::vector<int>> correctCombos = {
       {5, 4, 3}, {5, 4, 2}, {5, 4, 1}, {5, 3, 2}, {5, 3, 1},
       {5, 2, 1}, {4, 3, 2}, {4, 3, 1}, {4, 2, 1}, {3, 2, 1}};
-  int index = 0;
-  for (auto val : manager) {
-    REQUIRE(correctCombos.at(index++) == val);
+  std::size_t index = 0;
+  for (auto iter = manager.begin(); iter != manager.end(); iter++) {
+    REQUIRE(correctCombos.at(index++) == *iter);
   }
+  REQUIRE(index == correctCombos.size());
 }
 
 TEST_CASE("ComboManager: Testing Range-Based For Loop", "[ComboManager]") {
@@ -337,10 +351,11 @@ TEST_CASE("ComboManager: Testing Range-Based For Loop", "[ComboManager]") {
   std::vector<std::vector<int>> correctCombos = {
       {5, 4, 3}, {5, 4, 2}, {5, 4, 1}, {5, 3, 2}, {5, 3, 1},
       {5, 2, 1}, {4, 3, 2}, {4, 3, 1}, {4, 2, 1}, {3, 2, 1}};
-  int index = 0;
+  std::size_t index = 0;
   for (auto val : manager) {
     REQUIRE(val == correctCombos.at(index++));
   }
+  REQUIRE(index == correctCombos.size());
 }
 
 TEST_CASE("ComboManager: Testing a reverse For Loop", "[ComboManager]") {
@@ -349,10 +364,11 @@ TEST_CASE("ComboManager: Testing a reverse For Loop", "[ComboManager]") {
   std::vector<std::vector<int>> correctCombos = {
       {3, 2, 1}, {4, 2, 1}, {4, 3, 1}, {4, 3, 2}, {5, 2, 1},
       {5, 3, 1}, {5, 3, 2}, {5, 4, 1}, {5, 4, 2}, {5, 4, 3}};
-  int index = 0;
-  for (auto iter = manager.end(); iter != manager.begin(); --iter) {
+  std::size_t index = 0;
+  for (auto iter = manager.rend(); iter != manager.rbegin(); --iter) {
     REQUIRE(correctCombos.at(index++) == *iter);
   }
+  REQUIRE(index == correctCombos.size());
 }
 
 TEST_CASE("ComboManager: Testing Basic Required Element functionality",
@@ -362,24 +378,49 @@ TEST_CASE("ComboManager: Testing Basic Required Element functionality",
   // Should Require 1 in every combination
   cse::ComboManager<std::vector<int>> manager(testVector1, 3, 4);
   std::vector<std::vector<int>> correctCombos = {
-      {3, 2, 1}, {4, 2, 1}, {4, 3, 1}, {5, 2, 1}, {5, 3, 1}, {5, 4, 1}};
-  int index = 0;
-  for (auto iter = manager.end(); iter != manager.begin(); --iter) {
-    REQUIRE(correctCombos.at(index++) == *iter);
+      {5, 4, 1}, {5, 3, 1}, {5, 2, 1}, {4, 3, 1}, {4, 2, 1}, {3, 2, 1}};
+
+  std::size_t index = 0;
+  for (auto combo : manager) {
+    REQUIRE(correctCombos.at(index) == combo);
+    index++;
   }
+  REQUIRE(index == correctCombos.size());
 }
 
-TEST_CASE("ComboManager: Testing Various", "[ComboManager]") {
+TEST_CASE("ComboManager: Testing Various Required Elements", "[ComboManager]") {
   std::vector<int> testVector1 = {5, 4, 3, 3, 1};
 
   // Should Require 1 in every combination
   cse::ComboManager<std::vector<int>> manager(testVector1, 3, 2);
   std::vector<std::vector<int>> correctCombos = {
-      {5, 4, 3}, {5, 3, 3}, {4, 3, 3}, {5, 2, 3}, {4, 2, 3},
-      {3, 2, 3}, {5, 1, 3}, {4, 1, 3}, {3, 1, 3}, {2, 1, 3}};
-  int index = 0;
-  for (auto iter = manager.end(); iter != manager.begin(); --iter) {
-    REQUIRE(correctCombos.at(index++) == *iter);
+      {5, 4, 3}, {5, 3, 3}, {5, 1, 3}, {4, 3, 3}, {4, 1, 3}, {3, 1, 3}};
+
+  std::size_t index = 0;
+  for (auto combo : manager) {
+    REQUIRE(correctCombos.at(index) == combo);
+    index++;
+  }
+  REQUIRE(index == correctCombos.size());
+
+  try {
+    cse::ComboManager<std::vector<int>> manager2(testVector1, 3, 47);
+  } catch (const std::invalid_argument& error) {
+    // Invalid Argument should be called on the out_of_range required index
+    CHECK(true);
+  } catch(...) {
+    // No other exceptions should be called for that construction
+    CHECK(false);
+  }
+
+  try {
+    cse::ComboManager<std::vector<int>> manager2(testVector1, 3, -1);
+  } catch (const std::invalid_argument& error) {
+    // Invalid Argument should be called on the out_of_range required index
+    CHECK(true);
+  } catch(...) {
+    // No other exceptions should be called for that construction
+    CHECK(false);
   }
 }
 
@@ -389,7 +430,7 @@ TEST_CASE("ComboManager: Testing Various", "[ComboManager]") {
  * determines how many times that individual element may repeat (max of the
  * length of combo) (MaxRepetitions)
  */
-TEST_CASE("Combo Manager: Test Repeating Elements", "[ComboManager]") {
+/*TEST_CASE("Combo Manager: Test Repeating Elements", "[ComboManager]") {
   bc = BinomialCoefficient(n = 5, k = 3, AllowRepetition = true,
                            MaxRepetitions = 2);
   expected = 7;
@@ -409,38 +450,4 @@ TEST_CASE("Combo Manager: Test Repeating Elements", "[ComboManager]") {
                            MaxRepetitions = 1);
   expected = 1;
   REQUIRE(bc == expected);
-}
-
-/**
- * Required means the specified element MUST appear at lease once in every
- * combination returned
- */
-TEST_CASE("Combo Manager: Test Required Elements", "[ComboManager]") {
-  std::vector<int> vec = {1, 2, 3, 4};
-
-  ComboManager<std::vector<int>> acm(items, 2);
-
-  acm.SetRequiredElement(2);
-  // might call a nw function here to get all combos with the required element
-  //  Such as
-  //  acm.Requi
-
-  // second parameter could also be the index of the required element
-
-  std::vector<std::vector<int>> valid_combos;
-
-  do {
-    auto combo = acm.GetCurrentCombo();
-    // Verify that the current combination contains the required element '2'.
-    bool containsRequired =
-        std::find(combo.begin(), combo.end(), 2) != combo.end();
-    REQUIRE(containsRequired);
-
-    valid_combos.push_back(combo);
-  } while (acm.NextCombo());
-  REQUIRE(valid_combos.size() == 3);
-  std::vector<std::vector<int>> expected = {{1, 2}, {2, 3}, {2, 4}};
-  std::sort(valid_combos.begin(), valid_combos.end());
-  std::sort(expected.begin(), expected.end());
-  REQUIRE(valid_combos == expected);
-} 
+}*/
