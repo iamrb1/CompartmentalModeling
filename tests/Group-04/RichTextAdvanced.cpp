@@ -42,15 +42,54 @@ TEST_CASE("RichText move semantics", "[RichTextAdvanced]") {
   REQUIRE(text2.to_string() == "bar");
 }
 
+TEST_CASE("Clear formatting", "[RichTextAdvanced]") {
+  cse::RichText text("hello world");
+  cse::TextFormat bold("bold");
+  cse::TextFormat italic("italic");
+
+  text.apply_format(bold, 0, 5);
+  text.apply_format(italic, cse::IndexSet{std::pair{4, 8}});
+
+  SECTION("Test whole clear") {
+    // TODO
+    // text.clear();
+    REQUIRE_FALSE(text.get_format_range(bold).has_value());
+    REQUIRE_FALSE(text.get_format_range(italic).has_value());
+  }
+
+  SECTION("Test IndexSet clear") {
+    // TODO
+    // text.clear(cse::IndexSet{2, 3});
+    REQUIRE(text.get_format_range(bold).value() == cse::IndexSet{0, 1, 4});
+    REQUIRE(text.get_format_range(italic).value() == cse::IndexSet{});
+  }
+
+  SECTION("Test format clear") {
+    // TODO
+    // text.clear(italic);
+    REQUIRE(text.get_format_range(bold).value() ==
+            cse::IndexSet{std::pair{0, 5}});
+    REQUIRE_FALSE(text.get_format_range(italic).has_value());
+  }
+
+  SECTION("Test format and IndexSet clear") {
+    // TODO
+    // text.clear(bold, cse::IndexSet{2, 3});
+    REQUIRE(text.get_format_range(bold).value() == cse::IndexSet{0, 1, 4});
+    REQUIRE(text.get_format_range(italic).value() ==
+            cse::IndexSet{std::pair{4, 8}});
+  }
+}
+
 TEST_CASE("New RichText operations", "[RichTextAdvanced]") {
   cse::TextFormat red("color", "red");
   cse::TextFormat blue("color", "blue");
 
   cse::RichText text1{"hello"};
-  text1.apply_format_to_range(red, 0, text1.size() - 1);
+  text1.apply_format(red, 0, text1.size());
 
   cse::RichText text2{"world!"};
-  text2.apply_format_to_range(blue, 0, text2.size() - 1);
+  text2.apply_format(blue, 0, text2.size());
 
   // Add unformatted punctuation
   text1.insert(text1.size(), ", ");
@@ -59,54 +98,31 @@ TEST_CASE("New RichText operations", "[RichTextAdvanced]") {
 
   REQUIRE(text2.to_string() == "hello, world!");
   REQUIRE(text2.get_format_range(red) ==
-          std::optional{cse::IndexSet{std::pair{0, 4}}});
+          std::optional{cse::IndexSet{std::pair{0, 5}}});
   REQUIRE(text2.get_format_range(blue) ==
-          std::optional{cse::IndexSet{std::pair{7, text2.size() - 1}}});
+          std::optional{cse::IndexSet{std::pair{7, text2.size()}}});
   REQUIRE(text2.formats_at(5).size() == 0);
 }
 
-TEST_CASE("RichText update container functionality", "[RichTextAdvanced]") {
+TEST_CASE("RichText insertions", "[RichTextAdvanced]") {
   cse::TextFormat red("color", "red");
   cse::RichText text{"hello"};
-  text.apply_format_to_range(red, 0, text.size() - 1);
+  text.apply_format(red, 0, text.size());
 
-  text.update([](std::string &string) {
-    string[0] = 'j';
-    // nullopt for substitutions only
-    return std::nullopt;
-  });
-  REQUIRE(text.to_string() == "jello");
+  // TODO
+  // text[0] = "j";
+  // REQUIRE(text.to_string() == "jello");
 
-  text.update([](std::string &string) {
-    // substitutions can be performed at the same time as insertions or
-    // deletions (but insertions and deletions cannot be performed at the same
-    // time)
-    string[0] = 'p';
-    string[1] = 'i';
-    string.push_back('w');
+  // text[0] = 'p';
+  // text[1] = 'i';
 
-    // insertion: return indices in the original string that had
-    // characters inserted after them.
-    //
-    // might be more complex for multi-character discontinuous insertions, or
-    // just disallow that
-    return cse::IndexSet{4};
-  });
-
+  // TODO
+  // text.push_back('w', true);
   REQUIRE(text.to_string() == "pillow");
   // expand format from insertion
   REQUIRE(text.formats_at(5).size() == 1);
 
-  text.update([](std::string &string) {
-    string.erase(4, 2);
-    string.erase(0, 1);
-    // deletion: return indices removed in old string
-    return cse::IndexSet{0} | cse::IndexSet{4};
-  });
-
+  // TODO
+  // text.erase(cse::IndexSet{0, 4, 5});
   REQUIRE(text.to_string() == "ill");
-
-  // edge cases are tricky, we might just have to limit what is
-  // allowed, or reduce scope to exclude expanding formats (instead, just
-  // offseting them)
 }

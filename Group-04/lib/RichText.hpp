@@ -131,71 +131,147 @@ class RichText {
   explicit RichText(string text) : m_text(std::move(text)) {}
   explicit RichText(const CharT* text) : m_text(text) {}
 
-  // Assign a string to RichText
+  /**
+   * @brief Assign a string into RichText
+   * @param text The string to copy into RichText
+   */
   RichText& operator=(const string& text) {
     m_text = text;
     m_formatting.clear();
     return *this;
   }
 
-  // Assign and move a string into RichText
+  /**
+   * @brief Assign and move a string into RichText
+   * @param text The string to move into RichText
+   */
   RichText& operator=(string&& text) {
     m_text = std::move(text);
     m_formatting.clear();
     return *this;
   }
 
+  /**
+   * @brief Append another RichText to RichText
+   * @param str The other RichText instance to append
+   */
+  RichText& operator+=(const RichText& str) { return append(str); }
+
+  /**
+   * @brief Append a string to RichText
+   * @param str The string to append
+   * existing character to new characters
+   */
+  RichText& operator+=(const string& str) { return append(str); }
+
+  /**
+   * @brief Get the size of the underlying string
+   * @return The size of the text
+   */
   [[nodiscard]] size_t size() const noexcept { return m_text.size(); }
 
+  /**
+   * @brief Get the character at a position
+   * @param pos The position of the desired character
+   * @return The character at position `pos`
+   */
   [[nodiscard]] const CharT& char_at(size_t pos) const {
+    // TODO replace with subscript operator
     return m_text.at(pos);
   }
 
+  /**
+   * @brief Get the underlying string of this RichText
+   * @return The text without formatting
+   */
   [[nodiscard]] string to_string() const { return m_text; }
 
+  /**
+   * @brief Get the formats at a position
+   * @param pos The position to check for formats
+   * @return A vector of `TextFormat`s at position `pos`
+   */
   [[nodiscard]] std::vector<TextFormat> formats_at(size_t pos) const {
     dbg_assert(pos < m_text.size(),
                std::format("Out of bounds access, idx: {} size: {}", pos,
                            m_text.size()));
     std::vector<TextFormat> result;
-    for (const auto& [format, index] : m_formatting) {
-      if (index.contains(pos)) result.push_back(format);
+    for (const auto& [format, indices] : m_formatting) {
+      if (indices.contains(pos)) result.push_back(format);
     }
     return result;
   }
 
-  RichText& append(const RichText& str) {
-    auto left = m_formatting.begin();
-    auto const left_end = m_formatting.end();
-    auto right = str.m_formatting.begin();
-    auto const right_end = str.m_formatting.end();
-    while (left != left_end && right != right_end) {
-      if (left->first == right->first) {
-        left->second.append_at(right->second, m_text.size());
-        ++left;
-        ++right;
-        continue;
-      }
-      if (left->first < right->first) {
-        ++left;
-        continue;
-      }
-
-      m_formatting.insert({right->first, right->second})
-          .first->second.offset(m_text.size());
-      ++right;
+  /**
+   * @brief Insert a string into RichText
+   * @param index The index to insert the string at
+   * @param str The string to insert
+   * @param extend_formatting Whether to extend formatting applied to the
+   * character before `index` to the new characters
+   */
+  RichText& insert(size_t index, const string& str,
+                   bool extend_formatting = false) {
+    cse_assert(!extend_formatting, "TODO Not implemented");
+    m_text.insert(index, str);
+    std::size_t len = str.length();
+    for (auto& [_, indices] : m_formatting) {
+      indices.shift_right_within(len, index, indices.size() + len);
     }
-    while (right != right_end) {
-      m_formatting.insert({right->first, right->second})
-          .first->second.offset(m_text.size());
-      ++right;
-    }
-    m_text += str.m_text;
     return *this;
   }
 
-  void apply_format_to_range(const TextFormat& format, const size_t begin,
-                             const size_t end) {
+  /**
+   * @brief Insert another RichText into RichText
+   * @param index The index to insert the other RichText instance at
+   * @param str The other RichText to insert
+   */
+  RichText& insert(size_t index, const RichText<CharT>& str) {
+    std::size_t old_len = m_text.length();
+    insert(index, str.m_text);
+    for (auto [format, indices] : str.m_formatting) {
+      indices.shift_right(old_len);
+      apply_format(format, indices);
+    }
+    return *this;
+  }
+
+  /**
+   * @brief Append a string to RichText
+   * @param str The string to append
+   * @param extend_formatting Whether to extend formatting applied to the last
+   * existing character to new characters
+   */
+  RichText& append(const string& str, bool extend_formatting = false) {
+    cse_assert(!extend_formatting, "TODO Not implemented");
+    return insert(size(), str);
+  }
+
+  /**
+   * @brief Append another RichText to RichText
+   * @param str The other RichText instance to append
+   */
+  RichText& append(const RichText& str) { return insert(size(), str); }
+
+  /**
+   * @brief Append a character to RichText
+   * @param ch The character to append
+   * @param extend_formatting Whether to extend formatting applied to the last
+   * existing character to new character
+   */
+  RichText& push_back(CharT ch, bool extend_formatting = false) {
+    cse_assert(!extend_formatting, "TODO Not implemented");
+    m_text.push_back(ch);
+    return *this;
+  }
+
+  /**
+   * @brief Applies a format to the range [start, end)
+   * @param format Format to apply
+   * @param begin Beginning of range to apply format to
+   * @param end End (exclusive) of range to apply format to
+   */
+  void apply_format(const TextFormat& format, const size_t begin,
+                    const size_t end) {
     dbg_assert(
         end >= begin,
         std::format("Format range ends after beginning, begin: {}, end: {}",
@@ -208,8 +284,24 @@ class RichText {
     }
   }
 
-  RichText& operator+=(const RichText& str) { return append(str); }
+  /**
+   * @brief Applies a format to the specified indices
+   * @param format Format to apply
+   * @param begin Beginning of range to apply format to
+   * @param end End (exclusive) of range to apply format to
+   */
+  void apply_format(const TextFormat& format, const IndexSet& indices) {
+    auto [item, inserted] = m_formatting.insert({format, indices});
+    if (!inserted) {
+      item->second |= indices;
+    }
+  }
 
+  /**
+   * @brief Get the range corresponding to a `TextFormat`
+   * @param format The format to get the range for
+   * @return The IndexSet corresponding to the format, if it exists
+   */
   [[nodiscard]] std::optional<IndexSet> get_format_range(
       const TextFormat& format) const {
     const auto iter = m_formatting.find(format);
@@ -335,72 +427,6 @@ class RichText {
     }
 
     return result;
-  }
-
-  RichText& insert(size_t index, const string& str) {
-    m_text.insert(index, str);
-    // TODO: Shift over formatting
-    return *this;
-  }
-
-  RichText& insert(size_t index, const RichText<CharT>& str) {
-    m_text.insert(index, str.m_text);
-    // TODO: Shift over formatting and insert formatting from str
-    return *this;
-  }
-
-  // TODO change std::invocable argument to T& once RichText is templated
-  template <std::invocable<string&> Callable>
-  void update(Callable const& callable) {
-    size_t const old_size = m_text.size();
-    std::optional<IndexSet> const indices_opt = callable(m_text);
-    size_t const new_size = m_text.size();
-
-    if (new_size > old_size) {
-      // insertion
-      // extend formatting options following each indicated index
-      cse_assert(indices_opt.has_value(),
-                 "size increased during update, but no indices returned");
-      IndexSet indices{*indices_opt};
-
-      // TODO: how to handle multiple discontinuous insertions?
-
-      // TODO
-    } else if (new_size < old_size) {
-      // deletion
-      // reduce formatting at each indicated index
-      cse_assert(indices_opt.has_value(),
-                 "size decreased during update, but no indices returned");
-      IndexSet indices{*indices_opt};
-
-      for (auto& [_, fmt_indices] : m_formatting) {
-        // move this into IndexSet?
-        size_t offset = 0;
-        IndexSet new_indices{};
-
-        auto max = std::max_element(fmt_indices.cbegin(), fmt_indices.cend());
-        if (max == fmt_indices.cend()) continue;
-
-        for (size_t idx = 0; idx <= *max; idx++) {
-          if (indices.contains(idx)) {
-            // index was deleted, advance offset
-            offset++;
-            continue;
-          }
-          if (fmt_indices.contains(idx)) {
-            new_indices.insert(idx - offset);
-          }
-        }
-        fmt_indices = new_indices;
-      }
-
-    } else {
-      // substitution
-      // no formatting changes necessary
-      cse_assert(
-          !indices_opt.has_value(),
-          "size did not change during update, but some indices returned");
-    }
   }
 };
 }  // namespace cse

@@ -11,10 +11,16 @@ TEST_CASE("Constructor", "[RichTextTest]") {
 
   cse::RichText text2("string");
   REQUIRE(text2.size() == 6);
+  REQUIRE(text2.to_string() == "string");
 
   std::string str1 = "string";
   cse::RichText text3(str1);
   REQUIRE(text3.size() == 6);
+  REQUIRE(text3.to_string() == "string");
+
+  cse::RichText text4(text3);
+  REQUIRE(text4.size() == 6);
+  REQUIRE(text4.to_string() == "string");
 }
 
 TEST_CASE("MultipleFormatting", "[RichTextTest]") {
@@ -22,7 +28,7 @@ TEST_CASE("MultipleFormatting", "[RichTextTest]") {
   REQUIRE(text1.size() == 11);
   cse::TextFormat bold("bold");
 
-  text1.apply_format_to_range(bold, 0, 5);
+  text1.apply_format(bold, 0, 5);
   REQUIRE(text1.formats_at(3).size() == 1);
   REQUIRE(text1.formats_at(3).at(0) == bold);
   REQUIRE(text1.formats_at(8).size() == 0);
@@ -32,7 +38,7 @@ TEST_CASE("MultipleFormatting", "[RichTextTest]") {
   REQUIRE(text1.formats_at(3).at(0) == f2);
 
   cse::TextFormat italic("italic");
-  text1.apply_format_to_range(italic, 4, 8);
+  text1.apply_format(italic, cse::IndexSet{std::pair{4, 8}});
   REQUIRE(text1.formats_at(3).size() == 1);
   REQUIRE(text1.formats_at(3).at(0) == bold);
   REQUIRE(text1.formats_at(4).size() == 2);
@@ -46,11 +52,11 @@ TEST_CASE("MultipleFormatting", "[RichTextTest]") {
 TEST_CASE("AppendFormattedText", "[RichTextTest]") {
   cse::RichText text1("hello");
   cse::TextFormat bold("bold");
-  text1.apply_format_to_range(bold, 0, 5);
+  text1.apply_format(bold, 0, 5);
 
   cse::RichText text2(" world");
   cse::TextFormat italic("italic");
-  text2.apply_format_to_range(italic, 0, 6);
+  text2.apply_format(italic, 0, 6);
 
   text1 += text2;
 
@@ -66,13 +72,13 @@ TEST_CASE("ComplexFormatting", "[RichTextTest]") {
   cse::RichText text("hello world");
 
   cse::TextFormat bold("bold");
-  text.apply_format_to_range(bold, 0, 11);
+  text.apply_format(bold, 0, 11);
 
   cse::TextFormat textSize("text size", 11);
-  text.apply_format_to_range(textSize, 0, 11);
+  text.apply_format(textSize, 0, 11);
 
   cse::TextFormat link("link", "https://cse498.github.io/");
-  text.apply_format_to_range(link, 0, 11);
+  text.apply_format(link, 0, 11);
 
   auto formats = text.formats_at(3);
 
