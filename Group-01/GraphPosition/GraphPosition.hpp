@@ -20,14 +20,29 @@
 namespace cse {
 
   /**
-   * @brief A class that manages traversal through a graph data structure
+   * A class that manages traversal through a graph data structure
    * @tparam VERTEX_DATA_T The data type stored in the graph's vertices
    */
   template <typename VERTEX_DATA_T> class GraphPosition; // Forward declaration
 
   namespace TraversalModes {
     /**
-     * @brief Creates a Depth-First Search traversal function
+     * Helper function to get sorted neighbors of a vertex
+     * @param vertex The vertex whose neighbors to sort
+     * @return Vector of pairs containing edge ID and edge pointer, sorted by destination vertex ID
+     */
+    template <typename VERTEX_DATA_T> auto GetSortedNeighbors(const Vertex<VERTEX_DATA_T> &vertex) {
+      using EdgePair = std::pair<std::string, std::weak_ptr<Edge<VERTEX_DATA_T>>>;
+      std::vector<EdgePair> neighbors(vertex.GetEdges().begin(), vertex.GetEdges().end());
+
+      std::sort(neighbors.begin(), neighbors.end(), [](const auto &edge1, const auto &edge2) {
+        return edge1.second.lock()->GetTo().GetId() < edge2.second.lock()->GetTo().GetId();
+      });
+      return neighbors;
+    }
+
+    /**
+     * Creates a Depth-First Search traversal function
      * @tparam VERTEX_DATA_T The data type stored in the graph's vertices
      * @return Function object implementing DFS traversal
      */
@@ -35,7 +50,7 @@ namespace cse {
     auto DFS() -> std::function<bool(GraphPosition<VERTEX_DATA_T> &)>; // Forward declare the function
 
     /**
-     * @brief Creates a Breadth-First Search traversal function
+     * Creates a Breadth-First Search traversal function
      * @tparam VERTEX_DATA_T The data type stored in the graph's vertices
      * @return Function object implementing BFS traversal
      */
@@ -43,7 +58,7 @@ namespace cse {
     auto BFS() -> std::function<bool(GraphPosition<VERTEX_DATA_T> &)>; // Forward declare the function
 
     /**
-     * @brief Creates an A* pathfinding traversal function
+     * Creates an A* pathfinding traversal function
      * @tparam VERTEX_DATA_T The data type stored in the graph's vertices
      * @param destination The target vertex to find a path to
      * @return Function object implementing A* pathfinding
@@ -281,16 +296,11 @@ namespace cse {
           }
 
           // Get all neighbors and sort them by ID for consistent traversal
-          std::vector<std::pair<std::string, std::weak_ptr<Edge<VERTEX_DATA_T>>>> neighbors(current.GetEdges().begin(),
-                                                                                            current.GetEdges().end());
-          std::sort(neighbors.begin(), neighbors.end(), [](auto &edge1, auto &edge2) {
-            return edge1.second.lock()->GetTo().GetId() < edge2.second.lock()->GetTo().GetId();
-          });
+          auto neighbors = GetSortedNeighbors(current);
 
           // Find first unvisited neighbor
           auto nonVisited = std::find_if(neighbors.begin(), neighbors.end(), [&](auto &p) {
-            auto weakEdge = p.second;
-            if (auto edge = weakEdge.lock()) {
+            if (auto edge = p.second.lock()) {
               return !gp.IsVisited(edge->GetTo());
             }
             return false;
@@ -307,7 +317,7 @@ namespace cse {
           // Push unvisited neighbor to stack and continue DFS
           auto &c = (nonVisited->second.lock())->GetTo();
           stack.push_back(&c);
-          return dfs(gp, dfs);
+          return dfs(gp, dfs); // recursive call
         };
 
         return dfs_implementation(graphPosition, dfs_implementation);
