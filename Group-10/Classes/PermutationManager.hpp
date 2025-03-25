@@ -107,8 +107,9 @@ public:
         std::next_permutation(indices_.begin(), indices_.end());
       } else {
         // handle required elements here...
-        NextKPermutation_();
-        requiredIndex_ = 0;
+        if (!NextKPermutation_()) {
+          return false;
+        }
       }
     }
     
@@ -145,7 +146,9 @@ public:
       if (n_ == k_) {
         std::prev_permutation(indices_.begin(), indices_.end());
       } else {
-        PrevKPermutation_();
+        if (!PrevKPermutation_()) {
+          return false;
+        }
       }
     }
     
@@ -236,38 +239,63 @@ private:
 
   /**
    * @brief same as next k permutation but in the opposite direction
-   * 
+   * @return true of a previous permutation was found, false otherwise
    */
-  void PrevKPermutation_() {
+  bool PrevKPermutation_() {
     if (std::prev_permutation(indices_.begin(), indices_.end()))
-      return;
+      return true;
 
     // sort them in ascending, this allows us to find the "largest" index that can be decremented.
     std::sort(indices_.begin(), indices_.end());
     
+    
     // use long long instead of size_t because it could be negative
     long long i = static_cast<long long>(k_) - 1;
-    // Find the first index from the right that can be decremented. 2, 3, 4 => 1, 3, 4 => 1, 2, 4 => 1, 2, 3
-    // For each index, the minimum allowed value is:
-    //   - 0 for the first index, or
-    //   - one more than the previous index for subsequent indices.
-    while (i >= 0) {
-      std::size_t minValue = (i == 0) ? 0 : (indices_[i - 1] + 1);
-      if (indices_[i] > minValue) {  // This index can be decremented.
-        break;
+    if (isRepeating_) {
+      while (i >= 0) {
+        /**
+         * Find the first index from the left that can be decremented. 
+         * 4, 4, 4 => 3, 4, 4 => 3, 3, 4 => 3, 3, 4
+         * The min is either the previous value, or 0 if i == 9
+         */
+        int min = (i == 0) ? 0 : indices_[i - 1];
+
+        if (indices_[i] > min) {
+          break;
+        }
+        --i;
       }
-      --i; // Move left if the current index is at its minimum allowable value.
+      
+    } else {
+      
+      // Find the first index from the right that can be decremented. 2, 3, 4 => 1, 3, 4 => 1, 2, 4 => 1, 2, 3
+      // For each index, the minimum allowed value is:
+      //   - 0 for the first index, or
+      //   - one more than the previous index for subsequent indices.
+      while (i >= 0) {
+        std::size_t minValue = (i == 0) ? 0 : (indices_[i - 1] + 1);
+        if (indices_[i] > minValue) {  // This index can be decremented.
+          break;
+        }
+        --i; // Move left if the current index is at its minimum allowable value.
+      }
     }
-    // Should not happen if currentIndex_ is > 0, but check nonetheless.
-    if (i < 0) {
-      return;
-    }
+   
     // Decrement the identified index.
     --indices_[i];
+
+    if (isRepeating_) {
+      // we want to max out all the values past the one we've decremented
+      for (size_t j = i + 1; j < k_; ++j) {
+        indices_[j] = items_[k_ - 1];
+      }
+    }
 
     // We want to sort by descending here, becuase we want the largest lexographical combination to be given to 
     // the std::prev_permutation algorithm
     std::sort(indices_.begin(), indices_.end(), std::greater<size_t>());
+
+    return true;
   }
 
 
@@ -276,11 +304,12 @@ private:
    * The general idea is that we either just permute the existing indices again, OR that we need a new combination
    * Because in theory we are just stepping through each combination, and grabbing each permutation of such
    * so much of this algorithm will look similar to the one in combo manager
+   * @return true if there was a new permutation found, false otherwise
    */
-  void NextKPermutation_() {
+  bool NextKPermutation_() {
     // check if we can permute the existing set 
     if (std::next_permutation(indices_.begin(), indices_.end()))
-      return;
+      return true;
 
     std::sort(indices_.begin(), indices_.end());
 
@@ -308,8 +337,8 @@ private:
     
 
     // If no index can be incremented, we've reached the final combination.
-    if (i == 0 && indices_[i] == n_ - 1) {
-      return;
+    if (i == -1) {
+      return false;
     }
 
     // upgrade the valid indice
@@ -327,12 +356,7 @@ private:
       }
     }
 
-    //std::cout << "Updated the indice: " << i << std::endl;
-    //std::cout << "New indices: ";
-    for (auto x : indices_) {
-      //std::cout << x << " ";
-    }
-    //std::cout << std::endl; 
+    return true;
   }
 
 
@@ -353,7 +377,6 @@ private:
   }
 
 };
-
 
 }
 
