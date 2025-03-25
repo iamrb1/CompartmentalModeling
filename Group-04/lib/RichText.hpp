@@ -94,7 +94,7 @@ class RichText {
    * A rule for a format describing how it should be serialized.
    */
   struct SerializeRule {
-    //No format name here, that is stored in the map as a key
+    // No format name here, that is stored in the map as a key
     std::string start_token;
     std::string end_token;
     std::function<SerializeLambdaOutput&()> format;
@@ -103,9 +103,7 @@ class RichText {
   struct Serializer {
     const std::string name;
     const std::map<FormatID, SerializeRule> serialize_rules;
-    explicit(false) Serializer(std::string name)
-        : name(std::move(name)){};
-
+    explicit(false) Serializer(std::string name) : name(std::move(name)){};
   };
 
   struct SerializeResult {
@@ -204,13 +202,17 @@ class RichText {
     SerializeRule rule;
     IndexSet::const_pair_iterator iter;
     IndexSet::const_pair_iterator end;
-    FormatSerializeTracker(Format format, SerializeRule rule, IndexSet::const_pair_iterator begin, IndexSet::const_pair_iterator end)
+    FormatSerializeTracker(Format format, SerializeRule rule,
+                           IndexSet::const_pair_iterator begin,
+                           IndexSet::const_pair_iterator end)
         : format(format), rule(rule), iter(begin), end(end) {}
 
     bool operator<(const FormatSerializeTracker& rhs) const {
-      dbg_assert(iter != end, "FormatSerializeTracker compare failed: invalid iterator.");
+      dbg_assert(iter != end,
+                 "FormatSerializeTracker compare failed: invalid iterator.");
       return (*iter).first < (*rhs.iter).first ||
-        ((*iter).first == (*rhs.iter).first && (*iter).second < (*rhs.iter).second);
+             ((*iter).first == (*rhs.iter).first &&
+              (*iter).second < (*rhs.iter).second);
     }
   };
 
@@ -225,16 +227,16 @@ class RichText {
     auto serializer_format_iter = serializer.serialize_rules.begin();
     auto const serializer_format_iter_end = serializer.serialize_rules.end();
 
-    while (format_iter != format_iter_end && serializer_format_iter != serializer_format_iter_end) {
+    while (format_iter != format_iter_end &&
+           serializer_format_iter != serializer_format_iter_end) {
       if (format_iter->first < serializer_format_iter->first) {
         result.missed_formats.push_back(format_iter->first);
         ++format_iter;
       } else if (format_iter->first == serializer_format_iter->first) {
-        trackers.emplace(
-          format_iter->first, //Format
-          serializer_format_iter->second, //Serialize Rule
-          format_iter->second.cbegin_pair(), //Format Iterators
-          format_iter->second.cend_pair());
+        trackers.emplace(format_iter->first,                 // Format
+                         serializer_format_iter->second,     // Serialize Rule
+                         format_iter->second.cbegin_pair(),  // Format Iterators
+                         format_iter->second.cend_pair());
         ++format_iter;
         ++serializer_format_iter;
       } else {
@@ -254,56 +256,63 @@ class RichText {
 
     // Process the text
     while (current < m_text.size() && !trackers.empty()) {
-      size_t next = SIZE_MAX; // Track the next format deactivation
-
+      size_t next = SIZE_MAX;  // Track the next format deactivation
 
       // Apply formats
-      while (tracker_iter != tracker_end && (*tracker_iter->iter).first <= current) {
-
+      while (tracker_iter != tracker_end &&
+             (*tracker_iter->iter).first <= current) {
         // The format begins, add the token
         if ((*tracker_iter->iter).first <= current) {
           result.result += tracker_iter->rule.start_token;
         }
 
         // Keep track of when the closest formatting change is
-        if ((*tracker_iter->iter).second < next) next == (*tracker_iter->iter).second;
+        if ((*tracker_iter->iter).second < next)
+          next == (*tracker_iter->iter).second;
         ++tracker_iter;
       }
 
       // Process all the upcoming activating formats
-      while (tracker_iter != tracker_end && (*tracker_iter->iter).first < next) {
-        result.result += m_text.substr(current, (*tracker_iter->iter).first - current);
+      while (tracker_iter != tracker_end &&
+             (*tracker_iter->iter).first < next) {
+        result.result +=
+            m_text.substr(current, (*tracker_iter->iter).first - current);
         result.result += tracker_iter->rule.start_token;
         current = (*tracker_iter->iter).first;
 
         // Keep track of when the closest formatting deactivation is
-        if ((*tracker_iter->iter).second < next) next == (*tracker_iter->iter).second;
+        if ((*tracker_iter->iter).second < next)
+          next == (*tracker_iter->iter).second;
         ++tracker_iter;
       }
 
       // Jump to next formatting deactivation
       result.result += m_text.substr(current, next - current);
 
-      //Unwind formatting
+      // Unwind formatting
 
-      //Find the rule to end
+      // Find the rule to end
       auto rule_to_end_iter = trackers.begin();
-      while (rule_to_end_iter != tracker_end && (*rule_to_end_iter->iter).second != next) ++rule_to_end_iter;
-      dbg_assert(rule_to_end_iter != tracker_end, "rule_to_end_iter failed to find the rule that needed ending.");
+      while (rule_to_end_iter != tracker_end &&
+             (*rule_to_end_iter->iter).second != next)
+        ++rule_to_end_iter;
+      dbg_assert(
+          rule_to_end_iter != tracker_end,
+          "rule_to_end_iter failed to find the rule that needed ending.");
 
       while (tracker_iter != rule_to_end_iter) {
         result.result += tracker_iter->rule.end_token;
-        //TODO: Check to see if rule needs to be reapplied after unraveling
-        //TODO: If it doesn't pull the tracker out and update it
+        // TODO: Check to see if rule needs to be reapplied after unraveling
+        // TODO: If it doesn't pull the tracker out and update it
         --tracker_iter;
       }
       result.result += rule_to_end_iter->rule.end_token;
-      //TODO: Pull the tracker out and modify it
-      //TODO: Reapply the unraveled formats.
+      // TODO: Pull the tracker out and modify it
+      // TODO: Reapply the unraveled formats.
 
-      dbg_assert_never("Loop not guaranteed to end while TODOs are present in code.");
+      dbg_assert_never(
+          "Loop not guaranteed to end while TODOs are present in code.");
     }
-
 
     return result;
   }
