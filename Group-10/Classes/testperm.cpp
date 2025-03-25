@@ -37,7 +37,8 @@ void regularTest() {
 void requiredTest() {
   // Example usage
   std::vector<int> items = {1, 2, 3, 4};
-  cse::PermutationManager<std::vector<int>> permManager(items, 3, true, 2);
+  cse::PermutationManager<std::vector<int>> permManager(items, 3);
+  permManager.SetRepeating(true);
 
   int total = permManager.PermutationNumber(4, 3);
   int t = 0;
@@ -67,7 +68,7 @@ void requiredTest() {
 void repeatTest() {
   // Example usage
   std::vector<int> items = {1, 2, 3, 4};
-  cse::PermutationManager<std::vector<int>> permManager(items, 3);
+  cse::PermutationManager<std::vector<int>> permManager(items, 3, 1);
   permManager.SetRepeating(true);
 
   int total = permManager.PermutationNumber(4, 3);

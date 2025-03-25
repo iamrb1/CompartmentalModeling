@@ -39,25 +39,50 @@ public:
    * @param container the container of items
    * @param permutation_size k, or the size of the items chosen at once.
    */
-  PermutationManager(const Container & container, size_t permutation_size, bool required=false,
-    ValueType toRequire = ValueType{}) : 
+  PermutationManager(const Container & container, size_t permutation_size) : 
   items_(std::begin(container), std::end(container)),
   k_(permutation_size),
   n_(container.size()),
-  requiredValue_(toRequire),
-  isRequired_(required),
-  requiredIndex_(0),
+  currentPermutation_(),
+  isRequired_(false),
+  isRepeating_(false) {
+    // ensure k is less than or equal to n
+    if (k_ > n_) {
+      throw std::invalid_argument("Combination size cannot be greater than the number of items in the container.");
+    }
+    
+    totalPermutations_ = PermutationNumber(n_, k_);
+
+    Reset();
+
+  }
+
+  /**
+   * @brief overloaded constructor for PermutationManager - for a required value.
+   * 
+   * @param container the container of items
+   * @param permutation_size k, or the size of the items chosen at once.
+   * @param 
+   */
+  PermutationManager(const Container & container, size_t permutation_size, size_t requiredIndex) : 
+  items_(std::begin(container), std::end(container)),
+  k_(permutation_size),
+  n_(container.size()),
+  isRequired_(true),
+  isRepeating_(false),
+  requiredIndex_(requiredIndex),
   currentPermutation_() {
 
-    if (required) {
-      k_ -= 1;
-      items_.erase(std::remove(items_.begin(), items_.end(), toRequire));
-    }
     
     // ensure k is less than or equal to n
     if (k_ > n_) {
       throw std::invalid_argument("Combination size cannot be greater than the number of items in the container.");
     }
+
+    k_ -= 1;
+    n_ -= 1;
+    requiredValue_ = items_.at(requiredIndex);
+    items_.erase(std::remove(items_.begin(), items_.end(), requiredValue_));
     
     totalPermutations_ = PermutationNumber(n_, k_);
 
