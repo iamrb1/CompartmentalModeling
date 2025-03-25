@@ -71,8 +71,8 @@ class ComboManager {
    *
    * @param container The container of items.
    * @param combination_size The number of items per combination.
-   * @throws std::invalid_argument if combination_size is greater than the
-   * number of items.
+   * @throws std::invalid_argument if the index of the required element is out
+   * of bounds
    */
   ComboManager(const Container& container, std::size_t combinationSize,
                std::size_t indexRequired)
@@ -83,15 +83,22 @@ class ComboManager {
         k_(combinationSize),       // Number of items in each combination.
         isRequired_(true),
         totalCombinations_(0) {
+    // std::size_t will wrap negative numbers up into the positives, resulting
+    // in very high positive values
     assert(k_ <= n_ &&
            "Combination size cannot be greater than the number of items in the "
            "container.");
+    if (indexRequired >= n_) {
+      throw std::invalid_argument(
+          "Required Element Index is out of container limits");
+    }
 
     requiredValue_ = items_.at(indexRequired);
     --k_;
-    auto foundRequiredValue = std::find(items_.begin(), items_.end(), requiredValue_);
+    --n_;
+    auto foundRequiredValue =
+        std::find(items_.begin(), items_.end(), requiredValue_);
     items_.erase(foundRequiredValue);
-
     // Precompute the total number of combinations using the binomial
     // coefficient.
     totalCombinations_ = BinomialCoefficient_(n_, k_);
@@ -118,17 +125,12 @@ class ComboManager {
      * @brief Iterator constructor
      *
      * @param comboManager Reference to the current ComboManager instance
-     * @param end Bool indicating whether this points at the 'end'
+     * @param begin Bool indicating whether this points before the first combo
+     * @param end Bool indicating whether this points after the last combo
      */
     Iterator(ComboManager& comboManager, bool begin = false, bool end = false)
-        : manager_(comboManager), begin_(begin), pastEnd_(end) {
+        : manager_(comboManager), pastBegin_(begin), pastEnd_(end) {
       combination_ = manager_.GetCurrentCombo();
-      if (pastEnd_) {
-        pastEnd_ = false;
-        while (!pastEnd_) {
-          ++(*this);
-        }
-      }
     }
 
     /**
@@ -137,12 +139,15 @@ class ComboManager {
      * @return returns itself after incrementation
      */
     Iterator& operator++() {
-      begin_ = false;
+      // Increment normally
+      // If no further combos, mark as past end
       if (manager_.NextCombo()) {
         combination_ = manager_.GetCurrentCombo();
       } else {
         pastEnd_ = true;
       }
+      // It should never point before begin after this
+      pastBegin_ = false;
       return *this;
     }
 
@@ -153,12 +158,8 @@ class ComboManager {
      */
     Iterator operator++(int) {
       auto temporaryReturn = *this;
-      begin_ = false;
-      if (manager_.NextCombo()) {
-        combination_ = manager_.GetCurrentCombo();
-      } else {
-        pastEnd_ = true;
-      }
+      // Implementation between the two is identical save the temp return
+      ++(*this);
       return temporaryReturn;
     }
 
@@ -168,13 +169,18 @@ class ComboManager {
      * @return returns itself after decrementation
      */
     Iterator& operator--() {
-      pastEnd_ = false;
-      if (manager_.PrevCombo()) {
+      // If marked as past end, decrement it to the last combo
+      // Otherwise use PrevCombo
+      // If it is the first combo then mark it as past the begin
+      if (pastEnd_) {
+        AdjustToEnd_();
+      } else if (manager_.PrevCombo()) {
         combination_ = manager_.GetCurrentCombo();
-        if (manager_.IsFirstCombo_()) {
-          begin_ = true;
-        }
+      } else {
+        pastBegin_ = true;
       }
+      // It should never be past end after this function
+      pastEnd_ = false;
       return *this;
     }
 
@@ -185,13 +191,8 @@ class ComboManager {
      */
     Iterator operator--(int) {
       auto temporaryReturn = *this;
-      pastEnd_ = false;
-      if (manager_.PrevCombo()) {
-        combination_ = manager_.GetCurrentCombo();
-        if (manager_.IsFirstCombo_()) {
-          begin_ = true;
-        }
-      }
+      // Implementation between the two is identical save the temp return
+      --(*this);
       return temporaryReturn;
     }
 
@@ -200,7 +201,14 @@ class ComboManager {
      *
      * @return Reference to the current combination
      */
-    const std::vector<ValueType>& operator*() const { return combination_; }
+    const std::vector<ValueType>& operator*() const {
+      // No dereferencing iterators that do not point at appropriate
+      // combinations
+      assert(!pastBegin_ &&
+             "This iterator points before the combination range");
+      assert(!pastEnd_ && "This iterator points after the combination range");
+      return combination_;
+    }
 
     /**
      * @brief == Operator for two Iterators
@@ -215,8 +223,9 @@ class ComboManager {
         In that order, as they can have the 'same combination' but one points
         beyond the limits of the ComboManager so we rule out those first
       */
-      return (left.begin_ == right.begin_ && left.pastEnd_ == right.pastEnd_ &&
-              (left.begin_ || left.pastEnd_ ||
+      return (left.pastBegin_ == right.pastBegin_ &&
+              left.pastEnd_ == right.pastEnd_ &&
+              (left.pastBegin_ || left.pastEnd_ ||
                left.combination_ == right.combination_));
     };
 
@@ -225,9 +234,9 @@ class ComboManager {
      */
     friend bool operator!=(const Iterator& left, const Iterator& right) {
       // Simple inverse of the == operator
-      return (!(left.begin_ == right.begin_ &&
+      return (!(left.pastBegin_ == right.pastBegin_ &&
                 left.pastEnd_ == right.pastEnd_ &&
-                (left.begin_ || left.pastEnd_ ||
+                (left.pastBegin_ || left.pastEnd_ ||
                  left.combination_ == right.combination_)));
     };
 
@@ -236,21 +245,39 @@ class ComboManager {
     ComboManager& manager_;
     /// @brief Current combination
     std::vector<ValueType> combination_;
-    /// @brief Indicates whether the Iterator is at the first combination
-    bool begin_ = false;
+    /// @brief Indicates whether the Iterator is before the first combination
+    /// (or == rbegin())
+    bool pastBegin_ = false;
     /// @brief Indicates whether the Iterator is after scope (or == end())
     bool pastEnd_ = false;
+
+    /**
+     * @brief Helper function to increment the iterator to the last combination
+     */
+    void AdjustToEnd_() {
+      pastEnd_ = false;
+      while (!pastEnd_) {
+        ++(*this);
+      }
+    }
   };
 
   /**
    * @brief Iterator for the first combination
    */
-  Iterator begin() { return Iterator(*this, true); }
+  Iterator begin() {
+    Reset();
+    return Iterator(*this);
+  }
+
+  Iterator rbegin() { return Iterator(*this, true); }
 
   /**
    * @brief Iterator signifying the end of available combinations
    */
   Iterator end() { return Iterator(*this, false, true); }
+
+  Iterator rend() { return --Iterator(*this, false, true); }
 
   /**
    * @brief Resets the combination to the first combination.
