@@ -68,9 +68,9 @@ TEST_CASE("Basic Save Load In Different Processes", "[Serializer]")
 	cse::Serializer Saver(cse::Mode::SAVE);
 	cse::Serializer Loader(cse::Mode::LOAD);
 	int number = 4000;
-	// Saver.Serialize(number, "test.txt");
+	// Saver.Serialize(number, "4000.dat");
 	int other = 1000;
-	Loader.Serialize(other, "test.txt");
+	Loader.Serialize(other, "4000.dat");
 	REQUIRE(other == number);
 }
 
