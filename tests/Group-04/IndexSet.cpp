@@ -205,81 +205,94 @@ TEST_CASE("SetOperations", "[IndexSetTest]") {
   // Set2: [2,6)
   set2.insert_range(2, 6);
 
-  // Test union (|)
-  auto union_set = set1 | set2;
-  // Expected: [0,7) - continuous range due to overlap
-  REQUIRE(union_set.contains(0));
-  REQUIRE(union_set.contains(1));
-  REQUIRE(union_set.contains(2));
-  REQUIRE(union_set.contains(3));
-  REQUIRE(union_set.contains(4));
-  REQUIRE(union_set.contains(5));
-  REQUIRE(union_set.contains(6));
-  REQUIRE_FALSE(union_set.contains(7));
+  SECTION("Test union") {
+    // Expected: [0,7) - continuous range due to overlap
+    cse::IndexSet expected{std::pair{0, 7}};
 
-  // Test intersection (&)
-  auto intersect_set = set1 & set2;
-  // Expected: [2,3) ∪ [5,6)
-  REQUIRE_FALSE(intersect_set.contains(0));
-  REQUIRE_FALSE(intersect_set.contains(1));
-  REQUIRE(intersect_set.contains(2));
-  REQUIRE_FALSE(intersect_set.contains(3));
-  REQUIRE_FALSE(intersect_set.contains(4));
-  REQUIRE(intersect_set.contains(5));
-  REQUIRE_FALSE(intersect_set.contains(6));
+    auto union_set = set1 | set2;
+    REQUIRE(union_set == expected);
 
-  // Test difference (-)
-  auto diff_set = set1 - set2;
-  // Expected: [0,2) ∪ [6,7)
-  REQUIRE(diff_set.contains(0));
-  REQUIRE(diff_set.contains(1));
-  REQUIRE_FALSE(diff_set.contains(2));
-  REQUIRE_FALSE(diff_set.contains(3));
-  REQUIRE_FALSE(diff_set.contains(4));
-  REQUIRE_FALSE(diff_set.contains(5));
-  REQUIRE(diff_set.contains(6));
-  REQUIRE_FALSE(diff_set.contains(7));
+    set1 |= set2;
+    REQUIRE(set1 == expected);
+  }
 
-  // Test symmetric difference (^)
-  auto sym_diff_set = set1 ^ set2;
-  // Expected: [0,2) ∪ [3,5) ∪ [6,7)
-  REQUIRE(sym_diff_set.contains(0));
-  REQUIRE(sym_diff_set.contains(1));
-  REQUIRE_FALSE(sym_diff_set.contains(2));  // In both sets
-  REQUIRE(sym_diff_set.contains(3));
-  REQUIRE(sym_diff_set.contains(4));
-  REQUIRE_FALSE(sym_diff_set.contains(5));  // In both sets
-  REQUIRE(sym_diff_set.contains(6));
-  REQUIRE_FALSE(sym_diff_set.contains(7));
+  SECTION("Test intersection") {
+    // Expected: [2,3) ∪ [5,6)
+    cse::IndexSet expected{2, 5};
 
-  // Test subset/superset
-  cse::IndexSet subset;
-  subset.insert_range(1, 2);  // [1,2)
+    auto intersect_set = set1 & set2;
+    REQUIRE(intersect_set == expected);
 
-  // Test subset (<=)
-  REQUIRE(subset <= set1);
-  REQUIRE_FALSE(set1 <= subset);
-  REQUIRE_FALSE(set1 <= set2);
+    set1 &= set2;
+    REQUIRE(set1 == expected);
+  }
 
-  // Test superset (>=)
-  REQUIRE_FALSE(subset >= set1);
-  REQUIRE(set1 >= subset);
-  REQUIRE_FALSE(set1 >= set2);
+  SECTION("Test difference") {
+    // Expected: [0,2) ∪ [6,7)
+    cse::IndexSet expected{0, 1, 6};
 
-  // Test equality
-  // FIXME: this fails because merge_overlapping_ranges doesn't
-  // collapse identical ranges into a single range
-  REQUIRE(cse::IndexSet{0, 3, 6} == cse::IndexSet{0, 3, 6});
+    auto diff_set = set1 - set2;
+    REQUIRE(diff_set == expected);
 
-  // Edge cases
-  cse::IndexSet empty_set;
-  REQUIRE(empty_set <= set1);  // Empty set is subset of all sets
-  REQUIRE(set1 >= empty_set);  // All sets are superset of empty set
-  REQUIRE((empty_set | set1).size() == set1.size());  // Union with empty set
-  REQUIRE((empty_set & set1).size() == 0);  // Intersection with empty set
-  REQUIRE((set1 - empty_set).size() ==
-          set1.size());                     // Difference with empty set
-  REQUIRE((empty_set - set1).size() == 0);  // Empty difference
+    set1 -= set2;
+    REQUIRE(set1 == expected);
+  }
+
+  SECTION("Test symmetric difference") {
+    // Expected: [0,2) ∪ [3,5) ∪ [6,7)
+    // TODO: replace with equality check once adjacent insert bug is fixed
+    // REQUIRE(sym_diff_set == cse::IndexSet{0, 1, 3, 4, 6});
+
+    auto sym_diff_set = set1 ^ set2;
+    REQUIRE(sym_diff_set.contains(0));
+    REQUIRE(sym_diff_set.contains(1));
+    REQUIRE_FALSE(sym_diff_set.contains(2));  // In both sets
+    REQUIRE(sym_diff_set.contains(3));
+    REQUIRE(sym_diff_set.contains(4));
+    REQUIRE_FALSE(sym_diff_set.contains(5));  // In both sets
+    REQUIRE(sym_diff_set.contains(6));
+    REQUIRE_FALSE(sym_diff_set.contains(7));
+
+    set1 ^= set2;
+    REQUIRE(set1.contains(0));
+    REQUIRE(set1.contains(1));
+    REQUIRE_FALSE(set1.contains(2));  // In both sets
+    REQUIRE(set1.contains(3));
+    REQUIRE(set1.contains(4));
+    REQUIRE_FALSE(set1.contains(5));  // In both sets
+    REQUIRE(set1.contains(6));
+    REQUIRE_FALSE(set1.contains(7));
+  }
+
+  SECTION("Test comparisons") {
+    // Test subset/superset
+    cse::IndexSet subset;
+    subset.insert_range(1, 2);  // [1,2)
+
+    // Test subset (<=)
+    REQUIRE(subset <= set1);
+    REQUIRE_FALSE(set1 <= subset);
+    REQUIRE_FALSE(set1 <= set2);
+
+    // Test superset (>=)
+    REQUIRE_FALSE(subset >= set1);
+    REQUIRE(set1 >= subset);
+    REQUIRE_FALSE(set1 >= set2);
+
+    // Test equality
+    REQUIRE(cse::IndexSet{0, 3, 6} == cse::IndexSet{0, 3, 6});
+  }
+
+  SECTION("Test edge cases") {
+    cse::IndexSet empty_set;
+    REQUIRE(empty_set <= set1);  // Empty set is subset of all sets
+    REQUIRE(set1 >= empty_set);  // All sets are superset of empty set
+    REQUIRE((empty_set | set1).size() == set1.size());  // Union with empty set
+    REQUIRE((empty_set & set1).size() == 0);  // Intersection with empty set
+    REQUIRE((set1 - empty_set).size() ==
+            set1.size());                     // Difference with empty set
+    REQUIRE((empty_set - set1).size() == 0);  // Empty difference
+  }
 }
 
 // Test basic operations
@@ -413,49 +426,66 @@ TEST_CASE("Test Iterator", "[IndexSetTest]") {
   REQUIRE(iterator == end);
 }
 
-TEST_CASE("Test left shift", "[IndexSetLeftShift]") {
+TEST_CASE("Test shifts", "[IndexSetShift]") {
   cse::IndexSet set{};
 
   set.insert(2);
   set.insert(5);
-  // set.insert(5);
   set.insert(8);
 
-  SECTION("Basic shift") {
+  std::size_t end = *set.max_index() + 1;
+
+  SECTION("Basic left shift") {
     set.shift_left(2);
-    REQUIRE(set.contains(0));
-    REQUIRE(!set.contains(1));
-    REQUIRE(!set.contains(2));
-    REQUIRE(set.contains(3));
-    REQUIRE(!set.contains(4));
-    REQUIRE(!set.contains(5));
-    REQUIRE(set.contains(6));
-    REQUIRE(!set.contains(7));
-    REQUIRE(!set.contains(8));
-    // TODO: change this test to an equality check after
-    // merge_overlapping_ranges is fixed
-    // REQUIRE(set == cse::IndexSet{0, 3, 6});
+    REQUIRE(set == cse::IndexSet{0, 3, 6});
   }
 
-  SECTION("Shift all indices out") {
-    set.shift_left(*set.max_index() + 1);
+  SECTION("Basic right shift") {
+    set.shift_right(2);
+    REQUIRE(set == cse::IndexSet{4, 7, 10});
+  }
+
+  SECTION("Left shift all indices out") {
+    set.shift_left(end);
     REQUIRE(set.get_all_indices().empty());
   }
 
-  SECTION("Shift range of indices") {
-    set.shift_left_within(2, 3, *set.max_index() + 1);
-    REQUIRE(!set.contains(1));
-    REQUIRE(set.contains(2));
-    REQUIRE(set.contains(3));
-    REQUIRE(!set.contains(4));
-    REQUIRE(!set.contains(5));
-    REQUIRE(set.contains(6));
-    REQUIRE(!set.contains(7));
-    REQUIRE(!set.contains(8));
-    // TODO: change this test to an equality check after
-    // merge_overlapping_ranges is fixed
-    // REQUIRE(set == cse::IndexSet{2, 3, 6});
+  SECTION("Right shift indices out") {
+    set.shift_right_within(end, 0, end);
+    REQUIRE(set.get_all_indices().empty());
   }
 
-  // TODO: more boundary conditions
+  SECTION("Left shift/right shift inverse") {
+    cse::IndexSet copy{set};
+    copy.shift_right(end);
+    copy.shift_left(end);
+    REQUIRE(set == copy);
+  }
+
+  SECTION("Left shift range of indices") {
+    set.shift_left_within(2, 3, end);
+    REQUIRE(set == cse::IndexSet{2, 3, 6});
+  }
+
+  SECTION("Right shift range of indices") {
+    set.shift_right_within(2, 3, end + 2);
+    REQUIRE(set == cse::IndexSet{2, 7, 10});
+  }
+
+  set.insert_range(3, 7);
+  set.insert(10);
+
+  SECTION("Left shift range out") {
+    // range to shift in lies within an index range:
+    // only shifting out indices 3 and 4, range is from 2 to 6
+    set.shift_left_within(2, 3, 5);
+    REQUIRE(set == cse::IndexSet{2, 5, 6, 8, 10});
+  }
+
+  SECTION("Right shift range out") {
+    // range to shift in lies within an index range:
+    // only shifting out indices 3 and 4, range is from 2 to 6
+    set.shift_right_within(2, 3, 5);
+    REQUIRE(set == cse::IndexSet{2, 5, 6, 8, 10});
+  }
 }
