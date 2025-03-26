@@ -64,10 +64,11 @@ TEST_CASE("Test7","Edge"){
     cse::FunctionSet<int,int> set7;
     CHECK(set7.IsEmpty());
     CHECK_FALSE(set7.FindFunctionIndex(func1)==1);
-    set7.AddFunction(nullFunc);
-    set7.FindFunctionIndex(nullFunc);
-    set7.RemoveFunction(nullFunc);
+    CHECK_THROWS_AS(set7.AddFunction(nullFunc), std::invalid_argument);
+    CHECK_THROWS_AS(set7.FindFunctionIndex(nullFunc), std::invalid_argument);
+    CHECK_THROWS_AS(set7.RemoveFunction(nullFunc), std::invalid_argument);
 }
+
 TEST_CASE("Test8","CallAll")
 {
     cse::FunctionSet<int,int> set2;

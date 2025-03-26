@@ -1,4 +1,4 @@
-/**
+ /**
  * @file FunctionSet.h
  * @author jiang
  */
@@ -43,19 +43,19 @@ namespace cse
         /**
          * @brief Clear all the functions in the function set
          */
-        void ClearAll();
+        void ClearAll(){mFunctions.clear();}
 
         /**
          * @brief Check if the set is empty
          * @return true if empty; false otherwise
          */
-        bool IsEmpty() const;
+        bool IsEmpty() const {return mFunctions.empty();}
 
         /**
          * @brief Return the size of the function set
          * @return number of functions stored
          */
-        std::size_t CountFun() const;
+        std::size_t CountFun() const {return mFunctions.size();};
 
         /**
          * @brief Return the index number of the function and use it for later. (This only works for real function pointers or non-capturing lambdas )
@@ -70,7 +70,7 @@ namespace cse
          *        doesn't have operator== for comparing contents.
          * @param func the actual function
          */
-        void RemoveFunction(const FunctionType& func);
+        bool RemoveFunction(const FunctionType& func);
 
         /**
          * @brief Call all functions in the set with the given arguments

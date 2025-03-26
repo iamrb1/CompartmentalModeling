@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <string>
-
+#include <cassert>
 
 /**
  * Constructor
@@ -27,17 +27,21 @@ cse::FunctionSet<R, Args...>::~FunctionSet() = default;
 template <typename R, typename... Args>
 void cse::FunctionSet<R, Args...>::AddFunction(const FunctionType& func)
 {
-    if (func == nullptr){
-      std::cerr << "Function does not exist" << std::endl;
-      return;
-    }
+    // Check if the function object is valid.
+    if (func == nullptr)
+{
+    throw std::invalid_argument("AddFunction: Function target is null.");
+}
+
     using PointerType = R(*)(Args...);
 
     if (func.target_type() == typeid(PointerType)) {
         const PointerType* fp = func.template target<PointerType>();
-        if (fp) {
-            std::cout << "addFunction storing: " << (void*)(*fp) << std::endl;
-        }
+        // Ensure the target pointer is valid.
+        if (fp == nullptr)
+		{
+    		throw std::invalid_argument("AddFunction: Function target is null.");
+		}
     }
 
     mFunctions.push_back(func);
@@ -45,32 +49,34 @@ void cse::FunctionSet<R, Args...>::AddFunction(const FunctionType& func)
 
 
 
-/**
- * clearAll
- */
-template <typename R, typename... Args>
-void cse::FunctionSet<R, Args...>::ClearAll()
-{
-    mFunctions.clear();
-}
+
+///**
+// * clearAll
+// */
+//template <typename R, typename... Args>
+//void cse::FunctionSet<R, Args...>::ClearAll()
+//{
+//
+//    mFunctions.clear();
+//}
 
 /**
  * isEmpty
  */
-template <typename R, typename... Args>
-bool cse::FunctionSet<R, Args...>::IsEmpty() const
-{
-    return mFunctions.empty();
-}
+//template <typename R, typename... Args>
+//bool cse::FunctionSet<R, Args...>::IsEmpty() const
+//{
+//    return mFunctions.empty();
+//}
 
 /**
  * countFunSet
  */
-template <typename R, typename... Args>
-std::size_t cse::FunctionSet<R, Args...>::CountFun() const
-{
-    return mFunctions.size();
-}
+//template <typename R, typename... Args>
+//std::size_t cse::FunctionSet<R, Args...>::CountFun() const
+//{
+//    return mFunctions.size();
+//}
 
 /**
  * Find the index of the function
@@ -78,31 +84,29 @@ std::size_t cse::FunctionSet<R, Args...>::CountFun() const
 template <typename R, typename... Args>
 int cse::FunctionSet<R, Args...>::FindFunctionIndex(const FunctionType& func) const
 {
-    if (func == nullptr){
-        std::cerr << "Are you really trying to find an empty function? Really?" << std::endl;
-        return -1;
-    }
+        if (func == nullptr)
+{
+    throw std::invalid_argument("AddFunction: Function target is null.");
+}
     using PointerType = R(*)(Args...);
 
-    if (func.target_type() == typeid(PointerType))
-    {
-        const PointerType* funcPtr = func.template target<PointerType>();
-        if (!funcPtr) return -1;
+    assert(func.target_type() == typeid(PointerType));
 
-        for (int i = 0; i < static_cast<int>(mFunctions.size()); ++i)
+    const PointerType* funcPtr = func.template target<PointerType>();
+    if (!funcPtr) return -1;
+
+    for (int i = 0; i < static_cast<int>(mFunctions.size()); ++i)
+    {
+        const auto& storedFunc = mFunctions[i];
+        if (storedFunc.target_type() == typeid(PointerType))
         {
-            const auto& storedFunc = mFunctions[i];
-            if (storedFunc.target_type() == typeid(PointerType))
+            const PointerType* storedPtr = storedFunc.template target<PointerType>();
+            if (storedPtr && *storedPtr == *funcPtr)
             {
-                const PointerType* storedPtr = storedFunc.template target<PointerType>();
-                if (storedPtr && *storedPtr == *funcPtr)
-                {
-                    return i;
-                }
+                return i;
             }
         }
     }
-    std::cerr << "Function does not exist in the set" << std::endl;
     return -1;
 }
 
@@ -112,18 +116,20 @@ int cse::FunctionSet<R, Args...>::FindFunctionIndex(const FunctionType& func) co
  * removeFunction
  */
 template <typename R, typename... Args>
-void cse::FunctionSet<R, Args...>::RemoveFunction( const FunctionType& func)
+bool cse::FunctionSet<R, Args...>::RemoveFunction( const FunctionType& func)
 {
-    if (func == nullptr){
-        std::cerr << "Are you really trying to remove an empty function? Really?" << std::endl;
-        return;
-    }
+        if (func == nullptr)
+{
+    throw std::invalid_argument("AddFunction: Function target is null.");
+}
     int index = FindFunctionIndex(func);
     if (index >= 0)
     {
         mFunctions.erase(mFunctions.begin() + index);
-        std::cerr << "Function is removed, hopfully." << std::endl;
+        return true;
     }
+    return false;
 }
 template class cse::FunctionSet<int, int>;                  /// For "FunctionSet<int,int>"
+template class cse::FunctionSet<double, double>;
 template class cse::FunctionSet<void, const std::string&>;  /// For "FunctionSet<void, const std::string&>"
