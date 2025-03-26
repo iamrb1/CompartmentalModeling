@@ -63,6 +63,17 @@ TEST_CASE("Serializer Save Load Basic", "[Serializer]")
 	std::filesystem::remove(filename);
 }
 
+TEST_CASE("Basic Save Load In Different Processes", "[Serializer]")
+{
+	cse::Serializer Saver(cse::Mode::SAVE);
+	cse::Serializer Loader(cse::Mode::LOAD);
+	int number = 4000;
+	// Saver.Serialize(number, "test.txt");
+	int other = 1000;
+	Loader.Serialize(other, "test.txt");
+	REQUIRE(other == number);
+}
+
 TEST_CASE("Serializer Save Load Fundamental Types", "[Serializer]")
 {
 	cse::Serializer Saver(cse::Mode::SAVE);
