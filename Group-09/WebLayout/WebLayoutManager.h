@@ -7,6 +7,7 @@
  */
 
 #include <vector>
+
 #include "WebLayout.h"
 
 namespace cse {
@@ -15,6 +16,7 @@ class WebLayoutManager {
  private:
   int currentPos = 0;
   std::vector<std::shared_ptr<WebLayout>> layouts;
+
  public:
   void addLayout(std::shared_ptr<WebLayout> layout);
   void removeLayout(std::shared_ptr<WebLayout> layout);
@@ -22,6 +24,11 @@ class WebLayoutManager {
   void rewind();
   void initialize();
   WebLayoutManager();
+
+  // 🔹 Getter for export support
+  const std::vector<std::shared_ptr<WebLayout>>& getLayouts() const {
+    return layouts;
+  }
 };
 
-}
+}  // namespace cse
