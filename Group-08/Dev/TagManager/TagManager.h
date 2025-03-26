@@ -34,13 +34,10 @@ public:
     }
 
     // Copy assignment operator
-    TagManager& operator=(const TagManager& other) {
-        if (this != &other) {  // Check for self-assignment
-            mTaskToTag = other.mTaskToTag;
-            mTagToTask = other.mTagToTask;
-        }
-        return *this;
-    }
+    TagManager& operator=(const TagManager&) = default;
+    
+    //Move constructor
+    TagManager(TagManager && other) = default;
 
     // Destructor
     ~TagManager() = default;
