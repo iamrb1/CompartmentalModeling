@@ -47,6 +47,18 @@ public:
   */
   constexpr char* end() { return mString + mCurrentSize; }
 
+  /**
+  * @brief Const iterator to the beginning of static string (begin iterator)
+  * @return Const iterator pointing to beginning of static string
+  */
+  constexpr const char* cbegin() const { return mString; }
+
+  /**
+  * @brief Const iterator to the end of static string (end iterator)
+  * @return Const iterator pointing past the end of static string
+  */
+  constexpr const char* cend() const { return mString + mCurrentSize; }
+
   /// @brief Constant value for StaticString npos, not found value.
   static constexpr std::size_t npos = static_cast<std::size_t>(-1);
 

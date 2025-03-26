@@ -367,17 +367,34 @@ void cse::StringSet<T>::SubstringFilter(const T &substring) {
 template<typename T>
 cse::StringSet<T> cse::StringSet<T>::Search(const T &wildcard) {
     StringSet<T> result;
-    // Using std::regex_replace was recommended to me by github co
-    // Convert wildcard to regex
-    T regexPattern = "^" + std::regex_replace(wildcard, std::regex(R"(\*)"), ".*") + "$";
-    regexPattern = std::regex_replace(regexPattern, std::regex(R"(\?)"), ".");
 
-    // Create regex object
-    std::regex pattern(regexPattern);
+    // Helper function to match a string with a wildcard pattern
+    auto matches = [](const T& str, const T& pattern) {
+        auto it_str = str.cbegin();
+        auto it_pat = pattern.cbegin();
+
+        while (it_str != str.cend() && it_pat != pattern.cend()) {
+            if (*it_pat == '*') {
+                if (++it_pat == pattern.cend()) {
+                    return true;
+                }
+                while (it_str != str.cend() && *it_str != *it_pat) {
+                    ++it_str;
+                }
+            } else if (*it_pat == '?' || *it_pat == *it_str) {
+                ++it_str;
+                ++it_pat;
+            } else {
+                return false;
+            }
+        }
+
+        return it_str == str.cend() && it_pat == pattern.cend();
+    };
 
     // Iterate through elements and add matching ones to result
     for (const auto& element : mElements) {
-        if (std::regex_match(element, pattern)) {
+        if (matches(element, wildcard)) {
             result.insert(element);
         }
     }
@@ -385,7 +402,7 @@ cse::StringSet<T> cse::StringSet<T>::Search(const T &wildcard) {
     return result;
 }
 /*
-* @brief Count the number of occurrences of a substring in the set
+* @brief Count the number of occurrences of a string in the set
 * @param substring The substring to search for
 * @return The number of occurrences of the substring
 */
@@ -395,9 +412,8 @@ int cse::StringSet<T>::countOccurence(const T &substring) {
 
   for (const auto& element : mElements) {
       size_t pos = element.find(substring);
-      while (pos != T::npos) {
+       if (pos != T::npos) {
           ++totalCount;
-          pos = element.find(substring, pos + substring.length());
       }
   }
 
