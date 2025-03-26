@@ -98,7 +98,7 @@ public:
   *
   * @param staticString Static String object to be copied.
   */
-  StaticString(const StaticString& staticString) noexcept
+  constexpr StaticString(const StaticString& staticString) noexcept
       : mCurrentSize(staticString.mCurrentSize) {
     std::copy(staticString.mString, staticString.mString + MaxSize + 1,
               mString);
@@ -115,7 +115,7 @@ public:
   * @param staticString Source staticString object
   */
   template <std::size_t newMaxSize>
-  StaticString(const StaticString<newMaxSize>& staticString) {
+  constexpr StaticString(const StaticString<newMaxSize>& staticString) {
     // Check if the string that we will copy is larger than MaxSize defined
     assert(staticString.length() <= MaxSize &&
           "Error: The length of copied string exceeds static limit defined.");
@@ -149,7 +149,6 @@ public:
   */
   StaticString& operator=(const StaticString& staticString) {
     // Avoid assigning to itself
-    // assert(this != &staticString && "Assigning object itself is not allowed.");
     if (this == &staticString) {
       return *this;
     }
@@ -221,10 +220,12 @@ public:
   * @param index size_t The index of character.
   * @return Indexed char value.
   */
-  char operator[](std::size_t index) const noexcept {
+  inline char operator[](std::size_t index) const {
     // Indexed value is out of range or
     // trying to index to the null terminator at the end
-    assert(index < mCurrentSize && "Index value is out of range.");
+    if (index >= mCurrentSize) {
+      throw std::out_of_range("Index value is out of range");
+    }
     return mString[index];
   }
 
@@ -448,7 +449,6 @@ public:
   * @throws std::out_of_range if the index is invalid.
   */
   void set(const size_t& index, const char& character) {
-    assert(index < mCurrentSize && "Index value is out of range");
     if (index >= mCurrentSize || index >= MaxSize) {
       throw std::out_of_range("Index value is out of range");
     }
@@ -560,9 +560,6 @@ public:
   std::string_view substr(const std::size_t& start,
                           const std::size_t& end) const {
     // Validate that given string fits into our string within static limit.
-    // assert((start < end || end <= mCurrentSize) &&
-    //       "Index provided for substring are invalid");
-
     if (start > end || end > mCurrentSize) {
       throw std::out_of_range("Invalid substring request");
     }

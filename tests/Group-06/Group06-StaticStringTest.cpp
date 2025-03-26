@@ -137,6 +137,12 @@ TEST_CASE("Tests for operators", "[StaticString]") {
     REQUIRE(s[2] == 'r');
     REQUIRE(s[3] == 'l');
     REQUIRE(s[4] == 'd');
+
+    // Check if out of index accessed
+    CHECK_THROWS_AS(s[5], std::out_of_range);
+    CHECK_THROWS_AS(s[6], std::out_of_range);
+    CHECK_THROWS_AS(s[10], std::out_of_range);
+    CHECK_THROWS_AS(s[15], std::out_of_range);
   }
 
   SECTION("TESTS: Operator[], changing the indexed value.") {
@@ -147,6 +153,10 @@ TEST_CASE("Tests for operators", "[StaticString]") {
     StaticString<10> s2("Teat");
     REQUIRE(std::strcmp(s.get_str(), s2.get_str()) == 0);
     REQUIRE(s.to_string() == "Teat");
+
+    // Check out of range modification
+    REQUIRE_THROWS_AS(s.set(8,'a'), std::out_of_range);
+    REQUIRE_THROWS_AS(s.set(12,'a'), std::out_of_range);
   }
 
   // Comparison Operators
