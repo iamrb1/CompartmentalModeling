@@ -24,11 +24,6 @@ concept numeric = requires(T& value) {
 };
 
 template <typename T>
-concept is_conv_string = requires(T& value) {
-    std::convertible_to<T, std::string>;
-};
-
-template <typename T>
 concept has_sizeof = requires(T& value) {
     sizeof(T);
 };
@@ -109,7 +104,8 @@ class [[maybe_unused]] AdvDataMap {
     }
 
     template <typename T>
-    explicit Any(T value, bool flag = false, T* ref_ptr = nullptr) {
+    Any(T value, bool flag = false, T* ref_ptr = nullptr) { // NOLINT(*-explicit-constructor)
+      /// I dont want this to be marked explicit
       value_ptr = std::make_unique<Val<T>>(value, flag, ref_ptr);
     }
 
@@ -164,7 +160,7 @@ class [[maybe_unused]] AdvDataMap {
    */
   [[maybe_unused]] AdvDataMap(std::initializer_list<std::pair<std::string, Any>> initial) {
     for (const auto& pair : initial) {
-      m_map[pair.first] = Any(pair.second);
+      m_map[pair.first] = pair.second;
     }
   }
 
@@ -228,9 +224,9 @@ class [[maybe_unused]] AdvDataMap {
     /// refactored Dr.Ofria]s version to work with AdvDataMap
     assert(contains(name) && "Key does not exist in DataMap");
     T value = get<T>(name);
-    if constexpr (is_conv_string<T>) {
+    if constexpr (std::convertible_to<T, std::string>) {
       return value;
-    } else if constexpr (uses_to_string<T>) {
+    } else if constexpr (uses_to_string<T> || numeric<T>) {
       return std::to_string(value);
     } else if constexpr (has_to_string<T>) {
       return value.ToString();
@@ -245,7 +241,7 @@ class [[maybe_unused]] AdvDataMap {
   [[maybe_unused]] inline bool is_conv_to_string(const std::string& name) {
     assert(contains(name) && "Key does not exist in DataMap");
     T value = get<T>(name);
-    if constexpr (is_conv_string<T>) {
+    if constexpr (std::convertible_to<T, std::string>) {
       return true;
     }
     return false;

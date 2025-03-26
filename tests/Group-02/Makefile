@@ -1,4 +1,4 @@
-TEST_NAMES = AuditedVectorDebugTest AuditedVectorReleaseTest DataMapTest StateGridTest StateGridPositionTest ActionMapTest
+TEST_NAMES = AuditedVectorDebugTest AuditedVectorReleaseTest DataMapTest StateGridTest StateGridPositionTest ActionMapTest AdvDataMapTest
 
 GROUP02 = ../../Group-02
 SRC_DIR = $(GROUP02)/src/cse
