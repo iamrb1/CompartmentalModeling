@@ -132,14 +132,13 @@ class RichText {
   ~RichText() = default;
 
   explicit RichText(Underlying text) : m_text(std::move(text)) {}
-  explicit RichText(const CharT* text) : m_text(text) {}
   
   // Allow passing in any valid range to construct the RichText
   // object
   template<typename R>
     requires std::same_as<std::ranges::range_value_t<R>, CharT>
   RichText(const R& text) {
-    m_text.insert_range(m_text.end(), text);
+    std::copy(std::ranges::begin(text), std::ranges::end(text), std::back_inserter(m_text));
   }
 
   /**
