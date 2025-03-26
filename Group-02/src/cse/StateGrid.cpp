@@ -36,9 +36,9 @@ bool StateGrid::set_state(Point new_position) {
   auto agent = m_position.get_object_position();
   assert(!m_grid.empty() && m_grid[static_cast<size_t>(agent.x_position)][static_cast<size_t>(agent.y_position)] == 'P');
 
-  if (validate_position({new_position.x_position, new_position.y_position})) {
+  if (validate_position({static_cast<int>(new_position.x_position), static_cast<int>(new_position.y_position)})) {
     m_grid[static_cast<size_t>(new_position.x_position)][static_cast<size_t>(new_position.y_position)] = 'P';
-    m_grid[static_cast<size_t>(agent.first)][static_cast<size_t>(agent.second)] = ' ';
+    m_grid[static_cast<size_t>(agent.x_position)][static_cast<size_t>(agent.y_position)] = ' ';
     return true;
   }
   return false;
@@ -84,8 +84,8 @@ bool StateGrid::validate_position(std::pair<int, int> move) {
  * @return vector of pairs of possible move directions
  */
 std::vector<Point> StateGrid::find_moves() {
-  double row = m_position.x_position;
-  double col = m_position.y_position;
+  double row = m_position.get_object_position().x_position;
+  double col = m_position.get_object_position().y_position;
   assert(row < m_rows && col < m_cols && "This is not inside the grid");
   std::vector<Point> moves = {};
   std::vector<std::pair<int, int>> poss_moves = {{(row + 1), col}, {(row - 1), col}, {row, (col + 1)}, {row, (col - 1)}};

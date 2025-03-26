@@ -7,10 +7,11 @@
 
 #pragma once
 
-#include "StateGrid.h"
+
 #include <optional>
 
 
+class StateGrid;
 
 namespace cse {
 ///Point object for the position
