@@ -201,6 +201,14 @@ TEST_CASE("DataMap count method Test") {
  cse::AdvDataMap data_map;
  data_map.insert("key", 80.2);
  REQUIRE(data_map.count("key") == 1);
+ data_map.insert("key2", 33);
+ data_map.insert("key3", "sss");
+ data_map.insert("key4", "30.34");
+ data_map.insert("key5", 11.12);
+ REQUIRE(data_map.count("key4") == 1);
+ data_map.insert("key6", "sds");
+ REQUIRE(data_map.count("key2") == 1);
+
 }
 
 TEST_CASE("DataMap to_string method Test") {
@@ -217,4 +225,96 @@ TEST_CASE("DataMap to_string method Test") {
  SECTION("Return string value") {
    REQUIRE(data_map.to_string<std::string>("name") == "professor");
  }
+}
+
+
+TEST_CASE("Test Different Data Types in DataMap") {
+    cse::AdvDataMap data_map;
+    data_map.insert("int", 100);
+    data_map.insert("double", 10.5);
+    data_map.insert("string", std::string("test"));
+    data_map.insert("bool", true);
+
+    REQUIRE(data_map.get<int>("int") == 100);
+    REQUIRE(data_map.get<double>("double") == 10.5);
+    REQUIRE(data_map.get<std::string>("string") == "test");
+    REQUIRE(data_map.get<bool>("bool") == true);
+//    std::vector<std::string> vector3 = data_map.get_type_keys<std::string>();
+//    REQUIRE(std::size(vector3 == 0));
+}
+
+TEST_CASE("DataMap is_conv_to_string method Tests") {
+    cse::AdvDataMap data_map;
+    data_map.insert("string_key", std::string("Hello"));
+    data_map.insert("int_key", 42);
+
+    SECTION("Check if value can be converted to string") {
+        REQUIRE(data_map.is_conv_to_string<std::string>("string_key"));
+        REQUIRE_FALSE(data_map.is_conv_to_string<int>("int_key"));
+    }
+}
+
+TEST_CASE("DataMap is_numeric method Tests") {
+    cse::AdvDataMap data_map;
+    data_map.insert("int_key", 42);
+    data_map.insert("double_key", 3.14);
+    data_map.insert("string_key", std::string("Hello"));
+
+    SECTION("Check if value is numeric") {
+        REQUIRE(data_map.is_numeric<int>("int_key"));
+        REQUIRE(data_map.is_numeric<double>("double_key"));
+        REQUIRE_FALSE(data_map.is_numeric<std::string>("string_key"));
+    }
+}
+
+TEST_CASE("DataMap is_const method Tests") {
+    cse::AdvDataMap data_map;
+    const int const_value = 100;
+    std::string non_const_value = "Test_non_const";
+
+    data_map.insert("const_key", const_value);
+    data_map.insert("non_const_key", non_const_value);
+
+    SECTION("Check if value is constant") {
+        REQUIRE(data_map.is_const<int>("const_key"));
+        REQUIRE_FALSE(data_map.is_const<std::string>("non_const_key"));
+    }
+}
+
+TEST_CASE("DataMap get_type_keys method Tests") {
+    cse::AdvDataMap data_map;
+    data_map.insert("key1", 100);
+    data_map.insert("key0", std::string("Test_key_0"));
+    data_map.insert("key2", 101);
+
+    SECTION("Check if all keys are returned for int") {
+        std::vector<std::string> vector1 = data_map.get_type_keys<int>();
+        REQUIRE(std::size(vector1) == 2);
+    }
+    SECTION("Check if all keys are returned for string") {
+        data_map.insert("key3", std::string("Test_key_3"));
+        data_map.insert("key4", std::string("Test_key_4"));
+        std::vector<std::string> vector2 = data_map.get_type_keys<std::string>();
+        REQUIRE(std::size(vector2) == 3);
+    }
+    SECTION("Clear and check if empty") {
+        data_map.clear();
+        REQUIRE(data_map.empty() == true);
+    }
+}
+
+TEST_CASE("Test mem_size for multiple types") {
+    cse::AdvDataMap data_map;
+    data_map.insert("key1", 100);
+    data_map.insert("key0", std::string("Test_key_0"));
+    data_map.insert("key2", 10.10);
+
+    SECTION("Check memory size for int, string, and double") {
+        size_t int_size = data_map.get_mem_size<int>("key1");
+        size_t string_size = data_map.get_mem_size<std::string>("key0");
+        size_t double_size = data_map.get_mem_size<double>("key2");
+        REQUIRE(int_size == sizeof(data_map.get<int>("key1")));
+        REQUIRE(string_size == sizeof(data_map.get<std::string>("key0")));
+        REQUIRE(double_size == sizeof(data_map.get<double>("key2")));
+    }
 }
