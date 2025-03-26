@@ -237,30 +237,38 @@ class [[maybe_unused]] AdvDataMap {
     }
   }
 
+  /*
+   * RETURNS TRUE WHEN SHOULD BE FALSE WHEN TESTING
+   */
   template <typename T>
   [[maybe_unused]] inline bool is_conv_to_string(const std::string& name) {
     assert(contains(name) && "Key does not exist in DataMap");
-    T value = get<T>(name);
     if constexpr (std::convertible_to<T, std::string>) {
       return true;
     }
     return false;
   }
 
+  /*
+   * RETURNS TRUE WHEN SHOULD BE FALSE WHEN TESTING
+   * also value is unused variable in all of these funcitons
+   */
   template <typename T>
   [[maybe_unused]] inline bool is_numeric(const std::string& name) {
     assert(contains(name) && "Key does not exist in DataMap");
-    T value = get<T>(name);
     if constexpr (numeric<T>) {
       return true;
     }
     return false;
   }
 
+  /*
+   * RETURNS TRUE WHEN SHOULD BE FALSE WHEN TESTING
+   * also value is unused variable in all of these funcitons
+   */
   template <typename T>
   [[maybe_unused]] inline bool is_const(const std::string& name) {
     assert(contains(name) && "Key does not exist in DataMap");
-    T value = get<T>(name);
     if constexpr (const_check<T>) {
       return true;
     }
@@ -270,7 +278,6 @@ class [[maybe_unused]] AdvDataMap {
   template <typename T>
   [[maybe_unused]] inline size_t get_mem_size(const std::string& name) {
     assert(contains(name) && "Key does not exist in DataMap");
-    T value = get<T>(name);
     if constexpr (has_sizeof<T>) {
       return sizeof(T);
     }
