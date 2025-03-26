@@ -1,3 +1,12 @@
+/**
+ * @class   TagManger
+ * @file    TagManager.cpp
+ * @author  Kelsi Elliott
+ * @brief   The TagManager class helps to "label" items with a two-way
+ *          association to make looking up by "tag" or "task" simple
+ * 
+ */
+
 #include "TagManager.h"
 using std::string;
 
@@ -8,7 +17,7 @@ namespace cse {
  * @param task
  * @param tag
  */
-void TagManager::AddTag(const string& task, const string& tag) {
+void TagManager::addTag(const string& task, const string& tag) {
     mTaskToTag[task].insert(tag);  // Add tag to task
     mTagToTask[tag].insert(task);  // Add task to tag
 }
@@ -19,7 +28,7 @@ void TagManager::AddTag(const string& task, const string& tag) {
  * @param task
  * @param tag
  */
-void TagManager::RemoveTag(const string& task, const string& tag) {
+void TagManager::removeTag(const string& task, const string& tag) {
     auto taskIt = mTaskToTag.find(task);
     if (taskIt != mTaskToTag.end()) {
         taskIt->second.erase(tag);  // Remove tag from task
@@ -43,7 +52,7 @@ void TagManager::RemoveTag(const string& task, const string& tag) {
  * @param task
  * @return tags --> retrun empty set if no
  */
-std::unordered_set<string> TagManager::GetTags(const string& task) const {
+std::unordered_set<string> TagManager::getTags(const string& task) const {
     auto it = mTaskToTag.find(task);
     if (it != mTaskToTag.end()) {
         return it->second;  // Return the set of tags
@@ -57,7 +66,7 @@ std::unordered_set<string> TagManager::GetTags(const string& task) const {
  * @param task
  * @return tags --> retrun empty set if no
  */
-std::unordered_set<string> TagManager::GetTaskTags(const string &tag) const {
+std::unordered_set<string> TagManager::getTaskTags(const string &tag) const {
     auto it = mTagToTask.find(tag);
     if (it != mTagToTask.end()) {
         return it->second;  // Return the set of entries
@@ -70,7 +79,7 @@ std::unordered_set<string> TagManager::GetTaskTags(const string &tag) const {
  * 
  * @param task
  */
-void TagManager::ClearTagsForTask(const string& task) {
+void TagManager::clearTagsForTask(const string& task) {
     auto it = mTaskToTag.find(task);
     if (it != mTaskToTag.end()) {
         // For each tag, remove the task from the tag's set
@@ -89,7 +98,7 @@ void TagManager::ClearTagsForTask(const string& task) {
  * 
  * @param tag
  */
-void TagManager::ClearTags(const string& tag) {
+void TagManager::clearTags(const string& tag) {
     auto it = mTagToTask.find(tag);
     if (it != mTagToTask.end()) {
         // For each task, remove the tag from its set of tags
@@ -109,7 +118,7 @@ void TagManager::ClearTags(const string& tag) {
  * @param task
  * @return bool 
  */
-bool TagManager::HasTag(const string& task, const string& tag) const {
+bool TagManager::hasTag(const string& task, const string& tag) const {
     auto it = mTaskToTag.find(task);
     if (it != mTaskToTag.end()) {
         return it->second.find(tag) != it->second.end();  // Check if tag exists
