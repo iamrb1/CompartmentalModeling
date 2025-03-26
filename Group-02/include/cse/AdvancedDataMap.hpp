@@ -159,6 +159,16 @@ class [[maybe_unused]] AdvDataMap {
   AdvDataMap() = default;
 
   /**
+   * Constructor to allow initializer list for AdvDataMap
+   * @param initial std::initializer list of a pair of string and any
+   */
+  [[maybe_unused]] AdvDataMap(std::initializer_list<std::pair<std::string, Any>> initial) {
+    for (const auto& pair : initial) {
+      m_map[pair.first] = Any(pair.second);
+    }
+  }
+
+  /**
    * Copy constructor
    * @param other AdvDataMap to be copied
    */
@@ -320,6 +330,7 @@ class [[maybe_unused]] AdvDataMap {
   Any& operator[](const std::string& name) {
     if (!m_map.contains(name)) {
       m_map[name] = Any(0);
+      /// create a default value if called with no assignment ex data_map["key"]
     }
     return m_map[name];
   }
