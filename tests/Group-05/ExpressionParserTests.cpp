@@ -68,6 +68,96 @@ TEST_CASE("ExpressionParser constexprAdd", "[parser][constexpr]") {
   REQUIRE(result == 5.0);
 }
 
+  /**
+ * @brief Tests the compile-time subtraction using constexpr lambda.
+ */
+TEST_CASE("ExpressionParser constexprSubtract", "[parser][constexpr]") {
+  // This test will validate that the constexprSubtract template function computes the difference at compile time.
+  constexpr double result1 = cse::ExpressionParser::constexprSubtract(8.0, 3.0);
+  REQUIRE(result1 == 5.0);
+  constexpr double result2 = cse::ExpressionParser::constexprSubtract(2.0, 3.0);
+  REQUIRE(result2 == -1.0);
+}
+
+  /**
+ * @brief Tests the compile-time multiplication using constexpr lambda.
+ */
+TEST_CASE("ExpressionParser constexprMultiply", "[parser][constexpr]") {
+  // This test will validate that the constexprMultiply template function computes the product at compile time.
+  constexpr double result1 = cse::ExpressionParser::constexprMultiply(8.0, 3.0);
+  REQUIRE(result1 == 24.0);
+  constexpr double result2 = cse::ExpressionParser::constexprMultiply(-2.0, 3.0);
+  REQUIRE(result2 == -6.0);
+  constexpr double result3 = cse::ExpressionParser::constexprMultiply(-2.0, -3.0);
+  REQUIRE(result3 == 6.0);
+}
+
+  /**
+ * @brief Tests the compile-time division using constexpr lambda.
+ */
+TEST_CASE("ExpressionParser constexprDivide", "[parser][constexpr]") {
+  // This test will validate that the constexprDivide template function computes the quotient at compile time.
+  constexpr double result1 = cse::ExpressionParser::constexprDivide(8.0, 2.0);
+  REQUIRE(result1 == 4.0);
+  constexpr double result2 = cse::ExpressionParser::constexprDivide(-4.0, 2.0);
+  REQUIRE(result2 == -2.0);
+  constexpr double result3 = cse::ExpressionParser::constexprDivide(-4.0, -2.0);
+  REQUIRE(result3 == 2.0);
+  REQUIRE_THROWS_AS(cse::ExpressionParser::constexprDivide(4.0, 0.0), std::logic_error);
+}
+
+  /**
+ * @brief Tests the compile-time power function using constexpr lambda.
+ */
+TEST_CASE("ExpressionParser constexprPower", "[parser][constexpr]") {
+  // This test will validate that the constexprPower template function computes the power at compile time.
+  // Test positive exponents
+  constexpr double result1 = cse::ExpressionParser::constexprPower(2.0, 3);
+  REQUIRE(result1 == 8.0);
+  constexpr double result2 = cse::ExpressionParser::constexprPower(-2.0, 3);
+  REQUIRE(result2 == -8.0);
+  // Test exponent of zero
+  constexpr double result3 = cse::ExpressionParser::constexprPower(5.0, 0);
+  REQUIRE(result3 == 1.0);
+  constexpr double result4 = cse::ExpressionParser::constexprPower(-5.0, 0);
+  REQUIRE(result4 == -1.0);
+  // Test negative exponents
+  constexpr double result5 = cse::ExpressionParser::constexprPower(2.0, -2);
+  REQUIRE(result5 == 0.25);
+  constexpr double result6 = cse::ExpressionParser::constexprPower(-2.0, -2);
+  REQUIRE(result6 == 0.25);
+  constexpr double result7 = cse::ExpressionParser::constexprPower(-2.0, -3);
+  REQUIRE(result7 == -0.125);
+}
+
+  /**
+ * @brief Tests the compile-time comparison using constexpr lambda.
+ */
+TEST_CASE("ExpressionParser constexprLessThan", "[parser][constexpr]") {
+  // This test will validate that the constexprLessThan template function computes the < comparison at compile time.
+  constexpr bool result1 = cse::ExpressionParser::constexprLessThan(8.0, 3.0);
+  REQUIRE(result1 == false);
+  constexpr bool result2 = cse::ExpressionParser::constexprLessThan(2.0, 3.0);
+  REQUIRE(result2 == true);
+  constexpr bool result3 = cse::ExpressionParser::constexprLessThan(-2.0, 2.0);
+  REQUIRE(result3 == true);
+  constexpr bool result4 = cse::ExpressionParser::constexprLessThan(2.0, 2.0);
+  REQUIRE(result4 == false);
+}
+
+  /**
+ * @brief Tests the compile-time comparison using constexpr lambda.
+ */
+TEST_CASE("ExpressionParser constexprEqualTo", "[parser][constexpr]") {
+  // This test will validate that the constexprEqualTo template function computes the == comparison at compile time.
+  constexpr bool result1 = cse::ExpressionParser::constexprEqualTo(8.0, 3.0);
+  REQUIRE(result1 == false);
+  constexpr bool result2 = cse::ExpressionParser::constexprEqualTo(-2.0, 2.0);
+  REQUIRE(result2 == false);
+  constexpr bool result3 = cse::ExpressionParser::constexprEqualTo(2.0, 2.0);
+  REQUIRE(result3 == true);
+}
+
 /* Verifies that the template function correctly creates a lambda that performs the binary operation 
   (addition and subtraction) at compile time 
 */

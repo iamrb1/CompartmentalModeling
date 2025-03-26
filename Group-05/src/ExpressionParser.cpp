@@ -1,3 +1,9 @@
+/**
+ * @file ExpressionParser.cpp
+ *
+ * @author Pedro Mitkiewicz
+ */
+
 #include "ExpressionParser.h"
 
 

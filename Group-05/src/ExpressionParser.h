@@ -1,3 +1,11 @@
+/**
+ * @file ExpressionParser.h
+ *
+ * @author Pedro Mitkiewicz Calen Green and Muhammad Asif Masood
+ *
+ * A class providing a framework for parsing and evaluating mathematical expressions
+ */
+
 #pragma once
 
 #include <string>
@@ -146,6 +154,97 @@ class ExpressionParser {
   template <typename T>
   static constexpr T constexprAdd(T a, T b) {
     return a + b;
+}
+
+/**
+ * @brief Subtracts two values at compile time.
+ *
+ * @tparam T A type that supports the - operator.
+ * @param a First value (minuend).
+ * @param b Second value (subtrahend).
+ * @return The result of a - b.
+ */
+  template <typename T>
+  static constexpr T constexprSubtract(T a, T b) {
+    return a - b;
+}
+
+/**
+ * @brief Multiplies two values at compile time.
+ *
+ * @tparam T A type that supports the * operator.
+ * @param a First value.
+ * @param b Second value.
+ * @return The product of a and b.
+ */
+  template <typename T>
+  static constexpr T constexprMultiply(T a, T b) {
+    return a * b;
+}
+
+/**
+ * @brief Divides two values at compile time.
+ *
+ * @tparam T A type that supports the / operator.
+ * @param a Numerator.
+ * @param b Denominator (must not be zero).
+ * @return The quotient of a divided by b.
+ */
+  template <typename T>
+  static constexpr T constexprDivide(T a, T b) {
+    static_assert(!std::is_same_v<T, int> || b != 0, "Division by zero is not allowed.");
+    return b != 0 ? a / b : throw std::logic_error("Division by zero");
+}
+
+/**
+ * @brief Raises a base to an exponent at compile time.
+ *
+ * @tparam T A type that supports multiplication.
+ * @param base The base value.
+ * @param exp The exponent (must be non-negative).
+ * @return The result of base^exp.
+ */
+  template <typename T>
+  static constexpr T constexprPower(T base, int exp) {
+    if (exp == 0) {
+        // check sign of base number
+        return base < 0 ? -1 : 1;
+    }
+    if (exp < 0) {
+        return 1 / constexprPower(base, -exp);  // Handle negative exponents
+    }
+    T halfPower = constexprPower(base, exp / 2); // for explicitly handling -base to an odd exp
+    if (exp % 2 == 0) {
+        return halfPower * halfPower;  // Even exponent
+    } else {
+        return base * halfPower * halfPower;  // Odd exponent
+    }
+}
+
+/**
+ * @brief Compares two values at compile time.
+ *
+ * @tparam T A type that supports comparison operators.
+ * @param a First value.
+ * @param b Second value.
+ * @return True if a < b, False otherwise.
+ */
+  template <typename T>
+  static constexpr bool constexprLessThan(T a, T b) {
+    return a < b;
+}
+
+/**
+ * @brief Compares two values at compile time to determine if they are equal.
+ *
+ * @tparam T A type that supports comparison operators.
+ * @param a The first value.
+ * @param b The second value.
+ * @return true if a is equal to b, false otherwise.
+ */
+  template <typename T>
+  static constexpr bool constexprEqualTo(T a, T b) {
+    return a == b;
 }
 
 /**
