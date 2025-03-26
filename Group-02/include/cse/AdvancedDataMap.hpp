@@ -18,20 +18,8 @@
 namespace cse {
 
 template <typename T>
-concept numeric = requires(T& value) {
-  /// reference of implementation: https://stackoverflow.com/questions/26207526/how-to-make-sure-that-template-type-is-a-number-type
-    std::is_arithmetic<T>::value;
-};
-
-template <typename T>
 concept has_sizeof = requires(T& value) {
     sizeof(T);
-};
-
-template <typename T>
-concept const_check = requires(T& value) {
-    /// https://en.cppreference.com/w/cpp/types/is_const
-    std::is_const_v<T>;
 };
 
 template <typename T>
@@ -55,41 +43,101 @@ class [[maybe_unused]] AdvDataMap {
       [[nodiscard]] virtual const std::type_info& type() const = 0;
       [[maybe_unused]] [[nodiscard]] virtual bool is_ref() const = 0;
       [[maybe_unused]] virtual void set() = 0;
+      [[nodiscard]] virtual bool is_numeric() const = 0;
+      [[nodiscard]] virtual bool is_conv_to_string() const = 0;
     };
 
     template <typename T>
     struct Val : Base {
+      /// store the value
       T value;
+      /// flag to see if a reference is to be added to map
       bool flag;
+      /// ptr to the value added if initialized elsewhere in code
       T* ref_ptr;
+      /// checks if value is numeric in constructor
+      bool numeric;
+      /// checks if value is convertible to string in constructor
+      bool convert;
 
+      /**
+       * constructor for Val (Any internal)
+       * @param value type erased value to be added
+       * @param flag true if reference false if not
+       * @param ref ptr to member variable value if flag is true
+       */
       explicit Val(T value, bool flag = false, T* ref = nullptr)
-          : value(value), flag(flag), ref_ptr(ref) {}
+          : value(value), flag(flag), ref_ptr(ref) {
+        numeric = std::is_arithmetic_v<T>;
+        convert = std::convertible_to<T, std::string>;
+      }
 
+      /**
+       * clone function for copy assignment and constructor
+       * @return
+       */
       [[nodiscard]] std::unique_ptr<Base> clone() const override {
         return std::make_unique<Val<T>>(value, flag, ref_ptr);
       }
 
+      /**
+       * get type of the value
+       * @return
+       */
       [[nodiscard]] const std::type_info& type() const override {
         return typeid(T);
       }
 
+      /**
+       * return the flag if a reference
+       * @return
+       */
       [[nodiscard]] bool is_ref() const override {
         return flag;
       }
 
-      void set() override {
+      /**
+       * dereference the ref_ptr and set it to value when the original is changed
+       */
+      [[maybe_unused]] void set() override {
         if (ref_ptr) {
           value = *ref_ptr;
         }
       }
+
+      /**
+       * getter for numeric
+       * @return
+       */
+      [[nodiscard]] bool is_numeric() const override {
+        return numeric;
+      }
+
+      /**
+       * getter for convert
+       * @return
+       */
+      [[nodiscard]] bool is_conv_to_string() const override {
+        return convert;
+      }
     };
 
+    /**
+     * unique_ptr to the type erased value
+     */
     std::unique_ptr<Base> value_ptr;
 
    public:
+    /**
+     * default constructor
+     */
     Any() = default;
 
+    /**
+     * copy constructor
+     * clone the value ptr if exists otherwise set to nullptr
+     * @param in source any to copy
+     */
     Any(const Any& in) {
       if (in.value_ptr) {
         value_ptr = in.value_ptr->clone();
@@ -98,17 +146,37 @@ class [[maybe_unused]] AdvDataMap {
       }
     }
 
+    /**
+     * move constructor
+     * transfer ownership from from source to this
+     * @param in
+     */
     Any(Any&& in) noexcept {
       value_ptr = std::move(in.value_ptr);
       in.value_ptr = nullptr;
     }
 
+    /**
+     * templated Any constructor
+     * has defaults to false and nullptr for insert method of advdatamap
+     * sets value_ptr from parameters
+     * @tparam T type of value
+     * @param value value to be stored
+     * @param flag if reference or not
+     * @param ref_ptr pointer to value if it is a reference
+     */
     template <typename T>
     Any(T value, bool flag = false, T* ref_ptr = nullptr) { // NOLINT(*-explicit-constructor)
       /// I dont want this to be marked explicit
       value_ptr = std::make_unique<Val<T>>(value, flag, ref_ptr);
     }
 
+    /**
+     * copy assignment operator for any
+     * similar logic to copy constructor
+     * @param in source any to copy
+     * @return
+     */
     Any& operator=(const Any& in) {
       if (in.value_ptr) {
         value_ptr = in.value_ptr->clone();
@@ -143,6 +211,16 @@ class [[maybe_unused]] AdvDataMap {
     [[nodiscard]] bool is_ref() const {
       assert(value_ptr && "Any is empty");
       return value_ptr->is_ref();
+    }
+
+    [[nodiscard]] bool is_numeric() const {
+      assert(value_ptr && "Any is empty");
+      return value_ptr->is_numeric();
+    }
+
+    [[nodiscard]] bool is_conv_to_string() const {
+      assert(value_ptr && "Any is empty");
+      return value_ptr->is_conv_to_string();
     }
   };
 
@@ -226,7 +304,7 @@ class [[maybe_unused]] AdvDataMap {
     T value = get<T>(name);
     if constexpr (std::convertible_to<T, std::string>) {
       return value;
-    } else if constexpr (uses_to_string<T> || numeric<T>) {
+    } else if constexpr (uses_to_string<T>) {
       return std::to_string(value);
     } else if constexpr (has_to_string<T>) {
       return value.ToString();
@@ -237,42 +315,23 @@ class [[maybe_unused]] AdvDataMap {
     }
   }
 
-  /*
-   * RETURNS TRUE WHEN SHOULD BE FALSE WHEN TESTING
-   */
   template <typename T>
-  [[maybe_unused]] inline bool is_conv_to_string(const std::string& name) {
+  [[maybe_unused]] inline bool is_type(const std::string& name) {
     assert(contains(name) && "Key does not exist in DataMap");
-    if constexpr (std::convertible_to<T, std::string>) {
+    if (m_map.at(name).type() == typeid(T)) {
       return true;
     }
     return false;
   }
 
-  /*
-   * RETURNS TRUE WHEN SHOULD BE FALSE WHEN TESTING
-   * also value is unused variable in all of these funcitons
-   */
-  template <typename T>
   [[maybe_unused]] inline bool is_numeric(const std::string& name) {
     assert(contains(name) && "Key does not exist in DataMap");
-    if constexpr (numeric<T>) {
-      return true;
-    }
-    return false;
+    return m_map.at(name).is_numeric();
   }
 
-  /*
-   * RETURNS TRUE WHEN SHOULD BE FALSE WHEN TESTING
-   * also value is unused variable in all of these funcitons
-   */
-  template <typename T>
-  [[maybe_unused]] inline bool is_const(const std::string& name) {
+  [[maybe_unused]] inline bool is_conv_to_string(const std::string& name) {
     assert(contains(name) && "Key does not exist in DataMap");
-    if constexpr (const_check<T>) {
-      return true;
-    }
-    return false;
+    return m_map.at(name).is_conv_to_string();
   }
 
   template <typename T>

@@ -249,8 +249,8 @@ TEST_CASE("DataMap is_conv_to_string method Tests") {
     data_map.insert("int_key", 42);
 
     SECTION("Check if value can be converted to string") {
-        REQUIRE(data_map.is_conv_to_string<std::string>("string_key"));
-        REQUIRE_FALSE(data_map.is_conv_to_string<int>("int_key"));
+        REQUIRE(data_map.is_conv_to_string("string_key"));
+        REQUIRE_FALSE(data_map.is_conv_to_string("int_key"));
     }
 }
 
@@ -261,23 +261,9 @@ TEST_CASE("DataMap is_numeric method Tests") {
     data_map.insert("string_key", std::string("Hello"));
 
     SECTION("Check if value is numeric") {
-        REQUIRE(data_map.is_numeric<int>("int_key"));
-        REQUIRE(data_map.is_numeric<double>("double_key"));
-        REQUIRE_FALSE(data_map.is_numeric<std::string>("string_key"));
-    }
-}
-
-TEST_CASE("DataMap is_const method Tests") {
-    cse::AdvDataMap data_map;
-    const int const_value = 100;
-    std::string non_const_value = "Test_non_const";
-
-    data_map.insert("const_key", const_value);
-    data_map.insert("non_const_key", non_const_value);
-
-    SECTION("Check if value is constant") {
-        REQUIRE(data_map.is_const<int>("const_key"));
-        REQUIRE_FALSE(data_map.is_const<std::string>("non_const_key"));
+        REQUIRE(data_map.is_numeric("int_key"));
+        REQUIRE(data_map.is_numeric("double_key"));
+        REQUIRE_FALSE(data_map.is_numeric("string_key"));
     }
 }
 
