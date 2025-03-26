@@ -17,17 +17,53 @@
 #include <unordered_set>
 #include <vector>
 
+// Citation: AI was used to create doxygen comments
 namespace cse {
 
+  /**
+   * A class that manages traversal through a graph data structure
+   * @tparam VERTEX_DATA_T The data type stored in the graph's vertices
+   */
   template <typename VERTEX_DATA_T> class GraphPosition; // Forward declaration
 
   namespace TraversalModes {
+    /**
+     * Helper function to get sorted neighbors of a vertex
+     * @param vertex The vertex whose neighbors to sort
+     * @return Vector of pairs containing edge ID and edge pointer, sorted by destination vertex ID
+     */
+    template <typename VERTEX_DATA_T> auto GetSortedNeighbors(const Vertex<VERTEX_DATA_T> &vertex) {
+      using EdgePair = std::pair<std::string, std::weak_ptr<Edge<VERTEX_DATA_T>>>;
+      std::vector<EdgePair> neighbors(vertex.GetEdges().begin(), vertex.GetEdges().end());
+
+      std::sort(neighbors.begin(), neighbors.end(), [](const auto &edge1, const auto &edge2) {
+        return edge1.second.lock()->GetTo().GetId() < edge2.second.lock()->GetTo().GetId();
+      });
+      return neighbors;
+    }
+
+    /**
+     * Creates a Depth-First Search traversal function
+     * @tparam VERTEX_DATA_T The data type stored in the graph's vertices
+     * @return Function object implementing DFS traversal
+     */
     template <typename VERTEX_DATA_T>
     auto DFS() -> std::function<bool(GraphPosition<VERTEX_DATA_T> &)>; // Forward declare the function
 
+    /**
+     * Creates a Breadth-First Search traversal function
+     * @tparam VERTEX_DATA_T The data type stored in the graph's vertices
+     * @return Function object implementing BFS traversal
+     */
     template <typename VERTEX_DATA_T>
     auto BFS() -> std::function<bool(GraphPosition<VERTEX_DATA_T> &)>; // Forward declare the function
 
+    /**
+     * Creates an A* pathfinding traversal function
+     * @tparam VERTEX_DATA_T The data type stored in the graph's vertices
+     * @param destination The target vertex to find a path to
+     * @return Function object implementing A* pathfinding
+     */
     template <typename VERTEX_DATA_T>
     auto AStar(Vertex<VERTEX_DATA_T> &destination)
         -> std::function<bool(GraphPosition<VERTEX_DATA_T> &)>; // Forward declare the function
@@ -35,39 +71,133 @@ namespace cse {
 
   template <typename VERTEX_DATA_T> class GraphPosition {
   private:
+    /** Reference to the graph being traversed */
     const Graph<VERTEX_DATA_T> &graph;
+    /** Pointer to the current vertex in the traversal */
     Vertex<VERTEX_DATA_T> const *currentVertex;
-    // Set of visited vertices by ID
+    /** Set of visited vertex IDs during traversal */
     std::set<std::string> visitedVertices;
+    /** Vector storing the path taken during traversal */
     std::vector<Vertex<VERTEX_DATA_T> const *> traversalPath;
+    /** Function object defining the traversal strategy, defaults to DFS */
     std::function<bool(GraphPosition<VERTEX_DATA_T> &)> traversalFunction = TraversalModes::DFS<VERTEX_DATA_T>();
+    /** Queue used for BFS traversal */
     std::deque<Vertex<VERTEX_DATA_T> const *> traversalQueue;
+    /** Stack used for DFS traversal */
     std::vector<Vertex<VERTEX_DATA_T> const *> traversalStack;
 
   public:
+    /**
+     * Gets the traversal stack used for DFS
+     * @return Reference to the traversal stack
+     */
     std::vector<Vertex<VERTEX_DATA_T> const *> &GetTraversalStack() { return traversalStack; }
+
+    /**
+     * Gets the traversal queue used for BFS
+     * @return Reference to the traversal queue
+     */
     std::deque<Vertex<VERTEX_DATA_T> const *> &GetTraversalQueue() { return traversalQueue; }
+
+    /**
+     * Marks a vertex as visited in the traversal
+     * @param vertex The vertex to mark as visited
+     */
     void MarkVisited(Vertex<VERTEX_DATA_T> const &vertex);
+
+    /**
+     * Checks if a vertex has been visited
+     * @param vertex The vertex to check
+     * @return true if the vertex has been visited, false otherwise
+     */
     bool IsVisited(Vertex<VERTEX_DATA_T> const &vertex) {
       return visitedVertices.find(vertex.GetId()) != visitedVertices.end();
     };
 
+    /**
+     * Constructs a GraphPosition object
+     * @param g Reference to the graph being traversed
+     * @param startVertex Pointer to the starting vertex
+     * @throws std::invalid_argument if startVertex is null
+     */
     GraphPosition(const Graph<VERTEX_DATA_T> &g, Vertex<VERTEX_DATA_T> const *startVertex);
 
+    /**
+     * Gets the current vertex in the traversal
+     * @return Reference to the current vertex
+     */
     Vertex<VERTEX_DATA_T> const &GetCurrentVertex() const;
+
+    /**
+     * Sets the current vertex in the traversal
+     * @param vertex The vertex to set as current
+     */
     void SetCurrentVertex(Vertex<VERTEX_DATA_T> const &vertex);
+
+    /**
+     * Advances to the next neighbor based on the current traversal strategy
+     * @return true if successfully advanced, false if no more neighbors
+     */
     bool AdvanceToNextNeighbor();
+
+    /**
+     * Gets the path taken during traversal
+     * @return Vector of pointers to vertices in traversal order
+     */
     const std::vector<Vertex<VERTEX_DATA_T> const *> &GetTraversalPath() const;
+
+    /**
+     * Clears the traversal path
+     */
     void ResetTraversalPath();
+
+    /**
+     * Adds a vertex to the traversal path
+     * @param v Pointer to the vertex to add
+     */
     void AddToTraversalPath(Vertex<VERTEX_DATA_T> const *v);
+
+    /**
+     * Reverses the traversal path
+     */
     void ReverseTraversalPath();
+
+    /**
+     * Resets the traversal with a new starting vertex
+     * @param newStartVertex The new starting vertex
+     */
     void ResetTraversal(Vertex<VERTEX_DATA_T> const &newStartVertex);
+
+    /**
+     * Advances to the next vertex in the traversal
+     * @return Reference to this GraphPosition
+     */
     GraphPosition &operator++(); // Advances to next vertex
+
+    /**
+     * Performs a complete traversal of the graph
+     */
     void TraverseGraph();
+
+    /**
+     * Checks if more traversal is possible
+     * @return true if current vertex is valid, false otherwise
+     */
     explicit operator bool() const; // Checks if more traversal is possible
+
+    /**
+     * Sets the traversal strategy
+     * @param newTraversalFunction Function implementing the desired traversal strategy
+     */
     void SetTraversalMode(std::function<bool(GraphPosition<VERTEX_DATA_T> &)> newTraversalFunction) {
       traversalFunction = newTraversalFunction;
     }
+
+    /**
+     * Gets a vertex by its ID
+     * @param v_id The ID of the vertex to retrieve
+     * @return Reference to the requested vertex
+     */
     cse::Vertex<VERTEX_DATA_T> &GetVertex(std::string const v_id) { return graph.GetVertex(v_id); }
   };
 
@@ -181,7 +311,7 @@ namespace cse {
   }
 
   /**
-   * Traverses the graph using the provided traversal strategy
+   * Traverses the graph using the provided traversal strategy until no next node available
    */
   template <typename VERTEX_DATA_T> inline void GraphPosition<VERTEX_DATA_T>::TraverseGraph() {
     while ((bool)++(*this)) {
@@ -197,39 +327,39 @@ namespace cse {
   }
 
   namespace TraversalModes {
-
+    
     /**
      * Provides a depth-first search traversal strategy
      * @return A function that performs DFS traversal on a GraphPosition
-     */
     template <typename VERTEX_DATA_T> auto DFS() -> std::function<bool(GraphPosition<VERTEX_DATA_T> &)> {
       return [](GraphPosition<VERTEX_DATA_T> &graphPosition) {
+        // Recursive implementation of DFS using a stack
         auto dfs_implementation = [&](GraphPosition<VERTEX_DATA_T> &gp, auto &dfs) -> bool {
           auto &stack = gp.GetTraversalStack();
 
+          // Initialize stack with current vertex if empty
           if (stack.empty()) {
             stack.push_back(&gp.GetCurrentVertex());
           }
+
+          // Get the vertex at top of stack
           auto &current = *stack.back();
           if (gp.IsVisited(current)) {
-            return false;
+            return false; // Skip if already visited
           }
 
-          std::vector<std::pair<std::string, std::weak_ptr<Edge<VERTEX_DATA_T>>>> neighbors(current.GetEdges().begin(),
-                                                                                            current.GetEdges().end());
+          // Get all neighbors and sort them by ID for consistent traversal
+          auto neighbors = GetSortedNeighbors(current);
 
-          std::sort(neighbors.begin(), neighbors.end(), [](auto &edge1, auto &edge2) {
-            return edge1.second.lock()->GetTo().GetId() < edge2.second.lock()->GetTo().GetId();
-          });
-
+          // Find first unvisited neighbor
           auto nonVisited = std::find_if(neighbors.begin(), neighbors.end(), [&](auto &p) {
-            auto weakEdge = p.second;
-            if (auto edge = weakEdge.lock()) {
+            if (auto edge = p.second.lock()) {
               return !gp.IsVisited(edge->GetTo());
             }
             return false;
           });
 
+          // If no unvisited neighbors, mark current as visited and backtrack
           if (nonVisited == neighbors.end()) {
             stack.pop_back();
             gp.SetCurrentVertex(current);
@@ -237,6 +367,7 @@ namespace cse {
             return true;
           }
 
+          // Push unvisited neighbor to stack and continue DFS
           auto &c = (nonVisited->second.lock())->GetTo();
           stack.push_back(&c);
           return dfs(gp, dfs); // recursive call
@@ -254,26 +385,29 @@ namespace cse {
       return [](GraphPosition<VERTEX_DATA_T> &graphPosition) {
         auto &queue = graphPosition.GetTraversalQueue();
 
+        // Initialize queue with starting vertex if empty
         if (queue.empty()) {
           queue.push_back(&graphPosition.GetCurrentVertex());
           graphPosition.MarkVisited(graphPosition.GetCurrentVertex());
         }
 
         if (queue.empty()) {
-          return false;
+          return false; // No more vertices to visit
         }
 
+        // Process the front of the queue
         Vertex<VERTEX_DATA_T> const *current = queue.front();
         queue.pop_front();
         graphPosition.SetCurrentVertex(*current);
 
+        // Get and sort neighbors for consistent traversal order
         std::vector<std::pair<std::string, std::weak_ptr<Edge<VERTEX_DATA_T>>>> neighbors(current->GetEdges().begin(),
                                                                                           current->GetEdges().end());
-
         std::sort(neighbors.begin(), neighbors.end(), [](const auto &edge1, const auto &edge2) {
           return edge1.second.lock()->GetTo().GetId() < edge2.second.lock()->GetTo().GetId();
         });
 
+        // Add all unvisited neighbors to queue
         for (const auto &edge : neighbors) {
           if (auto edgePtr = edge.second.lock()) {
             auto &neighbor = edgePtr->GetTo();
@@ -284,10 +418,13 @@ namespace cse {
           }
         }
 
-        return !queue.empty();
+        return !queue.empty(); // Continue if there are more vertices to process
       };
     }
 
+    /**
+     * Helper struct for A* algorithm storing vertex and distance
+     */
     template <typename VERTEX_DATA_T> struct VectorDistancePair {
       Vertex<VERTEX_DATA_T> const *v;
       double distance;
@@ -311,11 +448,19 @@ namespace cse {
       return !operator<(lhs, rhs);
     }
 
+    /**
+     * Helper struct for storing traversal history in A* algorithm
+     */
     struct TraversalHistory {
       double distance;
       std::string previousVectorId;
     };
 
+    /**
+     * Creates an A* pathfinding traversal function
+     * @tparam VERTEX_DATA_T The data type stored in the graph's vertices
+     * @param destination The target vertex to find a path to
+     */
     template <typename VERTEX_DATA_T>
     auto AStar(Vertex<VERTEX_DATA_T> &destination) -> std::function<bool(GraphPosition<VERTEX_DATA_T> &)> {
       using VertexPair = VectorDistancePair<VERTEX_DATA_T>;
@@ -323,9 +468,12 @@ namespace cse {
       using DistanceMap = std::map<std::string, TraversalHistory>;
       using EdgePair = std::pair<std::string, std::weak_ptr<Edge<VERTEX_DATA_T>>>;
 
+      // Priority queue for vertices to visit, sorted by estimated total cost
       PriorityQueue q;
+      // Map storing best known distances and previous vertices
       DistanceMap bestDistances;
 
+      // Heuristic function: Euclidean distance to destination
       auto distanceCalculator = [&destination](Vertex<VERTEX_DATA_T> const &curr) {
         double xDist = std::abs(destination.GetX() - curr.GetX());
         double yDist = std::abs(destination.GetY() - curr.GetY());
@@ -335,17 +483,18 @@ namespace cse {
       return [q, distanceCalculator, bestDistances, &destination](GraphPosition<VERTEX_DATA_T> &graphPosition) mutable {
         if (q.empty()) {
           if (bestDistances.empty()) {
+            // Initialize search with starting vertex
             auto const &curr = graphPosition.GetCurrentVertex();
             q.push(VertexPair(&curr, distanceCalculator(curr)));
             bestDistances[curr.GetId()] = TraversalHistory{0, ""};
           } else {
-            // Rebuild the path
+            // Search complete - reconstruct path from destination to start
             auto const &curr = graphPosition.GetCurrentVertex();
             auto bd = bestDistances.find(curr.GetId());
             if (bd != bestDistances.end()) {
-              // Path was found
               auto traversalHistoryNode = bd;
               graphPosition.AddToTraversalPath(&curr);
+
               while (!traversalHistoryNode->second.previousVectorId.empty()) {
                 auto v_id = traversalHistoryNode->second.previousVectorId;
                 assert(bestDistances.find(v_id) != bestDistances.end());
@@ -358,25 +507,30 @@ namespace cse {
           }
         }
 
+        // Process vertex with lowest estimated total cost
         auto v_pair = q.top();
         auto const *v = v_pair.v;
         graphPosition.SetCurrentVertex(*v);
         double currDistance = bestDistances[v->GetId()].distance;
         q.pop();
 
+        // Check if destination reached
         if (*v == destination) {
-          q = PriorityQueue();
+          q = PriorityQueue(); // Clear queue to trigger path reconstruction
           return true;
         }
 
+        // Process all neighbors
         std::vector<EdgePair> neighbors(v->GetEdges().begin(), v->GetEdges().end());
-
         for (const auto &edge : neighbors) {
           if (auto edgePtr = edge.second.lock()) {
             auto const &neighbor = edgePtr->GetTo();
+            // Calculate actual distance to neighbor through current path
             double actual_d = currDistance + edgePtr->GetWeight();
+            // Estimate total cost (actual distance + heuristic)
             auto estimated_d = actual_d + distanceCalculator(neighbor);
 
+            // Update if this is a better path to the neighbor
             auto bd = bestDistances.find(neighbor.GetId());
             if (bd == bestDistances.end() || actual_d < bd->second.distance) {
               bestDistances[neighbor.GetId()].distance = actual_d;
