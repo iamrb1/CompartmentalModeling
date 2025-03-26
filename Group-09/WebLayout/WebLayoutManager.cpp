@@ -4,7 +4,9 @@
  */
 
 #include "WebLayoutManager.h"
+
 #include <emscripten/bind.h>
+
 
 namespace cse {
 
@@ -21,26 +23,22 @@ WebLayoutManager::WebLayoutManager() {
 
   // Set up the event listener for the button click
   EM_ASM({
-           // Setup advance button
-           var advanceButton = document.getElementById("advanceButton");
-           if (advanceButton) {
-             advanceButton.addEventListener("click", function()
-             {
-               Module._call_advance();
-             });
-           }
-         });
+    // Setup advance button
+    var advanceButton = document.getElementById("advanceButton");
+    if (advanceButton) {
+      advanceButton.addEventListener(
+          "click", function() { Module._call_advance(); });
+    }
+  });
 
   EM_ASM({
-           // Setup advance button
-           var rewindButton = document.getElementById("reverseButton");
-           if (rewindButton) {
-             rewindButton.addEventListener("click", function()
-             {
-               Module._call_rewind();
-             });
-           }
-         });
+    // Setup advance button
+    var rewindButton = document.getElementById("reverseButton");
+    if (rewindButton) {
+      rewindButton.addEventListener(
+          "click", function() { Module._call_rewind(); });
+    }
+  });
 }
 
 extern "C" {
@@ -61,7 +59,6 @@ EMSCRIPTEN_KEEPALIVE void call_rewind() {
     std::cerr << "Error: g_manager is null!" << std::endl;
   }
 }
-
 }
 
 /**
@@ -77,7 +74,8 @@ void WebLayoutManager::addLayout(std::shared_ptr<WebLayout> layout) {
  * @param layout
  */
 void WebLayoutManager::removeLayout(std::shared_ptr<WebLayout> layout) {
-  layouts.erase(std::remove(layouts.begin(), layouts.end(), layout), layouts.end());
+  layouts.erase(std::remove(layouts.begin(), layouts.end(), layout),
+                layouts.end());
 }
 
 /**
@@ -88,12 +86,12 @@ void WebLayoutManager::advance() {
 
   if (layouts.empty()) {
     EM_ASM({ console.error("ERROR: No layouts exist."); });
-    return; // Exit early
+    return;  // Exit early
   }
 
   if (currentPos >= layouts.size() - 1) {
     EM_ASM({ console.error("ERROR: Currently at last layout."); });
-    return; // Exit early
+    return;  // Exit early
   }
 
   auto currentLayout = layouts.at(currentPos);
@@ -109,7 +107,6 @@ void WebLayoutManager::advance() {
   } else {
     currentPos--;
   }
-
 }
 
 /**
@@ -120,12 +117,12 @@ void WebLayoutManager::rewind() {
 
   if (layouts.empty()) {
     EM_ASM({ console.error("ERROR: No layouts exist."); });
-    return; // Exit early
+    return;  // Exit early
   }
 
   if (currentPos <= 0) {
     EM_ASM({ console.error("ERROR: Currently at first layout."); });
-    return; // Exit early
+    return;  // Exit early
   }
 
   auto currentLayout = layouts.at(currentPos);
@@ -152,4 +149,4 @@ void WebLayoutManager::initialize() {
     currentLayout->activateLayout();
   }
 }
-}
+}  // namespace cse

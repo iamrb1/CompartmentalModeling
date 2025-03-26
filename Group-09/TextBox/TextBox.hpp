@@ -152,9 +152,9 @@ class TextBox {
    * @param newHeight
    */
   void resize(int newWidth, int newHeight) {
-    // Clamp to zero for negative inputs.
-    width = std::max(0, newWidth);
-    height = std::max(0, newHeight);
+    auto clampToZero = [](int value) { return std::max(0, value); };
+    width = clampToZero(newWidth);
+    height = clampToZero(newHeight);
   }
 
   /**
