@@ -108,8 +108,8 @@ class EventQueue {
   void update(const Event<Args...> &e) {
 	auto removed = this->remove(e);
 	if (removed.has_value()) {
-	  assert(removed.value().getID() == e.getID()); // Reinsert same ID with updated time
-	  this->add(e);
+	  assert(removed.value().getID() == e.getID());
+	  this->add(e); // Reinsert same ID with updated time
 	} else {
 	  auto msg = std::format("Error updating event: Event ID {} not found in EventQueue", e.getID());
 	  throw std::invalid_argument(msg);
