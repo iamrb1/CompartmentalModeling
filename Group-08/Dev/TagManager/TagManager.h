@@ -7,6 +7,11 @@
 using std::string;
 
 namespace cse {
+/**
+ * @class TagManager
+ * @brief The TagManager class helps to "label" items with a two-way
+ *        association to make looking up by "tag" or "task" simple
+ */
 
 class TagManager {
 private:
