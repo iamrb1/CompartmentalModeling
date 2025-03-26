@@ -99,25 +99,7 @@ TEST_CASE("Test for SubstringFilter", "[SubstringFilter]") {
 
 // GitHub copilot helped write some initial code for this function
 TEST_CASE("Test for Search", "[Search]") {
-    // Create a StringSet and insert some strings
-    StringSet<StaticString<4>> set;
-    StaticString<4> str1("abc");
-    StaticString<4> str2("abcd");
-    StaticString<4> str3("aXcY");
-    StaticString<4> str4("aXcZ");
-    StaticString<4> str5("xyz");
-    StaticString<4> str6 = "a?c*";
-    /*
-    set.insert(str1);
-    set.insert(str2);
-    set.insert(str3);
-    set.insert(str4);
-    set.insert(str5);
-    // Perform a search with a pattern and check if the result matches the expected output
-    StringSet result = set.Search(str6);
-    REQUIRE(result.size() == 4);
-
-    // Create a StringSet and insert some strings
+    // Test with std::string
     StringSet set;
     set.insert("abc");
     set.insert("abcd");
@@ -127,7 +109,23 @@ TEST_CASE("Test for Search", "[Search]") {
 
     // Perform a search with a pattern and check if the result matches the expected output
     StringSet result = set.Search("a?c*");
-    REQUIRE(result.size() == 4);*/
+    REQUIRE(result.size() == 3);
+    REQUIRE(result.count("aXcY") == 1);
+    REQUIRE(result.count("aXcZ") == 1);
+    
+    // Test with StaticString
+    StringSet<StaticString<4>> staticSet;
+    staticSet.insert("abc");
+    staticSet.insert("abcd");
+    staticSet.insert("aXcY");
+    staticSet.insert("aXcZ");
+    staticSet.insert("xyz");
+
+    // Perform a search with a pattern and check if the result matches the expected output
+    StringSet<StaticString<4>> staticResult = staticSet.Search("a?c*");
+    REQUIRE(staticResult.size() == 3);
+    REQUIRE(staticResult.count("aXcY") == 1);
+    REQUIRE(staticResult.count("aXcZ") == 1);
 }
 // GitHub copilot helped write some initial code for this function
 TEST_CASE("Test for Count_occurrence", "[Count_occurrence]") {
@@ -143,7 +141,7 @@ TEST_CASE("Test for Count_occurrence", "[Count_occurrence]") {
     REQUIRE(set.countOccurence("a") == 4);
     REQUIRE(set.countOccurence("X") == 2);
     REQUIRE(set.countOccurence("z") == 1);
-    /*
+    
     // Test with StaticString
     StringSet<StaticString<4>> staticSet;
     StaticString<4> str1("abc");
@@ -160,7 +158,7 @@ TEST_CASE("Test for Count_occurrence", "[Count_occurrence]") {
     // Check the occurrence count of specific characters in the set
     REQUIRE(staticSet.countOccurence("a") == 4);
     REQUIRE(staticSet.countOccurence("X") == 2);
-    REQUIRE(staticSet.countOccurence("z") == 1);*/
+    REQUIRE(staticSet.countOccurence("z") == 1);
 }
 
 TEST_CASE("Test for random_sample", "[random_sample]") {
@@ -209,7 +207,7 @@ TEST_CASE("Test for random_sample", "[random_sample]") {
     for (const auto& sample : samplesWithoutFilter) {
         REQUIRE(set.count(sample) == 1);
     }
-    /*
+    
     // Test with StaticString
     StringSet<StaticString<4>> staticSet;
     StaticString<4> str1("abc");
@@ -259,11 +257,11 @@ TEST_CASE("Test for random_sample", "[random_sample]") {
     // Ensure each sample exists in the set
     for (const auto& sample : staticSamplesWithoutFilter) {
         REQUIRE(staticSet.count(sample) == 1);
-    }*/
+    }
 }
 
 TEST_CASE("Test for Statistic", "[Statistic]") {
-    // Create a StringSet and insert some strings
+    // Test with std::string
     StringSet set;
     set.insert("abc");
     set.insert("abcd");
@@ -272,12 +270,26 @@ TEST_CASE("Test for Statistic", "[Statistic]") {
     set.insert("xyz");
 
     // Get statistics from the set and check if they match the expected values
-    // Github copilot helped with the tuple syntax because I forgot it
     auto stats = set.Statistics();
     REQUIRE(std::get<0>(stats) == 5); // Number of strings
     REQUIRE(std::get<1>(stats) == Approx(3.6)); // Average length
     REQUIRE(std::get<2>(stats).size() == 4); // Longest string
     REQUIRE(std::get<3>(stats).size() == 3); // Shortest string
+
+    // Test with StaticString
+    StringSet<StaticString<4>> staticSet;
+    staticSet.insert("abc");
+    staticSet.insert("abcd");
+    staticSet.insert("aXcY");
+    staticSet.insert("aXcZ");
+    staticSet.insert("xyz");
+
+    // Get statistics from the set and check if they match the expected values
+    auto staticStats = staticSet.Statistics();
+    REQUIRE(std::get<0>(staticStats) == 5); // Number of strings
+    REQUIRE(std::get<1>(staticStats) == Approx(3.6)); // Average length
+    REQUIRE(std::get<2>(staticStats).size() == 4); // Longest string
+    REQUIRE(std::get<3>(staticStats).size() == 4); // Shortest string
 }
 
 TEST_CASE("Tests for SizeFilter", "[SizeFilter]") {
