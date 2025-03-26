@@ -384,7 +384,11 @@ cse::StringSet<T> cse::StringSet<T>::Search(const T &wildcard) {
 
     return result;
 }
-
+/*
+* @brief Count the number of occurrences of a substring in the set
+* @param substring The substring to search for
+* @return The number of occurrences of the substring
+*/
 template<typename T>
 int cse::StringSet<T>::countOccurence(const T &substring) {
   int totalCount = 0;
@@ -399,7 +403,12 @@ int cse::StringSet<T>::countOccurence(const T &substring) {
 
   return totalCount;
 }
-
+/*
+* @brief Randomly sample a subset of the set
+* @param sampleSize The number of elements to sample
+* @param filter A function that returns true if an element should be included in the sample defaults to all elements
+* @return A new set containing a random sample of the elements
+*/
 template<typename T>
 cse::StringSet<T> cse::StringSet<T>::RandomSample(int sampleSize, const std::function<bool(const T&)> filter) {
     StringSet<T> result;
@@ -428,7 +437,10 @@ cse::StringSet<T> cse::StringSet<T>::RandomSample(int sampleSize, const std::fun
 
     return result;
 }
-
+/*
+* @brief Calculate statistics about the set
+* @return A tuple containing the number of strings, the average length of the strings, the longest string, and the shortest string
+*/
 template<typename T>
 std::tuple<int, double, T, T> cse::StringSet<T>::Statistics() {
     int numStrings = size();
