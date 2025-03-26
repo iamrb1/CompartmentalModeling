@@ -18,12 +18,34 @@
 namespace cse {
 
 template <typename T>
-concept uses_to_string = requires(T & value) {
+concept numeric = requires(T& value) {
+  /// reference of implementation: https://stackoverflow.com/questions/26207526/how-to-make-sure-that-template-type-is-a-number-type
+    std::is_arithmetic<T>::value;
+};
+
+template <typename T>
+concept is_conv_string = requires(T& value) {
+    std::convertible_to<T, std::string>;
+};
+
+template <typename T>
+concept has_sizeof = requires(T& value) {
+    sizeof(T);
+};
+
+template <typename T>
+concept const_check = requires(T& value) {
+    /// https://en.cppreference.com/w/cpp/types/is_const
+    std::is_const_v<T>;
+};
+
+template <typename T>
+concept uses_to_string = requires(T& value) {
   std::to_string(value);
 };
 
 template <typename T>
-concept has_ToString = requires(T & value) {
+concept has_to_string = requires(T& value) {
   value.ToString();
 };
 
@@ -36,8 +58,8 @@ class [[maybe_unused]] AdvDataMap {
       virtual ~Base() = default;
       [[nodiscard]] virtual std::unique_ptr<Base> clone() const = 0;
       [[nodiscard]] virtual const std::type_info& type() const = 0;
-      [[nodiscard]] virtual bool is_ref() const = 0;
-      virtual void set() = 0;
+      [[maybe_unused]] [[nodiscard]] virtual bool is_ref() const = 0;
+      [[maybe_unused]] virtual void set() = 0;
     };
 
     template <typename T>
@@ -161,12 +183,12 @@ class [[maybe_unused]] AdvDataMap {
   }
 
   template <typename T>
-  [[maybe_unused]] inline void AddRef(const std::string& name, T& val) {
+  [[maybe_unused]] inline void add_ref(const std::string& name, T& val) {
     assert(!contains(name) && "Key already exists within DataMap");
     m_map[name] = Any(val, true, &val);
   }
 
-  [[nodiscard]] inline bool is_ref(const std::string& name) const {
+  [[maybe_unused]] [[nodiscard]] inline bool is_ref(const std::string& name) const {
     assert(contains(name) && "Key does not exist in DataMap");
     return m_map.at(name).is_ref();
   }
@@ -193,19 +215,60 @@ class [[maybe_unused]] AdvDataMap {
    */
   template <typename T>
   [[maybe_unused]] inline std::string to_string(const std::string& name) {
+    /// refactored Dr.Ofria]s version to work with AdvDataMap
     assert(contains(name) && "Key does not exist in DataMap");
     T value = get<T>(name);
-    if constexpr (std::convertible_to<T, std::string>) {
+    if constexpr (is_conv_string<T>) {
       return value;
     } else if constexpr (uses_to_string<T>) {
       return std::to_string(value);
-    } else if constexpr (has_ToString<T>) {
+    } else if constexpr (has_to_string<T>) {
       return value.ToString();
     } else {
       std::stringstream ss;
       ss << value;
       return ss.str();
     }
+  }
+
+  template <typename T>
+  [[maybe_unused]] inline bool is_conv_to_string(const std::string& name) {
+    assert(contains(name) && "Key does not exist in DataMap");
+    T value = get<T>(name);
+    if constexpr (is_conv_string<T>) {
+      return true;
+    }
+    return false;
+  }
+
+  template <typename T>
+  [[maybe_unused]] inline bool is_numeric(const std::string& name) {
+    assert(contains(name) && "Key does not exist in DataMap");
+    T value = get<T>(name);
+    if constexpr (numeric<T>) {
+      return true;
+    }
+    return false;
+  }
+
+  template <typename T>
+  [[maybe_unused]] inline bool is_const(const std::string& name) {
+    assert(contains(name) && "Key does not exist in DataMap");
+    T value = get<T>(name);
+    if constexpr (const_check<T>) {
+      return true;
+    }
+    return false;
+  }
+
+  template <typename T>
+  [[maybe_unused]] inline size_t get_mem_size(const std::string& name) {
+    assert(contains(name) && "Key does not exist in DataMap");
+    T value = get<T>(name);
+    if constexpr (has_sizeof<T>) {
+      return sizeof(T);
+    }
+    return sizeof(m_map.at(name));
   }
 
   /**
@@ -262,18 +325,21 @@ class [[maybe_unused]] AdvDataMap {
   }
 
   template <typename T>
-  [[maybe_unused]] [[nodiscard]] inline std::vector<std::string> GetTypeKeys() const {
+  [[maybe_unused]] [[nodiscard]] inline std::vector<std::string> get_type_keys() const {
+    /// original method created by myself, refactored to utilizing a lambda within a for each
+    /// instead of a loop utilizing assistance by gpt4o
     std::vector<std::string> names;
     if (m_map.empty()) {
       return names;
     }
-    const auto& type = typeid(T);
-
-    for (const auto& pair : m_map) {
-      if (pair.second.type() == type) {
+    std::for_each(m_map.begin(), m_map.end(), [&names](const auto& pair) {
+      if (pair.second.type() == typeid(T)) {
         names.push_back(pair.first);
       }
-    }
+    });
+    /// use for_each and specify a lambda within as a filter to grab desired keys
+    /// previous implementation was to use a for range loop instead of for_each
+    /// nnow captures names within the lambda and performs operation to push the string back within vector if type match
     return names;
   }
 };
