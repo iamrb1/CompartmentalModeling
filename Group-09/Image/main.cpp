@@ -1,15 +1,17 @@
 /**
-* @file main.cpp
+ * @file main.cpp
  *
  * @author Mia Bodenhorn
  */
 
-#include "image.hpp"
-#include <iostream>
-#include <stdexcept>
-#include <sstream>
 #include <emscripten.h>
+
 #include <cstdlib>
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
+
+#include "image.hpp"
 
 using namespace cse;
 
@@ -22,21 +24,25 @@ using namespace cse;
  * @param altText The alt text
  */
 extern "C" {
-    void InjectImage(const char* url, int width, int height, const char* altText) {
-        try {
-            Image img(url, width, height, altText);
-            img.preview();
-            img.injectJS();
-        } catch (const std::exception& e) {
-            Alert("Image creation failed: " + std::string(e.what()));
-        }
-    }
+void InjectImage(const char* url, int width, int height, const char* altText) {
+  try {
+    Image img(url, width, height, altText);
+    img.preview();
+    img.injectJS();
+  } catch (const std::exception& e) {
+    Alert("Image creation failed: " + std::string(e.what()));
+  }
+}
 }
 
 int main() {
   EM_ASM({
-    InjectImage = Module.cwrap('InjectImage', null, ['string', 'number', 'number', 'string']);
-    InjectImage("https://i.pinimg.com/originals/36/82/13/368213faa3efdfeffa5da9f5b493c9e7.jpg", 700, 500, "Sparty!");
+    InjectImage = Module.cwrap('InjectImage', null,
+                               [ 'string', 'number', 'number', 'string' ]);
+    InjectImage(
+        "https://i.pinimg.com/originals/36/82/13/"
+        "368213faa3efdfeffa5da9f5b493c9e7.jpg",
+        700, 500, "Sparty!");
   });
 
   return 0;

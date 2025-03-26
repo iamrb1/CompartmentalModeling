@@ -1,88 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css"
-        integrity="sha512-1sCRPdkRXhBV2PBLUdRb4tMg1w2YPf37qatUFeS7zlBy7jJI8Lf4VHwWfZZfpXtYSLy85pkm9GaYVYMfw5BC1A=="
-        crossorigin="anonymous" referrerpolicy="no-referrer">
-    <style>
-        .presentation-zone {
-            background-color: aliceblue;
-            width: 100vw;
-            height: 95vh;
-            overflow: hidden;
-        }
-
-        .bottom-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: rgb(190, 189, 189);
-            width: 100%;
-            height: 5vh;
-            padding: 0 20px;
-        }
-
-        html,
-        body {
-            overflow: hidden;
-            margin: 0;
-            padding: 0;
-        }
-    </style>
+          integrity="sha512-1sCRPdkRXhBV2PBLUdRb4tMg1w2YPf37qatUFeS7zlBy7jJI8Lf4VHwWfZZfpXtYSLy85pkm9GaYVYMfw5BC1A=="
+          crossorigin="anonymous" referrerpolicy="no-referrer">
 </head>
 
 <body>
 
-    <div class="presentation-zone" id="presentation-zone"></div>
+<div class="presentation-zone" id="presentation-zone">
 
-    <div class="bottom-nav">
-        <input type="file" id="fileInput" accept=".json">
-        <button id="saveDeck">Save Deck</button>
-        <div>
-            <button id="reverseButton">Last Slide <i class="fa-solid fa-angles-left"></i></button>
-            <button id="advanceButton">Next Slide <i class="fa-solid fa-angles-right"></i></button>
-        </div>
-    </div>
+</div>
 
-    <!-- Emscripten/WebAssembly Output -->
-    <script src="output.js"></script>
-
-    <script>
-        // WASM bindings
-        const loadDeck = Module.cwrap('loadSlideDeckFromJson', null, ['string']);
-        const saveDeck = Module.cwrap('exportSlideDeckToJson', 'string', []);
-
-        // Load a slide deck from file input
-        document.getElementById("fileInput").addEventListener("change", function (e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function (event) {
-                const jsonStr = event.target.result;
-                try {
-                    loadDeck(jsonStr);
-                } catch (err) {
-                    alert("Failed to load deck: " + err);
-                }
-            };
-            reader.readAsText(file);
-        });
-
-        // Save slide deck to file
-        document.getElementById("saveDeck").addEventListener("click", function () {
-            const exported = saveDeck();
-            // Create a virtual JSON file in memory so the browser can download it
-            const blob = new Blob([exported], { type: 'application/json' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = "slides.json";
-            link.click();
-        });
-    </script>
+<div class="bottom-nav">
+    <button id="reverseButton">Last Slide<i class="fa-solid fa-angles-left"></i></button>
+    <button id="advanceButton">Next Slide<i class="fa-solid fa-angles-right"></i></button>
+</div>
 
 </body>
 
+<footer>
+    <script src="output.js"></script> <!-- Load Emscripten JS -->
+</footer>
 </html>
+
+</body>
+
+
+<style>
+
+    .presentation-zone {
+        background-color: aliceblue;
+        width: 100vw;
+        height: 95vh;
+        overflow: hidden;
+    }
+
+    .bottom-nav {
+        display: flex;
+        justify-content: flex-end;
+        justify-self: center;
+        background-color: rgb(190, 189, 189);
+        width: 100%;
+        height: 5vh;
+    }
+
+    html, body {
+        overflow: hidden;
+    }
+</style>

@@ -7,10 +7,12 @@
  */
 
 #pragma once
-#include <iostream>
-#include <vector>
-#include <memory>
 #include <emscripten.h>
+
+#include <iostream>
+#include <memory>
+#include <vector>
+
 #include "../Image/image.hpp"
 #include "../TextBox/TextBox.hpp"
 
@@ -21,15 +23,16 @@ struct TextBoxLayout {
   int yPos;
   int xPos;
 
-  TextBoxLayout() : textBox(), xPos(0), yPos(0) {};
+  TextBoxLayout() : textBox(), xPos(0), yPos(0){};
 
   TextBoxLayout(std::shared_ptr<TextBox> textBox, int x, int y)
       : textBox(std::move(textBox)), xPos(x), yPos(y) {}
 
   bool operator==(const TextBoxLayout &textboxLayout) const {
-    return ((textboxLayout.textBox->getFormattedText().getText() == textBox->getFormattedText().getText())
-        && (textboxLayout.textBox->getWidth() == textBox->getWidth())
-        && (textboxLayout.textBox->getHeight() == textBox->getHeight()));
+    return ((textboxLayout.textBox->getFormattedText().getText() ==
+             textBox->getFormattedText().getText()) &&
+            (textboxLayout.textBox->getWidth() == textBox->getWidth()) &&
+            (textboxLayout.textBox->getHeight() == textBox->getHeight()));
   }
 };
 
@@ -38,14 +41,15 @@ struct ImageLayout {
   int yPos;
   int xPos;
 
-  ImageLayout() : image(), yPos(0), xPos(0) {};
+  ImageLayout() : image(), yPos(0), xPos(0){};
 
   ImageLayout(std::shared_ptr<Image> image, int x, int y)
       : image(std::move(image)), yPos(y), xPos(x) {}
 
   bool operator==(const ImageLayout &imageLayout) const {
-    return ((imageLayout.image->getURL() == image->getURL()) && (imageLayout.image->getWidth() == image->getWidth())
-        && (imageLayout.image->getHeight() == image->getHeight()));
+    return ((imageLayout.image->getURL() == image->getURL()) &&
+            (imageLayout.image->getWidth() == image->getWidth()) &&
+            (imageLayout.image->getHeight() == image->getHeight()));
   }
 };
 
@@ -55,20 +59,12 @@ class WebLayout {
   std::vector<ImageLayout> images;
   std::string id;
 
-  const void renderTextBox(const std::string &layoutID,
-                           const std::string &msg,
-                           const int &width,
-                           const int &height,
-                           const int &x,
-                           const int &y,
-                           const std::string &textboxID);
-  void const renderImage(const std::string &layoutID,
-                         const std::string &url,
-                         const int &width,
-                         const int &height,
-                         const int &x,
-                         const int &y,
-                         const std::string &imageID);
+  const void renderTextBox(const std::string &layoutID, const std::string &msg,
+                           const int &width, const int &height, const int &x,
+                           const int &y, const std::string &textboxID);
+  void const renderImage(const std::string &layoutID, const std::string &url,
+                         const int &width, const int &height, const int &x,
+                         const int &y, const std::string &imageID);
 
  public:
   WebLayout() : id(generateID()) {}
@@ -84,9 +80,8 @@ class WebLayout {
   static std::string generateID();
   const std::string getID() { return id; }
 
-  //TODO: Future Implement Clear Layout Function
+  // TODO: Future Implement Clear Layout Function
   void activateLayout();
   void deactivateLayout();
-
 };
-}
+}  // namespace cse
