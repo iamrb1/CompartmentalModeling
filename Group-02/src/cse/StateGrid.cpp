@@ -30,7 +30,7 @@ std::ostream& operator<<(std::ostream& os, const cse::AuditedVector<std::string>
 ///unless we decide not to implement a better visual element to display our game.
 void StateGrid::display_grid() {
   assert(!m_grid.empty() && "m_grid is empty and cannot display");
-  std::cout<< &m_grid;
+  std::cout << &m_grid;
 }
 
 /**
@@ -38,12 +38,13 @@ void StateGrid::display_grid() {
  * @param new_position pair containing new agent spot
  * @param agent pair containing current agent position
  */
-bool StateGrid::set_state(std::pair<int, int> new_position, std::pair<int, int> agent) {
-  assert(!m_grid.empty() && m_grid[agent.first][agent.second] == 'P');
+bool StateGrid::set_state(Point new_position) {
+  auto agent = m_position.get_object_position();
+  assert(!m_grid.empty() && m_grid[static_cast<size_t>(agent.x_position)][static_cast<size_t>(agent.y_position)] == 'P');
 
-  if (validate_position({new_position.first, new_position.second})) {
-    m_grid[new_position.first][new_position.second] = 'P';
-    m_grid[agent.first][agent.second] = ' ';
+  if (validate_position({static_cast<int>(new_position.x_position), static_cast<int>(new_position.y_position)})) {
+    m_grid[static_cast<size_t>(new_position.x_position)][static_cast<size_t>(new_position.y_position)] = 'P';
+    m_grid[static_cast<size_t>(agent.x_position)][static_cast<size_t>(agent.y_position)] = ' ';
     return true;
   }
   return false;
@@ -96,9 +97,9 @@ void StateGrid::find_properties()
  * @param col col of position
  * @return state of (row,col) position
  */
-char StateGrid::get_state(int row, int col) {
-  assert(row < m_rows && col < m_cols && "This is not inside the grid");
-  return m_grid[row][col];
+char StateGrid::get_state(Point statepos) {
+  assert(statepos.x_position < m_rows && statepos.y_position < m_cols && "This is not inside the grid");
+  return m_grid[static_cast<size_t>(statepos.x_position)][static_cast<size_t>(statepos.y_position)];
 }
 
 /**
@@ -118,13 +119,15 @@ bool StateGrid::validate_position(std::pair<int, int> move) {
  * @param col col of agent position
  * @return vector of pairs of possible move directions
  */
-std::vector<std::pair<int,int>> StateGrid::find_moves(int row, int col) {
+std::vector<Point> StateGrid::find_moves() {
+  double row = m_position.get_object_position().x_position;
+  double col = m_position.get_object_position().y_position;
   assert(row < m_rows && col < m_cols && "This is not inside the grid");
-  std::vector<std::pair<int, int>> moves = {};
+  std::vector<Point> moves = {};
   std::vector<std::pair<int, int>> poss_moves = {{(row + 1), col}, {(row - 1), col}, {row, (col + 1)}, {row, (col - 1)}};
   for (auto move : poss_moves) {
     if (validate_position(move)) {
-      moves.push_back(move);
+      moves.push_back(Point(move.first,move.second));
     }
   }
   return moves;
@@ -156,7 +159,7 @@ void StateGrid::load_map(const std::string& diff) {
   m_grid = pregrid;
   m_cols = static_cast<int>(m_grid[0].size());
   m_rows = static_cast<int>(m_grid.size());
-
+  m_position.set_object_position({1,2});            ///< Until we implement more maps, hard coding original agent pos
 }
 
 /**
