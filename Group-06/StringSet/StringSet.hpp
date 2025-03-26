@@ -350,9 +350,14 @@ bool cse::StringSet<T>::IsSubset(const StringSet<T> &other) const{
  */
 template<typename T>
 void cse::StringSet<T>::SubstringFilter(const T &substring) {
+  // this function was written with the help from DeepSeek
+  if (substring.empty()) return; // do not do anything for an empty substring
+  
   // Lambda that will be used in RemoveFilter to filter words that we need
-  auto substringPredicate = [&substring] (const T& element) {
-    return element.find(substring) != T::npos;
+  auto substringPredicate = [substring](const T& element) {
+    std::string_view element_view(element);
+    std::string_view substr_view(substring);
+    return element_view.find(substr_view) != std::string_view::npos;
   };
 
   RemoveFilter(substringPredicate);

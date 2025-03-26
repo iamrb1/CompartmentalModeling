@@ -51,6 +51,44 @@ TEST_CASE("Test for IsSubset", "[IsSubset]") {
 		
 		REQUIRE_FALSE(set1.IsSubset(set2));
 	}
+
+
+    StringSet<StaticString<10>> set3, set4;
+    
+    SECTION("Empty test is a subset of empty set and itself") {
+        REQUIRE(set3.IsSubset(set4));
+        REQUIRE(set3.IsSubset(set3));
+    }
+    
+    SECTION("Non-empty set is a subset of itself") {
+        set3.insert("cat");
+        set3.insert("dog");
+        REQUIRE(set3.IsSubset(set3));
+    }
+    
+    SECTION("Non-empty set is a subset of another larger non-empty set") {
+        set3.insert("cat");
+        set4.insert("cat");
+        set3.insert("dog");
+        set4.insert("dog");
+        
+        set4.insert("ivan");
+        set4.insert("monkey");
+        
+        REQUIRE(set3.IsSubset(set4));
+        
+    }
+    
+    SECTION("Superset is not a subset") {
+        set3.insert("cat");
+        set4.insert("cat");
+        set3.insert("dog");
+        set4.insert("dog");
+        
+        set3.insert("monkey");
+        
+        REQUIRE_FALSE(set3.IsSubset(set4));
+    }
 }
 
 TEST_CASE("Test for SubstringFilter", "[SubstringFilter]") {
@@ -93,6 +131,48 @@ TEST_CASE("Test for SubstringFilter", "[SubstringFilter]") {
 		REQUIRE(set.count("banana") == 1);
 		REQUIRE(set.count("orange") == 0);
 		REQUIRE(set.count("dog") == 0);
+	}
+
+    //StaticString
+    StringSet<StaticString<15>> set2;
+	
+	SECTION("Filtering from an empty set should not cause errors") {
+		set2.SubstringFilter("something");
+		REQUIRE(set2.size() == 0);
+	}
+	
+	SECTION("Filtering with non-occuring substring should not change the set") {
+		set2.insert("apple");
+		set2.insert("banana");
+		set2.insert("orange");
+		set2.SubstringFilter("something");
+		
+		REQUIRE(set2.count("apple") == 1);
+		REQUIRE(set2.count("banana") == 1);
+		REQUIRE(set2.count("orange") == 1);
+		REQUIRE(set2.count("something") == 0);
+	}
+	
+	SECTION("Using a substring that occurs in all elements") {
+		set2.insert("apple");
+		set2.insert("banana");
+		set2.insert("orange");
+		set2.SubstringFilter("a");
+		REQUIRE(set2.size() == 0);
+	}
+	
+	SECTION("Using a substring that occurs in some elements") {
+		set2.insert("apple");
+		set2.insert("banana");
+		set2.insert("orange");
+		set2.insert("dog");
+		REQUIRE(set2.size() == 4);
+		set2.SubstringFilter("o");
+		REQUIRE(set2.size() == 2);
+		REQUIRE(set2.count("apple") == 1);
+		REQUIRE(set2.count("banana") == 1);
+		REQUIRE(set2.count("orange") == 0);
+		REQUIRE(set2.count("dog") == 0);
 	}
 }
 
