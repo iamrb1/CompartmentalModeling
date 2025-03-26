@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <unordered_map>
-// for std::out_of_range
 #include <stdexcept>
 #include <functional>
 
@@ -11,6 +10,7 @@ namespace cse {
 
 /**
  * @class RandomAccessSet
+ * @author Joanna Rodriguez Zamarron
  * @brief A hybrid data structure combining unique element storage (like a set)
  *        with index-based access (like a vector).
  *
@@ -165,12 +165,13 @@ size_t RandomAccessSet<T>::getIndexOf(const T& item) const {
 }
 
 template <typename T>
+// Allows for mElements to be accessed safely, easier iteration
+// Used when we want to apply something to each item in the set
 void RandomAccessSet<T>::forEach(std::function<void(const T&)> callback) const {
     for (const auto& item : mElements) {
         callback(item);
     }
 }
-
 }
 
 #endif
