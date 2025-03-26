@@ -363,6 +363,53 @@ TEST_CASE("Test for UnionWith", "[UnionWith]"){
     });
 
     REQUIRE(unionSet.size() == 0);
+
+    // TEST FOR STATICSTRING
+
+    StringSet<StaticString<10>> Sset1;
+    StringSet<StaticString<10>> Sset2;
+
+    // Not empty sets
+    Sset1.insert(StaticString<10>("black"));
+    Sset1.insert(StaticString<10>("blue"));
+    Sset1.insert(StaticString<10>("brown"));
+
+    Sset2.insert(StaticString<10>("purple"));
+    Sset2.insert(StaticString<10>("white"));
+    Sset2.insert(StaticString<10>("yellow"));
+
+    StringSet<StaticString<10>> SunionSet = Sset1.UnionWith(Sset2, [](const StaticString<10>& str){
+        return str.find('l') != StaticString<10>::npos;
+    });
+    REQUIRE(SunionSet.size() == 4);
+    REQUIRE(SunionSet.count(StaticString<10>("black")) == 1);
+    REQUIRE(SunionSet.count(StaticString<10>("blue")) == 1);
+    REQUIRE(SunionSet.count(StaticString<10>("purple")) == 1);
+    REQUIRE(SunionSet.count(StaticString<10>("yellow")) == 1);
+
+    // One empty set
+
+    Sset2.clear();
+    SunionSet.clear();
+
+    SunionSet = Sset1.UnionWith(Sset2, [](const StaticString<10>& str){
+        return str.find('l') != StaticString<10>::npos;
+    });
+
+    REQUIRE(SunionSet.size() == 2);
+    REQUIRE(SunionSet.count(StaticString<10>("black")) == 1);
+    REQUIRE(SunionSet.count(StaticString<10>("blue")) == 1);
+
+    // Two empty sets
+
+    Sset1.clear();
+    SunionSet.clear();
+
+    SunionSet = Sset1.UnionWith(Sset2, [](const StaticString<10>& str){
+        return str.find('l') != StaticString<10>::npos;
+    });
+
+    REQUIRE(SunionSet.size() == 0);
 }
 
 TEST_CASE("Test for SymmetricDifference", "[SymmetricDifference]"){
@@ -402,6 +449,45 @@ TEST_CASE("Test for SymmetricDifference", "[SymmetricDifference]"){
     symmetricSet.clear();
     symmetricSet = set1.SymmetricDifference(set1);
     REQUIRE(symmetricSet.size() == 0);
+
+    // TEST FOR STATICSTRING
+
+    StringSet<StaticString<10>> Sset1;
+    StringSet<StaticString<10>> Sset2;
+
+    // Empty sets
+    StringSet<StaticString<10>> SsymmetricSet = Sset1.SymmetricDifference(Sset2);
+
+    REQUIRE(SsymmetricSet.size() == 0);
+
+    // One empty set
+    Sset1.insert(StaticString<10>("black"));
+    Sset1.insert(StaticString<10>("blue"));
+    Sset1.insert(StaticString<10>("green"));
+
+    SsymmetricSet = Sset1.SymmetricDifference(Sset2);
+    REQUIRE(SsymmetricSet.size() == 3);
+    REQUIRE(SsymmetricSet.count(StaticString<10>("black")) == 1);
+    REQUIRE(SsymmetricSet.count(StaticString<10>("blue")) == 1);
+    REQUIRE(SsymmetricSet.count(StaticString<10>("green")) == 1);
+
+    // Not empty sets
+    SsymmetricSet.clear();
+    Sset2.insert(StaticString<10>("black"));
+    Sset2.insert(StaticString<10>("yellow"));
+    Sset2.insert(StaticString<10>("white"));
+
+    SsymmetricSet = Sset1.SymmetricDifference(Sset2);
+    REQUIRE(SsymmetricSet.size() == 4);
+    REQUIRE(SsymmetricSet.count(StaticString<10>("blue")) == 1);
+    REQUIRE(SsymmetricSet.count(StaticString<10>("green")) == 1);
+    REQUIRE(SsymmetricSet.count(StaticString<10>("yellow")) == 1);
+    REQUIRE(SsymmetricSet.count(StaticString<10>("white")) == 1);
+
+    // Try same set
+    SsymmetricSet.clear();
+    SsymmetricSet = Sset1.SymmetricDifference(Sset1);
+    REQUIRE(SsymmetricSet.size() == 0);
 }
 
 TEST_CASE("Test for ToVector", "[ToVector]"){
@@ -422,6 +508,26 @@ TEST_CASE("Test for ToVector", "[ToVector]"){
 
     std::vector<std::string> vec2 = set2.ToVector();
     REQUIRE(vec2.size() == 0);
+
+    // TEST FOR STATICSTRING
+
+    StringSet<StaticString<10>> Sset1;
+
+    Sset1.insert(StaticString<10>("black"));
+    Sset1.insert(StaticString<10>("blue"));
+    Sset1.insert(StaticString<10>("green"));
+    Sset1.insert(StaticString<10>("yellow"));
+
+    std::vector<StaticString<10>> Svec1 = Sset1.ToVector();
+
+    REQUIRE(Svec1.size() == 4);
+
+    // Empty set
+
+    StringSet<StaticString<10>> Sset2;
+
+    std::vector<StaticString<10>> Svec2 = Sset2.ToVector();
+    REQUIRE(Svec2.size() == 0);
 }
 
 TEST_CASE("Test for sort", "[sort]"){
@@ -449,6 +555,32 @@ TEST_CASE("Test for sort", "[sort]"){
 
     REQUIRE(sortedSet == expected);
 
+    // TEST FOR STATICSTRING
+
+    StringSet<StaticString<10>> Sset;
+
+    // Empty set
+
+    std::set<StaticString<10>> SsortedSet = Sset.sort([](const StaticString<10>& s1, const StaticString<10>& s2){
+        return s1.length() < s2.length();
+    });
+
+    std::set<StaticString<10>> STexpected = {};
+
+    REQUIRE(SsortedSet == STexpected);
+
+    Sset.insert(StaticString<10>("black"));
+    Sset.insert(StaticString<10>("red"));
+    Sset.insert(StaticString<10>("purple"));
+
+    SsortedSet = Sset.sort([](const StaticString<10>& s1, const StaticString<10>& s2){
+        return s1.length() < s2.length();
+    });
+
+    STexpected = {StaticString<10>("red"), StaticString<10>("black"), StaticString<10>("purple")};
+
+    REQUIRE(SsortedSet == STexpected);
+
 }
 
 TEST_CASE("operator<<", "[operator<<]"){
@@ -472,6 +604,29 @@ TEST_CASE("operator<<", "[operator<<]"){
     oss2 << set;
 
     REQUIRE(oss2.str() == "");
+
+    // TEST FOR STATICSTRING
+
+    StringSet<StaticString<10>> Sset;
+    Sset.insert(StaticString<10>("blue"));
+    Sset.insert(StaticString<10>("green"));
+    Sset.insert(StaticString<10>("black"));
+
+    std::ostringstream Soss;
+    Soss << Sset;
+
+    std::string Soutput = Soss.str();
+
+    REQUIRE(Soutput.find("blue") != std::string::npos);
+    REQUIRE(Soutput.find("green") != std::string::npos);
+    REQUIRE(Soutput.find("black") != std::string::npos);
+
+    // empty set
+    Sset.clear();
+    std::ostringstream Soss2;
+    Soss2 << Sset;
+
+    REQUIRE(Soss2.str() == "");
 }
 
 TEST_CASE("Swap", "[Swap]"){
@@ -515,5 +670,50 @@ TEST_CASE("Swap", "[Swap]"){
     set1.Swap(set2);
     REQUIRE(set1.empty());
     REQUIRE(set2.empty());
+
+
+    // TEST FOR STATICSTRING
+
+
+    StringSet<StaticString<10>> Sset1;
+    StringSet<StaticString<10>> Sset2;
+
+    Sset1.insert(StaticString<10>("blue"));
+    Sset1.insert(StaticString<10>("green"));
+    Sset1.insert(StaticString<10>("black"));
+    REQUIRE(Sset1.count(StaticString<10>("blue")) == 1);
+    REQUIRE(Sset1.count(StaticString<10>("green")) == 1);
+    REQUIRE(Sset1.count(StaticString<10>("black")) == 1);
+
+    Sset2.insert(StaticString<10>("yellow"));
+    Sset2.insert(StaticString<10>("white"));
+    Sset2.insert(StaticString<10>("purple"));
+    REQUIRE(Sset2.count(StaticString<10>("yellow")) == 1);
+    REQUIRE(Sset2.count(StaticString<10>("white")) == 1);
+    REQUIRE(Sset2.count(StaticString<10>("purple")) == 1);
+
+    Sset1.Swap(Sset2);
+
+    REQUIRE(Sset1.count(StaticString<10>("yellow")) == 1);
+    REQUIRE(Sset1.count(StaticString<10>("white")) == 1);
+    REQUIRE(Sset1.count(StaticString<10>("purple")) == 1);
+    REQUIRE(Sset1.count(StaticString<10>("blue")) == 0);
+    REQUIRE(Sset1.count(StaticString<10>("green")) == 0);
+    REQUIRE(Sset1.count(StaticString<10>("black")) == 0);
+
+    REQUIRE(Sset2.count(StaticString<10>("blue")) == 1);
+    REQUIRE(Sset2.count(StaticString<10>("green")) == 1);
+    REQUIRE(Sset2.count(StaticString<10>("black")) == 1);
+    REQUIRE(Sset2.count(StaticString<10>("yellow")) == 0);
+    REQUIRE(Sset2.count(StaticString<10>("white")) == 0);
+    REQUIRE(Sset2.count(StaticString<10>("purple")) == 0);
+
+    // empty set
+    Sset1.clear();
+    Sset2.clear();
+
+    Sset1.Swap(Sset2);
+    REQUIRE(Sset1.empty());
+    REQUIRE(Sset2.empty());
 
 }
