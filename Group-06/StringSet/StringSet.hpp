@@ -346,7 +346,6 @@ bool cse::StringSet<T>::IsSubset(const StringSet<T> &other) const{
 
 /**
  * @brief Removes words from a current StringSet that contain a substring
- * 
  * @param substring Substring to check against
  */
 template<typename T>
@@ -360,7 +359,6 @@ void cse::StringSet<T>::SubstringFilter(const T &substring) {
 }
 /**
  * @brief Search for a string with wildcard
- * 
  * @param wildcard Wildcard string
  * @return StringSet<T> Set of strings that match the wildcard
  */
