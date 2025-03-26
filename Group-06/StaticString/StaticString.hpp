@@ -695,6 +695,44 @@ public:
   
   /**
    * @brief Finds the first occurrence of a character, string, string_view,
+   *  char* in the string, in reverse order.
+   * 
+   * @tparam T Templated types are string, string_view, char*
+   * @param str Templated parameter to searched in the string
+   * @return constexpr std::size_t The index of the character if found;
+   * if not found StaticString::npos.
+   */
+  template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
+  constexpr std::size_t rFind(const T& str) const noexcept {
+    // std::string, char*, char[N] are all convertible to string_view, thus
+    // We convert templated input to convert into string_view to perform find
+    std::string_view size(str);
+
+    for (std::size_t i = mCurrentSize - size.length(); i > 0; --i) {
+      std::size_t j = 0;
+      for (; j < size.length(); ++j) {
+        if (mString[i + j] != str[j]) break;
+      }
+      if (j == size.length()) return i;
+    }
+    return npos;
+  }
+
+  /**
+   * @brief Finds the first occurrence of a character in the string, in reverse order.
+   * 
+   * @param ch Character to be searched 
+   * @return constexpr std::size_t index of the character found
+   */
+  constexpr std::size_t rFind(char ch) const noexcept {
+    for (std::size_t i = mCurrentSize; i > 0; --i) {
+      if (mString[i - 1] == ch) return i - 1;
+    }
+    return npos;
+  }
+
+  /**
+   * @brief Finds the first occurrence of a character, string, string_view,
    * char* in the string, in reverse search order.
    * 
    * @tparam T Templated types are string, string_view, char*
@@ -703,7 +741,7 @@ public:
    * if not found StaticString::npos.
    */
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
-  constexpr std::vector<std::size_t> rFind(const T& str) const noexcept {
+  constexpr std::vector<std::size_t> rFindAll(const T& str) const noexcept {
     // std::string, char*, char[N] are all convertible to string_view, thus
     // We convert templated input to convert into string_view to perform find
     std::string_view size(str);
@@ -731,7 +769,7 @@ public:
    * @param ch Character to be searched 
    * @return constexpr std::vector<std::size_t> 
    */
-  constexpr std::vector<std::size_t> rFind(char ch) const noexcept {
+  constexpr std::vector<std::size_t> rFindAll(char ch) const noexcept {
       std::vector<std::size_t> indexesFound = std::vector<size_t>{};
       int counter = 0;
 
@@ -761,8 +799,12 @@ public:
       throw std::out_of_range("replace exceeds the size allowed");
 
     for (int i = 0; i < (int)index.size(); i++) {
-      remove(index[i], index[i] + size.length());
-      insert(str2, index[i]);
+      std::vector<size_t> index3 = findAll(str1);
+      remove(index3[0], index3[0] + size.length());
+      insert(str2, index3[0]);
+
+      //remove(index[i], index[i] + size.length());
+      //insert(str2, index[i]);
     }
   }
 
@@ -775,8 +817,12 @@ public:
   void replace(char ch, char ch2) {
     std::vector<size_t> index = findAll(ch);
     for (int i = 0; i < (int)index.size(); i++) {
-      remove(index[i], index[i] + size_t(1));
-      insert(ch2, index[i]);
+      std::vector<size_t> index3 = findAll(ch);
+      remove(index3[0], index3[0] + size_t(1));
+      insert(ch2, index3[0]);
+
+      //remove(index[i], index[i] + size_t(1));
+      //insert(ch2, index[i]);
     }
   }
 
@@ -793,8 +839,11 @@ public:
     std::vector<size_t> index = findAll(str1);
     std::string_view size(str1);
     for (int i = 0; i < (int)index.size(); i++) {
-      remove(index[i], index[i] + size.length());
-      insert(ch2, index[i]);
+      std::vector<size_t> index3 = findAll(str1);
+      remove(index3[0], index3[0] + size.length());
+      insert(ch2, index3[0]);
+      //remove(index[i], index[i] + size.length());
+      //insert(ch2, index[i]);
     }
   }
 
@@ -815,8 +864,9 @@ public:
       throw std::out_of_range("replace exceeds the size allowed");
 
     for (int i = 0; i < (int)index.size(); i++) {
-      remove(index[i], index[i] + std::size_t(1));
-      insert(str2, index[i]);
+      std::vector<size_t> index3 = findAll(ch);
+      remove(index3[0], index3[0] + size_t(1));
+      insert(str2, index3[0]);
     }
   }
 
@@ -1291,6 +1341,99 @@ public:
     std::fill(mString, mString + MaxSize, '\0');
     mCurrentSize = 0;
   }
+
+    /**
+  * @brief replaces all instances of the string given with the new string if it passes the condition
+  * 
+  * @param str1 string to be replaced
+  * @param str2 string to replace with
+  * @param lambda the lambda function
+  */
+ template <typename Func>
+ void replace_if(const char* str1, const char* str2, Func lambda) {
+   std::vector<size_t> index = findAll(str1);
+   std::string_view size(str1);
+   std::string_view size2(str2);
+
+   if (index.size() * size2.length() > MaxSize)
+     throw std::out_of_range("replace exceeds the size allowed");
+
+   for (int i = 0; i < (int)index.size(); i++) {
+    if (lambda()) {
+      std::vector<size_t> index3 = findAll(str1);
+      remove(index3[0], index3[0] + size.length());
+      insert(str2, index3[0]);
+    }
+   }
+ }
+
+ /**
+  * @brief replaces all instances of the string given with the new string if it passes the condition
+  * 
+  * @param ch char to be replaced
+  * @param ch2 char to replace with
+  * @param lambda the lambda function
+  */
+ template <typename Func>
+ void replace_if(char ch, char ch2, Func lambda) {
+   std::vector<size_t> index = findAll(ch);
+   for (int i = 0; i < (int)index.size(); i++) {
+    if (lambda()) {
+      std::vector<size_t> index3 = findAll(ch);
+      remove(index3[0], index3[0] + size_t(1));
+      insert(ch2, index3[0]);
+    }
+   }
+ }
+
+ /**
+  * @brief replaces all instances of the string given with the new string if it passes the condition
+  * 
+  * @param str1 string to be replaced
+  * @param ch2 char to replace with
+  * @param lambda the lambda function 
+  */
+  template <typename Func>
+  void replace_if(const char* str1, char ch2, Func lambda) {
+    std::vector<size_t> index = findAll(str1);
+    std::string_view size(str1);
+    for (int i = 0; i < (int)index.size(); i++) {
+      if (lambda()) {
+        std::vector<size_t> index3 = findAll(str1);
+        remove(index3[0], index3[0] + size.length());
+        insert(ch2, index3[0]);
+      }
+    }
+  }
+
+ /**
+  * @brief replaces all instances of the string given with the new string if it passes the condition
+  * 
+  * @param ch char to be replaced
+  * @param str2 string to replace with
+  * @param lambda the lambda function
+  */
+ template <typename Func>
+ void replace_if(char ch, const char* str2, Func lambda) {
+   std::vector<size_t> index = findAll(ch);
+
+   std::string_view size2(str2);
+   if (index.size() * size2.length() > MaxSize)
+     throw std::out_of_range("replace exceeds the size allowed");
+
+   for (int i = 0; i < (int)index.size(); i++) {
+    if (lambda()) {
+      std::vector<size_t> index3 = findAll(ch);
+      remove(index3[0], index3[0] + std::size_t(1));
+      insert(str2, index3[0]);
+    }
+   }
+ }
+
+ template <typename Func>
+ void replace_if(Func lambda, Func lambda2) {
+
+ }
 
 private: 
   /// @brief Constant value for StaticString null terminator used.

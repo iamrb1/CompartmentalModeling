@@ -36,23 +36,35 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
 
   }
 
-  SECTION("TESTS: rFind  member function") {
+  SECTION("TESTS: rFind member function") {
+    StaticString<20> s("abgcdefbedagcd");
+    REQUIRE(s.rFind('g') == 11);
+    REQUIRE(s.rFind('d') == 13);
+    REQUIRE(s.rFind('a') == 10);
+    REQUIRE(s.rFind('f') == 6);
+    REQUIRE(s.rFind('b') == 7);
+    REQUIRE(s.rFind("gcd") == 11);
+    REQUIRE(s.rFind('z') == StaticString<10>::npos);
+    REQUIRE(s.rFind('h') == s.npos);
+  }
+
+  SECTION("TESTS: rFindAll  member function") {
     StaticString<20> s("HelloWorldHelloWorld");
     StaticString<20> s2("abcdabcdabcdabcd");
     StaticString<20> s3("1234567890123545");
 
-    REQUIRE(s.rFind("Hello") == std::vector<size_t>{10,0});
-    REQUIRE(s2.rFind("ab") == std::vector<size_t>{12,8,4,0});
-    REQUIRE(s3.rFind("34") == std::vector<size_t>{2});
+    REQUIRE(s.rFindAll("Hello") == std::vector<size_t>{10,0});
+    REQUIRE(s2.rFindAll("ab") == std::vector<size_t>{12,8,4,0});
+    REQUIRE(s3.rFindAll("34") == std::vector<size_t>{2});
     
-    REQUIRE(s.rFind('e') == std::vector<size_t>{11,1});
-    REQUIRE(s.rFind('E') == std::vector<size_t>{});//cse::StaticString::npos);
-    REQUIRE(s.rFind('d') == std::vector<size_t>{19,9});
+    REQUIRE(s.rFindAll('e') == std::vector<size_t>{11,1});
+    REQUIRE(s.rFindAll('E') == std::vector<size_t>{});//cse::StaticString::npos);
+    REQUIRE(s.rFindAll('d') == std::vector<size_t>{19,9});
 
-    REQUIRE(s2.rFind("abcD") == std::vector<size_t>{});//cse::StaticString::npos);
-    REQUIRE(s2.rFind("abcd") == std::vector<size_t>{12,8,4,0});
+    REQUIRE(s2.rFindAll("abcD") == std::vector<size_t>{});//cse::StaticString::npos);
+    REQUIRE(s2.rFindAll("abcd") == std::vector<size_t>{12,8,4,0});
 
-    REQUIRE(s3.rFind("0") == std::vector<size_t>{9});
+    REQUIRE(s3.rFindAll("0") == std::vector<size_t>{9});
   }
 
   SECTION("TESTS: Replace  member function") {
@@ -99,26 +111,47 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     CHECK_THROWS(s.replace("o","******"));
   }
 
-  /*SECTION("TESTS: Replace_if  member function") {
+  SECTION("TESTS: Replace_if  member function") {
     // Takes a lambda as the condition
     StaticString<20> s("HelloWorldHelloWorld");
 
     s.replace_if("Hello","HI", [](){return true;});
+    std::cout << s.get_str();
     REQUIRE(std::strcmp(s.get_str(), "HIWorldHIWorld") == 0);
 
     s.replace_if("HI","Hello", [](){return false;});
     REQUIRE(std::strcmp(s.get_str(), "HIWorldHIWorld") == 0);
 
+    // test a replacement string that is longer
+    StaticString<20> s2("HelloWorHelloWor");
 
-    StaticString<50> s2("a1b2c3d4");
+    s2.replace_if("Hello","Rumble", [](){return true;});
+    std::cout << s2.get_str();
+    REQUIRE(std::strcmp(s2.get_str(), "RumbleWorRumbleWor") == 0);
+
+    s2.replace_if("Rumble","Hello", [](){return false;});
+    REQUIRE(std::strcmp(s2.get_str(), "RumbleWorRumbleWor") == 0);
+
+    // test a replacement string that is the same size
+    StaticString<20> s3("HelloWorldHelloWorld");
+
+    s3.replace_if("Hello","Movie", [](){return true;});
+    std::cout << s3.get_str();
+    REQUIRE(std::strcmp(s3.get_str(), "MovieWorldMovieWorld") == 0);
+
+    s3.replace_if("Rumble","Movie", [](){return false;});
+    REQUIRE(std::strcmp(s3.get_str(), "MovieWorldMovieWorld") == 0);
+
+
+    /*StaticString<50> s2("a1b2c3d4");
     // replace_if(conditionLambda, replacementLambda)
     s2.replace_if(
         [](char ch) -> bool { return (ch >= '1' && ch <= '4'); },
         [](char ch) -> char { return ch + 1; }
     );
 
-    REQUIRE(std::strcmp(s2.get_str(), "a2b3c4d5") == 0);
-  }*/
+    REQUIRE(std::strcmp(s2.get_str(), "a2b3c4d5") == 0);*/
+  }
 
   SECTION("TESTS: Operators member function") {
     //operator>> for file streams 
