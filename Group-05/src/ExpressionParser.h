@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cctype>
+#include <cmath>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -25,6 +26,8 @@ class ExpressionParser {
   constexpr void subtraction(char& sub_char){
     sub_char='-';
   }
+
+  size_t getToken(const std::string& expression, size_t &index);
 
   /**
    * @brief set char to addition operator
@@ -61,7 +64,7 @@ class ExpressionParser {
    * @param index The position of the parser in the string
    * @return The first key found
    */
-   std::string ParseKey(const std::string &expression, size_t &index);
+   double ParseKey(const std::string &expression, size_t &index);
 
   /**
    * @brief Creates division function that take a map with values to add
@@ -70,7 +73,7 @@ class ExpressionParser {
    * @param name2 Key for second value
    * @return auto Lambda function to perform operation
    */
-   auto MakeDivideFun(const std::string &name1, const std::string &name2);
+  auto MakeDivFun(const double left, const double right);
 
   /**
    * @brief Creates adding function that take a map with values to add
@@ -79,7 +82,7 @@ class ExpressionParser {
    * @param name2 Key for second value
    * @return auto Lambda function to perform operation
    */
-   auto MakeAddFun(const std::string &name1, const std::string &name2);
+  auto MakeAddFun(double left, const double right);
 
   /**
    * @brief Creates subtracting function that take a map with values to add
@@ -88,7 +91,7 @@ class ExpressionParser {
    * @param name2 Key for second value
    * @return auto Lambda function to perform operation
    */
-   auto MakeSubtractFun(const std::string &name1, const std::string &name2);
+  auto MakeSubFun(const double left, const double right);
 
   /**
    * @brief Creates multiplication function that take a map with values to add
@@ -97,7 +100,34 @@ class ExpressionParser {
    * @param name2 Key for second value
    * @return auto Lambda function to perform operation
    */
-   auto MakeMultiplyFun(const std::string &name1, const std::string &name2);
+  auto MakeMulFun(const double left, const double right);
+
+    /**
+   * @brief Creates cosine function that take a map with values to add
+   *
+   * @param name1 Key for first value
+   * @param name2 Key for second value
+   * @return auto Lambda function to perform operation
+   */
+  auto MakeCosFun(const std::string &key);
+
+    /**
+   * @brief Creates sine function that take a map with values to add
+   *
+   * @param name1 Key for first value
+   * @param name2 Key for second value
+   * @return auto Lambda function to perform operation
+   */
+  auto MakeSinFun(const std::string &key);
+
+    /**
+   * @brief Creates exponent function that take a map with values to add
+   *
+   * @param name1 Key for first value
+   * @param name2 Key for second value
+   * @return auto Lambda function to perform operation
+   */
+  auto MakeExpoFun(const std::string &key1, const std::string &key2);
 
  public:
   /**
@@ -106,13 +136,40 @@ class ExpressionParser {
   ExpressionParser() = default;
 
   /**
+ * @brief Adds two values at compile time.
+ *
+ * @tparam T A type that supports the + operator.
+ * @param a First value.
+ * @param b Second value.
+ * @return The sum of a and b.
+ */
+  template <typename T>
+  static constexpr T constexprAdd(T a, T b) {
+    return a + b;
+}
+
+/**
+ * @brief Creates a binary operation function at compile time.
+ *
+ * @tparam Operation A callable type that performs a binary operation.
+ * @param left The left-hand operand.
+ * @param right The right-hand operand.
+ * @param op The binary operation.
+ * @return A constexpr lambda that returns the result of op(left, right).
+ */
+  template <typename Operation>
+  static constexpr auto MakeBinaryFun(double left, double right, Operation op) {
+      return [=]() constexpr { return op(left, right); };
+}
+
+  /**
    * @brief Evaluates equation represented by expression and returns simplified value as a double
    *
    * @param number_map Map with value and key that will be regerences in expression
    * @param expression Representing equation
    * @return double representing value of equation
    */
-   double Evaluate(const std::string &expression);
+  double Evaluate(const std::string &expression, int precedence, size_t &index);
 
    /**
     * @brief Get the Symbol Table object
