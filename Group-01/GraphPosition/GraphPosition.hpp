@@ -1,11 +1,4 @@
 #pragma once
-
-#include "../Graph/Graph.hpp"
-#include "../Graph/Vertex.hpp"
-
-#include "../Graph/Vertex.hpp"
-#include <algorithm>
-
 #include <algorithm>
 #include <cassert>
 #include <deque>
@@ -16,6 +9,9 @@
 #include <stdexcept>
 #include <unordered_set>
 #include <vector>
+
+#include "../Graph/Graph.hpp"
+#include "../Graph/Vertex.hpp"
 
 // Citation: AI was used to create doxygen comments
 namespace cse {
@@ -87,23 +83,19 @@ namespace cse {
     std::vector<Vertex<VERTEX_DATA_T> const *> traversalStack;
 
   public:
-    /**
-     * Gets the traversal stack used for DFS
-     * @return Reference to the traversal stack
-     */
-    std::vector<Vertex<VERTEX_DATA_T> const *> &GetTraversalStack() { return traversalStack; }
-
-    /**
-     * Gets the traversal queue used for BFS
-     * @return Reference to the traversal queue
-     */
-    std::deque<Vertex<VERTEX_DATA_T> const *> &GetTraversalQueue() { return traversalQueue; }
-
-    /**
-     * Marks a vertex as visited in the traversal
-     * @param vertex The vertex to mark as visited
-     */
     void MarkVisited(Vertex<VERTEX_DATA_T> const &vertex);
+    GraphPosition(const Graph<VERTEX_DATA_T> &g, Vertex<VERTEX_DATA_T> const &startVertex);
+    Vertex<VERTEX_DATA_T> const &GetCurrentVertex() const;
+    void SetCurrentVertex(Vertex<VERTEX_DATA_T> const &vertex);
+    bool AdvanceToNextNeighbor();
+    const std::vector<Vertex<VERTEX_DATA_T> const *> &GetTraversalPath() const;
+    void ResetTraversalPath();
+    void AddToTraversalPath(Vertex<VERTEX_DATA_T> const &v);
+    void ReverseTraversalPath();
+    void ResetTraversal(Vertex<VERTEX_DATA_T> const &newStartVertex);
+    GraphPosition &operator++();
+    void TraverseGraph();
+    explicit operator bool() const;
 
     /**
      * Checks if a vertex has been visited
@@ -115,75 +107,16 @@ namespace cse {
     };
 
     /**
-     * Constructs a GraphPosition object
-     * @param g Reference to the graph being traversed
-     * @param startVertex Pointer to the starting vertex
-     * @throws std::invalid_argument if startVertex is null
+     * Gets the traversal stack used for DFS
+     * @return Reference to the traversal stack
      */
-    GraphPosition(const Graph<VERTEX_DATA_T> &g, Vertex<VERTEX_DATA_T> const *startVertex);
+    std::vector<Vertex<VERTEX_DATA_T> const *> &GetTraversalStack() { return traversalStack; }
 
     /**
-     * Gets the current vertex in the traversal
-     * @return Reference to the current vertex
+     * Gets the traversal queue used for BFS
+     * @return Reference to the traversal queue
      */
-    Vertex<VERTEX_DATA_T> const &GetCurrentVertex() const;
-
-    /**
-     * Sets the current vertex in the traversal
-     * @param vertex The vertex to set as current
-     */
-    void SetCurrentVertex(Vertex<VERTEX_DATA_T> const &vertex);
-
-    /**
-     * Advances to the next neighbor based on the current traversal strategy
-     * @return true if successfully advanced, false if no more neighbors
-     */
-    bool AdvanceToNextNeighbor();
-
-    /**
-     * Gets the path taken during traversal
-     * @return Vector of pointers to vertices in traversal order
-     */
-    const std::vector<Vertex<VERTEX_DATA_T> const *> &GetTraversalPath() const;
-
-    /**
-     * Clears the traversal path
-     */
-    void ResetTraversalPath();
-
-    /**
-     * Adds a vertex to the traversal path
-     * @param v Pointer to the vertex to add
-     */
-    void AddToTraversalPath(Vertex<VERTEX_DATA_T> const *v);
-
-    /**
-     * Reverses the traversal path
-     */
-    void ReverseTraversalPath();
-
-    /**
-     * Resets the traversal with a new starting vertex
-     * @param newStartVertex The new starting vertex
-     */
-    void ResetTraversal(Vertex<VERTEX_DATA_T> const &newStartVertex);
-
-    /**
-     * Advances to the next vertex in the traversal
-     * @return Reference to this GraphPosition
-     */
-    GraphPosition &operator++(); // Advances to next vertex
-
-    /**
-     * Performs a complete traversal of the graph
-     */
-    void TraverseGraph();
-
-    /**
-     * Checks if more traversal is possible
-     * @return true if current vertex is valid, false otherwise
-     */
-    explicit operator bool() const; // Checks if more traversal is possible
+    std::deque<Vertex<VERTEX_DATA_T> const *> &GetTraversalQueue() { return traversalQueue; }
 
     /**
      * Sets the traversal strategy
@@ -206,16 +139,11 @@ namespace cse {
   /**
    * Constructs a GraphPosition with a reference to a graph and a starting vertex
    * @param g The graph being traversed
-   * @param startVertex Pointer to the starting vertex
-   * @throws invalid_argument if startVertex is null
+   * @param startVertex Reference to the starting vertex
    */
   template <typename VERTEX_DATA_T>
-  GraphPosition<VERTEX_DATA_T>::GraphPosition(const Graph<VERTEX_DATA_T> &g, Vertex<VERTEX_DATA_T> const *startVertex)
-      : graph(g), currentVertex(startVertex) {
-    if (!startVertex) {
-      throw std::invalid_argument("GraphPosition must be initialized with a non-null vertex!");
-    }
-  }
+  GraphPosition<VERTEX_DATA_T>::GraphPosition(const Graph<VERTEX_DATA_T> &g, Vertex<VERTEX_DATA_T> const &startVertex)
+      : graph(g), currentVertex(&startVertex) {}
 
   /**
    * Marks a vertex as visited and adds it to the traversal path
@@ -274,11 +202,11 @@ namespace cse {
 
   /**
    * Adds a vertex pointer to the traversal path
-   * @param v Pointer to the vertex to add
+   * @param v Reference to the vertex to add
    */
   template <typename VERTEX_DATA_T>
-  void GraphPosition<VERTEX_DATA_T>::AddToTraversalPath(Vertex<VERTEX_DATA_T> const *v) {
-    traversalPath.push_back(v);
+  void GraphPosition<VERTEX_DATA_T>::AddToTraversalPath(Vertex<VERTEX_DATA_T> const &v) {
+    traversalPath.push_back(&v);
   }
 
   /**
@@ -331,6 +259,7 @@ namespace cse {
     /**
      * Provides a depth-first search traversal strategy
      * @return A function that performs DFS traversal on a GraphPosition
+     */
     template <typename VERTEX_DATA_T> auto DFS() -> std::function<bool(GraphPosition<VERTEX_DATA_T> &)> {
       return [](GraphPosition<VERTEX_DATA_T> &graphPosition) {
         // Recursive implementation of DFS using a stack
@@ -431,18 +360,49 @@ namespace cse {
       VectorDistancePair(Vertex<VERTEX_DATA_T> const *vertex, double d) : v(vertex), distance(d) {}
     };
 
+    /**
+     * Less-than comparison for VectorDistancePair
+     * @tparam VERTEX_DATA_T Type of the vertex data
+     * @param lhs Left-hand side operand
+     * @param rhs Right-hand side operand
+     * @return true if lhs.distance < rhs.distance
+     */
     template <typename VERTEX_DATA_T>
     bool operator<(const VectorDistancePair<VERTEX_DATA_T> &lhs, const VectorDistancePair<VERTEX_DATA_T> &rhs) {
       return lhs.distance < rhs.distance;
     }
+
+    /**
+     * Greater-than comparison for VectorDistancePair
+     * @tparam VERTEX_DATA_T Type of the vertex data
+     * @param lhs Left-hand side operand
+     * @param rhs Right-hand side operand
+     * @return true if lhs.distance > rhs.distance
+     */
     template <typename VERTEX_DATA_T>
     bool operator>(const VectorDistancePair<VERTEX_DATA_T> &lhs, const VectorDistancePair<VERTEX_DATA_T> &rhs) {
       return operator<(rhs, lhs);
     }
+
+    /**
+     * Less-than or equal-to comparison for VectorDistancePair
+     * @tparam VERTEX_DATA_T Type of the vertex data
+     * @param lhs Left-hand side operand
+     * @param rhs Right-hand side operand
+     * @return true if lhs.distance <= rhs.distance
+     */
     template <typename VERTEX_DATA_T>
     bool operator<=(const VectorDistancePair<VERTEX_DATA_T> &lhs, const VectorDistancePair<VERTEX_DATA_T> &rhs) {
       return !operator>(lhs, rhs);
     }
+
+    /**
+     * Greater-than or equal-to comparison for VectorDistancePair
+     * @tparam VERTEX_DATA_T Type of the vertex data
+     * @param lhs Left-hand side operand
+     * @param rhs Right-hand side operand
+     * @return true if lhs.distance >= rhs.distance
+     */
     template <typename VERTEX_DATA_T>
     bool operator>=(const VectorDistancePair<VERTEX_DATA_T> &lhs, const VectorDistancePair<VERTEX_DATA_T> &rhs) {
       return !operator<(lhs, rhs);
@@ -493,12 +453,12 @@ namespace cse {
             auto bd = bestDistances.find(curr.GetId());
             if (bd != bestDistances.end()) {
               auto traversalHistoryNode = bd;
-              graphPosition.AddToTraversalPath(&curr);
+              graphPosition.AddToTraversalPath(curr);
 
               while (!traversalHistoryNode->second.previousVectorId.empty()) {
                 auto v_id = traversalHistoryNode->second.previousVectorId;
                 assert(bestDistances.find(v_id) != bestDistances.end());
-                graphPosition.AddToTraversalPath(&graphPosition.GetVertex(v_id));
+                graphPosition.AddToTraversalPath(graphPosition.GetVertex(v_id));
                 traversalHistoryNode = bestDistances.find(v_id);
               }
               graphPosition.ReverseTraversalPath();

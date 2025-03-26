@@ -13,12 +13,7 @@ TEST_CASE("GraphPosition Constructor Tests", "[GraphPosition]") {
 
   SECTION("Valid GraphPosition Initialization") {
     auto &v1 = graph.AddVertex("A", "Vertex A Data");
-    REQUIRE_NOTHROW(cse::GraphPosition<std::string>(graph, &v1));
-  }
-
-  SECTION("Invalid GraphPosition Initialization with nullptr Vertex") {
-    REQUIRE_THROWS_AS(cse::GraphPosition<std::string>(graph, nullptr),
-                      std::invalid_argument);
+    REQUIRE_NOTHROW(cse::GraphPosition<std::string>(graph, v1));
   }
 }
 
@@ -27,7 +22,7 @@ TEST_CASE("GraphPosition Getters and Setters Tests", "[GraphPosition]") {
   auto &v1 = graph.AddVertex("A", "Vertex A Data");
   auto &v2 = graph.AddVertex("B", "Vertex B Data");
 
-  cse::GraphPosition<std::string> pos(graph, &v1);
+  cse::GraphPosition<std::string> pos(graph, v1);
 
   SECTION("GetCurrentVertex returns the correct vertex") {
     REQUIRE(pos.GetCurrentVertex() == v1);
@@ -54,7 +49,7 @@ TEST_CASE("GraphPosition Visited Vertices Tests", "[GraphPosition]") {
   graph.AddEdge("A", "B");
   graph.AddEdge("B", "C");
 
-  cse::GraphPosition<std::string> pos(graph, &v1);
+  cse::GraphPosition<std::string> pos(graph, v1);
 
   SECTION("MarkVisited and IsVisited work correctly") {
     pos.MarkVisited(v1);
@@ -83,7 +78,7 @@ TEST_CASE("GraphPosition Depth and Breadth-First Search Traversal Tests",
   auto e1 = graph.AddEdge("A", "B", 1.414);
   auto e2 = graph.AddEdge("A", "C", 2.0);
   auto e3 = graph.AddEdge("B", "D", 1.414);
-  cse::GraphPosition<std::string> pos(graph, &v1);
+  cse::GraphPosition<std::string> pos(graph, v1);
 
   SECTION("DFS follows deep traversal first") {
     std::vector<cse::Vertex<std::string> *> order{&v4, &v2, &v3, &v1};
@@ -197,7 +192,7 @@ TEST_CASE("GraphPosition Depth and Breadth-First Search Traversal Tests",
     std::vector<std::string> expectedOrder{"0_0", "1_1", "2_2", "3_3", "4_4"};
     // Final path is the best path found by a* using the heuristic
     std::vector<std::string> finalPath{"0_0", "1_1", "2_2", "3_3", "4_4"};
-    cse::GraphPosition<std::string> pos(graph, &graph.GetVertex("0_0"));
+    cse::GraphPosition<std::string> pos(graph, graph.GetVertex("0_0"));
     auto origin = graph.GetVertex("0_0");
     auto destination = graph.GetVertex("4_4");
     size_t ind = 0;
