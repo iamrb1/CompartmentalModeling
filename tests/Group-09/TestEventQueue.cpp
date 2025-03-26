@@ -30,8 +30,8 @@ TEST_CASE("Test EventQueue", "[base]")
 TEST_CASE("Test EventQueue<int> Add", "[base]")
 {
   EventQueue<int> eq;
-  Event<int> e1(0, 1, funcInt);
-  Event<int> e2(1, 2, funcInt);
+  Event<int> e1(0, 1, funcInt, 1);
+  Event<int> e2(1, 2, funcInt, 1);
   eq.add(e1);
   eq.add(e2);
   CHECK(eq.size() == 2);
@@ -49,7 +49,7 @@ TEST_CASE("Test EventQueue<int> Add", "[base]")
 TEST_CASE("Test EventQueue<int> Add Duplicate ID", "[base]")
 {
   EventQueue<int> eq;
-  Event<int> e1(0, 1, funcInt);
+  Event<int> e1(0, 1, funcInt, 1);
   eq.add(e1);
   REQUIRE_THROWS(eq.add(e1));
 }
@@ -60,10 +60,10 @@ TEST_CASE("Test EventQueue<int> Add Duplicate ID", "[base]")
 TEST_CASE("Test EventQueue<int> Peek", "[base]")
 {
   EventQueue<int> eq;
-  Event<int> e1(0, 0, funcInt);
-  Event<int> e2(1, 1, funcInt);
-  Event<int> e3(3, 3, funcInt);
-  Event<int> e4(4, 4, funcInt);
+  Event<int> e1(0, 0, funcInt, 1);
+  Event<int> e2(1, 1, funcInt, 1);
+  Event<int> e3(3, 3, funcInt, 1);
+  Event<int> e4(4, 4, funcInt, 1);
   eq.add(e1);
   eq.add(e2);
   eq.add(e3);
@@ -77,10 +77,10 @@ TEST_CASE("Test EventQueue<int> Peek", "[base]")
 TEST_CASE("Test EventQueue<int> Pop", "[base]")
 {
   EventQueue<int> eq;
-  Event<int> e1(0, 0, funcInt);
-  Event<int> e2(1, 1, funcInt);
-  Event<int> e3(3, 3, funcInt);
-  Event<int> e4(4, 4, funcInt);
+  Event<int> e1(0, 0, funcInt, 1);
+  Event<int> e2(1, 1, funcInt, 1);
+  Event<int> e3(3, 3, funcInt, 1);
+  Event<int> e4(4, 4, funcInt, 1);
   eq.add(e1);
   eq.add(e2);
   eq.add(e3);
@@ -99,10 +99,10 @@ TEST_CASE("Test EventQueue<int> Pop", "[base]")
 TEST_CASE("Test EventQueue<int> Valid Remove", "[base]")
 {
   EventQueue<int> eq;
-  Event<int> e1(0, 0, funcInt);
-  Event<int> e2(1, 1, funcInt);
-  Event<int> e3(3, 3, funcInt);
-  Event<int> e4(4, 4, funcInt);
+  Event<int> e1(0, 0, funcInt, 1);
+  Event<int> e2(1, 1, funcInt, 1);
+  Event<int> e3(3, 3, funcInt, 1);
+  Event<int> e4(4, 4, funcInt, 1);
   eq.add(e1);
   eq.add(e2);
   eq.add(e3);
@@ -121,10 +121,10 @@ TEST_CASE("Test EventQueue<int> Valid Remove", "[base]")
 TEST_CASE("Test EventQueue<int> Invalid Remove", "[base]")
 {
   EventQueue<int> eq;
-  Event<int> e1(0, 0, funcInt);
-  Event<int> e2(1, 1, funcInt);
-  Event<int> e3(3, 3, funcInt);
-  Event<int> e4(4, 4, funcInt);
+  Event<int> e1(0, 0, funcInt, 1);
+  Event<int> e2(1, 1, funcInt, 1);
+  Event<int> e3(3, 3, funcInt, 1);
+  Event<int> e4(4, 4, funcInt, 1);
   eq.add(e1);
   eq.add(e2);
   eq.add(e3);
@@ -141,11 +141,11 @@ TEST_CASE("Test EventQueue<int> Invalid Remove", "[base]")
 TEST_CASE("Test EventQueue<int> Valid Update", "[base]")
 {
   EventQueue<int> eq;
-  Event<int> e1(0, 0, funcInt);
-  Event<int> e2(1, 1, funcInt);
-  Event<int> e3(3, 3, funcInt);
-  Event<int> e4(4, 4, funcInt);
-  Event<int> e1_updated(0, 100, funcInt);
+  Event<int> e1(0, 0, funcInt, 1);
+  Event<int> e2(1, 1, funcInt, 1);
+  Event<int> e3(3, 3, funcInt, 1);
+  Event<int> e4(4, 4, funcInt, 1);
+  Event<int> e1_updated(0, 100, funcInt, 1);
   eq.add(e1);
   eq.add(e2);
   eq.add(e3);
@@ -165,10 +165,10 @@ TEST_CASE("Test EventQueue<int> Valid Update", "[base]")
 TEST_CASE("Test EventQueue<int> Invalid Update", "[base]")
 {
   EventQueue<int> eq;
-  Event<int> e2(1, 1, funcInt);
-  Event<int> e3(3, 3, funcInt);
-  Event<int> e4(4, 4, funcInt);
-  Event<int> e1_updated(0, 100, funcInt);
+  Event<int> e2(1, 1, funcInt, 1);
+  Event<int> e3(3, 3, funcInt, 1);
+  Event<int> e4(4, 4, funcInt, 1);
+  Event<int> e1_updated(0, 100, funcInt, 1);
   eq.add(e2);
   eq.add(e3);
   eq.add(e4);
