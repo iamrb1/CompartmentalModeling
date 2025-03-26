@@ -6,9 +6,11 @@
 #include <unordered_set>
 #include <set>
 #include <algorithm>
+#include <sstream>
 #include <random>
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 #include "../../Group-06/StringSet/StringSet.hpp"
+#include "../../Group-06/StaticString/StaticString.hpp"
 
 using namespace cse;
 
@@ -98,6 +100,23 @@ TEST_CASE("Test for SubstringFilter", "[SubstringFilter]") {
 // GitHub copilot helped write some initial code for this function
 TEST_CASE("Test for Search", "[Search]") {
     // Create a StringSet and insert some strings
+    StringSet<StaticString<4>> set;
+    StaticString<4> str1("abc");
+    StaticString<4> str2("abcd");
+    StaticString<4> str3("aXcY");
+    StaticString<4> str4("aXcZ");
+    StaticString<4> str5("xyz");
+    StaticString<4> str6 = "a?c*";
+    set.insert(str1);
+    set.insert(str2);
+    set.insert(str3);
+    set.insert(str4);
+    set.insert(str5);
+    // Perform a search with a pattern and check if the result matches the expected output
+    StringSet result = set.Search(str6);
+    REQUIRE(result.size() == 4);
+
+    // Create a StringSet and insert some strings
     StringSet set;
     set.insert("abc");
     set.insert("abcd");
@@ -111,7 +130,7 @@ TEST_CASE("Test for Search", "[Search]") {
 }
 // GitHub copilot helped write some initial code for this function
 TEST_CASE("Test for Count_occurrence", "[Count_occurrence]") {
-    // Create a StringSet and insert some strings
+    // Test with normal strings
     StringSet set;
     set.insert("abc");
     set.insert("abcd");
@@ -123,10 +142,28 @@ TEST_CASE("Test for Count_occurrence", "[Count_occurrence]") {
     REQUIRE(set.countOccurence("a") == 4);
     REQUIRE(set.countOccurence("X") == 2);
     REQUIRE(set.countOccurence("z") == 1);
+
+    // Test with StaticString
+    StringSet<StaticString<4>> staticSet;
+    StaticString<4> str1("abc");
+    StaticString<4> str2("abcd");
+    StaticString<4> str3("aXcY");
+    StaticString<4> str4("aXcZ");
+    StaticString<4> str5("xyz");
+    staticSet.insert(str1);
+    staticSet.insert(str2);
+    staticSet.insert(str3);
+    staticSet.insert(str4);
+    staticSet.insert(str5);
+
+    // Check the occurrence count of specific characters in the set
+    REQUIRE(staticSet.countOccurence("a") == 4);
+    REQUIRE(staticSet.countOccurence("X") == 2);
+    REQUIRE(staticSet.countOccurence("z") == 1);
 }
 
 TEST_CASE("Test for random_sample", "[random_sample]") {
-    // Create a StringSet and insert some strings
+    // Test with normal strings
     StringSet set;
     set.insert("abc");
     set.insert("abcd");
@@ -170,6 +207,57 @@ TEST_CASE("Test for random_sample", "[random_sample]") {
     // Ensure each sample exists in the set
     for (const auto& sample : samplesWithoutFilter) {
         REQUIRE(set.count(sample) == 1);
+    }
+
+    // Test with StaticString
+    StringSet<StaticString<4>> staticSet;
+    StaticString<4> str1("abc");
+    StaticString<4> str2("abcd");
+    StaticString<4> str3("aXcY");
+    StaticString<4> str4("aXcZ");
+    StaticString<4> str5("xyz");
+    staticSet.insert(str1);
+    staticSet.insert(str2);
+    staticSet.insert(str3);
+    staticSet.insert(str4);
+    staticSet.insert(str5);
+
+    // Get a random sample of 2 strings from the set and check if the sample size is correct
+    auto staticSamples = staticSet.RandomSample(2);
+    REQUIRE(staticSamples.size() == 2);
+    // Ensure each sample exists in the set
+    for (const auto& sample : staticSamples) {
+        REQUIRE(staticSet.count(sample) == 1);
+    }
+
+    // Get a random sample of 2 strings from the set with a filter and check if the sample size is correct
+    auto staticFilteredSamples = staticSet.RandomSample(2, [](const StaticString<4>& str) {
+        return str.find('a') != cse::StaticString<4>::npos;
+    });
+    REQUIRE(staticFilteredSamples.size() == 2);
+    // Ensure each sample exists in the set and matches the filter
+    for (const auto& sample : staticFilteredSamples) {
+        REQUIRE(staticSet.count(sample) == 1);
+        REQUIRE(sample.find('a') != cse::StaticString<4>::npos);
+    }
+
+    // Get a random sample of 3 strings from the set with a filter and check if the sample size is correct
+    auto staticFilteredSamples2 = staticSet.RandomSample(3, [](const StaticString<4>& str) {
+        return str.find('X') != cse::StaticString<4>::npos;
+    });
+    REQUIRE(staticFilteredSamples2.size() == 2); // Only 2 strings match the filter
+    // Ensure each sample exists in the set and matches the filter
+    for (const auto& sample : staticFilteredSamples2) {
+        REQUIRE(staticSet.count(sample) == 1);
+        REQUIRE(sample.find('X') != cse::StaticString<4>::npos);
+    }
+
+    // Get a random sample of 3 strings from the set without a filter and check if the sample size is correct
+    auto staticSamplesWithoutFilter = staticSet.RandomSample(3);
+    REQUIRE(staticSamplesWithoutFilter.size() == 3);
+    // Ensure each sample exists in the set
+    for (const auto& sample : staticSamplesWithoutFilter) {
+        REQUIRE(staticSet.count(sample) == 1);
     }
 }
 
