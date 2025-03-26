@@ -12,12 +12,12 @@
 #include <functional>
 #include <map>
 #include <optional>
+#include <ranges>
 #include <set>
 #include <string>
 #include <utility>
 #include <variant>
 #include <vector>
-#include <ranges>
 
 #include "CseAssert.hpp"
 #include "IndexSet.hpp"
@@ -87,14 +87,10 @@ struct TextFormat {
  * Provides tools to represent various formats.
  * Provides tools to serialize formatted text into various formats.
  */
-template<
-  typename CharT = char,
-  typename Underlying = std::basic_string<CharT>
->
+template <typename CharT = char, typename Underlying = std::basic_string<CharT>>
   requires std::derived_from<Underlying, std::basic_string<CharT>>
 class RichText {
  public:
-
   /**
    * A rule for a format describing how it should be serialized.
    */
@@ -102,15 +98,17 @@ class RichText {
     // No format name here, that is stored in the map as a key
     std::string start_token;
     std::string end_token;
-    std::variant<std::string, std::function<std::string(const TextFormat&)>> format;
-    SerializeRule(std::string start_token, std::string end_token) : start_token(std::move(start_token)), end_token(std::move(end_token)) {}
+    std::variant<std::string, std::function<std::string(const TextFormat&)>>
+        format;
+    SerializeRule(std::string start_token, std::string end_token)
+        : start_token(std::move(start_token)),
+          end_token(std::move(end_token)) {}
   };
 
   struct Serializer {
     const std::string name;
     std::map<TextFormat::FormatID, SerializeRule> rules;
-    explicit(false) Serializer(std::string name)
-        : name(std::move(name)){};
+    explicit(false) Serializer(std::string name) : name(std::move(name)){};
   };
 
   struct SerializeResult {
@@ -132,13 +130,14 @@ class RichText {
   ~RichText() = default;
 
   explicit RichText(Underlying text) : m_text(std::move(text)) {}
-  
+
   // Allow passing in any valid range to construct the RichText
   // object
-  template<typename R>
+  template <typename R>
     requires std::same_as<std::ranges::range_value_t<R>, CharT>
   RichText(const R& text) {
-    std::copy(std::ranges::begin(text), std::ranges::end(text), std::back_inserter(m_text));
+    std::copy(std::ranges::begin(text), std::ranges::end(text),
+              std::back_inserter(m_text));
   }
 
   /**
@@ -200,7 +199,7 @@ class RichText {
    * @brief Get the underlying string of this RichText
    * @return The text without formatting
    */
-  [[nodiscard]] Underlying to_string() {return m_text;}
+  [[nodiscard]] Underlying to_string() { return m_text; }
 
   /**
    * @brief Get the formats at a position
@@ -225,7 +224,7 @@ class RichText {
    * @param extend_formatting Whether to extend formatting applied to the
    * character before `index` to the new characters
    */
-  template<typename Str>
+  template <typename Str>
     requires std::derived_from<Str, std::basic_string<CharT>>
   RichText& insert(size_t index, const Str& str,
                    bool extend_formatting = false) {
@@ -262,7 +261,7 @@ class RichText {
    * @param index The index to insert the other RichText instance at
    * @param str The other RichText to insert
    */
-  template<typename T>
+  template <typename T>
   RichText& insert(size_t index, const RichText<CharT, T>& str) {
     std::size_t old_len = m_text.length();
     insert(index, str.m_text);
@@ -279,7 +278,7 @@ class RichText {
    * @param extend_formatting Whether to extend formatting applied to the last
    * existing character to new characters
    */
-  template<typename Str>
+  template <typename Str>
     requires std::derived_from<Str, std::basic_string<CharT>>
   RichText& append(const Str& str, bool extend_formatting = false) {
     cse_assert(!extend_formatting, "TODO Not implemented");
@@ -290,8 +289,10 @@ class RichText {
    * @brief Append another RichText to RichText
    * @param str The other RichText instance to append
    */
-  template<typename T>
-  RichText& append(const RichText<CharT, T>& str) { return insert(size(), str); }
+  template <typename T>
+  RichText& append(const RichText<CharT, T>& str) {
+    return insert(size(), str);
+  }
 
   /**
    * @brief Append a character to RichText
@@ -375,7 +376,7 @@ class RichText {
 
     std::set<FormatSerializeTracker> trackers;
 
-    { // Populate the format trackers
+    {  // Populate the format trackers
       auto format_iter = m_formatting.begin();
       auto const format_iter_end = m_formatting.end();
       auto serializer_format_iter = serializer.rules.begin();
@@ -387,16 +388,17 @@ class RichText {
           result.missed_formats.push_back(format_iter->first);
           ++format_iter;
         } else if (format_iter->first.name == serializer_format_iter->first) {
-          trackers.emplace(format_iter->first,                 // Format
-                           serializer_format_iter->second,     // Serialize Rule
-                           format_iter->second.cbegin_pair(),  // Format Iterators
-                           format_iter->second.cend_pair());
+          trackers.emplace(
+              format_iter->first,                 // Format
+              serializer_format_iter->second,     // Serialize Rule
+              format_iter->second.cbegin_pair(),  // Format Iterators
+              format_iter->second.cend_pair());
           ++format_iter;
           ++serializer_format_iter;
         } else {
           ++serializer_format_iter;
         }
-             }
+      }
 
       while (format_iter != format_iter_end) {
         result.missed_formats.push_back(format_iter->first);
@@ -428,7 +430,8 @@ class RichText {
       // Process all the upcoming activating format activations
       while (tracker_iter != trackers.end() &&
              (*tracker_iter->iter).first < next) {
-        result.result += m_text.substr(current, (*tracker_iter->iter).first - current);
+        result.result +=
+            m_text.substr(current, (*tracker_iter->iter).first - current);
         result.result += tracker_iter->rule.start_token;
         current = (*tracker_iter->iter).first;
 
@@ -460,7 +463,9 @@ class RichText {
 
       bool all_deactivated = tracker_iter == trackers.begin();
       if (!all_deactivated) --tracker_iter;
-      // tracker_iter now points to the rule before the rule that needs to be deactivated (or all_deactivated is true, then it points to the first rule)
+      // tracker_iter now points to the rule before the rule that needs to be
+      // deactivated (or all_deactivated is true, then it points to the first
+      // rule)
 
       std::_Rb_tree_const_iterator<FormatSerializeTracker> reapply_rule_iter;
       do {
@@ -475,15 +480,17 @@ class RichText {
         if ((*reapply_rule_iter->iter).second <= current) {
           auto tracker_to_update = trackers.extract(reapply_rule_iter);
           ++tracker_to_update.value().iter;
-          if (tracker_to_update.value().iter != tracker_to_update.value().end) trackers.insert(std::move(tracker_to_update));
+          if (tracker_to_update.value().iter != tracker_to_update.value().end)
+            trackers.insert(std::move(tracker_to_update));
           continue;
         }
         result.result += reapply_rule_iter->rule.start_token;
-        if (all_deactivated) all_deactivated = false;
-        else ++tracker_iter;
+        if (all_deactivated)
+          all_deactivated = false;
+        else
+          ++tracker_iter;
       } while (tracker_iter != trackers.end());
       ++tracker_iter;
-
     }
 
     return result;

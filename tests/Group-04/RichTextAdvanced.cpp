@@ -5,7 +5,8 @@
 #include "catch.hpp"
 
 // example composite template usage
-template <typename T> class Document {
+template <typename T>
+class Document {
   using text_t = cse::RichText<T>;
 
   // tree structure
