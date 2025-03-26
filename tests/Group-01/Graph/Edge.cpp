@@ -1,6 +1,7 @@
 #include "../../../third-party/Catch/single_include/catch2/catch.hpp"
 #include "../../../Group-01/Graph/Vertex.hpp"
 #include "../../../Group-01/Graph/Edge.hpp"
+#include "../../../Group-01/Graph/GraphExceptions.hpp"
 #include "../Utils/TestUtils.hpp"
 
 #include <vector>

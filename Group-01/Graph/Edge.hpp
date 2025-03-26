@@ -1,5 +1,6 @@
 #pragma once
 #include "../Util/Util.hpp"
+#include "GraphExceptions.hpp"
 #include "Vertex.hpp"
 #include <iostream>
 #include <memory>
@@ -83,7 +84,7 @@ namespace cse {
     std::getline(f, line);
     auto [key, id] = FileUtil::SeparateKeyValue(line);
     if (key != "EDGE") {
-      throw std::runtime_error("Invalid type: " + key);
+      throw file_format_error("Invalid type: " + key);
     }
 
     auto props = ParseProperties(f, indent_level);

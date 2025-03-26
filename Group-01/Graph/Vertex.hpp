@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "../Util/Util.hpp"
+#include "GraphExceptions.hpp"
 
 namespace cse {
 
@@ -121,7 +122,7 @@ namespace cse {
   std::shared_ptr<Edge<VERTEX_DATA_T>> const Vertex<VERTEX_DATA_T>::GetEdge(std::string const to_id) const {
     auto it = edges.find(to_id);
     if (it == edges.end() || it->second.expired()) {
-      throw std::runtime_error("Edge from " + id + " to " + to_id + " does not exist");
+      throw edge_not_found_error("Edge from " + id + " to " + to_id);
     }
     return it->second.lock();
   }

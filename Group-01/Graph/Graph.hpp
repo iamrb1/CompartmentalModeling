@@ -8,6 +8,7 @@
 
 #include "../Util/Util.hpp"
 #include "Edge.hpp"
+#include "GraphExceptions.hpp"
 #include "Vertex.hpp"
 
 namespace cse {
@@ -70,7 +71,7 @@ namespace cse {
   template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
   Vertex<VERTEX_DATA_T> &Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::AddVertex(std::string const id, VERTEX_DATA_T data, double X, double Y) {
     if (HasVertex(id)) {
-      throw std::runtime_error("Vertex already exists: " + id);
+      throw vertex_already_exists_error(id);
     }
 
     auto v = std::make_shared<Vertex<VERTEX_DATA_T>>(id, data, X, Y);
@@ -89,7 +90,7 @@ namespace cse {
   template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
   Vertex<VERTEX_DATA_T> &Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::AddVertex(std::string const id, double X, double Y) {
     if (HasVertex(id)) {
-      throw std::runtime_error("Vertex already exists: " + id);
+      throw vertex_already_exists_error(id);
     }
 
     auto v = std::make_shared<Vertex<VERTEX_DATA_T>>(id, X, Y);
@@ -106,7 +107,7 @@ namespace cse {
   template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
   Vertex<VERTEX_DATA_T> &Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::GetVertex(std::string const &id) const {
     if (vertices.find(id) == vertices.end()) {
-      throw std::out_of_range("Vertex does not exist: " + id);
+      throw vertex_not_found_error(id);
     }
     return *(vertices.at(id));
   }
@@ -120,7 +121,7 @@ namespace cse {
     auto it = vertices.find(id);
     if (it == vertices.end()) {
       std::cout << "Did not find vertex to remove" << std::endl;
-      throw std::out_of_range("Vertex does not exist: " + id);
+      throw vertex_not_found_error(id);
     }
 
     std::vector<std::string> edgesToRemove;
@@ -153,7 +154,7 @@ namespace cse {
   Edge<VERTEX_DATA_T> &Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::AddEdge(std::string const v1_id, std::string const v2_id,
                                                      double const &weight) {
     if (!HasVertex(v1_id) || !HasVertex(v2_id)) {
-      throw std::out_of_range("Both vertices must exist to create an edge");
+      throw edge_connection_error("Both vertices must exist to create an edge");
     }
 
     std::string edge_id = v1_id + "-" + v2_id;
@@ -197,7 +198,7 @@ namespace cse {
   template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
   Edge<VERTEX_DATA_T> &Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::GetEdge(std::string const &edge_id) const {
     if (edges.find(edge_id) == edges.end()) {
-      throw std::out_of_range("Edge does not exist.");
+      throw edge_not_found_error(edge_id);
     }
     auto edge_ptr = edges.at(edge_id);
     return *edge_ptr;
@@ -235,7 +236,7 @@ namespace cse {
   void Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::RemoveEdge(std::string const &edge_id) {
     auto it = edges.find(edge_id);
     if (it == edges.end()) {
-      throw std::out_of_range("Edge does not exist: " + edge_id);
+      throw edge_not_found_error(edge_id);
     }
 
     auto edge = it->second;
@@ -277,8 +278,8 @@ namespace cse {
     try {
       auto &e = GetEdge(v1, v2);
       return e.IsConnected(v1, v2);
-    } catch (const std::runtime_error &) {
-      // If there is a runtime error, the edge does not exist
+    } catch (const edge_not_found_error &) {
+      // If there is an edge_not_found_error, the edge does not exist
       return false;
     }
     return false;
@@ -331,7 +332,7 @@ namespace cse {
     std::getline(f, line);
     auto [section_key, _] = FileUtil::SeparateKeyValue(line);
     if (section_key != expected_section) {
-      throw std::runtime_error("Expected " + expected_section + " section, got: " + section_key);
+      throw file_format_error("Expected " + expected_section + " section, got: " + section_key);
     }
   }
 
@@ -346,7 +347,7 @@ namespace cse {
     std::getline(f, line);
     auto [key, value] = FileUtil::SeparateKeyValue(line);
     if (key != GetTypeName()) {
-      throw std::runtime_error("Invalid type: " + key);
+      throw file_format_error("Invalid type: " + key);
     }
 
     ParseSection(f, "Vertices");
