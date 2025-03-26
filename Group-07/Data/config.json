@@ -21,15 +21,32 @@
         "max_age": 8,
         "reproduction_age": 2,
         "food_source": "Rabbit",
-        "hunt_success_rate": 0.3
+        "hunt_success_rate": 0.15,
+        "speed": 0.5
+      },      
+      {
+        "name": "Fox",
+        "initial_population": 50,
+        "birth_rate": 0.05,
+        "death_rate": 0.1,
+        "max_age": 8,
+        "reproduction_age": 2,
+        "food_source": "Rabbit",
+        "hunt_success_rate": 0.3,
+        "speed": 0.3
       }
     ],
     "interactions": [
       {
         "predator": "Wolf",
         "prey": "Rabbit",
-        "hunt_rate": 0.3
+        "hunt_rate": 0.1
       },
+      {
+        "predator": "Fox",
+        "prey": "Rabbit",
+        "hunt_rate": 0.2
+      }
       {
         "species": "Rabbit",
         "food": "Grass",
