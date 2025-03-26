@@ -28,7 +28,7 @@ TEST_CASE("Test cse::Graph (Bidirectional)", "[base]") {
 
   // Test removing vertices
   graph.RemoveVertex("id1");
-  CHECK_THROWS_AS(graph.GetVertex("id1"), std::out_of_range);
+  CHECK_THROWS_AS(graph.GetVertex("id1"), cse::vertex_not_found_error);
 
   // Test adding edges
   v1 = graph.AddVertex("id1", "Vertex1 Data");
