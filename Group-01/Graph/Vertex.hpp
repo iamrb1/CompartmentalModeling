@@ -44,8 +44,8 @@ namespace cse {
 
     std::string GetId() const override { return id; }
     const std::map<std::string, std::weak_ptr<Edge<VERTEX_DATA_T>>> &GetEdges() const { return edges; }
-    double GetX() const { return x; };
-    double GetY() const { return y; };
+    constexpr double GetX() const noexcept { return x; }
+    constexpr double GetY() const noexcept { return y; }
     VERTEX_DATA_T GetData() const { return data; }
     void SetData(VERTEX_DATA_T newData) { data = newData; }
 
@@ -54,7 +54,7 @@ namespace cse {
 
     template <typename T> friend std::ostream &operator<<(std::ostream &os, const Vertex<T> &v);
     template <typename T> friend bool operator==(const Vertex<T> &lhs, const Vertex<T> &rhs);
-    template <typename T> friend class Graph;
+    template <typename T, bool IS_BIDIRECTIONAL> friend class Graph;
   };
 
   // Function Implementations

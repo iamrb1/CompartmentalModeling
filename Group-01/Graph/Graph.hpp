@@ -13,7 +13,7 @@
 
 namespace cse {
 
-  template <typename VERTEX_DATA_T> class Graph : public FileSerializable {
+  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL = false> class Graph : public FileSerializable {
   private:
     std::unordered_map<std::string, std::shared_ptr<Vertex<VERTEX_DATA_T>>>
         vertices{}; ///< Collection of vertices in the graph, mapped by vertex ID
@@ -68,8 +68,8 @@ namespace cse {
    * @return Reference to the created vertex
    * @throws runtime_error if vertex ID already exists
    */
-  template <typename VERTEX_DATA_T>
-  Vertex<VERTEX_DATA_T> &Graph<VERTEX_DATA_T>::AddVertex(std::string const id, VERTEX_DATA_T data, double X, double Y) {
+  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
+  Vertex<VERTEX_DATA_T> &Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::AddVertex(std::string const id, VERTEX_DATA_T data, double X, double Y) {
     if (HasVertex(id)) {
       throw vertex_already_exists_error(id);
     }
@@ -87,8 +87,8 @@ namespace cse {
    * @return Reference to the created vertex
    * @throws runtime_error if vertex ID already exists
    */
-  template <typename VERTEX_DATA_T>
-  Vertex<VERTEX_DATA_T> &Graph<VERTEX_DATA_T>::AddVertex(std::string const id, double X, double Y) {
+  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
+  Vertex<VERTEX_DATA_T> &Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::AddVertex(std::string const id, double X, double Y) {
     if (HasVertex(id)) {
       throw vertex_already_exists_error(id);
     }
@@ -104,8 +104,8 @@ namespace cse {
    * @return Reference to the vertex
    * @throws out_of_range if vertex doesn't exist
    */
-  template <typename VERTEX_DATA_T>
-  Vertex<VERTEX_DATA_T> &Graph<VERTEX_DATA_T>::GetVertex(std::string const &id) const {
+  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
+  Vertex<VERTEX_DATA_T> &Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::GetVertex(std::string const &id) const {
     if (vertices.find(id) == vertices.end()) {
       throw vertex_not_found_error(id);
     }
@@ -117,7 +117,7 @@ namespace cse {
    * @param id ID of the vertex to remove
    * @throws out_of_range if vertex doesn't exist
    */
-  template <typename VERTEX_DATA_T> void Graph<VERTEX_DATA_T>::RemoveVertex(std::string const id) {
+  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL> void Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::RemoveVertex(std::string const id) {
     auto it = vertices.find(id);
     if (it == vertices.end()) {
       std::cout << "Did not find vertex to remove" << std::endl;
@@ -150,8 +150,8 @@ namespace cse {
    * @param weight Edge weight
    * @return Weak pointer to the created edge
    */
-  template <typename VERTEX_DATA_T>
-  Edge<VERTEX_DATA_T> &Graph<VERTEX_DATA_T>::AddEdge(std::string const v1_id, std::string const v2_id,
+  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
+  Edge<VERTEX_DATA_T> &Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::AddEdge(std::string const v1_id, std::string const v2_id,
                                                      double const &weight) {
     if (!HasVertex(v1_id) || !HasVertex(v2_id)) {
       throw edge_connection_error("Both vertices must exist to create an edge");
@@ -164,6 +164,15 @@ namespace cse {
 
     v1->AddEdge(edge);
     edges[edge_id] = edge;
+
+    // Add the reverse edge if the graph is bidirectional
+    if constexpr (IS_BIDIRECTIONAL) {
+      std::string reverse_edge_id = v2_id + "-" + v1_id;
+      auto reverse_edge = std::make_shared<Edge<VERTEX_DATA_T>>(reverse_edge_id, v2, v1, weight);
+      v2->AddEdge(reverse_edge);
+      edges[reverse_edge_id] = reverse_edge;
+    }
+
     return *edge;
   }
 
@@ -174,8 +183,8 @@ namespace cse {
    * @param weight Edge weight
    * @return Weak pointer to the created edge
    */
-  template <typename VERTEX_DATA_T>
-  Edge<VERTEX_DATA_T> &Graph<VERTEX_DATA_T>::AddEdge(Vertex<VERTEX_DATA_T> const &v1, Vertex<VERTEX_DATA_T> const &v2,
+  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
+  Edge<VERTEX_DATA_T> &Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::AddEdge(Vertex<VERTEX_DATA_T> const &v1, Vertex<VERTEX_DATA_T> const &v2,
                                                      double const &weight) {
     return AddEdge(v1.GetId(), v2.GetId(), weight);
   }
@@ -186,8 +195,8 @@ namespace cse {
    * @return Weak pointer to the edge
    * @throws out_of_range if edge doesn't exist
    */
-  template <typename VERTEX_DATA_T>
-  Edge<VERTEX_DATA_T> &Graph<VERTEX_DATA_T>::GetEdge(std::string const &edge_id) const {
+  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
+  Edge<VERTEX_DATA_T> &Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::GetEdge(std::string const &edge_id) const {
     if (edges.find(edge_id) == edges.end()) {
       throw edge_not_found_error(edge_id);
     }
@@ -201,8 +210,8 @@ namespace cse {
    * @param to Destination vertex
    * @return Weak pointer to the edge
    */
-  template <typename VERTEX_DATA_T>
-  Edge<VERTEX_DATA_T> &Graph<VERTEX_DATA_T>::GetEdge(Vertex<VERTEX_DATA_T> const &from,
+  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
+  Edge<VERTEX_DATA_T> &Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::GetEdge(Vertex<VERTEX_DATA_T> const &from,
                                                      Vertex<VERTEX_DATA_T> const &to) const {
     return GetEdge(from.GetEdge(to)->GetId());
   }
@@ -213,8 +222,8 @@ namespace cse {
    * @param to_id Destination vertex ID
    * @return Weak pointer to the edge
    */
-  template <typename VERTEX_DATA_T>
-  Edge<VERTEX_DATA_T> &Graph<VERTEX_DATA_T>::GetEdge(std::string const &from_id, std::string const &to_id) {
+  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
+  Edge<VERTEX_DATA_T> &Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::GetEdge(std::string const &from_id, std::string const &to_id) {
     return GetEdge(GetVertex(from_id), GetVertex(to_id));
   }
 
@@ -223,13 +232,29 @@ namespace cse {
    * @param edge_id ID of the edge to remove
    * @throws out_of_range if edge doesn't exist
    */
-  template <typename VERTEX_DATA_T> void Graph<VERTEX_DATA_T>::RemoveEdge(std::string const &edge_id) {
+  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
+  void Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::RemoveEdge(std::string const &edge_id) {
     auto it = edges.find(edge_id);
     if (it == edges.end()) {
       throw edge_not_found_error(edge_id);
     }
-    it->second.reset();
+
+    auto edge = it->second;
+    std::string from_id = edge->GetFrom().GetId();
+    std::string to_id = edge->GetTo().GetId();
+
+    edge->GetFrom().RemoveEdge(to_id);
     edges.erase(it);
+
+    // Remove reverse edge if the graph is bidirectional
+    if constexpr (IS_BIDIRECTIONAL) {
+      std::string reverse_edge_id = to_id + "-" + from_id;
+      auto rit = edges.find(reverse_edge_id);
+      if (rit != edges.end()) {
+        rit->second->GetFrom().RemoveEdge(from_id);
+        edges.erase(rit);
+      }
+    }
   }
 
   /**
@@ -237,7 +262,7 @@ namespace cse {
    * @param edge Weak pointer to the edge to remove
    * @throws out_of_range if edge doesn't exist or is expired
    */
-  template <typename VERTEX_DATA_T> void Graph<VERTEX_DATA_T>::RemoveEdge(Edge<VERTEX_DATA_T> const &edge) {
+  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL> void Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::RemoveEdge(Edge<VERTEX_DATA_T> const &edge) {
     RemoveEdge(edge.GetId());
   }
 
@@ -247,10 +272,11 @@ namespace cse {
    * @param v2 Second vertex
    * @return true if vertices are connected or false otherwise
    */
-  template <typename VERTEX_DATA_T>
-  bool Graph<VERTEX_DATA_T>::IsConnected(Vertex<VERTEX_DATA_T> const &v1, Vertex<VERTEX_DATA_T> const &v2) const {
+  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
+  bool Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::IsConnected(Vertex<VERTEX_DATA_T> const &v1,
+                                                          Vertex<VERTEX_DATA_T> const &v2) const {
     try {
-      auto e = GetEdge(v1, v2);
+      auto &e = GetEdge(v1, v2);
       return e.IsConnected(v1, v2);
     } catch (const edge_not_found_error &) {
       // If there is an edge_not_found_error, the edge does not exist
@@ -265,8 +291,8 @@ namespace cse {
    * @param v2_id Second vertex ID
    * @return true if vertices are connected, false otherwise
    */
-  template <typename VERTEX_DATA_T>
-  bool Graph<VERTEX_DATA_T>::IsConnected(std::string const &v1_id, std::string const &v2_id) const {
+  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
+  bool Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::IsConnected(std::string const &v1_id, std::string const &v2_id) const {
     return IsConnected(GetVertex(v1_id), GetVertex(v2_id));
   }
 
@@ -275,7 +301,7 @@ namespace cse {
    * @param f Input stream to read from
    * @param indent_level The indentation level
    */
-  template <typename VERTEX_DATA_T> void Graph<VERTEX_DATA_T>::ParseVertices(std::istream &f, size_t indent_level) {
+  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL> void Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::ParseVertices(std::istream &f, size_t indent_level) {
     std::string line;
     while (FileUtil::CheckPrefixSize(f, indent_level + cse::BASE_INDENTATION)) {
       auto vertex = std::make_shared<Vertex<VERTEX_DATA_T>>(f, indent_level + cse::BASE_INDENTATION);
@@ -288,7 +314,7 @@ namespace cse {
    * @param f Input stream to read from
    * @param indent_level The indentation level
    */
-  template <typename VERTEX_DATA_T> void Graph<VERTEX_DATA_T>::ParseEdges(std::istream &f, size_t indent_level) {
+  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL> void Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::ParseEdges(std::istream &f, size_t indent_level) {
     while (FileUtil::CheckPrefixSize(f, indent_level + cse::BASE_INDENTATION)) {
       Edge<VERTEX_DATA_T>::CreateFromFile(f, indent_level + cse::BASE_INDENTATION, *this);
     }
@@ -300,8 +326,8 @@ namespace cse {
    * @param expected_section The expected section header
    * @throws runtime_error if the section header is invalid
    */
-  template <typename VERTEX_DATA_T>
-  void Graph<VERTEX_DATA_T>::ParseSection(std::istream &f, const std::string &expected_section) {
+  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
+  void Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::ParseSection(std::istream &f, const std::string &expected_section) {
     std::string line;
     std::getline(f, line);
     auto [section_key, _] = FileUtil::SeparateKeyValue(line);
@@ -316,7 +342,7 @@ namespace cse {
    * @param prefix_size The indentation level (unused)
    * @throws runtime_error if the file format is invalid
    */
-  template <typename VERTEX_DATA_T> void Graph<VERTEX_DATA_T>::FromFile(std::istream &f, size_t) {
+  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL> void Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::FromFile(std::istream &f, size_t) {
     std::string line;
     std::getline(f, line);
     auto [key, value] = FileUtil::SeparateKeyValue(line);
@@ -336,8 +362,8 @@ namespace cse {
    * Gets the serializable properties for this graph
    * @return Vector of property pairs for serialization
    */
-  template <typename VERTEX_DATA_T>
-  std::vector<std::pair<std::string, SerializableProperty>> Graph<VERTEX_DATA_T>::GetPropertyMap() {
+  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
+  std::vector<std::pair<std::string, SerializableProperty>> Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::GetPropertyMap() {
     std::vector<std::pair<std::string, SerializableProperty>> properties;
 
     auto verticesWriter = [this](std::ostream &s) {
