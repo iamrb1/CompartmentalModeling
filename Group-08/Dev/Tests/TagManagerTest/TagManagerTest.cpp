@@ -1,137 +1,144 @@
+/**
+ * @class   TagMangerTest
+ * @file    TagManagerTest.cpp
+ * @author  Kelsi Elliott
+ * @brief   Tests the TagManager class 
+ */
+
 #include "../../../../third-party/Catch/single_include/catch2/catch.hpp"
 #include "../../TagManager/TagManager.h"
 
-TEST_CASE("Test AddTag", "[TagManager]") {
+TEST_CASE("Test addTag", "[TagManager]") {
     cse::TagManager tm;
 
-    tm.AddTag("school", "urgent");
-    tm.AddTag("school", "low");
-    tm.AddTag("school", "medium");
-    tm.AddTag("work", "low");
-    tm.AddTag("personal", "medium");
+    tm.addTag("school", "urgent");
+    tm.addTag("school", "low");
+    tm.addTag("school", "medium");
+    tm.addTag("work", "low");
+    tm.addTag("personal", "medium");
 
 
-    assert(tm.GetTags("school").size() == 3);
-    assert(tm.GetTags("work").size() == 1);
-    assert(tm.GetTags("personal").size() == 1);
-    assert(tm.GetTags("CSE498").empty());
+    assert(tm.getTags("school").size() == 3);
+    assert(tm.getTags("work").size() == 1);
+    assert(tm.getTags("personal").size() == 1);
+    assert(tm.getTags("CSE498").empty());
 
 }
 
-TEST_CASE("Test RemoveTag", "[TagManager]") {
+TEST_CASE("Test removeTag", "[TagManager]") {
     cse::TagManager tm;
 
-    tm.AddTag("CSE498", "urgent");
-    tm.AddTag("CSE498", "work");
+    tm.addTag("CSE498", "urgent");
+    tm.addTag("CSE498", "work");
 
-    tm.RemoveTag("CSE498", "work");
+    tm.removeTag("CSE498", "work");
 
-    assert(tm.GetTags("CSE498").size() == 1);
+    assert(tm.getTags("CSE498").size() == 1);
 
-    tm.RemoveTag("CSE498", "no");
-    assert(tm.GetTags("CSE498").size() == 1);
+    tm.removeTag("CSE498", "no");
+    assert(tm.getTags("CSE498").size() == 1);
 }
 
-TEST_CASE("Test GetTag", "[TagManager]") {
+TEST_CASE("Test getTag", "[TagManager]") {
     cse::TagManager tm;
 
-    tm.AddTag("CSE498", "urgent");
-    tm.AddTag("CSE498", "work");
+    tm.addTag("CSE498", "urgent");
+    tm.addTag("CSE498", "work");
 
-    auto tags = tm.GetTags("CSE498");
+    auto tags = tm.getTags("CSE498");
     assert(tags.size() == 2);
     assert(tags.count("urgent") == 1);
     assert(tags.count("work") == 1);
 
-    tags = tm.GetTags("no");
+    tags = tm.getTags("no");
     assert(tags.empty());
 }
 
-TEST_CASE("Test GetTaskTags", "[TagManager]") {
+TEST_CASE("Test getTaskTags", "[TagManager]") {
     cse::TagManager tm;
 
-    tm.AddTag("CSE498", "urgent");
-    tm.AddTag("CSE498", "work");
-    tm.AddTag("school", "urgent");
+    tm.addTag("CSE498", "urgent");
+    tm.addTag("CSE498", "work");
+    tm.addTag("school", "urgent");
 
-    auto tasks = tm.GetTaskTags("urgent");
+    auto tasks = tm.getTaskTags("urgent");
     assert(tasks.size() == 2);
     assert(tasks.count("CSE498") == 1);
     assert(tasks.count("school") == 1);
 }
 
-TEST_CASE("Test ClearTagForTask", "[TagManager]") {
+TEST_CASE("Test clearTagsForTask", "[TagManager]") {
     cse::TagManager tm;
 
-    tm.AddTag("CSE498", "urgent");
-    tm.AddTag("CSE498", "work");
-    tm.AddTag("school", "urgent");
+    tm.addTag("CSE498", "urgent");
+    tm.addTag("CSE498", "work");
+    tm.addTag("school", "urgent");
 
-    tm.ClearTagsForTask("CSE498");
+    tm.clearTagsForTask("CSE498");
 
-    assert(tm.GetTags("CSE498").empty());
-    assert(tm.GetTags("school").size() == 1);
+    assert(tm.getTags("CSE498").empty());
+    assert(tm.getTags("school").size() == 1);
 }
 
-TEST_CASE("Test ClearTags", "[TagManager]") {
+TEST_CASE("Test clearTags", "[TagManager]") {
     cse::TagManager tm;
 
-    tm.AddTag("CSE498", "urgent");
-    tm.AddTag("CSE498", "work");
-    tm.AddTag("school", "urgent");
+    tm.addTag("CSE498", "urgent");
+    tm.addTag("CSE498", "work");
+    tm.addTag("school", "urgent");
 
-    tm.ClearTags("urgent");
+    tm.clearTags("urgent");
 
-    assert(tm.GetTags("school").empty());
-    assert(tm.GetTags("CSE498").size() == 1);
+    assert(tm.getTags("school").empty());
+    assert(tm.getTags("CSE498").size() == 1);
 }
 
-TEST_CASE("Test HasTag", "[TagManager]") {
+TEST_CASE("Test hasTag", "[TagManager]") {
     cse::TagManager tm;
 
-    tm.AddTag("CSE498", "urgent");
+    tm.addTag("CSE498", "urgent");
 
-    assert(tm.HasTag("CSE498", "urgent"));
-    CHECK_FALSE(tm.HasTag("CSE498", "no"));
-    CHECK_FALSE(tm.HasTag("school", "urgent"));
+    assert(tm.hasTag("CSE498", "urgent"));
+    CHECK_FALSE(tm.hasTag("CSE498", "no"));
+    CHECK_FALSE(tm.hasTag("school", "urgent"));
 }
 
 TEST_CASE("Test removing a tag removes it from task", "[TagManager]") {
     cse::TagManager tm;
 
-    tm.AddTag("CSE498", "urgent");
-    tm.AddTag("CSE498", "work");
+    tm.addTag("CSE498", "urgent");
+    tm.addTag("CSE498", "work");
 
-    tm.RemoveTag("CSE498", "urgent");
+    tm.removeTag("CSE498", "urgent");
 
-    CHECK_FALSE(tm.HasTag("CSE498", "urgent"));
-    assert(tm.HasTag("CSE498", "work"));
+    CHECK_FALSE(tm.hasTag("CSE498", "urgent"));
+    assert(tm.hasTag("CSE498", "work"));
 }
 
-TEST_CASE("Test ClearTagsForTask remove all associations", "[TagManager]") {
+TEST_CASE("Test clearTagsForTask remove all associations", "[TagManager]") {
     cse::TagManager tm;
 
-    tm.AddTag("CSE498", "urgent");
-    tm.AddTag("CSE498", "work");
+    tm.addTag("CSE498", "urgent");
+    tm.addTag("CSE498", "work");
 
-    tm.ClearTagsForTask("CSE498");
+    tm.clearTagsForTask("CSE498");
 
-    CHECK_FALSE(tm.HasTag("CSE498", "urgent"));
-    CHECK_FALSE(tm.HasTag("CSE498", "work"));
+    CHECK_FALSE(tm.hasTag("CSE498", "urgent"));
+    CHECK_FALSE(tm.hasTag("CSE498", "work"));
 }
 
-TEST_CASE("Test ClearTags remove all associations", "[TagManager]") {
+TEST_CASE("Test clearTags remove all associations", "[TagManager]") {
     cse::TagManager tm;
 
-    tm.AddTag("CSE498", "urgent");
-    tm.AddTag("CSE498", "work");
-    tm.AddTag("school", "urgent");
+    tm.addTag("CSE498", "urgent");
+    tm.addTag("CSE498", "work");
+    tm.addTag("school", "urgent");
 
-    tm.ClearTags("urgent");
+    tm.clearTags("urgent");
 
-    assert(tm.HasTag("CSE498", "work"));
-    CHECK_FALSE(tm.HasTag("CSE498", "urgent"));
-    CHECK_FALSE(tm.HasTag("school", "urgent"));
+    assert(tm.hasTag("CSE498", "work"));
+    CHECK_FALSE(tm.hasTag("CSE498", "urgent"));
+    CHECK_FALSE(tm.hasTag("school", "urgent"));
 }
 
 
