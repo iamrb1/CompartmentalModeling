@@ -103,11 +103,12 @@ class RichText {
     std::string start_token;
     std::string end_token;
     std::variant<std::string, std::function<std::string(const TextFormat&)>> format;
+    SerializeRule(std::string start_token, std::string end_token) : start_token(std::move(start_token)), end_token(std::move(end_token)) {}
   };
 
   struct Serializer {
     const std::string name;
-    const std::map<TextFormat::FormatID, SerializeRule> rules;
+    std::map<TextFormat::FormatID, SerializeRule> rules;
     explicit(false) Serializer(std::string name)
         : name(std::move(name)){};
   };
@@ -115,7 +116,7 @@ class RichText {
   struct SerializeResult {
     std::string name;
     std::string result;
-    std::vector<TextFormat::FormatID> missed_formats;
+    std::vector<TextFormat> missed_formats;
   };
 
  private:
@@ -375,96 +376,115 @@ class RichText {
 
     std::set<FormatSerializeTracker> trackers;
 
-    auto format_iter = m_formatting.begin();
-    auto const format_iter_end = m_formatting.end();
-    auto serializer_format_iter = serializer.serialize_rules.begin();
-    auto const serializer_format_iter_end = serializer.serialize_rules.end();
+    { // Populate the format trackers
+      auto format_iter = m_formatting.begin();
+      auto const format_iter_end = m_formatting.end();
+      auto serializer_format_iter = serializer.rules.begin();
+      auto const serializer_format_iter_end = serializer.rules.end();
 
-    while (format_iter != format_iter_end &&
-           serializer_format_iter != serializer_format_iter_end) {
-      if (format_iter->first < serializer_format_iter->first) {
+      while (format_iter != format_iter_end &&
+             serializer_format_iter != serializer_format_iter_end) {
+        if (format_iter->first.name < serializer_format_iter->first) {
+          result.missed_formats.push_back(format_iter->first);
+          ++format_iter;
+        } else if (format_iter->first.name == serializer_format_iter->first) {
+          trackers.emplace(format_iter->first,                 // Format
+                           serializer_format_iter->second,     // Serialize Rule
+                           format_iter->second.cbegin_pair(),  // Format Iterators
+                           format_iter->second.cend_pair());
+          ++format_iter;
+          ++serializer_format_iter;
+        } else {
+          ++serializer_format_iter;
+        }
+             }
+
+      while (format_iter != format_iter_end) {
         result.missed_formats.push_back(format_iter->first);
         ++format_iter;
-      } else if (format_iter->first == serializer_format_iter->first) {
-        trackers.emplace(format_iter->first,                 // Format
-                         serializer_format_iter->second,     // Serialize Rule
-                         format_iter->second.cbegin_pair(),  // Format Iterators
-                         format_iter->second.cend_pair());
-        ++format_iter;
-        ++serializer_format_iter;
-      } else {
-        ++serializer_format_iter;
       }
-    }
-
-    while (format_iter != format_iter_end) {
-      result.missed_formats.push_back(format_iter->first);
-      ++format_iter;
     }
 
     size_t current = 0;
     auto tracker_iter = trackers.begin();
-    auto const tracker_begin = trackers.begin();
-    auto const tracker_end = trackers.end();
 
     // Process the text
     while (current < m_text.size() && !trackers.empty()) {
       size_t next = SIZE_MAX;  // Track the next format deactivation
 
       // Apply formats
-      while (tracker_iter != tracker_end &&
+      while (tracker_iter != trackers.end() &&
              (*tracker_iter->iter).first <= current) {
         // The format begins, add the token
-        if ((*tracker_iter->iter).first <= current) {
+        if ((*tracker_iter->iter).first == current) {
           result.result += tracker_iter->rule.start_token;
         }
 
-        // Keep track of when the closest formatting change is
+        // Keep track of when the closest formatting deactivation is
         if ((*tracker_iter->iter).second < next)
-          next == (*tracker_iter->iter).second;
+          next = (*tracker_iter->iter).second;
         ++tracker_iter;
       }
 
-      // Process all the upcoming activating formats
-      while (tracker_iter != tracker_end &&
+      // Process all the upcoming activating format activations
+      while (tracker_iter != trackers.end() &&
              (*tracker_iter->iter).first < next) {
-        result.result +=
-            m_text.substr(current, (*tracker_iter->iter).first - current);
+        result.result += m_text.substr(current, (*tracker_iter->iter).first - current);
         result.result += tracker_iter->rule.start_token;
         current = (*tracker_iter->iter).first;
 
         // Keep track of when the closest formatting deactivation is
         if ((*tracker_iter->iter).second < next)
-          next == (*tracker_iter->iter).second;
+          next = (*tracker_iter->iter).second;
         ++tracker_iter;
       }
 
       // Jump to next formatting deactivation
       result.result += m_text.substr(current, next - current);
+      current = next;
 
       // Unwind formatting
 
       // Find the rule to end
       auto rule_to_end_iter = trackers.begin();
-      while (rule_to_end_iter != tracker_end &&
+      while (rule_to_end_iter != trackers.end() &&
              (*rule_to_end_iter->iter).second != next)
         ++rule_to_end_iter;
       dbg_assert(
-          rule_to_end_iter != tracker_end,
+          rule_to_end_iter != trackers.end(),
           "rule_to_end_iter failed to find the rule that needed ending.");
 
       while (tracker_iter != rule_to_end_iter) {
-        result.result += tracker_iter->rule.end_token;
-        // TODO: Check to see if rule needs to be reapplied after unraveling
-        // TODO: If it doesn't pull the tracker out and update it
         --tracker_iter;
+        result.result += tracker_iter->rule.end_token;
       }
-      result.result += rule_to_end_iter->rule.end_token;
-      // TODO: Pull the tracker out and modify it
-      // TODO: Reapply the unraveled formats.
 
-      dbg_assert_never(
-          "Loop not guaranteed to end while TODOs are present in code.");
+      bool all_deactivated = tracker_iter == trackers.begin();
+      if (!all_deactivated) --tracker_iter;
+      // tracker_iter now points to the rule before the rule that needs to be deactivated (or all_deactivated is true, then it points to the first rule)
+
+      std::_Rb_tree_const_iterator<FormatSerializeTracker> reapply_rule_iter;
+      do {
+        if (all_deactivated) {
+          reapply_rule_iter = trackers.begin();
+        } else {
+          reapply_rule_iter = tracker_iter;
+          ++reapply_rule_iter;
+        }
+        if (reapply_rule_iter == trackers.end()) break;
+        if ((*reapply_rule_iter->iter).first > current) break;
+        if ((*reapply_rule_iter->iter).second <= current) {
+          auto tracker_to_update = trackers.extract(reapply_rule_iter);
+          ++tracker_to_update.value().iter;
+          if (tracker_to_update.value().iter != tracker_to_update.value().end) trackers.insert(std::move(tracker_to_update));
+          continue;
+        }
+        result.result += reapply_rule_iter->rule.start_token;
+        if (all_deactivated) all_deactivated = false;
+        else ++tracker_iter;
+      } while (tracker_iter != trackers.end());
+      ++tracker_iter;
+
     }
 
     return result;
