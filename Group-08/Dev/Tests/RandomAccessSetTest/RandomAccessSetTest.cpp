@@ -99,3 +99,18 @@ TEST_CASE("Test RandomAccessSet getIndexOf operation", "[RandomAccessSet]") {
     CHECK(ras.getIndexOf(100) == 0);
     CHECK(ras.getIndexOf(200) == 1);
 }
+
+TEST_CASE("Test forEach with lambda", "[RandomAccessSet]") {
+    cse::RandomAccessSet<std::string> ras;
+    ras.add("alpha");
+    ras.add("beta");
+
+    std::vector<std::string> output;
+    ras.forEach([&output](const std::string& item) {
+        output.push_back(item);
+    });
+
+    CHECK(output.size() == 2);
+    CHECK((output[0] == "alpha" || output[1] == "alpha"));
+    CHECK((output[0] == "beta" || output[1] == "beta"));
+}

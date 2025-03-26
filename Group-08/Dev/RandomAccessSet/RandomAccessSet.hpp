@@ -5,6 +5,7 @@
 #include <unordered_map>
 // for std::out_of_range
 #include <stdexcept>
+#include <functional>
 
 namespace cse {
 
@@ -88,6 +89,13 @@ class RandomAccessSet {
          * @throw std::out_of_range If the element is not found in the set.
          */
         size_t getIndexOf(const T& item) const;
+
+        /**
+         * @brief Applies a callback function to each element in the set.
+         * @param callback A lambda function that takes a const reference to each element.
+         */
+        void forEach(std::function<void(const T&)> callback) const;
+
 };
 
 /************************************
@@ -155,6 +163,14 @@ size_t RandomAccessSet<T>::getIndexOf(const T& item) const {
 
     return it->second; // Returns the index, which is the value from the map from mIndexMap
 }
+
+template <typename T>
+void RandomAccessSet<T>::forEach(std::function<void(const T&)> callback) const {
+    for (const auto& item : mElements) {
+        callback(item);
+    }
+}
+
 }
 
 #endif
