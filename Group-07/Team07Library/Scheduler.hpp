@@ -13,6 +13,7 @@
 #include <deque>
 #include <map>
 #include <set>
+#include <optional>
 #include <vector>
 
 namespace cse
