@@ -3,7 +3,7 @@
  * @author Mary Holt
  */
 
-#include "WebLayoutManager.h"
+#include "WebLayoutManager.hpp"
 
 #include <emscripten/bind.h>
 

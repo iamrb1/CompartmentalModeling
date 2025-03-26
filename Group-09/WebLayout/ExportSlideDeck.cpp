@@ -4,8 +4,8 @@
 #include "../Image/image.hpp"
 #include "../TextBox/TextBox.hpp"
 #include "../utils/nlohmann/json.hpp"
-#include "WebLayout.h"
-#include "WebLayoutManager.h"
+#include "WebLayout.hpp"
+#include "WebLayoutManager.hpp"
 
 // Allows for easy JSON parsing, building JSON objects/arrays, pretty printing,
 // etc.

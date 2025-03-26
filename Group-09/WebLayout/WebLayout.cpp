@@ -4,9 +4,10 @@
  *
  */
 
-#include <iostream>
+#include "WebLayout.hpp"
+
 #include <cassert>
-#include "WebLayout.h"
+#include <iostream>
 
 namespace cse {
 
@@ -19,9 +20,7 @@ constexpr int MIN_PERCENT = 0;
  * Adds an image to the web layout
  * @param image to be added
  */
-void WebLayout::addImage(const ImageLayout &image) {
-  images.push_back(image);
-}
+void WebLayout::addImage(const ImageLayout &image) { images.push_back(image); }
 
 /**
  * Removes a specific image from the web layout
@@ -57,9 +56,7 @@ void WebLayout::removeTextBox(const TextBoxLayout &textBox) {
  * Gets images vector of web layout
  * @return images that are connected
  */
-const std::vector<ImageLayout> &WebLayout::getImages() {
-  return images;
-}
+const std::vector<ImageLayout> &WebLayout::getImages() { return images; }
 
 /**
  * Gets text boxes vector of web layout
@@ -76,62 +73,71 @@ const std::vector<TextBoxLayout> &WebLayout::getTextBoxes() {
  * @param height height of the textbox
  */
 const void WebLayout::renderTextBox(const std::string &layoutID,
-                                    const std::string &msg,
-                                    const int &width,
-                                    const int &height,
-                                    const int &x,
+                                    const std::string &msg, const int &width,
+                                    const int &height, const int &x,
                                     const int &y,
                                     const std::string &textboxID) {
+  assert(width >= MIN_PERCENT &&
+         height >= MIN_PERCENT);  // assert width and height are positive
+  assert(x >= MIN_PERCENT && y >= MIN_PERCENT);  // assert x and y are positive
 
-  assert(width >= MIN_PERCENT && height >= MIN_PERCENT); //assert width and height are positive
-  assert(x >= MIN_PERCENT && y >= MIN_PERCENT); //assert x and y are positive
+  EM_ASM(
+      {
+        var layoutID = UTF8ToString($0);
+        var msg = UTF8ToString($1);
+        var width = $2;
+        var height = $3;
+        var x = $4;
+        var y = $5;
+        var textboxID = UTF8ToString($6);
+        var MAX_WIDTH_PERCENT = $7;
+        var MAX_HEIGHT_PERCENT = $8;
 
-  EM_ASM({
-           var layoutID = UTF8ToString($0);
-           var msg = UTF8ToString($1);
-           var width = $2;
-           var height = $3;
-           var x = $4;
-           var y = $5;
-           var textboxID = UTF8ToString($6);
-           var MAX_WIDTH_PERCENT = $7;
-           var MAX_HEIGHT_PERCENT = $8;
+        // Calculate the ratio to view height/width (1%)
+        var widthRatio =
+            document.documentElement.clientWidth / MAX_WIDTH_PERCENT;
+        var heightRatio =
+            document.documentElement.clientHeight / MAX_WIDTH_PERCENT;
 
-           // Calculate the ratio to view height/width (1%)
-           var widthRatio = document.documentElement.clientWidth / MAX_WIDTH_PERCENT;
-           var heightRatio = document.documentElement.clientHeight / MAX_WIDTH_PERCENT;
+        // Don't let placement exceed 100% of view width/height
+        if (width > MAX_WIDTH_PERCENT) {
+          width = MAX_WIDTH_PERCENT;
+        }
+        if (height > MAX_HEIGHT_PERCENT) {
+          height = MAX_HEIGHT_PERCENT;
+        }
+        if (x > MAX_WIDTH_PERCENT) {
+          x = MAX_WIDTH_PERCENT - width;
+        }
+        if (y > MAX_HEIGHT_PERCENT) {
+          y = MAX_HEIGHT_PERCENT - height;
+        }
 
-           // Don't let placement exceed 100% of view width/height
-           if (width > MAX_WIDTH_PERCENT) { width = MAX_WIDTH_PERCENT; }
-           if (height > MAX_HEIGHT_PERCENT) { height = MAX_HEIGHT_PERCENT; }
-           if (x > MAX_WIDTH_PERCENT) { x = MAX_WIDTH_PERCENT - width; }
-           if (y > MAX_HEIGHT_PERCENT) { y = MAX_HEIGHT_PERCENT - height; }
+        // Finds div with presentation-zone id, where all boxes and images will
+        // be placed
+        var textBoxDiv = document.getElementById("presentation-zone");
 
-           // Finds div with presentation-zone id, where all boxes and images will be placed
-           var textBoxDiv = document.getElementById("presentation-zone");
+        var layoutDiv = document.getElementById(layoutID);
+        if (!layoutDiv) {
+          // If it doesn't exist, create div
+          layoutDiv = document.createElement("div");
+          layoutDiv.style.visibility = "hidden";
+          layoutDiv.id = layoutID;
+          textBoxDiv.appendChild(layoutDiv);
+        }
 
-           var layoutDiv = document.getElementById(layoutID);
-           if (!layoutDiv) {
-             // If it doesn't exist, create div
-             layoutDiv = document.createElement("div");
-             layoutDiv.style.visibility = "hidden";
-             layoutDiv.id = layoutID;
-             textBoxDiv.appendChild(layoutDiv);
-           }
+        // position: absolute; left: x px; top: y px;
 
-           //position: absolute; left: x px; top: y px;
-
-           if (layoutDiv) {
-
-             layoutDiv.innerHTML +=
-                 '<p id= ' + textboxID + '; style="position: absolute; left: ' + x + 'vw; top: ' + y
-                     + 'vh; border: 1px solid black; margin: 0; border-radius: 5px; height: ' + height + 'vh; width: '
-                     + width
-                     + 'vw;">'
-                     + msg + '</p>';
-           }
-         }, layoutID.c_str(), msg.c_str(), width, height, x, y, textboxID.c_str(), MAX_WIDTH_PERCENT, MAX_HEIGHT_PERCENT
-  );
+        if (layoutDiv) {
+          layoutDiv.innerHTML +=
+              '<p id= ' + textboxID + '; style="position: absolute; left: ' +
+              x + 'vw; top: ' + y +
+              'vh; border: 1px solid black; margin: 0; border-radius: 5px; height: ' +
+              height + 'vh; width: ' + width + 'vw;">' + msg + '</p>';
+        }
+      },
+      layoutID.c_str(), msg.c_str(), width, height, x, y, textboxID.c_str(),
+      MAX_WIDTH_PERCENT, MAX_HEIGHT_PERCENT);
 }
 
 /**
@@ -142,49 +148,63 @@ const void WebLayout::renderTextBox(const std::string &layoutID,
  * @param xLoc of image
  * @param yLoc of image
  */
-void const WebLayout::renderImage(const std::string &layoutID, const std::string &url,
-                                  const int &width,
-                                  const int &height, const int &x, const int &y, const std::string &imageID) {
+void const WebLayout::renderImage(const std::string &layoutID,
+                                  const std::string &url, const int &width,
+                                  const int &height, const int &x, const int &y,
+                                  const std::string &imageID) {
+  assert(width >= MIN_PERCENT &&
+         height >= MIN_PERCENT);  // assert width and height are positive
+  assert(x >= MIN_PERCENT && y >= MIN_PERCENT);  // assert x and y are positive
 
-  assert(width >= MIN_PERCENT && height >= MIN_PERCENT); //assert width and height are positive
-  assert(x >= MIN_PERCENT && y >= MIN_PERCENT); //assert x and y are positive
+  EM_ASM(
+      {
+        var layoutID = UTF8ToString($0);
+        var msg = UTF8ToString($1);
+        var width = $2;
+        var height = $3;
+        var x = $4;
+        var y = $5;
+        var imageID = UTF8ToString($6);
+        var MAX_WIDTH_PERCENT = $7;
+        var MAX_HEIGHT_PERCENT = $8;
 
-  EM_ASM({
-           var layoutID = UTF8ToString($0);
-           var msg = UTF8ToString($1);
-           var width = $2;
-           var height = $3;
-           var x = $4;
-           var y = $5;
-           var imageID = UTF8ToString($6);
-           var MAX_WIDTH_PERCENT = $7;
-           var MAX_HEIGHT_PERCENT = $8;
+        // Don't let placement exceed 100% of view width/height or 95% height
+        if (width > MAX_WIDTH_PERCENT) {
+          width = MAX_WIDTH_PERCENT;
+        }
+        if (height > MAX_HEIGHT_PERCENT) {
+          height = MAX_HEIGHT_PERCENT;
+        }
+        if (x > MAX_WIDTH_PERCENT) {
+          x = MAX_WIDTH_PERCENT - width;
+        }
+        if (y > MAX_HEIGHT_PERCENT) {
+          y = MAX_HEIGHT_PERCENT - height;
+        }
 
-           // Don't let placement exceed 100% of view width/height or 95% height
-           if (width > MAX_WIDTH_PERCENT) { width = MAX_WIDTH_PERCENT; }
-           if (height > MAX_HEIGHT_PERCENT) { height = MAX_HEIGHT_PERCENT; }
-           if (x > MAX_WIDTH_PERCENT) { x = MAX_WIDTH_PERCENT - width; }
-           if (y > MAX_HEIGHT_PERCENT) { y = MAX_HEIGHT_PERCENT - height; }
+        // Finds div with presentation-zone id, where all boxes and images will
+        // be placed
+        var imageBoxDiv = document.getElementById("presentation-zone");
 
-           // Finds div with presentation-zone id, where all boxes and images will be placed
-           var imageBoxDiv = document.getElementById("presentation-zone");
+        var layoutDiv = document.getElementById(layoutID);
+        if (!layoutDiv) {
+          // If it doesn't exist, create div
+          layoutDiv = document.createElement("div");
+          layoutDiv.style.visibility = "hidden";
+          layoutDiv.id = layoutID;
+          imageBoxDiv.appendChild(layoutDiv);
+        }
 
-           var layoutDiv = document.getElementById(layoutID);
-           if (!layoutDiv) {
-             // If it doesn't exist, create div
-             layoutDiv = document.createElement("div");
-             layoutDiv.style.visibility = "hidden";
-             layoutDiv.id = layoutID;
-             imageBoxDiv.appendChild(layoutDiv);
-           }
-
-           if (layoutDiv) {
-             layoutDiv.innerHTML +=
-                 "<img id=" + imageID + "; src='" + msg + "' style='position: absolute; left: " + x + "vw; top: " + y
-                     + "vh; margin: 0; object-fit: contain; width:" + width + "vw; height:" + height + "vh;' />";
-           }
-         }, layoutID.c_str(), url.c_str(), width, height, x, y, imageID.c_str(), MAX_WIDTH_PERCENT, MAX_HEIGHT_PERCENT
-  );
+        if (layoutDiv) {
+          layoutDiv.innerHTML +=
+              "<img id=" + imageID + "; src='" + msg +
+              "' style='position: absolute; left: " + x + "vw; top: " + y +
+              "vh; margin: 0; object-fit: contain; width:" + width +
+              "vw; height:" + height + "vh;' />";
+        }
+      },
+      layoutID.c_str(), url.c_str(), width, height, x, y, imageID.c_str(),
+      MAX_WIDTH_PERCENT, MAX_HEIGHT_PERCENT);
 }
 
 /**
@@ -193,31 +213,27 @@ void const WebLayout::renderImage(const std::string &layoutID, const std::string
 void WebLayout::loadPage() {
   // Display text boxes
   for (const auto &layout : textBoxes) {
-
     // Future add functionality to fully format text
 
     // Verify values are valid
-    if ((layout.textBox->getHeight() > MIN_PERCENT && layout.textBox->getWidth() > MIN_PERCENT)
-        && (layout.xPos >= MIN_PERCENT && layout.yPos >= MIN_PERCENT)) {
+    if ((layout.textBox->getHeight() > MIN_PERCENT &&
+         layout.textBox->getWidth() > MIN_PERCENT) &&
+        (layout.xPos >= MIN_PERCENT && layout.yPos >= MIN_PERCENT)) {
       renderTextBox(getID(), layout.textBox->getFormattedText().getText(),
-                    layout.textBox->getWidth(),
-                    layout.textBox->getHeight(),
-                    layout.xPos,
-                    layout.yPos, layout.textBox->getID());
+                    layout.textBox->getWidth(), layout.textBox->getHeight(),
+                    layout.xPos, layout.yPos, layout.textBox->getID());
     }
   }
 
   // Display images
   for (const auto &layout : images) {
-
     // Verify values are valid
-    if ((layout.image->getHeight() > MIN_PERCENT && layout.image->getWidth() > MIN_PERCENT)
-        && (layout.xPos >= MIN_PERCENT && layout.yPos >= MIN_PERCENT)) {
-      renderImage(getID(), layout.image->getURL(),
-                  layout.image->getWidth(),
-                  layout.image->getHeight(),
-                  layout.xPos,
-                  layout.yPos, layout.image->getID());
+    if ((layout.image->getHeight() > MIN_PERCENT &&
+         layout.image->getWidth() > MIN_PERCENT) &&
+        (layout.xPos >= MIN_PERCENT && layout.yPos >= MIN_PERCENT)) {
+      renderImage(getID(), layout.image->getURL(), layout.image->getWidth(),
+                  layout.image->getHeight(), layout.xPos, layout.yPos,
+                  layout.image->getID());
     }
   }
 }
@@ -235,20 +251,20 @@ std::string WebLayout::generateID() {
  * Activates layout on html
  */
 void WebLayout::activateLayout() {
-
   auto layoutID = getID();
 
   std::cout << "Activating:  " << layoutID << std::endl;
 
-  EM_ASM({
-           var layoutID = UTF8ToString($0);
+  EM_ASM(
+      {
+        var layoutID = UTF8ToString($0);
 
-           var layoutDiv = document.getElementById(layoutID);
-           if (layoutDiv) {
-             layoutDiv.style.visibility = "visible";
-           }
-         }, layoutID.c_str()
-  );
+        var layoutDiv = document.getElementById(layoutID);
+        if (layoutDiv) {
+          layoutDiv.style.visibility = "visible";
+        }
+      },
+      layoutID.c_str());
 }
 
 /**
@@ -259,14 +275,15 @@ void WebLayout::deactivateLayout() {
 
   std::cout << "Deactivating:  " << layoutID << std::endl;
 
-  EM_ASM({
-           var layoutID = UTF8ToString($0);
-           var layoutDiv = document.getElementById(layoutID);
-           if (layoutDiv) {
-             layoutDiv.style.visibility = "hidden";
-           }
-         }, layoutID.c_str()
-  );
+  EM_ASM(
+      {
+        var layoutID = UTF8ToString($0);
+        var layoutDiv = document.getElementById(layoutID);
+        if (layoutDiv) {
+          layoutDiv.style.visibility = "hidden";
+        }
+      },
+      layoutID.c_str());
 }
 
-}
+}  // namespace cse

@@ -1,14 +1,15 @@
 /**
-* @file image.hpp
+ * @file image.hpp
  *
  * @author Mia Bodenhorn
  */
 
 #pragma once
 
-#include <string>
 #include <emscripten.h>
+
 #include <cstdlib>
+#include <string>
 
 namespace cse {
 /**
@@ -16,7 +17,8 @@ namespace cse {
  */
 class Image {
  public:
-  Image(const std::string& url, int width, int height, const std::string& altText = "",  const std::string imageID = "");
+  Image(const std::string& url, int width, int height,
+        const std::string& altText = "", const std::string imageID = "");
 
   /** @return The url of the image */
   std::string getURL() const { return url; }
@@ -53,25 +55,23 @@ class Image {
   std::string altText;
   std::string id;
   // bool validateURL(const std::string& url) const;
-
 };
 
 void Alert(const std::string& msg);
 
 #ifdef NDEBUG
-  #define em_assert(...)
+#define em_assert(...)
 #else
-  #define em_assert(condition)                            \
-    do {                                                  \
-      if (!(condition)) {                                 \
-        std::string msg = "Assertion failed: " #condition \
-          "\nFile: " __FILE__ "\nLine: ";                 \
-        msg += std::to_string(__LINE__);                  \
-        Alert(msg);                                       \
-        std::abort();                                     \
-      }                                                   \
-    } while (0)
+#define em_assert(condition)                                              \
+  do {                                                                    \
+    if (!(condition)) {                                                   \
+      std::string msg =                                                   \
+          "Assertion failed: " #condition "\nFile: " __FILE__ "\nLine: "; \
+      msg += std::to_string(__LINE__);                                    \
+      Alert(msg);                                                         \
+      std::abort();                                                       \
+    }                                                                     \
+  } while (0)
 #endif
 
-
-} // namespace cse
+}  // namespace cse
