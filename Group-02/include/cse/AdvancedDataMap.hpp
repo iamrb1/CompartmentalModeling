@@ -17,21 +17,29 @@
 
 namespace cse {
 
+/// compile time concept checks listed below
 template <typename T>
-concept has_sizeof = requires(T & value) {
+constexpr bool has_sizeof = requires(T & value) {
   sizeof(T);
 };
 
 template <typename T>
-concept uses_to_string = requires(T & value) {
+constexpr bool uses_to_string = requires(T & value) {
   std::to_string(value);
 };
 
 template <typename T>
-concept has_to_string = requires(T & value) {
+constexpr bool has_to_string = requires(T & value) {
   value.ToString();
 };
 
+/**
+ * Advanced version of DataMap class
+ * Features include: Custom memory management (custom any class)
+ * Type erased values paired to std::string keys
+ * Can add both values and references to DataMap
+ * Concept checks and type checks
+ */
 class [[maybe_unused]] AdvDataMap {
  private:
   /// Inspired by Dr.Ofria's in class Any implementation (refactored to use unique ptrs)
@@ -56,23 +64,20 @@ class [[maybe_unused]] AdvDataMap {
       /// ptr to the value added if initialized elsewhere in code
       T* ref_ptr;
       /// checks if value is numeric in constructor
-      bool numeric;
+      static constexpr bool numeric = std::is_arithmetic_v<T>;
       /// checks if value is convertible to string in constructor
-      bool convert;
+      static constexpr bool convert = std::convertible_to<T, std::string>;
 
       /**
-       * constructor for Val (Any internal)
+       * Constructor for Val (Any internal)
        * @param value type erased value to be added
        * @param flag true if reference false if not
        * @param ref ptr to member variable value if flag is true
        */
-      explicit Val(T value, bool flag = false, T* ref = nullptr) : value(value), flag(flag), ref_ptr(ref) {
-        numeric = std::is_arithmetic_v<T>;
-        convert = std::convertible_to<T, std::string>;
-      }
+      explicit Val(T value, bool flag = false, T* ref = nullptr) : value(value), flag(flag), ref_ptr(ref) {}
 
       /**
-       * clone function for copy assignment and constructor
+       * Clone function for copy assignment and constructor
        * @return
        */
       [[nodiscard]] std::unique_ptr<Base> clone() const override {
@@ -80,7 +85,7 @@ class [[maybe_unused]] AdvDataMap {
       }
 
       /**
-       * get type of the value
+       * Get type of the value
        * @return
        */
       [[nodiscard]] const std::type_info& type() const override {
@@ -88,7 +93,7 @@ class [[maybe_unused]] AdvDataMap {
       }
 
       /**
-       * return the flag if a reference
+       * Return the flag if a reference
        * @return
        */
       [[nodiscard]] bool is_ref() const override {
@@ -96,7 +101,7 @@ class [[maybe_unused]] AdvDataMap {
       }
 
       /**
-       * dereference the ref_ptr and set it to value when the original is changed
+       * Dereference the ref_ptr and set it to value when the original is changed
        */
       [[maybe_unused]] void set() override {
         if (ref_ptr) {
@@ -105,7 +110,7 @@ class [[maybe_unused]] AdvDataMap {
       }
 
       /**
-       * getter for numeric
+       * Getter for numeric
        * @return
        */
       [[nodiscard]] bool is_numeric() const override {
@@ -113,7 +118,7 @@ class [[maybe_unused]] AdvDataMap {
       }
 
       /**
-       * getter for convert
+       * Getter for convert
        * @return
        */
       [[nodiscard]] bool is_conv_to_string() const override {
@@ -122,18 +127,18 @@ class [[maybe_unused]] AdvDataMap {
     };
 
     /**
-     * unique_ptr to the type erased value
+     * Unique_ptr to the type erased value
      */
     std::unique_ptr<Base> value_ptr;
 
    public:
     /**
-     * default constructor
+     * Default constructor
      */
     Any() = default;
 
     /**
-     * copy constructor
+     * Copy constructor
      * clone the value ptr if exists otherwise set to nullptr
      * @param in source any to copy
      */
@@ -146,17 +151,14 @@ class [[maybe_unused]] AdvDataMap {
     }
 
     /**
-     * move constructor
+     * Move constructor
      * transfer ownership from from source to this
      * @param in
      */
-    Any(Any&& in) noexcept {
-      value_ptr = std::move(in.value_ptr);
-      in.value_ptr = nullptr;
-    }
+    Any(Any&& in) noexcept : value_ptr(std::move(in.value_ptr)) { in.value_ptr = nullptr; }
 
     /**
-     * templated Any constructor
+     * Templated Any constructor
      * has defaults to false and nullptr for insert method of advdatamap
      * sets value_ptr from parameters
      * @tparam T type of value
@@ -171,7 +173,7 @@ class [[maybe_unused]] AdvDataMap {
     }
 
     /**
-     * copy assignment operator for any
+     * Copy assignment operator for any
      * similar logic to copy constructor
      * @param in source any to copy
      * @return
@@ -185,44 +187,76 @@ class [[maybe_unused]] AdvDataMap {
       return *this;
     }
 
+    /**
+     * Assignment operator
+     * assign new value to the old any object
+     * @tparam T type of assigned value
+     * @param value value to be assigned
+     * @return Any reference
+     */
     template <typename T>
     Any& operator=(T value) {
       value_ptr = std::make_unique<Val<T>>(value);
       return *this;
     }
 
+    /**
+     * Get stored value of type T from DataMap
+     * @tparam T type
+     * @return reference T of the value returned
+     */
     template <typename T>
     [[nodiscard]] const T& get() const {
       using derive_t = Val<T>;
       auto* derive_ptr = dynamic_cast<derive_t*>(value_ptr.get());
+      /// get raw pointer from value_ptr(unique ptr) and dynamically cast it (Base*) to a pointer of Val<T>
       assert(derive_ptr != nullptr && "Wrong type requested from what is contained within Any");
       if (derive_ptr->is_ref()) {
         derive_ptr->set();
+        /// if the ptr is a reference as specified by the flag, i can set the value to the updated
+        /// value by dereferencing the ptr
       }
       return derive_ptr->value;
     }
 
+    /**
+     * Get the type of the stored any object
+     * @return const type_info reference
+     */
     [[nodiscard]] const std::type_info& type() const {
       assert(value_ptr && "Any is empty");
       return value_ptr->type();
     }
 
+    /**
+     * Check if the any stored value is a reference
+     * @return bool
+     */
     [[nodiscard]] bool is_ref() const {
       assert(value_ptr && "Any is empty");
       return value_ptr->is_ref();
     }
 
+    /**
+     * Check if the any stored value is a numeric value
+     * @return bool
+     */
     [[nodiscard]] bool is_numeric() const {
       assert(value_ptr && "Any is empty");
       return value_ptr->is_numeric();
     }
 
+    /**
+     * Check if the any stored value is convertible to string
+     * @return bool
+     */
     [[nodiscard]] bool is_conv_to_string() const {
       assert(value_ptr && "Any is empty");
       return value_ptr->is_conv_to_string();
     }
   };
 
+  /// Underlying map object built upon to create DataMap
   std::unordered_map<std::string, Any> m_map;
 
  public:
@@ -254,10 +288,27 @@ class [[maybe_unused]] AdvDataMap {
    */
   AdvDataMap& operator=(const AdvDataMap& other) = default;
 
+  /**
+    * Check if key is within the DataMap
+    * @param name std::string name to be found
+    * @return bool if key exists or not
+     *
+     * (For grading purposes of initial specs, this function function was renamed from keyContains to better fit naming
+     * convention)
+    */
   [[nodiscard]] inline bool contains(const std::string& name) const {
     return (m_map.find(name) != m_map.end());
   }
 
+  /**
+  * Insert key value pair into DataMap
+   *
+   * (For grading purposes of advanced specs, this function was renamed from set to insert to better match the standard
+   * library)
+  * @tparam T any value
+  * @param name key name to be inserted
+  * @param val value to be associated with key within DataMap
+  */
   template <typename T>
   [[maybe_unused]] inline void insert(const std::string& name, const T& val) {
     // https://stackoverflow.com/questions/3692954/add-custom-messages-in-assert custom messages in assert trick I have implemented within
@@ -265,25 +316,51 @@ class [[maybe_unused]] AdvDataMap {
     m_map[name] = Any(val);
   }
 
+  /**
+   * Insert a reference into the DataMap that can change if the original thing pointed to changes
+   * @tparam T any value
+   * @param name key name to be inserted
+   * @param val reference to be associated with key within DataMap
+   */
   template <typename T>
   [[maybe_unused]] inline void add_ref(const std::string& name, T& val) {
     assert(!contains(name) && "Key already exists within DataMap");
     m_map[name] = Any(val, true, &val);
   }
 
+  /**
+   * Check if the value associated with the key specified is a reference
+   * @param name key name to be checked
+   * @return bool
+   */
   [[maybe_unused]] [[nodiscard]] inline bool is_ref(const std::string& name) const {
     assert(contains(name) && "Key does not exist in DataMap");
     return m_map.at(name).is_ref();
   }
 
+  /**
+   * Emulate behavior of the [] operator as in std::unordered map
+   * Get value from key std::string
+   * If key does not exist, set key to defaulted any templated value constructor
+   * @tparam T templated value returned
+   * @param name std::string
+   * @return T
+   */
   template <typename T>
   inline T get(const std::string& name) {
     if (!m_map.contains(name)) {
       m_map[name] = Any(T{});
     }
+    assert(m_map[name].type() == typeid(T) && "Wrong type requested from what is contained within DataMap for value");
     return m_map[name].get<T>();
   }
 
+  /**
+  * .at method for finding where key is
+  * @tparam T templated value returned
+  * @param name std::string
+  * @return
+  */
   template <typename T>
   [[maybe_unused]] inline T at(const std::string& name) const {
     assert(contains(name) && "Key does not exist in DataMap");
@@ -314,25 +391,44 @@ class [[maybe_unused]] AdvDataMap {
     }
   }
 
+  /**
+   * Check if value associated with key is the same type as the type specified
+   * @tparam T type to be checked agaisnt
+   * @param name key name
+   * @return bool
+   */
   template <typename T>
   [[maybe_unused]] inline bool is_type(const std::string& name) {
     assert(contains(name) && "Key does not exist in DataMap");
-    if (m_map.at(name).type() == typeid(T)) {
-      return true;
-    }
-    return false;
+    return m_map.at(name).type() == typeid(T);
   }
 
+  /**
+   * Check if value associated with key is a numeric value
+   * @param name key name
+   * @return bool
+   */
   [[maybe_unused]] inline bool is_numeric(const std::string& name) {
     assert(contains(name) && "Key does not exist in DataMap");
     return m_map.at(name).is_numeric();
   }
 
+  /**
+   * Check if value associated with key is convertible to string
+   * @param name key name
+   * @return bool
+   */
   [[maybe_unused]] inline bool is_conv_to_string(const std::string& name) {
     assert(contains(name) && "Key does not exist in DataMap");
     return m_map.at(name).is_conv_to_string();
   }
 
+  /**
+   * Get memory size of the value associated with a key
+   * @tparam T type of value
+   * @param name key name
+   * @return size_t memory size
+   */
   template <typename T>
   [[maybe_unused]] inline size_t get_mem_size(const std::string& name) {
     assert(contains(name) && "Key does not exist in DataMap");
