@@ -125,27 +125,27 @@ class StateGrid {
 
   friend std::ostream& operator<<(std::ostream& os, const cse::AuditedVector<std::string>& grid);
 
-  [[maybe_unused]] void display_grid();
+  void display_grid();
   ///REVIEW COMMENT: I had a comment about my use of std::pairs instead of a dedicated Point struct,
   /// like in SGPos, but this currently would not work with indexing into m_grid with doubles,
   /// so in advanced version I will include a better looking struct that will coincide with SGPos
-  [[maybe_unused]] bool set_state(Point new_position);
+  bool set_state(Point new_position);
 
   char get_state(Point statepos);
 
   cse::AuditedVector<std::string> define_state(char state);
 
-  [[maybe_unused]] void set_condition(char changestate, std::string property, std::string changeprop);
+  void set_condition(char changestate, std::string property, std::string changeprop);
 
-  [[maybe_unused]] void remove_conditions(char changestate, std::string property);
+  void remove_condition(char changestate, std::string property);
 
-  [[maybe_unused]] std::map<std::string, cse::AuditedVector<std::string>> find_properties();
+  std::map<std::string, cse::AuditedVector<std::string>> find_properties();
 
   bool validate_position(std::pair<double, double> move);
 
   std::vector<Point> find_moves();
 
-  [[maybe_unused]] void modify_all_cells(const std::function<void(int, int, char&)>& func);
+  void modify_all_cells(const std::function<void(int, int, char&)>& func);
 
 };
 }  // namespace cse
