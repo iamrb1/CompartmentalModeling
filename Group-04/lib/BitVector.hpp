@@ -459,8 +459,6 @@ class BitVector {
 
     // Add interpolated elements in a loop
     for (--el; el > start_at; --el) {
-      bv_type add = m_underlying[el - 1] >> shift;
-      add |= m_underlying[el] << (BITS_PER_EL - shift);
       out <<= BITS_PER_EL;
       out |= m_underlying[el - 1];
     }
