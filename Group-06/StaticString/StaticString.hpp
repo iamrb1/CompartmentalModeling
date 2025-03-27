@@ -807,28 +807,30 @@ public:
     std::string_view size(str1);
     std::string_view size2(str2);
 
+    // Since the lengths might be different we calculate difference to align index
+    int diff = static_cast<int>(size2.size()) - static_cast<int>(size.size());
+
     if (index.size() * size2.length() > MaxSize) {
       throw std::out_of_range("replace exceeds the size allowed");
     }
 
-    for (std::size_t i = 0; i < index.size(); i++) {
-      remove(index[i], index[i] + size.length());
-      insert(str2, index[i]);
+    for (int i = 0; i < (int)index.size(); i++) {
+      remove(index[i] + (i * diff), index[i] + size.length() + (i * diff));
+      insert(str2, index[i] + (i * diff));
     }
   }
 
   /**
    * @brief Replaces all instances of the character given with new character.
    * 
-   * @param ch Character to be replaced.
-   * @param ch2 Character to replace with.
+   * @param chr Character to be replaced.
+   * @param rplc Character to replace with.
    */
-  void replace(char ch, char ch2) {
-    std::vector<size_t> index = findAll(ch);
-
-    for (std::size_t i = 0; i < index.size(); i++) {
-      remove(index[i], index[i] + size_t(1));
-      insert(ch2, index[i]);
+  void replace(char chr, char rplc) {
+    for (size_t i = 0; i < mCurrentSize; ++i) {
+      if (mString[i] == chr) {
+        mString[i] = rplc;
+      }
     }
   }
 
@@ -843,13 +845,16 @@ public:
    * @param ch2 Character to be replace with.
    */
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
-  void replace(const T& str1, char ch2) {
+  void replace(const T& str1, char chr) {
     std::vector<size_t> index = findAll(str1);
     std::string_view size(str1);
 
+    // Since the lengths are different we calculate difference to align index
+    int diff = 1 - static_cast<int>(size.length());
+
     for (std::size_t i = 0; i < index.size(); i++) {
-      remove(index[i], index[i] + size.length());
-      insert(ch2, index[i]);
+      remove(index[i] + (i * diff), index[i] + size.length() + (i * diff));
+      insert(chr, index[i] + (i * diff));
     }
   }
 
@@ -864,17 +869,20 @@ public:
    * @param str2 String to be replaced.
    */
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
-  void replace(char ch, const T& str2) {
-    std::vector<size_t> index = findAll(ch);
+  void replace(char chr, const T& str) {
+    std::vector<size_t> index = findAll(chr);
+    std::string_view size(str);
 
-    std::string_view size2(str2);
-    if (index.size() * size2.length() > MaxSize) {
+    if (index.size() * size.length() > MaxSize) {
       throw std::out_of_range("replace exceeds the size allowed");
     }
 
+    // Since the lengths are different we calculate difference to align index
+    int diff = static_cast<int>(size.length()) - 1;
+
     for (std::size_t i = 0; i < index.size(); i++) {
-      remove(index[i], index[i] + size_t(1));
-      insert(str2, index[i]);
+      remove(index[i] + (i * diff), index[i] + size_t(1) + (i * diff));
+      insert(str, index[i] + (i * diff));
     }
   }
 

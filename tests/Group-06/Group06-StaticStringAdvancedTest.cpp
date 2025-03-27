@@ -72,6 +72,7 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     StaticString<20> s2("abcdabcdabcdabcd");
     StaticString<20> s3("1234567890123545");
     StaticString<20> s4("12345");
+    StaticString<40> s5("abcdabcdabcdabcd");
 
     s.replace("Hello", "olleH");
     REQUIRE(std::strcmp(s.get_str(), "olleHWorldolleHWorld") == 0);
@@ -104,6 +105,15 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
 
     s4.replace('5', "**********");
     REQUIRE(std::strcmp(s4.get_str(), "HImyNameIS**********") == 0);
+
+    s5.replace("abcd", "123456");
+    REQUIRE(std::strcmp(s5.get_str(), "123456123456123456123456") == 0);
+
+    s5.replace('1', "aa");
+    REQUIRE(std::strcmp(s5.get_str(), "aa23456aa23456aa23456aa23456") == 0);
+
+    s5.replace("23456", 'b');
+    REQUIRE(std::strcmp(s5.get_str(), "aabaabaabaab") == 0);
 
     s4.replace("**********",'5');
     REQUIRE(std::strcmp(s4.get_str(), "HImyNameIS5") == 0);
