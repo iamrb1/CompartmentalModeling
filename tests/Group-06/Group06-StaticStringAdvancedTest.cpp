@@ -116,7 +116,7 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     StaticString<20> s("HelloWorldHelloWorld");
 
     s.replace_if("Hello","HI", [](){return true;});
-    std::cout << s.get_str();
+    //std::cout << s.get_str();
     REQUIRE(std::strcmp(s.get_str(), "HIWorldHIWorld") == 0);
 
     s.replace_if("HI","Hello", [](){return false;});
@@ -126,7 +126,7 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     StaticString<20> s2("HelloWorHelloWor");
 
     s2.replace_if("Hello","Rumble", [](){return true;});
-    std::cout << s2.get_str();
+    //std::cout << s2.get_str();
     REQUIRE(std::strcmp(s2.get_str(), "RumbleWorRumbleWor") == 0);
 
     s2.replace_if("Rumble","Hello", [](){return false;});
@@ -136,7 +136,7 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     StaticString<20> s3("HelloWorldHelloWorld");
 
     s3.replace_if("Hello","Movie", [](){return true;});
-    std::cout << s3.get_str();
+    //std::cout << s3.get_str();
     REQUIRE(std::strcmp(s3.get_str(), "MovieWorldMovieWorld") == 0);
 
     s3.replace_if("Rumble","Movie", [](){return false;});
@@ -192,7 +192,7 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
         result.push_back(*it);
         counter++;
     }
-    std::cout << std::to_string(counter);
+    //std::cout << std::to_string(counter);
     REQUIRE(result == "abcdef");
 
     std::string temp_result;
@@ -515,6 +515,55 @@ TEST_CASE("Tests for advanced edge case tests", "[StaticString]") {
 
   }
 
+  SECTION("TESTS: operator= to work with std::string,string_view,char*") {
+    StaticString<10> s1;
+    StaticString<10> s2;
+    StaticString<10> s3;
+    StaticString<10> s4;
+    StaticString<10> s5;
+    StaticString<4> s6;
+
+    CHECK(s1.empty() == true);
+    CHECK(s2.empty() == true);
+    CHECK(s3.empty() == true);
+    CHECK(s4.empty() == true);
+    CHECK(s5.empty() == true);
+    CHECK(s6.empty() == true);
+
+    std::string stdTest = "Hello";
+    const std::string stdTestConst = "!!!!!";
+    auto charTest = "World";
+    std::string_view viewTest("TEST");
+    const char* pointerTest = "WORKS";
+
+    s1 = stdTest;
+    s2 = stdTestConst;
+    s3 = charTest;
+    s4 = viewTest;
+    s5 = pointerTest;
+
+    // Check all types are working with = 
+    REQUIRE(std::strcmp(s1.get_str(), "Hello") == 0);
+    REQUIRE(std::strcmp(s2.get_str(), "!!!!!") == 0);
+    REQUIRE(std::strcmp(s3.get_str(), "World") == 0);
+    REQUIRE(std::strcmp(s4.get_str(), "TEST") == 0);
+    REQUIRE(std::strcmp(s5.get_str(), "WORKS") == 0);
+
+    // Test to see if correctly error is raised when string is too long
+    std::string exceedsLimit = "HelloWorld";
+    CHECK_THROWS_AS(s6 = exceedsLimit, std::out_of_range);
+
+    // Test empty strings 
+    s1 = "";
+    REQUIRE(std::strcmp(s1.get_str(), "") == 0);
+    
+    s2.clear();
+    REQUIRE(std::strcmp(s2.get_str(), "") == 0);
+
+    s3 = std::nullptr_t();
+    REQUIRE(std::strcmp(s3.get_str(), "") == 0);
+  }
+
   SECTION("TESTS: Memory tests") {
     // Test to see beyond memeory is still preserverd or not
     StaticString<10> s("HelloWorld");
@@ -528,6 +577,23 @@ TEST_CASE("Tests for advanced edge case tests", "[StaticString]") {
     for(auto item : s) {
       REQUIRE(item == expected[count]);
       count++;
+    }
+
+    SECTION("TESTS: View function tests") {
+      StaticString<10> s;
+
+      auto v = s.view();
+
+      REQUIRE(v.empty());
+      REQUIRE(v.size() == 0);
+      REQUIRE(v.data() != nullptr);
+
+      s = "Hello!!";
+      auto v2 = s.view();
+
+      REQUIRE(v2.empty() == false);
+      REQUIRE(v2.size() == 7);
+      REQUIRE(v2.data() == std::string_view("Hello!!"));
     }
   }
 

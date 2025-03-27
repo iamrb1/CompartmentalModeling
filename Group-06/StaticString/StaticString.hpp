@@ -201,6 +201,7 @@ public:
     mCurrentSize = view.size();
     mString[mCurrentSize] = null_terminator;
 
+    // Rest of the string is cleared since this is a new string initialization.
     for (std::size_t i = mCurrentSize + 1; i <= MaxSize; ++i) {
       mString[i] = null_terminator;
     }
@@ -220,7 +221,6 @@ public:
     clear();
     return *this;
   }
-
 
   /**
   * @brief Index operator to get value in the specific index of string.
@@ -421,16 +421,12 @@ public:
   constexpr std::size_t find(const T& str) const noexcept {
     // std::string, char*, char[N] are all convertible to string_view, thus
     // We convert templated input to convert into string_view to perform find
+    std::string_view currentView(mString, mCurrentSize);
     std::string_view size(str);
 
-    for (std::size_t i = 0; i <= mCurrentSize - size.length(); ++i) {
-      std::size_t j = 0;
-      for (; j < size.length(); ++j) {
-        if (mString[i + j] != str[j]) break;
-      }
-      if (j == size.length()) return i;
-    }
-    return npos;
+    if (size.empty() || size.length() > mCurrentSize) return npos;
+
+    return currentView.find(size);
   }
 
   /**
@@ -514,8 +510,6 @@ public:
   */
   void append(const char& character) {
     // Validate that given string fits into our string within static limit.
-    // assert((mCurrentSize + 1 <= MaxSize) &&
-    //       "Appending string exceeds maximum size");
     if (mCurrentSize + 1 > MaxSize) {
       throw std::out_of_range(
           "Static limit exceeded, appended string must be within limits "
@@ -538,9 +532,6 @@ public:
   */
   StaticString& concat(const StaticString& rhs) {
     // Validate that given string fits into our string within static limit.
-    // assert((mCurrentSize + rhs.mCurrentSize <= MaxSize) &&
-    //       "Concatenated string exceeds maximum size");
-
     if (mCurrentSize + rhs.mCurrentSize > MaxSize) {
       throw std::out_of_range(
           "Static limit exceeded, concatenated string must be within MaxSize");
@@ -714,7 +705,7 @@ public:
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
   constexpr std::size_t rFind(const T& str) const noexcept {
     // std::string, char*, char[N] are all convertible to string_view, thus
-    // We convert templated input to convert into string_view to perform find
+    // We convert templated input to convert into string_view to perform rfind
     std::string_view size(str);
 
     for (std::size_t i = mCurrentSize - size.length(); i > 0; --i) {
@@ -798,22 +789,19 @@ public:
   * @param str1 string to be replaced
   * @param str2 string to replace with
   */
-  template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
-  void replace(const T& str1, const char* str2) {
+  template<typename T1, typename T2, typename = std::enable_if_t<std::is_convertible_v<T1, std::string_view> && std::is_convertible_v<T2, std::string_view>>>
+  void replace(const T1& str1, const T2& str2) {
     std::vector<size_t> index = findAll(str1);
     std::string_view size(str1);
     std::string_view size2(str2);
 
-    if (index.size() * size2.length() > MaxSize)
+    if (index.size() * size2.length() > MaxSize) {
       throw std::out_of_range("replace exceeds the size allowed");
+    }
 
-    for (int i = 0; i < (int)index.size(); i++) {
-      std::vector<size_t> index3 = findAll(str1);
-      remove(index3[0], index3[0] + size.length());
-      insert(str2, index3[0]);
-
-      //remove(index[i], index[i] + size.length());
-      //insert(str2, index[i]);
+    for (std::size_t i = 0; i < index.size(); i++) {
+      remove(index[i], index[i] + size.length());
+      insert(str2, index[i]);
     }
   }
 
@@ -825,13 +813,10 @@ public:
    */
   void replace(char ch, char ch2) {
     std::vector<size_t> index = findAll(ch);
-    for (int i = 0; i < (int)index.size(); i++) {
-      std::vector<size_t> index3 = findAll(ch);
-      remove(index3[0], index3[0] + size_t(1));
-      insert(ch2, index3[0]);
 
-      //remove(index[i], index[i] + size_t(1));
-      //insert(ch2, index[i]);
+    for (std::size_t i = 0; i < index.size(); i++) {
+      remove(index[i], index[i] + size_t(1));
+      insert(ch2, index[i]);
     }
   }
 
@@ -847,12 +832,10 @@ public:
   void replace(const T& str1, char ch2) {
     std::vector<size_t> index = findAll(str1);
     std::string_view size(str1);
-    for (int i = 0; i < (int)index.size(); i++) {
-      std::vector<size_t> index3 = findAll(str1);
-      remove(index3[0], index3[0] + size.length());
-      insert(ch2, index3[0]);
-      //remove(index[i], index[i] + size.length());
-      //insert(ch2, index[i]);
+
+    for (std::size_t i = 0; i < index.size(); i++) {
+      remove(index[i], index[i] + size.length());
+      insert(ch2, index[i]);
     }
   }
 
@@ -869,13 +852,13 @@ public:
     std::vector<size_t> index = findAll(ch);
 
     std::string_view size2(str2);
-    if (index.size() * size2.length() > MaxSize)
+    if (index.size() * size2.length() > MaxSize) {
       throw std::out_of_range("replace exceeds the size allowed");
+    }
 
-    for (int i = 0; i < (int)index.size(); i++) {
-      std::vector<size_t> index3 = findAll(ch);
-      remove(index3[0], index3[0] + size_t(1));
-      insert(str2, index3[0]);
+    for (std::size_t i = 0; i < index.size(); i++) {
+      remove(index[i], index[i] + size_t(1));
+      insert(str2, index[i]);
     }
   }
 
@@ -915,7 +898,7 @@ public:
     for (std::size_t i = 0; i < result.length(); ++i) {
       result.get_str()[i] = lambda(result.get_str()[i]);
     }
-    return std::move(result);
+    return result;
   }
 
   /**
@@ -942,7 +925,7 @@ public:
    * @param delimiter char The delimiter to split StaticString.
    * @return std::vector<StaticString<MaxSize>> Collection of splitted StaticString objects.
    */
-  std::vector<StaticString<MaxSize>> split(char delimiter) const {
+  [[nodiscard]] constexpr std::vector<StaticString<MaxSize>> split(char delimiter) const noexcept {
     std::vector<StaticString<MaxSize>> result;
     StaticString<MaxSize> new_string;
     
@@ -987,7 +970,7 @@ public:
    */
   template <typename Func>
   constexpr bool compare(const StaticString& rhs, Func lambda) const noexcept {
-    
+    // Branch based on Lambda parameters to compare character or object based.
     if constexpr (std::is_invocable_v<Func, char, char>) {
       if (mCurrentSize != rhs.mCurrentSize) return false;
     
@@ -1010,9 +993,12 @@ public:
    * @return true If the string is empty
    * @return false If the string is not empty
    */
-  bool empty() const noexcept {
-    if(mCurrentSize == 0) return true;
-    else return false;
+  inline constexpr bool empty() const noexcept {
+    if(mCurrentSize == 0) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /** @brief swaps the two string values in the static string
@@ -1247,73 +1233,72 @@ public:
   }
 
   /**
-   * @brief erases all instances of the given string from the static string
-   * @param str1 the string to erase
-   */
-  template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
-  void erase(const T& str1) {
-    std::vector<size_t> index = findAll(str1);
-    std::string_view size(str1);
-    for (int i = 0; i < (int)index.size(); i++) {
-      std::vector<size_t> index2 = findAll(str1);
-      remove(index2[0], index2[0] + size.length());
-    }
-  }
-
-  /**
    * @brief erases all instances of the given string up to the specified amount
+   * 
+   * @note amount starts from the 0, which means if 0 is given as the amount,
+   * the first occurance will be erased. 
+   * 
    * @param str1 the string to erase
-   * @param amount how many instances of the strings should be erased
+   * @param amount how many instances of the strings should be erased 
+   * by default all instances
    */
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
-  void erase(const T& str1, int amount) {
+  void erase(const T& str1, int amount = -1) {
     std::vector<size_t> index = findAll(str1);
     std::string_view size(str1);
-    if (index.size() * size.length() > MaxSize)
-      throw std::out_of_range("erase exceeds the size allowed");
 
+    if (index.size() * size.length() > MaxSize)
+    {
+      throw std::out_of_range("erase exceeds the size allowed");
+    }
+
+    // If no default value given erase all instances.
+    if (amount < 0 ) {
+      amount = static_cast<int>(index.size());
+    } 
+      
     int counter = 0;
-    for (int i = 0; i < (int)index.size(); i++) {
+    for (std::size_t i = 0; i < index.size(); i++) {
       if (counter <= amount) {
-        std::vector<size_t> index2 = findAll(str1);
-        remove(index2[0], index2[0] + size.length());
+        // After remove indexes are shifted, to eliminate substract 
+        // amount removed and the length of removed string.
+        remove(index[i] - (i * size.length()), index[i] + size.length() - (i * size.length()));
         counter++;
       }
     }
   }
 
   /**
-   * @brief 
+   * @brief erases all instances of the given string up to the specified amount.
    * 
-   * @param ch 
+   * @note amount starts from the 0, which means if 0 is given as the amount,
+   * the first occurance will be erased. 
+   * 
+   * @param ch Character to be erased from the string.
+   * @param amount How many instances of the character should be erased
    */
-  void erase(char ch) {
+  void erase(char ch, int amount = -1) {
     std::vector<size_t> index = findAll(ch);
-    for (int i = 0; i < (int)index.size(); i++) {
-      std::vector<size_t> index2 = findAll(ch);
-      remove(index2[0], index2[0] + size_t(1));
-    }
-  }
+    
+    if (amount < 0 ) {
+      amount = static_cast<int>(index.size());
+    } 
 
-  /**
-   * @brief 
-   * 
-   * @param ch 
-   * @param amount 
-   */
-  void erase(char ch, int amount) {
-    std::vector<size_t> index = findAll(ch);
     int counter = 0;
-    for (int i = 0; i < (int)index.size(); i++) {
+    for (std::size_t i = 0; i < index.size(); i++) {
       if (counter <= amount) {
-        std::vector<size_t> index2 = findAll(ch);
-        remove(index2[0], index2[0] + size_t(1));
+        // After remove indexes are shifted, to eliminate substract 
+        // amount removed and the length of removed string.
+        remove(index[i] - (i * 1), index[i] + size_t(1) - (i * 1));
+        counter++;
       }
     }
   }
 
   /**
-   * @brief removes the whitespace from the end of static string
+   * @brief Removes the whitespace from the end of static string.
+   * 
+   * Trim removes both leading and trailing whitespaces in the string.
    */
   void trim() {
     std::size_t start = 0;
@@ -1343,7 +1328,7 @@ public:
   }
 
   /**
-   * @brief clears the StaticString string
+   * @brief CSlears the StaticString string
    * 
    */
   constexpr void clear() noexcept {
@@ -1352,7 +1337,7 @@ public:
   }
 
     /**
-  * @brief replaces all instances of the string given with the new string if it passes the condition
+  * @brief Replaces all instances of the string given with the new string if it passes the condition
   * 
   * @param str1 string to be replaced
   * @param str2 string to replace with
