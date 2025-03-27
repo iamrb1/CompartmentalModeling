@@ -7,10 +7,13 @@
 
 #pragma once
 
+#include <functional>
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
-#include "cse/DataMap.h"
+#include "AuditedVector.h"
+#include "DataMap.hpp"
+#include "StateGridPosition.h"
 
 namespace cse {
 
@@ -28,23 +31,61 @@ struct StateDictionary {
                           {'0', {"Exit", "Open"}},
                           {'P', {"Player", "Closed"}}};
   }
+  /**
+   * This function searches for a state in m_grid
+   * @param searchchar char that is being searched for
+   * @return bool stating if the state was found
+   */
   bool find(char searchchar)
   {
     return m_state_dictionary.find(searchchar) != m_state_dictionary.end();
   }
+  /**
+   * This function checks if a state can be traversed into
+   * @param searchchar state to be queried
+   * @return bool stating if the state is traversable
+   */
   bool traversable(char searchchar)
   {
     return m_state_dictionary.at(searchchar)[1] == "Open";
   }
+  /**
+   * This function returns property information about a state in m_grid
+   * @param searchchar The state being queried
+   * @return AuditedVector of properties for queried state
+   */
   cse::AuditedVector<std::string> get_info(char searchchar)
   {
     return m_state_dictionary.at(searchchar);
   }
-  void change_property(char changestate, std::string& property, std::string changeprop)
+  /**
+   * This function can alter or remove properties from states in m_grid
+   * @param changestate The state to be changed
+   * @param property The property to be changed/removed
+   * @param changeprop An optional variable, that can contain the new property or when not present, indicates removal
+   * The use of std::nullopt was suggested to me by ChatGPT
+   */
+  void change_property(char changestate, std::string& property, std::optional<std::string> changeprop = std::nullopt)
   {
-    cse::AuditedVector<std::string> properties = m_state_dictionary.at(changestate);
+    auto it = m_state_dictionary.find(changestate);
+    if (it == m_state_dictionary.end()) {
+      return;
+    }
+
+    cse::AuditedVector<std::string>& properties = m_state_dictionary.at(changestate);
     auto found = std::find(properties.begin(), properties.end(), property);
-    if(found != properties.end()){*found = std::move(changeprop);};
+
+    if (found != properties.end()) {
+      if(changeprop)
+      {
+        *found = std::move(*changeprop);
+      }
+      else
+      {
+        properties.erase(found);
+      }
+
+    }
   }
 };
 
@@ -58,19 +99,9 @@ class StateGrid {
   cse::StateGridPosition m_position;
   ///Grid to represent game map
   cse::AuditedVector<std::string> m_grid;
-  ///Map to represent the name and (future) properties of each state <<< Soon to be DataMap type
-  ///REVIEW COMMENT: Had a review saying to make this a dedicated struct, this will become a DataMap object in Advanced version
-  ///once AdvancedDataMap is complete
-  std::map<char, std::vector<std::string>> m_dictionary = {
-      {' ', {"EmptySpace", "Open"} },
-      {'#', {"Wall", "Closed"}},
-      {'X', {"Enemy", "Open"}},
-      {'0', {"Exit", "Open"}},
-      {'P', {"Player", "Closed"}}
-  };
-  cse::AuditedVector<std::string> m_grid;
-
+  ///StateDictionary object that holds all property info about StateGrid states
   StateDictionary m_dictionary;
+
 
  public:
 
@@ -102,19 +133,19 @@ class StateGrid {
 
   char get_state(Point statepos);
 
-  std::vector<std::string> define_state(char state);
+  cse::AuditedVector<std::string> define_state(char state);
 
   void set_condition(char changestate, std::string property, std::string changeprop);
 
   void remove_conditions(char changestate, std::string property);
 
-  void find_properties();
+  std::map<std::string, cse::AuditedVector<std::string>> find_properties();
 
-  bool validate_position(std::pair<int, int> move);
+  bool validate_position(std::pair<double, double> move);
 
-  std::vector<std::pair<int,int>> find_moves(int row, int col);
+  std::vector<Point> find_moves();
 
   void modify_all_cells(const std::function<void(int, int, char&)>& func);
-  std::vector<Point> find_moves();
+
 };
 }  // namespace cse

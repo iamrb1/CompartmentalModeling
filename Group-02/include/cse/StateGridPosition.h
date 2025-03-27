@@ -9,6 +9,7 @@
 
 
 #include <optional>
+#include <string>
 
 
 class StateGrid;
@@ -19,6 +20,10 @@ struct Point {
   ///The position of the object
   double x_position = 0;
   double y_position = 0;
+
+  bool operator==(const Point& other) const {
+    return x_position == other.x_position && y_position == other.y_position;
+  }
 };
 
 class StateGridPosition {
@@ -57,6 +62,8 @@ class StateGridPosition {
     void set_object_position(std::pair<int, int> agent);
 
   double get_object_orientation();
+
+  std::string compare_direction(Point newmove);
 
   ///Set the object's orientation, 0-359 degrees
   void set_object_orientation(double orientation) { m_object_orientation = orientation; }
