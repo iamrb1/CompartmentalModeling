@@ -636,8 +636,42 @@ class IndexSet {
     }
   }
 
+  /**
+   * @brief Shift all indices within [start, end) right by `shift_by` places
+   *
+   * @param shift_by The number of places to shift by
+   * @param start Start of the range to shift within.
+   * @param end End (exclusive) of the range to shift within.
+   */
+  void shift_right_within(const std::size_t shift_by, const std::size_t start,
+                          const std::size_t end) {
+    dbg_assert(end > start, "Shift range end is not past start");
+
+    // load range into BitVector
+    BitVector indices{end - start};
+    for (size_t i = start; i < end; i++) {
+      indices[i - start] = contains(i);
+    }
+
+    // shifting indices right actually means shifting BitVector left
+    indices <<= shift_by;
+
+    // restore shifted range from BitVector
+    for (size_t i = start; i < end; i++) {
+      if (indices[i - start]) {
+        insert(i);
+      } else {
+        remove(i);
+      }
+    }
+  }
+
   void shift_left(const std::size_t shift_by) {
     if (auto max = max_index()) shift_left_within(shift_by, 0, *max + 1);
+  }
+
+  void shift_right(const std::size_t shift_by) {
+    if (auto max = max_index()) shift_right_within(shift_by, 0, *max + 1);
   }
 
   /**
@@ -672,6 +706,19 @@ class IndexSet {
   }
 
   /**
+   * @brief Adds all elements from another set to this set (in-place union)
+   * @param other The other set to union with
+   * @return Reference to this set
+   */
+  IndexSet& operator|=(const IndexSet& other) {
+    // Add all ranges from the other set
+    for (const auto& range : other.ranges_) {
+      insert_range(range.start, range.end);
+    }
+    return *this;
+  }
+
+  /**
    * @brief Computes the intersection of this set with another
    * @param other The other set to intersect with
    * @return A new set containing all elements that are in both sets
@@ -697,6 +744,16 @@ class IndexSet {
   }
 
   /**
+   * @brief Keeps only elements that are in both this set and another set (in-place intersection)
+   * @param other The other set to intersect with
+   * @return Reference to this set
+   */
+  IndexSet& operator&=(const IndexSet& other) {
+    *this = *this & other;
+    return *this;
+  }
+
+  /**
    * @brief Computes the difference of this set with another
    * @param other The set to subtract
    * @return A new set containing elements that are in this set but not in other
@@ -711,6 +768,21 @@ class IndexSet {
       }
     }
     return result;
+  }
+
+  /**
+   * @brief Removes all elements in another set from this set (in-place difference)
+   * @param other The set to subtract
+   * @return Reference to this set
+   */
+  IndexSet& operator-=(const IndexSet& other) {
+    // Remove each range from the other set
+    for (const auto& range : other.ranges_) {
+      for (std::size_t i = range.start; i < range.end; ++i) {
+        remove(i);
+      }
+    }
+    return *this;
   }
 
   /**
@@ -729,6 +801,16 @@ class IndexSet {
     result = union_set - intersect_set;
 
     return result;
+  }
+
+  /**
+   * @brief Updates this set to contain only elements that are in either set but not both (in-place symmetric difference)
+   * @param other The other set
+   * @return Reference to this set
+   */
+  IndexSet& operator^=(const IndexSet& other) {
+    *this = *this ^ other;
+    return *this;
   }
 
   /**
