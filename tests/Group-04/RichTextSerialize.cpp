@@ -2,7 +2,7 @@
 
 #include "RichText.hpp"
 
-TEST_CASE("RichText basic serialization", "[RichTextSerialize]") {
+TEST_CASE("Basic serialization", "[RichTextSerialize]") {
   cse::TextFormat bold("bold");
   cse::RichText text{"hello"};
   text.apply_format(bold);
@@ -15,7 +15,21 @@ TEST_CASE("RichText basic serialization", "[RichTextSerialize]") {
   REQUIRE(output == expected);
 }
 
-TEST_CASE("RichText complex serialization", "[RichTextSerialize]") {
+TEST_CASE("Wide string serialization", "[RichTextSerialize]") {
+  using WideText = cse::BasicRichText<wchar_t>;
+  cse::TextFormat italic("italic");
+  WideText text{L"meow"};
+  text.apply_format(italic);
+
+  WideText::Serializer serializer{"HTML"};
+  serializer.AddRule("italic", L"<em>", L"</em>");
+
+  std::wstring output = text.serialize(serializer).output;
+  std::wstring expected = L"<em>meow</em>";
+  REQUIRE(output == expected);
+}
+
+TEST_CASE("Complex serialization", "[RichTextSerialize]") {
   std::string header = R"(<style>
 .red {
   color: #ff0000
