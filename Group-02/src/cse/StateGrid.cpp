@@ -30,7 +30,7 @@ std::ostream& operator<<(std::ostream& os, const cse::AuditedVector<std::string>
 ///unless we decide not to implement a better visual element to display our game.
 void StateGrid::display_grid() {
   assert(!m_grid.empty() && "m_grid is empty and cannot display");
-  std::cout<< &m_grid;
+  std::cout << &m_grid;
 }
 
 /**
@@ -38,12 +38,14 @@ void StateGrid::display_grid() {
  * @param new_position pair containing new agent spot
  * @param agent pair containing current agent position
  */
-bool StateGrid::set_state(std::pair<int, int> new_position, std::pair<int, int> agent) {
-  assert(!m_grid.empty() && m_grid[agent.first][agent.second] == 'P');
+bool StateGrid::set_state(Point new_position) {
+  auto agent = m_position.get_object_position();
+  assert(!m_grid.empty() && m_grid[static_cast<size_t>(agent.x_position)][static_cast<size_t>(agent.y_position)] == 'P');
 
-  if (validate_position({new_position.first, new_position.second})) {
-    m_grid[new_position.first][new_position.second] = 'P';
-    m_grid[agent.first][agent.second] = ' ';
+  if (validate_position({new_position.x_position, new_position.y_position})) {
+    m_grid[static_cast<size_t>(new_position.x_position)][static_cast<size_t>(new_position.y_position)] = 'P';
+    m_grid[static_cast<size_t>(agent.x_position)][static_cast<size_t>(agent.y_position)] = ' ';
+    m_position.set_object_position(new_position.x_position, new_position.y_position);
     return true;
   }
   return false;
@@ -54,7 +56,7 @@ bool StateGrid::set_state(std::pair<int, int> new_position, std::pair<int, int> 
  * @param state queried state
  * @return vector of strings holding info about state
  */
-std::vector<std::string> StateGrid::define_state(char state) {
+cse::AuditedVector<std::string> StateGrid::define_state(char state) {
   assert(m_dictionary.find(state) && "This state is not in the map!");
   return m_dictionary.get_info(state);
 }
@@ -78,16 +80,22 @@ void StateGrid::set_condition(char changestate, std::string property, std::strin
 void StateGrid::remove_conditions(char changestate, std::string property)
 {
     assert(m_dictionary.find(changestate) && "This state is not in the map!");
-    std::string tempstring = property;
-    ///need to remove the property from the state
+    m_dictionary.change_property(changestate, property);
 }
 /**
- * Will be called from set_state, and makes calls depending on most recent agent move
- * and the properties of the new agent state
+ * This function returns property information for all possible moves from current position
  */
-void StateGrid::find_properties()
+std::map<std::string, cse::AuditedVector<std::string>> StateGrid::find_properties()
 {
-
+    std::vector<Point> moves = find_moves();
+    std::map<std::string,cse::AuditedVector<std::string>> returnlist;
+    for (auto move : moves)
+    {
+      std::string direction = m_position.compare_direction(move);
+      cse::AuditedVector<std::string> move_properties = define_state(get_state(move));
+      returnlist[direction] = move_properties;
+    }
+    return returnlist;
 }
 
 /**
@@ -96,9 +104,9 @@ void StateGrid::find_properties()
  * @param col col of position
  * @return state of (row,col) position
  */
-char StateGrid::get_state(int row, int col) {
-  assert(row < m_rows && col < m_cols && "This is not inside the grid");
-  return m_grid[row][col];
+char StateGrid::get_state(Point statepos) {
+  assert(statepos.x_position < m_rows && statepos.y_position < m_cols && "This is not inside the grid");
+  return m_grid[static_cast<size_t>(statepos.x_position)][static_cast<size_t>(statepos.y_position)];
 }
 
 /**
@@ -106,9 +114,9 @@ char StateGrid::get_state(int row, int col) {
  * @param move std::pair containing row,col of position to be validated
  * @return T/F of position validity
  */
-bool StateGrid::validate_position(std::pair<int, int> move) {
+bool StateGrid::validate_position(std::pair<double, double> move) {
   assert(move.first < m_rows && move.second < m_cols && "This move is out of bounds");
-  char validate = m_grid[move.first][move.second];
+  char validate = m_grid[static_cast<size_t>(move.first)][static_cast<size_t>(move.second)];
   return (m_dictionary.find(validate) && m_dictionary.traversable(validate));
 }
 
@@ -118,13 +126,15 @@ bool StateGrid::validate_position(std::pair<int, int> move) {
  * @param col col of agent position
  * @return vector of pairs of possible move directions
  */
-std::vector<std::pair<int,int>> StateGrid::find_moves(int row, int col) {
+std::vector<Point> StateGrid::find_moves() {
+  double row = m_position.get_object_position().x_position;
+  double col = m_position.get_object_position().y_position;
   assert(row < m_rows && col < m_cols && "This is not inside the grid");
-  std::vector<std::pair<int, int>> moves = {};
-  std::vector<std::pair<int, int>> poss_moves = {{(row + 1), col}, {(row - 1), col}, {row, (col + 1)}, {row, (col - 1)}};
+  std::vector<Point> moves = {};
+  std::vector<std::pair<double,double>> poss_moves = {{(row + 1), col}, {(row - 1), col}, {row, (col + 1)}, {row, (col - 1)}};
   for (auto move : poss_moves) {
     if (validate_position(move)) {
-      moves.push_back(move);
+      moves.push_back(Point(move.first,move.second));
     }
   }
   return moves;
@@ -156,7 +166,7 @@ void StateGrid::load_map(const std::string& diff) {
   m_grid = pregrid;
   m_cols = static_cast<int>(m_grid[0].size());
   m_rows = static_cast<int>(m_grid.size());
-
+  m_position.set_object_position({1,2});            ///< Until we implement more maps, hard coding original agent pos
 }
 
 /**

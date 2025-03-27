@@ -58,6 +58,26 @@ void StateGridPosition::set_object_position(double x, double y) {
     p.y_position = y;
     m_object_position = p;
 }
+std::string StateGridPosition::compare_direction(const Point newmove) {
+    double row_diff = newmove.x_position - m_object_position.x_position;
+    double col_diff = newmove.y_position - m_object_position.y_position;
+
+    assert((row_diff == 0 || col_diff == 0) && "This move is not valid");
+
+    if (row_diff == 0)
+    {
+        if (col_diff == -1) return "Left";
+        if (col_diff == 1) return "Right";
+    }
+    else if (col_diff == 0)
+    {
+        if (row_diff == -1) return "Up";
+        if (row_diff == 1) return "Down";
+    }
+
+    return "Invalid Move";  ///<< This should never be returned, assert statement covers all bases
+
+}
 
 //Point StateGridPosition::create_point(double x, double y) {
 //    Point p;
