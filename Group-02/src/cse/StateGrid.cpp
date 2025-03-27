@@ -9,7 +9,6 @@
 #include <map>
 #include <utility>
 #include <fstream>
-#include <filesystem>
 #include <sstream>
 #include "cse/StateGridPosition.h"
 namespace cse {
@@ -28,7 +27,7 @@ std::ostream& operator<<(std::ostream& os, const cse::AuditedVector<std::string>
  */
 ///REVIEW COMMENT: an overloaded << to display StateGrid would be useful, but not needed
 ///unless we decide not to implement a better visual element to display our game.
-void StateGrid::display_grid() {
+[[maybe_unused]] void StateGrid::display_grid() {
   assert(!m_grid.empty() && "m_grid is empty and cannot display");
   std::cout << &m_grid;
 }
@@ -38,7 +37,7 @@ void StateGrid::display_grid() {
  * @param new_position pair containing new agent spot
  * @param agent pair containing current agent position
  */
-bool StateGrid::set_state(Point new_position) {
+[[maybe_unused]] bool StateGrid::set_state(Point new_position) {
   auto agent = m_position.get_object_position();
   assert(!m_grid.empty() && m_grid[static_cast<size_t>(agent.x_position)][static_cast<size_t>(agent.y_position)] == 'P');
 
@@ -66,7 +65,7 @@ cse::AuditedVector<std::string> StateGrid::define_state(char state) {
  * @param property property to change
  * @param changeprop new editied property
  */
-void StateGrid::set_condition(char changestate, std::string property, std::string changeprop)
+[[maybe_unused]] void StateGrid::set_condition(char changestate, std::string property, std::string changeprop)
 {
   assert(m_dictionary.find(changestate) && "This state is not in the map!");
   m_dictionary.change_property(changestate,property,std::move(changeprop));
@@ -77,7 +76,7 @@ void StateGrid::set_condition(char changestate, std::string property, std::strin
  * @param changestate state to alter
  * @param property property to change
  */
-void StateGrid::remove_conditions(char changestate, std::string property)
+[[maybe_unused]] void StateGrid::remove_conditions(char changestate, std::string property)
 {
     assert(m_dictionary.find(changestate) && "This state is not in the map!");
     m_dictionary.change_property(changestate, property);
@@ -85,7 +84,7 @@ void StateGrid::remove_conditions(char changestate, std::string property)
 /**
  * This function returns property information for all possible moves from current position
  */
-std::map<std::string, cse::AuditedVector<std::string>> StateGrid::find_properties()
+[[maybe_unused]] std::map<std::string, cse::AuditedVector<std::string>> StateGrid::find_properties()
 {
     std::vector<Point> moves = find_moves();
     std::map<std::string,cse::AuditedVector<std::string>> returnlist;
@@ -134,7 +133,7 @@ std::vector<Point> StateGrid::find_moves() {
   std::vector<std::pair<double,double>> poss_moves = {{(row + 1), col}, {(row - 1), col}, {row, (col + 1)}, {row, (col - 1)}};
   for (auto move : poss_moves) {
     if (validate_position(move)) {
-      moves.push_back(Point(move.first,move.second));
+      moves.emplace_back(move.first,move.second);
     }
   }
   return moves;
@@ -173,7 +172,7 @@ void StateGrid::load_map(const std::string& diff) {
  * @brief iterates through each cell and applies the passed function or lambda
  * @param func function or lambda to be applied to each cell
  */
-void StateGrid::modify_all_cells(const std::function<void(int, int, char&)> &func) {
+[[maybe_unused]] void StateGrid::modify_all_cells(const std::function<void(int, int, char&)> &func) {
   for (int i = 0; i < m_rows; ++i) {
     for (int j = 0; j < m_cols; ++j) {
       func(i, j, m_grid[i][j]);

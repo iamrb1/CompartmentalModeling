@@ -11,7 +11,7 @@ namespace cse {
 
 const int MAX_ROTATION = 360;
 
-Point StateGridPosition::calculate_object_position() {
+[[maybe_unused]] Point StateGridPosition::calculate_object_position() {
   ///Calculate the position of the object and return the point
   Point default_object_position;
 
@@ -24,7 +24,7 @@ Point StateGridPosition::calculate_object_position() {
 }
 
 ///Get the orientation of the object, 0-359 degrees
-double StateGridPosition::get_object_orientation() {
+[[maybe_unused]] double StateGridPosition::get_object_orientation() {
     m_object_orientation = std::fmod(m_object_orientation, MAX_ROTATION);
     if (m_object_orientation < 0) {
         m_object_orientation += MAX_ROTATION;
@@ -58,7 +58,7 @@ void StateGridPosition::set_object_position(double x, double y) {
     p.y_position = y;
     m_object_position = p;
 }
-std::string StateGridPosition::compare_direction(const Point newmove) {
+std::string StateGridPosition::compare_direction(const Point newmove) const {
     double row_diff = newmove.x_position - m_object_position.x_position;
     double col_diff = newmove.y_position - m_object_position.y_position;
 
