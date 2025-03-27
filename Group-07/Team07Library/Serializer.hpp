@@ -50,11 +50,9 @@ namespace cse
 	 * @tparam T the type need to check
 	 * @brief Concept use to categorized the types allowed to Serialize
 	 */
-	template <typename T>
-	concept Serializable = requires(T &t, Serializer &s, const std::string &filename) {
-		requires std::is_arithmetic_v<T> ||
-					 std::is_same_v<T, std::string> ||
-					 requires { s.Serialize(t, filename); };
+	template <typename T, typename S>
+	concept Serializable = requires(T &t, S &s, const std::string &filename) {
+		s.Serialize(t, filename);
 	};
 
 	/**
@@ -118,7 +116,7 @@ namespace cse
 		 * @tparam T the type
 		 */
 		template <typename T>
-		bool IsSerializable(T &) { return Serializable<T>; }
+		bool IsSerializable(T &) { return Serializable<T, Serializer>; }
 
 		/**
 		 * @brief Serializes or deserializes an arithmetic type (e.g., int, float, double) to/from a binary file.
@@ -278,7 +276,8 @@ namespace cse
 					throw std::runtime_error("Error in opening file for writing.");
 				size_t size = set.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				for (auto item = set.begin(), i = 0; item != set.end(); item++, i++)
+				int i = 0;
+				for (auto item = set.begin(); item != set.end(); item++, i++)
 				{
 					T data = *item;
 					if (!IsSerializable(data))
@@ -326,7 +325,8 @@ namespace cse
 					throw std::runtime_error("Error in opening file for writing.");
 				size_t size = uset.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				for (auto item = uset.begin(), i = 0; item != uset.end(); item++, i++)
+				int i = 0;
+				for (auto item = uset.begin(); item != uset.end(); item++, i++)
 				{
 					T data = *item;
 					if (!IsSerializable(data))
@@ -374,7 +374,8 @@ namespace cse
 					throw std::runtime_error("Error in opening file for writing.");
 				size_t size = mset.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				for (auto item = mset.begin(), i = 0; item != mset.end(); item++, i++)
+				int i = 0;
+				for (auto item = mset.begin(); item != mset.end(); item++, i++)
 				{
 					T data = *item;
 					if (!IsSerializable(data))
@@ -422,7 +423,8 @@ namespace cse
 					throw std::runtime_error("Error in opening file for writing.");
 				size_t size = umset.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				for (auto item = umset.begin(), i = 0; item != umset.end(); item++, i++)
+				int i = 0;
+				for (auto item = umset.begin(); item != umset.end(); item++, i++)
 				{
 					T data = *item;
 					if (!IsSerializable(data))
@@ -470,7 +472,8 @@ namespace cse
 					throw std::runtime_error("Error in opening file for writing.");
 				size_t size = map.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				for (auto item = map.begin(), i = 0; item != map.end(); item++, i++)
+				int i = 0;
+				for (auto item = map.begin(); item != map.end(); item++, i++)
 				{
 					K key = (*item).first;
 					V val = (*item).second;
@@ -528,7 +531,8 @@ namespace cse
 					throw std::runtime_error("Error in opening file for writing.");
 				size_t size = umap.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				for (auto item = umap.begin(), i = 0; item != umap.end(); item++, i++)
+				int i = 0;
+				for (auto item = umap.begin(); item != umap.end(); item++, i++)
 				{
 					K key = (*item).first;
 					V val = (*item).second;
@@ -586,7 +590,8 @@ namespace cse
 					throw std::runtime_error("Error in opening file for writing.");
 				size_t size = mmap.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				for (auto item = mmap.begin(), i = 0; item != mmap.end(); item++, i++)
+				int i = 0;
+				for (auto item = mmap.begin(); item != mmap.end(); item++, i++)
 				{
 					K key = (*item).first;
 					V val = (*item).second;
@@ -644,7 +649,8 @@ namespace cse
 					throw std::runtime_error("Error in opening file for writing.");
 				size_t size = ummap.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				for (auto item = ummap.begin(), i = 0; item != ummap.end(); item++, i++)
+				int i = 0;
+				for (auto item = ummap.begin(); item != ummap.end(); item++, i++)
 				{
 					K key = (*item).first;
 					V val = (*item).second;
