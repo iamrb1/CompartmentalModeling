@@ -170,4 +170,156 @@ TEST_CASE("PermutationManager: std::vector<int> required index, yes repeating el
   };
 
   REQUIRE(res == expected);
-  }
+}
+
+// Test 3: Using PermutationManager with std::vector<int> with required index, no repeating elements
+TEST_CASE("PermutationManager: std::vector<int> required index, no repeating elements",
+  "[PermutationManager]")  {
+    std::vector<int> numbers = {1, 2, 3, 4, 5};
+    cse::PermutationManager<std::vector<int>> permManager(numbers, 3, false, 1);
+
+    // store all forward permutations
+    std::vector<std::vector<int>> res;
+    do {
+      const auto& perm = permManager.GetCurrentPermutation();
+      res.push_back(perm);
+    } while (permManager.Next());
+
+    std::vector<std::vector<int>> expected = {
+      {2, 1, 3}, {1, 2, 3}, {1, 3, 2},
+      {2, 3, 1}, {3, 2, 1}, {3, 1, 2},
+      {2, 1, 4}, {1, 2, 4}, {1, 4, 2},
+      {2, 4, 1}, {4, 2, 1}, {4, 1, 2}
+    };
+
+    REQUIRE(res == expected);
+
+    // now backwards
+    res.clear();
+    do {
+      const auto& perm = permManager.GetCurrentPermutation();
+      res.push_back(perm);
+    } while (permManager.Prev());
+    expected = {
+      {4, 1, 2}, {4, 2, 1}, {2, 4, 1},
+      {1, 4, 2}, {1, 2, 4}, {2, 1, 4},
+      {3, 1, 2}, {3, 2, 1}, {2, 3, 1},
+      {1, 3, 2}, {1, 2, 3}, {2, 1, 3}
+    };
+
+    REQUIRE(res == expected);
+    
+}
+
+// Test 3: Using PermutationManager with std::vector<int> with no required index, yes repeating elements
+TEST_CASE("PermutationManager: std::vector<int> no required index, yes repeating elements",
+  "[PermutationManager]") {
+  std::vector<int> items = {1, 2, 3, 4};
+  cse::PermutationManager<std::vector<int>> permManager(items, 3, true);
+
+
+  // store all forward permutations
+  std::vector<std::vector<int>> res;
+  do {
+    const auto& perm = permManager.GetCurrentPermutation();
+    res.push_back(perm);
+  } while (permManager.Next());
+  
+  std::vector<std::vector<int>> expected = {
+    {1, 2, 3}, {1, 3, 2}, {2, 1, 3}, {2, 3, 1}, {3, 1, 2}, {3, 2, 1},
+    {1, 2, 4}, {1, 4, 2}, {2, 1, 4}, {2, 4, 1}, {4, 1, 2}, {4, 2, 1},
+    {1, 3, 3}, {3, 1, 3}, {3, 3, 1},
+    {1, 3, 4}, {1, 4, 3}, {3, 1, 4}, {3, 4, 1}, {4, 1, 3}, {4, 3, 1},
+    {1, 4, 4}, {4, 1, 4}, {4, 4, 1},
+    {2, 2, 2}, {2, 2, 3}, {2, 3, 2}, {3, 2, 2},
+    {2, 2, 4}, {2, 4, 2}, {4, 2, 2},
+    {2, 3, 3}, {3, 2, 3}, {3, 3, 2},
+    {2, 3, 4}, {2, 4, 3}, {3, 2, 4}, {3, 4, 2}, {4, 2, 3}, {4, 3, 2},
+    {2, 4, 4}, {4, 2, 4}, {4, 4, 2},
+    {3, 3, 3}, {3, 3, 4}, {3, 4, 3}, {4, 3, 3},
+    {3, 4, 4}, {4, 3, 4}, {4, 4, 3},
+    {4, 4, 4}
+  };
+
+  REQUIRE(res == expected);
+
+  // now check prev
+  res.clear();
+  do {
+    const auto& perm = permManager.GetCurrentPermutation();
+    res.push_back(perm);
+  } while (permManager.Prev());
+  expected = {
+    {4, 4, 4},
+    {4, 4, 3}, {4, 3, 4}, {3, 4, 4},
+    {4, 3, 3}, {3, 4, 3}, {3, 3, 4}, {3, 3, 3},
+    {4, 4, 2}, {4, 2, 4}, {2, 4, 4},
+    {4, 3, 2}, {4, 2, 3}, {3, 4, 2}, {3, 2, 4}, {2, 4, 3}, {2, 3, 4},
+    {3, 3, 2}, {3, 2, 3}, {2, 3, 3},
+    {4, 2, 2}, {2, 4, 2}, {2, 2, 4},
+    {3, 2, 2}, {2, 3, 2}, {2, 2, 3}, {2, 2, 2},
+    {4, 4, 1}, {4, 1, 4}, {1, 4, 4},
+    {4, 3, 1}, {4, 1, 3}, {3, 4, 1}, {3, 1, 4}, {1, 4, 3}, {1, 3, 4},
+    {3, 3, 1}, {3, 1, 3}, {1, 3, 3},
+    {4, 2, 1}, {4, 1, 2}, {2, 4, 1}, {2, 1, 4}, {1, 4, 2}, {1, 2, 4},
+    {3, 2, 1}, {3, 1, 2}, {2, 3, 1}, {2, 1, 3}, {1, 3, 2}, {1, 2, 3}
+  };
+
+  REQUIRE(res == expected);
+  
+}
+
+
+// Test 4: Using PermutationManager with std::list<std::string> with no required index, no repeating elements
+TEST_CASE("PermutationManager: std::list<std::string> no required index, no repeating elements",
+  "[PermutationManager]") {
+  std::list<std::string> fruits = {"apple", "banana", "cherry", "date"};
+  cse::PermutationManager permManager(fruits, 3, false);
+  int total = permManager.TotalPermutations();
+  const int EXPECTED_TOTAL = 24;
+  REQUIRE(total == EXPECTED_TOTAL);
+
+  int t = 0;
+
+  std::vector<std::vector<std::string>> res;
+  do {
+    const auto& perm = permManager.GetCurrentPermutation();
+    res.push_back(perm);
+    ++t;
+  } while (permManager.Next());
+
+  std::vector<std::vector<std::string>> expected = {
+    {"apple", "banana", "cherry"},{"apple", "cherry", "banana"},{"banana", "apple", "cherry"},
+    {"banana", "cherry", "apple"},{"cherry", "apple", "banana"},{"cherry", "banana", "apple"},
+    {"apple", "banana", "date"},{"apple", "date", "banana"},{"banana", "apple", "date"},
+    {"banana", "date", "apple"},{"date", "apple", "banana"},{"date", "banana", "apple"},
+    {"apple", "cherry", "date"},{"apple", "date", "cherry"},{"cherry", "apple", "date"},
+    {"cherry", "date", "apple"},{"date", "apple", "cherry"},{"date", "cherry", "apple"},
+    {"banana", "cherry", "date"},{"banana", "date", "cherry"},{"cherry", "banana", "date"},
+    {"cherry", "date", "banana"},{"date", "banana", "cherry"},{"date", "cherry", "banana"}
+  };
+  REQUIRE(res == expected);
+
+  // now test previous
+  res.clear();
+  do {
+    const auto& perm = permManager.GetCurrentPermutation();
+    res.push_back(perm);
+    --t;
+  } while (permManager.Prev());
+
+  expected = {
+    {"date", "cherry", "banana"},{"date", "banana", "cherry"},{"cherry", "date", "banana"},
+    {"cherry", "banana", "date"},{"banana", "date", "cherry"},{"banana", "cherry", "date"},
+    {"date", "cherry", "apple"},{"date", "apple", "cherry"},{"cherry", "date", "apple"},
+    {"cherry", "apple", "date"},{"apple", "date", "cherry"},{"apple", "cherry", "date"},
+    {"date", "banana", "apple"},{"date", "apple", "banana"},{"banana", "date", "apple"},
+    {"banana", "apple", "date"},{"apple", "date", "banana"},{"apple", "banana", "date"},
+    {"cherry", "banana", "apple"},{"cherry", "apple", "banana"},{"banana", "cherry", "apple"},
+    {"banana", "apple", "cherry"},{"apple", "cherry", "banana"},{"apple", "banana", "cherry"}
+  };
+  REQUIRE(res == expected);
+  REQUIRE(t == 0);
+
+  
+}
