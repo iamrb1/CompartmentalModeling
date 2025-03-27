@@ -304,3 +304,16 @@ TEST_CASE("Test mem_size for multiple types") {
         REQUIRE(double_size == sizeof(data_map.get<double>("key2")));
     }
 }
+
+TEST_CASE("Test types for multiple keys") {
+    cse::AdvDataMap data_map;
+    data_map.insert("key1", 100);
+    data_map.insert("key0", std::string("Test_key_0"));
+    data_map.insert("key2", 10.10);
+
+    SECTION("Check keys with the type they should be") {
+        REQUIRE(data_map.is_type<int>("key1"));
+        REQUIRE(data_map.is_type<std::string>("key0"));
+        REQUIRE(data_map.is_type<double>("key2"));
+    }
+}
