@@ -1,6 +1,8 @@
 #include "catch.hpp"
 
 #include "RichText.hpp"
+#include "SerializerHTML.hpp"
+#include "SerializerMarkdown.hpp"
 
 TEST_CASE("Basic serialization", "[RichTextSerialize]") {
   cse::TextFormat bold("bold");
@@ -64,4 +66,26 @@ TEST_CASE("Complex serialization", "[RichTextSerialize]") {
           (header +
            "<span class=red>hello</span> <span class=blue>world</span>" +
            footer));
+}
+
+TEST_CASE("Default HTML serializer", "[RichTextSerialize]") {
+  std::string header = "<!DOCTYPE html>\n<html>\n<head></head>\n<body>\n";
+  std::string footer = "</body>\n</html>\n";
+  auto serializer = cse::SerializerHTML();
+
+  cse::RichText text{"Hello world!"};
+  text.apply_format(cse::TextFormat{"color", "red"}, 0, 5);
+
+  std::string output = text.serialize(serializer).output;
+  REQUIRE(output == (header + "<span style=\"color: red;\">Hello</span> world!" + footer));
+}
+
+TEST_CASE("Default Markdown serializer", "[RichTextSerialize]") {
+  auto serializer = cse::SerializerMarkdown<wchar_t>();
+  cse::BasicRichText<wchar_t> text(L"Some unicode markdown!");
+  text.apply_format(cse::TextFormat{"bold", true}, 0, 4);
+
+  std::wstring output = text.serialize(serializer).output;
+  REQUIRE(output == std::wstring(L"**Some** unicode markdown!"));
+
 }
