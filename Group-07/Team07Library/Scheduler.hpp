@@ -192,7 +192,7 @@ namespace cse
 
       if (needUpdate)
       {
-        std::stable_sort(currIds.begin(), currIds.end(), [this](const Process &a, const Process &b)
+        std::stable_sort(currIds.begin(), currIds.end(), [](const Process &a, const Process &b)
                          { return a.priorityWeight > b.priorityWeight; });
       }
       ProcessID outID = currIds[0].id;
