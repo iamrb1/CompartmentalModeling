@@ -10,6 +10,8 @@
 #include <cstdint>
 #include <format>
 #include <functional>
+#include <iterator>
+#include <limits>
 #include <map>
 #include <optional>
 #include <ranges>
@@ -183,14 +185,14 @@ class RichText {
    * @brief Get the size of the underlying string
    * @return The size of the text
    */
-  [[nodiscard]] size_t size() const noexcept { return m_text.size(); }
+  [[nodiscard]] std::size_t size() const noexcept { return m_text.size(); }
 
   /**
    * @brief Get the character at a position
    * @param pos The position of the desired character
    * @return The character at position `pos`
    */
-  [[nodiscard]] const CharT& char_at(size_t pos) const {
+  [[nodiscard]] const CharT& char_at(std::size_t pos) const {
     // TODO replace with subscript operator
     return m_text.at(pos);
   }
@@ -206,7 +208,7 @@ class RichText {
    * @param pos The position to check for formats
    * @return A vector of `TextFormat`s at position `pos`
    */
-  [[nodiscard]] std::vector<TextFormat> formats_at(size_t pos) const {
+  [[nodiscard]] std::vector<TextFormat> formats_at(std::size_t pos) const {
     dbg_assert(pos < m_text.size(),
                std::format("Out of bounds access, idx: {} size: {}", pos,
                            m_text.size()));
@@ -226,7 +228,7 @@ class RichText {
    */
   template <typename Str>
     requires std::derived_from<Str, std::basic_string<CharT>>
-  RichText& insert(size_t index, const Str& str,
+  RichText& insert(std::size_t index, const Str& str,
                    bool extend_formatting = false) {
     cse_assert(!extend_formatting, "TODO Not implemented");
     m_text.insert(index, str);
@@ -244,7 +246,7 @@ class RichText {
    * @param extend_formatting Whether to extend formatting applied to the
    * character before `index` to the new characters
    */
-  RichText& insert(size_t index, const CharT* str,
+  RichText& insert(std::size_t index, const CharT* str,
                    bool extend_formatting = false) {
     cse_assert(!extend_formatting, "TODO Not implemented");
     auto sstr = std::basic_string<CharT>(str);
@@ -262,7 +264,7 @@ class RichText {
    * @param str The other RichText to insert
    */
   template <typename T>
-  RichText& insert(size_t index, const RichText<CharT, T>& str) {
+  RichText& insert(std::size_t index, const RichText<CharT, T>& str) {
     std::size_t old_len = m_text.length();
     insert(index, str.m_text);
     for (auto [format, indices] : str.m_formatting) {
@@ -312,8 +314,8 @@ class RichText {
    * @param begin Beginning of range to apply format to
    * @param end End (exclusive) of range to apply format to
    */
-  void apply_format(const TextFormat& format, const size_t begin,
-                    const size_t end) {
+  void apply_format(const TextFormat& format, const std::size_t begin,
+                    const std::size_t end) {
     dbg_assert(
         end >= begin,
         std::format("Format range ends after beginning, begin: {}, end: {}",
@@ -406,12 +408,13 @@ class RichText {
       }
     }
 
-    size_t current = 0;
+    std::size_t current = 0;
     auto tracker_iter = trackers.begin();
 
     // Process the text
     while (current < m_text.size() && !trackers.empty()) {
-      size_t next = SIZE_MAX;  // Track the next format deactivation
+      // Track the next format deactivation
+      std::size_t next = std::numeric_limits<std::size_t>::max();
 
       // Apply formats
       while (tracker_iter != trackers.end() &&
@@ -467,7 +470,7 @@ class RichText {
       // deactivated (or all_deactivated is true, then it points to the first
       // rule)
 
-      std::_Rb_tree_const_iterator<FormatSerializeTracker> reapply_rule_iter;
+      typename decltype(trackers)::const_iterator reapply_rule_iter;
       do {
         if (all_deactivated) {
           reapply_rule_iter = trackers.begin();
