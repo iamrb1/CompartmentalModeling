@@ -239,17 +239,25 @@ TEST_CASE("Test Different Data Types in DataMap") {
     REQUIRE(data_map.get<double>("double") == 10.5);
     REQUIRE(data_map.get<std::string>("string") == "test");
     REQUIRE(data_map.get<bool>("bool") == true);
-//    std::vector<std::string> vector3 = data_map.get_type_keys<std::string>();
-//    REQUIRE(std::size(vector3 == 0));
 }
 
 TEST_CASE("DataMap is_conv_to_string method Tests") {
     cse::AdvDataMap data_map;
+    std::vector<std::string> strings = {"test", "test2", "test3"};
+    std::vector<double> doubles = {4.4, 2.5, 6.1};
     data_map.insert("string_key", std::string("Hello"));
+    data_map.insert("vec0", strings[0]);
+    data_map.insert("vec2", strings[2]);
+    data_map.insert("vec01", doubles[0]);
+    data_map.insert("vec21", doubles[2]);
     data_map.insert("int_key", 42);
 
-    SECTION("Check if value can be converted to string") {
+    SECTION("Check if value can be converted to string, and for vector indices") {
         REQUIRE(data_map.is_conv_to_string("string_key"));
+        REQUIRE(data_map.is_conv_to_string("vec0"));
+        REQUIRE(data_map.is_conv_to_string("vec2"));
+        REQUIRE_FALSE(data_map.is_conv_to_string("vec01"));
+        REQUIRE_FALSE(data_map.is_conv_to_string("vec21"));
         REQUIRE_FALSE(data_map.is_conv_to_string("int_key"));
     }
 }
@@ -283,8 +291,20 @@ TEST_CASE("DataMap get_type_keys method Tests") {
         std::vector<std::string> vector2 = data_map.get_type_keys<std::string>();
         REQUIRE(std::size(vector2) == 3);
     }
+    SECTION("Check both at once") {
+        data_map.insert("key3", std::string("Test_key_3"));
+        data_map.insert("key4", std::string("Test_key_4"));
+        data_map.insert("key5", std::string("Test_key_5"));
+        data_map.insert("key6", std::string("Test_key_6"));
+        std::vector<std::string> vector21 = data_map.get_type_keys<std::string>();
+        std::vector<std::string> vector23 = data_map.get_type_keys<int>();
+        REQUIRE(std::size(vector21) == 5);
+        REQUIRE(std::size(vector23) == 2);
+    }
     SECTION("Clear and check if empty") {
         data_map.clear();
+        std::vector<std::string> vector22 = data_map.get_type_keys<std::string>();
+        REQUIRE(std::size(vector22) == 0);
         REQUIRE(data_map.empty() == true);
     }
 }
