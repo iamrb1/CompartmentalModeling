@@ -14,9 +14,9 @@ using Catch::Matchers::WithinAbs;
 
 TEST_CASE("Test cse::Graph (Bidirectional)", "[base]") {
   // Use std::string as the vertex data type
-  using TestGraph = cse::Graph<std::string, true>;
+  using BidirectionalGraph = cse::Graph<std::string, true>;
 
-  TestGraph graph;
+  BidirectionalGraph graph;
 
   // Test adding vertices
   auto &v1 = graph.AddVertex("id1", "Vertex1 Data");
@@ -30,12 +30,12 @@ TEST_CASE("Test cse::Graph (Bidirectional)", "[base]") {
   graph.RemoveVertex("id1");
   CHECK_THROWS_AS(graph.GetVertex("id1"), cse::vertex_not_found_error);
 
-  // Test adding edges
-  v1 = graph.AddVertex("id1", "Vertex1 Data");
+  // Test adding edges - same vertex being readded
+  auto v1_2 = graph.AddVertex("id1", "Vertex1 Data");
   graph.AddEdge("id1", "id2", 0.0);
 
-  CHECK(graph.IsConnected(v1, v2));
-  CHECK(graph.IsConnected(v2, v1));
+  CHECK(graph.IsConnected(v1_2, v2));
+  CHECK(graph.IsConnected(v2, v1_2));
   CHECK(graph.IsConnected("id1", "id2"));
   CHECK(graph.IsConnected("id2", "id1"));
 
@@ -43,7 +43,7 @@ TEST_CASE("Test cse::Graph (Bidirectional)", "[base]") {
   auto &v4 = graph.AddVertex("id4", "Vertex4 Data");
   auto &v5 = graph.AddVertex("id5", "Vertex5 Data");
 
-  CHECK(!graph.IsConnected(v1, v4));
+  CHECK(!graph.IsConnected(v1_2, v4));
   CHECK(!graph.IsConnected(v4, v5));
   CHECK(!graph.IsConnected(v4, v4));
 
@@ -63,11 +63,10 @@ TEST_CASE("Test cse::Graph (Bidirectional)", "[base]") {
   CHECK_THROWS_AS(v4.GetEdge(v5), std::runtime_error);
 
   auto &e3 = graph.AddEdge("id1", "id2", 2);
-  CHECK(graph.IsConnected(v1, v2));
+  CHECK(graph.IsConnected(v1_2, v2));
   CHECK(graph.IsConnected(v2, v1));
   REQUIRE_THAT(e3.GetWeight(), WithinAbs(2, cse_test_utils::FLOAT_DELTA));
 }
-
 
 // Same test case as above but with a not bidirectional graph
 TEST_CASE("Test cse::Graph", "[base]") {
@@ -82,7 +81,8 @@ TEST_CASE("Test cse::Graph", "[base]") {
   CHECK(graph.GetVertex("id1").GetId() == "id1");
   CHECK(graph.GetVertex("id2").GetId() == "id2");
 
-  CHECK_THROWS_AS(graph.AddVertex("id1", "Duplicate Data"), cse::vertex_already_exists_error);
+  CHECK_THROWS_AS(graph.AddVertex("id1", "Duplicate Data"),
+                  cse::vertex_already_exists_error);
 
   // Test removing vertices
   graph.RemoveVertex("id1");
@@ -115,19 +115,18 @@ TEST_CASE("Test cse::Graph", "[base]") {
                WithinAbs(0, cse_test_utils::FLOAT_DELTA));
 
   graph.RemoveEdge(e2);
-  
+
   CHECK(!graph.IsConnected(v4, v5));
   CHECK(!graph.IsConnected(v5, v4));
-  CHECK_THROWS_AS(graph.GetEdge(v4.GetId(), v5.GetId()), cse::edge_not_found_error);
+  CHECK_THROWS_AS(graph.GetEdge(v4.GetId(), v5.GetId()),
+                  cse::edge_not_found_error);
   CHECK_THROWS_AS(v4.GetEdge(v5), cse::edge_not_found_error);
-
 
   auto &e3 = graph.AddEdge("id1", "id2", 2);
   CHECK(graph.IsConnected(v1, v2));
   CHECK(!graph.IsConnected(v2, v1));
   REQUIRE_THAT(e3.GetWeight(), WithinAbs(2, cse_test_utils::FLOAT_DELTA));
 }
-
 
 TEST_CASE("Test cse::Graph - To file", "Export to file") {
   using TestGraph = cse::Graph<std::string>;
@@ -149,7 +148,6 @@ TEST_CASE("Test cse::Graph - To file", "Export to file") {
       "      to:id2", "      weight:0",   ""};
   // REQUIRE(cse_test_utils::CheckForStringFile(lines, s));
 }
-
 
 TEST_CASE("Test cse::Graph - From file", "Read from file") {
   using TestGraph = cse::Graph<std::string>;
@@ -206,7 +204,6 @@ TEST_CASE("Test cse::Graph - From file", "Read from file") {
   CHECK(!graph.IsConnected("id2", "id1"));
 }
 
-
 TEST_CASE("Test cse::Graph - From advanced file", "Complex graph") {
   using TestGraph = cse::Graph<std::string>;
 
@@ -235,7 +232,6 @@ TEST_CASE("Test cse::Graph - From advanced file", "Complex graph") {
   REQUIRE_THAT(e.GetWeight(), WithinAbs(2, cse_test_utils::FLOAT_DELTA));
 }
 
-
 TEST_CASE("Test cse::Graph - Check removing Vertex removes related edges",
           "Remove Vertex") {
   using TestGraph = cse::Graph<std::string>;
@@ -261,4 +257,52 @@ TEST_CASE("Test cse::Graph - Check removing Vertex removes related edges",
 
   CHECK_THROWS_AS(v2.GetEdge("id4"), cse::edge_not_found_error);
   CHECK_THROWS_AS(v3.GetEdge("id4"), cse::edge_not_found_error);
+}
+
+TEST_CASE("Test cse::Graph - Cycle", "HasCycle functionality") {
+  using TestGraph = cse::Graph<std::string>;
+
+  TestGraph graph;
+  // Test adding vertices
+  auto v1 = graph.AddVertex("id1", "Vertex1 Data");
+  auto v2 = graph.AddVertex("id2", "Vertex2 Data");
+  auto v3 = graph.AddVertex("id3", "Vertex3 Data");
+  auto v4 = graph.AddVertex("id4", "Vertex4 Data");
+
+  SECTION("Graph with super simple cycle") {
+    // Graph with cycle
+    graph.AddEdge(v1, v2);
+    graph.AddEdge(v2, v1);
+    REQUIRE(graph.HasCycle());
+  }
+
+  SECTION("Graph with simple cycle") {
+    // Graph with cycle
+    graph.AddEdge(v1, v2);
+    graph.AddEdge(v2, v3);
+    graph.AddEdge(v3, v4);
+    graph.AddEdge(v4, v1);
+    REQUIRE(graph.HasCycle());
+  }
+
+  SECTION("Graph with no simple cycle") {
+    // Graph with cycle
+    graph.AddEdge(v1, v2);
+    graph.AddEdge(v2, v3);
+    graph.AddEdge(v3, v4);
+    REQUIRE(!graph.HasCycle());
+  }
+
+  SECTION("Graph with no more complex graph") {
+    auto &v5 = graph.AddVertex("id5");
+
+    // Graph with cycle
+    graph.AddEdge(v1, v2);
+    graph.AddEdge(v2, v3);
+    graph.AddEdge(v2, v5);
+    graph.AddEdge(v5, v4);
+    graph.AddEdge(v3, v4);
+    graph.AddEdge(v4, v1);
+    REQUIRE(graph.HasCycle());
+  }
 }
