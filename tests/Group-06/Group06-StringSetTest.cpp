@@ -260,7 +260,7 @@ TEST_CASE("Test for count", "[count]"){
     REQUIRE(Sset.empty());
 }
 
-TEST_CASE("Test for Union", "[Union]"){
+TEST_CASE("Test for Union", "[union]"){
     StringSet set1, set2;
 
     // Empty sets
@@ -372,11 +372,11 @@ TEST_CASE("Test for Union", "[Union]"){
 }
 
 
-TEST_CASE("Test for Intersection", "[Intersection]"){
+TEST_CASE("Test for intersection", "[intersection]"){
     StringSet set1, set2;
 
     // Empty sets
-    StringSet intersectionSet = set1.Intersection(set2);
+    StringSet intersectionSet = set1.intersection(set2);
     REQUIRE(intersectionSet.size() == 0);
     REQUIRE(set1.size() == 0);
     REQUIRE(set2.size() == 0);
@@ -398,7 +398,7 @@ TEST_CASE("Test for Intersection", "[Intersection]"){
     REQUIRE(set2.count("blue") == 1);
     REQUIRE(set2.count("black") == 1);
 
-    intersectionSet = set1.Intersection(set2);
+    intersectionSet = set1.intersection(set2);
     REQUIRE(intersectionSet.count("blue") == 1);
     REQUIRE(intersectionSet.count("black") == 1);
     REQUIRE(intersectionSet.count("green") == 0);
@@ -416,7 +416,7 @@ TEST_CASE("Test for Intersection", "[Intersection]"){
 
     // One empty set
     set1.clear();
-    intersectionSet = set1.Intersection(set2);
+    intersectionSet = set1.intersection(set2);
     REQUIRE(intersectionSet.count("blue") == 0);
     REQUIRE(intersectionSet.count("black") == 0);
     REQUIRE(intersectionSet.size() == 0);
@@ -426,7 +426,7 @@ TEST_CASE("Test for Intersection", "[Intersection]"){
     StringSet<StaticString<10>> Sset1, Sset2;
 
     // Empty sets
-    StringSet<StaticString<10>> SintersectionSet = Sset1.Intersection(Sset2);
+    StringSet<StaticString<10>> SintersectionSet = Sset1.intersection(Sset2);
     REQUIRE(SintersectionSet.size() == 0);
     REQUIRE(Sset1.size() == 0);
     REQUIRE(Sset2.size() == 0);
@@ -448,7 +448,7 @@ TEST_CASE("Test for Intersection", "[Intersection]"){
     REQUIRE(Sset2.count(StaticString<10>("blue")) == 1);
     REQUIRE(Sset2.count(StaticString<10>("black")) == 1);
 
-    SintersectionSet = Sset1.Intersection(Sset2);
+    SintersectionSet = Sset1.intersection(Sset2);
     REQUIRE(SintersectionSet.count(StaticString<10>("blue")) == 1);
     REQUIRE(SintersectionSet.count(StaticString<10>("black")) == 1);
     REQUIRE(SintersectionSet.count(StaticString<10>("green")) == 0);
@@ -466,7 +466,7 @@ TEST_CASE("Test for Intersection", "[Intersection]"){
 
     // One empty set
     Sset1.clear();
-    SintersectionSet = Sset1.Intersection(Sset2);
+    SintersectionSet = Sset1.intersection(Sset2);
     REQUIRE(SintersectionSet.count(StaticString<10>("blue")) == 0);
     REQUIRE(SintersectionSet.count(StaticString<10>("black")) == 0);
     REQUIRE(SintersectionSet.size() == 0);
@@ -474,7 +474,7 @@ TEST_CASE("Test for Intersection", "[Intersection]"){
 }
 
 
-TEST_CASE("Test for Difference", "[Difference]"){
+TEST_CASE("Test for difference", "[difference]"){
     StringSet set1, set2;
 
     set1.insert("blue");
@@ -493,14 +493,14 @@ TEST_CASE("Test for Difference", "[Difference]"){
     REQUIRE(set2.count("purple") == 1);
 
 
-    StringSet differenceSet1 = set1.Difference(set2);
+    StringSet differenceSet1 = set1.difference(set2);
     REQUIRE(differenceSet1.count("yellow") == 1);
     REQUIRE(differenceSet1.count("black") == 1);
     REQUIRE(differenceSet1.count("blue") == 0);
     REQUIRE_FALSE(differenceSet1.count("green") == 1);
     REQUIRE(differenceSet1.size() == 2); // yellow, black (elements that present in first set but not in second set)
 
-    StringSet differenceSet2 = set2.Difference(set1);
+    StringSet differenceSet2 = set2.difference(set1);
     REQUIRE(differenceSet2.count("green") == 1);
     REQUIRE(differenceSet2.count("purple") == 1);
     REQUIRE(differenceSet2.count("blue") == 0);
@@ -516,7 +516,7 @@ TEST_CASE("Test for Difference", "[Difference]"){
     REQUIRE(set2.count("purple") == 1);
 
     // Try same set, needs to return empty set
-    StringSet differenceSet3 = set2.Difference(set2);
+    StringSet differenceSet3 = set2.difference(set2);
     REQUIRE(differenceSet3.size() == 0);
 
     set1.clear();
@@ -537,14 +537,14 @@ TEST_CASE("Test for Difference", "[Difference]"){
     set2.insert("brown");
     set2.insert("red");
 
-    differenceSet1 = set1.Difference(set2);
+    differenceSet1 = set1.difference(set2);
     REQUIRE(differenceSet1.count("white") == 0);
     REQUIRE(differenceSet1.count("brown") == 0);
     REQUIRE(differenceSet1.count("red") == 0);
     REQUIRE_FALSE(differenceSet1.count("yellow") == 1);
     REQUIRE(differenceSet1.size() == 0);
 
-    differenceSet2 = set2.Difference(set1);
+    differenceSet2 = set2.difference(set1);
     REQUIRE(differenceSet2.count("white") == 0);
     REQUIRE(differenceSet2.count("brown") == 0);
     REQUIRE(differenceSet2.count("red") == 0);
@@ -555,17 +555,17 @@ TEST_CASE("Test for Difference", "[Difference]"){
     set1.clear();
     set2.clear();
 
-    differenceSet1 = set1.Difference(set2);
+    differenceSet1 = set1.difference(set2);
     REQUIRE(differenceSet1.count("white") == 0);
     REQUIRE(differenceSet1.size() == 0);
 
-    differenceSet2 = set2.Difference(set1);
+    differenceSet2 = set2.difference(set1);
     REQUIRE(differenceSet2.count("white") == 0);
     REQUIRE(differenceSet2.size() == 0);
 
     // one set empty other is not
     set2.insert("blue");
-    differenceSet2 = set2.Difference(set1);
+    differenceSet2 = set2.difference(set1);
     REQUIRE(differenceSet2.size() == 1);
     REQUIRE(differenceSet2.count("blue") == 1);
     REQUIRE(differenceSet2.count("black") == 0);
@@ -590,14 +590,14 @@ TEST_CASE("Test for Difference", "[Difference]"){
     REQUIRE(Sset2.count(StaticString<10>("purple")) == 1);
 
 
-    StringSet<StaticString<10>> SdifferenceSet1 = Sset1.Difference(Sset2);
+    StringSet<StaticString<10>> SdifferenceSet1 = Sset1.difference(Sset2);
     REQUIRE(SdifferenceSet1.count(StaticString<10>("yellow")) == 1);
     REQUIRE(SdifferenceSet1.count(StaticString<10>("black")) == 1);
     REQUIRE(SdifferenceSet1.count(StaticString<10>("blue")) == 0);
     REQUIRE_FALSE(SdifferenceSet1.count(StaticString<10>("green")) == 1);
     REQUIRE(SdifferenceSet1.size() == 2); // yellow, black (elements that present in first set but not in second set)
 
-    StringSet<StaticString<10>> SdifferenceSet2 = Sset2.Difference(Sset1);
+    StringSet<StaticString<10>> SdifferenceSet2 = Sset2.difference(Sset1);
     REQUIRE(SdifferenceSet2.count(StaticString<10>("green")) == 1);
     REQUIRE(SdifferenceSet2.count(StaticString<10>("purple")) == 1);
     REQUIRE(SdifferenceSet2.count(StaticString<10>("blue")) == 0);
@@ -613,7 +613,7 @@ TEST_CASE("Test for Difference", "[Difference]"){
     REQUIRE(Sset2.count(StaticString<10>("purple")) == 1);
 
     // Try same set, needs to return empty set
-    StringSet<StaticString<10>> SdifferenceSet3 = Sset2.Difference(Sset2);
+    StringSet<StaticString<10>> SdifferenceSet3 = Sset2.difference(Sset2);
     REQUIRE(SdifferenceSet3.size() == 0);
 
     Sset1.clear();
@@ -634,14 +634,14 @@ TEST_CASE("Test for Difference", "[Difference]"){
     Sset2.insert(StaticString<10>("brown"));
     Sset2.insert(StaticString<10>("red"));
 
-    SdifferenceSet1 = Sset1.Difference(Sset2);
+    SdifferenceSet1 = Sset1.difference(Sset2);
     REQUIRE(SdifferenceSet1.count(StaticString<10>("white")) == 0);
     REQUIRE(SdifferenceSet1.count(StaticString<10>("brown")) == 0);
     REQUIRE(SdifferenceSet1.count(StaticString<10>("red")) == 0);
     REQUIRE_FALSE(SdifferenceSet1.count(StaticString<10>("yellow")) == 1);
     REQUIRE(SdifferenceSet1.size() == 0);
 
-    SdifferenceSet2 = Sset2.Difference(Sset1);
+    SdifferenceSet2 = Sset2.difference(Sset1);
     REQUIRE(SdifferenceSet2.count(StaticString<10>("white")) == 0);
     REQUIRE(SdifferenceSet2.count(StaticString<10>("brown")) == 0);
     REQUIRE(SdifferenceSet2.count(StaticString<10>("red")) == 0);
@@ -652,17 +652,17 @@ TEST_CASE("Test for Difference", "[Difference]"){
     Sset1.clear();
     Sset2.clear();
 
-    SdifferenceSet1 = Sset1.Difference(Sset2);
+    SdifferenceSet1 = Sset1.difference(Sset2);
     REQUIRE(SdifferenceSet1.count(StaticString<10>("white")) == 0);
     REQUIRE(SdifferenceSet1.size() == 0);
 
-    SdifferenceSet2 = Sset2.Difference(Sset1);
+    SdifferenceSet2 = Sset2.difference(Sset1);
     REQUIRE(SdifferenceSet2.count(StaticString<10>("white")) == 0);
     REQUIRE(SdifferenceSet2.size() == 0);
 
     // one set empty other is not
     Sset2.insert(StaticString<10>("blue"));
-    SdifferenceSet2 = Sset2.Difference(Sset1);
+    SdifferenceSet2 = Sset2.difference(Sset1);
     REQUIRE(SdifferenceSet2.size() == 1);
     REQUIRE(SdifferenceSet2.count(StaticString<10>("blue")) == 1);
     REQUIRE(SdifferenceSet2.count(StaticString<10>("black")) == 0);
@@ -670,7 +670,7 @@ TEST_CASE("Test for Difference", "[Difference]"){
 }
 
 
- TEST_CASE("Test for RetainFilter ", "[RetainFilter]"){
+ TEST_CASE("Test for retain_filter ", "[retain_filter]"){
 
      StringSet set;
 
@@ -681,7 +681,7 @@ TEST_CASE("Test for Difference", "[Difference]"){
      set.insert("brown");
      set.insert("white");
 
-     set.RetainFilter([](const std::string& str){
+     set.retain_filter([](const std::string& str){
          return str.size() > 4;
      });
 
@@ -699,7 +699,7 @@ TEST_CASE("Test for Difference", "[Difference]"){
      REQUIRE(set.count("yellow") == 0);
 
      // Try in empty set (shouldn't give any errors, set still needs to be empty)
-     set.RetainFilter([](const std::string& str){
+     set.retain_filter([](const std::string& str){
          return str.size() > 4;
      });
 
@@ -716,7 +716,7 @@ TEST_CASE("Test for Difference", "[Difference]"){
     Sset.insert(StaticString<10>("brown"));
     Sset.insert(StaticString<10>("white"));
 
-    Sset.RetainFilter([](const StaticString<10>& str){
+    Sset.retain_filter([](const StaticString<10>& str){
         return str.length() > 4;
     });
 
@@ -734,7 +734,7 @@ TEST_CASE("Test for Difference", "[Difference]"){
     REQUIRE(Sset.count(StaticString<10>("yellow")) == 0);
 
     // Try in empty set (shouldn't give any errors, set still needs to be empty)
-    Sset.RetainFilter([](const StaticString<10>& str){
+    Sset.retain_filter([](const StaticString<10>& str){
         return str.length() > 4;
     });
 
@@ -743,7 +743,7 @@ TEST_CASE("Test for Difference", "[Difference]"){
 
 }
 
- TEST_CASE("Test for RemoveFilter", "[RemoveFilter]"){
+ TEST_CASE("Test for remove_filter", "[remove_filter]"){
      StringSet set;
 
      set.insert("blue");
@@ -754,7 +754,7 @@ TEST_CASE("Test for Difference", "[Difference]"){
      set.insert("white");
 
 
-     set.RemoveFilter([](const std::string& str){
+     set.remove_filter([](const std::string& str){
          return str.size() > 4;
      });
 
@@ -773,7 +773,7 @@ TEST_CASE("Test for Difference", "[Difference]"){
 
 
      // Try it in an empty set (shouldn't give any errors, still needs to be empty set)
-     set.RemoveFilter([](const std::string& str){
+     set.remove_filter([](const std::string& str){
          return str.size() > 4;
      });
 
@@ -791,7 +791,7 @@ TEST_CASE("Test for Difference", "[Difference]"){
     Sset.insert("white");
 
 
-    Sset.RemoveFilter([](const StaticString<10>& str){
+    Sset.remove_filter([](const StaticString<10>& str){
         return str.length() > 4;
     });
 
@@ -810,7 +810,7 @@ TEST_CASE("Test for Difference", "[Difference]"){
 
 
     // Try it in an empty set (shouldn't give any errors, still needs to be empty set)
-    Sset.RemoveFilter([](const StaticString<10>& str){
+    Sset.remove_filter([](const StaticString<10>& str){
         return str.length() > 4;
     });
 

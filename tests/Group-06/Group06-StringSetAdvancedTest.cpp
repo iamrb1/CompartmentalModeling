@@ -14,18 +14,18 @@
 
 using namespace cse;
 
-TEST_CASE("Test for IsSubset", "[IsSubset]") {
+TEST_CASE("Test for is_subset", "[is_subset]") {
 	StringSet set1, set2;
 	
 	SECTION("Empty test is a subset of empty set and itself") {
-		REQUIRE(set1.IsSubset(set2));
-		REQUIRE(set1.IsSubset(set1));
+		REQUIRE(set1.is_subset(set2));
+		REQUIRE(set1.is_subset(set1));
 	}
 	
 	SECTION("Non-empty set is a subset of itself") {
 		set1.insert("cat");
 		set1.insert("dog");
-		REQUIRE(set1.IsSubset(set1));
+		REQUIRE(set1.is_subset(set1));
 	}
 	
 	SECTION("Non-empty set is a subset of another larger non-empty set") {
@@ -37,7 +37,7 @@ TEST_CASE("Test for IsSubset", "[IsSubset]") {
 		set2.insert("ivan");
 		set2.insert("monkey");
 		
-		REQUIRE(set1.IsSubset(set2));
+		REQUIRE(set1.is_subset(set2));
 		
 	}
 	
@@ -49,21 +49,21 @@ TEST_CASE("Test for IsSubset", "[IsSubset]") {
 		
 		set1.insert("monkey");
 		
-		REQUIRE_FALSE(set1.IsSubset(set2));
+		REQUIRE_FALSE(set1.is_subset(set2));
 	}
 
 
     StringSet<StaticString<10>> set3, set4;
     
     SECTION("Empty test is a subset of empty set and itself") {
-        REQUIRE(set3.IsSubset(set4));
-        REQUIRE(set3.IsSubset(set3));
+        REQUIRE(set3.is_subset(set4));
+        REQUIRE(set3.is_subset(set3));
     }
     
     SECTION("Non-empty set is a subset of itself") {
         set3.insert("cat");
         set3.insert("dog");
-        REQUIRE(set3.IsSubset(set3));
+        REQUIRE(set3.is_subset(set3));
     }
     
     SECTION("Non-empty set is a subset of another larger non-empty set") {
@@ -75,7 +75,7 @@ TEST_CASE("Test for IsSubset", "[IsSubset]") {
         set4.insert("ivan");
         set4.insert("monkey");
         
-        REQUIRE(set3.IsSubset(set4));
+        REQUIRE(set3.is_subset(set4));
         
     }
     
@@ -87,15 +87,15 @@ TEST_CASE("Test for IsSubset", "[IsSubset]") {
         
         set3.insert("monkey");
         
-        REQUIRE_FALSE(set3.IsSubset(set4));
+        REQUIRE_FALSE(set3.is_subset(set4));
     }
 }
 
-TEST_CASE("Test for SubstringFilter", "[SubstringFilter]") {
+TEST_CASE("Test for substring_filter", "[substring_filter]") {
 	StringSet set;
 	
 	SECTION("Filtering from an empty set should not cause errors") {
-		set.SubstringFilter("something");
+		set.substring_filter("something");
 		REQUIRE(set.size() == 0);
 	}
 	
@@ -103,7 +103,7 @@ TEST_CASE("Test for SubstringFilter", "[SubstringFilter]") {
 		set.insert("apple");
 		set.insert("banana");
 		set.insert("orange");
-		set.SubstringFilter("something");
+		set.substring_filter("something");
 		
 		REQUIRE(set.count("apple") == 1);
 		REQUIRE(set.count("banana") == 1);
@@ -115,7 +115,7 @@ TEST_CASE("Test for SubstringFilter", "[SubstringFilter]") {
 		set.insert("apple");
 		set.insert("banana");
 		set.insert("orange");
-		set.SubstringFilter("a");
+		set.substring_filter("a");
 		REQUIRE(set.size() == 0);
 	}
 	
@@ -125,7 +125,7 @@ TEST_CASE("Test for SubstringFilter", "[SubstringFilter]") {
 		set.insert("orange");
 		set.insert("dog");
 		REQUIRE(set.size() == 4);
-		set.SubstringFilter("o");
+		set.substring_filter("o");
 		REQUIRE(set.size() == 2);
 		REQUIRE(set.count("apple") == 1);
 		REQUIRE(set.count("banana") == 1);
@@ -137,7 +137,7 @@ TEST_CASE("Test for SubstringFilter", "[SubstringFilter]") {
     StringSet<StaticString<15>> set2;
 	
 	SECTION("Filtering from an empty set should not cause errors") {
-		set2.SubstringFilter("something");
+		set2.substring_filter("something");
 		REQUIRE(set2.size() == 0);
 	}
 	
@@ -145,7 +145,7 @@ TEST_CASE("Test for SubstringFilter", "[SubstringFilter]") {
 		set2.insert("apple");
 		set2.insert("banana");
 		set2.insert("orange");
-		set2.SubstringFilter("something");
+		set2.substring_filter("something");
 		
 		REQUIRE(set2.count("apple") == 1);
 		REQUIRE(set2.count("banana") == 1);
@@ -157,7 +157,7 @@ TEST_CASE("Test for SubstringFilter", "[SubstringFilter]") {
 		set2.insert("apple");
 		set2.insert("banana");
 		set2.insert("orange");
-		set2.SubstringFilter("a");
+		set2.substring_filter("a");
 		REQUIRE(set2.size() == 0);
 	}
 	
@@ -167,7 +167,7 @@ TEST_CASE("Test for SubstringFilter", "[SubstringFilter]") {
 		set2.insert("orange");
 		set2.insert("dog");
 		REQUIRE(set2.size() == 4);
-		set2.SubstringFilter("o");
+		set2.substring_filter("o");
 		REQUIRE(set2.size() == 2);
 		REQUIRE(set2.count("apple") == 1);
 		REQUIRE(set2.count("banana") == 1);
@@ -178,7 +178,7 @@ TEST_CASE("Test for SubstringFilter", "[SubstringFilter]") {
 
 
 // GitHub copilot helped write some initial code for this function
-TEST_CASE("Test for Search", "[Search]") {
+TEST_CASE("Test for search", "[search]") {
     // Test with std::string
     StringSet set;
     set.insert("abc");
@@ -188,7 +188,7 @@ TEST_CASE("Test for Search", "[Search]") {
     set.insert("xyz");
 
     // Perform a search with a pattern and check if the result matches the expected output
-    StringSet result = set.Search("a?c*");
+    StringSet result = set.search("a?c*");
     REQUIRE(result.size() == 3);
     REQUIRE(result.count("aXcY") == 1);
     REQUIRE(result.count("aXcZ") == 1);
@@ -202,7 +202,7 @@ TEST_CASE("Test for Search", "[Search]") {
     staticSet.insert("xyz");
 
     // Perform a search with a pattern and check if the result matches the expected output
-    StringSet<StaticString<4>> staticResult = staticSet.Search("a?c*");
+    StringSet<StaticString<4>> staticResult = staticSet.search("a?c*");
     REQUIRE(staticResult.size() == 3);
     REQUIRE(staticResult.count("aXcY") == 1);
     REQUIRE(staticResult.count("aXcZ") == 1);
@@ -218,9 +218,9 @@ TEST_CASE("Test for Count_occurrence", "[Count_occurrence]") {
     set.insert("xyz");
 
     // Check the occurrence count of specific characters in the set
-    REQUIRE(set.countOccurence("a") == 4);
-    REQUIRE(set.countOccurence("X") == 2);
-    REQUIRE(set.countOccurence("z") == 1);
+    REQUIRE(set.count_occurence("a") == 4);
+    REQUIRE(set.count_occurence("X") == 2);
+    REQUIRE(set.count_occurence("z") == 1);
     
     // Test with StaticString
     StringSet<StaticString<4>> staticSet;
@@ -236,9 +236,9 @@ TEST_CASE("Test for Count_occurrence", "[Count_occurrence]") {
     staticSet.insert(str5);
 
     // Check the occurrence count of specific characters in the set
-    REQUIRE(staticSet.countOccurence("a") == 4);
-    REQUIRE(staticSet.countOccurence("X") == 2);
-    REQUIRE(staticSet.countOccurence("z") == 1);
+    REQUIRE(staticSet.count_occurence("a") == 4);
+    REQUIRE(staticSet.count_occurence("X") == 2);
+    REQUIRE(staticSet.count_occurence("z") == 1);
 }
 
 TEST_CASE("Test for random_sample", "[random_sample]") {
@@ -251,7 +251,7 @@ TEST_CASE("Test for random_sample", "[random_sample]") {
     set.insert("xyz");
 
     // Get a random sample of 2 strings from the set and check if the sample size is correct
-    auto samples = set.RandomSample(2);
+    auto samples = set.random_sample(2);
     REQUIRE(samples.size() == 2);
     // Ensure each sample exists in the set
     for (const auto& sample : samples) {
@@ -259,7 +259,7 @@ TEST_CASE("Test for random_sample", "[random_sample]") {
     }
 
     // Get a random sample of 2 strings from the set with a filter and check if the sample size is correct
-    auto filteredSamples = set.RandomSample(2, [](const std::string& str) {
+    auto filteredSamples = set.random_sample(2, [](const std::string& str) {
         return str.find('a') != std::string::npos;
     });
     REQUIRE(filteredSamples.size() == 2);
@@ -270,7 +270,7 @@ TEST_CASE("Test for random_sample", "[random_sample]") {
     }
 
     // Get a random sample of 3 strings from the set with a filter and check if the sample size is correct
-    auto filteredSamples2 = set.RandomSample(3, [](const std::string& str) {
+    auto filteredSamples2 = set.random_sample(3, [](const std::string& str) {
         return str.find('X') != std::string::npos;
     });
     REQUIRE(filteredSamples2.size() == 2); // Only 2 strings match the filter
@@ -281,7 +281,7 @@ TEST_CASE("Test for random_sample", "[random_sample]") {
     }
 
     // Get a random sample of 3 strings from the set without a filter and check if the sample size is correct
-    auto samplesWithoutFilter = set.RandomSample(3);
+    auto samplesWithoutFilter = set.random_sample(3);
     REQUIRE(samplesWithoutFilter.size() == 3);
     // Ensure each sample exists in the set
     for (const auto& sample : samplesWithoutFilter) {
@@ -302,7 +302,7 @@ TEST_CASE("Test for random_sample", "[random_sample]") {
     staticSet.insert(str5);
 
     // Get a random sample of 2 strings from the set and check if the sample size is correct
-    auto staticSamples = staticSet.RandomSample(2);
+    auto staticSamples = staticSet.random_sample(2);
     REQUIRE(staticSamples.size() == 2);
     // Ensure each sample exists in the set
     for (const auto& sample : staticSamples) {
@@ -310,7 +310,7 @@ TEST_CASE("Test for random_sample", "[random_sample]") {
     }
 
     // Get a random sample of 2 strings from the set with a filter and check if the sample size is correct
-    auto staticFilteredSamples = staticSet.RandomSample(2, [](const StaticString<4>& str) {
+    auto staticFilteredSamples = staticSet.random_sample(2, [](const StaticString<4>& str) {
         return str.find('a') != cse::StaticString<4>::npos;
     });
     REQUIRE(staticFilteredSamples.size() == 2);
@@ -321,7 +321,7 @@ TEST_CASE("Test for random_sample", "[random_sample]") {
     }
 
     // Get a random sample of 3 strings from the set with a filter and check if the sample size is correct
-    auto staticFilteredSamples2 = staticSet.RandomSample(3, [](const StaticString<4>& str) {
+    auto staticFilteredSamples2 = staticSet.random_sample(3, [](const StaticString<4>& str) {
         return str.find('X') != cse::StaticString<4>::npos;
     });
     REQUIRE(staticFilteredSamples2.size() == 2); // Only 2 strings match the filter
@@ -332,7 +332,7 @@ TEST_CASE("Test for random_sample", "[random_sample]") {
     }
 
     // Get a random sample of 3 strings from the set without a filter and check if the sample size is correct
-    auto staticSamplesWithoutFilter = staticSet.RandomSample(3);
+    auto staticSamplesWithoutFilter = staticSet.random_sample(3);
     REQUIRE(staticSamplesWithoutFilter.size() == 3);
     // Ensure each sample exists in the set
     for (const auto& sample : staticSamplesWithoutFilter) {
@@ -350,7 +350,7 @@ TEST_CASE("Test for Statistic", "[Statistic]") {
     set.insert("xyz");
 
     // Get statistics from the set and check if they match the expected values
-    auto stats = set.Statistics();
+    auto stats = set.statistics();
     REQUIRE(std::get<0>(stats) == 5); // Number of strings
     REQUIRE(std::get<1>(stats) == Approx(3.6)); // Average length
     REQUIRE(std::get<2>(stats).size() == 4); // Longest string
@@ -365,40 +365,64 @@ TEST_CASE("Test for Statistic", "[Statistic]") {
     staticSet.insert("xyz");
 
     // Get statistics from the set and check if they match the expected values
-    auto staticStats = staticSet.Statistics();
+    auto staticStats = staticSet.statistics();
     REQUIRE(std::get<0>(staticStats) == 5); // Number of strings
     REQUIRE(std::get<1>(staticStats) == Approx(3.6)); // Average length
     REQUIRE(std::get<2>(staticStats).size() == 4); // Longest string
     REQUIRE(std::get<3>(staticStats).size() == 4); // Shortest string
 }
 
-TEST_CASE("Tests for SizeFilter", "[SizeFilter]") {
+TEST_CASE("Tests for size_filter", "[size_filter]") {
 	StringSet set;
 	
 	SECTION("Filtering an empty set does not cause an error") {
-		set.SizeFilter(100);
+		set.size_filter(100);
 		REQUIRE(set.size() == 0);
 	}
 	
 	SECTION("Filtering a set with same string lengths should not change it") {
 		set.insert({"applee", "banana", "orange"});
-		set.SizeFilter(6);
+		set.size_filter(6);
 		
 		REQUIRE(set.size() == 3);
 	}
 	
 	SECTION("Filtering a set with multiple different elements") {
 		set.insert({"apple", "banana", "orange", "ivan", "goose"});
-		set.SizeFilter(5);
+		set.size_filter(5);
 		
 		REQUIRE(set.size() == 2);
 		REQUIRE(set.count("apple") == 1);
 		REQUIRE(set.count("goose") == 1);
 	}
+
+    // Test for StaticString
+    StringSet<StaticString<10>> set2;
+	
+	SECTION("Filtering an empty set does not cause an error") {
+		set2.size_filter(100);
+		REQUIRE(set2.size() == 0);
+	}
+	
+	SECTION("Filtering a set with same string lengths should not change it") {
+		set2.insert({"applee", "banana", "orange"});
+		set2.size_filter(6);
+		
+		REQUIRE(set2.size() == 3);
+	}
+	
+	SECTION("Filtering a set with multiple different elements") {
+		set2.insert({"apple", "banana", "orange", "ivan", "goose"});
+		set2.size_filter(5);
+		
+		REQUIRE(set2.size() == 2);
+		REQUIRE(set2.count("apple") == 1);
+		REQUIRE(set2.count("goose") == 1);
+	}
 }
 
 
-TEST_CASE("Test for UnionWith", "[UnionWith]"){
+TEST_CASE("Test for union_with", "[union_with]"){
     StringSet set1;
     StringSet set2;
 
@@ -411,7 +435,7 @@ TEST_CASE("Test for UnionWith", "[UnionWith]"){
     set2.insert("white");
     set2.insert("yellow");
 
-    StringSet unionSet = set1.UnionWith(set2, [](const std::string& str){
+    StringSet unionSet = set1.union_with(set2, [](const std::string& str){
         return str.find('l') != std::string::npos;
     });
     REQUIRE(unionSet.size() == 4);
@@ -425,7 +449,7 @@ TEST_CASE("Test for UnionWith", "[UnionWith]"){
     set2.clear();
     unionSet.clear();
 
-    unionSet = set1.UnionWith(set2, [](const std::string& str){
+    unionSet = set1.union_with(set2, [](const std::string& str){
         return str.find('l') != std::string::npos;
     });
 
@@ -438,7 +462,7 @@ TEST_CASE("Test for UnionWith", "[UnionWith]"){
     set1.clear();
     unionSet.clear();
 
-    unionSet = set1.UnionWith(set2, [](const std::string& str){
+    unionSet = set1.union_with(set2, [](const std::string& str){
         return str.find('l') != std::string::npos;
     });
 
@@ -458,7 +482,7 @@ TEST_CASE("Test for UnionWith", "[UnionWith]"){
     Sset2.insert(StaticString<10>("white"));
     Sset2.insert(StaticString<10>("yellow"));
 
-    StringSet<StaticString<10>> SunionSet = Sset1.UnionWith(Sset2, [](const StaticString<10>& str){
+    StringSet<StaticString<10>> SunionSet = Sset1.union_with(Sset2, [](const StaticString<10>& str){
         return str.find('l') != StaticString<10>::npos;
     });
     REQUIRE(SunionSet.size() == 4);
@@ -472,7 +496,7 @@ TEST_CASE("Test for UnionWith", "[UnionWith]"){
     Sset2.clear();
     SunionSet.clear();
 
-    SunionSet = Sset1.UnionWith(Sset2, [](const StaticString<10>& str){
+    SunionSet = Sset1.union_with(Sset2, [](const StaticString<10>& str){
         return str.find('l') != StaticString<10>::npos;
     });
 
@@ -485,19 +509,19 @@ TEST_CASE("Test for UnionWith", "[UnionWith]"){
     Sset1.clear();
     SunionSet.clear();
 
-    SunionSet = Sset1.UnionWith(Sset2, [](const StaticString<10>& str){
+    SunionSet = Sset1.union_with(Sset2, [](const StaticString<10>& str){
         return str.find('l') != StaticString<10>::npos;
     });
 
     REQUIRE(SunionSet.size() == 0);
 }
 
-TEST_CASE("Test for SymmetricDifference", "[SymmetricDifference]"){
+TEST_CASE("Test for symmetric_difference", "[symmetric_difference]"){
     StringSet set1;
     StringSet set2;
 
     // Empty sets
-    StringSet symmetricSet = set1.SymmetricDifference(set2);
+    StringSet symmetricSet = set1.symmetric_difference(set2);
 
     REQUIRE(symmetricSet.size() == 0);
 
@@ -506,7 +530,7 @@ TEST_CASE("Test for SymmetricDifference", "[SymmetricDifference]"){
     set1.insert("blue");
     set1.insert("green");
 
-    symmetricSet = set1.SymmetricDifference(set2);
+    symmetricSet = set1.symmetric_difference(set2);
     REQUIRE(symmetricSet.size() == 3);
     REQUIRE(symmetricSet.count("black") == 1);
     REQUIRE(symmetricSet.count("blue") == 1);
@@ -518,7 +542,7 @@ TEST_CASE("Test for SymmetricDifference", "[SymmetricDifference]"){
     set2.insert("yellow");
     set2.insert("white");
 
-    symmetricSet = set1.SymmetricDifference(set2);
+    symmetricSet = set1.symmetric_difference(set2);
     REQUIRE(symmetricSet.size() == 4);
     REQUIRE(symmetricSet.count("blue") == 1);
     REQUIRE(symmetricSet.count("green") == 1);
@@ -527,7 +551,7 @@ TEST_CASE("Test for SymmetricDifference", "[SymmetricDifference]"){
 
     // Try same set
     symmetricSet.clear();
-    symmetricSet = set1.SymmetricDifference(set1);
+    symmetricSet = set1.symmetric_difference(set1);
     REQUIRE(symmetricSet.size() == 0);
 
     // TEST FOR STATICSTRING
@@ -536,7 +560,7 @@ TEST_CASE("Test for SymmetricDifference", "[SymmetricDifference]"){
     StringSet<StaticString<10>> Sset2;
 
     // Empty sets
-    StringSet<StaticString<10>> SsymmetricSet = Sset1.SymmetricDifference(Sset2);
+    StringSet<StaticString<10>> SsymmetricSet = Sset1.symmetric_difference(Sset2);
 
     REQUIRE(SsymmetricSet.size() == 0);
 
@@ -545,7 +569,7 @@ TEST_CASE("Test for SymmetricDifference", "[SymmetricDifference]"){
     Sset1.insert(StaticString<10>("blue"));
     Sset1.insert(StaticString<10>("green"));
 
-    SsymmetricSet = Sset1.SymmetricDifference(Sset2);
+    SsymmetricSet = Sset1.symmetric_difference(Sset2);
     REQUIRE(SsymmetricSet.size() == 3);
     REQUIRE(SsymmetricSet.count(StaticString<10>("black")) == 1);
     REQUIRE(SsymmetricSet.count(StaticString<10>("blue")) == 1);
@@ -557,7 +581,7 @@ TEST_CASE("Test for SymmetricDifference", "[SymmetricDifference]"){
     Sset2.insert(StaticString<10>("yellow"));
     Sset2.insert(StaticString<10>("white"));
 
-    SsymmetricSet = Sset1.SymmetricDifference(Sset2);
+    SsymmetricSet = Sset1.symmetric_difference(Sset2);
     REQUIRE(SsymmetricSet.size() == 4);
     REQUIRE(SsymmetricSet.count(StaticString<10>("blue")) == 1);
     REQUIRE(SsymmetricSet.count(StaticString<10>("green")) == 1);
@@ -566,11 +590,11 @@ TEST_CASE("Test for SymmetricDifference", "[SymmetricDifference]"){
 
     // Try same set
     SsymmetricSet.clear();
-    SsymmetricSet = Sset1.SymmetricDifference(Sset1);
+    SsymmetricSet = Sset1.symmetric_difference(Sset1);
     REQUIRE(SsymmetricSet.size() == 0);
 }
 
-TEST_CASE("Test for ToVector", "[ToVector]"){
+TEST_CASE("Test for to_vector", "[to_vector]"){
     StringSet set1;
 
     set1.insert("black");
@@ -578,7 +602,7 @@ TEST_CASE("Test for ToVector", "[ToVector]"){
     set1.insert("green");
     set1.insert("yellow");
 
-    std::vector<std::string> vec1 = set1.ToVector();
+    std::vector<std::string> vec1 = set1.to_vector();
 
     REQUIRE(vec1.size() == 4);
 
@@ -586,7 +610,7 @@ TEST_CASE("Test for ToVector", "[ToVector]"){
 
     StringSet set2;
 
-    std::vector<std::string> vec2 = set2.ToVector();
+    std::vector<std::string> vec2 = set2.to_vector();
     REQUIRE(vec2.size() == 0);
 
     // TEST FOR STATICSTRING
@@ -598,7 +622,7 @@ TEST_CASE("Test for ToVector", "[ToVector]"){
     Sset1.insert(StaticString<10>("green"));
     Sset1.insert(StaticString<10>("yellow"));
 
-    std::vector<StaticString<10>> Svec1 = Sset1.ToVector();
+    std::vector<StaticString<10>> Svec1 = Sset1.to_vector();
 
     REQUIRE(Svec1.size() == 4);
 
@@ -606,7 +630,7 @@ TEST_CASE("Test for ToVector", "[ToVector]"){
 
     StringSet<StaticString<10>> Sset2;
 
-    std::vector<StaticString<10>> Svec2 = Sset2.ToVector();
+    std::vector<StaticString<10>> Svec2 = Sset2.to_vector();
     REQUIRE(Svec2.size() == 0);
 }
 
