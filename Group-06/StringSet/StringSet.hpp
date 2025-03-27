@@ -408,7 +408,7 @@ cse::StringSet<T> cse::StringSet<T>::search(const T &wildcard) {
 
   return result;
 }
-/*
+/** 
  * @brief Count the number of occurrences of a string in the set
  * @param substring The substring to search for
  * @return The number of occurrences of the substring
@@ -426,7 +426,7 @@ int cse::StringSet<T>::count_occurence(const T &substring) {
 
   return totalCount;
 }
-/*
+/**
  * @brief Randomly sample a subset of the set
  * @param sampleSize The number of elements to sample
  * @param filter A function that returns true if an element should be included
@@ -463,7 +463,7 @@ cse::StringSet<T> cse::StringSet<T>::random_sample(
 
   return result;
 }
-/*
+/** 
  * @brief Calculate statistics about the set
  * @return A tuple containing the number of strings, the average length of the
  * strings, the longest string, and the shortest string
