@@ -310,17 +310,20 @@ TEST_CASE("Test basic operations", "[IndexSetTest]") {
   REQUIRE(!set.contains(4));
   REQUIRE(!set.contains(6));
 
-  // Test additional insert
-  set.insert(7);
-  REQUIRE(!set.contains(4));
-  REQUIRE(set.contains(5));
-  REQUIRE(!set.contains(6)); // FIXME
-  REQUIRE(set.contains(7));
+  SECTION("Test single remove") {
+    // Test single remove
+    set.remove(5);
+    REQUIRE(set.size() == 0);
+    REQUIRE(!set.contains(5));
+  }
 
-  // Test single remove
-  set.remove(5);
-  REQUIRE(set.size() == 0);
-  REQUIRE(!set.contains(5));
+  SECTION("Test additional insert") {
+    set.insert(7);
+    REQUIRE(!set.contains(4));
+    REQUIRE(set.contains(5));
+    CHECK(!set.contains(6)); // FIXME
+    REQUIRE(set.contains(7));
+  }
 }
 
 // Test range operations
@@ -416,8 +419,10 @@ TEST_CASE("Test Iterator", "[IndexSetTest]") {
   REQUIRE(*iterator == 2);
   REQUIRE(*iterator == 2);
 
+  // FIXME (same underlying issue as "test additional insert")
   iterator++;
-  REQUIRE(*iterator == 4); // FIXME (same as "test additional insert")
+  CHECK(*iterator == 4);
+  iterator++; // REMOVE AFTER ABOVE FIXED
 
   ++iterator;
   REQUIRE(*iterator == 5);
