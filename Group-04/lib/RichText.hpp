@@ -91,32 +91,81 @@ struct TextFormat {
  */
 template <typename CharT = char, typename Underlying = std::basic_string<CharT>>
   requires std::derived_from<Underlying, std::basic_string<CharT>>
-class RichText {
+class BasicRichText {
  public:
   /**
-   * A rule for a format describing how it should be serialized.
+   * A rule describing how a format should be serialized.
    */
-  struct SerializeRule {
+  class SerializeRule {
+   private:
     // No format name here, that is stored in the map as a key
-    std::string start_token;
-    std::string end_token;
-    std::variant<std::string, std::function<std::string(const TextFormat&)>>
-        format;
-    SerializeRule(std::string start_token, std::string end_token)
+    using TokenLambda = std::function<Underlying(const TextFormat&)>;
+    using TokenVariant = std::variant<Underlying, TokenLambda>;
+    TokenVariant start_token;
+    TokenVariant end_token;
+
+    /**
+     * @brief Get a token string from the variant, or generate a token with a
+     * lambda
+     * @param token The TokenVariant to use
+     * @param format The text format to pass to the lambda (if applicable)
+     */
+    Underlying Token(TokenVariant const& token,
+                     TextFormat const& format) const {
+      switch (token.index()) {
+        case 0:
+          return std::get<Underlying>(token);
+        case 1:
+          return std::get<TokenLambda>(token)(format);
+        default:
+          cse_assert_never("Impossible variant access");
+      }
+    }
+
+   public:
+    template <typename T1, typename T2>
+    SerializeRule(T1 start_token, T2 end_token)
         : start_token(std::move(start_token)),
-          end_token(std::move(end_token)) {}
+          end_token(std::move(end_token)){};
+
+    /**
+     * @brief Generate the start token for this rule
+     * @param format The text format to pass to the lambda (if applicable)
+     */
+    Underlying StartToken(TextFormat const& format) const {
+      return Token(start_token, format);
+    }
+
+    /**
+     * @brief Generate the start token for this rule
+     * @param format The text format to pass to the lambda (if applicable)
+     */
+    Underlying EndToken(TextFormat const& format) const {
+      return Token(end_token, format);
+    }
   };
 
   struct Serializer {
+    using Rules = std::map<TextFormat::FormatID, SerializeRule>;
+
     const std::string name;
-    std::map<TextFormat::FormatID, SerializeRule> rules;
-    explicit(false) Serializer(std::string name) : name(std::move(name)){};
+    std::optional<Underlying> header = std::nullopt;
+    std::optional<Underlying> footer = std::nullopt;
+    Rules rules = Rules{};
+
+    template <typename T1, typename T2>
+    Serializer& AddRule(TextFormat::FormatID const& id, T1 start_token,
+                        T2 end_token) {
+      rules.emplace(
+          id, SerializeRule{std::move(start_token), std::move(end_token)});
+      return *this;
+    };
   };
 
   struct SerializeResult {
-    std::string name;
-    std::string result;
-    std::vector<TextFormat> missed_formats;
+    const std::string name;
+    Underlying output{};
+    std::vector<TextFormat> missed_formats{};
   };
 
  private:
@@ -124,29 +173,32 @@ class RichText {
   std::map<TextFormat, cse::IndexSet> m_formatting;
 
  public:
-  RichText() = default;
-  RichText(const RichText&) = default;
-  RichText(RichText&&) = default;
-  RichText& operator=(const RichText&) = default;
-  RichText& operator=(RichText&&) = default;
-  ~RichText() = default;
+  BasicRichText() = default;
+  BasicRichText(const BasicRichText&) = default;
+  BasicRichText(BasicRichText&&) = default;
+  BasicRichText& operator=(const BasicRichText&) = default;
+  BasicRichText& operator=(BasicRichText&&) = default;
+  ~BasicRichText() = default;
 
-  explicit RichText(Underlying text) : m_text(std::move(text)) {}
+  explicit BasicRichText(Underlying text) : m_text(std::move(text)) {}
 
   // Allow passing in any valid range to construct the RichText
   // object
   template <typename R>
     requires std::same_as<std::ranges::range_value_t<R>, CharT>
-  RichText(const R& text) {
-    std::copy(std::ranges::begin(text), std::ranges::end(text),
-              std::back_inserter(m_text));
+  BasicRichText(const R& text) {
+    std::ranges::copy(text, std::back_inserter(m_text));
   }
+
+  // Constructor for string literals, since we don't want the null terminator
+  // (which is part of the range for some reason?)
+  BasicRichText(const CharT* text) : m_text(text) {}
 
   /**
    * @brief Assign a string into RichText
    * @param text The string to copy into RichText
    */
-  RichText& operator=(const Underlying& text) {
+  BasicRichText& operator=(const Underlying& text) {
     m_text = text;
     m_formatting.clear();
     return *this;
@@ -156,13 +208,13 @@ class RichText {
    * @brief Assign and move a string into RichText
    * @param text The string to move into RichText
    */
-  RichText& operator=(Underlying&& text) {
+  BasicRichText& operator=(Underlying&& text) {
     m_text = std::move(text);
     m_formatting.clear();
     return *this;
   }
 
-  RichText& operator=(const CharT* text) {
+  BasicRichText& operator=(const CharT* text) {
     m_text = Underlying(text);
     m_formatting.clear();
     return *this;
@@ -172,14 +224,14 @@ class RichText {
    * @brief Append another RichText to RichText
    * @param str The other RichText instance to append
    */
-  RichText& operator+=(const RichText& str) { return append(str); }
+  BasicRichText& operator+=(const BasicRichText& str) { return append(str); }
 
   /**
    * @brief Append a string to RichText
    * @param str The string to append
    * existing character to new characters
    */
-  RichText& operator+=(const Underlying& str) { return append(str); }
+  BasicRichText& operator+=(const Underlying& str) { return append(str); }
 
   /**
    * @brief Get the size of the underlying string
@@ -227,7 +279,7 @@ class RichText {
    */
   template <typename Str>
     requires std::derived_from<Str, std::basic_string<CharT>>
-  RichText& insert(std::size_t index, const Str& str) {
+  BasicRichText& insert(std::size_t index, const Str& str) {
     m_text.insert(index, str);
     std::size_t len = str.length();
     for (auto& [_, indices] : m_formatting) {
@@ -242,7 +294,7 @@ class RichText {
    * @param str The string to insert
    * character before `index` to the new characters
    */
-  RichText& insert(std::size_t index, const CharT* str) {
+  BasicRichText& insert(std::size_t index, const CharT* str) {
     auto sstr = std::basic_string<CharT>(str);
     m_text.insert(index, sstr);
     std::size_t len = sstr.length();
@@ -258,7 +310,7 @@ class RichText {
    * @param str The other RichText to insert
    */
   template <typename T>
-  RichText& insert(std::size_t index, const RichText<CharT, T>& str) {
+  BasicRichText& insert(std::size_t index, const BasicRichText<CharT, T>& str) {
     std::size_t old_len = m_text.length();
     insert(index, str.m_text);
     for (auto [format, indices] : str.m_formatting) {
@@ -275,7 +327,7 @@ class RichText {
    */
   template <typename Str>
     requires std::derived_from<Str, std::basic_string<CharT>>
-  RichText& append(const Str& str) {
+  BasicRichText& append(const Str& str) {
     return insert(size(), str);
   }
 
@@ -284,7 +336,7 @@ class RichText {
    * @param str The other RichText instance to append
    */
   template <typename T>
-  RichText& append(const RichText<CharT, T>& str) {
+  BasicRichText& append(const BasicRichText<CharT, T>& str) {
     return insert(size(), str);
   }
 
@@ -293,9 +345,22 @@ class RichText {
    * @param ch The character to append
    * existing character to new character
    */
-  RichText& push_back(CharT ch) {
+  BasicRichText& push_back(CharT ch) {
     m_text.push_back(ch);
     return *this;
+  }
+
+  /**
+   * @brief Applies a format to the specified indices
+   * @param format Format to apply
+   * @param begin Beginning of range to apply format to
+   * @param end End (exclusive) of range to apply format to
+   */
+  void apply_format(const TextFormat& format, const IndexSet& indices) {
+    auto [item, inserted] = m_formatting.insert({format, indices});
+    if (!inserted) {
+      item->second |= indices;
+    }
   }
 
   /**
@@ -310,25 +375,15 @@ class RichText {
         end >= begin,
         std::format("Format range ends after beginning, begin: {}, end: {}",
                     begin, end));
-
-    auto [item, inserted] =
-        m_formatting.insert({format, IndexSet(std::pair{begin, end})});
-    if (!inserted) {
-      item->second.insert_range(begin, end);
-    }
+    apply_format(format, std::pair{begin, end});
   }
 
   /**
-   * @brief Applies a format to the specified indices
+   * @brief Applies a format to the entire text
    * @param format Format to apply
-   * @param begin Beginning of range to apply format to
-   * @param end End (exclusive) of range to apply format to
    */
-  void apply_format(const TextFormat& format, const IndexSet& indices) {
-    auto [item, inserted] = m_formatting.insert({format, indices});
-    if (!inserted) {
-      item->second |= indices;
-    }
+  void apply_format(const TextFormat& format) {
+    apply_format(format, 0, m_text.size());
   }
 
   /**
@@ -363,8 +418,11 @@ class RichText {
   };
 
   [[nodiscard]] SerializeResult serialize(const Serializer& serializer) const {
-    SerializeResult result;
-    result.name = serializer.name;
+    SerializeResult result{serializer.name};
+
+    if (serializer.header) {
+      result.output += *serializer.header;
+    }
 
     std::set<FormatSerializeTracker> trackers;
 
@@ -411,7 +469,7 @@ class RichText {
              (*tracker_iter->iter).first <= current) {
         // The format begins, add the token
         if ((*tracker_iter->iter).first == current) {
-          result.result += tracker_iter->rule.start_token;
+          result.output += tracker_iter->rule.StartToken(tracker_iter->format);
         }
 
         // Keep track of when the closest formatting deactivation is
@@ -423,9 +481,9 @@ class RichText {
       // Process all the upcoming activating format activations
       while (tracker_iter != trackers.end() &&
              (*tracker_iter->iter).first < next) {
-        result.result +=
+        result.output +=
             m_text.substr(current, (*tracker_iter->iter).first - current);
-        result.result += tracker_iter->rule.start_token;
+        result.output += tracker_iter->rule.StartToken(tracker_iter->format);
         current = (*tracker_iter->iter).first;
 
         // Keep track of when the closest formatting deactivation is
@@ -435,7 +493,7 @@ class RichText {
       }
 
       // Jump to next formatting deactivation
-      result.result += m_text.substr(current, next - current);
+      result.output += m_text.substr(current, next - current);
       current = next;
 
       // Unwind formatting
@@ -451,7 +509,7 @@ class RichText {
 
       while (tracker_iter != rule_to_end_iter) {
         --tracker_iter;
-        result.result += tracker_iter->rule.end_token;
+        result.output += tracker_iter->rule.EndToken(tracker_iter->format);
       }
 
       bool all_deactivated = tracker_iter == trackers.begin();
@@ -477,16 +535,23 @@ class RichText {
             trackers.insert(std::move(tracker_to_update));
           continue;
         }
-        result.result += reapply_rule_iter->rule.start_token;
+        result.output +=
+            reapply_rule_iter->rule.StartToken(tracker_iter->format);
         if (all_deactivated)
           all_deactivated = false;
         else
           ++tracker_iter;
       } while (tracker_iter != trackers.end());
-      ++tracker_iter;
+    }
+
+    if (serializer.footer) {
+      result.output += *serializer.footer;
     }
 
     return result;
   }
 };
+
+using RichText = BasicRichText<>;
+
 }  // namespace cse
