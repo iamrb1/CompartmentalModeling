@@ -7,54 +7,74 @@
 
 TEST_CASE("Parser Evaluations", "[parser]") {
   cse::ExpressionParser parser;
-  parser.SetSymbolTable("val1", -2);
-  parser.SetSymbolTable("val2", 2);
-  parser.SetSymbolTable("val3", -15);
-  parser.SetSymbolTable("val4", 15);
-  parser.SetSymbolTable("val5", 0);
-  parser.SetSymbolTable("val6", 30);
-  parser.SetSymbolTable("val7", 1);
+  std::map<std::string, double> symbol_table;
+  symbol_table["val1"] = -2;
+  symbol_table["val2"] = 2;
+  symbol_table["val3"] = -15;
+  symbol_table["val4"] = 15;
+  symbol_table["val5"] = 0;
+  symbol_table["val6"] = 30;
+  symbol_table["val7"] = 1;
  
   static size_t default_index = 0;
+
+  auto func=parser.MakeFunc("{val1} + {val2}", 0, default_index);
+  func(symbol_table);
   // Addition tests
-  REQUIRE(parser.Evaluate("{val1} + {val2}", 0, default_index) == 0);
+  REQUIRE(func(symbol_table) == 0);
   default_index = 0;
-  REQUIRE(parser.Evaluate("{val3} + {val3}", 0, default_index) == -30);
+  func=parser.MakeFunc("{val3} + {val3} * {val2}", 0, default_index);
+  REQUIRE(func(symbol_table) == -45);
   default_index = 0;
-  REQUIRE(parser.Evaluate("{val4} + {val4} + {val3}", 0, default_index) == 15);
+  func=parser.MakeFunc("{val4} + {val4} + {val3}", 0, default_index);
+  REQUIRE(func(symbol_table) == 15);
   default_index = 0;
-  REQUIRE(parser.Evaluate("{val4} + {val4} * {val2}", 0, default_index) == 45);
+  func=parser.MakeFunc("{val4} + {val4} * {val2}", 0, default_index);
+  REQUIRE(func(symbol_table)== 45);
   default_index = 0;
+  func=parser.MakeFunc("{val1} - {val5}", 0, default_index);
   // Subtraction tests
-  REQUIRE(parser.Evaluate("{val1} - {val5}", 0, default_index) == -2);
+  REQUIRE(func(symbol_table) == -2);
   default_index = 0;
-  REQUIRE(parser.Evaluate("{val4} - {val3}", 0, default_index) == 30);
+  func=parser.MakeFunc("{val4} - {val3}", 0, default_index);
+  REQUIRE(func(symbol_table) == 30);
   default_index = 0;
-  REQUIRE(parser.Evaluate("{val3} - {val4}", 0, default_index) == -30);
+  func=parser.MakeFunc("{val3} - {val4}", 0, default_index);
+  REQUIRE(func(symbol_table) == -30);
   default_index = 0;
-  REQUIRE(parser.Evaluate("{val6} - {val4}", 0, default_index) == 15);
+  func=parser.MakeFunc("{val6} - {val4}", 0, default_index);
+  REQUIRE(func(symbol_table) == 15);
   default_index = 0;
 
   // Multiplication tests
-  REQUIRE(parser.Evaluate("{val1} * {val4}", 0, default_index) == -30);
+  func=parser.MakeFunc("{val1} * {val4}", 0, default_index);
+  REQUIRE(func(symbol_table) == -30);
   default_index = 0;
-  REQUIRE(parser.Evaluate("{val1} * {val1}", 0, default_index) == 4);
+  func=parser.MakeFunc("{val1} * {val1}", 0, default_index);
+  REQUIRE(func(symbol_table)==4);
   default_index = 0;
-  REQUIRE(parser.Evaluate("{val2} * {val2}", 0, default_index) == 4);
+  func=parser.MakeFunc("{val2} * {val2}", 0, default_index);
+  REQUIRE(func(symbol_table)== 4);
   default_index = 0;
-  REQUIRE(parser.Evaluate("{val1} * {val2} + {val4}", 0, default_index) == 11);
+  func=parser.MakeFunc("{val1} * {val2} + {val4}", 0, default_index);
+  REQUIRE(func(symbol_table) == 11);
   default_index = 0;
 
   // Division tests
-  REQUIRE(parser.Evaluate("{val5} / {val2}", 0, default_index) == 0);
+  func=parser.MakeFunc("{val5} / {val2}", 0, default_index);
+  REQUIRE(func(symbol_table) == 0);
   default_index = 0;
-  REQUIRE(parser.Evaluate("{val1} / {val1}", 0, default_index) == 1);
+  func=parser.MakeFunc("{val1} / {val1}", 0, default_index);
+  REQUIRE(func(symbol_table) == 1);
   default_index = 0;
-  REQUIRE(parser.Evaluate("{val2} / {val2}", 0, default_index) == 1);
+  func=parser.MakeFunc("{val2} / {val2}", 0, default_index);
+  REQUIRE(func(symbol_table) == 1);
   default_index = 0;
-  REQUIRE(parser.Evaluate("{val1} / {val2}", 0, default_index) == -1);
+  func=parser.MakeFunc("{val1} / {val2}", 0, default_index);
+  REQUIRE(func(symbol_table) == -1);
   default_index = 0;
-  REQUIRE(parser.Evaluate("{val7} / {val2}", 0, default_index) == 0.5);
+  func=parser.MakeFunc("{val7} / {val1}", 0, default_index);
+  REQUIRE(func(symbol_table) == -0.5);
   default_index = 0;
   
   }
@@ -192,13 +212,13 @@ TEST_CASE("ExpressionParser MakeBinaryFun - Compile-time Binary Operation", "[pa
     parser.SetSymbolTable("val14", 27);
 
   
-    REQUIRE(parser.Evaluate("cos({val8})") == -1);
-    REQUIRE(parser.Evaluate("sin({val8}))") == sin(M_PI));
-    REQUIRE(parser.Evaluate("cos({val11})") == cos(M_PI/3));
-    REQUIRE(parser.Evaluate("sin({val10})") == 1);
+    REQUIRE(parser.MakeFunc("cos({val8})") == -1);
+    REQUIRE(parser.MakeFunc("sin({val8}))") == sin(M_PI));
+    REQUIRE(parser.MakeFunc("cos({val11})") == cos(M_PI/3));
+    REQUIRE(parser.MakeFunc("sin({val10})") == 1);
 
-    REQUIRE(parser.Evaluate("pow({val2}, {val2})") == 4);
-    REQUIRE(parser.Evaluate("pow({val1}, {val2})") == 4);
-    REQUIRE(parser.Evaluate("pow({val2}, {val1})") == 0.25);
+    REQUIRE(parser.MakeFunc("pow({val2}, {val2})") == 4);
+    REQUIRE(parser.MakeFunc("pow({val1}, {val2})") == 4);
+    REQUIRE(parser.MakeFunc("pow({val2}, {val1})") == 0.25);
 
 } */

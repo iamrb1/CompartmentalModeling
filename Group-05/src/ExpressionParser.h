@@ -72,7 +72,7 @@ class ExpressionParser {
    * @param index The position of the parser in the string
    * @return The first key found
    */
-   double ParseKey(const std::string &expression, size_t &index);
+  std::function<double(std::map<std::string,double> &)> ParseKey(const std::string &expression, size_t &index);
 
   /**
    * @brief Creates division function that take a map with values to add
@@ -81,7 +81,8 @@ class ExpressionParser {
    * @param name2 Key for second value
    * @return auto Lambda function to perform operation
    */
-  auto MakeDivFun(const double left, const double right);
+  std::function<double(std::map<std::string,double> &)> MakeDivFun(std::function<double(std::map<std::string,double> &)>, std::function<double(std::map<std::string,double> &)>);
+
 
   /**
    * @brief Creates adding function that take a map with values to add
@@ -90,7 +91,7 @@ class ExpressionParser {
    * @param name2 Key for second value
    * @return auto Lambda function to perform operation
    */
-  auto MakeAddFun(double left, const double right);
+  std::function<double(std::map<std::string,double> &)> MakeAddFun(std::function<double(std::map<std::string,double> &)>, std::function<double(std::map<std::string,double> &)>);
 
   /**
    * @brief Creates subtracting function that take a map with values to add
@@ -99,7 +100,8 @@ class ExpressionParser {
    * @param name2 Key for second value
    * @return auto Lambda function to perform operation
    */
-  auto MakeSubFun(const double left, const double right);
+  std::function<double(std::map<std::string,double> &)> MakeSubFun(std::function<double(std::map<std::string,double> &)>, std::function<double(std::map<std::string,double> &)>);
+
 
   /**
    * @brief Creates multiplication function that take a map with values to add
@@ -108,7 +110,8 @@ class ExpressionParser {
    * @param name2 Key for second value
    * @return auto Lambda function to perform operation
    */
-  auto MakeMulFun(const double left, const double right);
+  std::function<double(std::map<std::string,double> &)> MakeMulFun(std::function<double(std::map<std::string,double> &)>, std::function<double(std::map<std::string,double> &)>);
+
 
     /**
    * @brief Creates cosine function that take a map with values to add
@@ -191,8 +194,7 @@ class ExpressionParser {
  * @return The quotient of a divided by b.
  */
   template <typename T>
-  static constexpr T constexprDivide(T a, T b) {
-    static_assert(!std::is_same_v<T, int> || b != 0, "Division by zero is not allowed.");
+  static constexpr T constexprDivide(T a, T b) { 
     return b != 0 ? a / b : throw std::logic_error("Division by zero");
 }
 
@@ -247,6 +249,8 @@ class ExpressionParser {
     return a == b;
 }
 
+std::function<double(std::map<std::string,double> & symbols)> MakeFunc( const std::string &expression, int precedence, size_t &index);
+
 /**
  * @brief Creates a binary operation function at compile time.
  *
@@ -270,6 +274,15 @@ class ExpressionParser {
    */
   double Evaluate(const std::string &expression, int precedence, size_t &index);
 
+  auto KeyLambda(std::string key){
+    return [key](std::map<std::string,double> & symbols){ return symbols[key]; 
+    };
+  }
+
+  auto NumLambda(double num){
+   return [num](std::map<std::string,double> &){ return num;}; 
+    };
+
    /**
     * @brief Get the Symbol Table object
     * 
@@ -290,6 +303,8 @@ class ExpressionParser {
     }
   };
 }
+
+
 
 
 

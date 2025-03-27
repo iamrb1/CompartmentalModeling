@@ -15,7 +15,7 @@ namespace cse {
  * @param index The position of the parser in the string
  * @return The first key found
  */
-double cse::ExpressionParser::ParseKey(const std::string &expression, size_t &index) {
+std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::ParseKey(const std::string &expression, size_t &index) {
   assert(index < expression.size());
   assert(std::any_of(expression.begin(), expression.end(), ::isdigit));
 
@@ -35,16 +35,13 @@ double cse::ExpressionParser::ParseKey(const std::string &expression, size_t &in
       index++;
     }
 
-    if (expression[index]=='}') {
-      index++; 
-    }
 
-    assert(symbol_table_.find(result)!=symbol_table_.end());
-    return symbol_table_.at(result);
+
+    return KeyLambda(result);
   }
 
   std::cerr << "Error: Expected string inside {}" << std::endl;
-  return 0; 
+  return KeyLambda(""); 
 }
 
 /**
@@ -54,10 +51,11 @@ double cse::ExpressionParser::ParseKey(const std::string &expression, size_t &in
  * @param key2 Key for second value
  * @return auto
  */
-auto cse::ExpressionParser::MakeAddFun(double left, const double right) {
+std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::MakeAddFun(std::function<double(std::map<std::string,double> &)> left, std::function<double(std::map<std::string,double> &)> right) {
+
   //using map_t = std::map<std::string, double>;
-  return [left, right]() {
-    return left+right;
+  return [left, right](std::map<std::string,double> & symbols) {
+    return left(symbols) + right(symbols);
   };
 }
 
@@ -68,10 +66,11 @@ auto cse::ExpressionParser::MakeAddFun(double left, const double right) {
  * @param key2 Key for second value
  * @return auto
  */
-auto cse::ExpressionParser::MakeSubFun(const double left, const double right) {
+std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::MakeSubFun(std::function<double(std::map<std::string,double> &)> left, std::function<double(std::map<std::string,double> &)> right) {
+
   //using map_t = std::map<std::string, double>;
-  return [left, right]() {
-    return left-right;
+  return [left, right](std::map<std::string,double> & symbols) {
+    return left(symbols) - right(symbols);
   };
 }
 
@@ -82,10 +81,11 @@ auto cse::ExpressionParser::MakeSubFun(const double left, const double right) {
  * @param key2 Key for second value
  * @return auto
  */
-auto cse::ExpressionParser::MakeMulFun(const double left, const double right) {
+std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::MakeMulFun(std::function<double(std::map<std::string,double> &)> left, std::function<double(std::map<std::string,double> &)> right) {
+
   //using map_t = std::map<std::string, double>;
-  return [left, right]() {
-    return left*right;
+  return [left, right](std::map<std::string,double> & symbols) {
+    return left(symbols) * right(symbols);
   };
 }
 /**
@@ -134,10 +134,11 @@ auto cse::ExpressionParser::MakeExpoFun(const std::string &key1, const std::stri
  * @param key2 Key for second value
  * @return auto
  */
-auto cse::ExpressionParser::MakeDivFun(const double left, const double right) {
+std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::MakeDivFun(std::function<double(std::map<std::string,double> &)> left, std::function<double(std::map<std::string,double> &)> right) {
+
   //using map_t = std::map<std::string, double>;
-  return [left, right]() {
-    return left/right;
+  return [left, right](std::map<std::string,double> & symbols) {
+    return left(symbols) / right(symbols);
   };
 }
 
@@ -150,11 +151,17 @@ auto cse::ExpressionParser::MakeDivFun(const double left, const double right) {
  * @param expression Representing equation
  * @return double representing value of equation
  */
-double cse::ExpressionParser::Evaluate( const std::string &expression, int precedence, size_t &index) {
-  double left;
-  std::cout<<precedence<<'\n';
+std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::MakeFunc( const std::string &expression, int precedence, size_t &index) {
 
-  left = ParseKey(expression, index);  
+  std::function<double(std::map<std::string,double> &)> l1 = ParseKey(expression, index);  
+  std::map<std::string, double> symbol_table;
+  symbol_table["val1"] = -2;
+  symbol_table["val2"] = 2;
+  symbol_table["val3"] = -15;
+  symbol_table["val4"] = 15;
+  symbol_table["val5"] = 0;
+  symbol_table["val6"] = 30;
+  symbol_table["val7"] = 1;
   //double result = 0;
 
 /*   if (expression.find("cos(") != std::string::npos){
@@ -172,56 +179,47 @@ double cse::ExpressionParser::Evaluate( const std::string &expression, int prece
     return fun(symbol_table_);
   } */
   while (index < expression.size()) {
-    if (index>=expression.size()){
-      return left;
-    }
     getToken(expression, index);
+    if (index>=expression.size()){
+      return l1;
+    }
     char op = expression.at(index);  
     char comparison_char;
     if (op=='+' || op=='-' || op=='*' || op=='/') {
       addition(comparison_char);
       if (op==comparison_char) {
         if (precedence>=2){
-          return left;
+          return l1;
         }
-        std::cout<<"black"<<'\n';
-        auto fun = MakeAddFun(left, Evaluate(expression, 2, index)); //Creates function
-        left = fun(); 
-        std::cout<<"result:"<<left<<'\n';
+        l1 = MakeAddFun(l1, MakeFunc(expression, 2, index)); //Creates function
       }
       subtraction(comparison_char);
       if (op==comparison_char) {
-        std::cout<<"blue";
         if (precedence>=2){
-          return left;
+          return l1;
         }
-        auto fun = MakeSubFun(left, Evaluate(expression, 2, index)); //Creates function
-        left = fun(); 
+        l1 = MakeSubFun(l1, MakeFunc(expression, 2, index)); //Creates function
       }
       multiplication(comparison_char);
       if (op==comparison_char) {
-        std::cout<<"red";
         if (precedence>=3){
-          return left;
+          return l1;
         }
-        auto fun = MakeMulFun(left, Evaluate(expression, 3, index)); //Creates function
-        left = fun(); 
+        l1 = MakeMulFun(l1, MakeFunc(expression, 3, index)); //Creates function
       }
       division(comparison_char);
       if (op==comparison_char) {
-        std::cout<<"green";
         if (precedence>=3){
-          return left;
+          return l1;
         }
-        auto fun = MakeDivFun(left, Evaluate(expression, 3, index)); //Creates function
-        left = fun(); 
+        l1 = MakeDivFun(l1, MakeFunc(expression, 3, index)); //Creates function
       }
       }
       if(index>=expression.size()){
-        return left;
+        return l1;
       }
     }
-    return left;
+    return l1;
   }
 
 
