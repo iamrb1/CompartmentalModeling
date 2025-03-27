@@ -28,6 +28,65 @@ namespace cse {
  */
 class IndexSet {
  public:
+  // Define the maximum size_t value to indicate that no range ID exists.
+  static constexpr std::size_t NO_RANGE = static_cast<std::size_t>(-1);
+  
+  // Define a custom range type for better readability
+  struct IndexRange {
+    std::size_t start;
+    std::size_t end;
+    
+    // Public member aliases for backward compatibility
+    std::size_t first;
+    std::size_t second;
+    
+    // Constructor to initialize both sets of values
+    IndexRange(std::size_t s = 0, std::size_t e = 0) 
+      : start(s), end(e), first(s), second(e) {}
+    
+    // Copy constructor
+    IndexRange(const IndexRange& other)
+      : start(other.start), end(other.end), first(other.start), second(other.end) {}
+    
+    // Copy assignment operator
+    IndexRange& operator=(const IndexRange& other) {
+      if (this != &other) {
+        start = other.start;
+        end = other.end;
+        first = other.start;
+        second = other.end;
+      }
+      return *this;
+    }
+    
+    // Move constructor
+    IndexRange(IndexRange&& other) noexcept
+      : start(other.start), end(other.end), first(other.start), second(other.end) {}
+    
+    // Move assignment operator
+    IndexRange& operator=(IndexRange&& other) noexcept {
+      if (this != &other) {
+        start = other.start;
+        end = other.end;
+        first = other.start;
+        second = other.end;
+      }
+      return *this;
+    }
+    
+    bool operator<(const IndexRange& other) const {
+      return start < other.start;
+    }
+    
+    bool operator==(const IndexRange& other) const {
+      return start == other.start && end == other.end;
+    }
+    
+    bool operator!=(const IndexRange& other) const {
+      return !(*this == other);
+    }
+  };
+  
   // Iterator class definitions
   class iterator {
    public:
@@ -37,7 +96,7 @@ class IndexSet {
     using pointer = std::size_t*;
     using reference = std::size_t&;
 
-    iterator(const std::vector<std::pair<std::size_t, std::size_t>>& ranges,
+    iterator(const std::vector<IndexRange>& ranges,
              std::size_t range_idx = 0, std::size_t offset = 0)
         : ranges_(&ranges), range_idx_(range_idx), offset_(offset) {
       // If this is an end iterator (range_idx >= size)
@@ -46,10 +105,10 @@ class IndexSet {
       }
       
       // Set current_ to the actual value at the specified range and offset
-      current_ = (*ranges_)[range_idx_].first + offset_;
+      current_ = (*ranges_)[range_idx_].start + offset_;
       
       // Make sure the offset is valid for this range
-      if (current_ >= (*ranges_)[range_idx_].second) {
+      if (current_ >= (*ranges_)[range_idx_].end) {
         // If not, move to the next range if possible
         move_to_next_valid_position();
       }
@@ -66,7 +125,7 @@ class IndexSet {
       current_++;
       
       // If we've reached the end of the current range
-      if (current_ >= (*ranges_)[range_idx_].second) {
+      if (current_ >= (*ranges_)[range_idx_].end) {
         move_to_next_valid_position();
       }
       
@@ -95,7 +154,7 @@ class IndexSet {
     bool operator!=(const iterator& other) const { return !(*this == other); }
 
    private:
-    const std::vector<std::pair<std::size_t, std::size_t>>* ranges_;
+    const std::vector<IndexRange>* ranges_;
     std::size_t range_idx_;
     std::size_t offset_ = 0;  // Offset within the current range
     std::size_t current_ = 0; // The actual value being pointed to
@@ -109,7 +168,7 @@ class IndexSet {
       
       // If there are more ranges, set current to the first element of that range
       if (range_idx_ < ranges_->size()) {
-        current_ = (*ranges_)[range_idx_].first;
+        current_ = (*ranges_)[range_idx_].start;
       }
     }
   };
@@ -123,7 +182,7 @@ class IndexSet {
     using reference = const std::size_t&;
 
     const_iterator(
-        const std::vector<std::pair<std::size_t, std::size_t>>& ranges,
+        const std::vector<IndexRange>& ranges,
         std::size_t range_idx = 0, std::size_t offset = 0)
         : ranges_(&ranges), range_idx_(range_idx), offset_(offset) {
       // If this is an end iterator (range_idx >= size)
@@ -132,10 +191,10 @@ class IndexSet {
       }
       
       // Set current_ to the actual value at the specified range and offset
-      current_ = (*ranges_)[range_idx_].first + offset_;
+      current_ = (*ranges_)[range_idx_].start + offset_;
       
       // Make sure the offset is valid for this range
-      if (current_ >= (*ranges_)[range_idx_].second) {
+      if (current_ >= (*ranges_)[range_idx_].end) {
         // If not, move to the next range if possible
         move_to_next_valid_position();
       }
@@ -152,7 +211,7 @@ class IndexSet {
       current_++;
       
       // If we've reached the end of the current range
-      if (current_ >= (*ranges_)[range_idx_].second) {
+      if (current_ >= (*ranges_)[range_idx_].end) {
         move_to_next_valid_position();
       }
       
@@ -183,7 +242,7 @@ class IndexSet {
     }
 
    private:
-    const std::vector<std::pair<std::size_t, std::size_t>>* ranges_;
+    const std::vector<IndexRange>* ranges_;
     std::size_t range_idx_;
     std::size_t offset_ = 0;  // Offset within the current range
     std::size_t current_ = 0; // The actual value being pointed to
@@ -197,7 +256,7 @@ class IndexSet {
       
       // If there are more ranges, set current to the first element of that range
       if (range_idx_ < ranges_->size()) {
-        current_ = (*ranges_)[range_idx_].first;
+        current_ = (*ranges_)[range_idx_].start;
       }
     }
   };
@@ -205,24 +264,23 @@ class IndexSet {
   class const_pair_iterator {
   public:
     using iterator_category = std::forward_iterator_tag;
-    using value_type = std::pair<std::size_t, std::size_t>;
+    using value_type = IndexRange;
     using difference_type = std::ptrdiff_t;
     using pointer = const std::size_t*;
     using reference = const std::size_t&;
 
     explicit const_pair_iterator(
-        const std::vector<std::pair<std::size_t, std::size_t>>& ranges,
+        const std::vector<IndexRange>& ranges,
         std::size_t current = 0)
         : ranges_(&ranges), current_(current) {}
 
-    std::remove_const_t<value_type> operator*() const {
+    value_type operator*() const {
       dbg_assert(current_ < ranges_->size(), "Iterator dereferenced out of range.");
-      return ranges_->at(current_);
+      return (*ranges_)[current_];
     }
 
     const_pair_iterator& operator++() {
       dbg_assert(current_ < ranges_->size(), "Iterator moved out of range.");
-
       current_ += 1;
       return *this;
     }
@@ -242,7 +300,7 @@ class IndexSet {
     }
 
   private:
-    const std::vector<std::pair<std::size_t, std::size_t>>* ranges_;
+    const std::vector<IndexRange>* ranges_;
     std::size_t current_;
   };
 
@@ -250,8 +308,14 @@ class IndexSet {
   IndexSet() = default;
   ~IndexSet() = default;
 
-  IndexSet(std::pair<std::size_t, std::size_t> const& range) {
+  IndexSet(const IndexRange& range) {
     ranges_.push_back(range);
+    total_size_ = range.end - range.start;
+  }
+
+  // Add constructor that takes std::pair for backward compatibility
+  IndexSet(const std::pair<std::size_t, std::size_t>& range) {
+    ranges_.push_back({range.first, range.second});
     total_size_ = range.second - range.first;
   }
 
@@ -299,8 +363,7 @@ class IndexSet {
   void insert(std::size_t index) {
     // First check if the index is already in a range to avoid duplicate work
     auto range_idx = find_range_index(index);
-    if (range_idx < ranges_.size() && ranges_[range_idx].first <= index &&
-        ranges_[range_idx].second > index) {
+    if (range_idx != NO_RANGE) {
       return;  // Already in set
     }
 
@@ -308,11 +371,11 @@ class IndexSet {
     // total_size_
     std::size_t old_total = 0;
     for (const auto& range : ranges_) {
-      old_total += range.second - range.first;
+      old_total += range.end - range.start;
     }
 
     // Insert new range [index, index+1)
-    ranges_.emplace_back(index, index + 1);
+    ranges_.push_back({index, index + 1});
 
     // Merge any overlapping ranges - this will handle cases where the new index
     // is adjacent to or overlaps with existing ranges
@@ -321,7 +384,7 @@ class IndexSet {
     // Recalculate total size after merging
     total_size_ = 0;
     for (const auto& range : ranges_) {
-      total_size_ += range.second - range.first;
+      total_size_ += range.end - range.start;
     }
 
     // If total size didn't increase after merging, we must have merged with an
@@ -336,7 +399,7 @@ class IndexSet {
     if (start >= end) return;  // Invalid range
 
     // Insert new range directly
-    ranges_.emplace_back(start, end);
+    ranges_.push_back({start, end});
 
     // Merge overlapping ranges
     merge_overlapping_ranges();
@@ -344,7 +407,7 @@ class IndexSet {
     // Recalculate total size
     total_size_ = 0;
     for (const auto& range : ranges_) {
-      total_size_ += range.second - range.first;
+      total_size_ += range.end - range.start;
     }
   }
 
@@ -358,26 +421,28 @@ class IndexSet {
   void remove(std::size_t index) {
     // Find the range containing this index
     auto range_idx = find_range_index(index);
-    if (range_idx >= ranges_.size() || ranges_[range_idx].first > index ||
-        ranges_[range_idx].second <= index) {
+    if (range_idx == NO_RANGE) {
       return;  // Index not in set
     }
 
     auto& range = ranges_[range_idx];
-    if (range.first == index) {
+    if (range.start == index) {
       // Case 1: Removing from start of range
-      range.first++;
-      if (range.first == range.second) {
+      range.start++;
+      range.first++;  // Update first as well
+      if (range.start == range.end) {
         // Range became empty, remove it
         ranges_.erase(ranges_.begin() + range_idx);
       }
-    } else if (range.second == index + 1) {
+    } else if (range.end == index + 1) {
       // Case 2: Removing from end of range
-      range.second--;
+      range.end--;
+      range.second--;  // Update second as well
     } else {
       // Case 3: Removing from middle of range - need to split into two ranges
-      auto second_half = std::make_pair(index + 1, range.second);
-      range.second = index;
+      auto second_half = IndexRange{index + 1, range.end};
+      range.end = index;
+      range.second = index;  // Update second as well
       ranges_.insert(ranges_.begin() + range_idx + 1, second_half);
     }
 
@@ -390,13 +455,7 @@ class IndexSet {
    * @return true if the index is in the set, false otherwise
    */
   bool contains(std::size_t index) const {
-    // Simply iterate through all ranges to check if the index is contained in any
-    for (const auto& range : ranges_) {
-      if (range.first <= index && index < range.second) {
-        return true;
-      }
-    }
-    return false;
+    return find_range_index(index) != NO_RANGE;
   }
 
   /**
@@ -410,7 +469,7 @@ class IndexSet {
    */
   std::optional<std::size_t> min_index() const {
     std::vector<size_t> indices = get_all_indices();
-    auto result = std::ranges::min_element(indices);
+    auto result = std::min_element(indices.begin(), indices.end());
     // the set is empty
     if (result == indices.end()) return std::nullopt;
     return *result;
@@ -421,7 +480,7 @@ class IndexSet {
    */
   std::optional<std::size_t> max_index() const {
     std::vector<size_t> indices = get_all_indices();
-    auto result = std::ranges::max_element(indices);
+    auto result = std::max_element(indices.begin(), indices.end());
     // the set is empty
     if (result == indices.end()) return std::nullopt;
     return *result;
@@ -448,9 +507,9 @@ class IndexSet {
 
     // Expand each range into individual indices
     for (const auto& range : ranges_) {
-      if (range.second <= range.first) continue; // Skip invalid ranges
+      if (range.end <= range.start) continue; // Skip invalid ranges
       
-      for (std::size_t i = range.first; i < range.second; ++i) {
+      for (std::size_t i = range.start; i < range.end; ++i) {
         result.push_back(i);
       }
     }
@@ -466,14 +525,19 @@ class IndexSet {
    * If the index is within a range, returns the next range after the
    * containing range. If the index is between ranges, returns the next range.
    */
-  std::optional<std::pair<std::size_t, std::size_t>> get_next_range(
+  std::optional<IndexRange> get_next_range(
       std::size_t index) const {
     auto range_idx = find_range_index(index);
 
     // If index is in a range, we want the next range
-    if (range_idx < ranges_.size() && ranges_[range_idx].first <= index &&
-        ranges_[range_idx].second > index) {
-      range_idx++;
+    if (range_idx != NO_RANGE) {
+      range_idx = range_idx + 1;
+    } else {
+      // Find the next range after this index
+      range_idx = 0;
+      while (range_idx < ranges_.size() && ranges_[range_idx].end <= index) {
+        range_idx++;
+      }
     }
 
     // Return next range if it exists
@@ -488,7 +552,7 @@ class IndexSet {
    * @param index The reference index
    * @return The previous range if it exists, std::nullopt otherwise
    */
-  std::optional<std::pair<std::size_t, std::size_t>> get_prev_range(
+  std::optional<IndexRange> get_prev_range(
       std::size_t index) const {
     auto range_idx = find_range_index(index);
 
@@ -498,14 +562,23 @@ class IndexSet {
     }
 
     // If index is in current range, return previous range
-    if (range_idx < ranges_.size() && ranges_[range_idx].first <= index &&
-        ranges_[range_idx].second > index) {
+    if (range_idx != NO_RANGE) {
       if (range_idx == 0) return std::nullopt;
       return ranges_[range_idx - 1];
     }
 
-    // Otherwise return the range before the found position
-    return ranges_[range_idx - 1];
+    // Find the range immediately before this index
+    range_idx = 0;
+    std::size_t prev_idx = NO_RANGE;
+    while (range_idx < ranges_.size() && ranges_[range_idx].end <= index) {
+      prev_idx = range_idx;
+      range_idx++;
+    }
+
+    if (prev_idx != NO_RANGE) {
+      return ranges_[prev_idx];
+    }
+    return std::nullopt;
   }
 
   /**
@@ -513,22 +586,23 @@ class IndexSet {
    * @param index The index to find
    * @return The containing range if it exists, std::nullopt otherwise
    */
-  std::optional<std::pair<std::size_t, std::size_t>> get_containing_range(
+  std::optional<IndexRange> get_containing_range(
       std::size_t index) const {
     auto range_idx = find_range_index(index);
 
-    // Verify the range actually contains the index
-    if (range_idx < ranges_.size() && ranges_[range_idx].first <= index &&
-        ranges_[range_idx].second > index) {
+    // If range contains the index, return it
+    if (range_idx != NO_RANGE) {
       return ranges_[range_idx];
     }
     return std::nullopt;
   }
 
   void offset(const std::size_t offset) {
-    for (auto& [start, end] : ranges_) {
-      start += offset;
-      end += offset;
+    for (auto& range : ranges_) {
+      range.start += offset;
+      range.end += offset;
+      range.first += offset;   // Update first as well
+      range.second += offset;  // Update second as well
     }
   }
 
@@ -579,7 +653,7 @@ class IndexSet {
 
     // Add all ranges from the offset set to this set
     for (const auto& range : offsetSet.ranges_) {
-      insert_range(range.first, range.second);
+      insert_range(range.start, range.end);
     }
   }
 
@@ -592,7 +666,7 @@ class IndexSet {
     IndexSet result = *this;  // Start with a copy of this set
     // Add all ranges from the other set
     for (const auto& range : other.ranges_) {
-      result.insert_range(range.first, range.second);
+      result.insert_range(range.start, range.end);
     }
     return result;
   }
@@ -610,8 +684,8 @@ class IndexSet {
       // For each range in the other set
       for (const auto& range2 : other.ranges_) {
         // Find intersection of ranges
-        auto start = std::max(range1.first, range2.first);
-        auto end = std::min(range1.second, range2.second);
+        auto start = std::max(range1.start, range2.start);
+        auto end = std::min(range1.end, range2.end);
 
         // If ranges overlap, add their intersection
         if (start < end) {
@@ -632,7 +706,7 @@ class IndexSet {
 
     // Remove each range from the other set
     for (const auto& range : other.ranges_) {
-      for (std::size_t i = range.first; i < range.second; ++i) {
+      for (std::size_t i = range.start; i < range.end; ++i) {
         result.remove(i);
       }
     }
@@ -665,7 +739,7 @@ class IndexSet {
   bool operator<=(const IndexSet& other) const {
     // For each index in this set, check if it's in other
     for (const auto& range : ranges_) {
-      for (std::size_t i = range.first; i < range.second; ++i) {
+      for (std::size_t i = range.start; i < range.end; ++i) {
         if (!other.contains(i)) return false;
       }
     }
@@ -716,7 +790,7 @@ class IndexSet {
  private:
   // Internal representation - vector of ranges
   // Each range is represented as [start, end) pair where end is exclusive
-  std::vector<std::pair<std::size_t, std::size_t>> ranges_;
+  std::vector<IndexRange> ranges_;
   std::size_t total_size_ = 0;  // Cache of total number of indices
 
   /**
@@ -734,17 +808,18 @@ class IndexSet {
     std::sort(ranges_.begin(), ranges_.end());
 
     // Create new vector for merged ranges
-    std::vector<std::pair<std::size_t, std::size_t>> merged;
+    std::vector<IndexRange> merged;
     merged.reserve(ranges_.size());  // Reserve space to avoid reallocations
     merged.push_back(ranges_[0]);
 
     for (std::size_t i = 1; i < ranges_.size(); i++) {
       auto& back = merged.back();
-      // Check if ranges are adjacent (back.second == ranges_[i].first - 1)
-      // or overlapping (back.second >= ranges_[i].first)
-      if (back.second >= ranges_[i].first - 1) {
+      // Check if ranges are adjacent (back.end == ranges_[i].start - 1)
+      // or overlapping (back.end >= ranges_[i].start)
+      if (back.end >= ranges_[i].start - 1) {
         // Merge the ranges by extending the end of the previous range
-        back.second = std::max(back.second, ranges_[i].second);
+        back.end = std::max(back.end, ranges_[i].end);
+        back.second = back.end;  // Update second as well
       } else {
         // Ranges are not adjacent or overlapping, add as new range
         merged.push_back(ranges_[i]);
@@ -755,23 +830,23 @@ class IndexSet {
   }
 
   /**
-   * @brief Finds the index of the range that could contain the given index
+   * @brief Finds the range that contains the given index, or returns NO_RANGE if not found
    * @param index The index to find
-   * @return The index of the potential containing range
-   *
-   * Uses binary search to efficiently find the range that could contain
-   * the given index. The returned range needs to be checked to confirm
-   * it actually contains the index.
+   * @return The index of the containing range, or NO_RANGE if not found
    */
   std::size_t find_range_index(std::size_t index) const {
     // Use binary search to find the range that could contain this index
-    // The comparison function looks at range.second because we store ranges
-    // as [start, end) intervals
-    return std::lower_bound(ranges_.begin(), ranges_.end(), index,
+    auto it = std::lower_bound(ranges_.begin(), ranges_.end(), index,
                             [](const auto& range, std::size_t val) {
-                              return range.second <= val;
-                            }) -
-           ranges_.begin();
+                              return range.end <= val;
+                            });
+    
+    // Check if we found a valid range that contains the index
+    if (it != ranges_.end() && it->start <= index && index < it->end) {
+      return std::distance(ranges_.begin(), it);
+    }
+    
+    return NO_RANGE;
   }
 };
 
