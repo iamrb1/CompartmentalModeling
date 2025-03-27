@@ -59,7 +59,7 @@ class WebLayout {
   std::vector<ImageLayout> images;
   std::string id;
 
-  const void renderTextBox(const std::string &layoutID, const std::string &msg,
+  const void renderTextBox(const std::string &layoutID, const FormattedText &msg,
                            const int &width, const int &height, const int &x,
                            const int &y, const std::string &textboxID);
   void const renderImage(const std::string &layoutID, const std::string &url,

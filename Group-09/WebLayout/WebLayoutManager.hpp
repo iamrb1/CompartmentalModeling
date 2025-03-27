@@ -23,10 +23,11 @@ class WebLayoutManager {
   void advance();
   void rewind();
   void initialize();
+  void addTextBox();
   WebLayoutManager();
 
   // 🔹 Getter for export support
-  const std::vector<std::shared_ptr<WebLayout>>& getLayouts() const {
+  const std::vector<std::shared_ptr<WebLayout>> &getLayouts() const {
     return layouts;
   }
 };
