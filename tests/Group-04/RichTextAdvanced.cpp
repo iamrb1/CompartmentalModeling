@@ -43,7 +43,8 @@ TEST_CASE("Clear formatting", "[RichTextAdvanced]") {
   SECTION("Test IndexSet clear") {
     text.clear_format(cse::IndexSet{2, 3});
     REQUIRE(text.get_format_range(bold).value() == cse::IndexSet{0, 1, 4});
-    REQUIRE(text.get_format_range(italic).value() == cse::IndexSet{});
+    REQUIRE(text.get_format_range(italic).value() ==
+            cse::IndexSet{std::pair{4, 8}});
   }
 
   SECTION("Test format clear") {

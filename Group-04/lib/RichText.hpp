@@ -319,10 +319,9 @@ class BasicRichText {
    */
   template <typename T>
   BasicRichText& insert(std::size_t index, const BasicRichText<CharT, T>& str) {
-    std::size_t old_len = m_text.length();
     insert(index, str.m_text);
     for (auto [format, indices] : str.m_formatting) {
-      indices.shift_right(old_len);
+      indices.shift_right(index);
       apply_format(format, indices);
     }
     return *this;
