@@ -137,7 +137,7 @@ class StateGrid {
 
   void set_condition(char changestate, std::string property, std::string changeprop);
 
-  void remove_conditions(char changestate, std::string property);
+  void remove_condition(char changestate, std::string property);
 
   std::map<std::string, cse::AuditedVector<std::string>> find_properties();
 

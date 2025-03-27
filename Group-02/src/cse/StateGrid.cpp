@@ -10,7 +10,6 @@
 #include <utility>
 #include <fstream>
 #include <filesystem>
-#include <sstream>
 #include "cse/StateGridPosition.h"
 namespace cse {
 
@@ -77,25 +76,26 @@ void StateGrid::set_condition(char changestate, std::string property, std::strin
  * @param changestate state to alter
  * @param property property to change
  */
-void StateGrid::remove_conditions(char changestate, std::string property)
+void StateGrid::remove_condition(char changestate, std::string property)
 {
-    assert(m_dictionary.find(changestate) && "This state is not in the map!");
-    m_dictionary.change_property(changestate, property);
+  assert(m_dictionary.find(changestate) && "This state is not in the map!");
+  m_dictionary.change_property(changestate, property);
 }
+
 /**
  * This function returns property information for all possible moves from current position
  */
 std::map<std::string, cse::AuditedVector<std::string>> StateGrid::find_properties()
 {
-    std::vector<Point> moves = find_moves();
-    std::map<std::string,cse::AuditedVector<std::string>> returnlist;
-    for (auto move : moves)
-    {
-      std::string direction = m_position.compare_direction(move);
-      cse::AuditedVector<std::string> move_properties = define_state(get_state(move));
-      returnlist[direction] = move_properties;
-    }
-    return returnlist;
+  std::vector<Point> moves = find_moves();
+  std::map<std::string,cse::AuditedVector<std::string>> returnlist;
+  for (auto move : moves)
+  {
+    std::string direction = m_position.compare_direction(move);
+    cse::AuditedVector<std::string> move_properties = define_state(get_state(move));
+    returnlist[direction] = move_properties;
+  }
+  return returnlist;
 }
 
 /**
@@ -139,6 +139,7 @@ std::vector<Point> StateGrid::find_moves() {
   }
   return moves;
 }
+
 /**
  * @brief sets m_grid to specified map
  * @param diff string to choose map of specified difficulty
