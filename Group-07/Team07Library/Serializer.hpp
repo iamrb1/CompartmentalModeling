@@ -34,8 +34,6 @@
 
 namespace cse
 {
-	// Forward declaration of Serializer class. This lead to a warning: invalid use of incomplete type ‘class cse::Serializer’, but there is no other choice currently for simple implementation.
-	class Serializer;
 	/**
 	 * @enum Mode
 	 * @brief Specifies whether the Serializer is in SAVE mode or LOAD mode.
