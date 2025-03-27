@@ -507,7 +507,7 @@ class [[maybe_unused]] AdvDataMap {
     });
     /// use for_each and specify a lambda within as a filter to grab desired keys
     /// previous implementation was to use a for range loop instead of for_each
-    /// nnow captures names within the lambda and performs operation to push the string back within vector if type match
+    /// now captures names within the lambda and performs operation to push the string back within vector if type match
     return names;
   }
 };
