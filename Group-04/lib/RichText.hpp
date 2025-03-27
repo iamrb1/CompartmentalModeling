@@ -395,6 +395,43 @@ class BasicRichText {
   }
 
   /**
+   * @brief Clear all formatting
+   */
+  void clear_format() { m_formatting.clear(); }
+
+  /**
+   * @brief Clear all formatting over indices
+   * @param indices Indices to clear formatting for
+   */
+  void clear_format(const IndexSet& indices) {
+    for (auto& [format, fmt_indices] : m_formatting) {
+      fmt_indices -= indices;
+    }
+  }
+
+  /**
+   * @brief Clear all formatting of a specific type
+   * @param format Format to clear
+   */
+  void clear_format(const TextFormat& format) {
+    auto result = m_formatting.find(format);
+    if (result != m_formatting.end()) {
+      m_formatting.erase(result);
+    }
+  }
+
+  /**
+   * @brief Clear formatting of a specific type over indices
+   * @param format Format to clear
+   */
+  void clear_format(const TextFormat& format, const IndexSet& indices) {
+    auto result = m_formatting.find(format);
+    if (result != m_formatting.end()) {
+      result->second -= indices;
+    }
+  }
+
+  /**
    * @brief Get the range corresponding to a `TextFormat`
    * @param format The format to get the range for
    * @return The IndexSet corresponding to the format, if it exists

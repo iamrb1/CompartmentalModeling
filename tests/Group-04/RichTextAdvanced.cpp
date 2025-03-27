@@ -35,30 +35,26 @@ TEST_CASE("Clear formatting", "[RichTextAdvanced]") {
   text.apply_format(italic, cse::IndexSet{std::pair{4, 8}});
 
   SECTION("Test whole clear") {
-    // TODO
-    // text.clear();
+    text.clear_format();
     REQUIRE_FALSE(text.get_format_range(bold).has_value());
     REQUIRE_FALSE(text.get_format_range(italic).has_value());
   }
 
   SECTION("Test IndexSet clear") {
-    // TODO
-    // text.clear(cse::IndexSet{2, 3});
+    text.clear_format(cse::IndexSet{2, 3});
     REQUIRE(text.get_format_range(bold).value() == cse::IndexSet{0, 1, 4});
     REQUIRE(text.get_format_range(italic).value() == cse::IndexSet{});
   }
 
   SECTION("Test format clear") {
-    // TODO
-    // text.clear(italic);
+    text.clear_format(italic);
     REQUIRE(text.get_format_range(bold).value() ==
             cse::IndexSet{std::pair{0, 5}});
     REQUIRE_FALSE(text.get_format_range(italic).has_value());
   }
 
   SECTION("Test format and IndexSet clear") {
-    // TODO
-    // text.clear(bold, cse::IndexSet{2, 3});
+    text.clear_format(bold, cse::IndexSet{2, 3});
     REQUIRE(text.get_format_range(bold).value() == cse::IndexSet{0, 1, 4});
     REQUIRE(text.get_format_range(italic).value() ==
             cse::IndexSet{std::pair{4, 8}});
