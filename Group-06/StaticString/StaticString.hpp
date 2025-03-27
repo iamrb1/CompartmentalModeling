@@ -1176,94 +1176,15 @@ public:
     std::fill(mString, mString + MaxSize, '\0');
     mCurrentSize = 0;
   }
-
-  /**
-  * @brief Replaces all instances of the string given with the new string if it passes the condition.
-  * 
-  * @param str1 String to be replaced.
-  * @param str2 String to replace with.
-  * @param lambda The lambda function.
-  */
- template <typename Func>
- void replace_if(const char* str1, const char* str2, Func lambda) {
-   std::vector<size_t> index = findAll(str1);
-   std::string_view size(str1);
-   std::string_view size2(str2);
-
-   if (index.size() * size2.length() > MaxSize)
-     throw std::out_of_range("replace exceeds the size allowed");
-
-   for (int i = 0; i < (int)index.size(); i++) {
-    if (lambda()) {
-      std::vector<size_t> index3 = findAll(str1);
-      remove(index3[0], index3[0] + size.length());
-      insert(str2, index3[0]);
-    }
-   }
- }
-
- /**
-  * @brief replaces all instances of the string given with the new string if it passes the condition
-  * 
-  * @param ch char to be replaced
-  * @param ch2 char to replace with
-  * @param lambda the lambda function
-  */
- template <typename Func>
- void replace_if(char ch, char ch2, Func lambda) {
-   std::vector<size_t> index = findAll(ch);
-   for (int i = 0; i < (int)index.size(); i++) {
-    if (lambda()) {
-      std::vector<size_t> index3 = findAll(ch);
-      remove(index3[0], index3[0] + size_t(1));
-      insert(ch2, index3[0]);
-    }
-   }
- }
-
- /**
-  * @brief replaces all instances of the string given with the new string if it passes the condition
-  * 
-  * @param str1 string to be replaced
-  * @param ch2 char to replace with
-  * @param lambda the lambda function 
-  */
+  
   template <typename Func>
-  void replace_if(const char* str1, char ch2, Func lambda) {
-    std::vector<size_t> index = findAll(str1);
-    std::string_view size(str1);
-    for (int i = 0; i < (int)index.size(); i++) {
-      if (lambda()) {
-        std::vector<size_t> index3 = findAll(str1);
-        remove(index3[0], index3[0] + size.length());
-        insert(ch2, index3[0]);
+  void replace_if(const char& chr, const char& rplc, Func func) {
+    for (std::size_t i = 0; i < mCurrentSize; ++i) {
+      if (mString[i] == chr && func(i)) {
+        mString[i] = rplc;
       }
     }
   }
-
- /**
-  * @brief replaces all instances of the string given with the new string if it passes the condition
-  * 
-  * @param ch char to be replaced
-  * @param str2 string to replace with
-  * @param lambda the lambda function
-  */
- template <typename Func>
- void replace_if(char ch, const char* str2, Func lambda) {
-   std::vector<size_t> index = findAll(ch);
-
-   std::string_view size2(str2);
-   if (index.size() * size2.length() > MaxSize)
-     throw std::out_of_range("replace exceeds the size allowed");
-
-   for (int i = 0; i < (int)index.size(); i++) {
-    if (lambda()) {
-      std::vector<size_t> index3 = findAll(ch);
-      remove(index3[0], index3[0] + std::size_t(1));
-      insert(str2, index3[0]);
-    }
-   }
- }
 
 private: 
   /// @brief Constant value for StaticString null terminator used.
