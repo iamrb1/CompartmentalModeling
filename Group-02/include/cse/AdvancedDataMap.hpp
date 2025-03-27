@@ -1,5 +1,5 @@
 /**
-* @file DataMap.h
+* @file AdvancedDataMap.h
 * @author Rahul Baragur
 */
 
