@@ -132,35 +132,6 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     s.replace_if('I','H', [s](size_t index) -> bool {return s[index] == 'H';});
     REQUIRE(std::strcmp(s.get_str(), "IelloWorldIelloWorld") == 0);
 
-    // test a replacement string that is longer
-    /*StaticString<20> s2("HelloWorHelloWor");
-
-    // test a replacement string that is the same size
-    StaticString<20> s3("HelloWorldHelloWorld");
-
-    s3.replace_if("Hello","Movie", [s3](size_t index) -> bool {return  s3[index] == 'H';});
-    REQUIRE(std::strcmp(s3.get_str(), "MovieWorldMovieWorld") == 0);
-
-    s3.replace_if("Rumble","Movie", [s3](size_t index) -> bool {return  s3[index] == 'H';});
-    REQUIRE(std::strcmp(s3.get_str(), "MovieWorldMovieWorld") == 0);
-
-    // Test with characters
-    StaticString<25> s5("HelloWorldHelloWorld");
-
-    s5.replace_if("World",'w', [s5](size_t index)-> bool {return  s5[index] == 'W';});
-    REQUIRE(std::strcmp(s5.get_str(), "HellowHellow") == 0);
-
-    s5.replace_if('w',"World", [s5](size_t index) -> bool {return  s5[index] == 'w';});
-    REQUIRE(std::strcmp(s5.get_str(), "HellowHellow") == 0);
-
-    StaticString<25> s6("HelloWorldHelloWorld");
-
-    s6.replace_if('W',"He", [s6](size_t index) -> bool {return  s6[index] == 'W';});
-    REQUIRE(std::strcmp(s6.get_str(), "HelloHeorldHelloHeorld") == 0);
-
-    s6.replace_if("He",'W', [s6](size_t index) -> bool {return  s6[index] == 'W';});
-    REQUIRE(std::strcmp(s6.get_str(), "HelloHeorldHelloHeorld") == 0);*/
-
     StaticString<25> s7("HelloWorldHelloWorld");
 
     //Replace all o's with a W after it
@@ -184,13 +155,6 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     s4.replace_if('e','H', [s4](size_t index) -> bool { return index > 0; });
     REQUIRE(std::strcmp(s4.get_str(), "eHlloWorldHHlloWorld") == 0);
 
-    /*StaticString<25> s8("HelloWorldHelloWorld");
-    s8.replace_if("Hello","Movie", [s8](size_t index) -> bool { return index == 0; });
-    REQUIRE(std::strcmp(s8.get_str(), "MovieWorldHelloWorld") == 0);
-
-    s8.replace_if("Movie","Hello", [s8](size_t index) -> bool { return index > 0; });
-    REQUIRE(std::strcmp(s8.get_str(), "MovieWorldHelloWorld") == 0);*/
-
     StaticString<25> s9("HelloWorHelloNor");
     s9.replace_if('o','R', [s9](size_t index) -> bool { return index < s9.size() && s9[index + 1] == 'N'; });
     std::cout << s9.get_str();
@@ -207,14 +171,6 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     s10.replace_if('W','o', [s10](size_t index) -> bool { return index > 0 && s10[index - 1] == 'l'; });
     REQUIRE(std::strcmp(s10.get_str(), "HelloWorHelloWor") == 0);
 
-    /*StaticString<25> s11("HiWorHiWXr");
-    s11.replace_if('W',"Moss", [s11](size_t index) -> bool { return index < s11.size() && s11[index + 1] == 'X'; });
-    std::cout << s11.get_str();
-    REQUIRE(std::strcmp(s11.get_str(), "HiWorHiMossor") == 0);
-
-    s11.replace_if("Moss",'W', [s11](size_t index) -> bool { return index < s11.size() && s11[index + 1] == 'X'; });
-    REQUIRE(std::strcmp(s11.get_str(), "HiMossorHiMossor") == 0);*/
-
     StaticString<25> s12("HelloWorldHelloWorld");
     s12.replace_if('l','L', [s12](size_t index) -> bool { return index < s12.size() && s12[index + 1] == 'l'; });
     std::cout << s12.get_str();
@@ -222,15 +178,6 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
 
     s12.replace_if('L','l', [s12](size_t index) -> bool { return index < s12.size() && s12[index + 1] == 'l'; });
     REQUIRE(std::strcmp(s12.get_str(), "HelloWorldHelloWorld") == 0);
-
-    /*StaticString<50> s2("a1b2c3d4");
-    // replace_if(conditionLambda, replacementLambda)
-    s2.replace_if(
-        [](char ch) -> bool { return (ch >= '1' && ch <= '4'); },
-        [](char ch) -> char { return ch + 1; }
-    );
-
-    REQUIRE(std::strcmp(s2.get_str(), "a2b3c4d5") == 0);*/
   }
 
   SECTION("TESTS: Operators member function") {

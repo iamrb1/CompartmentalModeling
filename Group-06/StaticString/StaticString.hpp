@@ -842,7 +842,7 @@ public:
    * 
    * @tparam T Templated types are string, string_view, char*
    * @param str1 String to be replaced.
-   * @param ch2 Character to be replace with.
+   * @param chr Character to be replace with.
    */
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
   void replace(const T& str1, char chr) {
@@ -865,8 +865,8 @@ public:
    * exceed static limit defined in the StaticString.
    * 
    * @tparam T Templated types are string, string_view, char*
-   * @param ch Character to be replaced.
-   * @param str2 String to be replaced.
+   * @param chr Character to be replaced.
+   * @param str String to be replaced.
    */
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
   void replace(char chr, const T& str) {
@@ -1177,6 +1177,14 @@ public:
     mCurrentSize = 0;
   }
   
+  /**
+   * @brief Replace the character if the condition is met.
+   * 
+   * @tparam Func Templated Lambda function.
+   * @param chr Character to be replaced.
+   * @param rplc Character to replace with.
+   * @param func Conditional lambda.
+   */
   template <typename Func>
   void replace_if(const char& chr, const char& rplc, Func func) {
     for (std::size_t i = 0; i < mCurrentSize; ++i) {
