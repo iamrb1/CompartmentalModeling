@@ -5,24 +5,37 @@
 #include <random>
 #include <unordered_map>
 
-struct Species {
-        std::string name;
-        int population;
-        double birthRate;
-        double deathRate;
-        int maxAge;
-        int reproductionAge;
-        std::string foodSource;
-};
-
-struct Predator {
+class Animal {
+public:
     int id;
+    std::string species;
     std::string prey;
     uint16_t lastEaten;
+    int age;
+    bool isPredator;
 
-    std::vector<double> getWeights() {
+    virtual ~Animal() = default;
+
+    Animal(int animalId, const std::string& speciesName, const std::string& preyName, bool predator = false)
+        : id(animalId), species(speciesName), prey(preyName), lastEaten(0), age(0), isPredator(predator) {}
+
+    virtual std::vector<double> getWeights() {
         return std::vector<double>{static_cast<double>(lastEaten)};
     }
+
+    virtual bool canReproduce(int reproductionAge) const {
+        return age >= reproductionAge;
+    }
+};
+
+struct Species {
+    std::string name;
+    int population;
+    double birthRate;
+    double deathRate;
+    int maxAge;
+    int reproductionAge;
+    std::string foodSource;
 };
 
 struct Interaction {
@@ -30,45 +43,16 @@ struct Interaction {
     std::string prey;
     double huntRate;
 };
-// struct Environment {
-//     std::string name;
-//     double temperature;  // e.g., affects species survival and reproduction
-//     double humidity;     // e.g., affects plant growth for herbivores
-//     double foodAbundance; // Overall availability of food resources
-//     std::unordered_map<std::string, double> resourceAvailability; // Specific food sources
-//
-//     Environment(std::string envName, double temp, double hum, double food)
-//         : name(envName), temperature(temp), humidity(hum), foodAbundance(food) {}
-//
-//     /*
-//      * Adjusts food availability dynamically based on ecosystem balance.
-//      */
-//     void UpdateResources() {
-//         // Example logic: if food abundance is high, increase prey population support
-//         foodAbundance *= 0.98; // Simulating natural food depletion over time
-//     }
-//
-//     /*
-//      * Adjusts environmental conditions (e.g., seasonal changes).
-//      */
-//     void UpdateConditions(int timeStep) {
-//         if (timeStep % 10 == 0) { // Example: Every 10 steps, the season shifts
-//             temperature += (rand() % 5 - 2); // Small fluctuations in temp
-//             humidity += (rand() % 3 - 1); // Small fluctuations in humidity
-//         }
-//     }
-// };
 
 struct SimulationState {
     int timeSteps;
     int loggingInterval;
-
-    // Environment environment;
     std::vector<Species> speciesList;
     std::vector<Interaction> interactions;
+    std::vector<Animal> animals;
 
     SimulationState(int steps, int logInterval)
-        : timeSteps(steps), loggingInterval(logInterval){}
+        : timeSteps(steps), loggingInterval(logInterval) {}
 
     void AddSpecies(const Species& s) {
         speciesList.push_back(s);
@@ -78,6 +62,15 @@ struct SimulationState {
         interactions.push_back(i);
     }
 
+    // Populate initial animals based on species population
+    void PopulateInitialAnimals(int& globalId) {
+        animals.clear();
+        for (const auto& species : speciesList) {
+            for (int i = 0; i < species.population; ++i) {
+                animals.emplace_back(globalId++, species.name, species.foodSource, species.foodSource != "None");
+            }
+        }
+    }
 
     /*
     * FindSpecies - find a species by name
@@ -90,5 +83,4 @@ struct SimulationState {
         }
         return nullptr;
     }
-
 };

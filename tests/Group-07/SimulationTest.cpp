@@ -7,13 +7,11 @@
 #include "../../Group-07/Team07Library/OutputLog.hpp"
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 
+const int SEED = 42;
 
 using cse::OutputLog;
 using cse::LogLevel;
-//
-// Test 1: No Time Steps
-// If timeSteps is zero, the simulation should immediately complete and species populations remain unchanged.
-//
+
 TEST_CASE("Simulation_NoTimeSteps", "[Simulation]") {
     std::ostringstream capturedStream;
     std::streambuf* oldCoutStreamBuf = std::cout.rdbuf();
@@ -27,7 +25,8 @@ TEST_CASE("Simulation_NoTimeSteps", "[Simulation]") {
     state.AddSpecies({"Foxes", 10, 0.05, 0.1, 15, 3, "Rabbits"});
     state.AddInteraction({"Foxes", "Rabbits", 0.2});
 
-    runSimulation(state, dummyLog);
+    SimulationRunner runner(state, dummyLog, SEED);
+    runner.run();
 
     std::cout.rdbuf(oldCoutStreamBuf);
 
@@ -42,10 +41,6 @@ TEST_CASE("Simulation_NoTimeSteps", "[Simulation]") {
     REQUIRE(logs.find("Simulation complete.") != std::string::npos); // simulation should be compl.
 }
 
-//
-// Test 2: No Interactions
-// When there are no interactions, only births and deaths affect the populations.
-//
 TEST_CASE("Simulation_NoInteractions", "[Simulation]") {
     std::ostringstream capturedStream;
     std::streambuf* oldCoutStreamBuf = std::cout.rdbuf();
@@ -58,8 +53,8 @@ TEST_CASE("Simulation_NoInteractions", "[Simulation]") {
     state.AddSpecies({"Rabbits", 100, 0.1, 0.05, 10, 2, "Grass"});
     state.AddSpecies({"Foxes", 10, 0.05, 0.1, 15, 3, "None"}); 
 
-
-    runSimulation(state, dummyLog);
+    SimulationRunner runner(state, dummyLog, SEED);
+    runner.run();
 
     std::cout.rdbuf(oldCoutStreamBuf);
 
@@ -68,18 +63,13 @@ TEST_CASE("Simulation_NoInteractions", "[Simulation]") {
     Species* foxes   = state.FindSpecies("Foxes");
     REQUIRE(rabbits != nullptr);
     REQUIRE(foxes != nullptr);
-    REQUIRE(rabbits->population == 116);
-    REQUIRE(foxes->population == 9);
+    REQUIRE(rabbits->population == 117);
+    REQUIRE(foxes->population == 10);
 
     std::string logs = capturedStream.str();
     REQUIRE(logs.find("Simulation complete.") != std::string::npos);
 }
 
-//
-// Test 3: Early Extinction
-// Configure the simulation so that both species go extinct quickly.
-// This tests the early termination when all species are extinct.
-//
 TEST_CASE("Simulation_EarlyExtinction", "[Simulation]") {
     std::ostringstream capturedStream;
     std::streambuf* oldCoutStreamBuf = std::cout.rdbuf();
@@ -94,7 +84,8 @@ TEST_CASE("Simulation_EarlyExtinction", "[Simulation]") {
     state.AddSpecies({"Foxes", 5, 0.0, 1.0, 15, 3, "Rabbits"});
     state.AddInteraction({"Foxes", "Rabbits", 0.2});
 
-    runSimulation(state, dummyLog);
+    SimulationRunner runner(state, dummyLog, SEED);
+    runner.run();
 
     std::cout.rdbuf(oldCoutStreamBuf);
     // Expect both species to go extinct.
@@ -110,11 +101,6 @@ TEST_CASE("Simulation_EarlyExtinction", "[Simulation]") {
     REQUIRE(logs.find("Simulation ended early: all species went extinct.") != std::string::npos);
 }
 
-//
-// Test 4: Missing Species in Interaction
-// If an interaction refers to a species that is not present in the simulation,
-// the simulation should skip that interaction without error.
-//
 TEST_CASE("Simulation_MissingSpeciesInteraction", "[Simulation]") {
     std::ostringstream capturedStream;
     std::streambuf* oldCoutStreamBuf = std::cout.rdbuf();
@@ -128,7 +114,8 @@ TEST_CASE("Simulation_MissingSpeciesInteraction", "[Simulation]") {
     state.AddSpecies({"Rabbits", 100, 0.1, 0.05, 10, 2, "Grass"});
     state.AddInteraction({"Foxes", "Rabbits", 0.2}); // foxes does not exist in the simulation.
 
-    runSimulation(state, dummyLog);
+    SimulationRunner runner(state, dummyLog, SEED);
+    runner.run();
 
     std::cout.rdbuf(oldCoutStreamBuf);
 
@@ -141,9 +128,6 @@ TEST_CASE("Simulation_MissingSpeciesInteraction", "[Simulation]") {
     REQUIRE(logs.find("Simulation complete.") != std::string::npos);
 }
 
-// Normal Simulation
-// Run a normal simulation with multiple species and interactions.
-//
 TEST_CASE("Simulation_Regular_Run", "[Simulation]") {
     std::ostringstream capturedStream;
     std::streambuf* oldCoutStreamBuf = std::cout.rdbuf();
@@ -158,7 +142,8 @@ TEST_CASE("Simulation_Regular_Run", "[Simulation]") {
     state.AddSpecies({"Foxes", 10, 0.05, 0.1, 15, 3, "Rabbits"});
     state.AddInteraction({"Foxes", "Rabbits", 0.1}); 
 
-    runSimulation(state, dummyLog);
+    SimulationRunner runner(state, dummyLog, SEED);
+    runner.run();
 
     std::cout.rdbuf(oldCoutStreamBuf);
 
@@ -167,10 +152,9 @@ TEST_CASE("Simulation_Regular_Run", "[Simulation]") {
     Species* foxes = state.FindSpecies("Foxes");
     REQUIRE(foxes != nullptr);
 
-    REQUIRE(rabbits->population == 114);
-    REQUIRE(foxes->population == 9);
+    REQUIRE(rabbits->population ==117); 
+    REQUIRE(foxes->population == 10);
 
     std::string logs = capturedStream.str();
     REQUIRE(logs.find("Simulation complete.") != std::string::npos);
-
 }
