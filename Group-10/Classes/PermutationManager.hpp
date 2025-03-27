@@ -39,12 +39,13 @@ public:
    * @param container the container of items
    * @param permutation_size k, or the size of the items chosen at once.
    */
-  PermutationManager(const Container & container, size_t permutation_size) : 
+  PermutationManager(const Container & container, size_t permutation_size, bool repeat) : 
   items_(std::begin(container), std::end(container)),
-  k_(permutation_size),
   n_(container.size()),
+  k_(permutation_size),
   currentPermutation_(),
-  isRequired_(false) {
+  isRequired_(false),
+  isRepeating_(repeat) {
     // ensure k is less than or equal to n
     if (k_ > n_) {
       throw std::invalid_argument("Combination size cannot be greater than the number of items in the container.");
@@ -63,12 +64,14 @@ public:
    * @param permutation_size k, or the size of the items chosen at once.
    * @param 
    */
-  PermutationManager(const Container & container, size_t permutation_size, size_t requiredIndex) : 
+  PermutationManager(const Container & container, size_t permutation_size, bool repeat, size_t requiredIndex) : 
   items_(std::begin(container), std::end(container)),
-  k_(permutation_size),
   n_(container.size()),
+  k_(permutation_size),
+  currentPermutation_(), 
   isRequired_(true),
-  currentPermutation_() {
+  isRepeating_(repeat)
+  {
 
     
     // ensure k is less than or equal to n
@@ -213,6 +216,15 @@ public:
   }
 
   /**
+   * @brief getter for total permutations
+   * @return the total number of permutations for this container, given no repeating or required
+   */
+  size_t TotalPermutations() {
+    return totalPermutations_;
+  }
+
+
+  /**
    * @brief - Setter for the repeating attribute
    * @param repeating - if it's repearting or not
    */
@@ -285,7 +297,7 @@ private:
          * 4, 4, 4 => 3, 4, 4 => 3, 3, 4 => 3, 3, 4
          * The min is either the previous value, or 0 if i == 9
          */
-        int min = (i == 0) ? 0 : indices_[i - 1];
+        size_t min = (i == 0) ? 0 : indices_[i - 1];
 
         if (indices_[i] > min) {
           break;
@@ -296,6 +308,7 @@ private:
     } else {
       
       // Find the first index from the right that can be decremented. 2, 3, 4 => 1, 3, 4 => 1, 2, 4 => 1, 2, 3
+      // 3, 4 => 2, 5
       // For each index, the minimum allowed value is:
       //   - 0 for the first index, or
       //   - one more than the previous index for subsequent indices.
@@ -307,14 +320,24 @@ private:
         --i; // Move left if the current index is at its minimum allowable value.
       }
     }
+
+    // If no index can be incremented, we've reached the final combination.
+    if (i == -1) {
+      return false;
+    }
    
     // Decrement the identified index.
     --indices_[i];
+
 
     if (isRepeating_) {
       // we want to max out all the values past the one we've decremented
       for (size_t j = i + 1; j < k_; ++j) {
         indices_[j] = n_ - 1;
+      }
+    } else {
+      for (size_t j = i + 1; j < k_; ++j) {
+        indices_[j] = n_ - k_ + j;
       }
     }
 

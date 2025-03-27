@@ -4,10 +4,11 @@
 
 void regularTest() {
   // Example usage
-  std::vector<int> items = {1, 2, 3, 4};
-  cse::PermutationManager<std::vector<int>> permManager(items, 3);
+  std::vector<int> items = {1, 2, 3, 4, 5, 6};
+  cse::PermutationManager<std::vector<int>> permManager(items, 3, false);
 
-  int total = permManager.PermutationNumber(4, 3);
+  int total = permManager.PermutationNumber(6, 3);
+  //permManager.SetRepeating(false);
   int t = 0;
 
   // Print all permutations
@@ -36,11 +37,9 @@ void regularTest() {
 
 void requiredTest() {
   // Example usage
-  std::vector<int> items = {1, 2, 3, 4};
-  cse::PermutationManager<std::vector<int>> permManager(items, 3);
+  std::vector<int> numbers = {1, 2, 3, 4, 5};
+  cse::PermutationManager<std::vector<int>> permManager(numbers, 2, false, 1);
   permManager.SetRepeating(true);
-
-  int total = permManager.PermutationNumber(4, 3);
   int t = 0;
 
   // Print all permutations
@@ -50,6 +49,7 @@ void requiredTest() {
           std::cout << item << " ";
       }
       std::cout << std::endl;
+      ++t;
   } while (permManager.Next());
 
   // now backwards
@@ -62,7 +62,9 @@ void requiredTest() {
           std::cout << item << " ";
       }
       std::cout << std::endl;
+      --t;
   } while (permManager.Prev());
+  std::cout << t << std::endl;
 }
 
 void repeatTest() {
@@ -98,5 +100,5 @@ void repeatTest() {
 
 
 int main() {
-  repeatTest();
+  requiredTest();
 }
