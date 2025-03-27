@@ -223,14 +223,11 @@ class RichText {
    * @brief Insert a string into RichText
    * @param index The index to insert the string at
    * @param str The string to insert
-   * @param extend_formatting Whether to extend formatting applied to the
    * character before `index` to the new characters
    */
   template <typename Str>
     requires std::derived_from<Str, std::basic_string<CharT>>
-  RichText& insert(std::size_t index, const Str& str,
-                   bool extend_formatting = false) {
-    cse_assert(!extend_formatting, "TODO Not implemented");
+  RichText& insert(std::size_t index, const Str& str) {
     m_text.insert(index, str);
     std::size_t len = str.length();
     for (auto& [_, indices] : m_formatting) {
@@ -243,12 +240,9 @@ class RichText {
    * @brief Insert a string into RichText
    * @param index The index to insert the string at
    * @param str The string to insert
-   * @param extend_formatting Whether to extend formatting applied to the
    * character before `index` to the new characters
    */
-  RichText& insert(std::size_t index, const CharT* str,
-                   bool extend_formatting = false) {
-    cse_assert(!extend_formatting, "TODO Not implemented");
+  RichText& insert(std::size_t index, const CharT* str) {
     auto sstr = std::basic_string<CharT>(str);
     m_text.insert(index, sstr);
     std::size_t len = sstr.length();
@@ -277,13 +271,11 @@ class RichText {
   /**
    * @brief Append a string to RichText
    * @param str The string to append
-   * @param extend_formatting Whether to extend formatting applied to the last
    * existing character to new characters
    */
   template <typename Str>
     requires std::derived_from<Str, std::basic_string<CharT>>
-  RichText& append(const Str& str, bool extend_formatting = false) {
-    cse_assert(!extend_formatting, "TODO Not implemented");
+  RichText& append(const Str& str) {
     return insert(size(), str);
   }
 
@@ -299,11 +291,9 @@ class RichText {
   /**
    * @brief Append a character to RichText
    * @param ch The character to append
-   * @param extend_formatting Whether to extend formatting applied to the last
    * existing character to new character
    */
-  RichText& push_back(CharT ch, bool extend_formatting = false) {
-    cse_assert(!extend_formatting, "TODO Not implemented");
+  RichText& push_back(CharT ch) {
     m_text.push_back(ch);
     return *this;
   }
