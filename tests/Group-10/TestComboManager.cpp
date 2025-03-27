@@ -1,11 +1,9 @@
 #include <array>
-#include <iostream>
 #include <list>
 #include <set>
 #include <string>
 #include <type_traits>
 #include <vector>
-#include <type_traits>
 
 #include "../../Group-10/Classes/ComboManager.hpp"
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
@@ -305,7 +303,6 @@ TEST_CASE("ComboManager: Larger container total combinations test",
  * Advanced Test Cases
 
    - Iterators
-   - Permutations
    - Repeating Elements
    - Required Elements
  */
@@ -371,11 +368,14 @@ TEST_CASE("ComboManager: Testing a reverse For Loop", "[ComboManager]") {
   REQUIRE(index == correctCombos.size());
 }
 
+/**
+ * Required Elements Testing
+ */
 TEST_CASE("ComboManager: Testing Basic Required Element functionality",
           "[ComboManager]") {
   std::vector<int> testVector1 = {5, 4, 3, 2, 1};
 
-  // Should Require 1 in every combination
+  // Should Require the value at index 4 (1) in every combination
   cse::ComboManager<std::vector<int>> manager(testVector1, 3, 4, false);
   std::vector<std::vector<int>> correctCombos = {
       {5, 4, 1}, {5, 3, 1}, {5, 2, 1}, {4, 3, 1}, {4, 2, 1}, {3, 2, 1}};
@@ -391,7 +391,7 @@ TEST_CASE("ComboManager: Testing Basic Required Element functionality",
 TEST_CASE("ComboManager: Testing Various Required Elements", "[ComboManager]") {
   std::vector<int> testVector1 = {5, 4, 3, 3, 1};
 
-  // Should Require 1 in every combination
+  // Should Require the value at index 2 (3) in every combination
   cse::ComboManager<std::vector<int>> manager(testVector1, 3, 2, false);
   std::vector<std::vector<int>> correctCombos = {
       {5, 4, 3}, {5, 3, 3}, {5, 1, 3}, {4, 3, 3}, {4, 1, 3}, {3, 1, 3}};
@@ -408,31 +408,35 @@ TEST_CASE("ComboManager: Testing Various Required Elements", "[ComboManager]") {
   } catch (const std::invalid_argument& error) {
     // Invalid Argument should be called on the out_of_range required index
     CHECK(true);
-  } catch(...) {
+  } catch (...) {
     // No other exceptions should be called for that construction
     CHECK(false);
   }
 
+  // Negative numbers are rounded up due to overflow with size_t
   try {
     cse::ComboManager<std::vector<int>> manager2(testVector1, 3, -1, false);
   } catch (const std::invalid_argument& error) {
     // Invalid Argument should be called on the out_of_range required index
     CHECK(true);
-  } catch(...) {
+  } catch (...) {
     // No other exceptions should be called for that construction
     CHECK(false);
   }
 }
 
-TEST_CASE("ComboManager: Repeating Elements Without Required Element", "[ComboManager]") {
+/**
+ * Repeating Elements Tests
+ */
+TEST_CASE("ComboManager: Repeating Elements Without Required Element",
+          "[ComboManager]") {
   std::vector<int> testVector = {1, 2, 3};
-  // With repeats allowed and combination size 2, we should have C(3+2-1, 2) = C(4,2) = 6 combinations.
-  // Expected combinations (non-decreasing order):
-  // {1, 1}, {1, 2}, {1, 3}, {2, 2}, {2, 3}, {3, 3}
+  // With repeats allowed and combination size 2, we should have C(3+2-1, 2) =
+  // C(4,2) = 6 combinations. Expected combinations (non-decreasing order): {1,
+  // 1}, {1, 2}, {1, 3}, {2, 2}, {2, 3}, {3, 3}
   cse::ComboManager<std::vector<int>> manager(testVector, 2, true);
-  std::vector<std::vector<int>> correctCombos = {
-      {1, 1}, {1, 2}, {1, 3}, {2, 2}, {2, 3}, {3, 3}
-  };
+  std::vector<std::vector<int>> correctCombos = {{1, 1}, {1, 2}, {1, 3},
+                                                 {2, 2}, {2, 3}, {3, 3}};
 
   std::size_t index = 0;
   for (auto combo : manager) {
@@ -440,19 +444,28 @@ TEST_CASE("ComboManager: Repeating Elements Without Required Element", "[ComboMa
     index++;
   }
   REQUIRE(index == correctCombos.size());
+
+  index = correctCombos.size();
+  for (auto iter = manager.rend(); iter != manager.rbegin(); --iter) {
+    index -= 1;
+    REQUIRE(correctCombos.at(index) == *iter);
+  }
+  REQUIRE(index == 0);
 }
 
-TEST_CASE("ComboManager: Repeating Elements With Required Element", "[ComboManager]") {
+TEST_CASE("ComboManager: Repeating Elements With Required Element",
+          "[ComboManager]") {
   std::vector<int> testVector = {10, 20, 30, 40};
   // Require the element at index 2 (value 30) in every combination.
-  // For combination size 3, the required mode removes the required element and works with an effective size of 2.
-  // With repeats allowed, the available elements become {10, 20, 40} and the 2-element combinations (non-decreasing) are:
-  // {10, 10}, {10, 20}, {10, 40}, {20, 20}, {20, 40}, {40, 40}.
-  // The required element 30 is appended to each combination.
+  // For combination size 3, the required mode removes the required element and
+  // works with an effective size of 2. With repeats allowed, the available
+  // elements become {10, 20, 40} and the 2-element combinations
+  // (non-decreasing) are: {10, 10}, {10, 20}, {10, 40}, {20, 20}, {20, 40},
+  // {40, 40}. The required element 30 is appended to each combination.
   cse::ComboManager<std::vector<int>> manager(testVector, 3, 2, true);
   std::vector<std::vector<int>> correctCombos = {
-      {10, 10, 30}, {10, 20, 30}, {10, 40, 30}, {20, 20, 30}, {20, 40, 30}, {40, 40, 30}
-  };
+      {10, 10, 30}, {10, 20, 30}, {10, 30, 30}, {10, 40, 30}, {20, 20, 30},
+      {20, 30, 30}, {20, 40, 30}, {30, 30, 30}, {30, 40, 30}, {40, 40, 30}};
 
   std::size_t index = 0;
   for (auto combo : manager) {
@@ -460,10 +473,18 @@ TEST_CASE("ComboManager: Repeating Elements With Required Element", "[ComboManag
     index++;
   }
   REQUIRE(index == correctCombos.size());
+
+  index = correctCombos.size();
+  for (auto iter = manager.rend(); iter != manager.rbegin(); --iter) {
+    --index;
+    REQUIRE(correctCombos.at(index) == *iter);
+  }
+  REQUIRE(index == 0);
 }
 
-TEST_CASE("ComboManager: Binomial Coefficient for Repeating Elements", "[ComboManager]") {
-  std::vector<int> numbers = {0, 1, 2, 3, 4}; // n = 5
+TEST_CASE("ComboManager: Binomial Coefficient for Repeating Elements",
+          "[ComboManager]") {
+  std::vector<int> numbers = {0, 1, 2, 3, 4};  // n = 5
 
   // Test 1: Combination size 3 with repeats allowed.
   // Expected total combinations = C(n+k-1, k) = C(5+3-1, 3) = C(7, 3) = 35.
@@ -477,30 +498,3 @@ TEST_CASE("ComboManager: Binomial Coefficient for Repeating Elements", "[ComboMa
   const std::size_t expectedTotal2 = 15;
   REQUIRE(cm2.TotalCombinations() == expectedTotal2);
 }
-/**
- * Repeating determines whether individual elements can repeat within a
- * combination (determined by index) (AllowRepetition) Repeating count
- * determines how many times that individual element may repeat (max of the
- * length of combo) (MaxRepetitions)
- */
-/*TEST_CASE("Combo Manager: Test Repeating Elements", "[ComboManager]") {
-  bc = BinomialCoefficient(n = 5, k = 3, AllowRepetition = true,
-                           MaxRepetitions = 2);
-  expected = 7;
-  REQUIRE(bc == expected);
-
-  bc = BinomialCoefficient(n = 5, k = 2, AllowRepetition = false,
-                           MaxRepetitions = None);
-  expected = 10;
-  REQUIRE(bc == expected);
-
-  bc = BinomialCoefficient(n = 4, k = 3, AllowRepetition = true,
-                           MaxRepetitions = None);
-  expected = 20;
-  REQUIRE(bc == expected);
-
-  bc = BinomialCoefficient(n = 3, k = 3, AllowRepetition = true,
-                           MaxRepetitions = 1);
-  expected = 1;
-  REQUIRE(bc == expected);
-}*/
