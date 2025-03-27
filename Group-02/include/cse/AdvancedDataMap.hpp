@@ -18,17 +18,17 @@
 namespace cse {
 
 template <typename T>
-concept has_sizeof = requires(T& value) {
-    sizeof(T);
+concept has_sizeof = requires(T & value) {
+  sizeof(T);
 };
 
 template <typename T>
-concept uses_to_string = requires(T& value) {
+concept uses_to_string = requires(T & value) {
   std::to_string(value);
 };
 
 template <typename T>
-concept has_to_string = requires(T& value) {
+concept has_to_string = requires(T & value) {
   value.ToString();
 };
 
@@ -66,8 +66,7 @@ class [[maybe_unused]] AdvDataMap {
        * @param flag true if reference false if not
        * @param ref ptr to member variable value if flag is true
        */
-      explicit Val(T value, bool flag = false, T* ref = nullptr)
-          : value(value), flag(flag), ref_ptr(ref) {
+      explicit Val(T value, bool flag = false, T* ref = nullptr) : value(value), flag(flag), ref_ptr(ref) {
         numeric = std::is_arithmetic_v<T>;
         convert = std::convertible_to<T, std::string>;
       }
@@ -166,7 +165,7 @@ class [[maybe_unused]] AdvDataMap {
      * @param ref_ptr pointer to value if it is a reference
      */
     template <typename T>
-    Any(T value, bool flag = false, T* ref_ptr = nullptr) { // NOLINT(*-explicit-constructor)
+    Any(T value, bool flag = false, T* ref_ptr = nullptr) {  // NOLINT(*-explicit-constructor)
       /// I dont want this to be marked explicit
       value_ptr = std::make_unique<Val<T>>(value, flag, ref_ptr);
     }

@@ -21,11 +21,7 @@ TEST_CASE("DataMap Default Constructor Test", "[DataMap]") {
 }
 
 TEST_CASE("DataMap Initializer List Constructor Test", "[DataMap]") {
-  cse::DataMap data_map = {
-    {"name", std::string("professor")},
-    {"age", 22},
-    {"dob", std::string("0120")}
-  };
+  cse::DataMap data_map = {{"name", std::string("professor")}, {"age", 22}, {"dob", std::string("0120")}};
 
   SECTION("DataMap is not empty") {
     bool y = data_map.empty();
@@ -48,11 +44,7 @@ TEST_CASE("DataMap Edge Case", "[DataMap]") {
 }
 
 TEST_CASE("DataMap Copy Constructor Tests", "[DataMap]") {
-  cse::DataMap data_map = {
-      {"name", std::string("professor")},
-      {"age", 22},
-      {"dob", std::string("0120")}
-  };
+  cse::DataMap data_map = {{"name", std::string("professor")}, {"age", 22}, {"dob", std::string("0120")}};
 
   cse::DataMap copy(data_map);
 
@@ -82,11 +74,7 @@ TEST_CASE("DataMap Copy Constructor Tests", "[DataMap]") {
 }
 
 TEST_CASE("DataMap Copy Assignment Tests") {
-  cse::DataMap data_map = {
-      {"name", std::string("professor")},
-      {"age", 22},
-      {"dob", std::string("0120")}
-  };
+  cse::DataMap data_map = {{"name", std::string("professor")}, {"age", 22}, {"dob", std::string("0120")}};
 
   cse::DataMap copy;
   copy = data_map;
@@ -109,7 +97,6 @@ TEST_CASE("DataMap Copy Assignment Tests") {
     data_map.insert("new", 10);
     REQUIRE_FALSE(copy.contains("new"));
   }
-
 }
 
 TEST_CASE("DataMap Insert Method Tests", "[DataMap]") {
@@ -146,7 +133,7 @@ TEST_CASE("DataMap [] operator Test") {
   }
 }
 
-TEST_CASE("DataMap .at method Tests","[DataMap]") {
+TEST_CASE("DataMap .at method Tests", "[DataMap]") {
   cse::DataMap data_map;
   data_map.insert("key", 80.2);
   data_map.insert("key_two", std::string("value"));

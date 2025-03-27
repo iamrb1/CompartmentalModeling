@@ -7,10 +7,8 @@
 
 #pragma once
 
-
 #include <optional>
 #include <string>
-
 
 class StateGrid;
 
@@ -45,18 +43,24 @@ class StateGridPosition {
  public:
   StateGridPosition();
 
-//  static Point create_point(double x, double y);
+  //  static Point create_point(double x, double y);
 
   ///Get the stategrid this position is associated with
-  [[maybe_unused]] std::optional<StateGrid*> get_state_grid() { return m_state_grid; }
+  [[maybe_unused]] std::optional<StateGrid*> get_state_grid() {
+    return m_state_grid;
+  }
 
   ///Possibly getState, but can be done in only necessary places as well
 
   ///Get central position of the stategrid
-  [[maybe_unused]] Point get_grid_position() { return m_central_position; }
+  [[maybe_unused]] Point get_grid_position() {
+    return m_central_position;
+  }
 
   ///Get the position of the object this stategrid is associated with
-  [[maybe_unused]] Point get_object_position() { return m_object_position; }
+  [[maybe_unused]] Point get_object_position() {
+    return m_object_position;
+  }
 
   ///Set position of object this stategrid is associated with
   [[maybe_unused]] void set_object_position(double x, double y);
@@ -69,11 +73,11 @@ class StateGridPosition {
   [[nodiscard]] std::string compare_direction(Point newmove) const;
 
   ///Set the object's orientation, 0-359 degrees
-  [[maybe_unused]] void set_object_orientation(double orientation) { m_object_orientation = orientation; }
+  [[maybe_unused]] void set_object_orientation(double orientation) {
+    m_object_orientation = orientation;
+  }
 
   ///Calculates the object's position, still working on specs
   [[maybe_unused]] [[nodiscard]] Point calculate_object_position();
 };
 }  // namespace cse
-
-

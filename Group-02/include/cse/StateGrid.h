@@ -36,8 +36,7 @@ struct StateDictionary {
    * @param searchchar char that is being searched for
    * @return bool stating if the state was found
    */
-  bool find(char searchchar)
-  {
+  bool find(char searchchar) {
     return m_state_dictionary.find(searchchar) != m_state_dictionary.end();
   }
   /**
@@ -45,8 +44,7 @@ struct StateDictionary {
    * @param searchchar state to be queried
    * @return bool stating if the state is traversable
    */
-  bool traversable(char searchchar)
-  {
+  bool traversable(char searchchar) {
     return m_state_dictionary.at(searchchar)[1] == "Open";
   }
   /**
@@ -54,8 +52,7 @@ struct StateDictionary {
    * @param searchchar The state being queried
    * @return AuditedVector of properties for queried state
    */
-  cse::AuditedVector<std::string> get_info(char searchchar)
-  {
+  cse::AuditedVector<std::string> get_info(char searchchar) {
     return m_state_dictionary.at(searchchar);
   }
   /**
@@ -65,8 +62,7 @@ struct StateDictionary {
    * @param changeprop An optional variable, that can contain the new property or when not present, indicates removal
    * The use of std::nullopt was suggested to me by ChatGPT
    */
-  void change_property(char changestate, std::string& property, std::optional<std::string> changeprop = std::nullopt)
-  {
+  void change_property(char changestate, std::string& property, std::optional<std::string> changeprop = std::nullopt) {
     auto it = m_state_dictionary.find(changestate);
     if (it == m_state_dictionary.end()) {
       return;
@@ -76,15 +72,11 @@ struct StateDictionary {
     auto found = std::find(properties.begin(), properties.end(), property);
 
     if (found != properties.end()) {
-      if(changeprop)
-      {
+      if (changeprop) {
         *found = std::move(*changeprop);
-      }
-      else
-      {
+      } else {
         properties.erase(found);
       }
-
     }
   }
 };
@@ -102,14 +94,11 @@ class StateGrid {
   ///StateDictionary object that holds all property info about StateGrid states
   StateDictionary m_dictionary;
 
-
  public:
-
   /**
    * Default StateGrid Constructor (No arguments)
    */
-  StateGrid()
-  {
+  StateGrid() {
     load_map("test");
   }
 
@@ -125,27 +114,26 @@ class StateGrid {
 
   friend std::ostream& operator<<(std::ostream& os, const cse::AuditedVector<std::string>& grid);
 
-  void display_grid();
+  [[maybe_unused]] void display_grid();
   ///REVIEW COMMENT: I had a comment about my use of std::pairs instead of a dedicated Point struct,
   /// like in SGPos, but this currently would not work with indexing into m_grid with doubles,
   /// so in advanced version I will include a better looking struct that will coincide with SGPos
-  bool set_state(Point new_position);
+  [[maybe_unused]] bool set_state(Point new_position);
 
   char get_state(Point statepos);
 
   cse::AuditedVector<std::string> define_state(char state);
 
-  void set_condition(char changestate, std::string property, std::string changeprop);
+  [[maybe_unused]] void set_condition(char changestate, std::string property, std::string changeprop);
 
-  void remove_condition(char changestate, std::string property);
+  [[maybe_unused]] void remove_condition(char changestate, std::string property);
 
-  std::map<std::string, cse::AuditedVector<std::string>> find_properties();
+  [[maybe_unused]] std::map<std::string, cse::AuditedVector<std::string>> find_properties();
 
   bool validate_position(std::pair<double, double> move);
 
   std::vector<Point> find_moves();
 
-  void modify_all_cells(const std::function<void(int, int, char&)>& func);
-
+  [[maybe_unused]] void modify_all_cells(const std::function<void(int, int, char&)>& func);
 };
 }  // namespace cse

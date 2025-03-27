@@ -64,4 +64,3 @@ class AuditedVector : public std::vector<T, Allocator> {
 #endif  // NDEBUG
 
 }  // namespace cse
-

@@ -3,8 +3,8 @@
  * @author Nitish Maindoliya
  */
 
-#include <catch2/catch.hpp>
 #include <cse/ActionMap.h>
+#include <catch2/catch.hpp>
 
 TEST_CASE("ActionMap: Intialization", "[ActionMap]") {
   SECTION("Default constructor") {
@@ -60,11 +60,15 @@ TEST_CASE("ActionMap: insert, contains, erase, clear", "[ActionMap]") {
 }
 
 static int global_count = 0;
-void increment_global_count() { ++global_count; }
-void decrement_global_count() { --global_count; }
+void increment_global_count() {
+  ++global_count;
+}
+void decrement_global_count() {
+  --global_count;
+}
 
 TEST_CASE("ActionMap: invoking actions", "[ActionMap]") {
-  SECTION ("Invoking void() actions") {
+  SECTION("Invoking void() actions") {
     cse::ActionMap map;
     int count = 0;
 
@@ -118,19 +122,13 @@ TEST_CASE("ActionMap: invoking actions", "[ActionMap]") {
     REQUIRE(map.invoke<int>("increment", 5) == 5);
     REQUIRE(map.invoke<int>("decrement", 3) == 2);
 
-    map.insert("string", []() -> std::string {
-      return "Hello, World!";
-    });
+    map.insert("string", []() -> std::string { return "Hello, World!"; });
     REQUIRE(map.invoke<std::string>("string") == "Hello, World!");
 
-    map.insert("bool", []() -> bool {
-      return true;
-    });
+    map.insert("bool", []() -> bool { return true; });
     REQUIRE(map.invoke<bool>("bool") == true);
 
-    map.insert("float", []() -> float {
-      return 3.14f;
-    });
+    map.insert("float", []() -> float { return 3.14f; });
     REQUIRE(map.invoke<float>("float") == 3.14f);
   }
 }
