@@ -143,7 +143,7 @@ bool AuditedArray<T, Size>::isValidIndex(int index) const {
 template <typename T, size_t Size>
 int AuditedArray<T, Size>::indexOf(const T& value) const {
   /**
-   * Finds the index of a specific value
+   * Finds the first index of a value in the array
    * @param value: The value to find
    * @return: The index of the value if found, -1 otherwise
    */

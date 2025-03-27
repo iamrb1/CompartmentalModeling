@@ -1,6 +1,8 @@
 /**
  * @file AuditedArrayTest.cpp
  * @author Siddhartha Bhattacharya
+ * 
+ * Note that the tests are only compiled if NDEBUG is not defined and AUDIT is defined.
  */
 #include "../../Group-07/Team07Library/AuditedArray.hpp"
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
@@ -16,9 +18,37 @@ TEST_CASE("AuditedArray Construction", "[AuditedArray]") {
 }
 
 TEST_CASE("AuditedArray Copy Construction", "[AuditedArray]") {
-  cse::AuditedArray<int, 5> arr;
-  cse::AuditedArray<int, 5> arr2 = arr;
-}
+        cse::AuditedArray<int, 5> original;
+        original[0] = 10;
+        original[1] = 20;
+        original[2] = 30;
+
+        cse::AuditedArray<int, 5> copied = original; // copy constr
+
+        // ensure that the copied array has the same values as the original
+        REQUIRE(copied[0] == 10);
+        REQUIRE(copied[1] == 20);
+        REQUIRE(copied[2] == 30);
+        
+        
+        REQUIRE(copied[3] == 0); // remaining elements should be default initialized
+        REQUIRE(copied[4] == 0);
+    
+
+
+        // next tests: modify the copied array and ensure that the original array remains unchanged
+        cse::AuditedArray<int, 5> original2;
+        original2[0] = 10;
+        original2[1] = 20;
+
+        cse::AuditedArray<int, 5> copied2 = original2;
+
+        copied2[0] = 100; // modifies the copied array
+        copied2[1] = 200;
+
+        REQUIRE(original2[0] == 10); // orignal should be same
+        REQUIRE(original2[1] == 20);
+  }
 
 TEST_CASE("AuditedArray Size", "[AuditedArray]") {
   cse::AuditedArray<int, 5> arr;
@@ -79,8 +109,10 @@ TEST_CASE("AuditedArray IndexOf", "[AuditedArray]") {
   cse::AuditedArray<int, 5> arr;
   arr.fill(1);
   arr[1] = 3;
+  arr[3] = 3;
 
   REQUIRE(arr.indexOf(1) == 0);
+  REQUIRE(arr.indexOf(3) == 1); // first index of 3
   REQUIRE(arr.indexOf(2) == -1);
 }
 
