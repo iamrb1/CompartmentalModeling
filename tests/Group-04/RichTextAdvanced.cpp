@@ -1,37 +1,20 @@
 #include <string>
 
+#include "CseString.hpp"
 #include "IndexSet.hpp"
 #include "RichText.hpp"
 #include "catch.hpp"
 
-// example composite template usage
-template <typename T>
-class Document {
-  using text_t = cse::RichText<T>;
-
-  // tree structure
-  class Node;
-  using child_t = std::variant<text_t, std::vector<Node>>;
-  class Node {
-    std::vector<child_t> children;
-  };
-
-  Node root;
-};
-
 // this test case doesn't actually have assertions, it just needs to compile
 TEST_CASE("RichText template support", "[RichTextAdvanced]") {
-  // basic templates
+  // basic template (std::string)
   cse::RichText text1;
-  cse::RichText<wchar_t> text2;
 
-  // containers
-  cse::RichText<int> text3;
-  // FIXME: Can not use non-trivial character types.
-  // cse::RichText<std::string> text4;
+  // character type template
+  cse::BasicRichText<wchar_t> text2;
 
-  // usage in composite templates
-  Document<char> doc;
+  // underlying string template
+  cse::BasicRichText<char, cse::String> text3;
 }
 
 TEST_CASE("RichText move semantics", "[RichTextAdvanced]") {
@@ -105,25 +88,18 @@ TEST_CASE("New RichText operations", "[RichTextAdvanced]") {
   REQUIRE(text2.formats_at(5).size() == 0);
 }
 
-TEST_CASE("RichText insertions", "[RichTextAdvanced]") {
+TEST_CASE("RichText insertions and substitution", "[RichTextAdvanced]") {
   cse::TextFormat red("color", "red");
   cse::RichText text{"hello"};
   text.apply_format(red, 0, text.size());
 
-  // TODO
-  // text[0] = "j";
-  // REQUIRE(text.to_string() == "jello");
+  // ensure substitution retains formatting
+  text[0] = 'm';
+  REQUIRE(text.to_string() == "mello");
+  REQUIRE(text.formats_at(0) == std::vector<cse::TextFormat>{red});
 
-  // text[0] = 'p';
-  // text[1] = 'i';
-
-  // TODO
-  // text.push_back('w', true);
-  REQUIRE(text.to_string() == "pillow");
-  // expand format from insertion
-  REQUIRE(text.formats_at(5).size() == 1);
-
-  // TODO
-  // text.erase(cse::IndexSet{0, 4, 5});
-  REQUIRE(text.to_string() == "ill");
+  // ensure formats are properly shifted
+  text.insert(3, "lo yel");
+  REQUIRE(text.to_string() == "mello yello");
+  REQUIRE(text.formats_at(9) == std::vector<cse::TextFormat>{red});
 }

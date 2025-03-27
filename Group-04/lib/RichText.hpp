@@ -236,20 +236,26 @@ class BasicRichText {
   BasicRichText& operator+=(const Underlying& str) { return append(str); }
 
   /**
+   * @brief Get the character at a position (const reference)
+   * @param pos The position of the desired character
+   * @return The character at position `pos`
+   */
+  [[nodiscard]] CharT& operator[](std::size_t pos) const {
+    return m_text.at(pos);
+  }
+
+  /**
+   * @brief Get the character at a position (non-const reference)
+   * @param pos The position of the desired character
+   * @return The character at position `pos`
+   */
+  [[nodiscard]] CharT& operator[](std::size_t pos) { return m_text.at(pos); }
+
+  /**
    * @brief Get the size of the underlying string
    * @return The size of the text
    */
   [[nodiscard]] std::size_t size() const noexcept { return m_text.size(); }
-
-  /**
-   * @brief Get the character at a position
-   * @param pos The position of the desired character
-   * @return The character at position `pos`
-   */
-  [[nodiscard]] const CharT& char_at(std::size_t pos) const {
-    // TODO replace with subscript operator
-    return m_text.at(pos);
-  }
 
   /**
    * @brief Get the underlying string of this RichText
