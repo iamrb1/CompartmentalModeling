@@ -23,7 +23,6 @@ set(
     StateGridPosition.cpp
     AuditedVector.cpp
     DataMap.cpp
-    AdvancedDataMap.cpp
 )
 
 # Add the library target
