@@ -140,3 +140,37 @@ TEST_CASE("Simulation_MissingSpeciesInteraction", "[Simulation]") {
     std::string logs = capturedStream.str();
     REQUIRE(logs.find("Simulation complete.") != std::string::npos);
 }
+
+// Normal Simulation
+// Run a normal simulation with multiple species and interactions.
+//
+TEST_CASE("Simulation_Regular_Run", "[Simulation]") {
+    std::ostringstream capturedStream;
+    std::streambuf* oldCoutStreamBuf = std::cout.rdbuf();
+    std::cout.rdbuf(capturedStream.rdbuf());
+
+    OutputLog dummyLog(LogLevel::DEBUG, "dummy.log");
+    dummyLog.enableConsoleOutput(true);
+
+    // Create a simulation state with 3 time steps and only one species.
+    SimulationState state(3, 1);
+    state.AddSpecies({"Rabbits", 100, 0.1, 0.05, 10, 2, "Grass"});
+    state.AddSpecies({"Foxes", 10, 0.05, 0.1, 15, 3, "Rabbits"});
+    state.AddInteraction({"Foxes", "Rabbits", 0.1}); 
+
+    runSimulation(state, dummyLog);
+
+    std::cout.rdbuf(oldCoutStreamBuf);
+
+    Species* rabbits = state.FindSpecies("Rabbits");
+    REQUIRE(rabbits != nullptr);
+    Species* foxes = state.FindSpecies("Foxes");
+    REQUIRE(foxes != nullptr);
+
+    REQUIRE(rabbits->population == 114);
+    REQUIRE(foxes->population == 9);
+
+    std::string logs = capturedStream.str();
+    REQUIRE(logs.find("Simulation complete.") != std::string::npos);
+
+}

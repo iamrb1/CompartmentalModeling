@@ -15,6 +15,16 @@ struct Species {
         std::string foodSource;
 };
 
+struct Predator {
+    int id;
+    std::string prey;
+    uint16_t lastEaten;
+
+    std::vector<double> getWeights() {
+        return std::vector<double>{static_cast<double>(lastEaten)};
+    }
+};
+
 struct Interaction {
     std::string predator;
     std::string prey;
