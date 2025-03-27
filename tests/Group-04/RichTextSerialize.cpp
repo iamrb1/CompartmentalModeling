@@ -2,18 +2,18 @@
 
 #include "RichText.hpp"
 
-// TEST_CASE("RichText basic serialization", "[RichTextSerialize]") {
-//   cse::TextFormat bold("bold");
-//   cse::RichText text{"hello"};
-//   text.apply_format(bold);
+TEST_CASE("RichText basic serialization", "[RichTextSerialize]") {
+  cse::TextFormat bold("bold");
+  cse::RichText text{"hello"};
+  text.apply_format(bold);
 
-//   cse::RichText::Serializer serializer{"HTML"};
-//   serializer.AddRule("bold", "<strong>", "</strong>");
+  cse::RichText::Serializer serializer{"HTML"};
+  serializer.AddRule("bold", "<strong>", "</strong>");
 
-//   std::string output = text.serialize(serializer).output;
-//   std::string expected = "<strong>hello</strong>";
-//   REQUIRE(output == expected);
-// }
+  std::string output = text.serialize(serializer).output;
+  std::string expected = "<strong>hello</strong>";
+  REQUIRE(output == expected);
+}
 
 TEST_CASE("RichText complex serialization", "[RichTextSerialize]") {
   std::string header = R"(<style>
@@ -38,6 +38,7 @@ TEST_CASE("RichText complex serialization", "[RichTextSerialize]") {
   cse::RichText::Serializer serializer{"HTML", header, footer};
 
   auto color_start = [](cse::TextFormat const &format) {
+    cse_assert(std::holds_alternative<std::string>(format.metadata));
     std::string color = std::get<std::string>(format.metadata);
     return std::format("<span class={}>", color);
   };
@@ -45,7 +46,6 @@ TEST_CASE("RichText complex serialization", "[RichTextSerialize]") {
 
   std::string output = text.serialize(serializer).output;
 
-  // FIXME red is not applied
   REQUIRE(output ==
           (header +
            "<span class=red>hello</span> <span class=blue>world</span>" +

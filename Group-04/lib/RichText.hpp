@@ -114,8 +114,10 @@ class BasicRichText {
                      TextFormat const& format) const {
       switch (token.index()) {
         case 0:
+          cse_assert(std::holds_alternative<Underlying>(token));
           return std::get<Underlying>(token);
         case 1:
+          cse_assert(std::holds_alternative<TokenLambda>(token));
           return std::get<TokenLambda>(token)(format);
         default:
           cse_assert_never("Impossible variant access");
@@ -426,41 +428,24 @@ class BasicRichText {
 
     std::set<FormatSerializeTracker> trackers;
 
-    {  // Populate the format trackers
-      auto format_iter = m_formatting.begin();
-      auto const format_iter_end = m_formatting.end();
-      auto serializer_format_iter = serializer.rules.begin();
-      auto const serializer_format_iter_end = serializer.rules.end();
-
-      while (format_iter != format_iter_end &&
-             serializer_format_iter != serializer_format_iter_end) {
-        if (format_iter->first.name < serializer_format_iter->first) {
-          result.missed_formats.push_back(format_iter->first);
-          ++format_iter;
-        } else if (format_iter->first.name == serializer_format_iter->first) {
-          trackers.emplace(
-              format_iter->first,                 // Format
-              serializer_format_iter->second,     // Serialize Rule
-              format_iter->second.cbegin_pair(),  // Format Iterators
-              format_iter->second.cend_pair());
-          ++format_iter;
-          ++serializer_format_iter;
-        } else {
-          ++serializer_format_iter;
-        }
-      }
-
-      while (format_iter != format_iter_end) {
-        result.missed_formats.push_back(format_iter->first);
-        ++format_iter;
+    // Populate the format trackers
+    for (auto& [format, indices] : m_formatting) {
+      auto serializer_format = serializer.rules.find(format.name);
+      if (serializer_format != serializer.rules.end()) {
+        trackers.emplace(format, serializer_format->second,
+                         indices.cbegin_pair(), indices.cend_pair());
+      } else {
+        result.missed_formats.push_back(format.name);
       }
     }
 
     std::size_t current = 0;
-    auto tracker_iter = trackers.begin();
 
     // Process the text
     while (current < m_text.size() && !trackers.empty()) {
+      // Restart trackers while there's still text to process
+      auto tracker_iter = trackers.begin();
+
       // Track the next format deactivation
       std::size_t next = std::numeric_limits<std::size_t>::max();
 
