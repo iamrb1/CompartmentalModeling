@@ -459,8 +459,6 @@ class BitVector {
 
     // Add interpolated elements in a loop
     for (--el; el > start_at; --el) {
-      bv_type add = m_underlying[el - 1] >> shift;
-      add |= m_underlying[el] << (BITS_PER_EL - shift);
       out <<= BITS_PER_EL;
       out |= m_underlying[el - 1];
     }
@@ -555,8 +553,7 @@ BitVector::BitVector(const std::string& bstr, char zero, char one) {
 BitVector::proxy BitVector::operator[](size_t idx) {
   dbg_assert(idx < m_num_bits,
              std::format("Invalid index into BitVector: idx - {}, max - {}",
-                         idx, m_num_bits)
-                 .c_str());
+                         idx, m_num_bits));
   return proxy(this, &m_underlying[idx / BITS_PER_EL], idx % BITS_PER_EL);
 }
 
@@ -665,8 +662,7 @@ BitVector& BitVector::set(size_t idx) {
   cse_assert(
       idx < m_num_bits,
       std::format("Attempt to set BitVector at index {}, number of bits is {}",
-                  idx, m_num_bits)
-          .c_str());
+                  idx, m_num_bits));
   (*this)[idx] = true;
   return *this;
 }
@@ -678,8 +674,7 @@ BitVector& BitVector::set(size_t start, size_t count) {
       (start + count) <= m_num_bits,
       std::format("Invalid range to set BitVector: start: {}, count: {}, "
                   "number of bits is: {}",
-                  start, count, m_num_bits)
-          .c_str());
+                  start, count, m_num_bits));
   return pattern_set(start, count, ALL_ONE);
 }
 
@@ -691,8 +686,7 @@ BitVector& BitVector::reset(size_t idx) {
   cse_assert(idx < m_num_bits,
              std::format(
                  "Attempt to reset BitVector at index {}, number of bits is {}",
-                 idx, m_num_bits)
-                 .c_str());
+                 idx, m_num_bits));
   (*this)[idx] = false;
   return *this;
 }
@@ -704,8 +698,7 @@ BitVector& BitVector::reset(size_t start, size_t count) {
       (start + count) <= m_num_bits,
       std::format("Invalid range to reset BitVector: start: {}, count: {}, "
                   "number of bits is: {}",
-                  start, count, m_num_bits)
-          .c_str());
+                  start, count, m_num_bits));
   return pattern_set(start, count, ALL_ZERO);
 }
 
@@ -714,8 +707,7 @@ bool BitVector::test(size_t idx) const {
   cse_assert(
       idx < m_num_bits,
       std::format("Attempt to test BitVector at index {}, number of bits is {}",
-                  idx, m_num_bits)
-          .c_str());
+                  idx, m_num_bits));
   return (*this)[idx];
 }
 
@@ -737,8 +729,7 @@ BitVector& BitVector::flip(size_t idx) {
   cse_assert(
       idx < m_num_bits,
       std::format("Attempt to flip BitVector at index {}, number of bits is {}",
-                  idx, m_num_bits)
-          .c_str());
+                  idx, m_num_bits));
 
   (*this)[idx].flip();
 
@@ -751,8 +742,7 @@ BitVector& BitVector::flip(size_t start, size_t count) {
   cse_assert((start + count) <= m_num_bits,
              std::format("Invalid range to flip BitVector: start: {}, count: "
                          "{}, number of bits is: {}",
-                         start, count, m_num_bits)
-                 .c_str());
+                         start, count, m_num_bits));
 
   // Index of the first element we are changing
   size_t idx = start / BITS_PER_EL;

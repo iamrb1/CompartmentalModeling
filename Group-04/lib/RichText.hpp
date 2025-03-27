@@ -1,13 +1,21 @@
+/**
+ * @file RichText.h
+ * @author Grant, Kyle (Template stuff)
+ *
+ */
+
 #pragma once
 
+#include <algorithm>
 #include <cstdint>
 #include <format>
 #include <functional>
+#include <iterator>
+#include <limits>
 #include <map>
 #include <optional>
-#include <queue>
+#include <ranges>
 #include <set>
-#include <stack>
 #include <string>
 #include <utility>
 #include <variant>
@@ -18,295 +26,559 @@
 
 namespace cse {
 
+using FormatID = std::string;
+
+/**
+ * A format in rich text.
+ * The Format struct is specialized to represent various kinds of formats in
+ * rich text. Can support simple formats like: bold, italic, strikethrough.
+ * Can support more complex formats with metadata like: font size, web links.
+ */
+struct TextFormat {
+  using FormatID = std::string;
+  /**
+   * The name/id of the format.
+   */
+  FormatID name;
+  /**
+   * The metadata associated with the format.
+   * It may be an int to represent the size of the font, a string to represent
+   * the target of a hyperlink, etc.
+   */
+  std::variant<std::string, int32_t, std::monostate> metadata;
+
+  /**
+   * Constructs a format with metadata
+   * @param name The name of the format
+   * @param metadata The metadata of the format
+   */
+  TextFormat(FormatID name,
+             std::variant<std::string, int32_t, std::monostate> metadata)
+      : name(std::move(name)), metadata(std::move(metadata)) {}
+
+  /**
+   * Constructs a simple format without metadata
+   * @param name The name of the format
+   */
+  explicit(false) TextFormat(FormatID name)
+      : name(std::move(name)), metadata(std::monostate()) {}
+
+  /**
+   * Compares the name first then the metadata
+   * @param r right hand side
+   * @return True if this is less than the right hand side
+   */
+  bool operator<(const TextFormat& r) const {
+    if (name == r.name) return metadata < r.metadata;
+    return name < r.name;
+  }
+
+  /**
+   * Compares the name and the metadata
+   * @param r right hand side
+   * @return True if equivalent
+   */
+  bool operator==(const TextFormat& r) const {
+    return name == r.name && metadata == r.metadata;
+  }
+};
+
 /**
  * Stores Rich Text.
  * RichText stores and manipulates formatted rich text.
  * Provides tools to represent various formats.
  * Provides tools to serialize formatted text into various formats.
  */
-class RichText {
-  using FormatID = std::string;
-
+template <typename CharT = char, typename Underlying = std::basic_string<CharT>>
+  requires std::derived_from<Underlying, std::basic_string<CharT>>
+class BasicRichText {
  public:
   /**
-   * A format in rich text.
-   * The Format struct is specialized to represent various kinds of formats in
-   * rich text. Can support simple formats like: bold, italic, strikethrough.
-   * Can support more complex formats with metadata like: font size, web links.
+   * A rule describing how a format should be serialized.
    */
-  struct Format {
-    /**
-     * The name/id of the format.
-     */
-    FormatID name;
-    /**
-     * The metadata associated with the format.
-     * It may be an int to represent the size of the font, a string to represent
-     * the target of a hyperlink, etc.
-     */
-    std::variant<std::string, int32_t, std::monostate> metadata;
+  class SerializeRule {
+   private:
+    // No format name here, that is stored in the map as a key
+    using TokenLambda = std::function<Underlying(const TextFormat&)>;
+    using TokenVariant = std::variant<Underlying, TokenLambda>;
+    TokenVariant start_token;
+    TokenVariant end_token;
 
     /**
-     * Constructs a format with metadata
-     * @param name The name of the format
-     * @param metadata The metadata of the format
+     * @brief Get a token string from the variant, or generate a token with a
+     * lambda
+     * @param token The TokenVariant to use
+     * @param format The text format to pass to the lambda (if applicable)
      */
-    Format(FormatID name,
-           std::variant<std::string, int32_t, std::monostate> metadata)
-        : name(std::move(name)), metadata(std::move(metadata)) {}
+    Underlying Token(TokenVariant const& token,
+                     TextFormat const& format) const {
+      switch (token.index()) {
+        case 0:
+          cse_assert(std::holds_alternative<Underlying>(token));
+          return std::get<Underlying>(token);
+        case 1:
+          cse_assert(std::holds_alternative<TokenLambda>(token));
+          return std::get<TokenLambda>(token)(format);
+        default:
+          cse_assert_never("Impossible variant access");
+      }
+    }
+
+   public:
+    template <typename T1, typename T2>
+    SerializeRule(T1 start_token, T2 end_token)
+        : start_token(std::move(start_token)),
+          end_token(std::move(end_token)){};
 
     /**
-     * Constructs a simple format without metadata
-     * @param name The name of the format
+     * @brief Generate the start token for this rule
+     * @param format The text format to pass to the lambda (if applicable)
      */
-    explicit(false) Format(FormatID name)
-        : name(std::move(name)), metadata(std::monostate()) {}
-
-    /**
-     * Compares the name first then the metadata
-     * @param r right hand side
-     * @return True if this is less than the right hand side
-     */
-    bool operator<(const RichText::Format& r) const {
-      if (name == r.name) return metadata < r.metadata;
-      return name < r.name;
+    Underlying StartToken(TextFormat const& format) const {
+      return Token(start_token, format);
     }
 
     /**
-     * Compares the name and the metadata
-     * @param r right hand side
-     * @return True if equivalent
+     * @brief Generate the start token for this rule
+     * @param format The text format to pass to the lambda (if applicable)
      */
-    bool operator==(const RichText::Format& r) const {
-      return name == r.name && metadata == r.metadata;
+    Underlying EndToken(TextFormat const& format) const {
+      return Token(end_token, format);
     }
-  };
-
-  struct SerializeLambdaInput {
-    Format format;
-  };
-
-  struct SerializeLambdaOutput {
-    std::string token;
-  };
-
-  /**
-   * A rule for a format describing how it should be serialized.
-   */
-  struct SerializeRule {
-    //No format name here, that is stored in the map as a key
-    std::string start_token;
-    std::string end_token;
-    std::function<SerializeLambdaOutput&()> format;
   };
 
   struct Serializer {
-    const std::string name;
-    const std::map<FormatID, SerializeRule> serialize_rules;
-    explicit(false) Serializer(std::string name)
-        : name(std::move(name)){};
+    using Rules = std::map<TextFormat::FormatID, SerializeRule>;
 
+    const std::string name;
+    std::optional<Underlying> header = std::nullopt;
+    std::optional<Underlying> footer = std::nullopt;
+    Rules rules = Rules{};
+
+    template <typename T1, typename T2>
+    Serializer& AddRule(TextFormat::FormatID const& id, T1 start_token,
+                        T2 end_token) {
+      rules.emplace(
+          id, SerializeRule{std::move(start_token), std::move(end_token)});
+      return *this;
+    };
   };
 
   struct SerializeResult {
-    std::string name;
-    std::string result;
-    std::vector<Format> missed_formats;
+    const std::string name;
+    Underlying output{};
+    std::vector<TextFormat> missed_formats{};
   };
 
  private:
-  std::string m_text;
-  std::map<Format, cse::IndexSet> m_formatting;
+  Underlying m_text;
+  std::map<TextFormat, cse::IndexSet> m_formatting;
 
  public:
-  RichText() = default;
-  RichText(const RichText&) = default;
-  RichText(RichText&&) = default;
-  RichText& operator=(const RichText&) = default;
-  RichText& operator=(RichText&&) = default;
-  ~RichText() = default;
+  BasicRichText() = default;
+  BasicRichText(const BasicRichText&) = default;
+  BasicRichText(BasicRichText&&) = default;
+  BasicRichText& operator=(const BasicRichText&) = default;
+  BasicRichText& operator=(BasicRichText&&) = default;
+  ~BasicRichText() = default;
 
-  explicit RichText(std::string text) : m_text(std::move(text)) {}
-  explicit RichText(const char* text) : m_text(text) {}
+  explicit BasicRichText(Underlying text) : m_text(std::move(text)) {}
 
-  [[nodiscard]] size_t size() const noexcept { return m_text.size(); }
+  // Allow passing in any valid range to construct the RichText
+  // object
+  template <typename R>
+    requires std::same_as<std::ranges::range_value_t<R>, CharT>
+  BasicRichText(const R& text) {
+    std::ranges::copy(text, std::back_inserter(m_text));
+  }
 
-  [[nodiscard]] const char& char_at(size_t pos) const { return m_text.at(pos); }
+  // Constructor for string literals, since we don't want the null terminator
+  // (which is part of the range for some reason?)
+  BasicRichText(const CharT* text) : m_text(text) {}
 
-  [[nodiscard]] std::string to_string() const { return m_text; }
+  /**
+   * @brief Assign a string into RichText
+   * @param text The string to copy into RichText
+   */
+  BasicRichText& operator=(const Underlying& text) {
+    m_text = text;
+    m_formatting.clear();
+    return *this;
+  }
 
-  [[nodiscard]] std::vector<Format> formats_at(size_t pos) const {
+  /**
+   * @brief Assign and move a string into RichText
+   * @param text The string to move into RichText
+   */
+  BasicRichText& operator=(Underlying&& text) {
+    m_text = std::move(text);
+    m_formatting.clear();
+    return *this;
+  }
+
+  BasicRichText& operator=(const CharT* text) {
+    m_text = Underlying(text);
+    m_formatting.clear();
+    return *this;
+  }
+
+  /**
+   * @brief Append another RichText to RichText
+   * @param str The other RichText instance to append
+   */
+  BasicRichText& operator+=(const BasicRichText& str) { return append(str); }
+
+  /**
+   * @brief Append a string to RichText
+   * @param str The string to append
+   * existing character to new characters
+   */
+  BasicRichText& operator+=(const Underlying& str) { return append(str); }
+
+  /**
+   * @brief Get the character at a position (const reference)
+   * @param pos The position of the desired character
+   * @return The character at position `pos`
+   */
+  [[nodiscard]] CharT& operator[](std::size_t pos) const {
+    return m_text.at(pos);
+  }
+
+  /**
+   * @brief Get the character at a position (non-const reference)
+   * @param pos The position of the desired character
+   * @return The character at position `pos`
+   */
+  [[nodiscard]] CharT& operator[](std::size_t pos) { return m_text.at(pos); }
+
+  /**
+   * @brief Get the size of the underlying string
+   * @return The size of the text
+   */
+  [[nodiscard]] std::size_t size() const noexcept { return m_text.size(); }
+
+  /**
+   * @brief Get the underlying string of this RichText
+   * @return The text without formatting
+   */
+  [[nodiscard]] Underlying to_string() { return m_text; }
+
+  /**
+   * @brief Get the formats at a position
+   * @param pos The position to check for formats
+   * @return A vector of `TextFormat`s at position `pos`
+   */
+  [[nodiscard]] std::vector<TextFormat> formats_at(std::size_t pos) const {
     dbg_assert(pos < m_text.size(),
                std::format("Out of bounds access, idx: {} size: {}", pos,
                            m_text.size()));
-    std::vector<Format> result;
-    for (const auto& [format, index] : m_formatting) {
-      if (index.contains(pos)) result.push_back(format);
+    std::vector<TextFormat> result;
+    for (const auto& [format, indices] : m_formatting) {
+      if (indices.contains(pos)) result.push_back(format);
     }
     return result;
   }
 
-  RichText& append(const RichText& str) {
-    auto left = m_formatting.begin();
-    auto const left_end = m_formatting.end();
-    auto right = str.m_formatting.begin();
-    auto const right_end = str.m_formatting.end();
-    while (left != left_end && right != right_end) {
-      if (left->first == right->first) {
-        left->second.append_at(right->second, m_text.size());
-        ++left;
-        ++right;
-        continue;
-      }
-      if (left->first < right->first) {
-        ++left;
-        continue;
-      }
-
-      m_formatting.insert({right->first, right->second})
-          .first->second.offset(m_text.size());
-      ++right;
+  /**
+   * @brief Insert a string into RichText
+   * @param index The index to insert the string at
+   * @param str The string to insert
+   * character before `index` to the new characters
+   */
+  template <typename Str>
+    requires std::derived_from<Str, std::basic_string<CharT>>
+  BasicRichText& insert(std::size_t index, const Str& str) {
+    m_text.insert(index, str);
+    std::size_t len = str.length();
+    for (auto& [_, indices] : m_formatting) {
+      indices.shift_right_within(len, index, indices.size() + len);
     }
-    while (right != right_end) {
-      m_formatting.insert({right->first, right->second})
-          .first->second.offset(m_text.size());
-      ++right;
-    }
-    m_text += str.m_text;
     return *this;
   }
 
-  void apply_format_to_range(const Format& format, const size_t begin,
-                             const size_t end) {
+  /**
+   * @brief Insert a string into RichText
+   * @param index The index to insert the string at
+   * @param str The string to insert
+   * character before `index` to the new characters
+   */
+  BasicRichText& insert(std::size_t index, const CharT* str) {
+    auto sstr = std::basic_string<CharT>(str);
+    m_text.insert(index, sstr);
+    std::size_t len = sstr.length();
+    for (auto& [_, indices] : m_formatting) {
+      indices.shift_right_within(len, index, indices.size() + len);
+    }
+    return *this;
+  }
+
+  /**
+   * @brief Insert another RichText into RichText
+   * @param index The index to insert the other RichText instance at
+   * @param str The other RichText to insert
+   */
+  template <typename T>
+  BasicRichText& insert(std::size_t index, const BasicRichText<CharT, T>& str) {
+    insert(index, str.m_text);
+    for (auto [format, indices] : str.m_formatting) {
+      indices.shift_right(index);
+      apply_format(format, indices);
+    }
+    return *this;
+  }
+
+  /**
+   * @brief Append a string to RichText
+   * @param str The string to append
+   * existing character to new characters
+   */
+  template <typename Str>
+    requires std::derived_from<Str, std::basic_string<CharT>>
+  BasicRichText& append(const Str& str) {
+    return insert(size(), str);
+  }
+
+  /**
+   * @brief Append another RichText to RichText
+   * @param str The other RichText instance to append
+   */
+  template <typename T>
+  BasicRichText& append(const BasicRichText<CharT, T>& str) {
+    return insert(size(), str);
+  }
+
+  /**
+   * @brief Append a character to RichText
+   * @param ch The character to append
+   * existing character to new character
+   */
+  BasicRichText& push_back(CharT ch) {
+    m_text.push_back(ch);
+    return *this;
+  }
+
+  /**
+   * @brief Applies a format to the specified indices
+   * @param format Format to apply
+   * @param begin Beginning of range to apply format to
+   * @param end End (exclusive) of range to apply format to
+   */
+  void apply_format(const TextFormat& format, const IndexSet& indices) {
+    auto [item, inserted] = m_formatting.insert({format, indices});
+    if (!inserted) {
+      item->second |= indices;
+    }
+  }
+
+  /**
+   * @brief Applies a format to the range [start, end)
+   * @param format Format to apply
+   * @param begin Beginning of range to apply format to
+   * @param end End (exclusive) of range to apply format to
+   */
+  void apply_format(const TextFormat& format, const std::size_t begin,
+                    const std::size_t end) {
     dbg_assert(
         end >= begin,
         std::format("Format range ends after beginning, begin: {}, end: {}",
                     begin, end));
+    apply_format(format, std::pair{begin, end});
+  }
 
-    auto [item, inserted] =
-        m_formatting.insert({format, IndexSet(std::pair{begin, end})});
-    if (!inserted) {
-      item->second.insert_range(begin, end);
+  /**
+   * @brief Applies a format to the entire text
+   * @param format Format to apply
+   */
+  void apply_format(const TextFormat& format) {
+    apply_format(format, 0, m_text.size());
+  }
+
+  /**
+   * @brief Clear all formatting
+   */
+  void clear_format() { m_formatting.clear(); }
+
+  /**
+   * @brief Clear all formatting over indices
+   * @param indices Indices to clear formatting for
+   */
+  void clear_format(const IndexSet& indices) {
+    for (auto& [format, fmt_indices] : m_formatting) {
+      fmt_indices -= indices;
     }
   }
 
-  RichText& operator+=(const RichText& str) { return append(str); }
+  /**
+   * @brief Clear all formatting of a specific type
+   * @param format Format to clear
+   */
+  void clear_format(const TextFormat& format) {
+    auto result = m_formatting.find(format);
+    if (result != m_formatting.end()) {
+      m_formatting.erase(result);
+    }
+  }
 
+  /**
+   * @brief Clear formatting of a specific type over indices
+   * @param format Format to clear
+   */
+  void clear_format(const TextFormat& format, const IndexSet& indices) {
+    auto result = m_formatting.find(format);
+    if (result != m_formatting.end()) {
+      result->second -= indices;
+    }
+  }
+
+  /**
+   * @brief Get the range corresponding to a `TextFormat`
+   * @param format The format to get the range for
+   * @return The IndexSet corresponding to the format, if it exists
+   */
   [[nodiscard]] std::optional<IndexSet> get_format_range(
-      const Format& format) const {
+      const TextFormat& format) const {
     const auto iter = m_formatting.find(format);
     if (iter == m_formatting.end()) return {};
     return {iter->second};
   }
 
   struct FormatSerializeTracker {
-    Format format;
+    TextFormat format;
     SerializeRule rule;
     IndexSet::const_pair_iterator iter;
     IndexSet::const_pair_iterator end;
-    FormatSerializeTracker(Format format, SerializeRule rule, IndexSet::const_pair_iterator begin, IndexSet::const_pair_iterator end)
+    FormatSerializeTracker(TextFormat format, SerializeRule rule,
+                           IndexSet::const_pair_iterator begin,
+                           IndexSet::const_pair_iterator end)
         : format(format), rule(rule), iter(begin), end(end) {}
 
     bool operator<(const FormatSerializeTracker& rhs) const {
-      dbg_assert(iter != end, "FormatSerializeTracker compare failed: invalid iterator.");
+      dbg_assert(iter != end,
+                 "FormatSerializeTracker compare failed: invalid iterator.");
       return (*iter).first < (*rhs.iter).first ||
-        ((*iter).first == (*rhs.iter).first && (*iter).second < (*rhs.iter).second);
+             ((*iter).first == (*rhs.iter).first &&
+              (*iter).second < (*rhs.iter).second);
     }
   };
 
   [[nodiscard]] SerializeResult serialize(const Serializer& serializer) const {
-    SerializeResult result;
-    result.name = serializer.name;
+    SerializeResult result{serializer.name};
+
+    if (serializer.header) {
+      result.output += *serializer.header;
+    }
 
     std::set<FormatSerializeTracker> trackers;
 
-    auto format_iter = m_formatting.begin();
-    auto const format_iter_end = m_formatting.end();
-    auto serializer_format_iter = serializer.serialize_rules.begin();
-    auto const serializer_format_iter_end = serializer.serialize_rules.end();
-
-    while (format_iter != format_iter_end && serializer_format_iter != serializer_format_iter_end) {
-      if (format_iter->first < serializer_format_iter->first) {
-        result.missed_formats.push_back(format_iter->first);
-        ++format_iter;
-      } else if (format_iter->first == serializer_format_iter->first) {
-        trackers.emplace(
-          format_iter->first, //Format
-          serializer_format_iter->second, //Serialize Rule
-          format_iter->second.cbegin_pair(), //Format Iterators
-          format_iter->second.cend_pair());
-        ++format_iter;
-        ++serializer_format_iter;
+    // Populate the format trackers
+    for (auto& [format, indices] : m_formatting) {
+      auto serializer_format = serializer.rules.find(format.name);
+      if (serializer_format != serializer.rules.end()) {
+        trackers.emplace(format, serializer_format->second,
+                         indices.cbegin_pair(), indices.cend_pair());
       } else {
-        ++serializer_format_iter;
+        result.missed_formats.push_back(format.name);
       }
     }
 
-    while (format_iter != format_iter_end) {
-      result.missed_formats.push_back(format_iter->first);
-      ++format_iter;
-    }
-
-    size_t current = 0;
-    auto tracker_iter = trackers.begin();
-    auto const tracker_begin = trackers.begin();
-    auto const tracker_end = trackers.end();
+    std::size_t current = 0;
 
     // Process the text
     while (current < m_text.size() && !trackers.empty()) {
-      size_t next = SIZE_MAX; // Track the next format deactivation
+      // Restart trackers while there's still text to process
+      auto tracker_iter = trackers.begin();
 
+      // Track the next format deactivation
+      std::size_t next = std::numeric_limits<std::size_t>::max();
 
       // Apply formats
-      while (tracker_iter != tracker_end && (*tracker_iter->iter).first <= current) {
-
+      while (tracker_iter != trackers.end() &&
+             (*tracker_iter->iter).first <= current) {
         // The format begins, add the token
-        if ((*tracker_iter->iter).first <= current) {
-          result.result += tracker_iter->rule.start_token;
+        if ((*tracker_iter->iter).first == current) {
+          result.output += tracker_iter->rule.StartToken(tracker_iter->format);
         }
 
-        // Keep track of when the closest formatting change is
-        if ((*tracker_iter->iter).second < next) next == (*tracker_iter->iter).second;
+        // Keep track of when the closest formatting deactivation is
+        if ((*tracker_iter->iter).second < next)
+          next = (*tracker_iter->iter).second;
         ++tracker_iter;
       }
 
-      // Process all the upcoming activating formats
-      while (tracker_iter != tracker_end && (*tracker_iter->iter).first < next) {
-        result.result += m_text.substr(current, (*tracker_iter->iter).first - current);
-        result.result += tracker_iter->rule.start_token;
+      // Process all the upcoming activating format activations
+      while (tracker_iter != trackers.end() &&
+             (*tracker_iter->iter).first < next) {
+        result.output +=
+            m_text.substr(current, (*tracker_iter->iter).first - current);
+        result.output += tracker_iter->rule.StartToken(tracker_iter->format);
         current = (*tracker_iter->iter).first;
 
         // Keep track of when the closest formatting deactivation is
-        if ((*tracker_iter->iter).second < next) next == (*tracker_iter->iter).second;
+        if ((*tracker_iter->iter).second < next)
+          next = (*tracker_iter->iter).second;
         ++tracker_iter;
       }
 
       // Jump to next formatting deactivation
-      result.result += m_text.substr(current, next - current);
+      result.output += m_text.substr(current, next - current);
+      current = next;
 
-      //Unwind formatting
+      // Unwind formatting
 
-      //Find the rule to end
+      // Find the rule to end
       auto rule_to_end_iter = trackers.begin();
-      while (rule_to_end_iter != tracker_end && (*rule_to_end_iter->iter).second != next) ++rule_to_end_iter;
-      dbg_assert(rule_to_end_iter != tracker_end, "rule_to_end_iter failed to find the rule that needed ending.");
+      while (rule_to_end_iter != trackers.end() &&
+             (*rule_to_end_iter->iter).second != next)
+        ++rule_to_end_iter;
+      dbg_assert(
+          rule_to_end_iter != trackers.end(),
+          "rule_to_end_iter failed to find the rule that needed ending.");
 
       while (tracker_iter != rule_to_end_iter) {
-        result.result += tracker_iter->rule.end_token;
-        //TODO: Check to see if rule needs to be reapplied after unraveling
-        //TODO: If it doesn't pull the tracker out and update it
         --tracker_iter;
+        result.output += tracker_iter->rule.EndToken(tracker_iter->format);
       }
-      result.result += rule_to_end_iter->rule.end_token;
-      //TODO: Pull the tracker out and modify it
-      //TODO: Reapply the unraveled formats.
 
-      dbg_assert_never("Loop not guaranteed to end while TODOs are present in code.");
+      bool all_deactivated = tracker_iter == trackers.begin();
+      if (!all_deactivated) --tracker_iter;
+      // tracker_iter now points to the rule before the rule that needs to be
+      // deactivated (or all_deactivated is true, then it points to the first
+      // rule)
+
+      typename decltype(trackers)::const_iterator reapply_rule_iter;
+      do {
+        if (all_deactivated) {
+          reapply_rule_iter = trackers.begin();
+        } else {
+          reapply_rule_iter = tracker_iter;
+          ++reapply_rule_iter;
+        }
+        if (reapply_rule_iter == trackers.end()) break;
+        if ((*reapply_rule_iter->iter).first > current) break;
+        if ((*reapply_rule_iter->iter).second <= current) {
+          auto tracker_to_update = trackers.extract(reapply_rule_iter);
+          ++tracker_to_update.value().iter;
+          if (tracker_to_update.value().iter != tracker_to_update.value().end)
+            trackers.insert(std::move(tracker_to_update));
+          continue;
+        }
+        result.output +=
+            reapply_rule_iter->rule.StartToken(tracker_iter->format);
+        if (all_deactivated)
+          all_deactivated = false;
+        else
+          ++tracker_iter;
+      } while (tracker_iter != trackers.end());
     }
 
+    if (serializer.footer) {
+      result.output += *serializer.footer;
+    }
 
     return result;
   }
 };
+
+using RichText = BasicRichText<>;
 
 }  // namespace cse

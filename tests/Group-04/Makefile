@@ -1,5 +1,4 @@
-TEST_NAMES = Assert BitVector IndexSet RichText CseString
-#TEST_NAMES = RichTextAdvanced TextSerializer
+TEST_NAMES = Assert BitVector RichText RichTextAdvanced RichTextSerialize CseString IndexSet
 
 # -O3	  -Wl,--stack,8388608 -ftrack-macro-expansion=0
 CATCH = ../../third-party/Catch/single_include/catch2

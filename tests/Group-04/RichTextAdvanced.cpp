@@ -1,123 +1,102 @@
 #include <string>
 
+#include "CseString.hpp"
 #include "IndexSet.hpp"
+#include "RichText.hpp"
 #include "catch.hpp"
-
-// Mocks
-namespace cse {
-template <typename T>
-class RichText;
-
-struct Format {
-  std::string name;
-  std::variant<std::string, int32_t, std::monostate> metadata;
-}
-
-}  // namespace cse
-
-// example composite template usage
-template <typename T>
-class Document {
-  using text_t = cse::RichText<T>;
-
-  // tree structure
-  class Node;
-  using child_t = std::variant<text_t, std::vector<Node>>;
-  class Node {
-    std::vector<child_t> children;
-  };
-
-  Node root;
-};
-
-using RichString = cse::RichText<std::string>
 
 // this test case doesn't actually have assertions, it just needs to compile
 TEST_CASE("RichText template support", "[RichTextAdvanced]") {
-  // basic templates
-  cse::RichText<std::string> text1;
-  cse::RichText<std::wstring> text2;
+  // basic template (std::string)
+  cse::RichText text1;
 
-  // containers
-  cse::RichText<std::vector<int>> text3;
-  cse::RichText<std::vector<std::string>> text4;
+  // character type template
+  cse::BasicRichText<wchar_t> text2;
 
-  // usage in composite templates
-  Document<std::string> doc;
+  // underlying string template
+  cse::BasicRichText<char, cse::String> text3;
 }
 
 TEST_CASE("RichText move semantics", "[RichTextAdvanced]") {
-  RichString text1{"foo"};
+  cse::RichText text1{"foo"};
   text1 = std::move("bar");
   REQUIRE(text1.to_string() == "bar");
 
-  RichString text2{text1};
+  cse::RichText text2{text1};
   REQUIRE(text2.to_string() == "bar");
 }
 
+TEST_CASE("Clear formatting", "[RichTextAdvanced]") {
+  cse::RichText text("hello world");
+  cse::TextFormat bold("bold");
+  cse::TextFormat italic("italic");
+
+  text.apply_format(bold, 0, 5);
+  text.apply_format(italic, cse::IndexSet{std::pair{4, 8}});
+
+  SECTION("Test whole clear") {
+    text.clear_format();
+    REQUIRE_FALSE(text.get_format_range(bold).has_value());
+    REQUIRE_FALSE(text.get_format_range(italic).has_value());
+  }
+
+  SECTION("Test IndexSet clear") {
+    text.clear_format(cse::IndexSet{2, 3});
+    REQUIRE(text.get_format_range(bold).value() == cse::IndexSet{0, 1, 4});
+    REQUIRE(text.get_format_range(italic).value() ==
+            cse::IndexSet{std::pair{4, 8}});
+  }
+
+  SECTION("Test format clear") {
+    text.clear_format(italic);
+    REQUIRE(text.get_format_range(bold).value() ==
+            cse::IndexSet{std::pair{0, 5}});
+    REQUIRE_FALSE(text.get_format_range(italic).has_value());
+  }
+
+  SECTION("Test format and IndexSet clear") {
+    text.clear_format(bold, cse::IndexSet{2, 3});
+    REQUIRE(text.get_format_range(bold).value() == cse::IndexSet{0, 1, 4});
+    REQUIRE(text.get_format_range(italic).value() ==
+            cse::IndexSet{std::pair{4, 8}});
+  }
+}
+
 TEST_CASE("New RichText operations", "[RichTextAdvanced]") {
-  RichString::Format red("color", "red");
-  RichString::Format blue("color", "blue");
+  cse::TextFormat red("color", "red");
+  cse::TextFormat blue("color", "blue");
 
-  RichString text1{"hello"};
-  text1.apply_format_to_range(red, 0, text1.size() - 1);
+  cse::RichText text1{"hello"};
+  text1.apply_format(red, 0, text1.size());
 
-  RichString text2{"world"};
-  text2.apply_format_to_range(blue, text2.size() - 1);
+  cse::RichText text2{"world!"};
+  text2.apply_format(blue, 0, text2.size());
 
   // Add unformatted punctuation
-  text1.insert(text1.size() - 1, ", ");
+  text1.insert(text1.size(), ", ");
   // Add formatted substring
   text2.insert(0, text1);
 
   REQUIRE(text2.to_string() == "hello, world!");
-  REQUIRE(text2.get_format_range(red) == std::optional{cse::IndexSet{0, 4}});
+  REQUIRE(text2.get_format_range(red) ==
+          std::optional{cse::IndexSet{std::pair{0, 5}}});
   REQUIRE(text2.get_format_range(blue) ==
-          std::optional{cse::IndexSet{std::pair{7, text2.size() - 1}}});
-  REQUIRE(text2.formats_at(5).size() == 0)
+          std::optional{cse::IndexSet{std::pair{7, text2.size()}}});
+  REQUIRE(text2.formats_at(5).size() == 0);
 }
 
-TEST_CASE("RichText update container functionality", "[RichTextAdvanced]") {
-  RichString::Format red("color", "red");
-  RichString text{"hello"};
-  text.apply_format_to_range(red, 0, text.size() - 1);
+TEST_CASE("RichText insertions and substitution", "[RichTextAdvanced]") {
+  cse::TextFormat red("color", "red");
+  cse::RichText text{"hello"};
+  text.apply_format(red, 0, text.size());
 
-  text.update_container([](std::string &string) {
-    string[0] = 'j';
-    // nullopt for substitutions only
-    return std::nullopt;
-  });
-  REQUIRE(text.to_string() == "jello");
+  // ensure substitution retains formatting
+  text[0] = 'm';
+  REQUIRE(text.to_string() == "mello");
+  REQUIRE(text.formats_at(0) == std::vector<cse::TextFormat>{red});
 
-  text.update_container([](std::string &string) {
-    // substitutions can be performed at the same time as insertions or
-    // deletions (but insertions and deletions cannot be performed at the same
-    // time)
-    string[0] = 'p';
-    string.append('w');
-
-    // insertion: return indices in the original string that had
-    // characters inserted after them.
-    //
-    // might be more complex for multi-character discontinuous insertions, or
-    // just disallow that
-    return cse::IndexSet{4};
-  });
-
-  REQUIRE(text.to_string() == "pillow");
-  // expand format from insertion
-  REQUIRE(text.formats_at(5).size() == 1);
-
-  text.update_container([](std::string &string) {
-    string.erase(4, 2);
-    string.erase(0, 1);
-    // deletion: return indices removed in old string
-    return cse::IndexSet{0} | cse::IndexSet{4};
-  });
-
-  REQUIRE(text.to_string() == "ill");
-
-  // edge cases are tricky, we might just have to limit what is
-  // allowed, or reduce scope to exclude expanding formats (instead, just
-  // offseting them)
+  // ensure formats are properly shifted
+  text.insert(3, "lo yel");
+  REQUIRE(text.to_string() == "mello yello");
+  REQUIRE(text.formats_at(9) == std::vector<cse::TextFormat>{red});
 }
