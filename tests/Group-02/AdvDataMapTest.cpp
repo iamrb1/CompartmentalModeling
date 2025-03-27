@@ -322,3 +322,12 @@ TEST_CASE("Test types for multiple keys") {
     REQUIRE(data_map.is_type<double>("key2"));
   }
 }
+
+TEST_CASE("Testing using an empty string as a key") {
+  cse::AdvDataMap data_map;
+  data_map.insert("", 123);
+
+  REQUIRE(data_map.to_string<int>("") == std::to_string(123));
+
+  REQUIRE(data_map.contains(""));
+}
