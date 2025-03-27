@@ -142,9 +142,9 @@ public:
   /*----------------------------OPERATORS-----------------------------------*/
 
   /**
-   * @brief Allows to implicitly convert to std::string_view to make find function work properly
+   * @brief Allows to implicitly convert StaticString to std::string_view.
    * 
-   * @return std::string_view 
+   * @return std::string_view StringView of the StaticString.
    */
   constexpr operator std::string_view() const noexcept {
     // DeepSeek has been used to generate this function
@@ -156,7 +156,7 @@ public:
   *
   * Copies the content from another StaticString.
   *
-  * @param staticString staticString to be assigned.
+  * @param staticString StaticString to be assigned.
   * @return StaticString& Reference to this StaticString object.
   */
   StaticString& operator=(const StaticString& staticString) {
@@ -186,7 +186,7 @@ public:
    * as well as empty string initialization.
    * 
    * @tparam T The templated type of basic string convertible to std::string_view
-   * @param str basic string to be assigned.
+   * @param str Basic string to be assigned.
    * @return StaticString& Reference to this StaticString object.
    */
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
@@ -402,7 +402,7 @@ public:
   /**
    * @brief Returns a string_view of the current StaticString content.
    * 
-   * @return constexpr std::string_view A view of the current string data.
+   * @return std::string_view A view of the current string data.
    */
   constexpr std::string_view view() const noexcept { 
     return std::string_view(mString, mCurrentSize); 
@@ -414,7 +414,7 @@ public:
    * 
    * @tparam T Templated types are string, string_view, char*
    * @param str Templated parameter to searched in the string
-   * @return constexpr std::size_t The index of the character if found;
+   * @return std::size_t The index of the character if found;
    * if not found StaticString::npos.
    */
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
@@ -433,7 +433,7 @@ public:
    * @brief Finds the first occurrence of a character in the string.
    * 
    * @param ch Character to be searched 
-   * @return constexpr std::size_t index of the character found
+   * @return std::size_t index of the character found
    */
   constexpr std::size_t find(char ch) const noexcept {
       for (std::size_t i = 0; i < mCurrentSize; ++i) {
@@ -454,7 +454,7 @@ public:
   *
   * @param index size_t Index to be changed.
   * @param character Char value to be assigned.
-  * @throws std::out_of_range if the index is invalid.
+  * @throws std::out_of_range If the index is invalid.
   */
   void set(const size_t& index, const char& character) {
     if (index >= mCurrentSize || index >= MaxSize) {
@@ -469,7 +469,7 @@ public:
     mString[index] = character;
   }
 
-  /*-------------------- - STRING OPERATIONS ----------------------*/
+  /*--------------------------- STRING OPERATIONS ----------------------------*/
 
   /**
    * @brief Appends a basic string type objects to the end of the current string.
@@ -480,7 +480,7 @@ public:
    * @tparam T The templated type of basic string convertible to std::string_view
    * @throw out_of_range If the resulting operation exceeds the static limit
    * out_of_range error is thrown.
-   * @param str basic string type object to be appended.
+   * @param str Basic string type object to be appended.
    */
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
   void append(const T& str) {
@@ -505,7 +505,7 @@ public:
   * @brief Appends a character to the end of the current string.
   *
   * @param character The character to append.
-  * @throws std::out_of_range if the resulting string would exceed
+  * @throws std::out_of_range If the resulting string would exceed
   * the maximum size.
   */
   void append(const char& character) {
@@ -527,7 +527,7 @@ public:
   *
   * @param rhs The StaticString to concatenate.
   * @return StaticString& Reference to this StaticString.
-  * @throws std::out_of_range if the resulting string would exceed
+  * @throws std::out_of_range If the resulting string would exceed
   * the maximum size.
   */
   StaticString& concat(const StaticString& rhs) {
@@ -556,8 +556,8 @@ public:
   *
   * @param start The starting index (inclusive).
   * @param end The ending index (exclusive).
-  * @return std::string_view representing the substring.
-  * @throws std::out_of_range if the resulting string would exceed
+  * @return std::string_view Representing the substring.
+  * @throws std::out_of_range If the resulting string would exceed
   * the maximum size.
   */
   std::string_view substr(const std::size_t& start,
@@ -629,8 +629,8 @@ public:
    * Removes charaters within a valid range of indexes, start index is inclusive
    * while end index is exclusive. 
    * 
-   * @param start size_t start index of the range (inclusive).
-   * @param end size_t end index of the range (exclusive).
+   * @param start size_t Start index of the range (inclusive).
+   * @param end size_t End index of the range (exclusive).
    */
   void remove(const size_t& start, const size_t& end) {
     if(start >= end || end > mCurrentSize) {
@@ -648,10 +648,13 @@ public:
    * @brief Finds every occurrence of a character, string, string_view,
    *  char* in the string.
    * 
+   * FindAll searches trough the StaticString and returns all occurance of 
+   * searched string in the StaticString as the indexes to the start of them.
+   * 
    * @tparam T Templated types are string, string_view, char*
    * @param str Templated parameter to be searched in the string
-   * @return constexpr std::vector<std::size_t>, a vector of the indexes of the character if found;
-   * if not found {}.
+   * @return std::vector<std::size_t> A vector of the indexes of the character if found;
+   * if not found empty vector.
   */
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
   constexpr  std::vector<std::size_t> findAll(const T& str) const noexcept {
@@ -675,10 +678,14 @@ public:
   }
 
   /**
-   * @brief 
+   * @brief Finds every occurrence of a character.
    * 
-   * @param ch 
-   * @return constexpr std::vector<std::size_t> 
+   * FindAll searches trough the StaticString and returns all occurance of 
+   * searched character in the StaticString as the indexes of it.
+   * 
+   * @param ch Character to be searched 
+   * @return std::vector<std::size_t> A vector of the indexes of the character if found;
+   * if not found empty vector.
    */
   constexpr std::vector<std::size_t> findAll(char ch) const noexcept {
       std::vector<std::size_t> indexesFound = std::vector<size_t>{};
@@ -699,7 +706,7 @@ public:
    * 
    * @tparam T Templated types are string, string_view, char*
    * @param str Templated parameter to searched in the string
-   * @return constexpr std::size_t The index of the character if found;
+   * @return std::size_t The index of the character if found;
    * if not found StaticString::npos.
    */
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
@@ -722,7 +729,8 @@ public:
    * @brief Finds the first occurrence of a character in the string, in reverse order.
    * 
    * @param ch Character to be searched 
-   * @return constexpr std::size_t index of the character found
+   * @return std::size_t index of the character found, StaticString::npos if 
+   * not found.
    */
   constexpr std::size_t rFind(char ch) const noexcept {
     for (std::size_t i = mCurrentSize; i > 0; --i) {
@@ -735,10 +743,9 @@ public:
    * @brief Finds the first occurrence of a character, string, string_view,
    * char* in the string, in reverse search order.
    * 
-   * @tparam T Templated types are string, string_view, char*
    * @param str Templated parameter to searched in the string
-   * @return constexpr std::size_t The index of the character if found;
-   * if not found StaticString::npos.
+   * @return std::vector<std::size_t> A vector of the indexes of the character if found;
+   * if not found empty vector.
    */
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
   constexpr std::vector<std::size_t> rFindAll(const T& str) const noexcept {
@@ -767,7 +774,8 @@ public:
    * in reverse search order.
    * 
    * @param ch Character to be searched 
-   * @return constexpr std::vector<std::size_t> 
+   * @return std::vector<std::size_t> A vector of the indexes of the character if found;
+   * if not found empty vector.
    */
   constexpr std::vector<std::size_t> rFindAll(char ch) const noexcept {
       std::vector<std::size_t> indexesFound = std::vector<size_t>{};
@@ -783,12 +791,16 @@ public:
   }
 
   /**
-  * @brief replaces all instances of the string given with the new string 
-  * 
-  * @tparam T Templated types are string, string_view, char*
-  * @param str1 string to be replaced
-  * @param str2 string to replace with
-  */
+   * @brief Replaces all instances of the string given with the new string.
+   * 
+   * @attention When replacing two strings, make sure not to exceed the static
+   * limit defined.
+   * 
+   * @tparam T1 Templated types are string, string_view, char*
+   * @tparam T2 Templated types are string, string_view, char*
+   * @param str1 String to be replaced.
+   * @param str2 String to replace with.
+   */
   template<typename T1, typename T2, typename = std::enable_if_t<std::is_convertible_v<T1, std::string_view> && std::is_convertible_v<T2, std::string_view>>>
   void replace(const T1& str1, const T2& str2) {
     std::vector<size_t> index = findAll(str1);
@@ -806,10 +818,10 @@ public:
   }
 
   /**
-   * @brief 
+   * @brief Replaces all instances of the character given with new character.
    * 
-   * @param ch 
-   * @param ch2 
+   * @param ch Character to be replaced.
+   * @param ch2 Character to replace with.
    */
   void replace(char ch, char ch2) {
     std::vector<size_t> index = findAll(ch);
@@ -821,12 +833,14 @@ public:
   }
 
   /**
-   * @brief 
+   * @brief Replaces all instances of the string given with the new character.
    * 
-   * @tparam T 
-   * @tparam typename 
-   * @param str1 
-   * @param ch2 
+   * @attention When replacing different type and size, make sure to not 
+   * exceed static limit defined in the StaticString.
+   * 
+   * @tparam T Templated types are string, string_view, char*
+   * @param str1 String to be replaced.
+   * @param ch2 Character to be replace with.
    */
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
   void replace(const T& str1, char ch2) {
@@ -840,12 +854,14 @@ public:
   }
 
   /**
-   * @brief 
+   * @brief Replaces all instances of the character given with the new string.
    * 
-   * @tparam T 
-   * @tparam typename 
-   * @param ch 
-   * @param str2 
+   * @attention When replacing different type and size, make sure to not 
+   * exceed static limit defined in the StaticString.
+   * 
+   * @tparam T Templated types are string, string_view, char*
+   * @param ch Character to be replaced.
+   * @param str2 String to be replaced.
    */
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
   void replace(char ch, const T& str2) {
@@ -904,7 +920,7 @@ public:
   /**
    * @brief Counts the occurrences of each character in the StaticString.
    * 
-   * @return constexpr std::unordered_map<char, std::size_t> A map of character to its count.
+   * @return std::unordered_map<char, std::size_t> A map of character to its count.
    */
   constexpr std::unordered_map<char, std::size_t> char_count() const noexcept {
     std::unordered_map<char, std::size_t> counts;
@@ -922,7 +938,7 @@ public:
    * delimiter provided and returns a vector of new StaticString objects
    * splitted from delimiter.
    * 
-   * @param delimiter char The delimiter to split StaticString.
+   * @param delimiter Character The delimiter to split StaticString.
    * @return std::vector<StaticString<MaxSize>> Collection of splitted StaticString objects.
    */
   [[nodiscard]] constexpr std::vector<StaticString<MaxSize>> split(char delimiter) const noexcept {
@@ -1001,246 +1017,60 @@ public:
     }
   }
 
-  /** @brief swaps the two string values in the static string
-   * @param str1 the first string to swap
-   * @param str2 the second string to swap
-   * @param lambda The comparator function.
+  /**
+   * @brief Swaps the values of a StaticString with other.
+   * 
+   * Swap can be used to change values between two StaticString object, however,
+   * they must align in terms of lengths. If the length of one exceeds the static
+   * limit of other error is thrown.
+   * 
+   * @tparam OtherSize Static limit of other object
+   * @param other Other StaticString to be swapped.
    */
-  template <typename Func>
-  void swap(const char* str1, const char* str2, Func lambda) {
-    std::vector<size_t> index = findAll(str1);
-    std::vector<size_t> index2 = findAll(str2);
-    std::string_view size(str1);
-    std::string_view size2(str2);
-    if (index.size() * size2.length() > MaxSize)
-      throw std::out_of_range("erase exceeds the size allowed");
-    if (index2.size() * size.length() > MaxSize)
-      throw std::out_of_range("erase exceeds the size allowed");
+  template <std::size_t OtherSize>
+  constexpr void swap(StaticString<OtherSize>& other) {
 
-    for (int i = 0; i < (int)index.size(); i++) {
-      if (lambda(str1)) {
-        std::vector<size_t> index3 = findAll(str1);
-        remove(index3[0], index3[0] + size.length());
-        insert(str2, index3[0]);
-      }
+    if (mCurrentSize > other.size() || other.length() > MaxSize) {
+      throw std::out_of_range("Swap failed: Swap would exceed one of the StaticString's limit.");
     }
-    for (int i = 0; i < (int)index2.size(); i++) {
-      if (lambda(str1)) {
-        std::vector<size_t> index3 = findAll(str2);
-        remove(index3[0], index3[0] + size2.length());
-        insert(str1, index3[0]);
+    StaticString<MaxSize> temp = *this;
+    *this = other;
+    other = temp;
+  }
+
+  /**
+   * @brief Swaps the values of a StaticString with other conditionally.
+   * 
+   * Swap can be used to change values between two StaticString object, however,
+   * they must align in terms of lengths. If the length of one exceeds the static
+   * limit of other error is thrown. Also, condition takes the two objects iteselfs 
+   * as the parameters.
+   * 
+   * @tparam OtherSize Static limit of other object
+   * @tparam Func Lamda function as the condition
+   * @param other Other StaticString to be swapped.
+   * @param lambda Conditional lambda.
+   */
+  template <std::size_t OtherSize, typename Func>
+  void swap(StaticString<OtherSize>& other, Func lambda) {
+    if (lambda(*this, other)) {
+      if (mCurrentSize > other.size() || other.length() > MaxSize) {
+        throw std::out_of_range("Swap failed: one of the strings is too large.");
       }
+  
+      StaticString temp = *this;
+      *this = other;
+      other = temp;
     }
   }
 
   /**
-   * @brief 
+   * @brief Erases all instances of the given string up to the specified amount.
    * 
-   * @tparam T 
-   * @tparam typename 
-   * @param str1 
-   * @param str2 
-   */
-  template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
-  void swap(const T& str1, const char* str2) {
-    std::vector<size_t> index = findAll(str1);
-    std::vector<size_t> index2 = findAll(str2);
-    std::string_view size(str1);
-    std::string_view size2(str2);
-    if (index.size() * size2.length() > MaxSize)
-      throw std::out_of_range("erase exceeds the size allowed");
-    if (index2.size() * size.length() > MaxSize)
-      throw std::out_of_range("erase exceeds the size allowed");
-
-    for (int i = 0; i < (int)index.size(); i++) {
-      std::vector<size_t> index3 = findAll(str1);
-      remove(index3[0], index3[0] + size.length());
-      insert(str2, index3[0]);
-    }
-    for (int i = 0; i < (int)index2.size(); i++) {
-      std::vector<size_t> index3 = findAll(str2);
-      remove(index3[0], index3[0] + size2.length());
-      insert(str1, index3[0]);
-    }
-  }
-
-  /**
-   * @brief 
-   * 
-   * @tparam Func 
-   * @param ch 
-   * @param ch2 
-   * @param lambda 
-   */
-  template <typename Func>
-  void swap(char ch, char ch2, Func lambda) {
-    std::vector<size_t> index = findAll(ch);
-    std::vector<size_t> index2 = findAll(ch2);
-    for (int i = 0; i < (int)index.size(); i++) {
-      if (lambda(ch)) {
-        remove(index[i], index[i] + size_t(1));
-        insert(ch2, index[i]);
-      }
-    }
-    for (int i = 0; i < (int)index2.size(); i++) {
-      if (lambda(ch)) {
-        remove(index2[i], index2[i] + size_t(1));
-        insert(ch, index2[i]);
-      }
-    }
-  }
-
-  /**
-   * @brief 
-   * 
-   * @param ch 
-   * @param ch2 
-   */
-  void swap(char ch, char ch2) {
-    std::vector<size_t> index = findAll(ch);
-    std::vector<size_t> index2 = findAll(ch2);
-    for (int i = 0; i < (int)index.size(); i++) {
-      remove(index[i], index[i] + size_t(1));
-      insert(ch2, index[i]);
-    }
-    for (int i = 0; i < (int)index2.size(); i++) {
-      remove(index2[i], index2[i] + size_t(1));
-      insert(ch, index2[i]);
-    }
-  }
-
-  /**
-   * @brief 
-   * 
-   * @tparam Func 
-   * @param str1 
-   * @param ch2 
-   * @param lambda 
-   */
-  template <typename Func>
-  void swap(const char* str1, char ch2, Func lambda) {
-    std::vector<size_t> index = findAll(str1);
-    std::vector<size_t> index2 = findAll(ch2);
-    std::string_view size(str1);
-    if (index2.size() * size.length() > MaxSize)
-      throw std::out_of_range("replace exceeds the size allowed");
-
-    for (int i = 0; i < (int)index.size(); i++) {
-      if (lambda(str1)) {
-        std::vector<size_t> index3 = findAll(str1);
-        remove(index[0], index[0] + size.length());
-        insert(ch2, index[0]);
-      }
-    }
-    for (int i = 0; i < (int)index2.size(); i++) {
-      if (lambda(str1)) {
-        std::vector<size_t> index3 = findAll(ch2);
-        remove(index3[0], index3[0] + std::size_t(1));
-        insert(str1, index3[0]);
-      }
-    }
-  }
-
-  /**
-   * @brief 
-   * 
-   * @tparam T 
-   * @tparam typename 
-   * @param str1 
-   * @param ch2 
-   */
-  template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
-  void swap(const T& str1, char ch2) {
-    std::vector<size_t> index = findAll(str1);
-    std::vector<size_t> index2 = findAll(ch2);
-    std::string_view size(str1);
-    if (index2.size() * size.length() > MaxSize)
-      throw std::out_of_range("replace exceeds the size allowed");
-
-    for (int i = 0; i < (int)index.size(); i++) {
-      std::vector<size_t> index3 = findAll(str1);
-      remove(index3[0], index3[0] + size.length());
-      insert(ch2, index3[0]);
-    }
-    for (int i = 0; i < (int)index2.size(); i++) {
-      std::vector<size_t> index3 = findAll(ch2);
-      remove(index3[0], index3[0] + std::size_t(1));
-      insert(str1, index3[0]);
-    }
-  }
-
-  /**
-   * @brief 
-   * 
-   * @tparam Func 
-   * @param ch 
-   * @param str2 
-   * @param lambda 
-   */
-  template <typename Func>
-  void swap(char ch, const char* str2, Func lambda) {
-    std::vector<size_t> index = findAll(ch);
-    std::vector<size_t> index2 = findAll(str2);
-
-    std::string_view size2(str2);
-    if (index.size() * size2.length() > MaxSize)
-      throw std::out_of_range("replace exceeds the size allowed");
-
-    for (int i = 0; i < (int)index.size(); i++) {
-      if (lambda(ch)) {
-        std::vector<size_t> index3 = findAll(ch);
-        remove(index3[0], index3[0] + std::size_t(1));
-        insert(str2, index3[0]);
-      }
-    }
-    for (int i = 0; i < (int)index.size(); i++) {
-      if (lambda(ch)) {
-        std::vector<size_t> index3 = findAll(str2);
-        remove(index3[0], index3[0] + size2.length());
-        insert(ch, index3[0]);
-      }
-    }
-  }
-
-  /**
-   * @brief 
-   * 
-   * @tparam T 
-   * @tparam typename 
-   * @tparam std::string_view>> 
-   * @param ch 
-   * @param str2 
-   */
-  template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
-  void swap(char ch, const T& str2) {
-    std::vector<size_t> index = findAll(ch);
-    std::vector<size_t> index2 = findAll(str2);
-
-    std::string_view size2(str2);
-    if (index.size() * size2.length() > MaxSize)
-      throw std::out_of_range("replace exceeds the size allowed");
-
-    for (int i = 0; i < (int)index.size(); i++) {
-      std::vector<size_t> index3 = findAll(ch);
-      remove(index3[0], index3[0] + std::size_t(1));
-      insert(str2, index3[0]);
-    }
-    for (int i = 0; i < (int)index.size(); i++) {
-      std::vector<size_t> index3 = findAll(str2);
-      remove(index3[0], index3[0] + size2.length());
-      insert(ch, index3[0]);
-    }
-  }
-
-  /**
-   * @brief erases all instances of the given string up to the specified amount
-   * 
-   * @note amount starts from the 0, which means if 0 is given as the amount,
-   * the first occurance will be erased. 
-   * 
-   * @param str1 the string to erase
-   * @param amount how many instances of the strings should be erased 
-   * by default all instances
+   * @tparam T Templated types are std::string, std::string_view, char*
+   * @param str1 The string to erase.
+   * @param amount How many instances of the strings should be erased 
+   * by default all instances.
    */
   template<typename T, typename = std::enable_if_t<std::is_convertible_v<T, std::string_view>>>
   void erase(const T& str1, int amount = -1) {
@@ -1269,13 +1099,13 @@ public:
   }
 
   /**
-   * @brief erases all instances of the given string up to the specified amount.
+   * @brief Erases all instances of the given string up to the specified amount.
    * 
-   * @note amount starts from the 0, which means if 0 is given as the amount,
+   * @note Amount starts from the 0, which means if 0 is given as the amount,
    * the first occurance will be erased. 
    * 
    * @param ch Character to be erased from the string.
-   * @param amount How many instances of the character should be erased
+   * @param amount How many instances of the character should be erased.
    */
   void erase(char ch, int amount = -1) {
     std::vector<size_t> index = findAll(ch);
@@ -1328,7 +1158,10 @@ public:
   }
 
   /**
-   * @brief CSlears the StaticString string
+   * @brief Clears the StaticString string.
+   * 
+   * Clears the StaticString and assigns backto empty string. StaticSize
+   * remains same.
    * 
    */
   constexpr void clear() noexcept {
@@ -1336,12 +1169,12 @@ public:
     mCurrentSize = 0;
   }
 
-    /**
-  * @brief Replaces all instances of the string given with the new string if it passes the condition
+  /**
+  * @brief Replaces all instances of the string given with the new string if it passes the condition.
   * 
-  * @param str1 string to be replaced
-  * @param str2 string to replace with
-  * @param lambda the lambda function
+  * @param str1 String to be replaced.
+  * @param str2 String to replace with.
+  * @param lambda The lambda function.
   */
  template <typename Func>
  void replace_if(const char* str1, const char* str2, Func lambda) {
@@ -1424,11 +1257,6 @@ public:
    }
  }
 
- template <typename Func>
- void replace_if(Func lambda, Func lambda2) {
-
- }
-
 private: 
   /// @brief Constant value for StaticString null terminator used.
   static constexpr char null_terminator = '\0';
@@ -1444,9 +1272,9 @@ private:
  * @brief << output stream operator implementation
  * 
  * @tparam MaxSize Static limit size
- * @param oss ostream to ouput
+ * @param oss Ostream to ouput
  * @param str StaticString object to get output
- * @return std::ostream& ostream output string collected
+ * @return std::ostream& ostream Output string collected
  */
 template <std::size_t MaxSize>
 std::ostream& operator<<(std::ostream& oss, const StaticString<MaxSize>& str) {
@@ -1458,7 +1286,7 @@ std::ostream& operator<<(std::ostream& oss, const StaticString<MaxSize>& str) {
  * @brief >> input stream operator implementation
  * 
  * @tparam MaxSize Static limit size 
- * @param iss istream to get input
+ * @param iss Istream to get input
  * @param str StaticString object to assign input
  * @return std::istream& istream input collected
  */

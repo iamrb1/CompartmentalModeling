@@ -141,16 +141,6 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
 
     s3.replace_if("Rumble","Movie", [](){return false;});
     REQUIRE(std::strcmp(s3.get_str(), "MovieWorldMovieWorld") == 0);
-
-
-    /*StaticString<50> s2("a1b2c3d4");
-    // replace_if(conditionLambda, replacementLambda)
-    s2.replace_if(
-        [](char ch) -> bool { return (ch >= '1' && ch <= '4'); },
-        [](char ch) -> char { return ch + 1; }
-    );
-
-    REQUIRE(std::strcmp(s2.get_str(), "a2b3c4d5") == 0);*/
   }
 
   SECTION("TESTS: Operators member function") {
@@ -304,27 +294,62 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     REQUIRE(std::strcmp(s.get_str(), "aabbbccc") == 0);
   }
 
-  SECTION("TESTS: Swap  member function") {
+  SECTION("TESTS: Swap member function") {
     StaticString<40> s("Hello World Hello");
+    StaticString<40> s2("Testing New Function");
 
-    s.swap("Hello", "Tests", [](const std::string_view& word) { return word == "Hello"; });
-    REQUIRE(std::strcmp(s.get_str(), "Tests World Tests") == 0);
+    REQUIRE(std::strcmp(s.get_str(), "Hello World Hello") == 0);
+    REQUIRE(std::strcmp(s2.get_str(), "Testing New Function") == 0);
 
-    s = "hello world";
-    s.swap("hello", "hi");
-    REQUIRE(std::strcmp(s.get_str(), "hi world") == 0);
+    s.swap(s2);
+    REQUIRE(std::strcmp(s2.get_str(), "Hello World Hello") == 0);
+    REQUIRE(std::strcmp(s.get_str(), "Testing New Function") == 0);
 
-    StaticString<50> s1("Temp temp TEMP temp");
+    
+    s.swap(s2, [](const auto& lhs, const auto& rhs) {
+      return lhs.length() == rhs.length();
+    });
 
-    auto isAllLower = [](const std::string_view& word) -> bool {
-         for (char ch : word) {
-             if (!std::islower(static_cast<unsigned char>(ch)))
-                 return false;
-         }
-         return true;
+    REQUIRE(std::strcmp(s2.get_str(), "Hello World Hello") == 0);
+    REQUIRE(std::strcmp(s.get_str(), "Testing New Function") == 0);
+
+    s = "hello";
+    s2 = "world";
+
+    REQUIRE(std::strcmp(s.get_str(), "hello") == 0);
+    REQUIRE(std::strcmp(s2.get_str(), "world") == 0);
+
+    s.swap(s2, [](const auto& lhs, const auto& rhs) {
+      return lhs.length() == rhs.length();
+    });
+
+    REQUIRE(std::strcmp(s.get_str(), "world") == 0);
+    REQUIRE(std::strcmp(s2.get_str(), "hello") == 0);
+
+    StaticString<10> a("abcdefghij"); 
+    StaticString<5> b("123");        
+
+    REQUIRE_THROWS_AS(a.swap(b), std::out_of_range);
+
+    REQUIRE_THROWS_AS(a.swap(b, [](const auto&, const auto&) {
+      return true;
+    }), std::out_of_range);
+
+    // Test to see if StaticString Compare works with swap
+    StaticString<10> c("abc");
+    StaticString<10> d("ABC");
+
+    auto func = [](char lhs, char rhs) {
+      return std::tolower(lhs) == std::tolower(rhs);
     };
-    s1.swap("temp", "final", isAllLower);
-    REQUIRE(std::strcmp(s1.get_str(), "Temp final TEMP final") == 0);
+
+    c.swap(d, [&](const auto& lhs, const auto& rhs) {
+      return lhs.compare(rhs, func);
+    });
+  
+    REQUIRE(c == "ABC");
+    REQUIRE(d == "abc");
+
   }
 
   SECTION("TESTS: Trim  member function") {
