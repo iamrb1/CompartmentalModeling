@@ -401,7 +401,7 @@ class [[maybe_unused]] AdvDataMap {
   [[maybe_unused]] [[nodiscard]] inline std::vector<std::string> get_type_keys() const {
     /// original method created by myself, refactored to utilizing a lambda within a for each
     /// instead of a loop utilizing assistance by gpt4o
-    std::vector<std::string> names;
+    std::vector<std::string> names = {};
     if (m_map.empty()) {
       return names;
     }
