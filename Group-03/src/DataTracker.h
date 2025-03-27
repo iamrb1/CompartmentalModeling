@@ -33,18 +33,11 @@ public:
 
     std::optional<T> winner() const;
 
-    // // Returns the total number of elements
-    // constexpr size_t DataTracker<T>::total() const {return values.size();}
-    // // Adds a specified value to the vector
-    // constexpr void DataTracker<T>::add_value(const T& value) {values.push_back(value);}
+    // Returns the total number of elements
+    constexpr void add_value(const T& value) {values.push_back(value);}
 
-    constexpr void add_value(const T& value) {
-        values.push_back(value);
-    }
-
-    constexpr size_t total() const {
-        return values.size();
-    }
+    // Adds a specified value to the vector
+    constexpr size_t total() const {return values.size();}
 
 private:
     std::vector<T> values;

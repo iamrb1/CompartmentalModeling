@@ -29,13 +29,7 @@ TEST_CASE("Advanced DataTracker Variance", "[DataTracker]") {
     CHECK(tracker.variance() == Approx(4.0));
 }
 
-//TEST_CASE("Advanced DataTracker Template Support", "[DataTracker]") {
-//    cse::DataTracker<std::string> tracker;
-//    tracker.add_value("apple");
-//    tracker.add_value("banana");
-//    tracker.add_value("apple");
-//    CHECK(tracker.mode() == "apple");
-//}
+
 
 TEST_CASE("Advanced DataTracker Prey-Predator Win Condition", "[DataTracker]") {
     cse::DataTracker<int> tracker;
