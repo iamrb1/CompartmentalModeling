@@ -1,8 +1,7 @@
-#include "catch.hpp"
-
 #include "RichText.hpp"
 #include "SerializerHTML.hpp"
 #include "SerializerMarkdown.hpp"
+#include "catch.hpp"
 
 TEST_CASE("Basic serialization", "[RichTextSerialize]") {
   cse::TextFormat bold("bold");
@@ -77,7 +76,9 @@ TEST_CASE("Default HTML serializer", "[RichTextSerialize]") {
   text.apply_format(cse::TextFormat{"color", "red"}, 0, 5);
 
   std::string output = text.serialize(serializer).output;
-  REQUIRE(output == (header + "<span style=\"color: red;\">Hello</span> world!" + footer));
+  REQUIRE(
+      output ==
+      (header + "<span style=\"color: red;\">Hello</span> world!" + footer));
 }
 
 TEST_CASE("Default Markdown serializer", "[RichTextSerialize]") {
@@ -87,5 +88,4 @@ TEST_CASE("Default Markdown serializer", "[RichTextSerialize]") {
 
   std::wstring output = text.serialize(serializer).output;
   REQUIRE(output == std::wstring(L"**Some** unicode markdown!"));
-
 }
