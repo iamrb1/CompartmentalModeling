@@ -24,6 +24,9 @@ struct Point {
   bool operator==(const Point& other) const {
     return x_position == other.x_position && y_position == other.y_position;
   }
+
+  Point() = default;
+  Point(double x, double y) : x_position(x), y_position(y) {}
 };
 
 class StateGridPosition {
