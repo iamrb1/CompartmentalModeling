@@ -24,9 +24,9 @@ int main()
     // ptr3.Delete();
 
     // EXAMPLE 3 - Not deleting all Aptrs by termination
-    cse::Aptr<const std::string> ptr4 = cse::MakeAudited<const std::string>("Hello");
-    cse::Aptr<float> ptr5 = cse::MakeAudited<float>(3.496);
-    ptr4.Delete();
+    // cse::Aptr<const std::string> ptr4 = cse::MakeAudited<const std::string>("Hello");
+    // cse::Aptr<float> ptr5 = cse::MakeAudited<float>(3.496);
+    // ptr4.Delete();
 
     return 0;
 }
