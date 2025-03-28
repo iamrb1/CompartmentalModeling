@@ -1,15 +1,15 @@
  #include "../../../../third-party/Catch/single_include/catch2/catch.hpp"
- #include "../../AnnotatedWrapper/AnnotatedWrapper.h"
+ #include "../../AnnotatedWrapper/AnnotatedWrapper.hpp"
  using namespace cse;
 
 TEST_CASE("Test AnnotatedWrapper default construction", "[AnnotatedWrapper]") {
-    AnnotatedWrapper wrapper;
+    AnnotatedWrapper<std::string> wrapper;
     CHECK(wrapper.getAnnotation("key1").empty());
     CHECK(wrapper.getAnnotation("key2").empty());
 }
 
 TEST_CASE("Test AnnotatedWrapper addAnnotation operation", "[AnnotatedWrapper]") {
-    AnnotatedWrapper wrapper;
+    AnnotatedWrapper<std::string> wrapper;
     wrapper.addAnnotation("key1", "value1");
     wrapper.addAnnotation("key2", "value2");
     wrapper.addAnnotation("key3", "value3");
@@ -20,7 +20,7 @@ TEST_CASE("Test AnnotatedWrapper addAnnotation operation", "[AnnotatedWrapper]")
 }
 
 TEST_CASE("Test AnnotatedWrapper getAnnotation operation", "[AnnotatedWrapper]") {
-    AnnotatedWrapper wrapper;
+    AnnotatedWrapper<std::string> wrapper;
     wrapper.addAnnotation("keyA", "valueA");
     wrapper.addAnnotation("keyB", "valueB");
 
@@ -30,7 +30,7 @@ TEST_CASE("Test AnnotatedWrapper getAnnotation operation", "[AnnotatedWrapper]")
 }
 
 TEST_CASE("Test AnnotatedWrapper removeAnnotation operation", "[AnnotatedWrapper]") {
-    AnnotatedWrapper wrapper;
+    AnnotatedWrapper<std::string> wrapper;
     wrapper.addAnnotation("key1", "value1");
     wrapper.addAnnotation("key2", "value2");
 
@@ -40,7 +40,7 @@ TEST_CASE("Test AnnotatedWrapper removeAnnotation operation", "[AnnotatedWrapper
 }
 
 TEST_CASE("Test AnnotatedWrapper clearAnnotations operation", "[AnnotatedWrapper]") {
-    AnnotatedWrapper wrapper;
+    AnnotatedWrapper<std::string> wrapper;
     wrapper.addAnnotation("key1", "value1");
     wrapper.addAnnotation("key2", "value3");
 
@@ -51,7 +51,7 @@ TEST_CASE("Test AnnotatedWrapper clearAnnotations operation", "[AnnotatedWrapper
 }
 
 TEST_CASE("Test AnnotatedWrapper overwriteAnnotation operation", "[AnnotatedWrapper]") {
-    AnnotatedWrapper wrapper;
+    AnnotatedWrapper<std::string> wrapper;
     wrapper.addAnnotation("key1", "value1");
     wrapper.addAnnotation("key1", "newValue");
 
@@ -59,7 +59,7 @@ TEST_CASE("Test AnnotatedWrapper overwriteAnnotation operation", "[AnnotatedWrap
 }
 
 TEST_CASE("Test AnnotatedWrapper add and remove multiple annotations", "[AnnotatedWrapper]") {
-    AnnotatedWrapper wrapper;
+    AnnotatedWrapper<std::string> wrapper;
     wrapper.addAnnotation("key1", "value1");
     wrapper.addAnnotation("key2", "value2");
     wrapper.addAnnotation("key3", "value3");

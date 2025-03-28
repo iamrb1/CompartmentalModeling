@@ -1,6 +1,14 @@
 #ifndef TAGMANAGER_TAGMANAGER_H
 #define TAGMANAGER_TAGMANAGER_H
 
+/**
+ * @class   TagManager
+ * @file    TagManager.hpp
+ * @author  Kelsi Elliott
+ * @brief   The TagManager class helps to "label" items with a two-way
+ *          association to make looking up by "tag" or "task" simple
+ */
+
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -26,37 +34,34 @@ public:
     }
 
     // Copy assignment operator
-    TagManager& operator=(const TagManager& other) {
-        if (this != &other) {  // Check for self-assignment
-            mTaskToTag = other.mTaskToTag;
-            mTagToTask = other.mTagToTask;
-        }
-        return *this;
-    }
+    TagManager& operator=(const TagManager&) = default;
+    
+    //Move constructor
+    TagManager(TagManager && other) = default;
 
     // Destructor
     ~TagManager() = default;
 
     // 1. Adds a tag to the task
-    void AddTag(const string& task, const string& tag);
+    void addTag(const string& task, const string& tag);
 
     // 2. Removes a tag from the task
-    void RemoveTag(const string& task, const string& tag);
+    void removeTag(const string& task, const string& tag);
 
     // 3. Retrieves all tags associated with an task
-    std::unordered_set<string> GetTags(const string& task) const;
+    std::unordered_set<string> getTags(const string& task) const;
 
     // 4. Retrieves all entries associated with a specific tag
-    std::unordered_set<string> GetTaskTags(const string& tag) const;
+    std::unordered_set<string> getTaskTags(const string& tag) const;
 
     // 5. Clears all tags for a specific task
-    void ClearTagsForTask(const string& task);
+    void clearTagsForTask(const string& task);
 
     // 6. Clears all entries associated with a specific tag
-    void ClearTags(const string& tag);
+    void clearTags(const string& tag);
 
     // 7. Checks if an task has a specific tag
-    bool HasTag(const string& task, const string& tag) const;
+    bool hasTag(const string& task, const string& tag) const;
 };
 
 #endif //TAGMANAGER_TAGMANAGER_H

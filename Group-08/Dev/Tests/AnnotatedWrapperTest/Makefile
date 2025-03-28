@@ -17,11 +17,6 @@ cov-%: %.cpp ../../third-party/Catch/single_include/catch2/catch.hpp
 test-prep:
 	mkdir -p temp
 
-test-AnnotatedWrapperTest: AnnotatedWrapperTest.cpp ../../AnnotatedWrapper/AnnotatedWrapper.cpp
-	$(CXX) $(FLAGS) AnnotatedWrapperTest.cpp ../../AnnotatedWrapper/AnnotatedWrapper.cpp -o $@.out
-	./$@.out
-
-
 test-%: %.cpp ../../third-party/Catch/single_include/catch2/catch.hpp
 	$(CXX) $(FLAGS) $< -o $@.out
 	./$@.out
