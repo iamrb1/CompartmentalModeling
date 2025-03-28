@@ -11,7 +11,7 @@
 #include <sstream>
 #include <stdexcept>
 
-#include "image.hpp"
+#include "Image.hpp"
 
 using namespace cse;
 
