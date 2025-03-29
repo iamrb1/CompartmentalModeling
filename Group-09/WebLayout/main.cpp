@@ -11,7 +11,7 @@
 // Compile with:
 // emcc main.cpp ../Image/Image.cpp WebLayout.cpp WebLayoutManager.cpp -o
 // output.js --shell-file index.html -s EXPORTED_FUNCTIONS="['_main',
-// '_call_advance', '_call_rewind']" -s EXPORTED_RUNTIME_METHODS="['ccall',
+// '_call_advance', '_call_rewind', '_call_addTextBox']" -s EXPORTED_RUNTIME_METHODS="['ccall',
 // 'cwrap']"
 using namespace cse;
 
@@ -27,10 +27,13 @@ int main() {
   ImageLayout il(testImage, 10, 10);
   sampleWebLayout->addImage(il);
 
-  // Setup test textbox
+  // Setup test textbox with different configs
 
   FormattedText ft;
-  ft.setText("Yay a Text Box!");
+  ft.setText("Yay a Green Text Box!");
+  ft.setColor("#18453B");
+  ft.setFont("fantasy");
+  ft.setFontSize(24);
   TextBoxConfig tbc;
   tbc.content = ft;
   tbc.height = 10;
@@ -43,6 +46,9 @@ int main() {
   // Setup test textbox2 (exceed barriers test)
   FormattedText ft2;
   ft2.setText("I'm an out of bounds text box D:");
+  ft2.setColor("#FFC0CB");
+  ft2.setFont("monospace");
+  ft2.setFontSize(36);
   TextBoxConfig tbc2;
   tbc2.content = ft2;
   tbc2.height = 15;
@@ -52,7 +58,7 @@ int main() {
   sampleWebLayout->addTextBox(tbl2);
 
   // Load Page
-  sampleWebLayout->loadPage();
+  //sampleWebLayout->loadPage();
 
   std::shared_ptr<WebLayout> sampleWebLayout2 = std::make_shared<WebLayout>();
   // Setup test Image
@@ -74,7 +80,7 @@ int main() {
 
   TextBoxLayout tbl3(testTextBox3, 10, 10);
   sampleWebLayout2->addTextBox(tbl3);
-  sampleWebLayout2->loadPage();
+  //sampleWebLayout2->loadPage();
 
   WebLayoutManager manager;
   manager.addLayout(sampleWebLayout);
