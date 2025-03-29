@@ -3,7 +3,7 @@
 
 #include <nlohmann/json.hpp>
 
-#include "../Image/image.hpp"
+#include "../Image/Image.hpp"
 #include "../TextBox/TextBox.hpp"
 #include "WebLayout.hpp"
 #include "WebLayoutManager.hpp"

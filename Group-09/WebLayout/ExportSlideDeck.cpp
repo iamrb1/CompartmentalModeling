@@ -1,7 +1,7 @@
 // ExportSlideDeck.cpp
 #include <emscripten.h>
 
-#include "../Image/image.hpp"
+#include "../Image/Image.hpp"
 #include "../TextBox/TextBox.hpp"
 #include "../utils/nlohmann/json.hpp"
 #include "WebLayout.hpp"

@@ -16,7 +16,7 @@
 // '_loadSlideDeckFromJson', '_exportSlideDeckToJson']" -s
 // EXPORTED_RUNTIME_METHODS="['ccall', 'cwrap']"
 
-// Bring in the global layout manager used by load/save
+// Bring in the global layout manager used by load/save functions
 extern cse::WebLayoutManager* g_manager;
 
 using namespace cse;
