@@ -13,7 +13,7 @@
 #include <memory>
 #include <vector>
 
-#include "../Image/image.hpp"
+#include "../Image/Image.hpp"
 #include "../TextBox/TextBox.hpp"
 
 namespace cse {

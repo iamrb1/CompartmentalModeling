@@ -1,10 +1,10 @@
 /**
- * @file image.cpp
+ * @file Image.cpp
  *
  * @author Mia Bodenhorn
  */
 
-#include "image.hpp"
+#include "Image.hpp"
 
 #include <assert.h>
 #include <emscripten.h>

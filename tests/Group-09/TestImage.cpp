@@ -5,7 +5,7 @@
  */
 
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
-#include "../../Group-09/Image/image.hpp"
+#include "../../Group-09/Image/Image.hpp"
 
 using namespace cse;
 

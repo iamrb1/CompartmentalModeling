@@ -1,5 +1,5 @@
 /**
- * @file image.hpp
+ * @file Image.hpp
  *
  * @author Mia Bodenhorn
  */
