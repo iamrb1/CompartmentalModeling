@@ -1,12 +1,12 @@
-#include "AuditedPointer.h"
+#include "AuditedPointer.hpp"
 #include <vector>
 
 int main()
 {
     // Example usage
-    // cse::Aptr<int> ptr = cse::MakeAudited<int>(42);
-    // std::cout << *ptr << std::endl; // Output: 42
-    // ptr.Delete();
+    cse::Aptr<int> ptr = cse::MakeAudited<int>(42);
+    std::cout << *ptr << std::endl; // Output: 42
+    ptr.Delete();
 
     // EXAMPLES OF ERRORS SHOWN IN DEBUG MODE
     // The following code, when uncommented, will
@@ -14,9 +14,9 @@ int main()
     // flag.
 
     // EXAMPLE 1 - Dereferencing a deleted pointer
-    // cse::Aptr<int> ptr2 = cse::MakeAudited<int>(100);
-    // ptr2.Delete();
-    // *ptr2; 
+    cse::Aptr<int> ptr2 = cse::MakeAudited<int>(100);
+    ptr2.Delete();
+    *ptr2; 
 
     // EXAMPLE 2 - Deleting a deleted pointer
     // cse::Aptr<int> ptr3 = cse::MakeAudited<int>(200);
