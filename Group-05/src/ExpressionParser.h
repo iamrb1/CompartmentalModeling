@@ -35,6 +35,13 @@ class ExpressionParser {
     sub_char='-';
   }
 
+  /**
+   * @brief Get the Token object
+   * 
+   * @param expression string representing equation
+   * @param index representing position in expression
+   * @return size_t index of next token
+   */
   size_t getToken(const std::string& expression, size_t &index);
 
   /**
@@ -55,6 +62,16 @@ class ExpressionParser {
     div_char='/';
   }
 
+    /**
+   * @brief set char to division operator
+   * 
+   * @param div_char comparison char
+   */
+  constexpr void exponent(char& exp_char){
+    exp_char='^';
+  }
+
+
   /**
    * @brief set char to multiplication operator
    * 
@@ -64,81 +81,97 @@ class ExpressionParser {
     mult_char='*';
   }
 
+  /**
+   * @brief Get the content inside Parenthesis
+   * 
+   * @param expression string representing equation
+   * @param index position in string
+   * @return std::string content inside parenthesis
+   */
+  std::string GetParenthContent(const std::string& expression, size_t index);
+
   std::map<std::string, double> symbol_table_;
   /**
    * @brief Parses the next key in the equation, returning that number as a double
    *
    * @param expression The string representing the equation
    * @param index The position of the parser in the string
-   * @return The first key found
+   * @return Function returning next key
    */
   std::function<double(std::map<std::string,double> &)> ParseKey(const std::string &expression, size_t &index);
 
   /**
-   * @brief Creates division function that take a map with values to add
+   * @brief Creates multiplication function that take a map with values to add
    *
-   * @param name1 Key for first value
-   * @param name2 Key for second value
+   * @param left Lambda which returns the left value
+   * @param right Lambda which returns the right value
    * @return auto Lambda function to perform operation
    */
-  std::function<double(std::map<std::string,double> &)> MakeDivFun(std::function<double(std::map<std::string,double> &)>, std::function<double(std::map<std::string,double> &)>);
-
-
-  /**
-   * @brief Creates adding function that take a map with values to add
-   *
-   * @param name1 Key for first value
-   * @param name2 Key for second value
-   * @return auto Lambda function to perform operation
-   */
-  std::function<double(std::map<std::string,double> &)> MakeAddFun(std::function<double(std::map<std::string,double> &)>, std::function<double(std::map<std::string,double> &)>);
-
-  /**
-   * @brief Creates subtracting function that take a map with values to add
-   *
-   * @param name1 Key for first value
-   * @param name2 Key for second value
-   * @return auto Lambda function to perform operation
-   */
-  std::function<double(std::map<std::string,double> &)> MakeSubFun(std::function<double(std::map<std::string,double> &)>, std::function<double(std::map<std::string,double> &)>);
+  std::function<double(std::map<std::string,double> &)> MakeDivFun(std::function<double(std::map<std::string,double> &left)>, std::function<double(std::map<std::string,double> &right)>);
 
 
   /**
    * @brief Creates multiplication function that take a map with values to add
    *
-   * @param name1 Key for first value
-   * @param name2 Key for second value
+   * @param left Lambda which returns the left value
+   * @param right Lambda which returns the right value
    * @return auto Lambda function to perform operation
    */
-  std::function<double(std::map<std::string,double> &)> MakeMulFun(std::function<double(std::map<std::string,double> &)>, std::function<double(std::map<std::string,double> &)>);
+  std::function<double(std::map<std::string,double> &)> MakeAddFun(std::function<double(std::map<std::string,double> &left)>, std::function<double(std::map<std::string,double> &right)>);
+
+  /**
+   * @brief Creates multiplication function that take a map with values to add
+   *
+   * @param left Lambda which returns the left value
+   * @param right Lambda which returns the right value
+   * @return auto Lambda function to perform operation
+   */
+  std::function<double(std::map<std::string,double> &)> MakeSubFun(std::function<double(std::map<std::string,double> &)>, std::function<double(std::map<std::string,double> &right)>);
+
+
+  /**
+   * @brief Creates multiplication function that take a map with values to add
+   *
+   * @param left Lambda which returns the left value
+   * @param right Lambda which returns the right value
+   * @return auto Lambda function to perform operation
+   */
+  std::function<double(std::map<std::string,double> &)> MakeMulFun(std::function<double(std::map<std::string,double> & left)>, std::function<double(std::map<std::string,double> & right)>);
 
 
     /**
-   * @brief Creates cosine function that take a map with values to add
+   * @brief Creates cosine function that takes a map with values
    *
-   * @param name1 Key for first value
-   * @param name2 Key for second value
+   * @param expression_lambda lambda returning value inside parenthesis
    * @return auto Lambda function to perform operation
    */
-  auto MakeCosFun(const std::string &key);
+  std::function<double(std::map<std::string,double> &)> MakeCosFun(std::function<double(std::map<std::string,double> &)> expression_lambda);
+
+      /**
+   * @brief Creates parenthesis function that takes a map with values
+   *
+   * @param expression_lambda lambda returning value inside parenthesis
+   * @return auto Lambda function to perform operation
+   */
+  std::function<double(std::map<std::string,double> &)> MakeParenthFun(std::function<double(std::map<std::string,double> &)> expression_lambda);
 
     /**
-   * @brief Creates sine function that take a map with values to add
+   * @brief Creates sine function that takes a map with values
    *
-   * @param name1 Key for first value
-   * @param name2 Key for second value
+   * @param expression_lambda lambda returning value inside parenthesis
    * @return auto Lambda function to perform operation
    */
-  auto MakeSinFun(const std::string &key);
+  std::function<double(std::map<std::string,double> &)> MakeSinFun(std::function<double(std::map<std::string,double> &)> expression_lambda);
 
-    /**
-   * @brief Creates exponent function that take a map with values to add
+
+  /**
+   * @brief Creates power function that take a map with values to perform operation
    *
-   * @param name1 Key for first value
-   * @param name2 Key for second value
+   * @param left Lambda which returns the left value
+   * @param right Lambda which returns the right value
    * @return auto Lambda function to perform operation
    */
-  auto MakeExpoFun(const std::string &key1, const std::string &key2);
+  std::function<double(std::map<std::string,double> &)> MakeExpoFun(std::function<double(std::map<std::string,double> &left)>, std::function<double(std::map<std::string,double> &right)>);
 
  public:
   /**
@@ -302,6 +335,20 @@ std::function<double(std::map<std::string,double> & symbols)> MakeFunc( const st
       symbol_table_[key] = num;
     }
   };
+
+  /**
+   * @brief Set index to the end of the parenthesis
+   * 
+   * @param index position inside expression
+   * @param expression string representing equation
+   */
+  void SkipParenthesis(size_t &index, const std::string expression) {
+    // Increment index until we find the '(' character
+    while (index < expression.size() && expression[index] != ')') {
+        index++;
+    }
+    index++;
+}
 }
 
 
