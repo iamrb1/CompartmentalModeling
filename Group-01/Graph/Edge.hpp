@@ -58,8 +58,8 @@ namespace cse {
       return v1 == *from && v2 == *to;
     };
 
-    Vertex<VERTEX_DATA_T> &GetFrom() { return *from; }
-    Vertex<VERTEX_DATA_T> &GetTo() { return *to; }
+    Vertex<VERTEX_DATA_T> &GetFrom() const { return *from; }
+    Vertex<VERTEX_DATA_T> &GetTo() const { return *to; }
     std::string GetId() const override { return id; };
     double GetWeight() const { return weight; };
 
