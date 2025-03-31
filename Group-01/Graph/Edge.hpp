@@ -1,12 +1,13 @@
 #pragma once
 #include "../Util/Util.hpp"
+#include "GraphExceptions.hpp"
 #include "Vertex.hpp"
 #include <iostream>
 #include <memory>
 #include <string>
 
 namespace cse {
-  template <typename VERTEX_DATA_T>
+  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
   class Graph; // Forward declaration
 
   template <typename VERTEX_DATA_T>
@@ -62,7 +63,8 @@ namespace cse {
     std::string GetId() const override { return id; };
     double GetWeight() const { return weight; };
 
-    static void CreateFromFile(std::istream &f, size_t indent_level, Graph<VERTEX_DATA_T> &graph);
+    template <bool IS_BIDIRECTIONAL>
+    static void CreateFromFile(std::istream &f, size_t indent_level, Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL> &graph);
   };
 
   
@@ -76,12 +78,13 @@ namespace cse {
    * @throws runtime_error if input format is invalid
    */
   template <typename VERTEX_DATA_T>
-  void Edge<VERTEX_DATA_T>::CreateFromFile(std::istream &f, size_t indent_level, Graph<VERTEX_DATA_T> &graph) {
+  template <bool IS_BIDIRECTIONAL>
+  void Edge<VERTEX_DATA_T>::CreateFromFile(std::istream &f, size_t indent_level, Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL> &graph) {
     std::string line;
     std::getline(f, line);
     auto [key, id] = FileUtil::SeparateKeyValue(line);
     if (key != "EDGE") {
-      throw std::runtime_error("Invalid type: " + key);
+      throw file_format_error("Invalid type: " + key);
     }
 
     auto props = ParseProperties(f, indent_level);
