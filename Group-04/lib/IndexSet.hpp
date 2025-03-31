@@ -616,22 +616,43 @@ class IndexSet {
   void shift_left_within(const std::size_t shift_by, const std::size_t start,
                          const std::size_t end) {
     dbg_assert(end > start, "Shift range end is not past start");
-
-    // load range into BitVector
-    BitVector indices{end - start};
-    for (size_t i = start; i < end; i++) {
-      indices[i - start] = contains(i);
+    
+    if (shift_by == 0) return; // No shift needed
+    
+    if (shift_by >= (end - start)) {
+      // If shifting by more than the range size, all indices are shifted out
+      // Store indices in local vector to avoid modifying during iteration
+      std::vector<std::size_t> indices_to_remove;
+      for (size_t i = start; i < end; i++) {
+        if (contains(i)) {
+          indices_to_remove.push_back(i);
+        }
+      }
+      
+      // Remove all indices in the range
+      for (auto idx : indices_to_remove) {
+        remove(idx);
+      }
+      return;
     }
 
-    // shifting indices left actually means shifting BitVector right
-    indices >>= shift_by;
-
-    // restore shifted range from BitVector
+    // Get all indices in the range
+    std::vector<std::size_t> indices_in_range;
     for (size_t i = start; i < end; i++) {
-      if (indices[i - start]) {
-        insert(i);
-      } else {
-        remove(i);
+      if (contains(i)) {
+        indices_in_range.push_back(i);
+      }
+    }
+    
+    // Remove all indices in the range first
+    for (auto idx : indices_in_range) {
+      remove(idx);
+    }
+    
+    // Add shifted indices
+    for (auto idx : indices_in_range) {
+      if (idx >= start + shift_by) {
+        insert(idx - shift_by);
       }
     }
   }
@@ -646,32 +667,63 @@ class IndexSet {
   void shift_right_within(const std::size_t shift_by, const std::size_t start,
                           const std::size_t end) {
     dbg_assert(end > start, "Shift range end is not past start");
-
-    // load range into BitVector
-    BitVector indices{end - start};
-    for (size_t i = start; i < end; i++) {
-      indices[i - start] = contains(i);
+    
+    if (shift_by == 0) return; // No shift needed
+    
+    if (shift_by >= (end - start)) {
+      // If shifting by more than the range size, all indices are shifted out
+      // Store indices in local vector to avoid modifying during iteration
+      std::vector<std::size_t> indices_to_remove;
+      for (size_t i = start; i < end; i++) {
+        if (contains(i)) {
+          indices_to_remove.push_back(i);
+        }
+      }
+      
+      // Remove all indices in the range
+      for (auto idx : indices_to_remove) {
+        remove(idx);
+      }
+      return;
     }
 
-    // shifting indices right actually means shifting BitVector left
-    indices <<= shift_by;
-
-    // restore shifted range from BitVector
+    // Get all indices in the range
+    std::vector<std::size_t> indices_in_range;
     for (size_t i = start; i < end; i++) {
-      if (indices[i - start]) {
-        insert(i);
-      } else {
-        remove(i);
+      if (contains(i)) {
+        indices_in_range.push_back(i);
+      }
+    }
+    
+    // Sort in descending order to avoid conflicts when inserting
+    std::sort(indices_in_range.begin(), indices_in_range.end(), std::greater<std::size_t>());
+    
+    // Remove all indices in the range first
+    for (auto idx : indices_in_range) {
+      remove(idx);
+    }
+    
+    // Add shifted indices (process from highest to lowest to avoid range merging issues)
+    for (auto idx : indices_in_range) {
+      if (idx + shift_by < end) {
+        insert(idx + shift_by);
       }
     }
   }
 
   void shift_left(const std::size_t shift_by) {
+    if (shift_by == 0) return; // No shift needed
     if (auto max = max_index()) shift_left_within(shift_by, 0, *max + 1);
   }
 
   void shift_right(const std::size_t shift_by) {
-    if (auto max = max_index()) shift_right_within(shift_by, 0, *max + 1);
+    if (shift_by == 0) return; // No shift needed
+    if (auto max = max_index()) {
+      // For right shifts, we need to ensure the range includes space for the shifted values
+      std::size_t max_val = *max;
+      std::size_t extended_end = max_val + shift_by + 1;
+      shift_right_within(shift_by, 0, extended_end);
+    }
   }
 
   /**
@@ -896,11 +948,17 @@ class IndexSet {
 
     for (std::size_t i = 1; i < ranges_.size(); i++) {
       auto& back = merged.back();
-      // Check if ranges are adjacent (back.end == ranges_[i].start - 1)
-      // or overlapping (back.end >= ranges_[i].start)
-      if (back.end >= ranges_[i].start - 1) {
+      
+      // Check if ranges overlap (back.end > ranges_[i].start)
+      if (back.end > ranges_[i].start) {
         // Merge the ranges by extending the end of the previous range
         back.end = std::max(back.end, ranges_[i].end);
+        back.second = back.end;  // Update second as well
+      }
+      // Check if ranges are adjacent (back.end == ranges_[i].start)
+      else if (back.end == ranges_[i].start) {
+        // Merge adjacent ranges
+        back.end = ranges_[i].end;
         back.second = back.end;  // Update second as well
       } else {
         // Ranges are not adjacent or overlapping, add as new range
@@ -917,15 +975,32 @@ class IndexSet {
    * @return The index of the containing range, or NO_RANGE if not found
    */
   std::size_t find_range_index(std::size_t index) const {
-    // Use binary search to find the range that could contain this index
-    auto it = std::lower_bound(ranges_.begin(), ranges_.end(), index,
-                            [](const auto& range, std::size_t val) {
-                              return range.end <= val;
-                            });
+    // Early return for empty ranges
+    if (ranges_.empty()) {
+      return NO_RANGE;
+    }
     
-    // Check if we found a valid range that contains the index
-    if (it != ranges_.end() && it->start <= index && index < it->end) {
-      return std::distance(ranges_.begin(), it);
+    // Use binary search to find the appropriate range
+    int left = 0;
+    int right = static_cast<int>(ranges_.size()) - 1;
+    
+    while (left <= right) {
+      int mid = left + (right - left) / 2;
+      const auto& range = ranges_[mid];
+      
+      // Check if index is in this range
+      if (range.start <= index && index < range.end) {
+        return static_cast<std::size_t>(mid);
+      }
+      
+      // If index is less than the start of this range, look left
+      if (index < range.start) {
+        right = mid - 1;
+      }
+      // If index is past the end of this range, look right
+      else {
+        left = mid + 1;
+      }
     }
     
     return NO_RANGE;
