@@ -23,10 +23,12 @@ class WebLayoutManager {
   void advance();
   void rewind();
   void initialize();
+  void addTextBox();
+  void addImage(const std::string& url, int width, int height, const std::string& altText);
   WebLayoutManager();
 
-  // 🔹 Getter for export support
-  const std::vector<std::shared_ptr<WebLayout>>& getLayouts() const {
+  // Getter for export support
+  const std::vector<std::shared_ptr<WebLayout>> &getLayouts() const {
     return layouts;
   }
 };

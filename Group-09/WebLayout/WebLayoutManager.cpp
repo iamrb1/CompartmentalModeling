@@ -7,7 +7,6 @@
 
 #include <emscripten/bind.h>
 
-
 namespace cse {
 
 /**
@@ -23,22 +22,36 @@ WebLayoutManager::WebLayoutManager() {
 
   // Set up the event listener for the button click
   EM_ASM({
-    // Setup advance button
-    var advanceButton = document.getElementById("advanceButton");
-    if (advanceButton) {
-      advanceButton.addEventListener(
-          "click", function() { Module._call_advance(); });
-    }
-  });
+           // Setup advance button
+           var advanceButton = document.getElementById("advanceButton");
+           if (advanceButton) {
+             advanceButton.addEventListener(
+                 "click", function()
+             { Module._call_advance(); });
+           }
 
-  EM_ASM({
-    // Setup advance button
-    var rewindButton = document.getElementById("reverseButton");
-    if (rewindButton) {
-      rewindButton.addEventListener(
-          "click", function() { Module._call_rewind(); });
-    }
-  });
+           var rewindButton = document.getElementById("reverseButton");
+           if (rewindButton) {
+             rewindButton.addEventListener(
+                 "click", function()
+             { Module._call_rewind(); });
+           }
+
+           var addTextBoxButton = document.getElementById("addTextBoxButton");
+           if (addTextBoxButton) {
+             addTextBoxButton.addEventListener(
+                 "click", function()
+             { Module._call_addTextBox(); });
+           }
+
+          var addImageButton = document.getElementById("addImageButton");
+          if (addImageButton) {
+            addImageButton.addEventListener(
+                "click", function()
+            { Module._call_addImage(); });
+          }
+         });
+
 }
 
 extern "C" {
@@ -46,17 +59,34 @@ EMSCRIPTEN_KEEPALIVE void call_advance() {
   if (g_manager) {
     g_manager->advance();
   } else {
-    std::cerr << "Error: g_manager is null!" << std::endl;
+    std::cout << "ERROR: g_manager is null!" << std::endl;
   }
 }
-}
-extern "C" {
 
 EMSCRIPTEN_KEEPALIVE void call_rewind() {
   if (g_manager) {
     g_manager->rewind();
   } else {
-    std::cerr << "Error: g_manager is null!" << std::endl;
+    std::cout << "ERROR: g_manager is null!" << std::endl;
+  }
+}
+
+EMSCRIPTEN_KEEPALIVE void call_addImage(char* urlPtr, int width, int height, char* altPtr) {
+  std::string url(urlPtr);
+  std::string altText(altPtr);
+
+  if (g_manager) {
+    g_manager->addImage(url, width, height, altText);
+  } else {
+    std::cout << "ERROR: g_manager is null!" << std::endl;
+  }
+}
+
+EMSCRIPTEN_KEEPALIVE void call_addTextBox() {
+  if (g_manager) {
+    g_manager->addTextBox();
+  } else {
+    std::cout << "ERROR: g_manager is null!" << std::endl;
   }
 }
 }
@@ -149,4 +179,35 @@ void WebLayoutManager::initialize() {
     currentLayout->activateLayout();
   }
 }
+
+void WebLayoutManager::addTextBox() {
+  // Create a new text box with predefined properties
+  FormattedText ft;
+  ft.setText("New Box!");
+  TextBoxConfig tbc;
+  tbc.content = ft;
+  tbc.height = 10;
+  tbc.width = 30;
+  auto newTextBox = std::make_shared<TextBox>("", tbc);
+  TextBoxLayout newLayout = {newTextBox, 50, 50};
+
+  layouts.at(currentPos)->addTextBox(newLayout);
+  //layouts.at(currentPos)->loadPage();
+}
+
+void WebLayoutManager::addImage(const std::string& url, int width, int height, const std::string& altText) {
+//  try {
+    auto image = std::make_shared<Image>(url, width, height, altText);
+    ImageLayout layout{image, 10, 10}; // Default x/y position
+    layouts.at(currentPos)->addImage(layout);
+//    if (currentPos < layouts.size() && layouts.at(currentPos)) {
+//      layouts.at(currentPos)->addImage(layout);
+//    } else {
+//      std::cout << "WARNING: Invalid currentPos (" << currentPos << ") or layout missing." << std::endl;
+//    }
+//  } catch (const std::exception& e) {
+//    std::cout << "Failed to add image: " << e.what() << std::endl;
+//  }
+}
+
 }  // namespace cse
