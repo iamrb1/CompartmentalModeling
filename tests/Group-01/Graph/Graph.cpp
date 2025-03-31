@@ -19,8 +19,8 @@ TEST_CASE("Test cse::Graph (Bidirectional)", "[base]") {
   BidirectionalGraph graph;
 
   // Test adding vertices
-  auto &v1 = graph.AddVertex("id1", "Vertex1 Data");
-  auto &v2 = graph.AddVertex("id2", "Vertex2 Data");
+  auto v1 = graph.AddVertex("id1", "Vertex1 Data");
+  auto v2 = graph.AddVertex("id2", "Vertex2 Data");
   CHECK(graph.GetVertex("id1").GetId() == "id1");
   CHECK(graph.GetVertex("id2").GetId() == "id2");
 
@@ -40,8 +40,8 @@ TEST_CASE("Test cse::Graph (Bidirectional)", "[base]") {
   CHECK(graph.IsConnected("id2", "id1"));
 
   // Testing Adding Edges by reference
-  auto &v4 = graph.AddVertex("id4", "Vertex4 Data");
-  auto &v5 = graph.AddVertex("id5", "Vertex5 Data");
+  auto v4 = graph.AddVertex("id4", "Vertex4 Data");
+  auto v5 = graph.AddVertex("id5", "Vertex5 Data");
 
   CHECK(!graph.IsConnected(v1_2, v4));
   CHECK(!graph.IsConnected(v4, v5));
@@ -52,7 +52,7 @@ TEST_CASE("Test cse::Graph (Bidirectional)", "[base]") {
   CHECK(graph.IsConnected(v5, v4));
 
   // Testing removing edges
-  auto &v4_v5_edge = graph.GetEdge(v4.GetId(), v5.GetId());
+  auto v4_v5_edge = graph.GetEdge(v4.GetId(), v5.GetId());
   REQUIRE_THAT(v4_v5_edge.GetWeight(),
                WithinAbs(0, cse_test_utils::FLOAT_DELTA));
 
