@@ -8,6 +8,31 @@
 
 
 namespace cse {
+
+    /**
+   * @brief Get the content inside Parenthesis
+   * 
+   * @param expression string representing equation
+   * @param index position in string
+   * @return std::string content inside parenthesis
+   */
+  std::string cse::ExpressionParser::GetParenthContent(const std::string& expression, size_t index) {
+    // Ensure that the index is within the string length and points to '('
+    if (index >= expression.size() || expression[index] != '(') {
+        throw std::invalid_argument("Index must point to an opening parenthesis.");
+    }
+
+    // Find the corresponding closing parenthesis ')'
+    size_t closingIndex = expression.find(')', index);
+    if (closingIndex == std::string::npos) {
+        throw std::invalid_argument("Matching closing parenthesis ')' not found.");
+    }
+
+    // Extract and return the content between '(' and ')'
+
+    return expression.substr(index + 1, closingIndex - index - 1);
+  }
+
 /**
  * @brief Parses the next key in the equation, returning that number as a double
  * 
@@ -16,32 +41,53 @@ namespace cse {
  * @return The first key found
  */
 std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::ParseKey(const std::string &expression, size_t &index) {
-  assert(index < expression.size());
-  assert(std::any_of(expression.begin(), expression.end(), ::isdigit));
 
-  while (index < expression.size() && expression.at(index)!='{') {
+  assert(index <= expression.size());
+  assert(std::any_of(expression.begin(), expression.end(), ::isdigit));
+  std::string num_str;
+  std::string result;
+  while (index < expression.size() && expression.at(index)!='{' && isdigit(expression.at(index))==false && expression.at(index)!='(') {
+
     index++; 
+  }
+  
+  if (expression[index]=='(') {
+    if(isalpha(expression[index-1])){
+      index=index-3;
+      return KeyLambda("");
+    }
+    else{
+      return KeyLambda("");
+    }
+
   }
 
   if (expression[index]=='{') {
     index++; 
-    std::string result;
-
-    
-    while (expression[index]!='}') {
+  }
+  if(isdigit(expression.at(index))){
+    while (index < expression.size() && isdigit(expression[index])) {
+      num_str.push_back(expression[index]);
+      index++;
+    }
+  }
+  else{
+    while (expression[index]!='}' && index<=expression.size()) {
       assert(expression[index]!='{');
-      assert(index<expression.size());
+      assert(index<=expression.size());
       result.push_back(expression[index]);
       index++;
     }
-
-
-
-    return KeyLambda(result);
   }
 
-  std::cerr << "Error: Expected string inside {}" << std::endl;
-  return KeyLambda(""); 
+
+    if(expression[index]!='}'){
+      return NumLambda(stoi(num_str));
+    }
+    else{
+      return KeyLambda(result);
+    }
+
 }
 
 /**
@@ -52,7 +98,14 @@ std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::Par
  * @return auto
  */
 std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::MakeAddFun(std::function<double(std::map<std::string,double> &)> left, std::function<double(std::map<std::string,double> &)> right) {
-
+  std::map<std::string, double> symbol_table;
+  symbol_table["val1"] = -2;
+  symbol_table["val2"] = 2;
+  symbol_table["val3"] = -15;
+  symbol_table["val4"] = 15;
+  symbol_table["val5"] = 0;
+  symbol_table["val6"] = 30;
+  symbol_table["val7"] = 1;
   //using map_t = std::map<std::string, double>;
   return [left, right](std::map<std::string,double> & symbols) {
     return left(symbols) + right(symbols);
@@ -94,10 +147,9 @@ std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::Mak
  * @param key Key for first value
  * @return auto
  */
-auto cse::ExpressionParser::MakeCosFun(const std::string &key) {
-  using map_t = std::map<std::string, double>;
-  return [key](map_t &m) {
-    return cos(m[key]);
+std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::MakeCosFun(std::function<double(std::map<std::string,double> &)> expression_lambda) {
+  return [expression_lambda](std::map<std::string,double> &symbols) {
+    return cos(expression_lambda(symbols));
   };
 }
 
@@ -107,23 +159,36 @@ auto cse::ExpressionParser::MakeCosFun(const std::string &key) {
  * @param key Key for first value
  * @return auto
  */
-auto cse::ExpressionParser::MakeSinFun(const std::string &key) {
-  using map_t = std::map<std::string, double>;
-  return [key](map_t &m) {
-    return sin(m[key]);
+std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::MakeSinFun(std::function<double(std::map<std::string,double> &)> expression_lambda) {
+  return [expression_lambda](std::map<std::string,double> &symbols) {
+    return sin(expression_lambda(symbols));
   };
 }
 
 /**
- * @brief Creates exponent function that take a map with values to add
+ * @brief Creates sine function that take a map with values to add
  *
  * @param key Key for first value
  * @return auto
  */
-auto cse::ExpressionParser::MakeExpoFun(const std::string &key1, const std::string &key2) {
-  using map_t = std::map<std::string, double>;
-  return [key1, key2](map_t &m) {
-    return pow(m[key1], m[key2]);
+std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::MakeParenthFun(std::function<double(std::map<std::string,double> &)> expression_lambda) {
+  return [expression_lambda](std::map<std::string,double> &symbols) {
+    return expression_lambda(symbols);
+  };
+}
+
+
+  /**
+   * @brief Creates power function that take a map with values to perform operation
+   *
+   * @param left Lambda which returns the left value
+   * @param right Lambda which returns the right value
+   * @return auto Lambda function to perform operation
+   */
+std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::MakeExpoFun(std::function<double(std::map<std::string,double> &)> left, std::function<double(std::map<std::string,double> &)> right) {
+  //using map_t = std::map<std::string, double>;
+  return [left, right](std::map<std::string,double> & symbols) {
+    return pow(left(symbols), right(symbols));
   };
 }
 
@@ -152,8 +217,6 @@ std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::Mak
  * @return double representing value of equation
  */
 std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::MakeFunc( const std::string &expression, int precedence, size_t &index) {
-
-  std::function<double(std::map<std::string,double> &)> l1 = ParseKey(expression, index);  
   std::map<std::string, double> symbol_table;
   symbol_table["val1"] = -2;
   symbol_table["val2"] = 2;
@@ -162,22 +225,12 @@ std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::Mak
   symbol_table["val5"] = 0;
   symbol_table["val6"] = 30;
   symbol_table["val7"] = 1;
+  std::function<double(std::map<std::string,double> &)> l1 = ParseKey(expression, index);  
+  static size_t default_index = 0;
+
   //double result = 0;
 
-/*   if (expression.find("cos(") != std::string::npos){
-    auto fun = MakeCosFun(first_key);
-    return fun(symbol_table_);
-  }
-  if (expression.find("sin(") != std::string::npos){
-    auto fun = MakeSinFun(first_key);
-    return fun(symbol_table_);
-  }
-  if (expression.find("pow(") != std::string::npos){
-    second_key = ParseKey(expression, index);
-    assert(symbol_table_.find(second_key)!=symbol_table_.end());
-    auto fun = MakeExpoFun(first_key, second_key);
-    return fun(symbol_table_);
-  } */
+
   while (index < expression.size()) {
     getToken(expression, index);
     if (index>=expression.size()){
@@ -185,13 +238,14 @@ std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::Mak
     }
     char op = expression.at(index);  
     char comparison_char;
-    if (op=='+' || op=='-' || op=='*' || op=='/') {
+    if (op=='+' || op=='-' || op=='*' || op=='/' || op=='c' || op=='s' || op=='^' || op=='(') {
       addition(comparison_char);
       if (op==comparison_char) {
         if (precedence>=2){
           return l1;
         }
         l1 = MakeAddFun(l1, MakeFunc(expression, 2, index)); //Creates function
+
       }
       subtraction(comparison_char);
       if (op==comparison_char) {
@@ -214,7 +268,33 @@ std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::Mak
         }
         l1 = MakeDivFun(l1, MakeFunc(expression, 3, index)); //Creates function
       }
+      exponent(comparison_char);
+      if (op==comparison_char) {
+        if (precedence>=4){
+          return l1;
+        }
+        l1 = MakeExpoFun(l1, MakeFunc(expression, 4, index)); //Creates function
       }
+    }
+      if (op=='c'){
+
+        default_index=0;
+        l1= MakeCosFun(MakeFunc(GetParenthContent(expression, index+3), 0, default_index));
+        SkipParenthesis(index, expression);
+      }
+
+      if (op=='s'){
+        default_index=0;
+        l1= MakeSinFun(MakeFunc(GetParenthContent(expression, index+3), 0, default_index));
+        SkipParenthesis(index, expression);
+      }
+
+      if (op=='('){
+        default_index=0;
+        l1= MakeParenthFun(MakeFunc(GetParenthContent(expression, index), 0, default_index));
+        SkipParenthesis(index, expression);
+      }
+    
       if(index>=expression.size()){
         return l1;
       }
@@ -227,9 +307,13 @@ std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::Mak
     // Iterate over the string and find the next instance of '+', '-', '*', or '/'
     for (; index < expression.size(); index++) {
         char c = expression[index];
-        if (c == '+' || c == '-' || c == '*' || c == '/') {
+        if (c == '+' || c == '-' || c == '*' || c == '/' || c=='^' || c=='(') {
             return index;  // Return the index of the found token
         }
+        if (expression.substr(index, 4) == "cos(" || expression.substr(index, 4) == "sin(") {
+          return index;  // Return the index where 'cos(' or 'sin(' starts
+        }
+        
     }
     
     // If no operator is found, return a special value indicating no operator
@@ -238,5 +322,7 @@ std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::Mak
 
 
 
+
 }
+
 
