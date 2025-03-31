@@ -65,6 +65,7 @@
         "algorithm": "cpp",
         "iterator": "cpp",
         "list": "cpp",
-        "hash_map": "cpp"
+        "hash_map": "cpp",
+        "cfenv": "cpp"
     }
 }
