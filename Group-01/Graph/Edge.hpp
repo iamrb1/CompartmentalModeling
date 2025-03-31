@@ -7,11 +7,9 @@
 #include <string>
 
 namespace cse {
-  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
-  class Graph; // Forward declaration
+  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL> class Graph; // Forward declaration
 
-  template <typename VERTEX_DATA_T>
-  class Edge : public FileSerializable {
+  template <typename VERTEX_DATA_T> class Edge : public FileSerializable {
   private:
     std::string id;
     std::shared_ptr<Vertex<VERTEX_DATA_T>> from;
@@ -51,15 +49,17 @@ namespace cse {
 
   public:
     virtual ~Edge() = default;
-    Edge(const std::string id, std::shared_ptr<Vertex<VERTEX_DATA_T>> &from, 
-      std::shared_ptr<Vertex<VERTEX_DATA_T>> &to, double weight = 0.0)
-     : id(id), from(from), to(to), weight(weight) {}
+    Edge(const std::string id, std::shared_ptr<Vertex<VERTEX_DATA_T>> &from, std::shared_ptr<Vertex<VERTEX_DATA_T>> &to,
+         double weight = 0.0)
+        : id(id), from(from), to(to), weight(weight) {}
     Edge() = delete;
 
-    virtual bool IsConnected(const Vertex<VERTEX_DATA_T> &v1, const Vertex<VERTEX_DATA_T> &v2) { return v1 == *from && v2 == *to; };
+    virtual bool IsConnected(const Vertex<VERTEX_DATA_T> &v1, const Vertex<VERTEX_DATA_T> &v2) {
+      return v1 == *from && v2 == *to;
+    };
 
-    Vertex<VERTEX_DATA_T> &GetFrom() { return *from; }
-    Vertex<VERTEX_DATA_T> &GetTo() { return *to; }
+    Vertex<VERTEX_DATA_T> &GetFrom() const { return *from; }
+    Vertex<VERTEX_DATA_T> &GetTo() const { return *to; }
     std::string GetId() const override { return id; };
     double GetWeight() const { return weight; };
 
@@ -67,7 +67,6 @@ namespace cse {
     static void CreateFromFile(std::istream &f, size_t indent_level, Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL> &graph);
   };
 
-  
   // Function Implementations
 
   /**
@@ -79,7 +78,8 @@ namespace cse {
    */
   template <typename VERTEX_DATA_T>
   template <bool IS_BIDIRECTIONAL>
-  void Edge<VERTEX_DATA_T>::CreateFromFile(std::istream &f, size_t indent_level, Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL> &graph) {
+  void Edge<VERTEX_DATA_T>::CreateFromFile(std::istream &f, size_t indent_level,
+                                           Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL> &graph) {
     std::string line;
     std::getline(f, line);
     auto [key, id] = FileUtil::SeparateKeyValue(line);

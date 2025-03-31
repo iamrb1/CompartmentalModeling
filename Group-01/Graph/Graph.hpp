@@ -43,6 +43,9 @@ namespace cse {
     Vertex<VERTEX_DATA_T> &AddVertex(std::string const id, VERTEX_DATA_T data, double X = 0.0, double Y = 0.0);
     Vertex<VERTEX_DATA_T> &AddVertex(std::string const id, double X = 0.0, double Y = 0.0);
     Vertex<VERTEX_DATA_T> &GetVertex(std::string const &id) const;
+    std::vector<Vertex<VERTEX_DATA_T> const *> GetVertices() const;
+    std::vector<Edge<VERTEX_DATA_T> const *> GetEdges() const;
+
     void RemoveVertex(std::string const id);
     bool HasVertex(std::string id) const { return vertices.find(id) != vertices.end(); };
 
@@ -114,6 +117,21 @@ namespace cse {
       throw vertex_not_found_error(id);
     }
     return *(vertices.at(id));
+  }
+
+  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
+  std::vector<Vertex<VERTEX_DATA_T> const *> Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::GetVertices() const {
+    std::vector<Vertex<VERTEX_DATA_T> const *> v;
+    std::transform(vertices.begin(), vertices.end(), std::back_inserter(v),
+                   [](auto item) { return item.second.get(); });
+    return v;
+  }
+
+  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
+  std::vector<Edge<VERTEX_DATA_T> const *> Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::GetEdges() const {
+    std::vector<Edge<VERTEX_DATA_T> const *> e;
+    std::transform(edges.begin(), edges.end(), std::back_inserter(e), [](auto item) { return item.second.get(); });
+    return e;
   }
 
   /**
