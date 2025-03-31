@@ -13,7 +13,7 @@
 
 namespace cse {
 
-  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL = false> class Graph : public FileSerializable {
+  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL = false> class Graph : public StreamSerializable {
   private:
     std::unordered_map<std::string, std::shared_ptr<Vertex<VERTEX_DATA_T>>>
         vertices{}; ///< Collection of vertices in the graph, mapped by vertex ID

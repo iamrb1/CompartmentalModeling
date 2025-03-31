@@ -85,7 +85,7 @@ namespace cse {
    * There was some use of AI to write the types and maps
    * that map properties to handlers
    */
-  class FileSerializable {
+  class StreamSerializable {
   protected:
     virtual std::string GetTypeName() const = 0;
     virtual std::string GetId() const = 0;
@@ -101,7 +101,7 @@ namespace cse {
     }
 
   public:
-    virtual ~FileSerializable() = default;
+    virtual ~StreamSerializable() = default;
 
     virtual void FromFile(std::istream &f, size_t prefix_size) {
       std::string line;

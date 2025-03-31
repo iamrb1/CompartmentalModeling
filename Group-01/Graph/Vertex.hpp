@@ -15,7 +15,7 @@ namespace cse {
 
   template <typename VERTEX_DATA_T> class Edge; ///< Forward declaration of Edge
 
-  template <typename VERTEX_DATA_T> class Vertex : public FileSerializable {
+  template <typename VERTEX_DATA_T> class Vertex : public StreamSerializable {
   private:
     std::string id;     ///< Unique identifier for the vertex
     VERTEX_DATA_T data; ///< Custom vertex data

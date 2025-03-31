@@ -9,7 +9,7 @@
 namespace cse {
   template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL> class Graph; // Forward declaration
 
-  template <typename VERTEX_DATA_T> class Edge : public FileSerializable {
+  template <typename VERTEX_DATA_T> class Edge : public StreamSerializable {
   private:
     std::string id;
     std::shared_ptr<Vertex<VERTEX_DATA_T>> from;
