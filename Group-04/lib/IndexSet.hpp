@@ -979,7 +979,6 @@ class IndexSet {
     }
 
     // restore shifted range from BitVector.
-    // restore range in reverse to avoid range merging issues
     for (size_t i = start; i < end; i++) {
       if (indices[i - start]) {
         insert(i);
