@@ -5,6 +5,7 @@
 #include <map>
 #include <functional>
 
+constexpr double M_PI = 3.14159265358979323846;
 
 TEST_CASE("Advanced Parser Funcitonality", "[parser]") {
   cse::ExpressionParser parser;
