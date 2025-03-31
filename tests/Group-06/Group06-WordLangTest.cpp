@@ -43,3 +43,38 @@ TEST_CASE("WordLang Tests", "[WordLang]") {
   }
 
 }
+
+TEST_CASE("Ivan's WordLang Tests", "[WordLang]") {
+  std::string input = "LIST list1 = LOAD \“top_5000_words_database\”\n\
+  LIST list2 = LOAD \“top_1000_common_worlde_words_database\”\n\
+  LIST combined = list1 | list2\n\
+  SAVE combined \"my_custom_list\"\n\
+  LENGTH 5\n\
+  GET(“a___e”)\n\
+  CONTAINS_ANY(\“qwrty\”)
+  CONTAINS_ALL(“jh”)\"\
+  PRINT *\
+  RESET_LAST\ "
+
+  std::string output_result = "\n\n\n\n
+  Number of Words To Search: 1200\n\n\
+  Number of Words To Search: 30\n\
+  Number of Words To Search: 6\n\
+  Number of Words To Search: 3\n\
+  [ajhqe, ajhre, ahjte]\n\
+  Number of Words To Search: 6";
+
+  cse::WordLang wordLang;
+
+  std::istringstream iss(input);
+  std::istringstream issResult(output_result);
+
+  std::string line;
+  std::string resultLine;
+
+  while(std::getline(iss, line) && std::getline(issResult, resultLine)) {
+    std::string output = wordLang.parse(line);
+    REQUIRE(output == resultLine);
+  }
+
+}
