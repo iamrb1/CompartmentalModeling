@@ -78,3 +78,35 @@ TEST_CASE("Ivan's WordLang Tests", "[WordLang]") {
   }
 
 }
+
+
+TEST_CASE("Orhan's WordLang Tests", "[WordLangO]") {
+    std::string input = "List list1 = LOAD Ofile1\n\
+    List list2 = LOAD Ofile2\n\
+    List combined = COMBINE list1 list2\n\
+    ADD combined \"car, printer, green, paper\"\n\
+    LENGTH = 5\n\
+    CONTAINS \"ae\"\n\
+    GET(a___e)\n\
+    PRINT\n";
+
+    std::string output_result = "\n\n\n\n"
+                                "Number of Words to search: 12\n"
+                                "Number of Words to search: 4\n"
+                                "Number of Words to search: 1\n"
+                                "[apple]\n";
+
+    cse::WordLang wordLang;
+
+    std::istringstream iss(input);
+    std::istringstream issResult(output_result);
+
+    std::string line;
+    std::string resultLine;
+
+    while(std::getline(iss, line) && std::getline(issResult, resultLine)) {
+        std::string output = wordLang.parse(line);
+        REQUIRE(output == resultLine);
+    }
+
+}

@@ -1,0 +1,11 @@
+yellow
+blue
+headphone
+meeting
+football
+apple
+value
+water
+hat
+hot
+cold
