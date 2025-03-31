@@ -1,0 +1,57 @@
+{
+    "simulation_parameters": {
+      "time_steps": 1000,
+      "logging_interval": 10
+    },
+    "species": [
+      {
+        "name": "Rabbit",
+        "initial_population": 500,
+        "birth_rate": 0.1,
+        "death_rate": 0.02,
+        "max_age": 5,
+        "reproduction_age": 1,
+        "food_source": "Grass"
+      },
+      {
+        "name": "Wolf",
+        "initial_population": 50,
+        "birth_rate": 0.05,
+        "death_rate": 0.1,
+        "max_age": 8,
+        "reproduction_age": 2,
+        "food_source": "Rabbit",
+        "hunt_success_rate": 0.15,
+        "speed": 0.5
+      },      
+      {
+        "name": "Fox",
+        "initial_population": 50,
+        "birth_rate": 0.05,
+        "death_rate": 0.1,
+        "max_age": 8,
+        "reproduction_age": 2,
+        "food_source": "Rabbit",
+        "hunt_success_rate": 0.3,
+        "speed": 0.3
+      }
+    ],
+    "interactions": [
+      {
+        "predator": "Wolf",
+        "prey": "Rabbit",
+        "hunt_rate": 0.1
+      },
+      {
+        "predator": "Fox",
+        "prey": "Rabbit",
+        "hunt_rate": 0.2
+      }
+      {
+        "species": "Rabbit",
+        "food": "Grass",
+        "grazing_rate": 1
+      }
+    ]
+  }
+  

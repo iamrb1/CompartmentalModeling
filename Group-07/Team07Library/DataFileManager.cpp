@@ -1,12 +1,5 @@
 #include "DataFileManager.hpp"
 
-#include <fstream>  // https://stackoverflow.com/questions/13035674/how-to-read-a-file-line-by-line-or-a-whole-text-file-at-include <fstream>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <unordered_map>
-#include <vector>
-
 using std::cerr;
 using std::cout;
 using std::endl;
@@ -24,7 +17,7 @@ namespace cse {
 /**
  * Writes data rows to the file.
  */
-void DataFileManager::writeRowsToFile(ofstream &file, const vector<vector<string>> &data) {
+void DataFileManager::writeRowsToCSV(ofstream &file, const vector<vector<string>> &data) {
   for (const auto &row : data) {
     for (size_t i = 0; i < row.size(); ++i) {
       file << row[i];
@@ -37,10 +30,10 @@ void DataFileManager::writeRowsToFile(ofstream &file, const vector<vector<string
 }
 
 /**
- * Opens a CSV file and reads its content into fileData.
+ * Opens a CSV file and reads its content into csvData.
  * @param path The file path of the CSV to open.
  */
-void DataFileManager::openFile(const string &path) {
+void DataFileManager::openCSV(const string &path) {
   // Check if a file is already open
   if (!fileLocation.empty()) {
     cerr << "Please close the current file before attempting to open a new one." << endl;
@@ -79,38 +72,38 @@ void DataFileManager::openFile(const string &path) {
 
   // Record the file location and read in data
   setFile(path);
-  setData(data);
+  setDataCSV(data);
 }
 
 /**
  * Updates the CSV based on added functions.
  */
-void DataFileManager::updateFile() {
-  if (fileLocation.empty()) {
-    cerr << "No file is currently open." << endl;
+void DataFileManager::updateCSV() {
+  if (fileLocation.empty() or fileLocation.substr(fileLocation.find_last_of(".") + 1) != "csv") {
+    cerr << "No valid file is currently open." << endl;
     return;
   }
 
-  if (fileData.empty()) {
-    // Add headers only if the fileData is empty
+  if (csvData.empty()) {
+    // Add headers only if the csvData is empty
     vector<string> headers;
     for (const auto &pair : functionMap) {
       headers.push_back(pair.first);
     }
-    fileData.push_back(headers);
+    csvData.push_back(headers);
   }
 
   vector<string> newRow;
   for (const auto &pair : functionMap) {
     newRow.push_back(std::to_string(pair.second()));
   }
-  fileData.push_back(newRow);
+  csvData.push_back(newRow);
   updateMade = true;
 
-  // Saves the current state of fileData to the file
+  // Saves the current state of csvData to the file
   ofstream file(fileLocation);
   if (file.is_open()) {
-    writeRowsToFile(file, fileData);
+    writeRowsToCSV(file, csvData);
     file.close();
   }
   updateMade = false;
@@ -119,7 +112,7 @@ void DataFileManager::updateFile() {
 /**
  * Closes the file and writes any updates made to the data.
  */
-void DataFileManager::closeFile() {
+void DataFileManager::closeCSV() {
   // No need to write if no updates have been made
   if (!updateMade) {
     return;
@@ -132,7 +125,7 @@ void DataFileManager::closeFile() {
   }
 
   // Write header if functionMap is not empty
-  if (!fileData.empty()) {
+  if (!csvData.empty()) {
     for (const auto &pair : functionMap) {
       file << pair.first << ",";
     }
@@ -141,10 +134,81 @@ void DataFileManager::closeFile() {
   }
 
   // Write each row of data to the file
-  writeRowsToFile(file, fileData);
+  writeRowsToCSV(file, csvData);
 
   // Clear the file data after writing
-  fileData.clear();
+  csvData.clear();
+}
+
+/**
+ * Opens a JSON file and reads its content into csvData.
+ * @param path The file path of the CSV to open.
+ */
+void DataFileManager::openJSON(const string &path) {
+  // Check if a file is already open
+  if (!fileLocation.empty()) {
+    cerr << "Please close the current file before attempting to open a new one." << endl;
+    return;
+  }
+
+  // Handles Error Case
+  if (path.substr(path.find_last_of(".") + 1) != "json") {
+    cerr << "File extension is not valid." << endl;
+    return;
+  }
+
+  // Check if the file can be opened
+  ifstream file(path);
+  if (!file.is_open()) {
+    cerr << "Error opening file: " << path << endl;
+    return;
+  }
+
+  try {
+    // Create an empty property tree
+    boost::property_tree::ptree pt;
+
+    // Read the JSON file into the property tree
+    boost::property_tree::read_json(path, pt);
+
+    // Record the file location and read in data
+    setFile(path);
+    setDataJSON(pt);
+  }
+
+  catch (const std::exception& e) {
+    std::cerr << "Error: " << e.what() << std::endl;
+  }
+
+}
+
+/**
+ * Updates the JSON based on added functions.
+ */
+void DataFileManager::updateJSON() {
+  if (fileLocation.empty() or fileLocation.substr(fileLocation.find_last_of(".") + 1) != "json") {
+    cerr << "No valid file is currently open." << endl;
+    return;
+  }
+
+  // Saves the current state of jsonData to the file
+  // {}
+}
+
+/**
+ * Closes the JSON file and writes any updates made to the data.
+ */
+void DataFileManager::closeJSON() {
+  // No need to write if no updates have been made
+  if (!updateMade) {
+    return;
+  }
+
+  // Write each row of data to the file
+  // {}
+
+  // Clear the file data after writing
+  // {}
 }
 
 }
