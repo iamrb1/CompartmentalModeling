@@ -43,6 +43,13 @@ WebLayoutManager::WebLayoutManager() {
                  "click", function()
              { Module._call_addTextBox(); });
            }
+
+           var addNewSlide = document.getElementById("addNewSlideButton");
+           if (addNewSlide) {
+             addNewSlide.addEventListener(
+                 "click", function()
+             { Module._call_addNewSlide(); });
+           }
          });
 
 }
@@ -67,6 +74,14 @@ EMSCRIPTEN_KEEPALIVE void call_rewind() {
 EMSCRIPTEN_KEEPALIVE void call_addTextBox() {
   if (g_manager) {
     g_manager->addTextBox();
+  } else {
+    std::cout << "ERROR: g_manager is null!" << std::endl;
+  }
+}
+
+EMSCRIPTEN_KEEPALIVE void call_addNewSlide() {
+  if (g_manager) {
+    g_manager->addNewSlide();
   } else {
     std::cout << "ERROR: g_manager is null!" << std::endl;
   }
@@ -175,6 +190,17 @@ void WebLayoutManager::addTextBox() {
 
   layouts.at(currentPos)->addTextBox(newLayout);
   //layouts.at(currentPos)->loadPage();
+}
+
+void WebLayoutManager::addNewSlide() {
+  // Create a new weblayout
+  auto wb = std::make_shared<WebLayout>();
+  addLayout(wb);
+  auto wbID = wb->getID();
+  EM_ASM({
+           var wbID = UTF8ToString($0);
+           console.log("Added new slide: ", wbID);
+         }, wbID.c_str());
 }
 
 }  // namespace cse

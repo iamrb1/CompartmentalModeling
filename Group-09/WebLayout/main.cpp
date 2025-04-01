@@ -9,15 +9,10 @@
 #include "WebLayoutManager.hpp"
 
 // Compile from /Group-09/WebLayout with:
-// emcc main.cpp WebLayout.cpp WebLayoutManager.cpp LoadSlideDeck.cpp
-// ExportSlideDeck.cpp ../TextBox/FormattedText.cpp ../Image/Image.cpp
-// -I../utils -o output.js --shell-file index.html -s WASM=1 -s
-// EXPORTED_FUNCTIONS="['_main', '_call_advance', '_call_rewind',
-// '_loadSlideDeckFromJson', '_exportSlideDeckToJson']" -s
-// EXPORTED_RUNTIME_METHODS="['ccall', 'cwrap']"
+//  emcc main.cpp WebLayout.cpp WebLayoutManager.cpp LoadSlideDeck.cpp ExportSlideDeck.cpp ../TextBox/FormattedText.cpp ../Image/Image.cpp -I../utils -o output.js --shell-file index.html -s WASM=1 -s EXPORTED_FUNCTIONS="['_main', '_call_advance', '_call_rewind', '_loadSlideDeckFromJson', '_exportSlideDeckToJson', '_call_addNewSlide']" -s EXPORTED_RUNTIME_METHODS="['ccall', 'cwrap']"
 
 // Bring in the global layout manager used by load/save functions
-extern cse::WebLayoutManager* g_manager;
+extern cse::WebLayoutManager *g_manager;
 
 using namespace cse;
 
