@@ -71,7 +71,7 @@ TEST_CASE("WordLang Tests", "[WordLang]") {
 
 }
 
-TEST_CASE("Ivan's WordLang Tests", "[WordLang]") {
+TEST_CASE("WordLang Tests", "[WordLang]") {
   // std::string input = "LIST list1 = LOAD \"top_5000_words_database\"\n\
   // LIST list2 = LOAD \"top_1000_common_worlde_words_database\"\n\
   // LIST combined = list1 | list2\n\
@@ -130,7 +130,7 @@ TEST_CASE("Ivan's WordLang Tests", "[WordLang]") {
 }
 
 
-TEST_CASE("Orhan's WordLang Tests", "[WordLangO]") {
+TEST_CASE("WordLang Tests", "[WordLang]") {
     // std::string input = "LIST list1 = LOAD Ofile1\n\
     // LIST list2 = LOAD Ofile2\n\
     // LIST combined = COMBINE list1 list2\n\
@@ -183,7 +183,7 @@ TEST_CASE("Orhan's WordLang Tests", "[WordLangO]") {
 }
 
 
-TEST_CASE("Intersection and Filter Test", "[WordLangIntersect]") {
+TEST_CASE("Intersection and Filter Tests", "[WordLang]") {
   std::string input = R"(LIST a = LOAD "intersect_file1.txt"
   LIST b = LOAD "intersect_file2.txt"
   LIST c = INTERSECTION a b
@@ -210,3 +210,66 @@ TEST_CASE("Intersection and Filter Test", "[WordLangIntersect]") {
       REQUIRE(output == resultLine);
   }
 }
+
+TEST_CASE("Copy and Reset Tests", "[WordLang]") {
+  std::string input = R"(LIST original = LOAD "reset_test.txt"
+  LIST backup = COPY original
+  SET_CURRENT original
+  LENGTH = 5
+  CONTAINS_ALL "ae"
+  GET "_a__e"
+  PRINT ALL
+  RESET original
+  PRINT ALL
+  )";
+
+  std::string output_result = R"(
+
+
+  Number of Words To Search: 5
+  Number of Words To Search: 4
+  Number of Words To Search: 1
+  [rathe]
+  Number of Words To Search: 5
+  [heart, earth, hater, rathe, eater]
+  )";
+
+  cse::WordLang wordLang;
+
+  std::istringstream iss(input);
+  std::istringstream issResult(output_result);
+  std::string line, resultLine;
+
+  while (std::getline(iss, line) && std::getline(issResult, resultLine)) {
+      std::string output = wordLang.parse(line);
+      REQUIRE(output == resultLine);
+  }
+}
+
+TEST_CASE("Wordle Command Tests", "[WordLang]") {
+  std::string input = R"(LIST list1 = LOAD "wordle_file.txt"
+  SET_CURRENT list1
+  WORDLE("toast", "GBBBG")
+  PRINT ALL
+  )";
+
+  std::string output_result = R"(
+
+
+  Top 10 Wordle Suggestions:
+  [coast, boast, roast]
+  )";
+
+  cse::WordLang wordLang;
+
+  std::istringstream iss(input);
+  std::istringstream issResult(output_result);
+  std::string line, resultLine;
+
+  while (std::getline(iss, line) && std::getline(issResult, resultLine)) {
+      std::string output = wordLang.parse(line);
+      REQUIRE(output == resultLine);
+  }
+}
+
+
