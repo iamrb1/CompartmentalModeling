@@ -1,6 +1,6 @@
 /**
  * @file DataGridTests.cpp
- * @author Shahaab Ali
+ * @authors Shahaab Ali and Max Krawec
  */
 
 // Made with the help of ChatGPT
@@ -17,7 +17,7 @@
 using cse::DataGrid;
 using cse::Datum;
 
-static const double kEpsilon = 0.0001;
+static constexpr double kEpsilon = 0.0001;
 
 /**
  * @brief Test parameterized constructor
@@ -1336,6 +1336,124 @@ TEST_CASE("Comparison Tests", "[comparison]") {
   less_than_values_doubles[2] = Datum(100);
   CHECK(grid.at(2,0) == Datum(100));
 
-  less_than_or_equal_values_strings[0] = Datum("x");
-  CHECK(grid.at(0,1) == Datum("x"));
+  less_than_or_equal_values_strings[0] = Datum(123.123);
+  CHECK(grid.at(0,1) == Datum(123.123));
+}
+
+TEST_CASE("NaN Comparison Tests", "[comparison]") {
+  std::vector<std::vector<Datum>> comparison_nan_vector(3, std::vector<Datum>(2));
+
+  comparison_nan_vector[0][0] = Datum(5.0);
+  comparison_nan_vector[1][0] = Datum(std::numeric_limits<double>::quiet_NaN());
+  comparison_nan_vector[2][0] = Datum(15.0);
+
+  comparison_nan_vector[0][1] = Datum("a");
+  comparison_nan_vector[1][1] = Datum(std::numeric_limits<double>::quiet_NaN());
+  comparison_nan_vector[2][1] = Datum("e");
+
+  DataGrid nan_grid(comparison_nan_vector);
+
+  // *** Less Than Comparisons ***
+
+  cse::ReferenceVector<Datum> less_than_values_doubles_nan =
+      nan_grid.columnLessThan(0, Datum(12.0));
+  CHECK(less_than_values_doubles_nan.Size() == 1);
+  CHECK(less_than_values_doubles_nan[0] == Datum(5.0));
+
+  cse::ReferenceVector<Datum> less_than_values_strings_nan =
+      nan_grid.columnLessThan(1, Datum("b"));
+  CHECK(less_than_values_strings_nan.Size() == 1);
+  CHECK(less_than_values_strings_nan[0] == Datum("a"));
+
+  cse::ReferenceVector<Datum> less_than_values_nan =
+      nan_grid.columnLessThan(0, Datum(std::numeric_limits<double>::quiet_NaN()));
+  CHECK(less_than_values_nan.Size() == 0);
+
+
+  // *** Less Than Or Equal Comparisons ***
+
+  cse::ReferenceVector<Datum> less_than_or_equal_values_doubles_nan =
+      nan_grid.columnLessThanOrEqual(0, Datum(12.0));
+  CHECK(less_than_or_equal_values_doubles_nan.Size() == 1);
+  CHECK(less_than_or_equal_values_doubles_nan[0] == Datum(5.0));
+
+  cse::ReferenceVector<Datum> less_than_or_equal_values_strings_nan =
+      nan_grid.columnLessThanOrEqual(1, Datum("b"));
+  CHECK(less_than_or_equal_values_strings_nan.Size() == 1);
+  CHECK(less_than_or_equal_values_strings_nan[0] == Datum("a"));
+
+  cse::ReferenceVector<Datum> less_than_or_equal_values_nan =
+      nan_grid.columnLessThanOrEqual(0, Datum(std::numeric_limits<double>::quiet_NaN()));
+  CHECK(less_than_or_equal_values_nan.Size() == 0);
+
+
+  // *** Greater Than Comparisons ***
+
+  cse::ReferenceVector<Datum> greater_than_values_doubles_nan =
+      nan_grid.columnGreaterThan(0, Datum(-12.12));
+  CHECK(greater_than_values_doubles_nan.Size() == 2);
+  CHECK(greater_than_values_doubles_nan[0] == Datum(5.0));
+  CHECK(greater_than_values_doubles_nan[1] == Datum(15.0));
+
+  cse::ReferenceVector<Datum> greater_than_values_strings_nan =
+      nan_grid.columnGreaterThan(1, Datum("b"));
+  CHECK(greater_than_values_strings_nan.Size() == 1);
+  CHECK(greater_than_values_strings_nan[0] == Datum("e"));
+
+  cse::ReferenceVector<Datum> greater_than_values_nan =
+      nan_grid.columnGreaterThan(0, Datum(std::numeric_limits<double>::quiet_NaN()));
+  CHECK(greater_than_values_nan.Size() == 0);
+
+
+  // *** Greater Than Or Equal Comparisons ***
+
+  cse::ReferenceVector<Datum> greater_than_or_equal_values_doubles_nan =
+      nan_grid.columnGreaterThanOrEqual(0, Datum(-12.12));
+  CHECK(greater_than_or_equal_values_doubles_nan.Size() == 2);
+  CHECK(greater_than_or_equal_values_doubles_nan[0] == Datum(5.0));
+  CHECK(greater_than_or_equal_values_doubles_nan[1] == Datum(15.0));
+
+  cse::ReferenceVector<Datum> greater_than_or_equal_values_strings_nan =
+      nan_grid.columnGreaterThanOrEqual(1, Datum("b"));
+  CHECK(greater_than_or_equal_values_strings_nan.Size() == 1);
+  CHECK(greater_than_or_equal_values_strings_nan[0] == Datum("e"));
+
+  cse::ReferenceVector<Datum> greater_than_or_equal_values_nan =
+      nan_grid.columnGreaterThanOrEqual(0, Datum(std::numeric_limits<double>::quiet_NaN()));
+  CHECK(greater_than_or_equal_values_nan.Size() == 0);
+
+
+  // *** Equal Comparisons ***
+
+  cse::ReferenceVector<Datum> equal_values_doubles_nan =
+      nan_grid.columnEqual(0, Datum(5.0));
+  CHECK(equal_values_doubles_nan.Size() == 1);
+  CHECK(equal_values_doubles_nan[0] == Datum(5.0));
+
+  cse::ReferenceVector<Datum> equal_values_strings_nan =
+      nan_grid.columnEqual(1, Datum("a"));
+  CHECK(equal_values_strings_nan.Size() == 1);
+  CHECK(equal_values_strings_nan[0] == Datum("a"));
+
+  cse::ReferenceVector<Datum> equal_values_nan =
+      nan_grid.columnEqual(0, Datum(std::numeric_limits<double>::quiet_NaN()));
+  CHECK(equal_values_nan.Size() == 0);
+
+
+  // *** Not Equal Comparisons ***
+
+  cse::ReferenceVector<Datum> not_equal_values_doubles_nan =
+      nan_grid.columnNotEqual(0, Datum(5.0));
+  CHECK(not_equal_values_doubles_nan.Size() == 2);
+  CHECK(std::isnan(not_equal_values_doubles_nan[0].GetDouble()));
+  CHECK(not_equal_values_doubles_nan[1] == Datum(15.0));
+
+  cse::ReferenceVector<Datum> not_equal_values_strings_nan =
+      nan_grid.columnNotEqual(1, Datum("a"));
+  CHECK(not_equal_values_strings_nan.Size() == 1);
+  CHECK(not_equal_values_strings_nan[0] == Datum("e"));
+
+  cse::ReferenceVector<Datum> not_equal_values_nan =
+      nan_grid.columnNotEqual(0, Datum(std::numeric_limits<double>::quiet_NaN()));
+  CHECK(not_equal_values_nan.Size() == 3);
 }
