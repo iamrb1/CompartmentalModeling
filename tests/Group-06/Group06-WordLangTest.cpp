@@ -181,3 +181,32 @@ TEST_CASE("Orhan's WordLang Tests", "[WordLangO]") {
     }
 
 }
+
+
+TEST_CASE("Intersection and Filter Test", "[WordLangIntersect]") {
+  std::string input = R"(LIST a = LOAD "intersect_file1.txt"
+  LIST b = LOAD "intersect_file2.txt"
+  LIST c = INTERSECTION a b
+  SET_CURRENT c
+  NOT_CONTAINS "n"
+  PRINT ALL
+  )";
+
+  std::string output_result = R"(
+
+
+  Number of Words To Search: 3
+  [fable, label, table]
+  )";
+
+  cse::WordLang wordLang;
+
+  std::istringstream iss(input);
+  std::istringstream issResult(output_result);
+  std::string line, resultLine;
+
+  while (std::getline(iss, line) && std::getline(issResult, resultLine)) {
+      std::string output = wordLang.parse(line);
+      REQUIRE(output == resultLine);
+  }
+}
