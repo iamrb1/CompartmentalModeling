@@ -580,6 +580,46 @@ class BasicRichText {
 
     return result;
   }
+
+  // ==================================================================
+  // NEW ERASE METHODS 
+  // ==================================================================
+
+  /**
+   * @brief Erases `count` characters starting at `index`.
+   * @author Krish Patel
+   * @param index The index at which to start erasing.
+   * @param count The number of characters to erase.
+   */
+  void erase(std::size_t index, std::size_t count) {
+    // Remove substring from the underlying text
+    m_text.erase(index, count);
+
+    // Shift left any existing indices in the formatting
+    for (auto& [format, indices] : m_formatting) {
+      indices.shift_left_within(count, index, m_text.size());
+    }
+  }
+
+  /**
+   * @brief Erases all the ranges described by an IndexSet.
+   *        Each range is erased by calling the index/count erase overload.
+   * @author Krish Patel
+   * @param to_erase The IndexSet containing pairs [start, end).
+   */
+  void erase(const IndexSet& to_erase) {
+    // Copy all pairs into a vector so we can reverse them
+    std::vector<std::pair<std::size_t, std::size_t>> ranges(
+        to_erase.cbegin_pair(), to_erase.cend_pair());
+
+    // Reverse them so we erase from highest index to lowest
+    std::reverse(ranges.begin(), ranges.end());
+
+    for (auto& [start, end] : ranges) {
+      // end is exclusive, so length = end - start
+      erase(start, end - start);
+    }
+  }
 };
 
 using RichText = BasicRichText<>;

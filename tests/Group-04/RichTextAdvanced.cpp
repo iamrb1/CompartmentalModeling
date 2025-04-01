@@ -100,3 +100,82 @@ TEST_CASE("RichText insertions and substitution", "[RichTextAdvanced]") {
   REQUIRE(text.to_string() == "mello yello");
   REQUIRE(text.formats_at(9) == std::vector<cse::TextFormat>{red});
 }
+
+// --------------------------------------------------------------------
+// TESTS FOR ERASE METHODS
+// --------------------------------------------------------------------
+TEST_CASE("RichText erase methods", "[RichTextAdvanced]") {
+  using cse::RichText;
+  using cse::TextFormat;
+  using cse::IndexSet;
+
+  RichText text{"abcdefgh"};   // Indices: 0=a 1=b 2=c 3=d 4=e 5=f 6=g 7=h
+  TextFormat bold("bold");
+  TextFormat italic("italic");
+
+  // Apply bold to [2,5) => c,d,e
+  text.apply_format(bold, 2, 5);
+
+  // Apply italic to [4,7) => e,f,g
+  text.apply_format(italic, IndexSet(std::pair{4UL, 7UL}));
+
+  REQUIRE(text.to_string() == "abcdefgh");
+  REQUIRE(text.get_format_range(bold).value() ==
+          IndexSet(std::pair{2UL, 5UL}));
+  REQUIRE(text.get_format_range(italic).value() ==
+          IndexSet(std::pair{4UL, 7UL}));
+
+  SECTION("Erase partial overlap in the middle (index/count)") {
+    text.erase(3, 2); // Remove 'd'(3) and 'e'(4)
+    REQUIRE(text.to_string() == "abcfgh");
+    // Bold was [2,5). Now only c remains (index 2)
+    REQUIRE(text.get_format_range(bold).value() == IndexSet{2UL});
+
+    // Italic was [4,7). Removing e => 'f'(old 5)->3, 'g'(old 6)->4 => {3,4}
+    REQUIRE(text.get_format_range(italic).value() == IndexSet{3UL, 4UL});
+  }
+
+  SECTION("Erase entire bold region plus part of italic region") {
+    text.erase(2, 4); // Remove c,d,e,f
+    REQUIRE(text.to_string() == "abgh");
+    REQUIRE_FALSE(text.get_format_range(bold).has_value());
+
+    // italic was [4,7) => e,f,g => e,f are gone; g(6) => new index 2 => {2}
+    REQUIRE(text.get_format_range(italic).value() == IndexSet{2UL});
+  }
+
+  SECTION("Erase with IndexSet: multiple disjoint ranges") {
+    // Remove b => [1,2) plus f,g => [5,7)
+   IndexSet ranges;
+  ranges.insert_range(1UL, 2UL);  // inserts index 1
+  ranges.insert_range(5UL, 7UL);  // inserts indices 5, 6
+
+    text.erase(ranges);
+    REQUIRE(text.to_string() == "acdeh");
+
+    // Bold was [2,5) => c,d,e => after removing f,g => unchanged, but
+    // removing b(1) shifts it from {2,3,4} to {1,2,3}
+    REQUIRE(text.get_format_range(bold).value() == IndexSet{1UL, 2UL, 3UL});
+
+    // Italic was [4,7) => e,f,g => removing f,g => just {4} left
+    // then removing b(1) shifts {4} => {3}
+    REQUIRE(text.get_format_range(italic).value() == IndexSet{3UL});
+  }
+
+  SECTION("Erase entire text") {
+    text.erase(0, text.size());
+    REQUIRE(text.to_string() == "");
+    REQUIRE_FALSE(text.get_format_range(bold).has_value());
+    REQUIRE_FALSE(text.get_format_range(italic).has_value());
+  }
+
+  SECTION("Erase zero characters does nothing") {
+    text.erase(2, 0);
+    REQUIRE(text.to_string() == "abcdefgh");
+    REQUIRE(text.get_format_range(bold).value() ==
+            IndexSet(std::pair{2UL, 5UL}));
+    REQUIRE(text.get_format_range(italic).value() ==
+            IndexSet(std::pair{4UL, 7UL}));
+  }
+}
+
