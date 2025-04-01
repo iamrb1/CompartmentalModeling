@@ -13,15 +13,17 @@
 
 namespace cse {
 
+const std::string SERIALIZER_HTML_HEADER = "<!DOCTYPE html>\n<html>\n<head></head>\n<body>\n";
+const std::string SERIALIZER_HTML_FOOTER = "\n</body>\n</html>\n";
+
 // Generate an HTML serializer for the given character type and underlying
 // string-like
 template <typename CharT = char, typename Underlying = std::basic_string<CharT>>
   requires std::derived_from<Underlying, std::basic_string<CharT>>
 auto SerializerHTML() {
   struct BasicRichText<CharT, Underlying>::Serializer out{"HTML"};
-  out.header = str_to_underlying<CharT, Underlying>(
-      "<!DOCTYPE html>\n<html>\n<head></head>\n<body>\n");
-  out.footer = str_to_underlying<CharT, Underlying>("\n</body>\n</html>\n");
+  out.header = str_to_underlying<CharT, Underlying>(SERIALIZER_HTML_HEADER);
+  out.footer = str_to_underlying<CharT, Underlying>(SERIALIZER_HTML_FOOTER);
 
   // Add all formating rules
   out.AddRule("bold", str_to_underlying<CharT, Underlying>("<b>"),

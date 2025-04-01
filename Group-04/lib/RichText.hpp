@@ -571,6 +571,9 @@ class BasicRichText {
       } while (tracker_iter != trackers.end());
     }
 
+    if (current < m_text.size())
+      result.output += m_text.substr(current, m_text.size());
+
     if (serializer.footer) {
       result.output += *serializer.footer;
     }

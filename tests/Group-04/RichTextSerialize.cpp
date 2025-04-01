@@ -68,8 +68,8 @@ TEST_CASE("Complex serialization", "[RichTextSerialize]") {
 }
 
 TEST_CASE("Default HTML serializer", "[RichTextSerialize]") {
-  std::string header = "<!DOCTYPE html>\n<html>\n<head></head>\n<body>\n";
-  std::string footer = "</body>\n</html>\n";
+  std::string header = cse::SERIALIZER_HTML_HEADER;
+  std::string footer = cse::SERIALIZER_HTML_FOOTER;
   auto serializer = cse::SerializerHTML();
 
   cse::RichText text{"Hello world!"};
