@@ -9,6 +9,8 @@
 #include <unordered_map>
 #include <vector>
 
+const int VERTEX_RADIUS = 10;
+
 class Shape {
 public:
   static void drawLine(int x1, int y1, int x2, int y2, const char *color, int thickness = 2) {
@@ -67,12 +69,20 @@ private:
     // Draw vertices as circles
     auto vertices = g.GetVertices();
     for (auto v : vertices) {
-      Shape::drawCircle(v->GetX(), v->GetY(), 10, v->GetData().c_str());
+      Shape::drawCircle(v->GetX(), v->GetY(), VERTEX_RADIUS, v->GetData().c_str());
     }
   }
 
-  void HandleSelectedVertex(cse::Vertex<std::string> v) {}
-  void HandleCanvasClick(double x, double y) {}
+  void HandleSelectedVertex(cse::Vertex<std::string> v) {
+    EM_ASM(
+        {
+          document.getElementById("selectedVertexTitle").innerHTML = "Selected Vertex";
+          document.getElementById("selectedVertexId").innerHTML = "ID: " + UTF8ToString($0);
+          document.getElementById("selectedVertexX").innerHTML = "X: " + $1;
+          document.getElementById("selectedVertexY").innerHTML = "Y: " + $2;
+        },
+        v.GetId().c_str(), v.GetX(), v.GetY());
+  }
 
   // Must be called when any updates happen to the state
   void RedrawCanvas() {
@@ -99,7 +109,19 @@ private:
       canvas.setAttribute("id", "canvas");
       mainElement.appendChild(canvas);
 
-      // Canvas Handlers
+      // Canvas click handler
+      canvas.addEventListener(
+          'click', function(event) {
+            var rect = canvas.getBoundingClientRect();
+            var x = event.clientX - rect.left;
+            var y = event.clientY - rect.top;
+
+            // Scale coordinates to match canvas size
+            x = (x / rect.width) * canvas.width;
+            y = (y / rect.height) * canvas.height;
+
+            Module._handleCanvasClick(x, y);
+          });
     });
   }
 
@@ -174,6 +196,28 @@ public:
 
     RedrawCanvas();
   }
+
+  void HandleCanvasClick(double x, double y) {
+    auto vertices = g.GetVertices();
+    for (auto v : vertices) {
+      double dx = v->GetX() - x;
+      double dy = v->GetY() - y;
+      double distance = std::sqrt(dx * dx + dy * dy);
+
+      if (distance <= VERTEX_RADIUS) {
+        HandleSelectedVertex(*v);
+        return;
+      }
+    }
+
+    // If no vertex found, clear selection
+    EM_ASM({
+      document.getElementById("selectedVertexTitle").innerHTML = "No Selected Vertex";
+      document.getElementById("selectedVertexId").innerHTML = "";
+      document.getElementById("selectedVertexX").innerHTML = "";
+      document.getElementById("selectedVertexY").innerHTML = "";
+    });
+  }
 };
 
 GraphVisualizer init{};
@@ -191,7 +235,9 @@ void addVertex() {
   init.AddVertex();
 }
 
-void handleCanvasClick(double x, double y) {}
+void handleCanvasClick(double x, double y) {
+  init.HandleCanvasClick(x, y);
+}
 }
 
 int main() {
