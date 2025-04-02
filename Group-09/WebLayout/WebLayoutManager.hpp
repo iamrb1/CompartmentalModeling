@@ -24,6 +24,8 @@ class WebLayoutManager {
   void rewind();
   void initialize();
   void addTextBox();
+  void addNewSlide();
+
   WebLayoutManager();
 
   // 🔹 Getter for export support
