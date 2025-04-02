@@ -152,11 +152,11 @@ private:
     EM_ASM({
       var mainElement = document.getElementById("main");
       var controlZone = document.createElement("div");
-      controlZone.className = "control-zone";
+      controlZone.classList.add("control-zone");
 
       // Button group container
       var buttonGroup = document.createElement("div");
-      buttonGroup.className = "button-group";
+      buttonGroup.classList.add("button-group");
 
       // Clear button
       var clearButton = document.createElement('button');
