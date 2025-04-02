@@ -5,16 +5,16 @@
 #include <map>
 #include <functional>
 
-constexpr double M_PI = 3.14159265358979323846;
+constexpr double kPI = 3.14159265358979323846;
 
 TEST_CASE("Advanced Parser Funcitonality", "[parser]") {
   cse::ExpressionParser parser;
   std::map<std::string, double> symbol_table;
   symbol_table["val1"] = 1;
-  symbol_table["val2"]= M_PI;
+  symbol_table["val2"]= kPI;
   symbol_table["val3"] = 4;
-  symbol_table["val4"] = M_PI/2;
-  symbol_table["val5"] = M_PI/3;
+  symbol_table["val4"] = kPI/2;
+  symbol_table["val5"] = kPI/3;
   symbol_table["val6"] = 8;
   symbol_table["val7"] = 9;
   symbol_table["val8"] = 27;
@@ -24,22 +24,22 @@ TEST_CASE("Advanced Parser Funcitonality", "[parser]") {
   REQUIRE(func(symbol_table) == -1);
   default_index = 0;
   func = parser.MakeFunc("sin({val2})", 0, default_index);
-  REQUIRE(func(symbol_table) == sin(M_PI));
+  REQUIRE(func(symbol_table) == sin(kPI));
   default_index = 0;
   func = parser.MakeFunc("cos({val5})", 0, default_index);
-  REQUIRE(func(symbol_table) == cos(M_PI/3));
+  REQUIRE(func(symbol_table) == cos(kPI/3));
   default_index = 0;
   func = parser.MakeFunc("sin({val1})", 0, default_index);
   REQUIRE(func(symbol_table) == sin(1));
   default_index = 0;
   func = parser.MakeFunc("sin({val4} + {val4})", 0, default_index);
-  REQUIRE(func(symbol_table) == sin(M_PI));
+  REQUIRE(func(symbol_table) == sin(kPI));
   default_index = 0;
   func = parser.MakeFunc("sin({val2} / 2)", 0, default_index);
-  REQUIRE(func(symbol_table) == sin(M_PI/2));
+  REQUIRE(func(symbol_table) == sin(kPI/2));
   default_index = 0;
   func = parser.MakeFunc("sin({val2} / 2)", 0, default_index);
-  REQUIRE(func(symbol_table) == sin(M_PI/2));
+  REQUIRE(func(symbol_table) == sin(kPI/2));
 
 } 
 
