@@ -10,6 +10,8 @@
 #include <vector>
 
 const int VERTEX_RADIUS = 10;
+const int CANVAS_WIDTH = 1000;
+const int CANVAS_HEIGHT = 1000;
 
 class Shape {
 public:
@@ -48,7 +50,31 @@ private:
   std::optional<cse::Vertex<std::string>> selectedVertex;
   cse::Graph<std::string> g;
 
-  // Helper function to draw edges as thin rectangles (lines)
+  static bool IsPointInRange(double x1, double y1, double x2, double y2, double range) {
+    double dx = x1 - x2;
+    double dy = y1 - y2;
+    return std::sqrt(dx * dx + dy * dy) <= range;
+  }
+
+  void ClearVertexSelection() {
+    EM_ASM({
+      document.getElementById("selectedVertexTitle").innerHTML = "No Selected Vertex";
+      document.getElementById("selectedVertexId").innerHTML = "";
+      document.getElementById("selectedVertexX").innerHTML = "";
+      document.getElementById("selectedVertexY").innerHTML = "";
+    });
+  }
+
+  std::optional<std::reference_wrapper<const cse::Vertex<std::string>>> FindVertexAtPosition(double x, double y) {
+    auto vertices = g.GetVertices();
+    for (auto v : vertices) {
+      if (IsPointInRange(v->GetX(), v->GetY(), x, y, VERTEX_RADIUS)) {
+        return std::cref(*v);
+      }
+    }
+    return std::nullopt;
+  }
+
   void DrawEdges(const cse::Graph<std::string> &graph) {
     auto edges = graph.GetEdges();
     for (auto edge : edges) {
@@ -86,18 +112,16 @@ private:
 
   // Must be called when any updates happen to the state
   void RedrawCanvas() {
-    EM_ASM({
-      var canvas = document.getElementById("canvas");
-      // This is not the same as the width/height on the screen
-      // This is the virtual size of the canvas, basically how many pixels
-      // it has to be drawn on
-      canvas.width = 1000;
-      canvas.height = 1000;
-
-      var ctx = canvas.getContext("2d");
-      ctx.fillStyle = "black";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    });
+    EM_ASM(
+        {
+          var canvas = document.getElementById("canvas");
+          canvas.width = $0;
+          canvas.height = $1;
+          var ctx = canvas.getContext("2d");
+          ctx.fillStyle = "black";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        },
+        CANVAS_WIDTH, CANVAS_HEIGHT);
 
     DrawGraph();
   }
@@ -113,12 +137,11 @@ private:
       canvas.addEventListener(
           'click', function(event) {
             var rect = canvas.getBoundingClientRect();
-            var x = event.clientX - rect.left;
-            var y = event.clientY - rect.top;
+            var scaleX = canvas.width / rect.width;
+            var scaleY = canvas.height / rect.height;
 
-            // Scale coordinates to match canvas size
-            x = (x / rect.width) * canvas.width;
-            y = (y / rect.height) * canvas.height;
+            var x = (event.clientX - rect.left) * scaleX;
+            var y = (event.clientY - rect.top) * scaleY;
 
             Module._handleCanvasClick(x, y);
           });
@@ -184,39 +207,28 @@ public:
 
   void ClearGraph() {
     g.ClearGraph();
+    ClearVertexSelection();
     RedrawCanvas();
   }
 
   void AddVertex() {
     int id = g.GetVertices().size();
-    int x = r.GetInt(0, 1000);
-    int y = r.GetInt(0, 1000);
+    int x = r.GetInt(0, CANVAS_WIDTH);
+    int y = r.GetInt(0, CANVAS_HEIGHT);
 
     g.AddVertex(std::to_string(++id), "blue", x, y);
 
     RedrawCanvas();
   }
 
+  // Receives the virtual coordinate inside of the canvas.
   void HandleCanvasClick(double x, double y) {
-    auto vertices = g.GetVertices();
-    for (auto v : vertices) {
-      double dx = v->GetX() - x;
-      double dy = v->GetY() - y;
-      double distance = std::sqrt(dx * dx + dy * dy);
-
-      if (distance <= VERTEX_RADIUS) {
-        HandleSelectedVertex(*v);
-        return;
-      }
+    auto vertex = FindVertexAtPosition(x, y);
+    if (vertex.has_value()) {
+      HandleSelectedVertex(vertex.value());
+    } else {
+      ClearVertexSelection();
     }
-
-    // If no vertex found, clear selection
-    EM_ASM({
-      document.getElementById("selectedVertexTitle").innerHTML = "No Selected Vertex";
-      document.getElementById("selectedVertexId").innerHTML = "";
-      document.getElementById("selectedVertexX").innerHTML = "";
-      document.getElementById("selectedVertexY").innerHTML = "";
-    });
   }
 };
 
