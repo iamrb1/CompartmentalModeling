@@ -50,6 +50,13 @@ WebLayoutManager::WebLayoutManager() {
                 "click", function()
             { Module._call_addImage(); });
           }
+    
+           var addNewSlide = document.getElementById("addNewSlideButton");
+           if (addNewSlide) {
+             addNewSlide.addEventListener(
+                 "click", function()
+             { Module._call_addNewSlide(); });
+           }
          });
 
 }
@@ -85,6 +92,14 @@ EMSCRIPTEN_KEEPALIVE void call_addImage(char* urlPtr, int width, int height, cha
 EMSCRIPTEN_KEEPALIVE void call_addTextBox() {
   if (g_manager) {
     g_manager->addTextBox();
+  } else {
+    std::cout << "ERROR: g_manager is null!" << std::endl;
+  }
+}
+
+EMSCRIPTEN_KEEPALIVE void call_addNewSlide() {
+  if (g_manager) {
+    g_manager->addNewSlide();
   } else {
     std::cout << "ERROR: g_manager is null!" << std::endl;
   }
@@ -196,18 +211,20 @@ void WebLayoutManager::addTextBox() {
 }
 
 void WebLayoutManager::addImage(const std::string& url, int width, int height, const std::string& altText) {
-//  try {
     auto image = std::make_shared<Image>(url, width, height, altText);
     ImageLayout layout{image, 10, 10}; // Default x/y position
     layouts.at(currentPos)->addImage(layout);
-//    if (currentPos < layouts.size() && layouts.at(currentPos)) {
-//      layouts.at(currentPos)->addImage(layout);
-//    } else {
-//      std::cout << "WARNING: Invalid currentPos (" << currentPos << ") or layout missing." << std::endl;
-//    }
-//  } catch (const std::exception& e) {
-//    std::cout << "Failed to add image: " << e.what() << std::endl;
-//  }
+}
+
+void WebLayoutManager::addNewSlide() {
+  // Create a new weblayout
+  auto wb = std::make_shared<WebLayout>();
+  addLayout(wb);
+  auto wbID = wb->getID();
+  EM_ASM({
+           var wbID = UTF8ToString($0);
+           console.log("Added new slide: ", wbID);
+         }, wbID.c_str());
 }
 
 }  // namespace cse

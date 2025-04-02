@@ -24,7 +24,9 @@ class WebLayoutManager {
   void rewind();
   void initialize();
   void addTextBox();
+  void addNewSlide();
   void addImage(const std::string& url, int width, int height, const std::string& altText);
+
   WebLayoutManager();
 
   // Getter for export support
