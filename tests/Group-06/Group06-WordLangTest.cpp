@@ -8,6 +8,7 @@
 #include "../../Group-06/CommandLine/CommandLine.cpp"
 #include "../../Group-06/ErrorManager/ErrorManager.hpp"
 #include "../../Group-06/WordLang/WordLang.hpp"
+#include "../../Group-06/App/src/WordLang/WordLang.hpp"
 
 using namespace cse;
 
