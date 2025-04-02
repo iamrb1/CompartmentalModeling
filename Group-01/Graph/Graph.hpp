@@ -61,6 +61,8 @@ namespace cse {
     bool IsConnected(Vertex<VERTEX_DATA_T> const &v1, Vertex<VERTEX_DATA_T> const &v2) const;
     bool IsConnected(std::string const &v1_id, std::string const &v2_id) const;
     bool HasCycle() const;
+
+    void ClearGraph();
   };
 
   // Function Implementations
@@ -483,6 +485,12 @@ namespace cse {
     }
 
     return false;
+  }
+
+  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
+  inline void Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::ClearGraph() {
+    edges.clear();
+    vertices.clear();
   }
 
 } // namespace cse
