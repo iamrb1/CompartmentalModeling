@@ -8,13 +8,87 @@
   <style>
     #main {
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
       min-height: 100vh;
       margin: 0;
-      flex-direction: column;
+      padding: 40px;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background-color: #f8f9fa;
     }
-    canvas {width: 500px; height: 500px;}
+
+    canvas {
+      width: 500px;
+      height: 500px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .control-zone {
+      display: flex;
+      gap: 30px;
+      width: 500px;
+      padding: 20px;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 120px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      background-color: #4361ee;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 2px 4px rgba(67, 97, 238, 0.2);
+    }
+
+    button:hover {
+      background-color: #3046c1;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(67, 97, 238, 0.3);
+    }
+
+    #selectedVertexContainer {
+      flex: 1;
+      padding: 20px 25px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      border: 1px solid #e9ecef;
+      min-height: 150px;
+      max-width: 300px;
+    }
+
+    #selectedVertexTitle {
+      margin: 0 0 15px 0;
+      font-size: 1.1em;
+      color: #212529;
+      font-weight: 600;
+    }
+
+    #selectedVertexId {
+      margin: 10px 0;
+      color: #495057;
+      font-size: 1em;
+    }
+
+    #selectedVertexX, #selectedVertexY {
+      margin: 8px 0;
+      color: #6c757d;
+      font-size: 0.9em;
+    }
   </style>
   <body>
     <div id="main"></div>

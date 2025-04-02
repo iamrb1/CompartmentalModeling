@@ -152,21 +152,25 @@ private:
     EM_ASM({
       var mainElement = document.getElementById("main");
       var controlZone = document.createElement("div");
+      controlZone.className = "control-zone";
 
-      /** CONTROL BUTTONS **/
-      // Clear
+      // Button group container
+      var buttonGroup = document.createElement("div");
+      buttonGroup.className = "button-group";
+
+      // Clear button
       var clearButton = document.createElement('button');
       clearButton.textContent = "Clear Graph";
       clearButton.addEventListener('click', function() { Module._clearCanvas(); });
-      controlZone.appendChild(clearButton);
+      buttonGroup.appendChild(clearButton);
 
-      // Add Vertex
+      // Add Vertex button
       var addVertexButton = document.createElement('button');
       addVertexButton.textContent = "Add Vertex";
       addVertexButton.addEventListener('click', function() { Module._addVertex(); });
-      controlZone.appendChild(addVertexButton);
+      buttonGroup.appendChild(addVertexButton);
 
-      /** SELECTED VERTEX DASHBOARD **/
+      // Selected vertex info container
       var selectedVertexDiv = document.createElement('div');
       selectedVertexDiv.setAttribute("id", "selectedVertexContainer");
       var selectedVertexTitle = document.createElement('h2');
@@ -185,6 +189,8 @@ private:
 
       selectedVertexTitle.innerHTML = "No Selected Vertex";
 
+      // Add button group and vertex info to control zone
+      controlZone.appendChild(buttonGroup);
       controlZone.appendChild(selectedVertexDiv);
       mainElement.appendChild(controlZone);
     });
