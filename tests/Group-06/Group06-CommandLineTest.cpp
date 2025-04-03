@@ -3,6 +3,8 @@
 #include <sstream>
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 #include "../../Group-06/CommandLine/CommandLine.cpp"
+#include "../../Group-06/StringSet/StringSet.hpp"
+#include "../../Group-06/StaticString/StaticString.hpp"
 
 // Test case for adding and executing commands
 TEST_CASE("CommandLine addCommand and executeCommand", "[CommandLine]") {
@@ -140,5 +142,97 @@ TEST_CASE("CommandLine help command", "[CommandLine]") {
 
         std::cout.rdbuf(p_cout_streambuf);
         REQUIRE(oss.str() == "Available commands:\nhelp - Displays this help message\ntest - A test command\n");
+    }
+}
+// Test case for adding and executing commands from StringSet
+TEST_CASE("CommandLine with StringSet commands", "[CommandLine][StringSet]") {
+    cse::CommandLine cli;
+    cse::StringSet<std::string> stringSet;
+
+    // Add a command to insert a string into the StringSet
+    cli.addCommand("add_to_set", [&]() {
+        stringSet.insert("test_string");
+    }, "Adds a string to the StringSet");
+
+    // Add a command to print the contents of the StringSet
+    cli.addCommand("print_set", [&]() {
+        std::ostringstream oss;
+        for (const auto& str : stringSet) {
+            oss << str << " ";
+        }
+        std::cout << oss.str() << std::endl;
+    }, "Prints all strings in the StringSet");
+
+    // Test adding a string to the StringSet
+    SECTION("Add string to StringSet") {
+        cli.executeCommand("add_to_set");
+        REQUIRE(stringSet.count("test_string") == 1);
+    }
+
+    // Test printing the StringSet
+    SECTION("Print StringSet contents") {
+        stringSet.insert("test_string");
+        std::ostringstream oss;
+        std::streambuf* p_cout_streambuf = std::cout.rdbuf();
+        std::cout.rdbuf(oss.rdbuf());
+
+        cli.executeCommand("print_set");
+
+        std::cout.rdbuf(p_cout_streambuf);
+        REQUIRE(oss.str() == "test_string \n");
+    }
+}
+
+// Test case for adding and executing commands from StaticString
+TEST_CASE("CommandLine with StaticString commands", "[CommandLine][StaticString]") {
+    cse::CommandLine cli;
+    cse::StaticString<10> staticStr;
+
+    // Add a command to set the value of the StaticString
+    cli.addCommand("set_static", [&]() {
+        staticStr = "hello";
+    }, "Sets the StaticString value");
+
+    // Add a command to print the value of the StaticString
+    cli.addCommand("print_static", [&]() {
+        std::cout << staticStr << std::endl;
+    }, "Prints the StaticString value");
+
+    // Test setting the StaticString value
+    SECTION("Set StaticString value") {
+        cli.executeCommand("set_static");
+        REQUIRE(staticStr == "hello");
+    }
+
+    // Test printing the StaticString value
+    SECTION("Print StaticString value") {
+        staticStr = "world";
+        std::ostringstream oss;
+        std::streambuf* p_cout_streambuf = std::cout.rdbuf();
+        std::cout.rdbuf(oss.rdbuf());
+
+        cli.executeCommand("print_static");
+
+        std::cout.rdbuf(p_cout_streambuf);
+        REQUIRE(oss.str() == "world\n");
+    }
+}
+
+// Test case for combining StringSet and StaticString commands
+TEST_CASE("CommandLine with combined StringSet and StaticString commands", "[CommandLine][StringSet][StaticString]") {
+    cse::CommandLine cli;
+    cse::StringSet<std::string> stringSet;
+    cse::StaticString<10> staticStr;
+
+    // Add a command to insert the StaticString value into the StringSet
+    cli.addCommand("add_static_to_set", [&]() {
+        stringSet.insert(staticStr.to_string());
+    }, "Adds the StaticString value to the StringSet");
+
+    // Test adding the StaticString value to the StringSet
+    SECTION("Add StaticString value to StringSet") {
+        staticStr = "example";
+        cli.executeCommand("add_static_to_set");
+        REQUIRE(stringSet.count("example") == 1);
     }
 }

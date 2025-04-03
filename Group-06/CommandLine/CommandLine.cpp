@@ -9,7 +9,6 @@
 
 #ifndef CSE_COMMAND_LINE_CPP_
 #define CSE_COMMAND_LINE_CPP_
-
 #include <algorithm>
 #include <functional>
 #include <iostream>
