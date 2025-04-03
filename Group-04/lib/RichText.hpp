@@ -585,39 +585,65 @@ class BasicRichText {
   // NEW ERASE METHODS 
   // ==================================================================
 
-  /**
-   * @brief Erases `count` characters starting at `index`.
-   * @author Krish Patel
-   * @param index The index at which to start erasing.
-   * @param count The number of characters to erase.
-   */
-  void erase(std::size_t index, std::size_t count) {
-    // Remove substring from the underlying text
-    m_text.erase(index, count);
+/**
+ * @brief Erases `count` characters starting at `index`.
+ *        Removes substring [index..index+count) from m_text and
+ *        updates each format's IndexSet accordingly, removing empty sets.
+ */
+void erase(std::size_t index, std::size_t count) {
+  // 1) Physically remove the substring from the underlying text
+  m_text.erase(index, count);
 
-    // Shift left any existing indices in the formatting
-    for (auto& [format, indices] : m_formatting) {
-      indices.shift_left_within(count, index, m_text.size());
+  // 2) For each format's IndexSet:
+  for (auto& [format, idxSet] : m_formatting) {
+    // a) Remove indices [index..(index+count)) from the set
+    idxSet -= cse::IndexSet(std::pair{index, index + count});
+
+    // b) Shift all indices >= (index + count) left by 'count'
+    std::vector<std::size_t> toShift;
+    auto allIndices = idxSet.get_all_indices();
+    for (auto i : allIndices) {
+      if (i >= index + count) {
+        toShift.push_back(i);
+      }
+    }
+    for (auto i : toShift) {
+      idxSet.remove(i);
+    }
+    for (auto i : toShift) {
+      idxSet.insert(i - count);
     }
   }
 
-  /**
-   * @brief Erases all the ranges described by an IndexSet.
-   *        Each range is erased by calling the index/count erase overload.
-   * @author Krish Patel
-   * @param to_erase The IndexSet containing pairs [start, end).
-   */
-  void erase(const IndexSet& to_erase) {
-    // Copy all pairs into a vector so we can reverse them
-    std::vector<std::pair<std::size_t, std::size_t>> ranges(
-        to_erase.cbegin_pair(), to_erase.cend_pair());
+  // 3) Remove formats whose sets became empty
+  for (auto it = m_formatting.begin(); it != m_formatting.end();) {
+    if (it->second.size() == 0) {
+      it = m_formatting.erase(it);
+    } else {
+      ++it;
+    }
+  }
+}
 
-    // Reverse them so we erase from highest index to lowest
+  /**
+   * @brief Erases each [start,end) in `to_erase` by calling the
+   *        (index,count) overload in descending order of start.
+   */
+  void erase(const cse::IndexSet& to_erase) {
+    // Gather all IndexRanges from to_erase
+    std::vector<cse::IndexSet::IndexRange> ranges{
+        to_erase.cbegin_pair(),
+        to_erase.cend_pair()
+    };
+
+    // Reverse them so we erase from the highest start index first
     std::reverse(ranges.begin(), ranges.end());
 
-    for (auto& [start, end] : ranges) {
-      // end is exclusive, so length = end - start
-      erase(start, end - start);
+    // For each range, call the 2-param erase
+    for (auto& r : ranges) {
+      // Overload ambiguity fix: qualify with this-> to ensure we call
+      // erase(std::size_t, std::size_t) instead of erase(const IndexSet&)
+      this->erase(r.start, r.end - r.start);
     }
   }
 };
