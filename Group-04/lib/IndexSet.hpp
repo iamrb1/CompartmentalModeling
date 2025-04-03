@@ -475,22 +475,18 @@ class IndexSet {
    * @brief Returns the maximum index in the set
    */
   std::optional<std::size_t> min_index() const {
-    std::vector<size_t> indices = get_all_indices();
-    auto result = std::min_element(indices.begin(), indices.end());
-    // the set is empty
-    if (result == indices.end()) return std::nullopt;
-    return *result;
+    // ranges should be sorted due to merging after every mutating operation
+    if (ranges_.empty()) return std::nullopt;
+    return ranges_.front().start;
   }
 
   /**
    * @brief Returns the maximum index in the set
    */
   std::optional<std::size_t> max_index() const {
-    std::vector<size_t> indices = get_all_indices();
-    auto result = std::max_element(indices.begin(), indices.end());
-    // the set is empty
-    if (result == indices.end()) return std::nullopt;
-    return *result;
+    // ranges should be sorted due to merging after every mutating operation
+    if (ranges_.empty()) return std::nullopt;
+    return ranges_.back().end;
   }
 
   /**
