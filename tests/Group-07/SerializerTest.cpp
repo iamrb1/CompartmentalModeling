@@ -598,7 +598,7 @@ TEST_CASE("Serializer Empty File or Empty Containers", "[Serializer]")
 	Loader.Serialize(res, filename);
 	REQUIRE(res.size() == 0);
 	std::filesystem::remove(filename);
-	REQUIRE_THROWS_AS(Loader.Serialize(res, filename), std::runtime_error);
+	REQUIRE_THROWS_AS(Loader.Serialize(res, filename), cse::SerializationError);
 }
 
 TEST_CASE("Implemented Verifier", "[Serializer]")
