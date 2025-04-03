@@ -240,28 +240,13 @@ TEST_CASE("SetOperations", "[IndexSetTest]") {
 
   SECTION("Test symmetric difference") {
     // Expected: [0,2) ∪ [3,5) ∪ [6,7)
-    // TODO: replace with equality check once adjacent insert bug is fixed
-    // REQUIRE(sym_diff_set == cse::IndexSet{0, 1, 3, 4, 6});
+    cse::IndexSet expected{0, 1, 3, 4, 6};
 
     auto sym_diff_set = set1 ^ set2;
-    REQUIRE(sym_diff_set.contains(0));
-    REQUIRE(sym_diff_set.contains(1));
-    REQUIRE_FALSE(sym_diff_set.contains(2)); // In both sets
-    REQUIRE(sym_diff_set.contains(3));
-    REQUIRE(sym_diff_set.contains(4));
-    REQUIRE_FALSE(sym_diff_set.contains(5)); // In both sets
-    REQUIRE(sym_diff_set.contains(6));
-    REQUIRE_FALSE(sym_diff_set.contains(7));
+    REQUIRE(sym_diff_set == expected);
 
     set1 ^= set2;
-    REQUIRE(set1.contains(0));
-    REQUIRE(set1.contains(1));
-    REQUIRE_FALSE(set1.contains(2)); // In both sets
-    REQUIRE(set1.contains(3));
-    REQUIRE(set1.contains(4));
-    REQUIRE_FALSE(set1.contains(5)); // In both sets
-    REQUIRE(set1.contains(6));
-    REQUIRE_FALSE(set1.contains(7));
+    REQUIRE(sym_diff_set == expected);
   }
 
   SECTION("Test comparisons") {
