@@ -2,7 +2,7 @@ CXX = em++
 FLAGS = -std=c++20 -g -pthread -Wall -Wextra -DCATCH_CONFIG_MAIN
 
 # Define exported function names here
-EXPORTED_FUNCTIONS_LIST = _clearCanvas _addVertex _handleCanvasClick
+EXPORTED_FUNCTIONS_LIST = _clearCanvas _addVertex _handleCanvasClick _stepTraversal _fullTraversal
 
 # Citation: Following commands were generated with AI
 EXPORTED_FUNCTIONS = $(foreach fn,$(EXPORTED_FUNCTIONS_LIST),'$(fn)',)

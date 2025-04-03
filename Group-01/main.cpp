@@ -49,6 +49,7 @@ private:
   cse::Random r{0};
   std::optional<cse::Vertex<std::string>> selectedVertex;
   cse::Graph<std::string> g;
+  std::optional<cse::GraphPosition<std::string>> traversal;
 
   static bool IsPointInRange(double x1, double y1, double x2, double y2, double range) {
     double dx = x1 - x2;
@@ -95,7 +96,12 @@ private:
     // Draw vertices as circles
     auto vertices = g.GetVertices();
     for (auto v : vertices) {
-      Shape::drawCircle(v->GetX(), v->GetY(), VERTEX_RADIUS, v->GetData().c_str());
+      std::string color = "gray"; // default
+      if (traversal) {
+        if (traversal->IsVisited(*v)) color = "green";
+        else if (&traversal->GetCurrentVertex() == v) color = "red";
+      }
+      Shape::drawCircle(v->GetX(), v->GetY(), VERTEX_RADIUS, color.c_str());
     }
   }
 
@@ -189,6 +195,35 @@ private:
 
       selectedVertexTitle.innerHTML = "No Selected Vertex";
 
+      // Dropdown to select traversal type
+      var traversalSelect = document.createElement('select');
+      traversalSelect.setAttribute("id", "traversalMode");
+      var option1 = document.createElement('option');
+      option1.value = "DFS";
+      option1.textContent = "DFS";
+      traversalSelect.appendChild(option1);
+      var option2 = document.createElement('option');
+      option2.value = "BFS";
+      option2.textContent = "BFS";
+      traversalSelect.appendChild(option2);
+      var option3 = document.createElement('option');
+      option3.value = "A*";
+      option3.textContent = "A*";
+      traversalSelect.appendChild(option3);
+      buttonGroup.appendChild(traversalSelect);
+
+      // Traverse Step button
+      var stepButton = document.createElement('button');
+      stepButton.textContent = "Next Step";
+      stepButton.addEventListener('click', function () { Module._stepTraversal(); });
+      buttonGroup.appendChild(stepButton);
+
+      // Traverse All button
+      var fullButton = document.createElement('button');
+      fullButton.textContent = "Traverse All";
+      fullButton.addEventListener('click', function () { Module._fullTraversal(); });
+      buttonGroup.appendChild(fullButton);
+
       // Add button group and vertex info to control zone
       controlZone.appendChild(buttonGroup);
       controlZone.appendChild(selectedVertexDiv);
@@ -236,6 +271,47 @@ public:
       ClearVertexSelection();
     }
   }
+
+  void StartTraversal() {
+    if (g.GetVertices().empty()) return;
+    auto start = g.GetVertices().front(); // default to first vertex
+  
+    cse::GraphPosition<std::string> pos(g, *start);
+  
+    int mode = EM_ASM_INT({
+      var mode = document.getElementById("traversalMode").value;
+      if (mode === "DFS") return 0;
+      if (mode === "BFS") return 1;
+      if (mode === "A*") return 2;
+      return 0;
+    });
+  
+    if (mode == 0) pos.SetTraversalMode(cse::TraversalModes::DFS<std::string>());
+    else if (mode == 1) pos.SetTraversalMode(cse::TraversalModes::BFS<std::string>());
+    else if (mode == 2) pos.SetTraversalMode(cse::TraversalModes::AStar<std::string>(g.GetVertex("ID1"))); // temp hardcoded target
+  
+    traversal.emplace(std::move(pos));
+
+    RedrawCanvas();
+  }
+  
+  void StepTraversal() {
+    if (!traversal.has_value()) StartTraversal();
+  
+    if (traversal && traversal->AdvanceToNextNeighbor()) {
+      RedrawCanvas();
+    }
+  }
+  
+  void FullTraversal() {
+    if (!traversal.has_value()) StartTraversal();
+  
+    if (traversal) {
+      traversal->TraverseGraph();
+      RedrawCanvas();
+    }
+  }
+  
 };
 
 GraphVisualizer init{};
@@ -255,6 +331,14 @@ void addVertex() {
 
 void handleCanvasClick(double x, double y) {
   init.HandleCanvasClick(x, y);
+}
+
+void stepTraversal() { 
+  init.StepTraversal(); 
+}
+
+void fullTraversal() { 
+  init.FullTraversal(); 
 }
 }
 
