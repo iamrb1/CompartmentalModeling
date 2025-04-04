@@ -7,8 +7,7 @@ which is responsible for running the simulation based on the provided Simulation
 The SimulationRunner class processes predator-prey interactions, births, and deaths for each species in the simulation. 
 It also logs detailed simulation statistics for each time step and checks for early extinction of all species.
 */
-#ifndef SIMULATION_HPP
-#define SIMULATION_HPP
+#pragma once
 #include <iostream>
 #include <ranges>
 #include <vector>
@@ -39,17 +38,16 @@ using namespace cse;
  * @note This function updates the simulation state and scheduler in place.
  */
 void AddAnimals(int count, SimulationState& state, cse::Scheduler<int>& scheduler, int& id, const std::string& speciesName, const std::string& preyName) {
-    for (auto i : std::views::iota(0, count)) {
-        (void)i; // suppress unused variable warning
-        
+    for (auto _ : std::views::iota(0, count)) {
         Animal animal(id, speciesName, preyName, preyName != "None");
-        state.animals.push_back(animal);
+        state.animals.emplace_back(id, speciesName, preyName, preyName != "None");
         
-        std::vector<double> weights = animal.getWeights();
+        auto weights = animal.getWeights();
         scheduler.AddProcess(id, weights);
         id++;
     }
 }
+template <std::size_t numWeights>
 class SimulationRunner {
     private:
         SimulationState& state;
@@ -57,7 +55,7 @@ class SimulationRunner {
         cse::Scheduler<int> scheduler;
         std::mt19937 gen;
         int id;
-        
+
         /**
          * @brief Process predator-prey interactions for the current time step
          * 
@@ -72,32 +70,34 @@ class SimulationRunner {
          */
         void processInteractions(std::unordered_map<std::string, int>& speciesPopulations) {
             for (const auto& interaction : state.interactions) {
-                Species* predator = state.FindSpecies(interaction.predator);
-                Species* prey = state.FindSpecies(interaction.prey);
+                auto predatorOpt = state.FindSpecies(interaction.predator);
+                auto preyOpt = state.FindSpecies(interaction.prey);
     
-                if (predator && prey && prey->population > 0) {
-                    int toEat = std::min(prey->population, 
+                if (predatorOpt.has_value() && preyOpt.has_value()) {
+                    auto predator = predatorOpt.value();
+                    auto prey = preyOpt.value();
+                    if (prey->population <= 0) continue; // prey extinct, skip
+                    int toEat = std::min(prey->population,
                         static_cast<int>(speciesPopulations[predator->name] * interaction.huntRate));
+    
                     toEat = std::min(toEat, static_cast<int>(
-                        std::count_if(state.animals.begin(), state.animals.end(), 
+                        std::count_if(state.animals.begin(), state.animals.end(),
                             [&prey](const Animal& a) { return a.species == prey->name; })
                     ));
-    
-                    // simulate hunting by using scheduler 
-                    for (auto i : std::views::iota(0, toEat)) {
-                        (void)i; 
-                        auto predID = scheduler.PopNextProcess(); 
+                    // simulate hunting by using scheduler
+                    for (auto _ : std::views::iota(0, toEat)) {
+                        auto predID = scheduler.PopNextProcess();
                         if (!predID) break;
     
-                        auto preyIt = std::find_if(state.animals.begin(), state.animals.end(), 
+                        auto preyIt = std::find_if(state.animals.begin(), state.animals.end(),
                             [&prey](const Animal& a) { return a.species == prey->name; });
-                        
+    
                         if (preyIt != state.animals.end()) {
                             prey->population -= 1;
-                            
-                            auto predIt = std::find_if(state.animals.begin(), state.animals.end(), 
+    
+                            auto predIt = std::find_if(state.animals.begin(), state.animals.end(),
                                 [predID](const Animal& a) { return a.id == *predID; });
-                            
+    
                             if (predIt != state.animals.end()) {
                                 predIt->lastEaten += 1;
                             }
@@ -105,7 +105,7 @@ class SimulationRunner {
                             state.animals.erase(preyIt);
                         }
                     }
-                    AddAnimals(toEat/2, state, scheduler, id, interaction.predator, interaction.prey);
+                    AddAnimals(toEat / 2, state, scheduler, id, interaction.predator, interaction.prey);
                 }
             }
         }
@@ -123,38 +123,34 @@ class SimulationRunner {
          * @param deathCount Reference to store the number of deaths
          * @param species Reference to the species being processed
          */
-        void processBirthsAndDeaths(int& birthCount, int& deathCount, Species& species) {
-            int currentPop = std::count_if(state.animals.begin(), state.animals.end(), 
-                [&species](const Animal& a) { return a.species == species.name; });
-            
-            birthCount = static_cast<int>(currentPop * species.birthRate);
-            deathCount = static_cast<int>(currentPop * species.deathRate);
+        void processBirthsAndDeaths(int& birthCount, int& deathCount, std::shared_ptr<Species> species) {
+            int currentPop = std::count_if(state.animals.begin(), state.animals.end(),
+                [&species](const Animal& a) { return a.species == species->name; });
     
-            // Add new animals
-            AddAnimals(birthCount, state, scheduler, id, species.name, species.foodSource);
+            birthCount = static_cast<int>(currentPop * species->birthRate);
+            deathCount = static_cast<int>(currentPop * species->deathRate);
     
+            AddAnimals(birthCount, state, scheduler, id, species->name, species->foodSource);
             // Randomly select animals to remove
             std::shuffle(state.animals.begin(), state.animals.end(), gen);
             std::vector<int> indicesToRemove;
+    
             for (size_t j = 0; j < std::min(static_cast<size_t>(deathCount), state.animals.size()); ++j) {
-                if (state.animals[j].species == species.name) {
+                if (state.animals[j].species == species->name) {
                     indicesToRemove.push_back(j);
                     scheduler.RemoveProcess(state.animals[j].id);
                 }
             }
-            
             // remove in reverse order to avoid invalidating indices
-            std::ranges::sort(indicesToRemove, std::greater{}); 
+            std::ranges::sort(indicesToRemove, std::greater<>{});
             for (int index : indicesToRemove) {
                 state.animals.erase(state.animals.begin() + index);
             }
-            
             // update pop for species
-            species.population = std::count_if(state.animals.begin(), state.animals.end(), 
-                [&species](const Animal& a) { return a.species == species.name; });
-            species.population = std::max(0, species.population);
+            species->population = std::count_if(state.animals.begin(), state.animals.end(),
+                [&species](const Animal& a) { return a.species == species->name; });
+            species->population = std::max(0, species->population);
         }
-    
         /**
          * @brief Check if all species have gone extinct
          * 
@@ -164,13 +160,10 @@ class SimulationRunner {
          */
         bool checkExtinction() {
             for (const auto& species : state.speciesList) {
-                if (species.population > 0) {
-                    return false;
-                }
+                if (species->population > 0) return false;
             }
             return true;
         }
-    
         /**
          * @brief Log detailed simulation statistics for the current time step
          * 
@@ -184,19 +177,17 @@ class SimulationRunner {
          * @param birthCounts Vector of birth counts for each species
          * @param deathCounts Vector of death counts for each species
          */
-        void logSimulationDetails(int timeStep, 
-                                   const std::vector<int>& birthCounts, 
-                                   const std::vector<int>& deathCounts) {
+        void logSimulationDetails(int timeStep, const std::vector<int>& birthCounts, const std::vector<int>& deathCounts) {
             log.log("=== Time Step " + std::to_string(timeStep) + " ===", LogLevel::VERBOSE);
     
             for (size_t i = 0; i < state.speciesList.size(); ++i) {
                 const auto& species = state.speciesList[i];
-                log.log(species.name + " Births: " + std::to_string(birthCounts[i]), LogLevel::DEBUG);
-                log.log(species.name + " Deaths: " + std::to_string(deathCounts[i]), LogLevel::DEBUG);
+                log.log(species->name + " Births: " + std::to_string(birthCounts[i]), LogLevel::DEBUG);
+                log.log(species->name + " Deaths: " + std::to_string(deathCounts[i]), LogLevel::DEBUG);
             }
     
             for (const auto& species : state.speciesList) {
-                log.log(species.name + " Population: " + std::to_string(species.population), LogLevel::DEBUG);
+                log.log(species->name + " Population: " + std::to_string(species->population), LogLevel::DEBUG);
             }
         }
     
@@ -210,11 +201,11 @@ class SimulationRunner {
          * @param outputLog Reference to the output logging mechanism
          * @param seed Random seed for reproducibility, defaults to 42
          */
-        SimulationRunner(SimulationState& simulationState, OutputLog& outputLog, int seed = 42)
-            : state(simulationState), log(outputLog), scheduler({-1}), gen(seed), id(0) {
+        SimulationRunner(SimulationState& simulationState, const std::array<double, numWeights>& weight_arr,
+                            OutputLog& outputLog, int seed = 42)
+            : state(simulationState), log(outputLog), scheduler(weight_arr), gen(seed), id(0){
             state.PopulateInitialAnimals(id);
         }
-    
         /**
          * @brief Run the full simulation
          * 
@@ -233,18 +224,16 @@ class SimulationRunner {
             // vecs to track births and deaths
             std::vector<int> birthCounts(state.speciesList.size(), 0);
             std::vector<int> deathCounts(state.speciesList.size(), 0);
-    
+            
             // used to track pop of each species
             std::unordered_map<std::string, int> speciesPopulations;
             for (const auto& species : state.speciesList) {
-                speciesPopulations[species.name] = 0;
+                speciesPopulations[species->name] = 0;
             }
     
-            // main simulation loop
             for (int t = 0; t < state.timeSteps; ++t) {
                 processInteractions(speciesPopulations);
     
-                // process births and deaths for each species
                 for (size_t i = 0; i < state.speciesList.size(); ++i) {
                     processBirthsAndDeaths(birthCounts[i], deathCounts[i], state.speciesList[i]);
                 }
@@ -260,4 +249,3 @@ class SimulationRunner {
             log.log("Simulation complete.", LogLevel::NORMAL);
         }
     };
-#endif //SIMULATION_HPP

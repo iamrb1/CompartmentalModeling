@@ -4,7 +4,7 @@
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 
 TEST_CASE("SchedulerTest Construct", "[Scheduler]") {
-  cse::Scheduler scheduler({0.5,0.5});
+  cse::Scheduler<int,2> scheduler({0.5,0.5});
 
   CHECK(0 == scheduler.GetCurrProcesses());
   CHECK(true == scheduler.empty());
@@ -26,7 +26,7 @@ TEST_CASE("SchedulerTest Add", "[Scheduler]") {
 }
 
 TEST_CASE("SchedulerTest Remove", "[Scheduler]") {
-  cse::Scheduler scheduler({0.25,0.25,0.25,0.25});
+  cse::Scheduler<int,4> scheduler({0.25,0.25,0.25,0.25});
 
   scheduler.RemoveProcess(0);
   CHECK(0 == scheduler.GetCurrProcesses());
@@ -54,7 +54,9 @@ TEST_CASE("SchedulerTest Empty", "[Scheduler]") {
 }
 
 TEST_CASE("SchedulerTest Queue", "[Scheduler]") {
-  cse::Scheduler scheduler({1}), scheduler2({0.5,0.5}), scheduler3({0.25,0.25,0.25,0.25});
+  cse::Scheduler scheduler({1});
+  cse::Scheduler<int,2> scheduler2({0.5,0.5});
+  cse::Scheduler<int,4> scheduler3({0.25,0.25,0.25,0.25});
   CHECK(std::nullopt == scheduler.PopNextProcess());
 
   scheduler.AddProcess(1,{1});
@@ -136,7 +138,7 @@ TEST_CASE("SchedulerTest GetProcessPriority", "[Scheduler]") {
 TEST_CASE("SchedulerTest GetProcessWeights", "[Scheduler]") {
     cse::Scheduler scheduler({1});
 
-    std::optional<std::vector<double>> expected=std::vector<double>{1.0};
+    std::optional<std::array<double,1>> expected=std::array<double,1>{1.0};
     scheduler.AddProcess(0,{1});
     CHECK(expected == scheduler.GetProcessWeights(0));
 
@@ -149,7 +151,7 @@ TEST_CASE("SchedulerTest GetProcessWeights", "[Scheduler]") {
 }
 
 TEST_CASE("SchedulerTest UpdateProcessPriority", "[Scheduler]") {
-    cse::Scheduler scheduler({0.25,0.25,0.25,0.25});
+    cse::Scheduler<int,4> scheduler({0.25,0.25,0.25,0.25});
 
     scheduler.AddProcess(0,{1,1,1,1});
     scheduler.AddProcess(1,{2,2,2,2});
@@ -173,7 +175,7 @@ TEST_CASE("SchedulerTest UpdateProcessPriority", "[Scheduler]") {
     CHECK(0 == scheduler.PopNextProcess());
     CHECK(1 == scheduler.PopNextProcess());
 
-    std::optional<std::vector<double>> expected=std::vector<double>{4.0,4.0,4.0,4.0};
+    std::optional<std::array<double,4>> expected=std::array<double,4>{4.0,4.0,4.0,4.0};
     scheduler.AddProcess(1,{0,1,2,3});
     scheduler.AddProcess(0,{1,1,1,1});
     scheduler.UpdateProcessPriority(0,{4,4,4,4});
@@ -182,7 +184,7 @@ TEST_CASE("SchedulerTest UpdateProcessPriority", "[Scheduler]") {
 }
 
 TEST_CASE("SchedulerTest TemplateTest", "[Scheduler]") {
-    cse::Scheduler<std::string> scheduler({1});
+    cse::Scheduler<std::string,1> scheduler({1});
 
     scheduler.AddProcess("a",{2});
     CHECK(false == scheduler.empty());
@@ -201,7 +203,7 @@ TEST_CASE("SchedulerTest TemplateTest", "[Scheduler]") {
     scheduler.OverridePriority("c");
     CHECK(4 == scheduler.GetProcessPriority("c"));
 
-    std::optional<std::vector<double>> expected=std::vector<double>{2.0};
+    std::optional<std::array<double,1>> expected=std::array<double,1>{2.0};
     CHECK(expected == scheduler.GetProcessWeights("c"));
     CHECK("c" == scheduler.PopNextProcess());
 }
