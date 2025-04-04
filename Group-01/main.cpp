@@ -91,13 +91,6 @@ private:
 
   void DrawGraph() {
     auto v = g.GetVertex("ID1");
-    for (auto &[id, edge] : v.GetEdges()) {
-      if (auto e = edge.lock()) {
-        EM_ASM_({
-          console.log("Edge from ID1 to", UTF8ToString($0), "via", UTF8ToString($1));
-        }, e->GetTo().GetId().c_str(), id.c_str());
-      }
-    }
     // Draw edges as thin rectangles (lines)
     DrawEdges(g);
 
@@ -106,8 +99,10 @@ private:
     for (auto v : vertices) {
       std::string color = "gray"; // default
       if (traversal) {
-        if (traversal->IsVisited(*v)) color = "green";
-        else if (&traversal->GetCurrentVertex() == v) color = "red";
+        if (traversal->IsVisited(*v))
+          color = "green";
+        else if (&traversal->GetCurrentVertex() == v)
+          color = "red";
       }
       Shape::drawCircle(v->GetX(), v->GetY(), VERTEX_RADIUS, color.c_str());
     }
@@ -223,13 +218,13 @@ private:
       // Traverse Step button
       var stepButton = document.createElement('button');
       stepButton.textContent = "Next Step";
-      stepButton.addEventListener('click', function () { Module._stepTraversal(); });
+      stepButton.addEventListener('click', function() { Module._stepTraversal(); });
       buttonGroup.appendChild(stepButton);
 
       // Traverse All button
       var fullButton = document.createElement('button');
       fullButton.textContent = "Traverse All";
-      fullButton.addEventListener('click', function () { Module._fullTraversal(); });
+      fullButton.addEventListener('click', function() { Module._fullTraversal(); });
       buttonGroup.appendChild(fullButton);
 
       // Add button group and vertex info to control zone
@@ -249,8 +244,6 @@ public:
     g.AddVertex("ID5", "red", 480, 300);
     g.AddVertex("ID6", "green", 520, 300);
     g.AddVertex("ID7", "blue", 620, 300);
-    // g.AddVertex("ID8", "red", 120, 250);
-    // g.AddVertex("ID9", "green", 100, 210);
 
     g.AddEdge("ID1", "ID2", 2);
     g.AddEdge("ID1", "ID3", 2);
@@ -258,6 +251,11 @@ public:
     g.AddEdge("ID2", "ID5", 2);
     g.AddEdge("ID3", "ID6", 2);
     g.AddEdge("ID3", "ID7", 2);
+
+    auto &v = g.GetVertex("ID1");
+    std::cout << "Initiated graph." << std::endl;
+    std::cout << v << std::endl;
+    std::cout << v.GetEdges().size() << std::endl;
 
     InitiateCanvas();
     InitializeControlZone();
@@ -292,63 +290,54 @@ public:
   }
 
   void StartTraversal() {
-    if (g.GetVertices().empty()) return;
-    auto start = g.GetVertex("ID1"); // default to first vertex
-    EM_ASM({
-      console.log("Traversal started");
-    });
-    EM_ASM_({
-      console.log("Start vertex ID is:", UTF8ToString($0));
-    }, start.GetId().c_str());
-  
+    if (g.GetVertices().empty())
+      return;
+    auto &start = g.GetVertex("ID1"); // default to first vertex
+
     cse::GraphPosition<std::string> pos(g, start);
-  
+
     int mode = EM_ASM_INT({
       var mode = document.getElementById("traversalMode").value;
-      if (mode === "DFS") return 0;
-      if (mode === "BFS") return 1;
-      if (mode === "A*") return 2;
+      if (mode == "DFS")
+        return 0;
+      if (mode == "BFS")
+        return 1;
+      if (mode == "A*")
+        return 2;
       return 0;
     });
-  
-    if (mode == 0) pos.SetTraversalMode(cse::TraversalModes::DFS<std::string>());
-    else if (mode == 1) pos.SetTraversalMode(cse::TraversalModes::BFS<std::string>());
-    else if (mode == 2) pos.SetTraversalMode(cse::TraversalModes::AStar<std::string>(g.GetVertex("ID1"))); // temp hardcoded target
-  
+
+    if (mode == 0)
+      pos.SetTraversalMode(cse::TraversalModes::DFS<std::string>());
+    else if (mode == 1)
+      pos.SetTraversalMode(cse::TraversalModes::BFS<std::string>());
+    else if (mode == 2)
+      pos.SetTraversalMode(cse::TraversalModes::AStar<std::string>(g.GetVertex("ID1"))); // temp hardcoded target
+
     traversal.emplace(std::move(pos));
-
-    RedrawCanvas();
   }
-  
-  void StepTraversal() {
-    EM_ASM({ console.log("StepTraversal() triggered"); });
 
+  void StepTraversal() {
     if (!traversal.has_value()) {
-      EM_ASM({ console.log("No traversal yet, starting..."); });
       StartTraversal();
     }
 
     if (traversal) {
-      EM_ASM({ console.log("Attempting to advance..."); });
-
       if (traversal->AdvanceToNextNeighbor()) {
-        EM_ASM({ console.log("Advanced to next"); });
         RedrawCanvas();
-      } else {
-        EM_ASM({ console.log("No more neighbors to visit"); });
       }
     }
   }
-  
+
   void FullTraversal() {
-    if (!traversal.has_value()) StartTraversal();
-  
+    if (!traversal.has_value())
+      StartTraversal();
+
     if (traversal) {
       traversal->TraverseGraph();
       RedrawCanvas();
     }
   }
-  
 };
 
 GraphVisualizer init{};
@@ -370,16 +359,16 @@ void handleCanvasClick(double x, double y) {
   init.HandleCanvasClick(x, y);
 }
 
-void startTraversal() { 
-  init.StartTraversal(); 
+void startTraversal() {
+  init.StartTraversal();
 }
 
-void stepTraversal() { 
-  init.StepTraversal(); 
+void stepTraversal() {
+  init.StepTraversal();
 }
 
-void fullTraversal() { 
-  init.FullTraversal(); 
+void fullTraversal() {
+  init.FullTraversal();
 }
 }
 

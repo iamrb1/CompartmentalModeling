@@ -1,10 +1,10 @@
 #pragma once
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <deque>
 #include <emscripten.h>
 #include <iostream>
-#include <cmath>
 #include <queue>
 #include <set>
 #include <stdexcept>
@@ -30,40 +30,15 @@ namespace cse {
      * @return Vector of pairs containing edge ID and edge pointer, sorted by destination vertex ID
      */
     template <typename VERTEX_DATA_T> auto GetSortedNeighbors(const Vertex<VERTEX_DATA_T> &vertex) {
+      std::cout << "Get sorted neighbors" << std::endl;
       using EdgePair = std::pair<std::string, std::weak_ptr<Edge<VERTEX_DATA_T>>>;
-      std::vector<EdgePair> neighbors;
+      std::cout << "Vertex edges size: " << vertex.GetEdges().size() << std::endl;
+      std::cout << vertex << std::endl;
+      std::vector<EdgePair> neighbors(vertex.GetEdges().begin(), vertex.GetEdges().end());
 
-      // Only include edges that are still valid
-      for (const auto &[edge_id, weak_edge] : vertex.GetEdges()) {
-        EM_ASM_({
-          console.log("Checking edge:", UTF8ToString($0));
-        }, edge_id.c_str());
-      
-        if (auto shared_edge = weak_edge.lock()) {
-          EM_ASM_({
-            console.log("Edge is valid, to ID:", UTF8ToString($0));
-          }, shared_edge->GetTo().GetId().c_str());
-          neighbors.emplace_back(edge_id, weak_edge);
-        } else {
-          EM_ASM_({
-            console.log("Edge expired:", UTF8ToString($0));
-          }, edge_id.c_str());
-        }
-      }
-
-      EM_ASM_({
-        console.log("valid ones included");
-      });
-
+      std::cout << "Inside Sorted: " << neighbors.size() << std::endl;
       std::sort(neighbors.begin(), neighbors.end(), [](const auto &edge1, const auto &edge2) {
-        auto e1 = edge1.second.lock();
-        auto e2 = edge2.second.lock();
-        if (!e1 || !e2) return false; // fallback order if either is null
-        return e1->GetTo().GetId() < e2->GetTo().GetId();
-      });
-
-      EM_ASM_({
-        console.log("sorted");
+        return edge1.second.lock()->GetTo().GetId() < edge2.second.lock()->GetTo().GetId();
       });
 
       return neighbors;
@@ -286,7 +261,7 @@ namespace cse {
   }
 
   namespace TraversalModes {
-    
+
     /**
      * Provides a depth-first search traversal strategy
      * @return A function that performs DFS traversal on a GraphPosition
@@ -295,9 +270,6 @@ namespace cse {
       return [](GraphPosition<VERTEX_DATA_T> &graphPosition) {
         // Recursive implementation of DFS using a stack
         auto dfs_implementation = [&](GraphPosition<VERTEX_DATA_T> &gp, auto &dfs) -> bool {
-          EM_ASM_({
-            console.log("start of dfs");
-          });
           auto &stack = gp.GetTraversalStack();
 
           // Initialize stack with current vertex if empty
@@ -308,15 +280,13 @@ namespace cse {
           // Get the vertex at top of stack
           auto &current = *stack.back();
           if (gp.IsVisited(current)) {
+            std::cout << "Finished" << std::endl;
             return false; // Skip if already visited
           }
 
           // Get all neighbors and sort them by ID for consistent traversal
           auto neighbors = GetSortedNeighbors(current);
-          EM_ASM_({
-            console.log("got sorted neighbors");
-          });
-
+          std::cout << "Neighbors: " << neighbors.size() << std::endl;
           // Find first unvisited neighbor
           auto nonVisited = std::find_if(neighbors.begin(), neighbors.end(), [&](auto &p) {
             if (auto edge = p.second.lock()) {
