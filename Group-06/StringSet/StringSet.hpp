@@ -15,7 +15,6 @@
 #include <iostream>
 #include <random>
 #include <ranges>
-#include <regex>
 #include <set>
 #include <string>
 #include <unordered_set>
@@ -197,7 +196,7 @@ class StringSet {
 
   StringSet search(const T &wildcard);
 
-  int count_occurence(const T &substring);
+  int count_occurrence(const T &substring);
 
   StringSet random_sample(
       int sampleSize, const std::function<bool(const T &)> filter =
@@ -414,7 +413,7 @@ cse::StringSet<T> cse::StringSet<T>::search(const T &wildcard) {
  * @return The number of occurrences of the substring
  */
 template <typename T>
-int cse::StringSet<T>::count_occurence(const T &substring) {
+int cse::StringSet<T>::count_occurrence(const T &substring) {
   int totalCount = 0;
 
   for (const auto &element : mElements) {

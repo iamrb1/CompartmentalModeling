@@ -94,6 +94,12 @@ TEST_CASE("Test for is_subset", "[is_subset]") {
 TEST_CASE("Test for substring_filter", "[substring_filter]") {
 	StringSet set;
 	
+    SECTION("Long repetetive words") {
+        set.insert("abababababababababababababab");
+        REQUIRE(set.size() == 1);
+        set.substring_filter("ababababababab");
+        REQUIRE(set.size() == 0);
+    }
 	SECTION("Filtering from an empty set should not cause errors") {
 		set.substring_filter("something");
 		REQUIRE(set.size() == 0);
@@ -187,6 +193,12 @@ TEST_CASE("Test for search", "[search]") {
     set.insert("aXcZ");
     set.insert("xyz");
 
+    SECTION("Long repetetive word") {
+        set.insert("abababababababababababababababababaabababababababbababababababababab");
+        StringSet mySet =  set.search("ababababababa?abababa*");
+        REQUIRE(mySet.size() == 1);
+    }
+
     // Perform a search with a pattern and check if the result matches the expected output
     StringSet result = set.search("a?c*");
     REQUIRE(result.size() == 3);
@@ -218,9 +230,9 @@ TEST_CASE("Test for Count_occurrence", "[Count_occurrence]") {
     set.insert("xyz");
 
     // Check the occurrence count of specific characters in the set
-    REQUIRE(set.count_occurence("a") == 4);
-    REQUIRE(set.count_occurence("X") == 2);
-    REQUIRE(set.count_occurence("z") == 1);
+    REQUIRE(set.count_occurrence("a") == 4);
+    REQUIRE(set.count_occurrence("X") == 2);
+    REQUIRE(set.count_occurrence("z") == 1);
     
     // Test with StaticString
     StringSet<StaticString<4>> staticSet;
@@ -236,9 +248,9 @@ TEST_CASE("Test for Count_occurrence", "[Count_occurrence]") {
     staticSet.insert(str5);
 
     // Check the occurrence count of specific characters in the set
-    REQUIRE(staticSet.count_occurence("a") == 4);
-    REQUIRE(staticSet.count_occurence("X") == 2);
-    REQUIRE(staticSet.count_occurence("z") == 1);
+    REQUIRE(staticSet.count_occurrence("a") == 4);
+    REQUIRE(staticSet.count_occurrence("X") == 2);
+    REQUIRE(staticSet.count_occurrence("z") == 1);
 }
 
 TEST_CASE("Test for random_sample", "[random_sample]") {
