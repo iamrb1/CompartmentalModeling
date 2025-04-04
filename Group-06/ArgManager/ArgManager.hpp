@@ -1,5 +1,5 @@
 /**
- * @file ArgManager.cpp
+ * @file ArgManager.hpp
  * @author By Will Crawford
  * @brief The Arg Manger Class
  */
@@ -23,7 +23,7 @@ class ArgManager {
   bool HasArg(const std::string& arg) const;
   std::string GetSingleOption(const std::string& arg) const;
   std::vector<std::string> GetListOfOptions(const std::string& arg) const;
-  void PrintHelp();
+  void PrintHelp() const;
 
  private:
   // store args

@@ -7,7 +7,7 @@
 #include <iostream>
 #include <vector>
 
-#include "ArgManager.h"
+#include "ArgManager.hpp"
 
 /**
  * @brief Constructor for ArgManager
@@ -83,7 +83,7 @@ std::vector<std::string> cse::ArgManager::GetListOfOptions(const std::string& ar
         // Remember the starting position of the list
         startingIndex = i + 1;
 
-        // Try and convert the value into an into
+        // Try and convert the value into an int
         try {
           count = std::stoi(mArgv[i + 1]);
           // There are not enough arg given after the size provided
@@ -122,7 +122,7 @@ std::vector<std::string> cse::ArgManager::GetListOfOptions(const std::string& ar
 /**
  * @brief Prints help info for ArgManager
  */
-void cse::ArgManager::PrintHelp() {
+void cse::ArgManager::PrintHelp() const {
   std::cout << "--help has been triggered\n";
   std::cout << "arguments available:\n";
 
