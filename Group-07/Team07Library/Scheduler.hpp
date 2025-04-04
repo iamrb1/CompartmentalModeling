@@ -59,6 +59,9 @@ namespace cse
       }
     };
 
+    /// Lambda function to allow a user to change how priority is calculated in the Scheduler
+    std::function<double(const std::array<double,numWeights>&)> priorityCalcLambda;
+
     /// Heap holding the Processes added to the Scheduler
     std::priority_queue<ProcessID, std::vector<ProcessID>, Comparator> currIds;
 
@@ -81,12 +84,7 @@ namespace cse
      */
     constexpr double calculatePriority(const std::array<double,numWeights> &weights)
     {
-      double priority = 0;
-      for (int i = 0; i < numWeights; i++)
-      {
-        priority += (weightList[i] * weights[i]);
-      }
-      return priority;
+      return priorityCalcLambda(weights);
     }
 
   public:
@@ -99,7 +97,25 @@ namespace cse
      * Constructor for Scheduler with a given set of weights
      * @param weights Weights used to determine the priority for processes added to the Scheduler
      */
-    Scheduler(const std::array<double,numWeights> &weights) : currIds(Comparator{&processMap}), weightList(weights) {}
+    Scheduler(const std::array<double,numWeights> &weights, std::function<double(const std::array<double, numWeights>&)> lambdaPriority = nullptr) : currIds(Comparator{&processMap}), weightList(weights)
+    {
+      if(lambdaPriority)
+      {
+        priorityCalcLambda = std::move(lambdaPriority);
+      }
+      else
+      {
+        priorityCalcLambda = [this](const std::array<double, numWeights> &weights)
+        {
+            double priority = 0;
+            for (int i = 0; i < numWeights; i++)
+            {
+                priority += (weightList[i] * weights[i]);
+            }
+            return priority;
+        };
+      }
+    }
 
     /**
      * Default Destructor
@@ -109,12 +125,12 @@ namespace cse
     /**
      * Copy Constructor
      */
-    Scheduler(const Scheduler& scheduler) : processMap(scheduler.processMap), currIds(Comparator{&processMap}), weightList(scheduler.weightList), overrideQueue(scheduler.overrideQueue) {}
+    Scheduler(const Scheduler& scheduler) : processMap(scheduler.processMap), currIds(Comparator{&processMap}), weightList(scheduler.weightList), overrideQueue(scheduler.overrideQueue), priorityCalcLambda(scheduler.priorityCalcLambda) {}
 
     /**
      * Move Constructor
      */
-    Scheduler(Scheduler &&scheduler) : processMap(std::move(scheduler.processMap)), currIds(Comparator{&processMap}), weightList(std::move(scheduler.weightList)), overrideQueue(std::move(scheduler.overrideQueue)) {}
+    Scheduler(Scheduler &&scheduler) : processMap(std::move(scheduler.processMap)), currIds(Comparator{&processMap}), weightList(std::move(scheduler.weightList)), overrideQueue(std::move(scheduler.overrideQueue)), priorityCalcLambda(std::move(scheduler.priorityCalcLambda)) {}
 
     /**
      * Adds a process to the Scheduler
