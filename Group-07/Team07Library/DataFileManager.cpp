@@ -182,21 +182,45 @@ void DataFileManager::openJSON(const string &path) {
 
 }
 
-/**
- * Updates the JSON based on added functions.
- */
 void DataFileManager::updateJSON() {
   if (fileLocation.empty() or fileLocation.substr(fileLocation.find_last_of(".") + 1) != "json") {
     cerr << "No valid file is currently open." << endl;
     return;
   }
 
-  // Saves the current state of jsonData to the file
-  // {}
+  try {
+    // Create a property tree and parse the JSON file
+    boost::property_tree::ptree pt;
+    boost::property_tree::read_json(fileLocation, pt);
+
+    // Iterate through the functionMap and update JSON data
+    for (const auto& entry : functionMap) {
+      const std::string& key = entry.first;
+      const std::function<int()>& func = entry.second;
+
+      // Traverse the property tree to find and update the corresponding key
+      try {
+        pt.put(key, func()); // Update the value with the result of the lambda function
+      } catch (const boost::property_tree::ptree_bad_path& e) {
+        cerr << "Key not found in JSON: " << key << endl;
+      }
+    }
+
+    // Save the updated JSON back to the file
+    boost::property_tree::write_json(getFile(), pt);
+    // Update our variable saving the JSON file
+    setDataJSON(pt);
+
+    cout << "JSON file successfully updated." << endl;
+  }
+
+  catch (const std::exception& e) {
+    cerr << "Error updating JSON: " << e.what() << endl;
+  }
 }
 
 /**
- * Closes the JSON file and writes any updates made to the data.
+ * Closes the JSON file while writing any updates made to the data.
  */
 void DataFileManager::closeJSON() {
   // No need to write if no updates have been made
@@ -204,11 +228,9 @@ void DataFileManager::closeJSON() {
     return;
   }
 
-  // Write each row of data to the file
-  // {}
-
   // Clear the file data after writing
-  // {}
+  boost::property_tree::ptree emptyTree; // Create an empty property tree
+  setDataJSON(emptyTree); // Pass the empty tree to setDataJSON
 }
 
 }
