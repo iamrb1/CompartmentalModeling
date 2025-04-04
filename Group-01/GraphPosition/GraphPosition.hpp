@@ -1,10 +1,10 @@
 #pragma once
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <deque>
 #include <emscripten.h>
 #include <iostream>
-#include <cmath>
 #include <queue>
 #include <set>
 #include <stdexcept>
@@ -30,9 +30,13 @@ namespace cse {
      * @return Vector of pairs containing edge ID and edge pointer, sorted by destination vertex ID
      */
     template <typename VERTEX_DATA_T> auto GetSortedNeighbors(const Vertex<VERTEX_DATA_T> &vertex) {
+      std::cout << "Get sorted neighbors" << std::endl;
       using EdgePair = std::pair<std::string, std::weak_ptr<Edge<VERTEX_DATA_T>>>;
+      std::cout << "Vertex edges size: " << vertex.GetEdges().size() << std::endl;
+      std::cout << vertex << std::endl;
       std::vector<EdgePair> neighbors(vertex.GetEdges().begin(), vertex.GetEdges().end());
 
+      std::cout << "Inside Sorted: " << neighbors.size() << std::endl;
       std::sort(neighbors.begin(), neighbors.end(), [](const auto &edge1, const auto &edge2) {
         return edge1.second.lock()->GetTo().GetId() < edge2.second.lock()->GetTo().GetId();
       });
@@ -256,7 +260,7 @@ namespace cse {
   }
 
   namespace TraversalModes {
-    
+
     /**
      * Provides a depth-first search traversal strategy
      * @return A function that performs DFS traversal on a GraphPosition
@@ -275,12 +279,12 @@ namespace cse {
           // Get the vertex at top of stack
           auto &current = *stack.back();
           if (gp.IsVisited(current)) {
+            std::cout << "Finished" << std::endl;
             return false; // Skip if already visited
           }
 
           // Get all neighbors and sort them by ID for consistent traversal
           auto neighbors = GetSortedNeighbors(current);
-
           // Find first unvisited neighbor
           auto nonVisited = std::find_if(neighbors.begin(), neighbors.end(), [&](auto &p) {
             if (auto edge = p.second.lock()) {
