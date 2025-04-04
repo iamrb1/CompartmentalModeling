@@ -90,14 +90,6 @@ private:
   }
 
   void DrawGraph() {
-    auto v = g.GetVertex("ID1");
-    for (auto &[id, edge] : v.GetEdges()) {
-      if (auto e = edge.lock()) {
-        EM_ASM_({
-          console.log("Edge from ID1 to", UTF8ToString($0), "via", UTF8ToString($1));
-        }, e->GetTo().GetId().c_str(), id.c_str());
-      }
-    }
     // Draw edges as thin rectangles (lines)
     DrawEdges(g);
 
@@ -106,8 +98,8 @@ private:
     for (auto v : vertices) {
       std::string color = "gray"; // default
       if (traversal) {
-        if (traversal->IsVisited(*v)) color = "green";
-        else if (&traversal->GetCurrentVertex() == v) color = "red";
+        if (&traversal->GetCurrentVertex() == v) color = "red";
+        else if (traversal->IsVisited(*v)) color = "green";
       }
       Shape::drawCircle(v->GetX(), v->GetY(), VERTEX_RADIUS, color.c_str());
     }
@@ -293,13 +285,7 @@ public:
 
   void StartTraversal() {
     if (g.GetVertices().empty()) return;
-    auto start = g.GetVertex("ID1"); // default to first vertex
-    EM_ASM({
-      console.log("Traversal started");
-    });
-    EM_ASM_({
-      console.log("Start vertex ID is:", UTF8ToString($0));
-    }, start.GetId().c_str());
+    auto &start = g.GetVertex("ID1"); // default to first vertex
   
     cse::GraphPosition<std::string> pos(g, start);
   
@@ -321,22 +307,10 @@ public:
   }
   
   void StepTraversal() {
-    EM_ASM({ console.log("StepTraversal() triggered"); });
+    if (!traversal.has_value()) StartTraversal();
 
-    if (!traversal.has_value()) {
-      EM_ASM({ console.log("No traversal yet, starting..."); });
-      StartTraversal();
-    }
-
-    if (traversal) {
-      EM_ASM({ console.log("Attempting to advance..."); });
-
-      if (traversal->AdvanceToNextNeighbor()) {
-        EM_ASM({ console.log("Advanced to next"); });
-        RedrawCanvas();
-      } else {
-        EM_ASM({ console.log("No more neighbors to visit"); });
-      }
+    if (traversal && traversal->AdvanceToNextNeighbor()) {
+      RedrawCanvas();
     }
   }
   
