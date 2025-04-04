@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cassert>
 #include <deque>
+#include <emscripten.h>
 #include <iostream>
 #include <cmath>
 #include <queue>
@@ -30,11 +31,41 @@ namespace cse {
      */
     template <typename VERTEX_DATA_T> auto GetSortedNeighbors(const Vertex<VERTEX_DATA_T> &vertex) {
       using EdgePair = std::pair<std::string, std::weak_ptr<Edge<VERTEX_DATA_T>>>;
-      std::vector<EdgePair> neighbors(vertex.GetEdges().begin(), vertex.GetEdges().end());
+      std::vector<EdgePair> neighbors;
+
+      // Only include edges that are still valid
+      for (const auto &[edge_id, weak_edge] : vertex.GetEdges()) {
+        EM_ASM_({
+          console.log("Checking edge:", UTF8ToString($0));
+        }, edge_id.c_str());
+      
+        if (auto shared_edge = weak_edge.lock()) {
+          EM_ASM_({
+            console.log("Edge is valid, to ID:", UTF8ToString($0));
+          }, shared_edge->GetTo().GetId().c_str());
+          neighbors.emplace_back(edge_id, weak_edge);
+        } else {
+          EM_ASM_({
+            console.log("Edge expired:", UTF8ToString($0));
+          }, edge_id.c_str());
+        }
+      }
+
+      EM_ASM_({
+        console.log("valid ones included");
+      });
 
       std::sort(neighbors.begin(), neighbors.end(), [](const auto &edge1, const auto &edge2) {
-        return edge1.second.lock()->GetTo().GetId() < edge2.second.lock()->GetTo().GetId();
+        auto e1 = edge1.second.lock();
+        auto e2 = edge2.second.lock();
+        if (!e1 || !e2) return false; // fallback order if either is null
+        return e1->GetTo().GetId() < e2->GetTo().GetId();
       });
+
+      EM_ASM_({
+        console.log("sorted");
+      });
+
       return neighbors;
     }
 
@@ -264,6 +295,9 @@ namespace cse {
       return [](GraphPosition<VERTEX_DATA_T> &graphPosition) {
         // Recursive implementation of DFS using a stack
         auto dfs_implementation = [&](GraphPosition<VERTEX_DATA_T> &gp, auto &dfs) -> bool {
+          EM_ASM_({
+            console.log("start of dfs");
+          });
           auto &stack = gp.GetTraversalStack();
 
           // Initialize stack with current vertex if empty
@@ -279,6 +313,9 @@ namespace cse {
 
           // Get all neighbors and sort them by ID for consistent traversal
           auto neighbors = GetSortedNeighbors(current);
+          EM_ASM_({
+            console.log("got sorted neighbors");
+          });
 
           // Find first unvisited neighbor
           auto nonVisited = std::find_if(neighbors.begin(), neighbors.end(), [&](auto &p) {

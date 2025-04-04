@@ -90,6 +90,14 @@ private:
   }
 
   void DrawGraph() {
+    auto v = g.GetVertex("ID1");
+    for (auto &[id, edge] : v.GetEdges()) {
+      if (auto e = edge.lock()) {
+        EM_ASM_({
+          console.log("Edge from ID1 to", UTF8ToString($0), "via", UTF8ToString($1));
+        }, e->GetTo().GetId().c_str(), id.c_str());
+      }
+    }
     // Draw edges as thin rectangles (lines)
     DrawEdges(g);
 
@@ -234,12 +242,22 @@ private:
 public:
   GraphVisualizer() {
     // Initial values as example
-    g.AddVertex("ID1", "blue", 150, 200);
-    g.AddVertex("ID2", "red", 120, 250);
-    g.AddVertex("ID3", "green", 100, 210);
+    g.AddVertex("ID1", "blue", 500, 200);
+    g.AddVertex("ID2", "red", 430, 250);
+    g.AddVertex("ID3", "green", 570, 250);
+    g.AddVertex("ID4", "blue", 380, 300);
+    g.AddVertex("ID5", "red", 480, 300);
+    g.AddVertex("ID6", "green", 520, 300);
+    g.AddVertex("ID7", "blue", 620, 300);
+    // g.AddVertex("ID8", "red", 120, 250);
+    // g.AddVertex("ID9", "green", 100, 210);
 
     g.AddEdge("ID1", "ID2", 2);
     g.AddEdge("ID1", "ID3", 2);
+    g.AddEdge("ID2", "ID4", 2);
+    g.AddEdge("ID2", "ID5", 2);
+    g.AddEdge("ID3", "ID6", 2);
+    g.AddEdge("ID3", "ID7", 2);
 
     InitiateCanvas();
     InitializeControlZone();
@@ -248,6 +266,7 @@ public:
 
   void ClearGraph() {
     g.ClearGraph();
+    traversal.reset();
     ClearVertexSelection();
     RedrawCanvas();
   }
@@ -258,7 +277,7 @@ public:
     int y = r.GetInt(0, CANVAS_HEIGHT);
 
     g.AddVertex(std::to_string(++id), "blue", x, y);
-
+    traversal.reset();
     RedrawCanvas();
   }
 
@@ -274,9 +293,15 @@ public:
 
   void StartTraversal() {
     if (g.GetVertices().empty()) return;
-    auto start = g.GetVertices().front(); // default to first vertex
+    auto start = g.GetVertex("ID1"); // default to first vertex
+    EM_ASM({
+      console.log("Traversal started");
+    });
+    EM_ASM_({
+      console.log("Start vertex ID is:", UTF8ToString($0));
+    }, start.GetId().c_str());
   
-    cse::GraphPosition<std::string> pos(g, *start);
+    cse::GraphPosition<std::string> pos(g, start);
   
     int mode = EM_ASM_INT({
       var mode = document.getElementById("traversalMode").value;
@@ -296,10 +321,22 @@ public:
   }
   
   void StepTraversal() {
-    if (!traversal.has_value()) StartTraversal();
-  
-    if (traversal && traversal->AdvanceToNextNeighbor()) {
-      RedrawCanvas();
+    EM_ASM({ console.log("StepTraversal() triggered"); });
+
+    if (!traversal.has_value()) {
+      EM_ASM({ console.log("No traversal yet, starting..."); });
+      StartTraversal();
+    }
+
+    if (traversal) {
+      EM_ASM({ console.log("Attempting to advance..."); });
+
+      if (traversal->AdvanceToNextNeighbor()) {
+        EM_ASM({ console.log("Advanced to next"); });
+        RedrawCanvas();
+      } else {
+        EM_ASM({ console.log("No more neighbors to visit"); });
+      }
     }
   }
   
@@ -331,6 +368,10 @@ void addVertex() {
 
 void handleCanvasClick(double x, double y) {
   init.HandleCanvasClick(x, y);
+}
+
+void startTraversal() { 
+  init.StartTraversal(); 
 }
 
 void stepTraversal() { 
