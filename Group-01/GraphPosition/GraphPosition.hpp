@@ -3,7 +3,6 @@
 #include <cassert>
 #include <cmath>
 #include <deque>
-#include <emscripten.h>
 #include <iostream>
 #include <queue>
 #include <set>
@@ -330,6 +329,7 @@ namespace cse {
         Vertex<VERTEX_DATA_T> const *current = queue.front();
         queue.pop_front();
         graphPosition.SetCurrentVertex(*current);
+        graphPosition.MarkVisited(*current);
 
         // Get and sort neighbors for consistent traversal order
         std::vector<std::pair<std::string, std::weak_ptr<Edge<VERTEX_DATA_T>>>> neighbors(current->GetEdges().begin(),
@@ -344,7 +344,6 @@ namespace cse {
             auto &neighbor = edgePtr->GetTo();
             if (!graphPosition.IsVisited(neighbor)) {
               queue.push_back(&neighbor);
-              graphPosition.MarkVisited(neighbor);
             }
           }
         }

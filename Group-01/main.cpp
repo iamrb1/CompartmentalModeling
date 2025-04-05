@@ -242,13 +242,13 @@ private:
 public:
   GraphVisualizer() {
     // Initial values as example
-    g.AddVertex("ID1", "blue", 500, 200);
-    g.AddVertex("ID2", "red", 430, 250);
-    g.AddVertex("ID3", "green", 570, 250);
-    g.AddVertex("ID4", "blue", 380, 300);
-    g.AddVertex("ID5", "red", 480, 300);
-    g.AddVertex("ID6", "green", 520, 300);
-    g.AddVertex("ID7", "blue", 620, 300);
+    g.AddVertex("ID1", "gray", 500, 200);
+    g.AddVertex("ID2", "gray", 430, 250);
+    g.AddVertex("ID3", "gray", 570, 250);
+    g.AddVertex("ID4", "gray", 380, 300);
+    g.AddVertex("ID5", "gray", 480, 300);
+    g.AddVertex("ID6", "gray", 520, 300);
+    g.AddVertex("ID7", "gray", 620, 300);
 
     g.AddEdge("ID1", "ID2", 2);
     g.AddEdge("ID1", "ID3", 2);
@@ -270,57 +270,9 @@ public:
   }
 
   /**
-   * Resets the traversal to have not traversed anything
+   * Updates the traversal with the correct mode
    */
-  void ClearTraversal() {
-    if (traversal) {
-      auto &start = g.GetVertex("ID1");
-      traversal->ResetTraversal(start);
-
-      // Re-set the traversal mode so the stack/queue is fresh
-      int mode = EM_ASM_INT({
-        var mode = document.getElementById("traversalMode").value;
-        if (mode === "DFS") return 0;
-        if (mode === "BFS") return 1;
-        if (mode === "A*") return 2;
-        return 0;
-      });
-
-      if (mode == 0)
-        traversal->SetTraversalMode(cse::TraversalModes::DFS<std::string>());
-      else if (mode == 1)
-        traversal->SetTraversalMode(cse::TraversalModes::BFS<std::string>());
-      else if (mode == 2)
-        traversal->SetTraversalMode(cse::TraversalModes::AStar<std::string>(g.GetVertex("ID1")));
-        
-      RedrawCanvas();
-    }
-  }
-
-  void AddVertex() {
-    int id = g.GetVertices().size();
-    int x = r.GetInt(0, CANVAS_WIDTH);
-    int y = r.GetInt(0, CANVAS_HEIGHT);
-
-    g.AddVertex(std::to_string(++id), "blue", x, y);
-    traversal.reset();
-    RedrawCanvas();
-  }
-
-  // Receives the virtual coordinate inside of the canvas.
-  void HandleCanvasClick(double x, double y) {
-    auto vertex = FindVertexAtPosition(x, y);
-    if (vertex.has_value()) {
-      HandleSelectedVertex(vertex.value());
-    } else {
-      ClearVertexSelection();
-    }
-  }
-
-  void StartTraversal() {
-    if (g.GetVertices().empty()) return;
-    auto &start = g.GetVertex("ID1"); // default to first vertex
-  
+  void UpdateTraversalMode(cse::Vertex<std::string> &start) {
     cse::GraphPosition<std::string> pos(g, start);
 
     int mode = EM_ASM_INT({
@@ -345,6 +297,41 @@ public:
   }
 
   /**
+   * Resets the traversal to have not traversed anything
+   */
+  void ClearTraversal() {
+    if (traversal) {
+      traversal.reset();
+      RedrawCanvas();
+    }
+  }
+
+  void AddVertex() {
+    int id = g.GetVertices().size();
+    int x = r.GetInt(0, CANVAS_WIDTH);
+    int y = r.GetInt(0, CANVAS_HEIGHT);
+
+    g.AddVertex(std::to_string(++id), "gray", x, y);
+    ClearTraversal(); // Resets traversal when graph is modified
+  }
+
+  // Receives the virtual coordinate inside of the canvas.
+  void HandleCanvasClick(double x, double y) {
+    auto vertex = FindVertexAtPosition(x, y);
+    if (vertex.has_value()) {
+      HandleSelectedVertex(vertex.value());
+    } else {
+      ClearVertexSelection();
+    }
+  }
+
+  void StartTraversal() {
+    if (g.GetVertices().empty()) return;
+    auto &start = g.GetVertex("ID1");
+    UpdateTraversalMode(start);
+  }
+
+  /**
    * Function to help delay the full traversal steps so the user can follow
    */
   // ChatGPT was used to help with the delay in traversal steps.
@@ -356,8 +343,11 @@ public:
       // Delay next step by 500ms
       emscripten_async_call(StepTraversalAsync, arg, 500);
     } else {
+      self->RedrawCanvas();
       EM_ASM({
-        alert("Traversal Finished!");
+        setTimeout(function () {
+          alert("Traversal Finished!");
+        }, 150); // wait 150ms to let canvas update
       });
     }
   }
@@ -371,8 +361,11 @@ public:
     if (traversal && traversal->AdvanceToNextNeighbor()) {
       RedrawCanvas();
     } else {
+      RedrawCanvas();
       EM_ASM({
-        alert("Traversal Finished!");
+        setTimeout(function () {
+          alert("Traversal Finished!");
+        }, 150); // wait 150ms to let canvas update
       });
     }
   }
