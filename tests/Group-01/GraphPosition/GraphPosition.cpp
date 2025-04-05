@@ -36,7 +36,6 @@ TEST_CASE("GraphPosition Getters and Setters Tests", "[GraphPosition]") {
   SECTION("SetCurrentVertex marks the new vertex as visited") {
     pos.SetCurrentVertex(v2);
     REQUIRE(!pos.IsVisited(pos.GetCurrentVertex()));
-    REQUIRE(!pos.IsVisited(pos.GetCurrentVertex()));
   }
 }
 
