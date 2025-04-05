@@ -136,7 +136,7 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
 
     //Replace all o's with a W after it
     s7.replace_if('o','e', [s7](size_t index) -> bool {return index < s7.size() && s7[index + 1] == 'W';});
-    std::cout << s7;
+    //std::cout << s7;
     REQUIRE(std::strcmp(s7.get_str(), "HelleWorldHelleWorld") == 0);
 
     //Replace all e's with a W after it
@@ -157,7 +157,7 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
 
     StaticString<25> s9("HelloWorHelloNor");
     s9.replace_if('o','R', [s9](size_t index) -> bool { return index < s9.size() && s9[index + 1] == 'N'; });
-    std::cout << s9.get_str();
+    //std::cout << s9.get_str();
     REQUIRE(std::strcmp(s9.get_str(), "HelloWorHellRNor") == 0);
 
     s9.replace_if('o','R', [s9](size_t index) -> bool { return index < s9.size() && s9[index + 1] == 'W'; });
@@ -165,7 +165,7 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
 
     StaticString<25> s10("HelloWorHelloWor");
     s10.replace_if('o','W', [s10](size_t index) -> bool { return index > 0 && s10[index - 1] == 'l'; });
-    std::cout << s10.get_str();
+    //std::cout << s10.get_str();
     REQUIRE(std::strcmp(s10.get_str(), "HellWWorHellWWor") == 0);
 
     s10.replace_if('W','o', [s10](size_t index) -> bool { return index > 0 && s10[index - 1] == 'l'; });
@@ -173,7 +173,7 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
 
     StaticString<25> s12("HelloWorldHelloWorld");
     s12.replace_if('l','L', [s12](size_t index) -> bool { return index < s12.size() && s12[index + 1] == 'l'; });
-    std::cout << s12.get_str();
+    //std::cout << s12.get_str();
     REQUIRE(std::strcmp(s12.get_str(), "HeLloWorldHeLloWorld") == 0);
 
     s12.replace_if('L','l', [s12](size_t index) -> bool { return index < s12.size() && s12[index + 1] == 'l'; });
@@ -305,6 +305,10 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     REQUIRE(std::strcmp(s.get_str(), "acd") == 0);
 
     s.erase("acd");
+    REQUIRE(std::strcmp(s.get_str(), "") == 0);
+
+    s = "abababab";
+    s.erase("ab");
     REQUIRE(std::strcmp(s.get_str(), "") == 0);
   }
 
@@ -507,6 +511,17 @@ TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
     REQUIRE(result3[0].to_string() == "Hello");
     REQUIRE(result3[1].to_string() == "World");
     REQUIRE(result3[2].to_string() == "Test");
+
+
+    StaticString<30> s4("bcdabcdabcda");
+    std::vector<StaticString<30>> result4;
+
+    result3 = s4.split('a');
+    REQUIRE(result3.size() == 3);
+    REQUIRE(result3[0].to_string() == "bcd");
+    REQUIRE(result3[1].to_string() == "bcd");
+    REQUIRE(result3[2].to_string() == "bcd");
+
   }
 
   SECTION("TESTS: compare member function") {
@@ -575,6 +590,10 @@ TEST_CASE("Tests for advanced edge case tests", "[StaticString]") {
     StaticString<30> s3(view);
     REQUIRE(std::strcmp(s3.get_str(), "std::string_view") == 0);
 
+    StaticString<10> str1("hi");
+    StaticString<10> str2 = str1;
+    REQUIRE(std::strcmp(str2.get_str(), str1.get_str()) == 0);
+    REQUIRE(std::strcmp(str2.get_str(), "hi") == 0);
   }
 
   SECTION("TESTS: operator= to work with std::string,string_view,char*") {
