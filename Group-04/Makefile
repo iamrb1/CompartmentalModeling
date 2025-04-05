@@ -1,9 +1,9 @@
-BUILD_PROFILE=release
+BUILD_PROFILE = release
 
 build:
 	BUILD_PROFILE=$(BUILD_PROFILE) $(MAKE) -f Makefile.logic
 
-debug: BUILD_PROFILE=debug
+debug: BUILD_PROFILE = debug
 debug: build
 
 clean:
@@ -15,7 +15,7 @@ format:
 install:
 	BUILD_PROFILE=$(BUILD_PROFILE) $(MAKE) -f Makefile.logic install
 
-install_debug: BUILD_PROFILE=debug
+install_debug: BUILD_PROFILE = debug
 install_debug: install
 
 uninstall:

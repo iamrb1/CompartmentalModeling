@@ -3,22 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="input.css" />
     <link rel="stylesheet" type="text/css" href="index.css" />
+    <link rel="stylesheet" type="text/css" href="input.css" />
     <title>Text Editor</title>
 </head>
 <body>
     <content>
         <rich-input>
-            <bar></bar>
-        </rich-input>
+            <bar id="toolbar"></bar>
+          </rich-input>
         <output>
 
         </output>
     </content>
     
+    <script  src="input.js"></script>
     <script src="release/app.js"></script>
-    <script src="input.js"></script>
-    <script src="index.js"></script>
+    <script>
+      window.addEventListener('DOMContentLoaded', () => {
+        Module().then((instance) => {
+          const html = instance.renderRichTextHTML();
+          document.querySelector('output').innerHTML = html;
+        });
+      });
+    </script>
+    <script  src="index.js"></script>
 </body>
 </html>

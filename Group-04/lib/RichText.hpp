@@ -496,6 +496,7 @@ class BasicRichText {
              (*tracker_iter->iter).first <= current) {
         // The format begins, add the token
         if ((*tracker_iter->iter).first == current) {
+          std::cout << "StartToken for '" << tracker_iter->format.name << "' at index " << current << std::endl;
           result.output += tracker_iter->rule.StartToken(tracker_iter->format);
         }
 
@@ -518,6 +519,8 @@ class BasicRichText {
           next = (*tracker_iter->iter).second;
         ++tracker_iter;
       }
+      
+      std::cout << "Appending character: " << m_text[current] << " at index " << current << std::endl;
 
       // Jump to next formatting deactivation
       result.output += m_text.substr(current, next - current);
