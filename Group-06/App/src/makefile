@@ -5,12 +5,12 @@ CXX := g++
 CXXFLAGS := -std=c++23 -Wall -Wextra -IWordLang/
 
 # Targets
-TARGET := wordlang
+TARGET := app
 SRC_DIR := .
-WORDLANG_DIR := WordLang
+WORDLANG_DIR := WordLangApp
 
 # Source files
-SRCS := $(SRC_DIR)/main.cpp $(WORDLANG_DIR)/WordLang.cpp
+SRCS := $(SRC_DIR)/main.cpp $(WORDLANG_DIR)/WordLang.cpp $(WORDLANG_DIR)/FileSource.cpp
 OBJS := $(SRCS:.cpp=.o)
 
 # Default target

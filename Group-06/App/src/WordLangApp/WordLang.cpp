@@ -1,4 +1,7 @@
 #include "WordLang.hpp"
+#include "../../../StringSet/StringSet.hpp"
+#include "../../../StaticString/StaticString.hpp"
+#include "FileSource.hpp"
 
 void WordLang::start() {
     //Initialize commandLine
@@ -20,6 +23,9 @@ void WordLang::start() {
 
     mIsActive = true;
     std::string input;
+
+    //cse::StringSet<cse::StaticString<20>> set = FileSource::load_file("top_1000_worlde.txt");
+    std::cout << "Words loaded: " << set.size() << "\n";
     while (mIsActive) {
         std::cout << ">>> ";
         std::getline(std::cin, input);

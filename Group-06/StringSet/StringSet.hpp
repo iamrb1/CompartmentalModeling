@@ -7,7 +7,7 @@
  */
 
 #ifndef CSE_STRING_SET_HPP_
-#define CSE_STRING_SET_HPP
+#define CSE_STRING_SET_HPP_
 
 #include <algorithm>
 #include <cassert>
