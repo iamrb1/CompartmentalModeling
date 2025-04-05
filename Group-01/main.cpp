@@ -291,7 +291,7 @@ public:
     else if (mode == 1)
       pos.SetTraversalMode(cse::TraversalModes::BFS<std::string>());
     else if (mode == 2)
-      pos.SetTraversalMode(cse::TraversalModes::AStar<std::string>(g.GetVertex("ID1"))); // temp hardcoded target
+      pos.SetTraversalMode(cse::TraversalModes::AStar<std::string>(g.GetVertex("ID6"))); // temp hardcoded target
 
     traversal.emplace(std::move(pos));
   }
