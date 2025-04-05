@@ -30,13 +30,9 @@ namespace cse {
      * @return Vector of pairs containing edge ID and edge pointer, sorted by destination vertex ID
      */
     template <typename VERTEX_DATA_T> auto GetSortedNeighbors(const Vertex<VERTEX_DATA_T> &vertex) {
-      std::cout << "Get sorted neighbors" << std::endl;
       using EdgePair = std::pair<std::string, std::weak_ptr<Edge<VERTEX_DATA_T>>>;
-      std::cout << "Vertex edges size: " << vertex.GetEdges().size() << std::endl;
-      std::cout << vertex << std::endl;
       std::vector<EdgePair> neighbors(vertex.GetEdges().begin(), vertex.GetEdges().end());
 
-      std::cout << "Inside Sorted: " << neighbors.size() << std::endl;
       std::sort(neighbors.begin(), neighbors.end(), [](const auto &edge1, const auto &edge2) {
         return edge1.second.lock()->GetTo().GetId() < edge2.second.lock()->GetTo().GetId();
       });
@@ -229,6 +225,8 @@ namespace cse {
   void GraphPosition<VERTEX_DATA_T>::ResetTraversal(Vertex<VERTEX_DATA_T> const &newStartVertex) {
     visitedVertices.clear();
     traversalPath.clear();
+    traversalStack.clear();
+    traversalQueue = {};
     SetCurrentVertex(newStartVertex);
   }
 

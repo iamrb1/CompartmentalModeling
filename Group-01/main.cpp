@@ -176,6 +176,14 @@ private:
       addVertexButton.addEventListener('click', function() { Module._addVertex(); });
       buttonGroup.appendChild(addVertexButton);
 
+      // Clear Traversal button
+      var clearTraversalButton = document.createElement('button');
+      clearTraversalButton.textContent = "Clear Traversal";
+      clearTraversalButton.addEventListener('click', function () {
+        Module._clearTraversal();
+      });
+      buttonGroup.appendChild(clearTraversalButton);
+
       // Selected vertex info container
       var selectedVertexDiv = document.createElement('div');
       selectedVertexDiv.setAttribute("id", "selectedVertexContainer");
@@ -249,11 +257,6 @@ public:
     g.AddEdge("ID3", "ID6", 2);
     g.AddEdge("ID3", "ID7", 2);
 
-    auto &v = g.GetVertex("ID1");
-    std::cout << "Initiated graph." << std::endl;
-    std::cout << v << std::endl;
-    std::cout << v.GetEdges().size() << std::endl;
-
     InitiateCanvas();
     InitializeControlZone();
     RedrawCanvas();
@@ -264,6 +267,34 @@ public:
     traversal.reset();
     ClearVertexSelection();
     RedrawCanvas();
+  }
+
+  /**
+   * Resets the traversal to have not traversed anything
+   */
+  void ClearTraversal() {
+    if (traversal) {
+      auto &start = g.GetVertex("ID1");
+      traversal->ResetTraversal(start);
+
+      // Re-set the traversal mode so the stack/queue is fresh
+      int mode = EM_ASM_INT({
+        var mode = document.getElementById("traversalMode").value;
+        if (mode === "DFS") return 0;
+        if (mode === "BFS") return 1;
+        if (mode === "A*") return 2;
+        return 0;
+      });
+
+      if (mode == 0)
+        traversal->SetTraversalMode(cse::TraversalModes::DFS<std::string>());
+      else if (mode == 1)
+        traversal->SetTraversalMode(cse::TraversalModes::BFS<std::string>());
+      else if (mode == 2)
+        traversal->SetTraversalMode(cse::TraversalModes::AStar<std::string>(g.GetVertex("ID1")));
+        
+      RedrawCanvas();
+    }
   }
 
   void AddVertex() {
@@ -312,21 +343,48 @@ public:
 
     traversal.emplace(std::move(pos));
   }
+
+  /**
+   * Function to help delay the full traversal steps so the user can follow
+   */
+  // ChatGPT was used to help with the delay in traversal steps.
+  static void StepTraversalAsync(void *arg) {
+    auto *self = static_cast<GraphVisualizer *>(arg);
   
+    if (self->traversal && self->traversal->AdvanceToNextNeighbor()) {
+      self->RedrawCanvas();
+      // Delay next step by 500ms
+      emscripten_async_call(StepTraversalAsync, arg, 500);
+    } else {
+      EM_ASM({
+        alert("Traversal Finished!");
+      });
+    }
+  }
+  
+  /**
+   * Traverse through a graph step by step when pressing the next step button
+   */
   void StepTraversal() {
     if (!traversal.has_value()) StartTraversal();
 
     if (traversal && traversal->AdvanceToNextNeighbor()) {
       RedrawCanvas();
+    } else {
+      EM_ASM({
+        alert("Traversal Finished!");
+      });
     }
   }
 
+  /**
+   * Traverse all the way through a graph in one button press
+   */
   void FullTraversal() {
     if (!traversal.has_value()) StartTraversal();
 
-    while (traversal && traversal->AdvanceToNextNeighbor()) {
-      RedrawCanvas();
-    }
+    // Kick off the async step loop
+    emscripten_async_call(StepTraversalAsync, this, 0); // 0ms to start immediately
   }
 };
 
@@ -359,6 +417,10 @@ void stepTraversal() {
 
 void fullTraversal() {
   init.FullTraversal();
+}
+
+void clearTraversal() {
+  init.ClearTraversal();
 }
 }
 
