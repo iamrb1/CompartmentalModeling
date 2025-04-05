@@ -1,12 +1,11 @@
 /**
  * @file Serializer.h
- * @brief A collection of serialization/deserialization functions for common C++
- * types and containers.
+ * @brief A collection of serialization/deserialization functions for common C++ types and containers.
  *
  * This file defines the `cse::Serializer` class, which can operate in SAVE or
- * LOAD mode to serialize (write) or deserialize (read) data to/from binary
- * files. It supports primitive types, `std::string`, and many standard
- * containers (e.g., `std::vector`, `std::map`, `std::queue`, etc.).
+ * LOAD mode to serialize (write) or deserialize (read) data to/from binary files.
+ * It supports primitive types, `std::string`, and many standard containers (e.g.,
+ * `std::vector`, `std::map`, `std::queue`, etc.).
  *
  * @author tdkduong
  * ChatGPT Assistance: Documentation
@@ -44,24 +43,42 @@ namespace cse
 		LOAD  ///< Serializer reads data from file.
 	};
 
+	/**
+	 * @class SerializationError
+	 * @brief Exception class for handling serialization errors.
+	 *
+	 * This class extends std::exception and is thrown when file operations or
+	 * serialization/deserialization processes fail.
+	 */
 	class SerializationError : public std::exception
 	{
 	public:
+		/**
+		 * @brief Constructs a SerializationError with the specified error message.
+		 * @param message A description of the error.
+		 */
 		explicit SerializationError(const std::string &message)
 			: message_("SerializationError: " + message) {}
 
+		/**
+		 * @brief Retrieves the error message.
+		 * @return A C-style string describing the error.
+		 */
 		const char *what() const noexcept override
 		{
 			return message_.c_str();
 		}
 
 	private:
-		std::string message_;
+		std::string message_; ///< Detailed error message.
 	};
 
 	/**
-	 * @tparam T the type need to check
-	 * @brief Concept use to categorized the types allowed to Serialize
+	 * @tparam T the type to check
+	 * @brief Concept used to categorize the types allowed to be serialized.
+	 *
+	 * This concept requires that a type T, when paired with a Serializer S, must have
+	 * a valid Serialize() call with a filename.
 	 */
 	template <typename T, typename S>
 	concept Serializable = requires(T &t, S &s, const std::string &filename) {
@@ -70,18 +87,67 @@ namespace cse
 
 	/**
 	 * @class Serializer
-	 * @brief A utility class for serializing and deserializing various data types
-	 * to/from binary files.
+	 * @brief A utility class for serializing and deserializing various data types to/from binary files.
 	 *
 	 * The Serializer can be toggled between SAVE and LOAD modes. In SAVE mode, data
 	 * will be written to the specified file in a binary format; in LOAD mode, data
-	 * will be read from the file and stored in the provided variables or
-	 * containers.
+	 * will be read from the file and stored in the provided variables or containers.
 	 */
 	class Serializer
 	{
 	private:
-		Mode mode_; ///< Current operating mode (SAVE or LOAD).
+		Mode mode_;					  ///< Current operating mode (SAVE or LOAD).
+		std::string currInFile = "";  ///< Cache for the current input file name.
+		std::string currOutFile = ""; ///< Cache for the current output file name.
+		std::ifstream inFile;		  ///< Input file stream.
+		std::ofstream outFile;		  ///< Output file stream.
+
+		/**
+		 * @brief Opens the input file for reading.
+		 * @param filename The path to the input file.
+		 *
+		 * If the provided filename differs from the current one, the current file is closed,
+		 * and the new file is opened in binary mode. Throws a SerializationError if the file cannot be opened.
+		 */
+		void SetInFile(const std::string &filename)
+		{
+			// If switching to a new file, close the previous stream and open the new one.
+			if (filename != currInFile)
+			{
+				inFile.close();
+				currInFile = filename;
+				inFile.open(filename, std::ios::binary);
+				if (!inFile)
+					throw cse::SerializationError("Error in opening file for reading.");
+			}
+			// If the current file stream is not valid, throw an error.
+			else if (!inFile)
+				throw cse::SerializationError("Error in opening file for reading.");
+		}
+
+		/**
+		 * @brief Opens the output file for writing.
+		 * @param filename The path to the output file.
+		 *
+		 * If the provided filename differs from the current one, the current stream is closed,
+		 * and the new file is opened in binary mode with truncation. Throws a SerializationError
+		 * if the file cannot be opened.
+		 */
+		void SetOutFile(const std::string &filename)
+		{
+			// If switching to a new file, close the previous stream and open the new one.
+			if (filename != currOutFile)
+			{
+				outFile.close();
+				currOutFile = filename;
+				outFile.open(filename, std::ios::binary | std::ios::trunc);
+				if (!outFile)
+					throw cse::SerializationError("Error in opening file for writing.");
+			}
+			// If the current file stream is not valid, throw an error.
+			else if (!outFile)
+				throw cse::SerializationError("Error in opening file for writing.");
+		}
 
 	public:
 		/**
@@ -125,8 +191,10 @@ namespace cse
 		void SetMode(Mode mode) { mode_ = mode; }
 
 		/**
-		 * @brief Decide if the type T (only C++ types, no structs or classes) is allowed to Serialize
-		 * @tparam T the type
+		 * @brief Determines if the given type T is serializable.
+		 * @tparam T The type to check.
+		 * @param data An instance of the type.
+		 * @return True if the type meets the Serializable concept requirements.
 		 */
 		template <typename T>
 		bool IsSerializable(T &) { return Serializable<T, Serializer>; }
@@ -146,16 +214,15 @@ namespace cse
 		{
 			if (mode_ == Mode::SAVE)
 			{
-				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
-				if (!outFile)
-					throw cse::SerializationError("Error in opening file for writing.");
+				// Set the output file stream and write the binary data.
+				SetOutFile(filename);
 				outFile.write(reinterpret_cast<const char *>(&data), sizeof(T));
+				outFile.flush();
 			}
 			else
 			{
-				std::ifstream inFile(filename, std::ios::binary);
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
+				// Set the input file stream and read the binary data.
+				SetInFile(filename);
 				inFile.read(reinterpret_cast<char *>(&data), sizeof(T));
 			}
 		}
@@ -172,18 +239,17 @@ namespace cse
 		{
 			if (mode_ == Mode::SAVE)
 			{
-				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
-				if (!outFile)
-					throw cse::SerializationError("Error in opening file for writing.");
+				// Write string size and characters.
+				SetOutFile(filename);
 				size_t length = str.size();
 				outFile.write(reinterpret_cast<const char *>(&length), sizeof(size_t));
 				outFile.write(str.c_str(), length);
+				outFile.flush();
 			}
 			else
 			{
-				std::ifstream inFile(filename, std::ios::binary);
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
+				// Read string size and then its content.
+				SetInFile(filename);
 				size_t length;
 				inFile.read(reinterpret_cast<char *>(&length), sizeof(size_t));
 				str.resize(length);
@@ -196,46 +262,44 @@ namespace cse
 		 * @tparam T The type of elements stored in the vector.
 		 * @param vec Reference to the vector to write or read.
 		 * @param filename Path to the binary file.
+		 *
+		 * In SAVE mode, writes the size of the vector followed by each element.
+		 * In LOAD mode, reads the size, resizes the vector, and then reads each element.
 		 */
 		template <typename T>
 		void Serialize(std::vector<T> &vec, const std::string &filename)
 		{
 			if (mode_ == Mode::SAVE)
 			{
-				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
-				if (!outFile)
-					throw cse::SerializationError("Error in opening file for writing.");
+				// Write vector size.
+				SetOutFile(filename);
 				size_t size = vec.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				// Write each element in the vector.
 				for (size_t i = 0; i < size; i++)
 				{
-					if (!IsSerializable(vec[i]))
-						throw cse::SerializationError("There is unserializable type.");
-					std::string newFile = filename + "_" + std::to_string(i);
-					Serialize(vec[i], newFile);
+					Serialize(vec[i], filename);
 				}
 			}
 			else // LOAD mode
 			{
-				std::ifstream inFile(filename, std::ios::binary);
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
+				// Read vector size and elements.
+				SetInFile(filename);
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				vec.resize(size);
 				for (size_t i = 0; i < size; i++)
 				{
+					// Check if the element type is serializable before processing.
 					if (!IsSerializable(vec[i]))
 						throw cse::SerializationError("There is unserializable type.");
-					std::string newFile = filename + "_" + std::to_string(i);
-					Serialize(vec[i], newFile);
+					Serialize(vec[i], filename);
 				}
 			}
 		}
 
 		/**
-		 * @brief Serializes or deserializes a `std::array` of fixed size to/from a
-		 * binary file.
+		 * @brief Serializes or deserializes a `std::array` of fixed size to/from a binary file.
 		 * @tparam T The type of elements stored in the array.
 		 * @tparam N The size of the array.
 		 * @param arr Reference to the array to write or read.
@@ -246,35 +310,30 @@ namespace cse
 		{
 			if (mode_ == Mode::SAVE)
 			{
-				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
-				if (!outFile)
-					throw cse::SerializationError("Error in opening file for writing.");
+				SetOutFile(filename);
+				// Process each element in the fixed-size array.
 				for (size_t i = 0; i < N; i++)
 				{
 					if (!IsSerializable(arr[i]))
 						throw cse::SerializationError("There is unserializable type.");
-					std::string newFile = filename + "_" + std::to_string(i);
-					Serialize(arr[i], newFile);
+					Serialize(arr[i], filename);
 				}
 			}
 			else // LOAD mode
 			{
-				std::ifstream inFile(filename, std::ios::binary);
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
+				SetInFile(filename);
+				// Read each element from the file.
 				for (size_t i = 0; i < N; i++)
 				{
 					if (!IsSerializable(arr[i]))
 						throw cse::SerializationError("There is unserializable type.");
-					std::string newFile = filename + "_" + std::to_string(i);
-					Serialize(arr[i], newFile);
+					Serialize(arr[i], filename);
 				}
 			}
 		}
 
 		/**
-		 * @brief Serializes or deserializes a `std::set` of elements to/from a binary
-		 * file.
+		 * @brief Serializes or deserializes a `std::set` of elements to/from a binary file.
 		 * @tparam T The type of elements in the set.
 		 * @param set Reference to the set to write or read.
 		 * @param filename Path to the binary file.
@@ -284,46 +343,39 @@ namespace cse
 		{
 			if (mode_ == Mode::SAVE)
 			{
-				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
-				if (!outFile)
-					throw cse::SerializationError("Error in opening file for writing.");
+				SetOutFile(filename);
+				// Write set size.
 				size_t size = set.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				int i = 0;
-				for (auto item = set.begin(); item != set.end(); item++, i++)
+				// Iterate through the set and serialize each element.
+				for (auto item = set.begin(); item != set.end(); ++item)
 				{
 					T data = *item;
 					if (!IsSerializable(data))
 						throw cse::SerializationError("There is unserializable type.");
-					std::string newFile = filename + "_" + std::to_string(i);
-					Serialize(data, newFile);
+					Serialize(data, filename);
 				}
 			}
 			else
 			{
-				std::ifstream inFile(filename, std::ios::binary);
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
+				// Read set size and then each element.
+				SetInFile(filename);
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
 				set.clear();
 				for (size_t i = 0; i < size; i++)
 				{
 					T item;
 					if (!IsSerializable(item))
 						throw cse::SerializationError("There is unserializable type.");
-					std::string newFile = filename + "_" + std::to_string(i);
-					Serialize(item, newFile);
+					Serialize(item, filename);
 					set.insert(item);
 				}
 			}
 		}
 
 		/**
-		 * @brief Serializes or deserializes a `std::unordered_set` of elements
-		 * to/from a binary file.
+		 * @brief Serializes or deserializes a `std::unordered_set` of elements to/from a binary file.
 		 * @tparam T The type of elements in the unordered_set.
 		 * @param uset Reference to the unordered_set to write or read.
 		 * @param filename Path to the binary file.
@@ -333,46 +385,39 @@ namespace cse
 		{
 			if (mode_ == Mode::SAVE)
 			{
-				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
-				if (!outFile)
-					throw cse::SerializationError("Error in opening file for writing.");
+				SetOutFile(filename);
+				// Write unordered_set size.
 				size_t size = uset.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				int i = 0;
-				for (auto item = uset.begin(); item != uset.end(); item++, i++)
+				// Serialize each element.
+				for (auto item = uset.begin(); item != uset.end(); ++item)
 				{
 					T data = *item;
 					if (!IsSerializable(data))
 						throw cse::SerializationError("There is unserializable type.");
-					std::string newFile = filename + "_" + std::to_string(i);
-					Serialize(data, newFile);
+					Serialize(data, filename);
 				}
 			}
 			else
 			{
-				std::ifstream inFile(filename, std::ios::binary);
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
+				// Read size and then deserialize each element.
+				SetInFile(filename);
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
 				uset.clear();
 				for (size_t i = 0; i < size; i++)
 				{
 					T item;
 					if (!IsSerializable(item))
 						throw cse::SerializationError("There is unserializable type.");
-					std::string newFile = filename + "_" + std::to_string(i);
-					Serialize(item, newFile);
+					Serialize(item, filename);
 					uset.insert(item);
 				}
 			}
 		}
 
 		/**
-		 * @brief Serializes or deserializes a `std::multiset` of elements to/from a
-		 * binary file.
+		 * @brief Serializes or deserializes a `std::multiset` of elements to/from a binary file.
 		 * @tparam T The type of elements in the multiset.
 		 * @param mset Reference to the multiset to write or read.
 		 * @param filename Path to the binary file.
@@ -382,46 +427,38 @@ namespace cse
 		{
 			if (mode_ == Mode::SAVE)
 			{
-				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
-				if (!outFile)
-					throw cse::SerializationError("Error in opening file for writing.");
+				SetOutFile(filename);
 				size_t size = mset.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				int i = 0;
-				for (auto item = mset.begin(); item != mset.end(); item++, i++)
+				// Iterate through multiset elements.
+				for (auto item = mset.begin(); item != mset.end(); ++item)
 				{
 					T data = *item;
 					if (!IsSerializable(data))
 						throw cse::SerializationError("There is unserializable type.");
-					std::string newFile = filename + "_" + std::to_string(i);
-					Serialize(data, newFile);
+					Serialize(data, filename);
 				}
 			}
 			else
 			{
-				std::ifstream inFile(filename, std::ios::binary);
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
+				// Read size and then each element.
+				SetInFile(filename);
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
 				mset.clear();
 				for (size_t i = 0; i < size; i++)
 				{
 					T item;
 					if (!IsSerializable(item))
 						throw cse::SerializationError("There is unserializable type.");
-					std::string newFile = filename + "_" + std::to_string(i);
-					Serialize(item, newFile);
+					Serialize(item, filename);
 					mset.insert(item);
 				}
 			}
 		}
 
 		/**
-		 * @brief Serializes or deserializes a `std::unordered_multiset` of elements
-		 * to/from a binary file.
+		 * @brief Serializes or deserializes a `std::unordered_multiset` of elements to/from a binary file.
 		 * @tparam T The type of elements in the unordered_multiset.
 		 * @param umset Reference to the unordered_multiset to write or read.
 		 * @param filename Path to the binary file.
@@ -431,38 +468,31 @@ namespace cse
 		{
 			if (mode_ == Mode::SAVE)
 			{
-				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
-				if (!outFile)
-					throw cse::SerializationError("Error in opening file for writing.");
+				SetOutFile(filename);
 				size_t size = umset.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				int i = 0;
-				for (auto item = umset.begin(); item != umset.end(); item++, i++)
+				// Serialize each element in the unordered_multiset.
+				for (auto item = umset.begin(); item != umset.end(); ++item)
 				{
 					T data = *item;
 					if (!IsSerializable(data))
 						throw cse::SerializationError("There is unserializable type.");
-					std::string newFile = filename + "_" + std::to_string(i);
-					Serialize(data, newFile);
+					Serialize(data, filename);
 				}
 			}
 			else
 			{
-				std::ifstream inFile(filename, std::ios::binary);
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
+				// Read size and then deserialize each element.
+				SetInFile(filename);
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
 				umset.clear();
 				for (size_t i = 0; i < size; i++)
 				{
 					T item;
 					if (!IsSerializable(item))
 						throw cse::SerializationError("There is unserializable type.");
-					std::string newFile = filename + "_" + std::to_string(i);
-					Serialize(item, newFile);
+					Serialize(item, filename);
 					umset.insert(item);
 				}
 			}
@@ -480,48 +510,40 @@ namespace cse
 		{
 			if (mode_ == Mode::SAVE)
 			{
-				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
-				if (!outFile)
-					throw cse::SerializationError("Error in opening file for writing.");
+				SetOutFile(filename);
+				// Write map size.
 				size_t size = map.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				int i = 0;
-				for (auto item = map.begin(); item != map.end(); item++, i++)
+				// Serialize each key-value pair.
+				for (auto item = map.begin(); item != map.end(); ++item)
 				{
-					K key = (*item).first;
-					V val = (*item).second;
-					std::string KeyFile = filename + "_K" + std::to_string(i);
-					std::string ValFile = filename + "_V" + std::to_string(i);
+					K key = item->first;
+					V val = item->second;
 					if (!IsSerializable(key))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(key, KeyFile);
+					Serialize(key, filename);
 					if (!IsSerializable(val))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(val, ValFile);
+					Serialize(val, filename);
 				}
 			}
 			else
 			{
-				std::ifstream inFile(filename, std::ios::binary);
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
+				// Read map size and deserialize each key-value pair.
+				SetInFile(filename);
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
 				map.clear();
 				for (size_t i = 0; i < size; i++)
 				{
 					K key;
 					V val;
-					std::string KeyFile = filename + "_K" + std::to_string(i);
-					std::string ValFile = filename + "_V" + std::to_string(i);
 					if (!IsSerializable(key))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(key, KeyFile);
+					Serialize(key, filename);
 					if (!IsSerializable(val))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(val, ValFile);
+					Serialize(val, filename);
 					map[key] = val;
 				}
 			}
@@ -539,48 +561,39 @@ namespace cse
 		{
 			if (mode_ == Mode::SAVE)
 			{
-				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
-				if (!outFile)
-					throw cse::SerializationError("Error in opening file for writing.");
+				SetOutFile(filename);
 				size_t size = umap.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				int i = 0;
-				for (auto item = umap.begin(); item != umap.end(); item++, i++)
+				// Serialize each key-value pair.
+				for (auto item = umap.begin(); item != umap.end(); ++item)
 				{
-					K key = (*item).first;
-					V val = (*item).second;
-					std::string KeyFile = filename + "_K" + std::to_string(i);
-					std::string ValFile = filename + "_V" + std::to_string(i);
+					K key = item->first;
+					V val = item->second;
 					if (!IsSerializable(key))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(key, KeyFile);
+					Serialize(key, filename);
 					if (!IsSerializable(val))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(val, ValFile);
+					Serialize(val, filename);
 				}
 			}
 			else
 			{
-				std::ifstream inFile(filename, std::ios::binary);
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
+				// Deserialize map size and each key-value pair.
+				SetInFile(filename);
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
 				umap.clear();
 				for (size_t i = 0; i < size; i++)
 				{
 					K key;
 					V val;
-					std::string KeyFile = filename + "_K" + std::to_string(i);
-					std::string ValFile = filename + "_V" + std::to_string(i);
 					if (!IsSerializable(key))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(key, KeyFile);
+					Serialize(key, filename);
 					if (!IsSerializable(val))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(val, ValFile);
+					Serialize(val, filename);
 					umap[key] = val;
 				}
 			}
@@ -598,48 +611,39 @@ namespace cse
 		{
 			if (mode_ == Mode::SAVE)
 			{
-				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
-				if (!outFile)
-					throw cse::SerializationError("Error in opening file for writing.");
+				SetOutFile(filename);
 				size_t size = mmap.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				int i = 0;
-				for (auto item = mmap.begin(); item != mmap.end(); item++, i++)
+				// Serialize each key-value pair.
+				for (auto item = mmap.begin(); item != mmap.end(); ++item)
 				{
-					K key = (*item).first;
-					V val = (*item).second;
-					std::string KeyFile = filename + "_K" + std::to_string(i);
-					std::string ValFile = filename + "_V" + std::to_string(i);
+					K key = item->first;
+					V val = item->second;
 					if (!IsSerializable(key))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(key, KeyFile);
+					Serialize(key, filename);
 					if (!IsSerializable(val))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(val, ValFile);
+					Serialize(val, filename);
 				}
 			}
 			else
 			{
-				std::ifstream inFile(filename, std::ios::binary);
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
+				// Deserialize multimap size and key-value pairs.
+				SetInFile(filename);
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
 				mmap.clear();
 				for (size_t i = 0; i < size; i++)
 				{
 					K key;
 					V val;
-					std::string KeyFile = filename + "_K" + std::to_string(i);
-					std::string ValFile = filename + "_V" + std::to_string(i);
 					if (!IsSerializable(key))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(key, KeyFile);
+					Serialize(key, filename);
 					if (!IsSerializable(val))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(val, ValFile);
+					Serialize(val, filename);
 					mmap.insert({key, val});
 				}
 			}
@@ -657,48 +661,39 @@ namespace cse
 		{
 			if (mode_ == Mode::SAVE)
 			{
-				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
-				if (!outFile)
-					throw cse::SerializationError("Error in opening file for writing.");
+				SetOutFile(filename);
 				size_t size = ummap.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
-				int i = 0;
-				for (auto item = ummap.begin(); item != ummap.end(); item++, i++)
+				// Serialize each key-value pair.
+				for (auto item = ummap.begin(); item != ummap.end(); ++item)
 				{
-					K key = (*item).first;
-					V val = (*item).second;
-					std::string KeyFile = filename + "_K" + std::to_string(i);
-					std::string ValFile = filename + "_V" + std::to_string(i);
+					K key = item->first;
+					V val = item->second;
 					if (!IsSerializable(key))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(key, KeyFile);
+					Serialize(key, filename);
 					if (!IsSerializable(val))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(val, ValFile);
+					Serialize(val, filename);
 				}
 			}
 			else
 			{
-				std::ifstream inFile(filename, std::ios::binary);
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
+				// Deserialize size and each key-value pair.
+				SetInFile(filename);
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
 				ummap.clear();
 				for (size_t i = 0; i < size; i++)
 				{
 					K key;
 					V val;
-					std::string KeyFile = filename + "_K" + std::to_string(i);
-					std::string ValFile = filename + "_V" + std::to_string(i);
 					if (!IsSerializable(key))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(key, KeyFile);
+					Serialize(key, filename);
 					if (!IsSerializable(val))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(val, ValFile);
+					Serialize(val, filename);
 					ummap.insert({key, val});
 				}
 			}
@@ -719,9 +714,8 @@ namespace cse
 		{
 			if (mode_ == Mode::SAVE)
 			{
-				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
-				if (!outFile)
-					throw cse::SerializationError("Error in opening file for writing.");
+				SetOutFile(filename);
+				// Extract elements from the stack into a vector.
 				std::vector<T> vec;
 				std::stack<T> temp = stk;
 				while (!temp.empty())
@@ -729,33 +723,31 @@ namespace cse
 					vec.push_back(temp.top());
 					temp.pop();
 				}
+				// Write the number of elements.
 				size_t size = vec.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				// Serialize each element.
 				for (size_t i = 0; i < size; i++)
 				{
 					if (!IsSerializable(vec[i]))
 						throw cse::SerializationError("There is unserializable type.");
-					std::string newFile = filename + "_" + std::to_string(i);
-					Serialize(vec[i], newFile);
+					Serialize(vec[i], filename);
 				}
 			}
 			else
 			{
-				std::ifstream inFile(filename, std::ios::binary);
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
+				// Deserialize the vector and then reconstruct the stack.
+				SetInFile(filename);
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
 				std::vector<T> vec(size);
 				for (size_t i = 0; i < size; i++)
 				{
 					if (!IsSerializable(vec[i]))
 						throw cse::SerializationError("There is unserializable type.");
-					std::string newFile = filename + "_" + std::to_string(i);
-					Serialize(vec[i], newFile);
+					Serialize(vec[i], filename);
 				}
+				// Rebuild the stack by pushing elements in reverse order.
 				stk = std::stack<T>();
 				for (auto it = vec.rbegin(); it != vec.rend(); ++it)
 				{
@@ -775,9 +767,8 @@ namespace cse
 		{
 			if (mode_ == Mode::SAVE)
 			{
-				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
-				if (!outFile)
-					throw cse::SerializationError("Error in opening file for writing.");
+				SetOutFile(filename);
+				// Extract elements into a vector.
 				std::vector<T> vec;
 				std::queue<T> temp = q;
 				while (!temp.empty())
@@ -785,33 +776,31 @@ namespace cse
 					vec.push_back(temp.front());
 					temp.pop();
 				}
+				// Write the size of the queue.
 				size_t size = vec.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				// Serialize each element.
 				for (size_t i = 0; i < size; i++)
 				{
 					if (!IsSerializable(vec[i]))
 						throw cse::SerializationError("There is unserializable type.");
-					std::string newFile = filename + "_" + std::to_string(i);
-					Serialize(vec[i], newFile);
+					Serialize(vec[i], filename);
 				}
 			}
 			else
 			{
-				std::ifstream inFile(filename, std::ios::binary);
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
+				// Read the size and deserialize elements into a vector.
+				SetInFile(filename);
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
 				std::vector<T> vec(size);
 				for (size_t i = 0; i < size; i++)
 				{
 					if (!IsSerializable(vec[i]))
 						throw cse::SerializationError("There is unserializable type.");
-					std::string newFile = filename + "_" + std::to_string(i);
-					Serialize(vec[i], newFile);
+					Serialize(vec[i], filename);
 				}
+				// Rebuild the queue by pushing each element.
 				q = std::queue<T>();
 				for (const T &item : vec)
 				{
@@ -831,9 +820,8 @@ namespace cse
 		{
 			if (mode_ == Mode::SAVE)
 			{
-				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
-				if (!outFile)
-					throw cse::SerializationError("Error in opening file for writing.");
+				SetOutFile(filename);
+				// Extract elements from the priority_queue into a vector.
 				std::vector<T> vec;
 				std::priority_queue<T> temp = pq;
 				while (!temp.empty())
@@ -841,32 +829,29 @@ namespace cse
 					vec.push_back(temp.top());
 					temp.pop();
 				}
+				// Write the number of elements.
 				size_t size = vec.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				// Serialize each element.
 				for (size_t i = 0; i < size; i++)
 				{
 					if (!IsSerializable(vec[i]))
 						throw cse::SerializationError("There is unserializable type.");
-					std::string newFile = filename + "_" + std::to_string(i);
-					Serialize(vec[i], newFile);
+					Serialize(vec[i], filename);
 				}
 			}
 			else
 			{
-				std::ifstream inFile(filename, std::ios::binary);
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
+				// Deserialize into a vector and rebuild the priority_queue.
+				SetInFile(filename);
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
 				std::vector<T> vec(size);
 				for (size_t i = 0; i < size; i++)
 				{
 					if (!IsSerializable(vec[i]))
 						throw cse::SerializationError("There is unserializable type.");
-					std::string newFile = filename + "_" + std::to_string(i);
-					Serialize(vec[i], newFile);
+					Serialize(vec[i], filename);
 				}
 				pq = std::priority_queue<T>(vec.begin(), vec.end());
 			}
@@ -883,36 +868,32 @@ namespace cse
 		{
 			if (mode_ == Mode::SAVE)
 			{
-				std::ofstream outFile(filename, std::ios::binary | std::ios::trunc);
-				if (!outFile)
-					throw cse::SerializationError("Error in opening file for writing.");
+				SetOutFile(filename);
+				// Write the size of the deque.
 				size_t size = deq.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				// Serialize each element using its index.
 				for (size_t i = 0; i < size; i++)
 				{
 					if (!IsSerializable(deq[i]))
 						throw cse::SerializationError("There is unserializable type.");
-					std::string newFile = filename + "_" + std::to_string(i);
-					Serialize(deq[i], newFile);
+					Serialize(deq[i], filename);
 				}
 			}
 			else
 			{
-				std::ifstream inFile(filename, std::ios::binary);
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
+				// Read size and then deserialize each element into a temporary vector.
+				SetInFile(filename);
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
-				if (!inFile)
-					throw cse::SerializationError("Error in opening file for reading.");
 				std::vector<T> vec(size);
 				for (size_t i = 0; i < size; i++)
 				{
 					if (!IsSerializable(vec[i]))
 						throw cse::SerializationError("There is unserializable type.");
-					std::string newFile = filename + "_" + std::to_string(i);
-					Serialize(vec[i], newFile);
+					Serialize(vec[i], filename);
 				}
+				// Clear and rebuild the deque from the vector.
 				deq.clear();
 				for (const T &item : vec)
 				{
@@ -922,16 +903,12 @@ namespace cse
 		}
 
 		/**
-		 * @brief Specialized function for serializing custom user-defined
-		 * classes/structs.
-		 * @tparam T A user-defined class or struct that implements a `Serialize`
-		 * member function.
+		 * @brief Specialized function for serializing custom user-defined classes/structs.
+		 * @tparam T A user-defined class or struct that implements a `Serialize` member function.
 		 * @param obj Reference to the object to write or read.
 		 *
-		 * This function calls `obj.Serialize(*this, filename);`.
-		 * Your custom class must define its own `Serialize(Serializer&)` method.
-		 * For easy management, the filename in your own Serialize method should include directory
-		 * This does not contain any filename/foldername, so that nothing will accidentally return true for IsSerializable for unimplemented type.
+		 * This function calls `obj.Serialize(*this);`. Your custom class must define its own
+		 * Serialize(Serializer&) method. Ensure that your Serialize method handles file paths or directory management.
 		 */
 		template <typename T,
 				  typename std::enable_if_t<

@@ -43,11 +43,11 @@ TEST_CASE("Serializer Destruction", "[Serialzer]")
 TEST_CASE("Serializer Swap Mode", "[Serializer]")
 {
 	cse::Serializer Neutral;
-	REQUIRE(Neutral.IsSave());
+	REQUIRE((Neutral.IsSave() && !Neutral.IsLoad()));
 	Neutral.SetMode(cse::Mode::LOAD);
-	REQUIRE(Neutral.IsLoad());
+	REQUIRE((Neutral.IsLoad() && !Neutral.IsSave()));
 	Neutral.SetMode(cse::Mode::SAVE);
-	REQUIRE(Neutral.IsSave());
+	REQUIRE((Neutral.IsSave() && !Neutral.IsLoad()));
 }
 
 TEST_CASE("Serializer Save Load Basic", "[Serializer]")
@@ -59,7 +59,7 @@ TEST_CASE("Serializer Save Load Basic", "[Serializer]")
 	Saver.Serialize(number, filename);
 	REQUIRE(result == -1);
 	Loader.Serialize(result, filename);
-	REQUIRE(result == number);
+	REQUIRE(result == 22);
 	std::filesystem::remove(filename);
 }
 
@@ -177,8 +177,6 @@ TEST_CASE("Serializer Save Load Vector", "[Serializer]")
 		for (int l = 0; l < Length; l++)
 		{
 			REQUIRE(vec[l] == Result[l]);
-			std::string dataname = (std::string)filename + "_" + std::to_string(l);
-			std::filesystem::remove(dataname);
 		}
 		std::filesystem::remove(filename);
 	}
@@ -206,8 +204,6 @@ TEST_CASE("Serializer Save Load Array", "[Serializer]")
 		for (int l = 0; l < size; l++)
 		{
 			REQUIRE(arr[l] == Result[l]);
-			std::string dataname = (std::string)filename + "_" + std::to_string(l);
-			std::filesystem::remove(dataname);
 		}
 		std::filesystem::remove(filename);
 	}
@@ -238,8 +234,6 @@ TEST_CASE("Serializer Save Load Set", "[Serializer]")
 		{
 			REQUIRE(*is == *ir);
 			is++, ir++;
-			std::string dataname = (std::string)filename + "_" + std::to_string(l);
-			std::filesystem::remove(dataname);
 		}
 		std::filesystem::remove(filename);
 	}
@@ -271,8 +265,6 @@ TEST_CASE("Serializer Save Load Unordered Set", "[Serializer]")
 		{
 			REQUIRE((res.find(*is) != res.end() && s.find(*ir) != s.end()));
 			is++, ir++;
-			std::string dataname = (std::string)filename + "_" + std::to_string(l);
-			std::filesystem::remove(dataname);
 		}
 		std::filesystem::remove(filename);
 	}
@@ -303,8 +295,6 @@ TEST_CASE("Serializer Save Load Multiset", "[Serializer]")
 		{
 			REQUIRE(*is == *ir);
 			is++, ir++;
-			std::string dataname = (std::string)filename + "_" + std::to_string(l);
-			std::filesystem::remove(dataname);
 		}
 		std::filesystem::remove(filename);
 	}
@@ -359,10 +349,6 @@ TEST_CASE("Serializer Save Load Map", "[Serializer]")
 		{
 			REQUIRE(res.find(l) != res.end());
 			REQUIRE(res[l] == m[l]);
-			std::string datanameKey = (std::string)filename + "_K" + std::to_string(l);
-			std::string datanameVal = (std::string)filename + "_V" + std::to_string(l);
-			std::filesystem::remove(datanameKey);
-			std::filesystem::remove(datanameVal);
 		}
 		std::filesystem::remove(filename);
 	}
@@ -685,15 +671,11 @@ TEST_CASE("Serializer Nested Containers and Similars", "[Serializer]")
 		for (int l = 0; l < length; l++)
 		{
 			REQUIRE(vvec[l].size() == Result[l].size());
-			std::string dataname = (std::string)filename + "_" + std::to_string(l);
 			int llength = vvec[l].size();
 			for (int ll = 0; ll < llength; ll++)
 			{
 				REQUIRE(vvec[l][ll] == Result[l][ll]);
-				std::string subname = (std::string)dataname + "_" + std::to_string(ll);
-				std::filesystem::remove(subname);
 			}
-			std::filesystem::remove(dataname);
 		}
 		std::filesystem::remove(filename);
 	}
