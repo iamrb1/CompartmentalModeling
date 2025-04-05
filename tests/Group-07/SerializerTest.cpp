@@ -68,8 +68,9 @@ TEST_CASE("Basic Save Load In Different Processes", "[Serializer]")
 	cse::Serializer Saver(cse::Mode::SAVE);
 	cse::Serializer Loader(cse::Mode::LOAD);
 	int number = 4000;
-	// Saver.Serialize(number, "4000.dat");
 	int other = 1000;
+	// Below line need to run first, while Loader line need to run the next time after that.
+	// Saver.Serialize(number, "4000.dat");
 	Loader.Serialize(other, "4000.dat");
 	REQUIRE(other == number);
 }
