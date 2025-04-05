@@ -279,7 +279,6 @@ namespace cse {
           // Get the vertex at top of stack
           auto &current = *stack.back();
           if (gp.IsVisited(current)) {
-            std::cout << "Finished" << std::endl;
             return false; // Skip if already visited
           }
 

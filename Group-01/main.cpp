@@ -322,11 +322,9 @@ public:
   }
 
   void FullTraversal() {
-    if (!traversal.has_value())
-      StartTraversal();
+    if (!traversal.has_value()) StartTraversal();
 
-    if (traversal) {
-      traversal->TraverseGraph();
+    while (traversal && traversal->AdvanceToNextNeighbor()) {
       RedrawCanvas();
     }
   }
