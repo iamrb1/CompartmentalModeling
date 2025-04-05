@@ -17,10 +17,11 @@
 #include <array>
 #include <set>
 #include <queue>
+#include <functional>
 
 namespace cse
 {
-  template <typename ProcessID = int, int numWeights=1>
+  template <typename ProcessID = int, int numWeights = 1>
 
   /*
    * Priority queue to schedule processes to run based on how often each process
@@ -28,7 +29,7 @@ namespace cse
    */
   class Scheduler
   {
-  static_assert(numWeights>0);
+    static_assert(numWeights > 0);
 
   private:
     /// Struct containing a process's id, its priority value, and its weights
@@ -36,40 +37,40 @@ namespace cse
     {
       ProcessID id;
       double priorityWeight;
-      std::array<double,numWeights> processWeights;
+      std::array<double, numWeights> processWeights;
 
-      Process(): id(), priorityWeight(0), processWeights{} {}
-      Process(const ProcessID &id, double priorityWeight, const std::array<double,numWeights>& processWeights): id(id), priorityWeight(std::move(priorityWeight)), processWeights(processWeights) {}
+      Process() : id(), priorityWeight(0), processWeights{} {}
+      Process(const ProcessID &id, double priorityWeight, const std::array<double, numWeights> &processWeights) : id(id), priorityWeight(std::move(priorityWeight)), processWeights(processWeights) {}
     };
 
     struct Comparator
     {
-      const std::unordered_map<ProcessID,Process> *processMap;
-      bool operator()(const ProcessID& a, const ProcessID& b) const
+      const std::unordered_map<ProcessID, Process> *processMap;
+      bool operator()(const ProcessID &a, const ProcessID &b) const
       {
-          if((*processMap).find(a) == (*processMap).end())
-          {
-              return false;
-          }
-          else if((*processMap).find(b) == (*processMap).end())
-          {
-              return true;
-          }
-          return (*processMap).at(a).priorityWeight < (*processMap).at(b).priorityWeight;
+        if ((*processMap).find(a) == (*processMap).end())
+        {
+          return false;
+        }
+        else if ((*processMap).find(b) == (*processMap).end())
+        {
+          return true;
+        }
+        return (*processMap).at(a).priorityWeight < (*processMap).at(b).priorityWeight;
       }
     };
 
     /// Lambda function to allow a user to change how priority is calculated in the Scheduler
-    std::function<double(const std::array<double,numWeights>&)> priorityCalcLambda;
+    std::function<double(const std::array<double, numWeights> &)> priorityCalcLambda;
 
     /// Heap holding the Processes added to the Scheduler
     std::priority_queue<ProcessID, std::vector<ProcessID>, Comparator> currIds;
 
     /// Map of each ProcessID to its associated Process object
-    std::unordered_map<ProcessID,Process> processMap;
+    std::unordered_map<ProcessID, Process> processMap;
 
     /// Vector holding the weights used for each priority value given by a Process
-    std::array<double,numWeights> weightList;
+    std::array<double, numWeights> weightList;
 
     /// Queue holding all the Processes that have had their priority values overridden to be pushed to the front of the Scheduler
     std::deque<ProcessID> overrideQueue;
@@ -82,7 +83,7 @@ namespace cse
      * @param weights Set of weights to calculate priority with
      * @return Calculated priority value which is SUM(weights[i]*weightList[i])
      */
-    constexpr double calculatePriority(const std::array<double,numWeights> &weights)
+    constexpr double calculatePriority(const std::array<double, numWeights> &weights)
     {
       return priorityCalcLambda(weights);
     }
@@ -97,9 +98,9 @@ namespace cse
      * Constructor for Scheduler with a given set of weights
      * @param weights Weights used to determine the priority for processes added to the Scheduler
      */
-    Scheduler(const std::array<double,numWeights> &weights, std::function<double(const std::array<double, numWeights>&)> lambdaPriority = nullptr) : currIds(Comparator{&processMap}), weightList(weights)
+    Scheduler(const std::array<double, numWeights> &weights, std::function<double(const std::array<double, numWeights> &)> lambdaPriority = nullptr) : currIds(Comparator{&processMap}), weightList(weights)
     {
-      if(lambdaPriority)
+      if (lambdaPriority)
       {
         priorityCalcLambda = std::move(lambdaPriority);
       }
@@ -107,12 +108,12 @@ namespace cse
       {
         priorityCalcLambda = [this](const std::array<double, numWeights> &weights)
         {
-            double priority = 0;
-            for (int i = 0; i < numWeights; i++)
-            {
-                priority += (weightList[i] * weights[i]);
-            }
-            return priority;
+          double priority = 0;
+          for (int i = 0; i < numWeights; i++)
+          {
+            priority += (weightList[i] * weights[i]);
+          }
+          return priority;
         };
       }
     }
@@ -125,7 +126,7 @@ namespace cse
     /**
      * Copy Constructor
      */
-    Scheduler(const Scheduler& scheduler) : processMap(scheduler.processMap), currIds(Comparator{&processMap}), weightList(scheduler.weightList), overrideQueue(scheduler.overrideQueue), priorityCalcLambda(scheduler.priorityCalcLambda) {}
+    Scheduler(const Scheduler &scheduler) : processMap(scheduler.processMap), currIds(Comparator{&processMap}), weightList(scheduler.weightList), overrideQueue(scheduler.overrideQueue), priorityCalcLambda(scheduler.priorityCalcLambda) {}
 
     /**
      * Move Constructor
@@ -138,9 +139,9 @@ namespace cse
      * @param weights Priority weights for this process
      * @return True if the process was successfully added to the Scheduler, false if it was not
      */
-    bool AddProcess(const ProcessID &id, const std::array<double,numWeights> &weights)
+    bool AddProcess(const ProcessID &id, const std::array<double, numWeights> &weights)
     {
-      if (!processMap.emplace(id,Process(id, calculatePriority(weights), weights)).second)
+      if (!processMap.emplace(id, Process(id, calculatePriority(weights), weights)).second)
       {
         return false;
       }
@@ -164,7 +165,7 @@ namespace cse
         return true;
       }
 
-      if(processMap.find(id) != processMap.end())
+      if (processMap.find(id) != processMap.end())
       {
         deletedIDs.insert(id);
         processMap.erase(id);
@@ -193,13 +194,13 @@ namespace cse
         return outID;
       }
 
-      while(!currIds.empty() && deletedIDs.erase(currIds.top()))
+      while (!currIds.empty() && deletedIDs.erase(currIds.top()))
       {
         processMap.erase(currIds.top());
         currIds.pop();
       }
 
-      if(currIds.empty())
+      if (currIds.empty())
       {
         return std::nullopt;
       }
@@ -231,12 +232,12 @@ namespace cse
      * @param newWeights New priority weights for the process, which will be used to calculate the new priority value
      * @return True if the process's priority was successfully update, false if it was not
      */
-    bool UpdateProcessPriority(const ProcessID &id, const std::array<double,numWeights> &newWeights)
+    bool UpdateProcessPriority(const ProcessID &id, const std::array<double, numWeights> &newWeights)
     {
-      if(processMap.find(id) != processMap.end())
+      if (processMap.find(id) != processMap.end())
       {
         std::vector<ProcessID> heapIDs;
-        while(!currIds.empty())
+        while (!currIds.empty())
         {
           heapIDs.push_back(currIds.top());
           currIds.pop();
@@ -244,7 +245,7 @@ namespace cse
         processMap[id].priorityWeight = calculatePriority(newWeights);
         processMap[id].processWeights = newWeights;
 
-        for(const ProcessID &id : heapIDs)
+        for (const ProcessID &id : heapIDs)
         {
           currIds.push(id);
         }
@@ -257,17 +258,17 @@ namespace cse
      * Updates the weights used by the Scheduler
      * @param newWeights The new weights set to be used by the Scheduler
      */
-    void UpdateSchedulerWeights(const std::array<double,numWeights> &newWeights)
+    void UpdateSchedulerWeights(const std::array<double, numWeights> &newWeights)
     {
       weightList = newWeights;
       std::vector<ProcessID> heapIDs;
-      while(!currIds.empty())
+      while (!currIds.empty())
       {
         heapIDs.push_back(currIds.top());
         currIds.pop();
       }
 
-      for(const ProcessID &id : heapIDs)
+      for (const ProcessID &id : heapIDs)
       {
         processMap[id].priorityWeight = calculatePriority(processMap[id].processWeights);
         currIds.push(id);
@@ -281,7 +282,7 @@ namespace cse
      */
     const std::optional<double> GetProcessPriority(const ProcessID &id)
     {
-      if(processMap.find(id) != processMap.end())
+      if (processMap.find(id) != processMap.end())
       {
         return processMap[id].priorityWeight;
       }
@@ -294,9 +295,9 @@ namespace cse
      * @param id ID of the process we are getting the weights set for
      * @return Weights set for the given process if it is in the Scheduler, returns std::nullopt otherwise
      */
-    const std::optional<std::array<double,numWeights>> GetProcessWeights(const ProcessID &id)
+    const std::optional<std::array<double, numWeights>> GetProcessWeights(const ProcessID &id)
     {
-      if(processMap.find(id) != processMap.end())
+      if (processMap.find(id) != processMap.end())
       {
         return processMap[id].processWeights;
       }
