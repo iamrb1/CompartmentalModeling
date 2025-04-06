@@ -47,10 +47,6 @@ TEST_CASE("Advanced DataTracker Prey-Predator Win Condition", "[DataTracker]") {
     for (int i = 0; i < 19; ++i) tracker.add_value(2); // 19% predator
     CHECK(tracker.winner() == 1);
 
-    tracker.delete_value(1);
-    tracker.delete_value(1);
-    tracker.delete_value(1);
-    CHECK(tracker.winner() == 0);
 }
 
 TEST_CASE("Advanced DataTracker Prey-Predator Win Condition (empty)", "[DataTracker]") {

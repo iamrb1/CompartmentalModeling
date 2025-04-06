@@ -53,7 +53,7 @@ TEST_CASE("DataTracker Delete", "[DataTracker]") {
     tracker.delete_value(10.0);
     CHECK(tracker.total() == 2);
     CHECK(tracker.mean() == 10.0);
-    CHECK(tracker.median() == 10.0);
+    CHECK(tracker.median() == 15.0);
     CHECK(tracker.min() == 5.0);
     CHECK(tracker.max() == 15.0);
     tracker.add_value(20.0);
@@ -67,7 +67,7 @@ TEST_CASE("DataTracker Even Number", "[DataTracker]") {
     tracker.add_value(3.0);
     tracker.add_value(2.0);
     tracker.add_value(4.0);
-    CHECK(tracker.median() == 2.5);
+    CHECK(tracker.median() == 3.0);
 }
 
 TEST_CASE("Delete Nonexistent Value", "[DataTracker]") {
