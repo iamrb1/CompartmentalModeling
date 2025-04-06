@@ -130,6 +130,6 @@ bool cse::FunctionSet<R, Args...>::RemoveFunction( const FunctionType& func)
     }
     return false;
 }
-template class cse::FunctionSet<int, int>;                  /// For "FunctionSet<int,int>"
+template class cse::FunctionSet<int, int>;
 template class cse::FunctionSet<double, double>;
-template class cse::FunctionSet<void, const std::string&>;  /// For "FunctionSet<void, const std::string&>"
+template class cse::FunctionSet<void, const std::string&>;

@@ -3,7 +3,7 @@
 
 #include <cmath>
 #include <stdexcept>
-
+#include <string>
 class Circle {
 public:
     // Constructor
@@ -22,6 +22,14 @@ public:
     std::string getCircleType() const;
     bool getRegen() const;
     bool getSpeedBoost() const;
+
+    // Inital energy for the circle
+    int initialEnergy = 100;
+
+    // Circle Reproduce number
+    int reproduceNumber = 5;
+
+    int speedBoost = 2;
 
     // Setters
     void setPosition(double x, double y);

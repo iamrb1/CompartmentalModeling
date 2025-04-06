@@ -17,49 +17,63 @@ Circle::Circle(double x, double y, double radius, double baseSpeed, double speed
 // Destructor
 Circle::~Circle() {}
 
-// Getters
+// Getter for X coordinate
 double Circle::getX() const {
     return x_;
 }
 
+// Getter for Y coordinate
 double Circle::getY() const {
     return y_;
 }
 
+// Getter for radius
 double Circle::getRadius() const {
     return radius_;
 }
 
+// Getter for speed
 double Circle::getSpeed() const {
     return speed_;
 }
 
+// Getter for energy
 int Circle::getEnergy() const {
     return energy_;
 }
 
+// Getter for circle type
 std::string Circle::getCircleType() const {
     return circleType_;
 }
 
+// Getter for energy regeneration
 bool Circle::getRegen() const {
     return regen_;
 }
 
+// Getter for speed boost
 bool Circle::getSpeedBoost() const {
     return speedBoost_;
 }
 
-// Setters
+// Getter for base speed
+double Circle::getBaseSpeed() const {
+    return baseSpeed_;
+}
+
+// Getter for characteristic
+std::string Circle::getCharacteristic() const {
+    return characteristic_;
+}
+
+// Setter for position
 void Circle::setPosition(double x, double y) {
     x_ = x;
     y_ = y;
 }
 
-double Circle::getBaseSpeed() const {
-  return baseSpeed_;
-}
-
+// Setter for radius
 void Circle::setRadius(double radius) {
     if (radius <= 0) {
         throw std::invalid_argument("Radius must be positive");
@@ -67,10 +81,12 @@ void Circle::setRadius(double radius) {
     radius_ = radius;
 }
 
+// Setter for Speed
 void Circle::setSpeed(int speed) {
     speed_ = speed;
 }
 
+// Setter for circle type
 void Circle::setCircleType(const std::string& circleType) {
     circleType_ = circleType;
 }
@@ -88,10 +104,10 @@ void Circle::setCharacteristic(const std::string& characteristic) {
     characteristic_ = characteristic;
 }
 
-std::string Circle::getCharacteristic() const {
-    return characteristic_;
-}
-
+// Decreases energy of the circle
+// If energy is 0, set regen to true and speed to 0
+// If energy is less than 0, set it to 0
+// If energy is greater than 0, update speed
 void Circle::decreaseEnergy(int energy) {
     if (energy_ > 0 && !regen_) {
         energy_ -= energy;
@@ -105,26 +121,32 @@ void Circle::decreaseEnergy(int energy) {
     }
 }
 
+// Increases energy of the circle
+// If energy is greater than initial energy, set regen to false and speed to base speed
+// If energy is less than initial energy, update speed
 void Circle::regenEnergy(int energy) {
     if (regen_) {
         energy_ += energy;
-        if (energy_ >= 100) {
+        if (energy_ >= initialEnergy) {
             regen_ = false;
             speed_ = baseSpeed_;
         }
     }
 }
 
+// Updates the speed of the circle based on energy and speed boost
 void Circle::updateSpeed() {
     if (!regen_) {
-        double speedFactor = energy_ / 100.0; //makes percentage of energy left
+        double speedFactor = energy_ / 100.0; // Makes percentage of energy left
         speed_ = baseSpeed_ * speedFactor;
     }
     if (speedBoost_) {
-        speed_ = speed_ * 2;
+        speed_ = speed_ * speedBoost;
     }
 }
 
+// Check if the circle is in proximity to another circle
+// If the distance is less than the proximity radius and the circle types are different, set speed boost to true
 void Circle::checkProximity(const Circle& other) {
     auto calculateDistance = [this](const Circle& other) {
         double dx = x_ - other.x_;
@@ -146,14 +168,17 @@ void Circle::checkProximity(const Circle& other) {
     }
 }
 
+// Getter to check if a circle can repopulate
 bool Circle::canRepopulate() const {
     return repopulate_;
 }
 
+// If a predator circle touches a prey circle, the prey circle is eaten
+// If the predator circle eats 5 prey circles, it can repopulate
 void Circle::eatPreyCircle() {
     if (circleType_ == "red") {
         eatingCounter_++;
-        if (eatingCounter_ >= 5) {
+        if (eatingCounter_ >= reproduceNumber) {
             repopulate_ = true;
             eatingCounter_ = 0;
         }

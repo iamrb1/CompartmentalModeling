@@ -16,11 +16,12 @@ TEST_CASE("CircleTest2", "CircleInvalidRadius") {
 
 TEST_CASE("SurfaceTest1", "AddCircleToSurface") {
     cse::Surface surface(100, 100, 10);
-    Circle circle(15.0, 25.0, 5.0, 2, 2, "red");
-    surface.add_circle(&circle);
+    auto circle = std::make_shared<Circle>(15.0, 25.0, 5.0, 2, 2, "red");
 
-    int x = circle.getX() / surface.surface_size;
-    int y = circle.getY() / surface.surface_size;
+    surface.add_circle(circle);
+
+    int x = circle->getX() / surface.surface_size;
+    int y = circle->getY() / surface.surface_size;
     CHECK(surface.sectors[x][y].circles.size() == 1);
     CHECK(surface.sectors[x][y].circles[0]->getX() == 15.0);
     CHECK(surface.sectors[x][y].circles[0]->getY() == 25.0);
@@ -29,10 +30,11 @@ TEST_CASE("SurfaceTest1", "AddCircleToSurface") {
 
 TEST_CASE("SurfaceTest2", "MoveCircleOnSurface") {
     cse::Surface surface(100, 100, 10);
-    Circle circle(15.0, 25.0, 5.0, 2, 2, "red");
-    surface.add_circle(&circle);
+    auto circle = std::make_shared<Circle>(15.0, 25.0, 5.0, 2, 2, "red");
 
-    surface.move_circle(&circle, 35.0, 45.0);
+    surface.add_circle(circle);
+
+    surface.move_circle(circle, 35.0, 45.0);
 
     int old_x = 15.0 / surface.surface_size;
     int old_y = 25.0 / surface.surface_size;
