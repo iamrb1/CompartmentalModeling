@@ -20,7 +20,7 @@ OBJECTS = $(SOURCES:.cpp=.o)
 TARGET = index.html
 
 # Emscripten compiler Change the path match your folder
-EMCC = /home/jiangx/emsdk/upstream/emscripten/emcc
+EMCC = ~/emsdk/upstream/emscripten/emcc
 
 # Compilation & Link flags
 # -s USE_SDL=2   -> Links against SDL2
