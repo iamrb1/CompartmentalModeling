@@ -17,8 +17,8 @@ class Surface {
 
         Surface(int width, int height, int sector_size);
 
-        void add_circle(Circle* circle);
-        void move_circle(Circle* circle, int x_pos, int y_pos);
+        void add_circle(std::shared_ptr<Circle> circle);
+        void move_circle(std::shared_ptr<Circle> circle, int x_pos, int y_pos);
         void check_collision();
         void update();
 };

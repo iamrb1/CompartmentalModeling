@@ -4,7 +4,6 @@ namespace cse{
 Surface::Surface(int width, int height, int sector_size)
     : surface_width(width), surface_height(height), surface_size(sector_size), sector_width(width/sector_size), sector_height(height/sector_size){
 
-    // I got all of this from copilot, I was going to make something similar
     sectors.resize(sector_width, std::vector<Sector>(sector_height, Sector(0, 0))); // Resize sectors vector
     for (int i = 0; i < sector_width; ++i) {
         for (int j = 0; j < sector_height; ++j) {
@@ -13,13 +12,13 @@ Surface::Surface(int width, int height, int sector_size)
     }
 }
 
-void Surface::add_circle(Circle* circle) {
+void Surface::add_circle(std::shared_ptr<Circle> circle) {
     int x = circle->getX() / surface_size;   // Get the x coordinate of a circle
     int y = circle->getY() / surface_size;   // Get the y coordinate of a circle
     sectors[x][y].add_circle(circle);        // Add a circle to the sector
 }
 
-void Surface::move_circle(Circle* circle, int x_pos, int y_pos) {
+void Surface::move_circle(std::shared_ptr<Circle> circle, int x_pos, int y_pos) {
     int x = circle->getX() / surface_size;          // Get the x coordinate of a circle
     int y = circle->getY() / surface_size;          // Get the y coordinate of a circle
     int new_x = x_pos / surface_size;               // Get new x coordinate
@@ -61,8 +60,8 @@ void Surface::check_collision() {
                         neighbor_y >= 0 && neighbor_y < sector_height) {
                         Sector& neighbor_sector = sectors[neighbor_x][neighbor_y];
 
-                        for (Circle* c1 : current_sector.circles) {
-                            for (Circle* c2 : neighbor_sector.circles) {
+                        for (std::shared_ptr<Circle> c1 : current_sector.circles) {
+                            for (std::shared_ptr<Circle> c2 : neighbor_sector.circles) {
                                 if (c1->overlaps(*c2)) {
                                     std::cout << "Collision detected between sectors (" << i << ", " << j
                                               << ") and (" << neighbor_x << ", " << neighbor_y << ")\n";
@@ -83,7 +82,7 @@ void Surface::update() {
             Sector& sector = sectors[i][j];
 
             for (size_t k = 0; k < sector.circles.size();) {
-                Circle* circle = sector.circles[k];
+                std::shared_ptr<Circle> circle = sector.circles[k];
 
                 // Compute new sector based on updated position
                 int new_x = circle->getX() / surface_size;
