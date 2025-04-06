@@ -61,6 +61,8 @@ TEST_CASE("Serializer Save Load Basic", "[Serializer]")
 	Loader.Serialize(result, filename);
 	REQUIRE(result == 22);
 	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
 }
 
 TEST_CASE("Basic Save Load In Different Processes", "[Serializer]")
@@ -80,6 +82,8 @@ TEST_CASE("Serializer Save Load Fundamental Types", "[Serializer]")
 	cse::Serializer Saver(cse::Mode::SAVE);
 	cse::Serializer Loader(cse::Mode::LOAD);
 	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
 	// Testing Int
 	std::uniform_int_distribution<int> ranInt(INT_MIN, INT_MAX);
 	int Integer;
@@ -91,6 +95,8 @@ TEST_CASE("Serializer Save Load Fundamental Types", "[Serializer]")
 		Loader.Serialize(Result, filename);
 		REQUIRE(Integer == Result);
 		std::filesystem::remove(filename);
+		Saver.ResetFileStream();
+		Loader.ResetFileStream();
 	}
 	// Testing Char
 	std::uniform_int_distribution<int> ranChar(static_cast<int>('A'),
@@ -104,6 +110,8 @@ TEST_CASE("Serializer Save Load Fundamental Types", "[Serializer]")
 		Loader.Serialize(Result, filename);
 		REQUIRE(Character == Result);
 		std::filesystem::remove(filename);
+		Saver.ResetFileStream();
+		Loader.ResetFileStream();
 	}
 	// Testing Long Long
 	std::uniform_int_distribution<long long> ranLL(LLONG_MIN, LLONG_MAX);
@@ -116,6 +124,8 @@ TEST_CASE("Serializer Save Load Fundamental Types", "[Serializer]")
 		Loader.Serialize(Result, filename);
 		REQUIRE(LL == Result);
 		std::filesystem::remove(filename);
+		Saver.ResetFileStream();
+		Loader.ResetFileStream();
 	}
 	// Testing Double
 	std::uniform_real_distribution<double> ranDBL(-MAX_SIZE, MAX_SIZE);
@@ -128,6 +138,8 @@ TEST_CASE("Serializer Save Load Fundamental Types", "[Serializer]")
 		Loader.Serialize(Result, filename);
 		REQUIRE(Double == Result);
 		std::filesystem::remove(filename);
+		Saver.ResetFileStream();
+		Loader.ResetFileStream();
 	}
 }
 
@@ -136,6 +148,8 @@ TEST_CASE("Serializer Save Load String", "[Serializer]")
 	cse::Serializer Saver(cse::Mode::SAVE);
 	cse::Serializer Loader(cse::Mode::LOAD);
 	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
 	for (int i = 0; i < MAX_CASE; i++)
 	{
 		std::uniform_int_distribution<int> ranInt(1, MAX_SIZE);
@@ -153,6 +167,8 @@ TEST_CASE("Serializer Save Load String", "[Serializer]")
 		Loader.Serialize(Result, filename);
 		REQUIRE(String == Result);
 		std::filesystem::remove(filename);
+		Saver.ResetFileStream();
+		Loader.ResetFileStream();
 	}
 }
 
@@ -161,6 +177,8 @@ TEST_CASE("Serializer Save Load Vector", "[Serializer]")
 	cse::Serializer Saver(cse::Mode::SAVE);
 	cse::Serializer Loader(cse::Mode::LOAD);
 	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
 	for (int i = 0; i < MAX_CASE; i++)
 	{
 		std::uniform_int_distribution<int> ranSize(1, MAX_SIZE);
@@ -180,6 +198,8 @@ TEST_CASE("Serializer Save Load Vector", "[Serializer]")
 			REQUIRE(vec[l] == Result[l]);
 		}
 		std::filesystem::remove(filename);
+		Saver.ResetFileStream();
+		Loader.ResetFileStream();
 	}
 }
 
@@ -188,6 +208,8 @@ TEST_CASE("Serializer Save Load Array", "[Serializer]")
 	cse::Serializer Saver(cse::Mode::SAVE);
 	cse::Serializer Loader(cse::Mode::LOAD);
 	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
 	const int size = MAX_SIZE;
 	for (int i = 0; i < MAX_CASE; i++)
 	{
@@ -207,6 +229,8 @@ TEST_CASE("Serializer Save Load Array", "[Serializer]")
 			REQUIRE(arr[l] == Result[l]);
 		}
 		std::filesystem::remove(filename);
+		Saver.ResetFileStream();
+		Loader.ResetFileStream();
 	}
 }
 
@@ -215,6 +239,8 @@ TEST_CASE("Serializer Save Load Set", "[Serializer]")
 	cse::Serializer Saver(cse::Mode::SAVE);
 	cse::Serializer Loader(cse::Mode::LOAD);
 	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
 	for (int i = 0; i < MAX_CASE; i++)
 	{
 		std::uniform_int_distribution<int> ranInt(INT_MIN, INT_MAX);
@@ -237,6 +263,8 @@ TEST_CASE("Serializer Save Load Set", "[Serializer]")
 			is++, ir++;
 		}
 		std::filesystem::remove(filename);
+		Saver.ResetFileStream();
+		Loader.ResetFileStream();
 	}
 }
 
@@ -245,6 +273,8 @@ TEST_CASE("Serializer Save Load Unordered Set", "[Serializer]")
 	cse::Serializer Saver(cse::Mode::SAVE);
 	cse::Serializer Loader(cse::Mode::LOAD);
 	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
 	for (int i = 0; i < MAX_CASE; i++)
 	{
 		std::uniform_int_distribution<int> ranInt(INT_MIN, INT_MAX);
@@ -268,6 +298,8 @@ TEST_CASE("Serializer Save Load Unordered Set", "[Serializer]")
 			is++, ir++;
 		}
 		std::filesystem::remove(filename);
+		Saver.ResetFileStream();
+		Loader.ResetFileStream();
 	}
 }
 
@@ -276,6 +308,8 @@ TEST_CASE("Serializer Save Load Multiset", "[Serializer]")
 	cse::Serializer Saver(cse::Mode::SAVE);
 	cse::Serializer Loader(cse::Mode::LOAD);
 	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
 	for (int i = 0; i < MAX_CASE; i++)
 	{
 		std::uniform_int_distribution<int> ranInt(INT_MIN, INT_MAX);
@@ -298,6 +332,8 @@ TEST_CASE("Serializer Save Load Multiset", "[Serializer]")
 			is++, ir++;
 		}
 		std::filesystem::remove(filename);
+		Saver.ResetFileStream();
+		Loader.ResetFileStream();
 	}
 }
 
@@ -306,6 +342,8 @@ TEST_CASE("Serializer Save Load Unordered Multiset", "[Serializer]")
 	cse::Serializer Saver(cse::Mode::SAVE);
 	cse::Serializer Loader(cse::Mode::LOAD);
 	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
 	for (int i = 0; i < MAX_CASE; i++)
 	{
 		std::uniform_int_distribution<int> ranInt(INT_MIN, INT_MAX);
@@ -327,6 +365,8 @@ TEST_CASE("Serializer Save Load Unordered Multiset", "[Serializer]")
 			cr[v]++;
 		REQUIRE(cs == cr);
 		std::filesystem::remove(filename);
+		Saver.ResetFileStream();
+		Loader.ResetFileStream();
 	}
 }
 
@@ -335,6 +375,8 @@ TEST_CASE("Serializer Save Load Map", "[Serializer]")
 	cse::Serializer Saver(cse::Mode::SAVE);
 	cse::Serializer Loader(cse::Mode::LOAD);
 	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
 	for (int i = 0; i < MAX_CASE; i++)
 	{
 		std::map<int, int> m, res;
@@ -352,6 +394,8 @@ TEST_CASE("Serializer Save Load Map", "[Serializer]")
 			REQUIRE(res[l] == m[l]);
 		}
 		std::filesystem::remove(filename);
+		Saver.ResetFileStream();
+		Loader.ResetFileStream();
 	}
 }
 
@@ -360,6 +404,8 @@ TEST_CASE("Serializer Save Load Unordered Map", "[Serializer]")
 	cse::Serializer Saver(cse::Mode::SAVE);
 	cse::Serializer Loader(cse::Mode::LOAD);
 	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
 	for (int i = 0; i < MAX_CASE; i++)
 	{
 		std::unordered_map<int, int> m, res;
@@ -377,6 +423,8 @@ TEST_CASE("Serializer Save Load Unordered Map", "[Serializer]")
 			REQUIRE(res[l] == m[l]);
 		}
 		std::filesystem::remove(filename);
+		Saver.ResetFileStream();
+		Loader.ResetFileStream();
 	}
 }
 
@@ -385,6 +433,8 @@ TEST_CASE("Serializer Save Load Multi Map", "[Serializer]")
 	cse::Serializer Saver(cse::Mode::SAVE);
 	cse::Serializer Loader(cse::Mode::LOAD);
 	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
 	for (int i = 0; i < MAX_CASE; i++)
 	{
 		std::multimap<int, int> m, res;
@@ -400,6 +450,8 @@ TEST_CASE("Serializer Save Load Multi Map", "[Serializer]")
 		Loader.Serialize(res, filename);
 		REQUIRE(m == res);
 		std::filesystem::remove(filename);
+		Saver.ResetFileStream();
+		Loader.ResetFileStream();
 	}
 }
 
@@ -408,6 +460,8 @@ TEST_CASE("Serializer Save Load Unordered Multi Map", "[Serializer]")
 	cse::Serializer Saver(cse::Mode::SAVE);
 	cse::Serializer Loader(cse::Mode::LOAD);
 	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
 	for (int i = 0; i < MAX_CASE; i++)
 	{
 		std::unordered_multimap<int, int> m, res;
@@ -423,6 +477,8 @@ TEST_CASE("Serializer Save Load Unordered Multi Map", "[Serializer]")
 		Loader.Serialize(res, filename);
 		REQUIRE(m == res);
 		std::filesystem::remove(filename);
+		Saver.ResetFileStream();
+		Loader.ResetFileStream();
 	}
 }
 
@@ -431,6 +487,8 @@ TEST_CASE("Serializer Save Load Stack", "[Serializer]")
 	cse::Serializer Saver(cse::Mode::SAVE);
 	cse::Serializer Loader(cse::Mode::LOAD);
 	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
 	for (int i = 0; i < MAX_CASE; i++)
 	{
 		std::uniform_int_distribution<int> ranSize(1, MAX_SIZE);
@@ -457,6 +515,8 @@ TEST_CASE("Serializer Save Load Stack", "[Serializer]")
 			std::filesystem::remove(dataname);
 		}
 		std::filesystem::remove(filename);
+		Saver.ResetFileStream();
+		Loader.ResetFileStream();
 	}
 }
 
@@ -465,6 +525,8 @@ TEST_CASE("Serializer Save Load Queue", "[Serializer]")
 	cse::Serializer Saver(cse::Mode::SAVE);
 	cse::Serializer Loader(cse::Mode::LOAD);
 	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
 	for (int i = 0; i < MAX_CASE; i++)
 	{
 		std::uniform_int_distribution<int> ranSize(1, MAX_SIZE);
@@ -491,6 +553,8 @@ TEST_CASE("Serializer Save Load Queue", "[Serializer]")
 			std::filesystem::remove(dataname);
 		}
 		std::filesystem::remove(filename);
+		Saver.ResetFileStream();
+		Loader.ResetFileStream();
 	}
 }
 
@@ -499,6 +563,8 @@ TEST_CASE("Serializer Save Load Priority Queue", "[Serializer]")
 	cse::Serializer Saver(cse::Mode::SAVE);
 	cse::Serializer Loader(cse::Mode::LOAD);
 	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
 	for (int i = 0; i < MAX_CASE; i++)
 	{
 		std::uniform_int_distribution<int> ranSize(1, MAX_SIZE);
@@ -525,6 +591,8 @@ TEST_CASE("Serializer Save Load Priority Queue", "[Serializer]")
 			std::filesystem::remove(dataname);
 		}
 		std::filesystem::remove(filename);
+		Saver.ResetFileStream();
+		Loader.ResetFileStream();
 	}
 }
 
@@ -533,6 +601,8 @@ TEST_CASE("Serializer Save Load Deque", "[Serializer]")
 	cse::Serializer Saver(cse::Mode::SAVE);
 	cse::Serializer Loader(cse::Mode::LOAD);
 	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
 	for (int i = 0; i < MAX_CASE; i++)
 	{
 		std::uniform_int_distribution<int> ranSize(1, MAX_SIZE);
@@ -554,6 +624,8 @@ TEST_CASE("Serializer Save Load Deque", "[Serializer]")
 			std::filesystem::remove(dataname);
 		}
 		std::filesystem::remove(filename);
+		Saver.ResetFileStream();
+		Loader.ResetFileStream();
 	}
 }
 
@@ -562,11 +634,15 @@ TEST_CASE("Serializer Empty File or Empty Containers", "[Serializer]")
 	cse::Serializer Saver(cse::Mode::SAVE);
 	cse::Serializer Loader(cse::Mode::LOAD);
 	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
 	std::vector<int> vec, res; // Keep vec empty
 	Saver.Serialize(vec, filename);
 	Loader.Serialize(res, filename);
 	REQUIRE(res.size() == 0);
 	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
 	REQUIRE_THROWS_AS(Loader.Serialize(res, filename), cse::SerializationError);
 }
 
@@ -628,6 +704,8 @@ TEST_CASE("Serializer Nested Containers and Similars", "[Serializer]")
 	cse::Serializer Saver(cse::Mode::SAVE);
 	cse::Serializer Loader(cse::Mode::LOAD);
 	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
 	for (int i = 0; i < MAX_CASE; i++)
 	{
 		std::uniform_int_distribution<int> ranSize(1, MAX_SIZE);
@@ -661,6 +739,8 @@ TEST_CASE("Serializer Nested Containers and Similars", "[Serializer]")
 			}
 		}
 		std::filesystem::remove(filename);
+		Saver.ResetFileStream();
+		Loader.ResetFileStream();
 	}
 }
 
