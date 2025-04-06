@@ -12,6 +12,8 @@ const int SEED = 42;
 using cse::OutputLog;
 using cse::LogLevel;
 
+const std::array<double, 1> WEIGHT_ARR = {1.0};
+
 TEST_CASE("Simulation_NoTimeSteps", "[Simulation]") {
     std::ostringstream capturedStream;
     std::streambuf* oldCoutStreamBuf = std::cout.rdbuf();
@@ -25,17 +27,17 @@ TEST_CASE("Simulation_NoTimeSteps", "[Simulation]") {
     state.AddSpecies({"Foxes", 10, 0.05, 0.1, 15, 3, "Rabbits"});
     state.AddInteraction({"Foxes", "Rabbits", 0.2});
 
-    SimulationRunner runner(state, dummyLog, SEED);
+    SimulationRunner runner(state, WEIGHT_ARR, dummyLog, SEED);
     runner.run();
 
     std::cout.rdbuf(oldCoutStreamBuf);
 
-    Species* rabbits = state.FindSpecies("Rabbits");
-    Species* foxes   = state.FindSpecies("Foxes");
-    REQUIRE(rabbits != nullptr);
-    REQUIRE(foxes != nullptr);
-    REQUIRE(rabbits->population == 100); // no change
-    REQUIRE(foxes->population == 10);
+    auto rabbits = state.FindSpecies("Rabbits");
+    auto foxes   = state.FindSpecies("Foxes");
+    REQUIRE(rabbits.has_value());
+    REQUIRE(foxes.has_value());
+    REQUIRE(rabbits.value()->population == 100); // no change
+    REQUIRE(foxes.value()->population == 10);
 
     std::string logs = capturedStream.str();
     REQUIRE(logs.find("Simulation complete.") != std::string::npos); // simulation should be compl.
@@ -53,18 +55,17 @@ TEST_CASE("Simulation_NoInteractions", "[Simulation]") {
     state.AddSpecies({"Rabbits", 100, 0.1, 0.05, 10, 2, "Grass"});
     state.AddSpecies({"Foxes", 10, 0.05, 0.1, 15, 3, "None"}); 
 
-    SimulationRunner runner(state, dummyLog, SEED);
+    SimulationRunner runner(state, WEIGHT_ARR, dummyLog, SEED);
     runner.run();
 
     std::cout.rdbuf(oldCoutStreamBuf);
 
-    // pop change only based on birth and death rates.
-    Species* rabbits = state.FindSpecies("Rabbits");
-    Species* foxes   = state.FindSpecies("Foxes");
-    REQUIRE(rabbits != nullptr);
-    REQUIRE(foxes != nullptr);
-    REQUIRE(rabbits->population == 117);
-    REQUIRE(foxes->population == 10);
+    auto rabbits = state.FindSpecies("Rabbits");
+    auto foxes   = state.FindSpecies("Foxes");
+    REQUIRE(rabbits.has_value());
+    REQUIRE(foxes.has_value());
+    REQUIRE(rabbits.value()->population == 117);
+    REQUIRE(foxes.value()->population == 10);
 
     std::string logs = capturedStream.str();
     REQUIRE(logs.find("Simulation complete.") != std::string::npos);
@@ -84,20 +85,19 @@ TEST_CASE("Simulation_EarlyExtinction", "[Simulation]") {
     state.AddSpecies({"Foxes", 5, 0.0, 1.0, 15, 3, "Rabbits"});
     state.AddInteraction({"Foxes", "Rabbits", 0.2});
 
-    SimulationRunner runner(state, dummyLog, SEED);
+    SimulationRunner runner(state, WEIGHT_ARR, dummyLog, SEED);
     runner.run();
 
     std::cout.rdbuf(oldCoutStreamBuf);
-    // Expect both species to go extinct.
-    Species* rabbits = state.FindSpecies("Rabbits");
-    Species* foxes   = state.FindSpecies("Foxes");
-    REQUIRE(rabbits != nullptr);
-    REQUIRE(foxes != nullptr);
-    REQUIRE(rabbits->population == 0);
-    REQUIRE(foxes->population == 0);
+
+    auto rabbits = state.FindSpecies("Rabbits");
+    auto foxes   = state.FindSpecies("Foxes");
+    REQUIRE(rabbits.has_value());
+    REQUIRE(foxes.has_value());
+    REQUIRE(rabbits.value()->population == 0);
+    REQUIRE(foxes.value()->population == 0);
 
     std::string logs = capturedStream.str();
-    // simulation should end early due to extinction.
     REQUIRE(logs.find("Simulation ended early: all species went extinct.") != std::string::npos);
 }
 
@@ -114,15 +114,14 @@ TEST_CASE("Simulation_MissingSpeciesInteraction", "[Simulation]") {
     state.AddSpecies({"Rabbits", 100, 0.1, 0.05, 10, 2, "Grass"});
     state.AddInteraction({"Foxes", "Rabbits", 0.2}); // foxes does not exist in the simulation.
 
-    SimulationRunner runner(state, dummyLog, SEED);
+    SimulationRunner runner(state, WEIGHT_ARR, dummyLog, SEED);
     runner.run();
 
     std::cout.rdbuf(oldCoutStreamBuf);
 
-    // Since "Foxes" does not exist, only the rabbits should update via births and deaths.
-    Species* rabbits = state.FindSpecies("Rabbits");
-    REQUIRE(rabbits != nullptr);
-    REQUIRE(rabbits->population == 116);
+    auto rabbits = state.FindSpecies("Rabbits");
+    REQUIRE(rabbits.has_value());
+    REQUIRE(rabbits.value()->population == 116);
 
     std::string logs = capturedStream.str();
     REQUIRE(logs.find("Simulation complete.") != std::string::npos);
@@ -136,25 +135,50 @@ TEST_CASE("Simulation_Regular_Run", "[Simulation]") {
     OutputLog dummyLog(LogLevel::DEBUG, "dummy.log");
     dummyLog.enableConsoleOutput(true);
 
-    // Create a simulation state with 3 time steps and only one species.
     SimulationState state(3, 1);
     state.AddSpecies({"Rabbits", 100, 0.1, 0.05, 10, 2, "Grass"});
     state.AddSpecies({"Foxes", 10, 0.05, 0.1, 15, 3, "Rabbits"});
     state.AddInteraction({"Foxes", "Rabbits", 0.1}); 
 
-    SimulationRunner runner(state, dummyLog, SEED);
+    SimulationRunner runner(state, WEIGHT_ARR, dummyLog, SEED);
     runner.run();
 
     std::cout.rdbuf(oldCoutStreamBuf);
 
-    Species* rabbits = state.FindSpecies("Rabbits");
-    REQUIRE(rabbits != nullptr);
-    Species* foxes = state.FindSpecies("Foxes");
-    REQUIRE(foxes != nullptr);
-
-    REQUIRE(rabbits->population ==117); 
-    REQUIRE(foxes->population == 10);
+    auto rabbits = state.FindSpecies("Rabbits");
+    auto foxes   = state.FindSpecies("Foxes");
+    REQUIRE(rabbits.has_value());
+    REQUIRE(foxes.has_value());
+    REQUIRE(rabbits.value()->population == 117); 
+    REQUIRE(foxes.value()->population == 10);
 
     std::string logs = capturedStream.str();
     REQUIRE(logs.find("Simulation complete.") != std::string::npos);
+}
+
+TEST_CASE("Simulation_Invalid_Access", "[Simulation]") {
+    std::ostringstream capturedStream;
+    std::streambuf* oldCoutStreamBuf = std::cout.rdbuf();
+    std::cout.rdbuf(capturedStream.rdbuf());
+
+    OutputLog dummyLog(LogLevel::DEBUG, "dummy.log");
+    dummyLog.enableConsoleOutput(true);
+
+    SimulationState state(3, 1);
+    state.AddSpecies({"Rabbits", 100, 0.1, 0.05, 10, 2, "Grass"});
+    state.AddSpecies({"Foxes", 10, 0.05, 0.1, 15, 3, "Rabbits"});
+    state.AddInteraction({"Foxes", "Rabbits", 0.2});
+    
+    auto dogs = state.FindSpecies("Dogs");
+    REQUIRE(!dogs.has_value()); // should not find the species
+
+    SimulationRunner runner(state, WEIGHT_ARR, dummyLog, SEED);
+    runner.run();
+    std::cout.rdbuf(oldCoutStreamBuf);
+    auto rabbits = state.FindSpecies("Rabbits");
+    auto foxes   = state.FindSpecies("Foxes");
+
+    // ensure the species are still present
+    REQUIRE(rabbits.has_value()); 
+    REQUIRE(foxes.has_value()); 
 }
