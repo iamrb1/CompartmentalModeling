@@ -30,7 +30,8 @@ void Alert(const std::string& msg) {
  * @return True if the URL is valid
  */
 bool validateURL(const std::string& url) {
-  return url.find("http://") == 0 || url.find("https://") == 0;
+  return url.find("http://") == 0 || url.find("https://") == 0 ||
+         url.find("://") == std::string::npos;
 }
 
 /**
@@ -50,13 +51,12 @@ Image::Image(const std::string& url, int width, int height,
       height(height),
       altText(altText),
       id(imageID.empty() ? generateID() : imageID) {
-  em_assert(!url.empty() && "URL must not be empty");
-  em_assert(width > 0 && height > 0 &&
-            "Width and height must be positive integers");
-
+  if (url.empty()) {
+    throw std::invalid_argument("URL must not be empty");
+  }
   if (!validateURL(url)) {
     throw std::invalid_argument(
-        "Invalid URL: Must start with http:// or https://");
+        "Invalid URL: Must be valid http/https URL or a relative path");
   }
   if (width <= 0 || height <= 0) {
     throw std::invalid_argument(
@@ -71,7 +71,9 @@ Image::Image(const std::string& url, int width, int height,
  * @throws std::invalid_argument If the URL is invalid
  */
 void Image::setURL(const std::string& newURL) {
-  em_assert(!newURL.empty() && "New URL must not be empty");
+  if (newURL.empty()) {
+    throw std::invalid_argument("New URL must not be empty");
+  }
   if (!validateURL(newURL)) {
     throw std::invalid_argument(
         "Invalid URL: Must start with http:// or https://");
@@ -92,7 +94,6 @@ void Image::resize(int newWidth, int newHeight, bool maintainAspect) {
     throw std::invalid_argument(
         "Invalid dimensions: Width and height must be positive.");
   }
-
   if (maintainAspect) {
     double aspectRatio = static_cast<double>(width) / height;
     if (newWidth / aspectRatio > newHeight) {

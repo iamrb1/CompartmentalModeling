@@ -44,6 +44,13 @@ WebLayoutManager::WebLayoutManager() {
              { Module._call_addTextBox(); });
            }
 
+          var addImageButton = document.getElementById("addImageButton");
+          if (addImageButton) {
+            addImageButton.addEventListener(
+                "click", function()
+            { Module._call_addImage(); });
+          }
+    
            var addNewSlide = document.getElementById("addNewSlideButton");
            if (addNewSlide) {
              addNewSlide.addEventListener(
@@ -66,6 +73,17 @@ EMSCRIPTEN_KEEPALIVE void call_advance() {
 EMSCRIPTEN_KEEPALIVE void call_rewind() {
   if (g_manager) {
     g_manager->rewind();
+  } else {
+    std::cout << "ERROR: g_manager is null!" << std::endl;
+  }
+}
+
+EMSCRIPTEN_KEEPALIVE void call_addImage(char* urlPtr, int width, int height, char* altPtr) {
+  std::string url(urlPtr);
+  std::string altText(altPtr);
+
+  if (g_manager) {
+    g_manager->addImage(url, width, height, altText);
   } else {
     std::cout << "ERROR: g_manager is null!" << std::endl;
   }
@@ -190,6 +208,12 @@ void WebLayoutManager::addTextBox() {
 
   layouts.at(currentPos)->addTextBox(newLayout);
   //layouts.at(currentPos)->loadPage();
+}
+
+void WebLayoutManager::addImage(const std::string& url, int width, int height, const std::string& altText) {
+    auto image = std::make_shared<Image>(url, width, height, altText);
+    ImageLayout layout{image, 10, 10}; // Default x/y position
+    layouts.at(currentPos)->addImage(layout);
 }
 
 void WebLayoutManager::addNewSlide() {

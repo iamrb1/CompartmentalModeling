@@ -40,8 +40,7 @@ int main() {
     InjectImage = Module.cwrap('InjectImage', null,
                                [ 'string', 'number', 'number', 'string' ]);
     InjectImage(
-        "https://i.pinimg.com/originals/36/82/13/"
-        "368213faa3efdfeffa5da9f5b493c9e7.jpg",
+        "https://i.pinimg.com/originals/36/82/13/368213faa3efdfeffa5da9f5b493c9e7.jpg",
         700, 500, "Sparty!");
   });
 

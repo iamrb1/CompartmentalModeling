@@ -25,10 +25,11 @@ class WebLayoutManager {
   void initialize();
   void addTextBox();
   void addNewSlide();
+  void addImage(const std::string& url, int width, int height, const std::string& altText);
 
   WebLayoutManager();
 
-  // 🔹 Getter for export support
+  // Getter for export support
   const std::vector<std::shared_ptr<WebLayout>> &getLayouts() const {
     return layouts;
   }
