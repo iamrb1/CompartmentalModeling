@@ -13,35 +13,25 @@ SOURCES = \
   FixedPoint.cpp \
   FunctionSet.cpp
 
-# Automatically convert .cpp file list to .o object list
 OBJECTS = $(SOURCES:.cpp=.o)
-
-# The final output name. Emscripten will produce index.html, plus .wasm, .js, etc.
 TARGET = index.html
 
-# Emscripten compiler Change the path match your folder
-EMCC = ~/emsdk/upstream/emscripten/emcc
+EMCC = emcc
 
-# Compilation & Link flags
-# -s USE_SDL=2   -> Links against SDL2
-# -s WASM=1      -> Generates WebAssembly code
-# You can add more flags like optimization (-O2 or -O3), debug info (-g), etc.
-CFLAGS = -std=c++17 -s USE_SDL=2 -s WASM=1
+CFLAGS = -std=c++20 -s USE_SDL=2 -s WASM=1 -O2 -g
 
-###############################################################################
-# Build targets
 ###############################################################################
 
 all: $(TARGET)
 
-# Link step: create index.html from all objects
 $(TARGET): $(OBJECTS)
 	$(EMCC) $(CFLAGS) $(OBJECTS) -o $(TARGET)
 
-# Compile step: each .cpp -> .o
 %.o: %.cpp
 	$(EMCC) $(CFLAGS) -c $< -o $@
 
-# Remove generated files
 clean:
 	rm -f $(OBJECTS) $(TARGET)
+
+serve:
+	emrun --no_browser --port 8080 .
