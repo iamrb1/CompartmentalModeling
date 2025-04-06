@@ -23,7 +23,7 @@ constexpr int MIN_PERCENT = 0;
 void WebLayout::addImage(const ImageLayout &image) {
   images.push_back(image);
   if ((image.image->getHeight() > MIN_PERCENT &&
-      image.image->getWidth() > MIN_PERCENT) &&
+       image.image->getWidth() > MIN_PERCENT) &&
       (image.xPos >= MIN_PERCENT && image.yPos >= MIN_PERCENT)) {
     renderImage(getID(), image.image->getURL(), image.image->getWidth(),
                 image.image->getHeight(), image.xPos, image.yPos,
@@ -52,7 +52,7 @@ void WebLayout::addTextBox(const TextBoxLayout &textBox) {
   std::cout << "Adding textbox" << std::endl;
 
   if ((textBox.textBox->getHeight() > MIN_PERCENT &&
-      textBox.textBox->getWidth() > MIN_PERCENT) &&
+       textBox.textBox->getWidth() > MIN_PERCENT) &&
       (textBox.xPos >= MIN_PERCENT && textBox.yPos >= MIN_PERCENT)) {
     renderTextBox(getID(), textBox.textBox->getFormattedText(),
                   textBox.textBox->getWidth(), textBox.textBox->getHeight(),
@@ -94,12 +94,12 @@ const std::vector<TextBoxLayout> &WebLayout::getTextBoxes() {
  * @param height height of the textbox
  */
 const void WebLayout::renderTextBox(const std::string &layoutID,
-                                    const FormattedText &formattedText, const int &width,
-                                    const int &height, const int &x,
-                                    const int &y,
+                                    const FormattedText &formattedText,
+                                    const int &width, const int &height,
+                                    const int &x, const int &y,
                                     const std::string &textboxID) {
   assert(width >= MIN_PERCENT &&
-      height >= MIN_PERCENT);  // assert width and height are positive
+         height >= MIN_PERCENT);  // assert width and height are positive
   assert(x >= MIN_PERCENT && y >= MIN_PERCENT);  // assert x and y are positive
 
   // Get Formatting variables
@@ -122,7 +122,6 @@ const void WebLayout::renderTextBox(const std::string &layoutID,
         var color = UTF8ToString($9);
         var font = UTF8ToString($10);
         var fontSize = $11;
-
 
         // Calculate the ratio to view height/width (1%)
         var widthRatio =
@@ -164,17 +163,31 @@ const void WebLayout::renderTextBox(const std::string &layoutID,
           // Check if textbox already exists in layout
           var currentTextBox = document.getElementById(textboxID);
           if (!currentTextBox) {
-            layoutDiv.innerHTML +=
-                '<p id= ' + textboxID + '; style="position: absolute; left: ' +
-                    x + 'vw; top: ' + y +
-                    'vh; border: 1px solid black; margin: 0; border-radius: 5px; height: ' +
-                    height + 'vh; width: ' + width + 'vw; color: ' + color + '; font-family: ' + font + '; font-size:'
-                    + fontSize + 'px;">' + msg + '</p>';
+            var p = document.createElement("p");
+            p.className = "textbox";
+            p.id = textboxID;
+            p.textContent = msg;  // Set raw text content, not HTML
+
+            // Apply styles
+            p.style.position = "absolute";
+            p.style.left = x + "vw";
+            p.style.top = y + "vh";
+            p.style.border = "1px solid black";
+            p.style.margin = "0";
+            p.style.borderRadius = "5px";
+            p.style.height = height + "vh";
+            p.style.width = width + "vw";
+            p.style.color = color;
+            p.style.fontFamily = font;
+            p.style.fontSize = fontSize + "px";
+
+            layoutDiv.appendChild(p);
           }
         }
       },
       layoutID.c_str(), text.c_str(), width, height, x, y, textboxID.c_str(),
-      MAX_WIDTH_PERCENT, MAX_HEIGHT_PERCENT, color.c_str(), font.c_str(), fontSize);
+      MAX_WIDTH_PERCENT, MAX_HEIGHT_PERCENT, color.c_str(), font.c_str(),
+      fontSize);
 }
 
 /**
@@ -190,7 +203,7 @@ void const WebLayout::renderImage(const std::string &layoutID,
                                   const int &height, const int &x, const int &y,
                                   const std::string &imageID) {
   assert(width >= MIN_PERCENT &&
-      height >= MIN_PERCENT);  // assert width and height are positive
+         height >= MIN_PERCENT);  // assert width and height are positive
   assert(x >= MIN_PERCENT && y >= MIN_PERCENT);  // assert x and y are positive
 
   EM_ASM(
@@ -235,9 +248,9 @@ void const WebLayout::renderImage(const std::string &layoutID,
         if (layoutDiv) {
           layoutDiv.innerHTML +=
               "<img id=" + imageID + "; src='" + msg +
-                  "' style='position: absolute; left: " + x + "vw; top: " + y +
-                  "vh; margin: 0; object-fit: contain; width:" + width +
-                  "vw; height:" + height + "vh;' />";
+              "' style='position: absolute; left: " + x + "vw; top: " + y +
+              "vh; margin: 0; object-fit: contain; width:" + width +
+              "vw; height:" + height + "vh;' />";
         }
       },
       layoutID.c_str(), url.c_str(), width, height, x, y, imageID.c_str(),
@@ -254,7 +267,7 @@ void WebLayout::loadPage() {
 
     // Verify values are valid
     if ((layout.textBox->getHeight() > MIN_PERCENT &&
-        layout.textBox->getWidth() > MIN_PERCENT) &&
+         layout.textBox->getWidth() > MIN_PERCENT) &&
         (layout.xPos >= MIN_PERCENT && layout.yPos >= MIN_PERCENT)) {
       renderTextBox(getID(), layout.textBox->getFormattedText(),
                     layout.textBox->getWidth(), layout.textBox->getHeight(),
@@ -266,7 +279,7 @@ void WebLayout::loadPage() {
   for (const auto &layout : images) {
     // Verify values are valid
     if ((layout.image->getHeight() > MIN_PERCENT &&
-        layout.image->getWidth() > MIN_PERCENT) &&
+         layout.image->getWidth() > MIN_PERCENT) &&
         (layout.xPos >= MIN_PERCENT && layout.yPos >= MIN_PERCENT)) {
       renderImage(getID(), layout.image->getURL(), layout.image->getWidth(),
                   layout.image->getHeight(), layout.xPos, layout.yPos,
