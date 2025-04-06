@@ -6,6 +6,9 @@
 
 TEST_CASE("Advanced DataTracker Mode", "[DataTracker]") {
     cse::DataTracker<int> tracker;
+
+    CHECK(tracker.mode() == 0);
+
     tracker.add_value(1);
     tracker.add_value(2);
     tracker.add_value(2);
@@ -14,6 +17,13 @@ TEST_CASE("Advanced DataTracker Mode", "[DataTracker]") {
 
     tracker.add_value(3);
     CHECK((tracker.mode() == 2 || tracker.mode() == 3)); // Handle multiple modes
+
+    tracker.add_value(-4);
+    tracker.add_value(-4);
+    tracker.add_value(-4);
+
+    CHECK(tracker.mode() == -4);
+
 }
 
 TEST_CASE("Advanced DataTracker Variance", "[DataTracker]") {
@@ -36,4 +46,14 @@ TEST_CASE("Advanced DataTracker Prey-Predator Win Condition", "[DataTracker]") {
     for (int i = 0; i < 81; ++i) tracker.add_value(1); // 81% prey
     for (int i = 0; i < 19; ++i) tracker.add_value(2); // 19% predator
     CHECK(tracker.winner() == 1);
+
+    tracker.delete_value(1);
+    tracker.delete_value(1);
+    tracker.delete_value(1);
+    CHECK(tracker.winner() == 0);
+}
+
+TEST_CASE("Advanced DataTracker Prey-Predator Win Condition (empty)", "[DataTracker]") {
+    cse::DataTracker<int> tracker;
+    CHECK(tracker.winner() == 0);
 }

@@ -33,10 +33,10 @@ public:
 
     std::optional<T> winner() const;
 
-    // Returns the total number of elements
+    // Adds a specified value to the vector
     constexpr void add_value(const T& value) {values.push_back(value);}
 
-    // Adds a specified value to the vector
+    // Returns the total number of elements in the vector
     constexpr size_t total() const {return values.size();}
 
 private:
