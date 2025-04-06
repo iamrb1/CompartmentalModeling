@@ -375,10 +375,6 @@ TEST_CASE("Serializer Save Load Unordered Map", "[Serializer]")
 		{
 			REQUIRE(res.find(l) != res.end());
 			REQUIRE(res[l] == m[l]);
-			std::string datanameKey = (std::string)filename + "_K" + std::to_string(l);
-			std::string datanameVal = (std::string)filename + "_V" + std::to_string(l);
-			std::filesystem::remove(datanameKey);
-			std::filesystem::remove(datanameVal);
 		}
 		std::filesystem::remove(filename);
 	}
@@ -403,13 +399,6 @@ TEST_CASE("Serializer Save Load Multi Map", "[Serializer]")
 		Saver.Serialize(m, filename);
 		Loader.Serialize(res, filename);
 		REQUIRE(m == res);
-		for (int l = 0; l < MAX_SIZE; l++)
-		{
-			std::string datanameKey = (std::string)filename + "_K" + std::to_string(l);
-			std::string datanameVal = (std::string)filename + "_V" + std::to_string(l);
-			std::filesystem::remove(datanameKey);
-			std::filesystem::remove(datanameVal);
-		}
 		std::filesystem::remove(filename);
 	}
 }
@@ -433,13 +422,6 @@ TEST_CASE("Serializer Save Load Unordered Multi Map", "[Serializer]")
 		Saver.Serialize(m, filename);
 		Loader.Serialize(res, filename);
 		REQUIRE(m == res);
-		for (int l = 0; l < MAX_SIZE; l++)
-		{
-			std::string datanameKey = (std::string)filename + "_K" + std::to_string(l);
-			std::string datanameVal = (std::string)filename + "_V" + std::to_string(l);
-			std::filesystem::remove(datanameKey);
-			std::filesystem::remove(datanameVal);
-		}
 		std::filesystem::remove(filename);
 	}
 }
@@ -718,7 +700,6 @@ TEST_CASE("Serialize External Class/Struct", "[Serializer]")
 	for (size_t i = 0; i < P1.hobbies.size(); i++)
 	{
 		REQUIRE(P1.hobbies[i] == P2.hobbies[i]);
-		std::string dataname = (std::string)filename + "_" + std::to_string(i);
 	}
 	std::filesystem::remove_all(folder);
 }
