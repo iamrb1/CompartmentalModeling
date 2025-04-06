@@ -165,7 +165,7 @@ const void WebLayout::renderTextBox(const std::string &layoutID,
           var currentTextBox = document.getElementById(textboxID);
           if (!currentTextBox) {
             layoutDiv.innerHTML +=
-                '<p id= ' + textboxID + '; style="position: absolute; left: ' +
+                '<p id=' + textboxID + ' style="position: absolute; left: ' +
                     x + 'vw; top: ' + y +
                     'vh; border: 1px solid black; margin: 0; border-radius: 5px; height: ' +
                     height + 'vh; width: ' + width + 'vw; color: ' + color + '; font-family: ' + font + '; font-size:'
@@ -234,7 +234,7 @@ void const WebLayout::renderImage(const std::string &layoutID,
 
         if (layoutDiv) {
           layoutDiv.innerHTML +=
-              "<img id=" + imageID + "; src='" + msg +
+              "<img id=" + imageID + " src='" + msg +
                   "' style='position: absolute; left: " + x + "vw; top: " + y +
                   "vh; margin: 0; object-fit: contain; width:" + width +
                   "vw; height:" + height + "vh;' />";
@@ -322,5 +322,40 @@ void WebLayout::deactivateLayout() {
       },
       layoutID.c_str());
 }
+
+void WebLayout::setPosition(std::string id, int newX, int newY) {
+  for (auto& tbl : textBoxes) {
+    if (tbl.textBox->getID() == id) {
+      tbl.setPosition(newX, newY);
+    }
+  }
+
+  for (auto& imgl : images) {
+    if (imgl.image->getID() == id) {
+      imgl.setPosition(newX, newY);
+    }
+  }
+}
+
+
+bool WebLayout::contains(std::string id) const {
+  for (const auto& tbl : textBoxes) {
+std::cout << "C++ ID length: " << tbl.textBox->getID().length() << ", Passed ID length: " << id.length() << std::endl;
+std::cout << "C++: " << tbl.textBox->getID() << ", Passed ID: " << id << std::endl;
+    if (tbl.textBox->getID() == id) {
+      return true;
+    }
+  }
+
+  for (const auto& imgl : images) {
+
+    if (imgl.image->getID() == id) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 
 }  // namespace cse

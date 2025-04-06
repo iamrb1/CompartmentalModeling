@@ -50,6 +50,69 @@ WebLayoutManager::WebLayoutManager() {
                  "click", function()
              { Module._call_addNewSlide(); });
            }
+
+  // Check if item is being dragged
+
+    document.addEventListener('mousedown', function(e) {
+//      var clickedElement = e.target;
+	  console.log("SCREEN CLICKED");
+      console.log("Passed ID to C++:", e.target.id);
+      console.log("CLICKED ELEMENT", e.target);
+      // Check if clicked element is draggable (e.g., a textbox or image)
+      var draggable = Module.ccall(
+  'call_isMoveableObject', // C++ function name
+  'boolean',                 // return type (1 = true, 0 = false)
+  ['string'],               // argument types
+  [e.target.id]              // arguments
+);
+      console.log("DRAGGABLE:",draggable, "ID", e.target.id);
+if ( draggable ) {
+
+  console.log("CLICKED ELEMENT", e.target);
+//  clickedElement.setAttribute("data-draggable", "true"); // prevent re-binding
+  makeDraggable(e.target);
+}
+
+    });
+
+//    // Function to make an element draggable
+    function makeDraggable(element) {
+        var offsetX = 0;
+        var offsetY = 0;
+		console.log("MAKE DRAGGABLE", element);
+
+
+//      element.onmousedown = function(e) {
+//        console.log("onmousedown");
+//        e.preventDefault(); // Prevent text selection
+//	    offsetX = (e.clientX / window.innerWidth) * 100 - (element.getBoundingClientRect().left / window.innerWidth) * 100;
+//    	offsetY = (e.clientY / window.innerHeight) * 100 - (element.getBoundingClientRect().top / window.innerHeight) * 100;
+
+
+//        // Set up mousemove and mouseup handlers
+        document.onmousemove = function(e) {
+      var newX = (e.clientX / window.innerWidth) * 100 - offsetX;
+      var newY = (e.clientY / window.innerHeight) * 100 - offsetY;
+console.log("onmousemove");
+          // Update element position
+
+			//instead of changing style call c++ function
+		//Used ChatGPT to figure out conversions between JS and C++ types
+		Module.ccall('call_updatePosition', null, ['string', 'number', 'number'], [element.id.trim(), newX, newY]);
+          console.log("Position updated to:", newX, newY);
+          element.style.left = newX + 'vw';
+          element.style.top = newY + 'vh';
+        };
+//
+        document.onmouseup = function(e) {
+      // Calculate final position and move the element
+      console.log("ONMOUSEUP");
+      // Remove event listeners after mouse is released
+      document.onmousemove = null;
+      document.onmouseup = null;
+        };
+//      };
+    }
          });
 
 }
@@ -86,6 +149,25 @@ EMSCRIPTEN_KEEPALIVE void call_addNewSlide() {
     std::cout << "ERROR: g_manager is null!" << std::endl;
   }
 }
+
+EMSCRIPTEN_KEEPALIVE void call_updatePosition(std::string id, int newX, int newY) {
+  if (g_manager) {
+    g_manager->updatePosition(id, newX, newY);
+  } else {
+    std::cout << "ERROR: g_manager is null!" << std::endl;
+  }
+}
+
+EMSCRIPTEN_KEEPALIVE bool call_isMoveableObject(const char* id) {
+    std::string cppId(id);
+    if (g_manager) {
+    return g_manager->isMoveableObject(cppId);
+  } else {
+    std::cout << "ERROR: g_manager is null!" << std::endl;
+    return false;
+  }
+}
+
 }
 
 /**
@@ -201,6 +283,15 @@ void WebLayoutManager::addNewSlide() {
            var wbID = UTF8ToString($0);
            console.log("Added new slide: ", wbID);
          }, wbID.c_str());
+}
+
+void WebLayoutManager::updatePosition(std::string id, int newX, int newY) {
+  // Updates items position
+    layouts.at(currentPos)->setPosition(id, newX, newY);
+}
+
+bool WebLayoutManager::isMoveableObject(std::string id) const{
+	return layouts.at(currentPos)->contains(id);
 }
 
 }  // namespace cse

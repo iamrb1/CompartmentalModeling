@@ -26,6 +26,9 @@ class WebLayoutManager {
   void addTextBox();
   void addNewSlide();
 
+  void updatePosition(std::string id, int newX, int newY);
+  bool isMoveableObject(std::string id) const;
+
   WebLayoutManager();
 
   // 🔹 Getter for export support
