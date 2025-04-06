@@ -191,6 +191,17 @@ namespace cse
 		void SetMode(Mode mode) { mode_ = mode; }
 
 		/**
+		 * @brief Reset Filestream to default, usually use to reset cache after deleting files.
+		 */
+		void ResetFileStream()
+		{
+			currInFile = "";
+			currOutFile = "";
+			inFile.close();
+			outFile.close();
+		}
+
+		/**
 		 * @brief Determines if the given type T is serializable.
 		 * @tparam T The type to check.
 		 * @param data An instance of the type.
