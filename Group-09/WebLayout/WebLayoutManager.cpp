@@ -12,7 +12,7 @@ namespace cse {
 /**
  * Global pointer for use in JS
  */
-WebLayoutManager *g_manager = nullptr;
+WebLayoutManager* g_manager = nullptr;
 
 /**
  * Constructs manager and binds buttons on html to functions
@@ -22,43 +22,37 @@ WebLayoutManager::WebLayoutManager() {
 
   // Set up the event listener for the button click
   EM_ASM({
-           // Setup advance button
-           var advanceButton = document.getElementById("advanceButton");
-           if (advanceButton) {
-             advanceButton.addEventListener(
-                 "click", function()
-             { Module._call_advance(); });
-           }
+    // Setup advance button
+    var advanceButton = document.getElementById("advanceButton");
+    if (advanceButton) {
+      advanceButton.addEventListener(
+          "click", function() { Module._call_advance(); });
+    }
 
-           var rewindButton = document.getElementById("reverseButton");
-           if (rewindButton) {
-             rewindButton.addEventListener(
-                 "click", function()
-             { Module._call_rewind(); });
-           }
+    var rewindButton = document.getElementById("reverseButton");
+    if (rewindButton) {
+      rewindButton.addEventListener(
+          "click", function() { Module._call_rewind(); });
+    }
 
-           var addTextBoxButton = document.getElementById("addTextBoxButton");
-           if (addTextBoxButton) {
-             addTextBoxButton.addEventListener(
-                 "click", function()
-             { Module._call_addTextBox(); });
-           }
+    var addTextBoxButton = document.getElementById("addTextBoxButton");
+    if (addTextBoxButton) {
+      addTextBoxButton.addEventListener(
+          "click", function() { Module._call_addTextBox(); });
+    }
 
-          var addImageButton = document.getElementById("addImageButton");
-          if (addImageButton) {
-            addImageButton.addEventListener(
-                "click", function()
-            { Module._call_addImage(); });
-          }
-    
-           var addNewSlide = document.getElementById("addNewSlideButton");
-           if (addNewSlide) {
-             addNewSlide.addEventListener(
-                 "click", function()
-             { Module._call_addNewSlide(); });
-           }
-         });
+    var addImageButton = document.getElementById("addImageButton");
+    if (addImageButton) {
+      addImageButton.addEventListener(
+          "click", function() { Module._call_addImage(); });
+    }
 
+    var addNewSlide = document.getElementById("addNewSlideButton");
+    if (addNewSlide) {
+      addNewSlide.addEventListener(
+          "click", function() { Module._call_addNewSlide(); });
+    }
+  });
 }
 
 extern "C" {
@@ -78,7 +72,8 @@ EMSCRIPTEN_KEEPALIVE void call_rewind() {
   }
 }
 
-EMSCRIPTEN_KEEPALIVE void call_addImage(char* urlPtr, int width, int height, char* altPtr) {
+EMSCRIPTEN_KEEPALIVE void call_addImage(char* urlPtr, int width, int height,
+                                        char* altPtr) {
   std::string url(urlPtr);
   std::string altText(altPtr);
 
@@ -102,6 +97,21 @@ EMSCRIPTEN_KEEPALIVE void call_addNewSlide() {
     g_manager->addNewSlide();
   } else {
     std::cout << "ERROR: g_manager is null!" << std::endl;
+  }
+}
+
+EMSCRIPTEN_KEEPALIVE
+void updateTextBoxContent(const char* textboxId, const char* newText) {
+  if (!g_manager) return;
+
+  auto& layout = g_manager->getLayouts().at(g_manager->getCurrentPos());
+  auto& textBoxes = layout->getTextBoxes();
+
+  for (auto& tb : textBoxes) {
+    if (tb.textBox->getID() == textboxId) {
+      tb.textBox->getFormattedText().setText(newText);
+      break;
+    }
   }
 }
 }
@@ -207,13 +217,14 @@ void WebLayoutManager::addTextBox() {
   TextBoxLayout newLayout = {newTextBox, 50, 50};
 
   layouts.at(currentPos)->addTextBox(newLayout);
-  //layouts.at(currentPos)->loadPage();
+  // layouts.at(currentPos)->loadPage();
 }
 
-void WebLayoutManager::addImage(const std::string& url, int width, int height, const std::string& altText) {
-    auto image = std::make_shared<Image>(url, width, height, altText);
-    ImageLayout layout{image, 10, 10}; // Default x/y position
-    layouts.at(currentPos)->addImage(layout);
+void WebLayoutManager::addImage(const std::string& url, int width, int height,
+                                const std::string& altText) {
+  auto image = std::make_shared<Image>(url, width, height, altText);
+  ImageLayout layout{image, 10, 10};  // Default x/y position
+  layouts.at(currentPos)->addImage(layout);
 }
 
 void WebLayoutManager::addNewSlide() {
@@ -221,10 +232,12 @@ void WebLayoutManager::addNewSlide() {
   auto wb = std::make_shared<WebLayout>();
   addLayout(wb);
   auto wbID = wb->getID();
-  EM_ASM({
-           var wbID = UTF8ToString($0);
-           console.log("Added new slide: ", wbID);
-         }, wbID.c_str());
+  EM_ASM(
+      {
+        var wbID = UTF8ToString($0);
+        console.log("Added new slide: ", wbID);
+      },
+      wbID.c_str());
 }
 
 }  // namespace cse
