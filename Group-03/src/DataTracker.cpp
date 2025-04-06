@@ -137,7 +137,7 @@ T DataTracker<T>::max() const {
 // Determines if there is a winner (if any value surpasses 80% of total)
 template <typename T>
 std::optional<T> DataTracker<T>::winner() const {
-    if (values.empty()) return std::nullopt;
+    if (values.empty()) return 0;
 
     std::unordered_map<T, int> frequency;
         
@@ -151,7 +151,7 @@ std::optional<T> DataTracker<T>::winner() const {
 
     }
 
-    return std::nullopt;
+    return 0;
 }
 
 template class DataTracker<int>;
