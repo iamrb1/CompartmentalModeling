@@ -100,7 +100,7 @@ private:
   }
 
   void HandleSelectedVertex(cse::Vertex<std::string> v) {
-    EM_ASM(
+    EM_ASM_(
         {
           document.getElementById("selectedVertexTitle").innerHTML = "Selected Vertex";
           document.getElementById("selectedVertexId").innerHTML = "ID: " + UTF8ToString($0);
@@ -127,7 +127,7 @@ private:
   }
 
   void InitiateCanvas() {
-    EM_ASM({
+    EM_ASM_({
       var mainElement = document.getElementById("main");
       var canvas = document.createElement('canvas');
       canvas.setAttribute("id", "canvas");
@@ -154,21 +154,131 @@ private:
       var controlZone = document.createElement("div");
       controlZone.classList.add("control-zone");
 
-      // Button group container
-      var buttonGroup = document.createElement("div");
-      buttonGroup.classList.add("button-group");
+      // The fields required for adding and removing an edge
+      var edgeButtonGroup = document.createElement("div");
+      edgeButtonGroup.classList.add("button-group");
+      edgeButtonGroup.style.border = "2px solid black";
+      edgeButtonGroup.style.padding = "10px";
+      edgeButtonGroup.style.marginBottom = "10px";
+
+      var vertexId1Input = document.createElement("input");
+      vertexId1Input.setAttribute("id", "vertexId1Input");
+      vertexId1Input.setAttribute("placeholder", "Vertex ID 1");
+      vertexId1Input.setAttribute("type", "text");
+      edgeButtonGroup.appendChild(vertexId1Input);
+
+      var vertexId2Input = document.createElement("input");
+      vertexId2Input.setAttribute("id", "vertexId2Input");
+      vertexId2Input.setAttribute("placeholder", "Vertex ID 2");
+      vertexId2Input.setAttribute("type", "text");
+      edgeButtonGroup.appendChild(vertexId2Input);
+
+      var edgeWeightInput = document.createElement("input");
+      edgeWeightInput.setAttribute("id", "edgeWeightInput");
+      edgeWeightInput.setAttribute("placeholder", "Edge Weight");
+      edgeWeightInput.setAttribute("type", "text");
+      edgeButtonGroup.appendChild(edgeWeightInput);
+
+      var addRemoveEdgeButton = document.createElement('button');
+      addRemoveEdgeButton.textContent = "Toggle Edge";
+      addRemoveEdgeButton.addEventListener(
+          'click', function() {
+            var id1 = document.getElementById("vertexId1Input").value;
+            var id2 = document.getElementById("vertexId2Input").value;
+            var weight = parseInt(document.getElementById("edgeWeightInput").value);
+            if (id1 && id2 && !isNaN(weight)) {
+              Module._toggleEdge(id1, id2, weight);
+            } else {
+              alert("Please fill out both vertex IDs and the weight.");
+            }
+          });
+      edgeButtonGroup.appendChild(addRemoveEdgeButton);
+
+      // Clear button group container
+      var clearButtonGroup = document.createElement("div");
+      clearButtonGroup.classList.add("button-group");
 
       // Clear button
       var clearButton = document.createElement('button');
       clearButton.textContent = "Clear Graph";
       clearButton.addEventListener('click', function() { Module._clearCanvas(); });
-      buttonGroup.appendChild(clearButton);
+      clearButtonGroup.appendChild(clearButton);
+
+      // Button group container
+      var buttonGroup = document.createElement("div");
+      buttonGroup.classList.add("button-group");
+      buttonGroup.style.border = "2px solid black";
+      buttonGroup.style.padding = "10px";
+      buttonGroup.style.marginBottom = "10px";
+
+      // The fields required for adding a vertex
+      var idInput = document.createElement("input");
+      idInput.setAttribute("id", "vertexIdInput");
+      idInput.setAttribute("placeholder", "ID");
+      idInput.setAttribute("type", "text");
+      buttonGroup.appendChild(idInput);
+
+      var xInput = document.createElement("input");
+      xInput.setAttribute("id", "vertexXInput");
+      xInput.setAttribute("placeholder", "X");
+      xInput.setAttribute("type", "number");
+      buttonGroup.appendChild(xInput);
+
+      var yInput = document.createElement("input");
+      yInput.setAttribute("id", "vertexYInput");
+      yInput.setAttribute("placeholder", "Y");
+      yInput.setAttribute("type", "number");
+      buttonGroup.appendChild(yInput);
 
       // Add Vertex button
       var addVertexButton = document.createElement('button');
       addVertexButton.textContent = "Add Vertex";
-      addVertexButton.addEventListener('click', function() { Module._addVertex(); });
+
+      // This part is activly being assisted by chatgpt
+      // It creates a vertex at the values given by the user
+      // It currently doesn't store the id correctly for the vertex
+      addVertexButton.addEventListener(
+          'click', function() {
+            var id = document.getElementById("vertexIdInput").value;
+            var x = parseInt(document.getElementById("vertexXInput").value);
+            var y = parseInt(document.getElementById("vertexYInput").value);
+            if (id && !isNaN(x) && !isNaN(y)) {
+              console.log("Adding vertex with ID: " + id + ", X: " + x + ", Y: " + y);
+              Module._addVertexWithParams(id, x, y);
+            } else {
+              alert("Please fill out all fields.");
+            }
+          });
       buttonGroup.appendChild(addVertexButton);
+
+      // Button group container
+      var deleteButtonGroup = document.createElement("div");
+      deleteButtonGroup.classList.add("button-group");
+      deleteButtonGroup.style.border = "2px solid black";
+      deleteButtonGroup.style.padding = "10px";
+      deleteButtonGroup.style.marginBottom = "10px";
+
+      // The fields required for adding and removing an edge
+      var deleteInput = document.createElement("input");
+      deleteInput.setAttribute("id", "deleteVertexIdInput");
+      deleteInput.setAttribute("placeholder", "ID of vertex to delete");
+      deleteInput.setAttribute("type", "text");
+      deleteButtonGroup.appendChild(deleteInput);
+
+      // Delete Vertex button
+      var deleteVertexButton = document.createElement('button');
+      deleteVertexButton.textContent = "Delete Vertex";
+      deleteVertexButton.addEventListener(
+          'click', function() {
+            var id = document.getElementById("deleteVertexIdInput").value;
+            if (id) {
+              console.log("Deleting vertex with ID: " + id);
+              Module._deleteVertex(id);
+            } else {
+              alert("Please enter a valid vertex ID.");
+            }
+          });
+      deleteButtonGroup.appendChild(deleteVertexButton);
 
       // Selected vertex info container
       var selectedVertexDiv = document.createElement('div');
@@ -191,6 +301,9 @@ private:
 
       // Add button group and vertex info to control zone
       controlZone.appendChild(buttonGroup);
+      controlZone.appendChild(clearButtonGroup);
+      controlZone.appendChild(edgeButtonGroup);
+      controlZone.appendChild(deleteButtonGroup);
       controlZone.appendChild(selectedVertexDiv);
       mainElement.appendChild(controlZone);
     });
@@ -217,6 +330,7 @@ public:
     RedrawCanvas();
   }
 
+  // Helper function that adds a vertex to the graph and paints it
   void AddVertex() {
     int id = g.GetVertices().size();
     int x = r.GetInt(0, CANVAS_WIDTH);
@@ -224,6 +338,42 @@ public:
 
     g.AddVertex(std::to_string(++id), "blue", x, y);
 
+    RedrawCanvas();
+  }
+
+  // Allows the user to delete a vertex of their choosing
+  void DeleteVertex(const std::string &id) {
+    if (g.HasVertex(id)) {
+      std::cout << "No vertex found with ID: " << id << std::endl;
+      EM_ASM({ alert("Error: Vertex with this ID does not exist!"); });
+      return;
+    }
+
+    g.RemoveVertex(id);
+    std::cout << "Vertex with ID " << id << " has been deleted." << std::endl;
+    RedrawCanvas();
+  }
+
+  // Allows the user to add and/or delete an edge between 2 verticies
+  void ToggleEdge(const std::string &id1, const std::string &id2, int weight) {
+    const std::string edgeId = id1 + "-" + id2;
+    if (g.HasEdge(edgeId)) {
+      g.RemoveEdge(edgeId);
+    } else {
+      g.AddEdge(id1, id2, weight);
+    }
+    RedrawCanvas();
+  }
+
+  // Allows the user to add a vertex where they chose
+  void AddVertexWithParams(const std::string &id, int x, int y) {
+    if (g.HasVertex(id)) {
+      std::cout << "Vertex with ID " << id << " already exists!" << std::endl;
+      EM_ASM({ alert("Error: Vertex with this ID already exists!"); });
+      return;
+    }
+    g.AddVertex(id, "blue", x, y);
+    std::cout << "Total Vertices: " << g.GetVertices().size() << std::endl;
     RedrawCanvas();
   }
 
@@ -253,11 +403,22 @@ void addVertex() {
   init.AddVertex();
 }
 
+void toggleEdge(const char *id1, const char *id2, int weight) {
+  init.ToggleEdge(std::string(id1), std::string(id2), weight);
+}
+
+void addVertexWithParams(const char *id, int x, int y) {
+  init.AddVertexWithParams(std::string(id), x, y);
+}
+
 void handleCanvasClick(double x, double y) {
   init.HandleCanvasClick(x, y);
 }
-}
 
+void deleteVertex(const char *id) {
+  init.DeleteVertex(std::string(id));
+}
+}
 int main() {
   return 0;
 }
