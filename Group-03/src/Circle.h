@@ -3,7 +3,7 @@
 
 #include <cmath>
 #include <stdexcept>
-
+#include <string>
 class Circle {
 public:
     // Constructor
