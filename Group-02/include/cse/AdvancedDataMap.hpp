@@ -14,12 +14,13 @@
 #include <typeinfo>
 #include <unordered_map>
 #include <vector>
+#include <algorithm>
 
 namespace cse {
 
 /// compile time concept checks listed below
 template <typename T>
-constexpr bool has_sizeof = requires(T & value) {
+constexpr bool has_sizeof = requires([[maybe_unused]] T & value) {
   sizeof(T);
 };
 
@@ -60,7 +61,7 @@ class [[maybe_unused]] AdvDataMap {
       /// store the value
       T value;
       /// flag to see if a reference is to be added to map
-      bool flag;
+      bool ref_flag;
       /// ptr to the value added if initialized elsewhere in code
       T* ref_ptr;
       /// checks if value is numeric in constructor
@@ -74,14 +75,14 @@ class [[maybe_unused]] AdvDataMap {
        * @param flag true if reference false if not
        * @param ref ptr to member variable value if flag is true
        */
-      explicit Val(T value, bool flag = false, T* ref = nullptr) : value(value), flag(flag), ref_ptr(ref) {}
+      explicit Val(T value, bool ref_flag = false, T* ref = nullptr) : value(value), ref_flag(ref_flag), ref_ptr(ref) {}
 
       /**
        * Clone function for copy assignment and constructor
        * @return
        */
       [[nodiscard]] std::unique_ptr<Base> clone() const override {
-        return std::make_unique<Val<T>>(value, flag, ref_ptr);
+        return std::make_unique<Val<T>>(value, ref_flag, ref_ptr);
       }
 
       /**
@@ -97,16 +98,15 @@ class [[maybe_unused]] AdvDataMap {
        * @return
        */
       [[nodiscard]] bool is_ref() const override {
-        return flag;
+        return ref_flag;
       }
 
       /**
        * Dereference the ref_ptr and set it to value when the original is changed
        */
       [[maybe_unused]] void set() override {
-        if (ref_ptr) {
-          value = *ref_ptr;
-        }
+        assert(ref_ptr && "ref_ptr is null");
+        value = *ref_ptr;
       }
 
       /**
@@ -388,6 +388,8 @@ class [[maybe_unused]] AdvDataMap {
       std::stringstream ss;
       ss << value;
       return ss.str();
+      /// If passed in type not compartible with concept checks, manually create a stringstream
+      /// and pass in the value returning the string
     }
   }
 
@@ -476,7 +478,7 @@ class [[maybe_unused]] AdvDataMap {
     * @return unsigned long # of keys
     */
   [[nodiscard]] [[maybe_unused]] inline size_t count(const std::string& name) const {
-    return m_map.count(name);
+    return m_map.find(name) != m_map.end();
   }
 
   /**
