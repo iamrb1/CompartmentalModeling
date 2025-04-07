@@ -251,6 +251,7 @@ TEST_CASE("Test cse::Graph - Check removing Vertex removes related edges",
   graph.RemoveVertex(v1.GetId());
   CHECK_THROWS_AS(graph.GetEdge("id1_id2"), cse::edge_not_found_error);
 
+  std::cout << "HERE " << std::endl;
   graph.RemoveVertex(v4.GetId());
   CHECK_THROWS_AS(graph.GetEdge("id2_id4"), cse::edge_not_found_error);
   CHECK_THROWS_AS(graph.GetEdge("id3_id4"), cse::edge_not_found_error);
