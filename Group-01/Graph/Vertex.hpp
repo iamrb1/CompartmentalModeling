@@ -73,7 +73,9 @@ namespace cse {
   template <typename VERTEX_DATA_T> void Vertex<VERTEX_DATA_T>::RemoveEdge(std::string const id) {
     if (edges.find(id) != edges.end()) {
       edges.erase(id);
+      return;
     }
+    throw cse::edge_not_found_error("Edge not found when removing it");
   }
 
   /**

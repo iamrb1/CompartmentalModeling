@@ -25,10 +25,18 @@ namespace cse {
 
     static EdgeProperties ParseProperties(std::istream &f, size_t indent_level) {
       auto properties = FileUtil::GetProperties(f, indent_level + cse::BASE_INDENTATION);
-      assert(properties.size() == 3);
-      assert(properties.at(0).first == "from");
-      assert(properties.at(1).first == "to");
-      assert(properties.at(2).first == "weight");
+      if (properties.size() != 3) {
+        throw cse::file_format_error("Error reading file. Must have correct parameter size");
+      }
+      if (properties.at(0).first != "from") {
+        throw cse::file_format_error("Error reading file. 'From' should be first property");
+      }
+      if (properties.at(1).first != "to") {
+        throw cse::file_format_error("Error reading file. 'To' should be second property");
+      }
+      if (properties.at(2).first != "weight") {
+        throw cse::file_format_error("Error reading file. 'Weight' should be third property");
+      }
 
       return EdgeProperties{properties.at(0).second, properties.at(1).second, std::stod(properties.at(2).second)};
     }
@@ -55,6 +63,8 @@ namespace cse {
     Edge() = delete;
 
     virtual bool IsConnected(const Vertex<VERTEX_DATA_T> &v1, const Vertex<VERTEX_DATA_T> &v2) {
+      assert(from != nullptr);
+      assert(to != nullptr);
       return v1 == *from && v2 == *to;
     };
 

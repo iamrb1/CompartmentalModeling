@@ -153,8 +153,8 @@ namespace cse {
     std::vector<std::string> edgesToRemove;
     for (auto it = edges.begin(); it != edges.end();) {
       std::shared_ptr<Edge<VERTEX_DATA_T>> edge = it->second;
+
       if (edge->GetTo().GetId() == id) {
-        edge->GetFrom().RemoveEdge(edge->GetTo().GetId());
         edgesToRemove.push_back(edge->GetId());
       } else if (edge->GetFrom().GetId() == id) {
         edgesToRemove.push_back(edge->GetId());
