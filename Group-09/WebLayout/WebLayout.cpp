@@ -156,7 +156,6 @@ const void WebLayout::renderTextBox(const std::string &layoutID,
           layoutDiv.id = layoutID;
           textBoxDiv.appendChild(layoutDiv);
         }
-        console.log(color);
 
         // position: absolute; left: x px; top: y px;
 
@@ -170,6 +169,7 @@ const void WebLayout::renderTextBox(const std::string &layoutID,
             p.textContent = msg;  // Set raw text content, not HTML
 
             // Apply styles
+            p.style.visibility = "inherit";
             p.style.position = "absolute";
             p.style.left = x + "vw";
             p.style.top = y + "vh";
@@ -249,7 +249,7 @@ void const WebLayout::renderImage(const std::string &layoutID,
         if (layoutDiv) {
           layoutDiv.innerHTML +=
               "<img id=" + imageID + " src='" + msg +
-                  "' style='position: absolute; left: " + x + "vw; top: " + y +
+                  "' style='visibility: inherit; position: absolute; left: " + x + "vw; top: " + y +
                   "vh; margin: 0; object-fit: contain; width:" + width +
                   "vw; height:" + height + "vh;' />";
         }
@@ -335,6 +335,56 @@ void WebLayout::deactivateLayout() {
         }
       },
       layoutID.c_str());
+}
+
+void WebLayout::toggleImage(const cse::ImageLayout &image) {
+  auto imageID = image.image->getID();
+
+  EM_ASM(
+      {
+        var imageID = UTF8ToString($0);
+        var imageDiv = document.getElementById(imageID);
+        if (imageDiv) {
+          // flip current visibility
+          var visibility = window.getComputedStyle(imageDiv).visibility;
+
+          //console.log(visibility);
+          if(visibility == "hidden") {
+            imageDiv.style.visibility = "inherit";
+          } else {
+            imageDiv.style.visibility = "hidden";
+          }
+        }
+        //console.log(imageID);
+      },
+      imageID.c_str());
+}
+
+void WebLayout::toggleTextBox(const cse::TextBoxLayout &textBox) {
+  auto textBoxID = textBox.textBox->getID();
+
+  EM_ASM(
+      {
+        var textBoxID = UTF8ToString($0);
+        var textBoxDiv = document.getElementById(textBoxID);
+        if (textBoxDiv) {
+          console.log('Found ', textBoxID);
+          // flip current visibility
+          //var visibility = textBoxDiv.style.visibility;
+          // window.getComputedStyle learned through ChatGPT usage when exploring problem of visibility
+          // returning as '' when set to inherit from parent
+          var visibility = window.getComputedStyle(textBoxDiv).visibility;
+
+          if(visibility == "hidden") {
+            textBoxDiv.style.visibility = "inherit";
+          } else {
+            textBoxDiv.style.visibility = "hidden";
+          }
+        } else {
+          console.log('not found', textBoxID);
+        }
+      },
+      textBoxID.c_str());
 }
 
 

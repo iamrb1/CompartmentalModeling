@@ -87,6 +87,8 @@ class WebLayout {
   void loadPage();
   const std::vector<ImageLayout> &getImages();
   const std::vector<TextBoxLayout> &getTextBoxes();
+  void toggleTextBox(const TextBoxLayout &textBox);
+  void toggleImage(const ImageLayout &image);
 
   static std::string generateID();
   const std::string getID() { return id; }
