@@ -2,7 +2,7 @@
  * Manager for holding and interacting with various WebLayouts
  *
  * @file WebLayoutManager.h
- * @author Mary Holt
+ * @author Mary Holt, Grace Fitzgerald
  *
  */
 
@@ -27,6 +27,9 @@ class WebLayoutManager {
   void addNewSlide();
   void addImage(const std::string& url, int width, int height,
                 const std::string& altText);
+
+  void updatePosition(std::string id, int newX, int newY);
+  bool isMoveableObject(std::string id) const;
 
   WebLayoutManager();
 

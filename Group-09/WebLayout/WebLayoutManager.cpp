@@ -1,6 +1,6 @@
 /**
  * @file WebLayoutManager.cpp
- * @author Mary Holt
+ * @author Mary Holt, Grace Fitzgerald
  */
 
 #include "WebLayoutManager.hpp"
@@ -52,7 +52,52 @@ WebLayoutManager::WebLayoutManager() {
       addNewSlide.addEventListener(
           "click", function() { Module._call_addNewSlide(); });
     }
-  });
+
+    // Check if item is being dragged
+    document.addEventListener("mousedown", function(e) {
+
+      // Check if clicked element is draggable
+      var draggable = Module.ccall(
+        "call_isMoveableObject", // C++ function name
+        "boolean",               // return type
+        ["string"],              // argument types
+        [e.target.id]            // arguments
+       );
+
+      if (draggable) {
+        makeDraggable(e.target);
+      }
+  	});
+
+  	// Function to make an element draggable
+  	function makeDraggable(element) {
+      var offsetX = 0;
+      var offsetY = 0;
+
+      //ChatGPT used for new position calculations
+      document.onmousemove = function(e) {
+      var newX = (e.clientX / window.innerWidth) * 100 - offsetX;
+      var newY = (e.clientY / window.innerHeight) * 100 - offsetY;
+
+      // Call C++ function to update position within the layout
+      Module.ccall("call_updatePosition", null, ["string", "number", "number"], [
+        element.id.trim(), newX, newY
+      ]);
+      // Update element's visual position
+      element.style.left = newX + "vw";
+      element.style.top = newY + "vh";
+     };
+
+     document.onmouseup = function(e) {
+       // Remove event listeners
+       document.onmousemove = null;
+       document.onmouseup = null;
+     };
+
+    }
+
+   });
+
 }
 
 extern "C" {
@@ -114,6 +159,26 @@ void updateTextBoxContent(const char* textboxId, const char* newText) {
     }
   }
 }
+
+EMSCRIPTEN_KEEPALIVE void call_updatePosition(const char* id, int newX, int newY) {
+    std::string cppId(id);
+    if (g_manager) {
+    g_manager->updatePosition(cppId, newX, newY);
+  } else {
+    std::cout << "ERROR: g_manager is null!" << std::endl;
+  }
+}
+
+EMSCRIPTEN_KEEPALIVE bool call_isMoveableObject(const char* id) {
+    std::string cppId(id);
+    if (g_manager) {
+    return g_manager->isMoveableObject(cppId);
+  } else {
+    std::cout << "ERROR: g_manager is null!" << std::endl;
+    return false;
+  }
+}
+
 }
 
 /**
@@ -217,7 +282,7 @@ void WebLayoutManager::addTextBox() {
   TextBoxLayout newLayout = {newTextBox, 50, 50};
 
   layouts.at(currentPos)->addTextBox(newLayout);
-  // layouts.at(currentPos)->loadPage();
+  //layouts.at(currentPos)->loadPage();
 }
 
 void WebLayoutManager::addImage(const std::string& url, int width, int height,
@@ -238,6 +303,20 @@ void WebLayoutManager::addNewSlide() {
         console.log("Added new slide: ", wbID);
       },
       wbID.c_str());
+}
+
+/**
+ * Updates object position
+ */
+void WebLayoutManager::updatePosition(std::string id, int newX, int newY) {
+    layouts.at(currentPos)->setPosition(id, newX, newY);
+}
+
+/**
+ * Returns if id is a moveable item
+ */
+bool WebLayoutManager::isMoveableObject(std::string id) const{
+	return layouts.at(currentPos)->contains(id);
 }
 
 }  // namespace cse
