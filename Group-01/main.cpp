@@ -53,6 +53,7 @@ class GraphVisualizer {
   cse::Random r{0};
   std::optional<cse::Vertex<std::string>> selectedVertex;
   cse::Graph<std::string> g;
+  std::optional<cse::GraphPosition<std::string>> traversal;
   cse::GraphJson<std::string> graphJson{g};
 
   static bool IsPointInRange(double x1, double y1, double x2, double y2,
@@ -103,8 +104,12 @@ class GraphVisualizer {
     // Draw vertices as circles
     auto vertices = g.GetVertices();
     for (auto v : vertices) {
-      Shape::drawCircle(v->GetX(), v->GetY(), VERTEX_RADIUS,
-                        v->GetData().c_str());
+      std::string color = "gray"; // default
+      if (traversal) {
+        if (&traversal->GetCurrentVertex() == v) color = "red";
+        else if (traversal->IsVisited(*v)) color = "green";
+      }
+      Shape::drawCircle(v->GetX(), v->GetY(), VERTEX_RADIUS, color.c_str());
     }
   }
 
@@ -182,6 +187,14 @@ class GraphVisualizer {
       addVertexButton.addEventListener(
           'click', function() { Module._addVertex(); });
       buttonGroup.appendChild(addVertexButton);
+
+      // Clear Traversal button
+      var clearTraversalButton = document.createElement('button');
+      clearTraversalButton.textContent = "Clear Traversal";
+      clearTraversalButton.addEventListener('click', function () {
+        Module._clearTraversal();
+      });
+      buttonGroup.appendChild(clearTraversalButton);
 
       /**
        * Used ChatGPT to assist adding support to 
@@ -265,6 +278,35 @@ class GraphVisualizer {
 
       selectedVertexTitle.innerHTML = "No Selected Vertex";
 
+      // Dropdown to select traversal type
+      var traversalSelect = document.createElement('select');
+      traversalSelect.setAttribute("id", "traversalMode");
+      var option1 = document.createElement('option');
+      option1.value = "DFS";
+      option1.textContent = "DFS";
+      traversalSelect.appendChild(option1);
+      var option2 = document.createElement('option');
+      option2.value = "BFS";
+      option2.textContent = "BFS";
+      traversalSelect.appendChild(option2);
+      var option3 = document.createElement('option');
+      option3.value = "A*";
+      option3.textContent = "A*";
+      traversalSelect.appendChild(option3);
+      buttonGroup.appendChild(traversalSelect);
+
+      // Traverse Step button
+      var stepButton = document.createElement('button');
+      stepButton.textContent = "Next Step";
+      stepButton.addEventListener('click', function() { Module._stepTraversal(); });
+      buttonGroup.appendChild(stepButton);
+
+      // Traverse All button
+      var fullButton = document.createElement('button');
+      fullButton.textContent = "Traverse All";
+      fullButton.addEventListener('click', function() { Module._fullTraversal(); });
+      buttonGroup.appendChild(fullButton);
+
       // Add button group and vertex info to control zone
       controlZone.appendChild(buttonGroup);
       controlZone.appendChild(selectedVertexDiv);
@@ -275,12 +317,20 @@ class GraphVisualizer {
  public:
   GraphVisualizer() {
     // Initial values as example
-    g.AddVertex("ID1", "blue", 150, 200);
-    g.AddVertex("ID2", "red", 120, 250);
-    g.AddVertex("ID3", "green", 100, 210);
+    g.AddVertex("ID1", "gray", 500, 200);
+    g.AddVertex("ID2", "gray", 430, 250);
+    g.AddVertex("ID3", "gray", 570, 250);
+    g.AddVertex("ID4", "gray", 380, 300);
+    g.AddVertex("ID5", "gray", 480, 300);
+    g.AddVertex("ID6", "gray", 520, 300);
+    g.AddVertex("ID7", "gray", 620, 300);
 
     g.AddEdge("ID1", "ID2", 2);
     g.AddEdge("ID1", "ID3", 2);
+    g.AddEdge("ID2", "ID4", 2);
+    g.AddEdge("ID2", "ID5", 2);
+    g.AddEdge("ID3", "ID6", 2);
+    g.AddEdge("ID3", "ID7", 2);
 
     InitiateCanvas();
     InitializeControlZone();
@@ -289,8 +339,46 @@ class GraphVisualizer {
 
   void ClearGraph() {
     g.ClearGraph();
+    traversal.reset();
     ClearVertexSelection();
     RedrawCanvas();
+  }
+
+  /**
+   * Updates the traversal with the correct mode
+   */
+  void UpdateTraversalMode(cse::Vertex<std::string> &start) {
+    cse::GraphPosition<std::string> pos(g, start);
+
+    int mode = EM_ASM_INT({
+      var mode = document.getElementById("traversalMode").value;
+      if (mode == "DFS")
+        return 0;
+      if (mode == "BFS")
+        return 1;
+      if (mode == "A*")
+        return 2;
+      return 0;
+    });
+
+    if (mode == 0)
+      pos.SetTraversalMode(cse::TraversalModes::DFS<std::string>());
+    else if (mode == 1)
+      pos.SetTraversalMode(cse::TraversalModes::BFS<std::string>());
+    else if (mode == 2)
+      pos.SetTraversalMode(cse::TraversalModes::AStar<std::string>(g.GetVertex("ID6"))); // temp hardcoded target
+
+    traversal.emplace(std::move(pos));
+  }
+
+  /**
+   * Resets the traversal to have not traversed anything
+   */
+  void ClearTraversal() {
+    if (traversal) {
+      traversal.reset();
+      RedrawCanvas();
+    }
   }
 
   void AddVertex() {
@@ -298,9 +386,8 @@ class GraphVisualizer {
     int x = r.GetInt(0, CANVAS_WIDTH);
     int y = r.GetInt(0, CANVAS_HEIGHT);
 
-    g.AddVertex(std::to_string(++id), "blue", x, y);
-
-    RedrawCanvas();
+    g.AddVertex(std::to_string(++id), "gray", x, y);
+    ClearTraversal(); // Resets traversal when graph is modified
   }
 
   // Receives the virtual coordinate inside of the canvas.
@@ -311,6 +398,61 @@ class GraphVisualizer {
     } else {
       ClearVertexSelection();
     }
+  }
+
+  void StartTraversal() {
+    if (g.GetVertices().empty()) return;
+    auto &start = g.GetVertex("ID1");
+    UpdateTraversalMode(start);
+  }
+
+  /**
+   * Function to help delay the full traversal steps so the user can follow
+   */
+  // ChatGPT was used to help with the delay in traversal steps.
+  static void StepTraversalAsync(void *arg) {
+    auto *self = static_cast<GraphVisualizer *>(arg);
+  
+    if (self->traversal && self->traversal->AdvanceToNextNeighbor()) {
+      self->RedrawCanvas();
+      // Delay next step by 500ms
+      emscripten_async_call(StepTraversalAsync, arg, 500);
+    } else {
+      self->RedrawCanvas();
+      EM_ASM({
+        setTimeout(function () {
+          alert("Traversal Finished!");
+        }, 150); // wait 150ms to let canvas update
+      });
+    }
+  }
+  
+  /**
+   * Traverse through a graph step by step when pressing the next step button
+   */
+  void StepTraversal() {
+    if (!traversal.has_value()) StartTraversal();
+
+    if (traversal && traversal->AdvanceToNextNeighbor()) {
+      RedrawCanvas();
+    } else {
+      RedrawCanvas();
+      EM_ASM({
+        setTimeout(function () {
+          alert("Traversal Finished!");
+        }, 150); // wait 150ms to let canvas update
+      });
+    }
+  }
+
+  /**
+   * Traverse all the way through a graph in one button press
+   */
+  void FullTraversal() {
+    if (!traversal.has_value()) StartTraversal();
+
+    // Kick off the async step loop
+    emscripten_async_call(StepTraversalAsync, this, 0); // 0ms to start immediately
   }
 
   // Export the graph to JSON
@@ -342,6 +484,22 @@ void clearCanvas() { init.ClearGraph(); }
 
 void addVertex() { init.AddVertex(); }
 
+void startTraversal() {
+  init.StartTraversal();
+}
+
+void stepTraversal() {
+  init.StepTraversal();
+}
+
+void fullTraversal() {
+  init.FullTraversal();
+}
+
+void clearTraversal() {
+  init.ClearTraversal();
+}
+  
 void handleCanvasClick(double x, double y) { init.HandleCanvasClick(x, y); }
 
 char *exportGraph() { return init.ExportGraph(); }
