@@ -70,9 +70,10 @@
         </div>
         <div class="nav-center">
             <button id="saveDeck">Save Deck</button>
-            <button id="addTextBoxButton">Add TextBox</button>
+            <button id="addImageButton">Add Image</button>
+            <input type="file" id="imageInput" accept="image/*" style="display: none;" />
+            <button id="addTextBoxButton">Add TextBox <i class="fa-solid fa-angles-left"></i></button>
             <button id="addNewSlideButton">Add New Slide</button>
-
         </div>
         <div class="nav-right">
             <button id="reverseButton">Last Slide <i class="fa-solid fa-angles-left"></i></button>
@@ -81,6 +82,7 @@
     </div>
 
     <script src="output.js"></script>
+    <script src="EditTextbox.js"></script>
 
     <script>
         const loadDeck = Module.cwrap('loadSlideDeckFromJson', null, ['string']);
@@ -109,6 +111,46 @@
             link.href = URL.createObjectURL(blob);
             link.download = "slides.json";
             link.click();
+        });
+
+        // for adding images
+        document.addEventListener("DOMContentLoaded", function () {
+            const addImageBtn = document.getElementById("addImageButton");
+            const imageInput = document.getElementById("imageInput");
+
+            function toUTF8(str) {
+                const len = Module.lengthBytesUTF8(str) + 1;
+                const ptr = Module._malloc(len);
+                Module.stringToUTF8(str, ptr, len);
+                return ptr;
+            }
+
+            addImageBtn.addEventListener("click", () => {
+                imageInput.click();
+            });
+
+            imageInput.addEventListener("change", (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const dataUrl = event.target.result;
+
+                    const urlPtr = toUTF8(dataUrl);
+                    const altPtr = toUTF8("User Image");
+
+                    Module.ccall("call_addImage", null,
+                        ["number", "number", "number", "number"],
+                        [urlPtr, 300, 200, altPtr]
+                    );
+
+                    _free(urlPtr);
+                    _free(altPtr);
+                };
+
+                reader.readAsDataURL(file);
+            });
         });
     </script>
 

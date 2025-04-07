@@ -12,7 +12,7 @@ namespace cse {
 /**
  * Global pointer for use in JS
  */
-WebLayoutManager *g_manager = nullptr;
+WebLayoutManager* g_manager = nullptr;
 
 /**
  * Constructs manager and binds buttons on html to functions
@@ -22,80 +22,81 @@ WebLayoutManager::WebLayoutManager() {
 
   // Set up the event listener for the button click
   EM_ASM({
-           // Setup advance button
-           var advanceButton = document.getElementById("advanceButton");
-           if (advanceButton) {
-             advanceButton.addEventListener(
-                 "click", function()
-             { Module._call_advance(); });
-           }
+    // Setup advance button
+    var advanceButton = document.getElementById("advanceButton");
+    if (advanceButton) {
+      advanceButton.addEventListener(
+          "click", function() { Module._call_advance(); });
+    }
 
-           var rewindButton = document.getElementById("reverseButton");
-           if (rewindButton) {
-             rewindButton.addEventListener(
-                 "click", function()
-             { Module._call_rewind(); });
-           }
+    var rewindButton = document.getElementById("reverseButton");
+    if (rewindButton) {
+      rewindButton.addEventListener(
+          "click", function() { Module._call_rewind(); });
+    }
 
-           var addTextBoxButton = document.getElementById("addTextBoxButton");
-           if (addTextBoxButton) {
-             addTextBoxButton.addEventListener(
-                 "click", function()
-             { Module._call_addTextBox(); });
-           }
+    var addTextBoxButton = document.getElementById("addTextBoxButton");
+    if (addTextBoxButton) {
+      addTextBoxButton.addEventListener(
+          "click", function() { Module._call_addTextBox(); });
+    }
 
-           var addNewSlide = document.getElementById("addNewSlideButton");
-           if (addNewSlide) {
-             addNewSlide.addEventListener(
-                 "click", function()
-             { Module._call_addNewSlide(); });
-           }
+    var addImageButton = document.getElementById("addImageButton");
+    if (addImageButton) {
+      addImageButton.addEventListener(
+          "click", function() { Module._call_addImage(); });
+    }
 
+    var addNewSlide = document.getElementById("addNewSlideButton");
+    if (addNewSlide) {
+      addNewSlide.addEventListener(
+          "click", function() { Module._call_addNewSlide(); });
+    }
 
-  		   // Check if item is being dragged
-           document.addEventListener("mousedown", function(e) {
+    // Check if item is being dragged
+    document.addEventListener("mousedown", function(e) {
 
-    	     // Check if clicked element is draggable
-    	     var draggable = Module.ccall(
-      		   "call_isMoveableObject", // C++ function name
-      		   "boolean",               // return type
-      		   ["string"],              // argument types
-      		   [e.target.id]            // arguments
-    	     );
+      // Check if clicked element is draggable
+      var draggable = Module.ccall(
+        "call_isMoveableObject", // C++ function name
+        "boolean",               // return type
+        ["string"],              // argument types
+        [e.target.id]            // arguments
+       );
 
-    		 if (draggable) {
-      		   makeDraggable(e.target);
-    		 }
-  		   });
+      if (draggable) {
+        makeDraggable(e.target);
+      }
+  	});
 
-  			// Function to make an element draggable
-  			function makeDraggable(element) {
-    		  var offsetX = 0;
-    		  var offsetY = 0;
+  	// Function to make an element draggable
+  	function makeDraggable(element) {
+      var offsetX = 0;
+      var offsetY = 0;
 
-    		  //ChatGPT used for new position calculations
-    		  document.onmousemove = function(e) {
-      		    var newX = (e.clientX / window.innerWidth) * 100 - offsetX;
-      		    var newY = (e.clientY / window.innerHeight) * 100 - offsetY;
+      //ChatGPT used for new position calculations
+      document.onmousemove = function(e) {
+      var newX = (e.clientX / window.innerWidth) * 100 - offsetX;
+      var newY = (e.clientY / window.innerHeight) * 100 - offsetY;
 
-      		    // Call C++ function to update position within the layout
-      		    Module.ccall("call_updatePosition", null, ["string", "number", "number"], [
-        	      element.id.trim(), newX, newY
-      		    ]);
-      		    // Update element's visual position
-      		    element.style.left = newX + "vw";
-      		    element.style.top = newY + "vh";
-    		  };
+      // Call C++ function to update position within the layout
+      Module.ccall("call_updatePosition", null, ["string", "number", "number"], [
+        element.id.trim(), newX, newY
+      ]);
+      // Update element's visual position
+      element.style.left = newX + "vw";
+      element.style.top = newY + "vh";
+     };
 
-    		  document.onmouseup = function(e) {
-      		    // Remove event listeners
-      		    document.onmousemove = null;
-      		    document.onmouseup = null;
-    		  };
+     document.onmouseup = function(e) {
+       // Remove event listeners
+       document.onmousemove = null;
+       document.onmouseup = null;
+     };
 
-    	    }
+    }
 
-         });
+   });
 
 }
 
@@ -116,6 +117,18 @@ EMSCRIPTEN_KEEPALIVE void call_rewind() {
   }
 }
 
+EMSCRIPTEN_KEEPALIVE void call_addImage(char* urlPtr, int width, int height,
+                                        char* altPtr) {
+  std::string url(urlPtr);
+  std::string altText(altPtr);
+
+  if (g_manager) {
+    g_manager->addImage(url, width, height, altText);
+  } else {
+    std::cout << "ERROR: g_manager is null!" << std::endl;
+  }
+}
+
 EMSCRIPTEN_KEEPALIVE void call_addTextBox() {
   if (g_manager) {
     g_manager->addTextBox();
@@ -129,6 +142,21 @@ EMSCRIPTEN_KEEPALIVE void call_addNewSlide() {
     g_manager->addNewSlide();
   } else {
     std::cout << "ERROR: g_manager is null!" << std::endl;
+  }
+}
+
+EMSCRIPTEN_KEEPALIVE
+void updateTextBoxContent(const char* textboxId, const char* newText) {
+  if (!g_manager) return;
+
+  auto& layout = g_manager->getLayouts().at(g_manager->getCurrentPos());
+  auto& textBoxes = layout->getTextBoxes();
+
+  for (auto& tb : textBoxes) {
+    if (tb.textBox->getID() == textboxId) {
+      tb.textBox->getFormattedText().setText(newText);
+      break;
+    }
   }
 }
 
@@ -257,15 +285,24 @@ void WebLayoutManager::addTextBox() {
   //layouts.at(currentPos)->loadPage();
 }
 
+void WebLayoutManager::addImage(const std::string& url, int width, int height,
+                                const std::string& altText) {
+  auto image = std::make_shared<Image>(url, width, height, altText);
+  ImageLayout layout{image, 10, 10};  // Default x/y position
+  layouts.at(currentPos)->addImage(layout);
+}
+
 void WebLayoutManager::addNewSlide() {
   // Create a new weblayout
   auto wb = std::make_shared<WebLayout>();
   addLayout(wb);
   auto wbID = wb->getID();
-  EM_ASM({
-           var wbID = UTF8ToString($0);
-           console.log("Added new slide: ", wbID);
-         }, wbID.c_str());
+  EM_ASM(
+      {
+        var wbID = UTF8ToString($0);
+        console.log("Added new slide: ", wbID);
+      },
+      wbID.c_str());
 }
 
 /**

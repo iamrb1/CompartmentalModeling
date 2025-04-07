@@ -112,6 +112,9 @@ class TextBox {
    */
   const FormattedText& getFormattedText() const { return content; }
 
+  // Allows read/write access
+  FormattedText& getFormattedText() { return content; }
+
   /**
    * @brief Set the FormattedText object.
    *

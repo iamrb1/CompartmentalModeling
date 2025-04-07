@@ -25,16 +25,24 @@ class WebLayoutManager {
   void initialize();
   void addTextBox();
   void addNewSlide();
+  void addImage(const std::string& url, int width, int height,
+                const std::string& altText);
 
   void updatePosition(std::string id, int newX, int newY);
   bool isMoveableObject(std::string id) const;
 
   WebLayoutManager();
 
-  // 🔹 Getter for export support
-  const std::vector<std::shared_ptr<WebLayout>> &getLayouts() const {
+  // Getter for export support
+  const std::vector<std::shared_ptr<WebLayout>>& getLayouts() const {
     return layouts;
   }
+
+  /**
+   * @brief Get the Current Position of the manager
+   * @return int current position in the layout vector
+   */
+  const int getCurrentPos() const { return currentPos; }
 };
 
 }  // namespace cse
