@@ -2,7 +2,7 @@
  * Holds various text boxes and images to create "slides"
  *
  * @file WebLayout.h
- * @author Mary Holt
+ * @author Mary Holt, Grace Fitzgerald
  *
  */
 

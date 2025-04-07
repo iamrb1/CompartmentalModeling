@@ -1,6 +1,6 @@
 /**
  * @file WebLayoutManager.cpp
- * @author Mary Holt
+ * @author Mary Holt, Grace Fitzgerald
  */
 
 #include "WebLayoutManager.hpp"

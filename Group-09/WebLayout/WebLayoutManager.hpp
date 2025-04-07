@@ -2,7 +2,7 @@
  * Manager for holding and interacting with various WebLayouts
  *
  * @file WebLayoutManager.h
- * @author Mary Holt
+ * @author Mary Holt, Grace Fitzgerald
  *
  */
 

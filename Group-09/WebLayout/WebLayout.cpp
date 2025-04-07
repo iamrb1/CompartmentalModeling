@@ -1,6 +1,6 @@
 /**
  * @file WebLayout.cpp
- * @author Mary Holt
+ * @author Mary Holt,Grace Fitzgerald
  *
  */
 
