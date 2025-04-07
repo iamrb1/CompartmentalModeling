@@ -21,4 +21,4 @@ public:
     static cse::StringSet<cse::StaticString<20>> load_file(const std::string& filename);
 };
 
-#endif
+#endif // CSE_FILE_SOURCE_HPP

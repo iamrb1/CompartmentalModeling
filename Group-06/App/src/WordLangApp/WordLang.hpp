@@ -11,44 +11,63 @@
  *
  */
 
-#ifndef CSE_WORDLANG_HPP_
-#define CSE_WORDLANG_HPP_
+ #ifndef CSE_WORDLANG_HPP_
+ #define CSE_WORDLANG_HPP_
+ 
+ #include <iostream>
+ #include <string>
+ #include "TokenManager.hpp"
+ #include "WordListManager.hpp"
+ #include "../../../ErrorManager/ErrorManager.hpp"
 
-#include <iostream>
-#include <string>
 
+namespace cse {
 /**
- * @brief Main clas for WordLang application
- * 
- */
-class WordLang {
-public:
+  * @brief Main clas for WordLang application
+  * 
+  */
+ class WordLang {
+    public:
+        /**
+         * @brief Construct a new Word Lang object
+         * 
+         */
+        WordLang();
+        /**
+         * @brief Destroy the Word Lang object
+         * 
+         */
+        ~WordLang();
+    
+        /**
+         * @brief Starts the app
+         * 
+         */
+        void start();
+    
+        void parse(const std::string& input);
+        
+        void parseList();
+        std::vector<std::string> parseMultipleLists();
+   
+        void parsePrint();
+        
+    
+    private:
     /**
-     * @brief Construct a new Word Lang object
+     * @brief Boolean that tracks if the app is currently running
      * 
      */
-    WordLang();
-    /**
-     * @brief Destroy the Word Lang object
-     * 
-     */
-    ~WordLang();
+        bool mIsActive = false;
+    
+        TokenManager mTokenManager;
+   
+        ErrorManager mErrorManager;
+   
+        WordListManager mWordListManager;
+    };
 
-    /**
-     * @brief Starts the app
-     * 
-     */
-    void start();
-
-    void Parse(const std::string& input);
-
-private:
-/**
- * @brief Boolean that tracks if the app is currently running
- * 
- */
-    bool mIsActive = false;
-};
-
-
-#endif  // CSE_WORDLANG_HPP_
+}
+ 
+ 
+ #endif  // CSE_WORDLANG_HPP_

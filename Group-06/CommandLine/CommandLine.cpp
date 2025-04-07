@@ -144,7 +144,7 @@ public:
     std::istringstream iss(line);
     return {std::istream_iterator<std::string>{iss},
       std::istream_iterator<std::string>{}};
-}
+  }
 private:
   /// Map of commands to functions
   std::unordered_map<std::string, std::function<void()>> mCommands;

@@ -38,9 +38,9 @@ namespace cse {
 
   // Set current
 
-  //Add adds the words to the set
+  // Add adds the words to the set
 
-  //Save saves the list into a file if exist overwrite if not creates it.
+  // Save saves the list into a file if exist overwrite if not creates it.
 
   // Length function retricst the length of words to search
 
@@ -53,7 +53,8 @@ namespace cse {
   // Get searches based on pattern load found words into current set to print if asked 
 
   // Print prints the current setif number specified that number of variable if not all 
-
+  bool print(int number = 0, bool isAll = false);
+  
   // Reset takes a listname existing and loads the file associated to it to the original 
 
   // Reset last remove last applied pattern

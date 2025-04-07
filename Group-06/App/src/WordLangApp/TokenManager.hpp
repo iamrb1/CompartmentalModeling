@@ -8,7 +8,8 @@
 namespace cse {
   class TokenManager {
   public:
-
+    const emplex::Token eof_token{0, "_EOF_", 0, 0};
+    
     TokenManager();
     ~TokenManager();
 
@@ -26,8 +27,6 @@ namespace cse {
     std::vector<emplex::Token> mTokens{};
 
     std::size_t mToken_id = 0;
-
-    const emplex::Token eof_token{0, "_EOF_", 0, 0};
 
     void Clean();
   };
