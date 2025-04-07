@@ -10,21 +10,21 @@
 #include <map>
 #include <vector>
 #include "../EventQueue/EventQueue.hpp"
-#include "../WebLayout/WebLayoutManager.hpp"
+
+class PresentationManager; ///< Forward declaration so Events can store a pointer to the PresentationManager
 
 using namespace cse;
-using LayoutManager = std::shared_ptr<WebLayoutManager>;
-using PresentationFunction = std::function<void(LayoutManager, size_t)>;
+using PresentationFunction = std::function<void(PresentationManager *, size_t)>;
 
 class PresentationEventManager {
 	private:
-		LayoutManager _layout_manager;
+		PresentationManager *_presentation_manager;
 		int _id = 0; ///< ID tracker for Events
 		bool _running = false;
 		double _slide_elapsed_time = 0; ///< Time the current slide became active
 		double _last_recorded_time = 0; ///< Current time
 		size_t _current_slide = 0; ///< Current slide being presented
-		std::vector<EventQueue<LayoutManager, size_t> > _queues;
+		std::vector<EventQueue<PresentationManager *, size_t> > _queues;
 		///< Vector of EventQueues where _queues[x] corresponds to slide x
 		std::map<size_t, size_t> _id_to_slide; ///< EventID to Slide Num map, should speed up remove
 
@@ -35,7 +35,11 @@ class PresentationEventManager {
 		}
 
 	public:
-		explicit PresentationEventManager(LayoutManager layout_manager) : _layout_manager(std::move(layout_manager)) {
+		explicit PresentationEventManager(PresentationManager *layout_manager) : _presentation_manager(layout_manager) {
+		}
+
+		void resize(const size_t n) {
+			_queues.resize(n);
 		}
 
 		void start() { _running = true; }
@@ -61,16 +65,24 @@ class PresentationEventManager {
 			}
 		}
 
-		void changeSlide(size_t slide_num) {
+		void onSlideChanged(const size_t slide_num) {
+			if (slide_num >= _queues.size()) {
+				_queues.resize(slide_num + 1);
+			}
 			_current_slide = slide_num;
 			_slide_elapsed_time = 0.0;
+			std::cout << "Managing Events on slide:  " << slide_num << std::endl;
 		}
 
-		int addEvent(PresentationFunction function, size_t origin, size_t destination, int time) {
+		int addEvent(PresentationFunction function, const size_t origin, const size_t destination, const int time) {
+			if (destination >= _queues.size()) {
+				_queues.resize(destination + 1);
+			}
 			const int id = _id++; // Increment ID
 			_id_to_slide[id] = origin; // Map ID to slide num
-			auto event = Event(id, time, function, _layout_manager, destination);
+			auto event = Event(id, time, std::move(function), _presentation_manager, destination);
 			_queues[origin].add(event);
+			std::cout << "Added Event: Transition to slide " << destination << " after " << time << " seconds." << std::endl;
 			return id;
 		}
 

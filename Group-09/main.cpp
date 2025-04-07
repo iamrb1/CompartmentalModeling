@@ -1,6 +1,6 @@
 /**
  * @file main.cpp
- *
+ * @brief Main entry point for Liskov Presenter. Calls PresentationManager in a loop to handle events.
  * @author Owen Haiar
  */
 

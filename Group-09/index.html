@@ -74,8 +74,9 @@
     <input type="file" id="imageInput" accept="image/*" style="display: none;" />
     <button id="addTextBoxButton">Add TextBox <i class="fa-solid fa-angles-left"></i></button>
     <button id="addNewSlideButton">Add New Slide</button>
-    <button id="pauseButton">Pause</button>
-    <button id="resumeButton">Resume</button>
+    <button id="stopButton">Stop</button>
+    <button id="startButton">Start</button>
+    <button id="addTransition">Add Transition</button>
   </div>
   <div class="nav-right">
     <button id="reverseButton">Last Slide <i class="fa-solid fa-angles-left"></i></button>
@@ -152,14 +153,6 @@
       };
 
       reader.readAsDataURL(file);
-    });
-
-    document.getElementById("resumeButton").addEventListener("click", function () {
-      Module.ccall('resume', null, [], []);
-    });
-
-    document.getElementById("pauseButton").addEventListener("click", function () {
-      Module.ccall('pause', null, [], []);
     });
 
   });
