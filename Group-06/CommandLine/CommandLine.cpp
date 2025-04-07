@@ -15,7 +15,9 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
- 
+#include <sstream>
+#include <iterator>
+
 namespace cse {
 
 /**
@@ -130,6 +132,19 @@ public:
     }
   }
 
+  /**
+   * @brief Helper function which chops string into
+   * a vector of words
+   * 
+   * @param line Line to be tokenized
+   * @return std::vector<std::string> Separate words in a line 
+   */
+  std::vector<std::string> tokenize_line(const std::string& line) {
+    // DeepSeek was used here to help debug
+    std::istringstream iss(line);
+    return {std::istream_iterator<std::string>{iss},
+      std::istream_iterator<std::string>{}};
+}
 private:
   /// Map of commands to functions
   std::unordered_map<std::string, std::function<void()>> mCommands;

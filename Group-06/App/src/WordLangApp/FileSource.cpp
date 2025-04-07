@@ -2,12 +2,12 @@
 #include "../../../StaticString/StaticString.hpp"
 #include <fstream>
 cse::StringSet<cse::StaticString<20>> FileSource::load_file(const std::string& filename) {
-    std::ifstream file("../../database/" + filename);
+    std::ifstream file("../database/" + filename);
     cse::StringSet<cse::StaticString<20>> set;
     std::string line;
     while (std::getline(file, line)) {
         set.insert(line);
     }
-    // Ivan: This function doesn't work. Will continue later...
+
     return set;
 }

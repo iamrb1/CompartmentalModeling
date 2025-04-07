@@ -2,15 +2,16 @@
 
 # Compiler and flags
 CXX := g++
-CXXFLAGS := -std=c++23 -Wall -Wextra -IWordLang/
+CXXFLAGS := -std=c++23 -Wall -Wextra -IWordLang/ -I../../ErrorManager/
 
 # Targets
 TARGET := app
 SRC_DIR := .
 WORDLANG_DIR := WordLangApp
+ERRORMGR_DIR := ../../ErrorManager
 
 # Source files
-SRCS := $(SRC_DIR)/main.cpp $(WORDLANG_DIR)/WordLang.cpp $(WORDLANG_DIR)/FileSource.cpp
+SRCS := $(SRC_DIR)/main.cpp $(WORDLANG_DIR)/WordLang.cpp $(WORDLANG_DIR)/FileSource.cpp $(WORDLANG_DIR)/WordListManager.cpp $(ERRORMGR_DIR)/ErrorManager.cpp
 OBJS := $(SRCS:.cpp=.o)
 
 # Default target

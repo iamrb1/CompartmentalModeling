@@ -1,11 +1,20 @@
 #include "WordLang.hpp"
 #include "../../../StringSet/StringSet.hpp"
 #include "../../../StaticString/StaticString.hpp"
+#include "../../../CommandLine/CommandLine.cpp"
+#include "../../../ErrorManager/ErrorManager.hpp"
 #include "FileSource.hpp"
+#include "WordListManager.hpp"
+//#include <ranges>
+//#include <algorithm>
+//#include <iostream>
+//#include <string>
 
 void WordLang::start() {
     //Initialize commandLine
-
+    cse::CommandLine cl;
+    cse::ErrorManager errorManager;
+    cse::WordListManager wordManager;
     // Call a function that takes commandline and assigns functions and configure it
 
     // Assign WordListManager this handles all the backend keeping track of lists
@@ -24,13 +33,27 @@ void WordLang::start() {
     mIsActive = true;
     std::string input;
 
-    //cse::StringSet<cse::StaticString<20>> set = FileSource::load_file("top_1000_worlde.txt");
-    std::cout << "Words loaded: " << set.size() << "\n";
+    //cse::StringSet<cse::StaticString<20>> set = FileSource::load_file("top_5000.txt");
+    //std::cout << "Words loaded: " << set.size() << "\n";
     while (mIsActive) {
         std::cout << ">>> ";
         std::getline(std::cin, input);
 
-        std::cout << "You wrote: " << input << std::endl;
+        auto words = cl.tokenize_line(input);
+        
+        if (words[0] == "LIST") {
+            if (words.size() != 5 || words[2] != "=" || words[3] != "LOAD") {
+                errorManager.printInfo("Usage: LIST <name> = LOAD <filename>");
+                continue;
+            }
+            std::string listname = words[1];
+            std::string filename = words[4];
+            // LIST name = load filename
+            wordManager.load_list(words[1], words[4]);
+        }
+        if (words[0] == "EXIT") {
+            mIsActive = false;
+        }
     }
 }
 
@@ -41,6 +64,7 @@ WordLang::WordLang() {
 WordLang::~WordLang() {
     
 }
+
 
 void WordLang::Parse(const std::string& input) {
     // In a switch tokenize the inputs to see which commands are called

@@ -236,3 +236,27 @@ TEST_CASE("CommandLine with combined StringSet and StaticString commands", "[Com
         REQUIRE(stringSet.count("example") == 1);
     }
 }
+
+TEST_CASE("Test for tokenizing lines", "[tokenize_line]") {
+    cse::CommandLine cli;
+
+    SECTION("One-word string tokenized into one-word string") {
+        std::string str = "Hello";
+        
+        auto result = cli.tokenize_line(str);
+
+        REQUIRE(result.size() == 1);
+        REQUIRE(result[0] == "Hello");
+    }
+
+    SECTION("Multiple-word string is tokenized appropriately") {
+        std::string str = "Hello how are you";
+
+        auto result = cli.tokenize_line(str);
+        REQUIRE(result.size() == 4);
+        REQUIRE(result[0] == "Hello");
+        REQUIRE(result[1] == "how");
+        REQUIRE(result[2] == "are");
+        REQUIRE(result[3] == "you");
+    }
+}
