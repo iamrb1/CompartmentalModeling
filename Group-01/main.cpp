@@ -1,21 +1,25 @@
-#include "Graph/Graph.hpp"
-#include "GraphPosition/GraphPosition.hpp"
-#include "Random/Random.hpp"
-#include <cmath>
 #include <emscripten.h>
+
+#include <cmath>
 #include <memory>
 #include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
+#include "Graph/Graph.hpp"
+#include "Graph/GraphJson.hpp"
+#include "GraphPosition/GraphPosition.hpp"
+#include "Random/Random.hpp"
+
 const int VERTEX_RADIUS = 10;
 const int CANVAS_WIDTH = 1000;
 const int CANVAS_HEIGHT = 1000;
 
 class Shape {
-public:
-  static void drawLine(int x1, int y1, int x2, int y2, const char *color, int thickness = 2) {
+ public:
+  static void drawLine(int x1, int y1, int x2, int y2, const char *color,
+                       int thickness = 2) {
     EM_ASM_(
         {
           var canvas = document.getElementById('canvas');
@@ -45,12 +49,14 @@ public:
 };
 
 class GraphVisualizer {
-private:
+ private:
   cse::Random r{0};
   std::optional<cse::Vertex<std::string>> selectedVertex;
   cse::Graph<std::string> g;
+  cse::GraphJson<std::string> graphJson{g};
 
-  static bool IsPointInRange(double x1, double y1, double x2, double y2, double range) {
+  static bool IsPointInRange(double x1, double y1, double x2, double y2,
+                             double range) {
     double dx = x1 - x2;
     double dy = y1 - y2;
     return std::sqrt(dx * dx + dy * dy) <= range;
@@ -58,14 +64,16 @@ private:
 
   void ClearVertexSelection() {
     EM_ASM({
-      document.getElementById("selectedVertexTitle").innerHTML = "No Selected Vertex";
+      document.getElementById("selectedVertexTitle").innerHTML =
+          "No Selected Vertex";
       document.getElementById("selectedVertexId").innerHTML = "";
       document.getElementById("selectedVertexX").innerHTML = "";
       document.getElementById("selectedVertexY").innerHTML = "";
     });
   }
 
-  std::optional<std::reference_wrapper<const cse::Vertex<std::string>>> FindVertexAtPosition(double x, double y) {
+  std::optional<std::reference_wrapper<const cse::Vertex<std::string>>>
+  FindVertexAtPosition(double x, double y) {
     auto vertices = g.GetVertices();
     for (auto v : vertices) {
       if (IsPointInRange(v->GetX(), v->GetY(), x, y, VERTEX_RADIUS)) {
@@ -95,15 +103,18 @@ private:
     // Draw vertices as circles
     auto vertices = g.GetVertices();
     for (auto v : vertices) {
-      Shape::drawCircle(v->GetX(), v->GetY(), VERTEX_RADIUS, v->GetData().c_str());
+      Shape::drawCircle(v->GetX(), v->GetY(), VERTEX_RADIUS,
+                        v->GetData().c_str());
     }
   }
 
   void HandleSelectedVertex(cse::Vertex<std::string> v) {
     EM_ASM(
         {
-          document.getElementById("selectedVertexTitle").innerHTML = "Selected Vertex";
-          document.getElementById("selectedVertexId").innerHTML = "ID: " + UTF8ToString($0);
+          document.getElementById("selectedVertexTitle").innerHTML =
+              "Selected Vertex";
+          document.getElementById("selectedVertexId").innerHTML =
+              "ID: " + UTF8ToString($0);
           document.getElementById("selectedVertexX").innerHTML = "X: " + $1;
           document.getElementById("selectedVertexY").innerHTML = "Y: " + $2;
         },
@@ -161,14 +172,79 @@ private:
       // Clear button
       var clearButton = document.createElement('button');
       clearButton.textContent = "Clear Graph";
-      clearButton.addEventListener('click', function() { Module._clearCanvas(); });
+      clearButton.addEventListener(
+          'click', function() { Module._clearCanvas(); });
       buttonGroup.appendChild(clearButton);
 
       // Add Vertex button
       var addVertexButton = document.createElement('button');
       addVertexButton.textContent = "Add Vertex";
-      addVertexButton.addEventListener('click', function() { Module._addVertex(); });
+      addVertexButton.addEventListener(
+          'click', function() { Module._addVertex(); });
       buttonGroup.appendChild(addVertexButton);
+
+      /**
+       * Used ChatGPT to assist adding support to 
+       * Import and Export a Graph in JSON 
+       */
+      // Import Graph button
+      var importButton = document.createElement('button');
+      importButton.textContent = "Import Graph";
+      importButton.addEventListener(
+          'click', function() {
+            // Create a file input element
+            var fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.json';
+            fileInput.style.display = 'none';
+            document.body.appendChild(fileInput);
+
+            fileInput.addEventListener(
+                'change', function(e) {
+                  var file = e.target.files[0];
+                  if (!file) return;
+
+                  var reader = new FileReader();
+                  reader.onload = function(e) {
+                    var contents = e.target.result;
+
+                    // Use cwrap to create a JavaScript function that calls the
+                    // C++ function
+                    var importGraph =
+                        Module.cwrap('importGraph', 'boolean', ['string']);
+
+                    // Call the import function
+                    importGraph(contents);
+                  };
+                  reader.readAsText(file);
+                });
+
+            fileInput.click();
+            document.body.removeChild(fileInput);
+          });
+      buttonGroup.appendChild(importButton);
+
+      // Export Graph button
+      var exportButton = document.createElement('button');
+      exportButton.textContent = "Export Graph";
+      exportButton.addEventListener(
+          'click', function() {
+            // Use cwrap to create a JavaScript function that calls the C++
+            // function
+            var exportGraph = Module.cwrap('exportGraph', 'string', []);
+
+            // Call the export function and create a download link
+            var jsonStr = exportGraph();
+            var dataStr =
+                "data:text/json;charset=utf-8," + encodeURIComponent(jsonStr);
+            var downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "graph.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+          });
+      buttonGroup.appendChild(exportButton);
 
       // Selected vertex info container
       var selectedVertexDiv = document.createElement('div');
@@ -196,7 +272,7 @@ private:
     });
   }
 
-public:
+ public:
   GraphVisualizer() {
     // Initial values as example
     g.AddVertex("ID1", "blue", 150, 200);
@@ -236,6 +312,23 @@ public:
       ClearVertexSelection();
     }
   }
+
+  // Export the graph to JSON
+  char *ExportGraph() {
+    std::string jsonStr = graphJson.ExportToJson();
+    char *result = (char *)malloc(jsonStr.length() + 1);
+    strcpy(result, jsonStr.c_str());
+    return result;
+  }
+
+  // Import the graph from JSON
+  bool ImportGraph(const char *jsonStr) {
+    bool success = graphJson.ImportFromJson(jsonStr);
+    if (success) {
+      RedrawCanvas();
+    }
+    return success;
+  }
 };
 
 GraphVisualizer init{};
@@ -245,19 +338,15 @@ GraphVisualizer init{};
  * like when a buttone is clicked must have an interface here
  */
 extern "C" {
-void clearCanvas() {
-  init.ClearGraph();
+void clearCanvas() { init.ClearGraph(); }
+
+void addVertex() { init.AddVertex(); }
+
+void handleCanvasClick(double x, double y) { init.HandleCanvasClick(x, y); }
+
+char *exportGraph() { return init.ExportGraph(); }
+
+bool importGraph(const char *jsonStr) { return init.ImportGraph(jsonStr); }
 }
 
-void addVertex() {
-  init.AddVertex();
-}
-
-void handleCanvasClick(double x, double y) {
-  init.HandleCanvasClick(x, y);
-}
-}
-
-int main() {
-  return 0;
-}
+int main() { return 0; }
