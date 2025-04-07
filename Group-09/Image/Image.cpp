@@ -30,7 +30,7 @@ void Alert(const std::string& msg) {
  * @return True if the URL is valid
  */
 bool validateURL(const std::string& url) {
-  return url.find("http://") == 0 || url.find("https://") == 0 ||
+  return url.find("http://") == 0 || url.find("https://") == 0 || url.find("data:") == 0 ||
          url.find("://") == std::string::npos;
 }
 
