@@ -24,14 +24,14 @@ TEST_CASE("DataMap Initializer List Constructor Test", "[DataMap]") {
   cse::AdvDataMap data_map = {{"name", std::string("professor")}, {"age", 22}, {"dob", std::string("0120")}};
 
   SECTION("DataMap is not empty") {
-    bool y = data_map.empty();
-    REQUIRE(y == 0);
+    REQUIRE_FALSE(data_map.empty());
   }
 
   SECTION("Valid DataMap keys") {
-    REQUIRE(data_map.count("name") == 1);
-    REQUIRE(data_map.count("age") == 1);
-    REQUIRE(data_map.count("dob") == 1);
+      const std::vector<std::string> expected_keys = {"name", "age", "dob"};
+      for (const auto& key : expected_keys) {
+          REQUIRE(data_map.count(key) == 1);
+      }
   }
 }
 
@@ -130,6 +130,8 @@ TEST_CASE("DataMap [] operator Test") {
 
   SECTION("key not specified should not cause an error") {
     REQUIRE_NOTHROW(data_map["key_three"]);
+      auto val2 = data_map["key_three"].get<int>();
+      REQUIRE(val2 == 0);
   }
 }
 
@@ -159,20 +161,33 @@ TEST_CASE("DataMap erase method Test") {
   cse::AdvDataMap data_map;
   data_map.insert("key", 80.2);
   data_map.erase("key");
-  REQUIRE(data_map.empty() == 1);
+  REQUIRE(data_map.empty());
+  data_map.insert("key2", 80.2);
+  REQUIRE(data_map.size() == 1);
+  data_map.erase("key2");
+  REQUIRE(data_map.empty());
 }
 
 TEST_CASE("DataMap clear method Test") {
   cse::AdvDataMap data_map;
   data_map.insert("key", 80.2);
   data_map.clear();
-  REQUIRE(data_map.empty() == 1);
+  REQUIRE(data_map.empty());
+
+  data_map.insert("key2", "GVBHJN");
+  data_map.insert("key3", 80);
+  data_map.clear();
+  REQUIRE(data_map.empty());
 }
 
 TEST_CASE("DataMap size method Test") {
   cse::AdvDataMap data_map;
   data_map.insert("key", 80.2);
   REQUIRE(data_map.size() == 1);
+  data_map.insert("key2", 80.1);
+  data_map.insert("key3", "FGHJ");
+  data_map.insert("key4", 80);
+  REQUIRE(data_map.size() == 4);
 }
 
 TEST_CASE("DataMap empty method Test") {
@@ -205,7 +220,7 @@ TEST_CASE("DataMap to_string method Test") {
   auto val = data_map.to_string<double>("key");
 
   SECTION("Convert double to string") {
-    REQUIRE(typeid(data_map.to_string<double>("key")) == typeid(std::string));
+    REQUIRE(data_map.to_string<double>("key") == "80.200000");
   }
 
   SECTION("Return string value") {
@@ -277,6 +292,8 @@ TEST_CASE("DataMap get_type_keys method Tests") {
     REQUIRE(std::size(vector2) == 3);
   }
   SECTION("Check both at once") {
+      ///Should be string keys for key0, key3, key4, key5, key6
+      ///Shouuld be int keys for key1 and key2
     data_map.insert("key3", std::string("Test_key_3"));
     data_map.insert("key4", std::string("Test_key_4"));
     data_map.insert("key5", std::string("Test_key_5"));
@@ -330,4 +347,9 @@ TEST_CASE("Testing using an empty string as a key") {
   REQUIRE(data_map.to_string<int>("") == std::to_string(123));
 
   REQUIRE(data_map.contains(""));
+  data_map.clear();
+
+  data_map.insert("", 44.32);
+  REQUIRE(data_map.to_string<double>("") == std::to_string(44.32));
+
 }
