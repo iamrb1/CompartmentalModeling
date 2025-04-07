@@ -84,7 +84,6 @@ class WebLayout {
   void removeImage(const ImageLayout &image);
   void addTextBox(const TextBoxLayout &textBox);
   void removeTextBox(const TextBoxLayout &textBox);
-  void loadPage();
   const std::vector<ImageLayout> &getImages();
   const std::vector<TextBoxLayout> &getTextBoxes();
   void toggleTextBox(const TextBoxLayout &textBox);

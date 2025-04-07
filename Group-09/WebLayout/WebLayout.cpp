@@ -259,37 +259,6 @@ void const WebLayout::renderImage(const std::string &layoutID,
 }
 
 /**
- * Loads all text boxes and images on current web layout
- */
-void WebLayout::loadPage() {
-  // Display text boxes
-  for (const auto &layout : textBoxes) {
-    // Future add functionality to fully format text
-
-    // Verify values are valid
-    if ((layout.textBox->getHeight() > MIN_PERCENT &&
-         layout.textBox->getWidth() > MIN_PERCENT) &&
-        (layout.xPos >= MIN_PERCENT && layout.yPos >= MIN_PERCENT)) {
-      renderTextBox(getID(), layout.textBox->getFormattedText(),
-                    layout.textBox->getWidth(), layout.textBox->getHeight(),
-                    layout.xPos, layout.yPos, layout.textBox->getID());
-    }
-  }
-
-  // Display images
-  for (const auto &layout : images) {
-    // Verify values are valid
-    if ((layout.image->getHeight() > MIN_PERCENT &&
-         layout.image->getWidth() > MIN_PERCENT) &&
-        (layout.xPos >= MIN_PERCENT && layout.yPos >= MIN_PERCENT)) {
-      renderImage(getID(), layout.image->getURL(), layout.image->getWidth(),
-                  layout.image->getHeight(), layout.xPos, layout.yPos,
-                  layout.image->getID());
-    }
-  }
-}
-
-/**
  * Generates ID of layout
  * @return unique ID
  */

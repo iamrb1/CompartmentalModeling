@@ -282,7 +282,6 @@ void WebLayoutManager::addTextBox() {
   TextBoxLayout newLayout = {newTextBox, 50, 50};
 
   layouts.at(currentPos)->addTextBox(newLayout);
-  //layouts.at(currentPos)->loadPage();
 }
 
 void WebLayoutManager::addImage(const std::string& url, int width, int height,
