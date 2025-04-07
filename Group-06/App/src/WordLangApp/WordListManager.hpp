@@ -8,12 +8,23 @@
 #include <stdexcept>
 #include <unordered_map>
 #include <vector>
-
+#include "../../../StringSet/StringSet.hpp"
+#include "../../../StaticString/StaticString.hpp"
+#include "FileSource.hpp"
 namespace cse {
  
  class WordListManager {
   public:
-  // Load function
+  
+  /**
+   * @brief Initializes a list of words from a file
+   * 
+   * @param listName Name of user's list
+   * @param fileName Filename
+   * @return true List loaded successfully
+   * @return false List has not been loaded (file not found)
+   */
+  bool load_list(const std::string& listName, const std::string& fileName);
 
   // Combined function to combine group of sets this function can be variadic templated since we do not know the number of list to combine or can take a name to assign and vector of lists to combine
 
@@ -53,8 +64,10 @@ namespace cse {
     // A struct has copy of map StringSet to track changes if reset last called this is replaced with current changes to retrive.
   
     // A map of StringSet represents different files
+    std::unordered_map<std::string, cse::StringSet<cse::StaticString<20>>> mWordLists;
 
-    // A stringSet represents current list
+    // current list
+    std::string mCurrentList;
 
     // A stringSet represents current Get command
     
