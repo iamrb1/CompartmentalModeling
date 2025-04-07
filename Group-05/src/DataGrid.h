@@ -18,6 +18,8 @@
 
 namespace cse {
 
+static constexpr std::size_t kNoIndex = std::numeric_limits<std::size_t>::max();
+
 /**
  * @class DataGrid
  * @brief A 2D data table providing a simple and efficient tabular interface.
@@ -39,20 +41,20 @@ private:
     NOT_EQUAL
   };
 
-  [[nodiscard]] std::vector<double>
-  getDoubleValues(const ReferenceVector<const Datum> &reference_vector) const;
+  [[nodiscard]] static std::vector<double>
+  getDoubleValues(const ReferenceVector<const Datum> &reference_vector) ;
 
   [[nodiscard]] ReferenceVector<Datum> determineColumnComparisons(
                                                     size_t column_index,
                                                     const Datum &value,
                                                     operations operation);
 
-  [[nodiscard]] constexpr double calculateMean(const std::vector<double>& double_values) const;
-  [[nodiscard]] constexpr double calculateMedian(std::vector<double> double_values) const;
-  [[nodiscard]] std::vector<double> calculateMode(const std::vector<double>& double_values) const;
-  [[nodiscard]] constexpr double calculateStandardDeviation(const std::vector<double>& double_values) const;
-  [[nodiscard]] constexpr double calculateMin(const std::vector<double>& double_values) const;
-  [[nodiscard]] constexpr double calculateMax(const std::vector<double>& double_values) const;
+  [[nodiscard]] static constexpr double calculateMean(const std::vector<double>& double_values) ;
+  [[nodiscard]] static constexpr double calculateMedian(std::vector<double> double_values) ;
+  [[nodiscard]] static std::vector<double> calculateMode(const std::vector<double>& double_values) ;
+  [[nodiscard]] static constexpr double calculateStandardDeviation(const std::vector<double>& double_values) ;
+  [[nodiscard]] static constexpr double calculateMin(const std::vector<double>& double_values) ;
+  [[nodiscard]] static constexpr double calculateMax(const std::vector<double>& double_values) ;
 
 public:
   /// Struct for the DataGrid mathematical summary
@@ -104,9 +106,7 @@ public:
    */
   explicit DataGrid(const std::size_t num_rows_ = 0,
                     const std::size_t num_columns_ = 0,
-                    const double default_value_ = 0) {
-    resize(num_rows_, num_columns_, default_value_);
-  }
+                    const double default_value_ = 0) : grid_(num_rows_, std::vector<Datum>(num_columns_, Datum(default_value_))) {}
 
   /**
    * @brief Create rectangular datagrid of desired size with default value
@@ -183,25 +183,25 @@ public:
   [[nodiscard]] std::tuple<std::size_t, std::size_t> shape() const;
 
   void insertDefaultRow(
-      std::size_t row_index_ = std::numeric_limits<std::size_t>::max(),
+      std::size_t row_index_ = kNoIndex,
       double default_value_ = 0);
   void insertDefaultRow(
-      std::size_t row_index_ = std::numeric_limits<std::size_t>::max(),
+      std::size_t row_index_ = kNoIndex,
       std::string default_value_ = "");
 
   void insertDefaultColumn(
-      std::size_t column_index_ = std::numeric_limits<std::size_t>::max(),
+      std::size_t column_index_ = kNoIndex,
       double default_value_ = 0);
   void insertDefaultColumn(
-      std::size_t column_index_ = std::numeric_limits<std::size_t>::max(),
+      std::size_t column_index_ = kNoIndex,
       const std::string &default_value_ = "");
 
   void insertRow(
-      std::vector<Datum> row_,
-      std::size_t row_index_ = std::numeric_limits<std::size_t>::max());
+      const std::vector<Datum>& row_,
+      std::size_t row_index_ = kNoIndex);
   void insertColumn(
       const std::vector<Datum>& column_,
-      std::size_t column_index_ = std::numeric_limits<std::size_t>::max());
+      std::size_t column_index_ = kNoIndex);
 
   void deleteRow(std::size_t row_index_);
   void deleteColumn(std::size_t column_index_);
