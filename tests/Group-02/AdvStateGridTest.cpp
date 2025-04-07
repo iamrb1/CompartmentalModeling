@@ -29,6 +29,7 @@ TEST_CASE("Testing load_map returns a valid map") {
   REQUIRE(grid.get_state(cse::Point(2, 2)) == 'X');
 
   // Row 0 is "#####"
+  // See Group-02/test.csv for the test grid layout
   std::string row0;
   for (int col = 0; col < 5; col++) {
     row0.push_back(grid.get_state(cse::Point(0, col)));
@@ -191,4 +192,8 @@ TEST_CASE("Testing validate_position on edge cells") {
   REQUIRE_FALSE(grid.validate_position({5, 4}));
   // (1,1) is an empty space so should be traversable.
   REQUIRE(grid.validate_position({1, 1}));
+}
+
+TEST_CASE("Testing incorrect filepath throws exception") {
+  REQUIRE_THROWS_AS((cse::StateGrid("nonexistent_file")), std::runtime_error);
 }
