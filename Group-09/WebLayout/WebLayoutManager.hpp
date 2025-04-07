@@ -22,6 +22,7 @@ class WebLayoutManager {
   void removeLayout(std::shared_ptr<WebLayout> layout);
   void advance();
   void rewind();
+  void goTo(size_t slide_num);
   void initialize();
   void addTextBox();
   void addNewSlide();

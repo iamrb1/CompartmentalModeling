@@ -227,6 +227,29 @@ void WebLayoutManager::addImage(const std::string& url, int width, int height,
   layouts.at(currentPos)->addImage(layout);
 }
 
+/**
+ * Go to a given slide
+ * @param slide_num
+ */
+void WebLayoutManager::goTo(const size_t slide_num) {
+  EM_ASM({console.log("Changing slide"); });
+
+  if (slide_num < 0 || slide_num >= layouts.size()) {
+    EM_ASM({console.error("ERROR: Requested slide is OOB."); });
+    return; // Exit early
+  }
+
+  auto currentLayout = layouts.at(currentPos);
+  if (currentLayout) {
+    currentLayout->deactivateLayout();
+  }
+
+  currentPos = slide_num;
+
+  currentLayout = layouts.at(currentPos);
+  currentLayout->activateLayout();
+}
+
 void WebLayoutManager::addNewSlide() {
   // Create a new weblayout
   auto wb = std::make_shared<WebLayout>();

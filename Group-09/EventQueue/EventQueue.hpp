@@ -57,10 +57,10 @@ class EventQueue {
 
   /**
    * @brief Removes an event from the EventQueue
-   * @param e The event to remove
+   * @param id The event to remove
    * @return The removed event, if it was found
    */
-  std::optional<Event<Args...>> remove(const Event<Args...> &e) {
+  std::optional<Event<Args...>> remove(const int id) {
     std::priority_queue<Event<Args...>, std::vector<Event<Args...>>,
                         EventCompare<Args...>>
         temp;
@@ -68,11 +68,11 @@ class EventQueue {
 
     // Move all elements except the one to be removed to temp
     while (!heap_.empty()) {
-      if (heap_.top() != e)
+      if (heap_.top().getID() != id)
         temp.push(heap_.top());
       else {
         removed = heap_.top();
-        ids_.erase(e.getID());
+        ids_.erase(id);
         eventCount_--;
       }
       heap_.pop();
@@ -81,7 +81,7 @@ class EventQueue {
     // Reassign
     heap_ = std::move(temp);
 
-    assert(!removed.has_value() || removed.value().getID() == e.getID());
+    assert(!removed.has_value() || removed.value().getID() == id);
     return removed;
   }
 
@@ -117,7 +117,7 @@ class EventQueue {
    * @throws std::invalid_argument If an event with a matching ID is not found
    */
   void update(const Event<Args...> &e) {
-    auto removed = this->remove(e);
+    auto removed = this->remove(e.getID());
     if (removed.has_value()) {
       assert(removed.value().getID() == e.getID());
       this->add(e);  // Reinsert same ID with updated time
