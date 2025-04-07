@@ -49,7 +49,6 @@ void loadSlideDeckFromJson(const char* jsonStr) {
       }
     }
 
-    layout->loadPage();            // Render the layout
     g_manager->addLayout(layout);  // Add to the global manager
   }
 

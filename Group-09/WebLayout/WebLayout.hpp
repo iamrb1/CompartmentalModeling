@@ -2,7 +2,7 @@
  * Holds various text boxes and images to create "slides"
  *
  * @file WebLayout.h
- * @author Mary Holt
+ * @author Mary Holt, Grace Fitzgerald
  *
  */
 
@@ -34,6 +34,12 @@ struct TextBoxLayout {
             (textboxLayout.textBox->getWidth() == textBox->getWidth()) &&
             (textboxLayout.textBox->getHeight() == textBox->getHeight()));
   }
+
+  void setPosition(int x, int y) {
+    xPos = x;
+    yPos = y;
+  }
+
 };
 
 struct ImageLayout {
@@ -50,6 +56,11 @@ struct ImageLayout {
     return ((imageLayout.image->getURL() == image->getURL()) &&
             (imageLayout.image->getWidth() == image->getWidth()) &&
             (imageLayout.image->getHeight() == image->getHeight()));
+  }
+
+    void setPosition(int x, int y) {
+    xPos = x;
+    yPos = y;
   }
 };
 
@@ -73,9 +84,10 @@ class WebLayout {
   void removeImage(const ImageLayout &image);
   void addTextBox(const TextBoxLayout &textBox);
   void removeTextBox(const TextBoxLayout &textBox);
-  void loadPage();
   const std::vector<ImageLayout> &getImages();
   const std::vector<TextBoxLayout> &getTextBoxes();
+  void toggleTextBox(const TextBoxLayout &textBox);
+  void toggleImage(const ImageLayout &image);
 
   static std::string generateID();
   const std::string getID() { return id; }
@@ -83,5 +95,8 @@ class WebLayout {
   // TODO: Future Implement Clear Layout Function
   void activateLayout();
   void deactivateLayout();
+
+  void setPosition(std::string id, int x, int y);
+  bool contains(std::string id) const;
 };
 }  // namespace cse

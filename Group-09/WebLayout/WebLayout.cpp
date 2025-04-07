@@ -1,6 +1,6 @@
 /**
  * @file WebLayout.cpp
- * @author Mary Holt
+ * @author Mary Holt,Grace Fitzgerald
  *
  */
 
@@ -123,6 +123,7 @@ const void WebLayout::renderTextBox(const std::string &layoutID,
         var font = UTF8ToString($10);
         var fontSize = $11;
 
+
         // Calculate the ratio to view height/width (1%)
         var widthRatio =
             document.documentElement.clientWidth / MAX_WIDTH_PERCENT;
@@ -155,7 +156,6 @@ const void WebLayout::renderTextBox(const std::string &layoutID,
           layoutDiv.id = layoutID;
           textBoxDiv.appendChild(layoutDiv);
         }
-        console.log(color);
 
         // position: absolute; left: x px; top: y px;
 
@@ -169,6 +169,7 @@ const void WebLayout::renderTextBox(const std::string &layoutID,
             p.textContent = msg;  // Set raw text content, not HTML
 
             // Apply styles
+            p.style.visibility = "inherit";
             p.style.position = "absolute";
             p.style.left = x + "vw";
             p.style.top = y + "vh";
@@ -247,45 +248,14 @@ void const WebLayout::renderImage(const std::string &layoutID,
 
         if (layoutDiv) {
           layoutDiv.innerHTML +=
-              "<img id=" + imageID + "; src='" + msg +
-              "' style='position: absolute; left: " + x + "vw; top: " + y +
-              "vh; margin: 0; object-fit: contain; width:" + width +
-              "vw; height:" + height + "vh;' />";
+              "<img id=" + imageID + " src='" + msg +
+                  "' style='visibility: inherit; position: absolute; left: " + x + "vw; top: " + y +
+                  "vh; margin: 0; object-fit: contain; width:" + width +
+                  "vw; height:" + height + "vh;' />";
         }
       },
       layoutID.c_str(), url.c_str(), width, height, x, y, imageID.c_str(),
       MAX_WIDTH_PERCENT, MAX_HEIGHT_PERCENT);
-}
-
-/**
- * Loads all text boxes and images on current web layout
- */
-void WebLayout::loadPage() {
-  // Display text boxes
-  for (const auto &layout : textBoxes) {
-    // Future add functionality to fully format text
-
-    // Verify values are valid
-    if ((layout.textBox->getHeight() > MIN_PERCENT &&
-         layout.textBox->getWidth() > MIN_PERCENT) &&
-        (layout.xPos >= MIN_PERCENT && layout.yPos >= MIN_PERCENT)) {
-      renderTextBox(getID(), layout.textBox->getFormattedText(),
-                    layout.textBox->getWidth(), layout.textBox->getHeight(),
-                    layout.xPos, layout.yPos, layout.textBox->getID());
-    }
-  }
-
-  // Display images
-  for (const auto &layout : images) {
-    // Verify values are valid
-    if ((layout.image->getHeight() > MIN_PERCENT &&
-         layout.image->getWidth() > MIN_PERCENT) &&
-        (layout.xPos >= MIN_PERCENT && layout.yPos >= MIN_PERCENT)) {
-      renderImage(getID(), layout.image->getURL(), layout.image->getWidth(),
-                  layout.image->getHeight(), layout.xPos, layout.yPos,
-                  layout.image->getID());
-    }
-  }
 }
 
 /**
@@ -335,5 +305,98 @@ void WebLayout::deactivateLayout() {
       },
       layoutID.c_str());
 }
+
+void WebLayout::toggleImage(const cse::ImageLayout &image) {
+  auto imageID = image.image->getID();
+
+  EM_ASM(
+      {
+        var imageID = UTF8ToString($0);
+        var imageDiv = document.getElementById(imageID);
+        if (imageDiv) {
+          // flip current visibility
+          var visibility = window.getComputedStyle(imageDiv).visibility;
+
+          //console.log(visibility);
+          if(visibility == "hidden") {
+            imageDiv.style.visibility = "inherit";
+          } else {
+            imageDiv.style.visibility = "hidden";
+          }
+        }
+        //console.log(imageID);
+      },
+      imageID.c_str());
+}
+
+void WebLayout::toggleTextBox(const cse::TextBoxLayout &textBox) {
+  auto textBoxID = textBox.textBox->getID();
+
+  EM_ASM(
+      {
+        var textBoxID = UTF8ToString($0);
+        var textBoxDiv = document.getElementById(textBoxID);
+        if (textBoxDiv) {
+          console.log('Found ', textBoxID);
+          // flip current visibility
+          //var visibility = textBoxDiv.style.visibility;
+          // window.getComputedStyle learned through ChatGPT usage when exploring problem of visibility
+          // returning as '' when set to inherit from parent
+          var visibility = window.getComputedStyle(textBoxDiv).visibility;
+
+          if(visibility == "hidden") {
+            textBoxDiv.style.visibility = "inherit";
+          } else {
+            textBoxDiv.style.visibility = "hidden";
+          }
+        } else {
+          console.log('not found', textBoxID);
+        }
+      },
+      textBoxID.c_str());
+}
+
+
+/**
+ * Converts image attributes into html
+ * @param id : Object id
+ * @param newX : New x value location for object to be set at
+ * @param newY : New y value location for object to be set at
+ */
+void WebLayout::setPosition(std::string id, int newX, int newY) {
+  for (auto& tbl : textBoxes) {
+    if (tbl.textBox->getID() == id) {
+      tbl.setPosition(newX, newY);
+    }
+  }
+
+  for (auto& imgl : images) {
+    if (imgl.image->getID() == id) {
+      imgl.setPosition(newX, newY);
+    }
+  }
+}
+
+/**
+ * Checks if WebLayout contains object with matching id
+ * @param id of object
+ * @return Boolean indicating if weblayout contains object
+ */
+bool WebLayout::contains(std::string id) const {
+  for (const auto& tbl : textBoxes) {
+    if (tbl.textBox->getID() == id) {
+      return true;
+    }
+  }
+
+  for (const auto& imgl : images) {
+    if (imgl.image->getID() == id) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 
 }  // namespace cse
