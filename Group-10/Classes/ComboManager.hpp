@@ -13,8 +13,16 @@ Last Changed Date: 03/26/2025
 #include <cstddef>
 #include <iterator>
 #include <numeric>
+#include <ranges>
 #include <stdexcept>
 #include <vector>
+#include <concepts>
+
+template <typename Container>
+concept supportedContainer = requires(Container& testContainer) {
+  std::begin(testContainer);
+  std::end(testContainer);
+};
 
 namespace cse {
 
@@ -29,7 +37,7 @@ namespace cse {
  * Template parameter:
  *   Container - the type of the container holding the items.
  */
-template <typename Container>
+template <supportedContainer Container>
 class ComboManager {
  public:
   // The type of elements stored in the container.
@@ -50,13 +58,13 @@ class ComboManager {
       : items_(std::begin(container),
                std::end(container)), /* Copy items from the container into a
                                         vector for random access.*/
-        n_(items_.size()),           // Total number of items available.
-        k_(combinationSize),         // Number of items per combination.
+        numItems_(items_.size()), 
+        comboSize_(combinationSize),
         allowRepeats_(
-            allowRepeats),       // Set the flag for allowing repeated elements.
-        totalCombinations_(0) {  // Initialize total combinations to 0.
+            allowRepeats),
+        totalCombinations_(0) {
 
-    assert(k_ <= n_ &&
+    assert(comboSize_ <= numItems_ &&
            "Combination size cannot be greater than the number of items in "
            "the container when repeats are disallowed.");
 
@@ -83,8 +91,8 @@ class ComboManager {
                std::size_t indexRequired, bool allowRepeats = false)
       : items_(std::begin(container),
                std::end(container)),  // Copy the container into a vector.
-        n_(container.size()),
-        k_(combinationSize),
+        numItems_(container.size()),
+        comboSize_(combinationSize),
         isRequired_(
             true),  // Set flag to indicate that a required element is used.
         allowRepeats_(
@@ -95,23 +103,20 @@ class ComboManager {
       throw std::invalid_argument(
           "Required Element Index is out of container limits");
     }
-    assert(k_ <= n_ &&
-      "Combination size cannot be greater than the number of items in "
-      "the container when repeats are disallowed.");
+    assert(comboSize_ <= numItems_ &&
+           "Combination size cannot be greater than the number of items in "
+           "the container.");
 
     // Extract the required element from the container
     requiredValue_ = items_.at(indexRequired);
-    // If we are not repeating remove it from the container, otherwise keep it
-    // to allow for proper repeats of the element
+    
     if (!allowRepeats_) {
-      auto foundRequiredValue =
-          std::find(items_.begin(), items_.end(), requiredValue_);
+      auto foundRequiredValue = std::ranges::find(items_, requiredValue_);
       items_.erase(foundRequiredValue);
     }
-    // Combination size reduced for ease of calculations, as 1 spot within the
-    // combination is now reserved
-    --k_;
-    n_ = items_.size();
+    
+    --comboSize_;
+    numItems_ = items_.size();
 
     // Helper function to finish setup process
     ManagerSetup_();
@@ -211,9 +216,13 @@ class ComboManager {
     const std::vector<ValueType>& operator*() const {
       // No dereferencing iterators that do not point at appropriate
       // combinations
-      assert(!pastBegin_ &&
-             "This iterator points before the combination range");
-      assert(!pastEnd_ && "This iterator points after the combination range");
+      if (pastBegin_) {
+        throw std::out_of_range(
+            "This iterator points before the combination range");
+      } else if (pastEnd_) {
+        throw std::out_of_range(
+            "This iterator points after the combination range");
+      }
       return combination_;
     }
 
@@ -290,11 +299,11 @@ class ComboManager {
    * @brief Resets the combination to the first combination.
    *
    * If repeating elements are allowed, the first combination is [0,0,...,0].
-   * Otherwise, it is [0,1,2,...,k_-1].
+   * Otherwise, it is [0,1,2,...,comboSize_-1].
    */
-  void Reset() {
+  constexpr void Reset() {
     if (allowRepeats_) {
-      std::fill(indices_.begin(), indices_.end(), 0);
+      std::ranges::fill(indices_, 0);
     } else {
       std::iota(indices_.begin(), indices_.end(), 0);
     }
@@ -308,10 +317,9 @@ class ComboManager {
   std::vector<ValueType> GetCurrentCombo() const {
     std::vector<ValueType> combo(indices_.size());
     // Transform the indices into actual items from the container.
-    std::transform(indices_.begin(), indices_.end(), combo.begin(),
-                   [this](std::size_t index) { return items_[index]; });
+    std::ranges::transform(indices_, combo.begin(),
+                           [this](std::size_t index) { return items_[index]; });
 
-    
     if (isRequired_) {
       combo.push_back(requiredValue_);
     }
@@ -328,13 +336,13 @@ class ComboManager {
     if (allowRepeats_) {
       // For repeating combinations, the elements must be non-decreasing.
       // Start from the rightmost index for repeating combinations.
-      for (int i = static_cast<int>(k_) - 1; i >= 0; --i) {
-        // If the current index is less than n_ - 1, it can be incremented.
-        if (indices_[i] < n_ - 1) {
-          ++indices_[i];  // Increment the found index.
+      for (int i = static_cast<int>(comboSize_) - 1; i >= 0; --i) {
+        // If the current index is less than numItems_ - 1, it can be incremented.
+        if (indices_[i] < numItems_ - 1) {
+          ++indices_[i];
           // Set all indices to the right of i equal to the new value to
           // maintain non-decreasing order.
-          for (std::size_t j = i + 1; j < k_; ++j) {
+          for (std::size_t j = i + 1; j < comboSize_; ++j) {
             indices_[j] = indices_[i];
           }
           return true;
@@ -344,22 +352,19 @@ class ComboManager {
       // combination.
       return false;
     } else {
-      // Start from the rightmost index.
-      int i = static_cast<int>(k_) - 1;
+      int i = static_cast<int>(comboSize_) - 1;
       // Find the first index from the right that can be incremented.
-      // The condition indices_[i] == i + n_ - k_ indicates that the current
+      // The condition indices_[i] == i + numItems_ - comboSize_ indicates that the current
       // index is at its maximum allowable value.
-      while (i >= 0 && indices_[i] == i + n_ - k_) {
+      while (i >= 0 && indices_[i] == i + numItems_ - comboSize_) {
         --i;  // Move to the left if the current index is "maxed out".
       }
       // If no index can be incremented, we've reached the final combination.
       if (i < 0) {
         return false;
       }
-      // Increment the found index.
       ++indices_[i];
-      // Reset all indices to the right of i to be consecutive (to maintain
-      // lexicographical order).
+
       UpdateIndicesFrom_(i);
       return true;
     }
@@ -372,28 +377,21 @@ class ComboManager {
    * the first combination.
    */
   bool PrevCombo() {
+    if (IsFirstCombo_()) {
+      return false;
+    }
     if (allowRepeats_) {
-      // For repeating combinations, the very first combination is [0,0,...,0].
-      // Check if all indices are zero; if so, we're at the first repeating
-      // combination.
-      if (std::all_of(indices_.begin(), indices_.end(),
-                      [](std::size_t x) { return x == 0; })) {
-        return false;
-      }
-      // Start from the rightmost index.
-      for (int i = static_cast<int>(k_) - 1; i >= 0; --i) {
+      for (int i = static_cast<int>(comboSize_) - 1; i >= 0; --i) {
         // Determine the minimum allowed value:
         // For index 0 it is 0, for subsequent indices it is the value of the
         // previous index.
         std::size_t minValue = (i == 0 ? 0 : indices_[i - 1]);
-        // If the current index is greater than its minimum, it can be
-        // decremented.
         if (indices_[i] > minValue) {
-          --indices_[i];  // Decrement the index.
-          // Set all indices to the right to the maximum allowed value (n_ - 1)
+          --indices_[i];
+          // Set all indices to the right to the maximum allowed value (numItems_ - 1)
           // to form the previous combination.
-          for (std::size_t j = i + 1; j < k_; ++j) {
-            indices_[j] = n_ - 1;
+          for (std::size_t j = i + 1; j < comboSize_; ++j) {
+            indices_[j] = numItems_ - 1;
           }
           return true;
         }
@@ -402,13 +400,7 @@ class ComboManager {
       // combination.
       return false;
     } else {
-      // Check if the current combination is the first one (i.e., [0, 1, 2, ...,
-      // k_-1]).
-      if (IsFirstCombo_()) {
-        return false;
-      }
-      // Start from the rightmost index.
-      int i = static_cast<int>(k_) - 1;
+      int i = static_cast<int>(comboSize_) - 1;
       // Find the first index from the right that can be decremented.
       // For each index, the minimum allowed value is:
       //   - 0 for the first index, or
@@ -425,10 +417,8 @@ class ComboManager {
       if (i < 0) {
         return false;
       }
-      // Decrement the identified index.
       --indices_[i];
-      // Reset all indices to the right to the biggest valid consecutive
-      // sequence after the decremented index.
+
       UpdateIndicesFrom_(i, true);
       return true;
     }
@@ -439,14 +429,16 @@ class ComboManager {
    *
    * @return The total number of combinations (n choose k).
    */
-  std::size_t TotalCombinations() const { return totalCombinations_; }
+  std::size_t TotalCombinations() const noexcept { return totalCombinations_; }
 
   /**
    * @brief Returns the current combination indices.
    *
    * @return A vector of indices representing the current combination.
    */
-  const std::vector<std::size_t>& GetCurrentIndices() const { return indices_; }
+  constexpr const std::vector<std::size_t>& GetCurrentIndices() const noexcept {
+    return indices_;
+  }
 
  private:
   /**
@@ -456,7 +448,8 @@ class ComboManager {
    * @param k Number of items per combination.
    * @return The binomial coefficient.
    */
-  static std::size_t BinomialCoefficient_(std::size_t n, std::size_t k) {
+  static constexpr std::size_t BinomialCoefficient_(std::size_t n,
+                                                    std::size_t k) noexcept {
     if (k > n) {
       return 0;
     }
@@ -496,11 +489,11 @@ class ComboManager {
    * @param reverse Defines whether indices should be calculated for reverse
    * combinations or for forward combinations
    */
-  void UpdateIndicesFrom_(std::size_t i, bool reverse = false) {
-    for (std::size_t j = i + 1; j < k_; ++j) {
+  void UpdateIndicesFrom_(std::size_t i, bool reverse = false) noexcept {
+    for (std::size_t j = i + 1; j < comboSize_; ++j) {
       // If not reverse, use lexicographical order
       // Else calculate the reverse of lexicographical
-      indices_[j] = (!reverse) ? indices_[j - 1] + 1 : n_ - k_ + j;
+      indices_[j] = (!reverse) ? indices_[j - 1] + 1 : numItems_ - comboSize_ + j;
     }
   }
 
@@ -508,32 +501,36 @@ class ComboManager {
    * @brief Helper function to check if the current combination is the first
    * one.
    *
-   * @return true if the current combination equals [0, 1, ..., k_-1]; false
+   * @details
+   * If Repeating: First Combo = [0,0,..0] of length k
+   * If Not Repeating: First Combo = [0,1,..k-1]
+   *
+   * @return true if the current combination equals the first combo; false
    * otherwise.
    */
-  bool IsFirstCombo_() const {
-    // Verify that each index matches its initial value.
-    for (std::size_t i = 0; i < k_; ++i) {
-      if (indices_[i] != i) {
-        return false;
-      }
+  constexpr bool IsFirstCombo_() const noexcept {
+    std::string firstCombo;
+    if (allowRepeats_) {
+      std::ranges::fill(firstCombo, 0);
+    } else {
+      std::iota(firstCombo.begin(), firstCombo.end(), 0);
     }
-    return true;
+    return std::ranges::equal(firstCombo, indices_);
   }
 
   /**
    * @brief Helper function that contains repeated code between the two
    * overloaded constructors
    */
-  void ManagerSetup_() {
+  void ManagerSetup_() noexcept {
     /*
       Calculate total number of combinations
       When repeating, formula is C(n+k-1, k)
       Otherwise use standard formula C(n, k)
     */
-    totalCombinations_ = (allowRepeats_) ? BinomialCoefficient_(n_ + k_ - 1, k_)
-                                         : BinomialCoefficient_(n_, k_);
-    indices_.resize(k_);
+    totalCombinations_ = (allowRepeats_) ? BinomialCoefficient_(numItems_ + comboSize_ - 1, comboSize_)
+                                         : BinomialCoefficient_(numItems_, comboSize_);
+    indices_.resize(comboSize_);
     Reset();  // Reset to the initial combination.
   }
 
@@ -541,10 +538,10 @@ class ComboManager {
   std::vector<ValueType> items_;
 
   // Total number of items.
-  std::size_t n_;
+  std::size_t numItems_;
 
   // Number of items per combination.
-  std::size_t k_;
+  std::size_t comboSize_;
 
   // The current combination, stored as indices into items_.
   std::vector<std::size_t> indices_;
