@@ -9,7 +9,7 @@ EXPORTED_FUNCTIONS = $(foreach fn,$(EXPORTED_FUNCTIONS_LIST),'$(fn)',)
 
 .PHONY: build
 build:
-	$(CXX) $(FLAGS) main.cpp -o main.js -s NO_EXIT_RUNTIME=1 -s EXPORTED_FUNCTIONS="[${EXPORTED_FUNCTIONS} '_main']" -s EXPORTED_RUNTIME_METHODS="['cwrap']"
+	$(CXX) $(FLAGS) main.cpp -o main.js -s NO_EXIT_RUNTIME=1 -s EXPORTED_FUNCTIONS="[${EXPORTED_FUNCTIONS} '_main']" -s EXPORTED_RUNTIME_METHODS="['cwrap', 'stringToNewUTF8']"
 
 run: build
 	emrun --no_browser --port 8080 .

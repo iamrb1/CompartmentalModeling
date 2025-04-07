@@ -187,7 +187,7 @@ private:
             var id2 = document.getElementById("vertexId2Input").value;
             var weight = parseInt(document.getElementById("edgeWeightInput").value);
             if (id1 && id2 && !isNaN(weight)) {
-              Module._toggleEdge(id1, id2, weight);
+              Module._toggleEdge(stringToNewUTF8(id1), stringToNewUTF8(id2), weight);
             } else {
               alert("Please fill out both vertex IDs and the weight.");
             }
@@ -243,8 +243,7 @@ private:
             var x = parseInt(document.getElementById("vertexXInput").value);
             var y = parseInt(document.getElementById("vertexYInput").value);
             if (id && !isNaN(x) && !isNaN(y)) {
-              console.log("Adding vertex with ID: " + id + ", X: " + x + ", Y: " + y);
-              Module._addVertexWithParams(id, x, y);
+              Module._addVertexWithParams(stringToNewUTF8(id), x, y);
             } else {
               alert("Please fill out all fields.");
             }
@@ -273,7 +272,7 @@ private:
             var id = document.getElementById("deleteVertexIdInput").value;
             if (id) {
               console.log("Deleting vertex with ID: " + id);
-              Module._deleteVertex(id);
+              Module._deleteVertex(stringToNewUTF8(id));
             } else {
               alert("Please enter a valid vertex ID.");
             }
@@ -342,38 +341,42 @@ public:
   }
 
   // Allows the user to delete a vertex of their choosing
-  void DeleteVertex(const std::string &id) {
-    if (g.HasVertex(id)) {
-      std::cout << "No vertex found with ID: " << id << std::endl;
+  void DeleteVertex(const char *id) {
+    std::string idCpp(id);
+    if (!g.HasVertex(idCpp)) {
+      std::cout << "No vertex found with ID: " << idCpp << std::endl;
       EM_ASM({ alert("Error: Vertex with this ID does not exist!"); });
       return;
     }
 
-    g.RemoveVertex(id);
-    std::cout << "Vertex with ID " << id << " has been deleted." << std::endl;
+    g.RemoveVertex(idCpp);
+    std::cout << "Vertex with ID " << idCpp << " has been deleted." << std::endl;
     RedrawCanvas();
   }
 
   // Allows the user to add and/or delete an edge between 2 verticies
-  void ToggleEdge(const std::string &id1, const std::string &id2, int weight) {
-    const std::string edgeId = id1 + "-" + id2;
+  void ToggleEdge(const char *id1, const char *id2, int weight) {
+    std::string idCpp1(id1);
+    std::string idCpp2(id2);
+    const std::string edgeId = idCpp1 + "-" + idCpp2;
     if (g.HasEdge(edgeId)) {
       g.RemoveEdge(edgeId);
     } else {
-      g.AddEdge(id1, id2, weight);
+      g.AddEdge(idCpp1, idCpp2, weight);
     }
     RedrawCanvas();
   }
 
   // Allows the user to add a vertex where they chose
-  void AddVertexWithParams(const std::string &id, int x, int y) {
-    if (g.HasVertex(id)) {
-      std::cout << "Vertex with ID " << id << " already exists!" << std::endl;
+  void AddVertexWithParams(const char *id, int x, int y) {
+    std::string idCpp(id);
+    if (g.HasVertex(idCpp)) {
+      std::cout << "Vertex with ID " << idCpp << " already exists!" << std::endl;
       EM_ASM({ alert("Error: Vertex with this ID already exists!"); });
       return;
     }
-    g.AddVertex(id, "blue", x, y);
-    std::cout << "Total Vertices: " << g.GetVertices().size() << std::endl;
+    g.AddVertex(idCpp, "blue", x, y);
+    std::cout << "Total Vertices: " << g.GetVertices().size() << "id: " << idCpp << " " << std::endl;
     RedrawCanvas();
   }
 
@@ -404,11 +407,11 @@ void addVertex() {
 }
 
 void toggleEdge(const char *id1, const char *id2, int weight) {
-  init.ToggleEdge(std::string(id1), std::string(id2), weight);
+  init.ToggleEdge(id1, id2, weight);
 }
 
 void addVertexWithParams(const char *id, int x, int y) {
-  init.AddVertexWithParams(std::string(id), x, y);
+  init.AddVertexWithParams(id, x, y);
 }
 
 void handleCanvasClick(double x, double y) {
@@ -416,7 +419,7 @@ void handleCanvasClick(double x, double y) {
 }
 
 void deleteVertex(const char *id) {
-  init.DeleteVertex(std::string(id));
+  init.DeleteVertex(id);
 }
 }
 int main() {
