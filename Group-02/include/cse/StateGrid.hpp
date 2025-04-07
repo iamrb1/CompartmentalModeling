@@ -8,6 +8,7 @@
 #pragma once
 
 #include <functional>
+#include <algorithm>
 #include <map>
 #include <string>
 #include <vector>
@@ -22,7 +23,7 @@ namespace cse {
  * Struct to hold each StateGrid state, along with any (and future) properties it has
  */
 struct StateDictionary {
-  std::map<char, cse::AuditedVector<std::string>> m_state_dictionary;
+  std::map<char, AuditedVector<std::string>> m_state_dictionary;
 
   StateDictionary() {
     m_state_dictionary = {{' ', {"EmptySpace", "Open"}},
@@ -36,24 +37,24 @@ struct StateDictionary {
    * @param searchchar char that is being searched for
    * @return bool stating if the state was found
    */
-  bool find(char searchchar) {
-    return m_state_dictionary.find(searchchar) != m_state_dictionary.end();
+  [[nodiscard]] bool find(char search_char) const {
+    return m_state_dictionary.find(search_char) != m_state_dictionary.end();
   }
   /**
    * This function checks if a state can be traversed into
    * @param searchchar state to be queried
    * @return bool stating if the state is traversable
    */
-  bool traversable(char searchchar) {
-    return m_state_dictionary.at(searchchar)[1] == "Open";
+  [[nodiscard]] bool traversable(char search_char) const {
+    return m_state_dictionary.at(search_char)[1] == "Open";
   }
   /**
    * This function returns property information about a state in m_grid
    * @param searchchar The state being queried
    * @return AuditedVector of properties for queried state
    */
-  cse::AuditedVector<std::string> get_info(char searchchar) {
-    return m_state_dictionary.at(searchchar);
+  [[nodiscard]] AuditedVector<std::string> get_info(char search_char) const {
+    return m_state_dictionary.at(search_char);
   }
   /**
    * This function can alter or remove properties from states in m_grid
@@ -62,18 +63,18 @@ struct StateDictionary {
    * @param changeprop An optional variable, that can contain the new property or when not present, indicates removal
    * The use of std::nullopt was suggested to me by ChatGPT
    */
-  void change_property(char changestate, std::string& property, std::optional<std::string> changeprop = std::nullopt) {
-    auto it = m_state_dictionary.find(changestate);
+  void change_property(char change_state, std::string& property, std::optional<std::string> change_prop = std::nullopt) {
+    auto it = m_state_dictionary.find(change_state);
     if (it == m_state_dictionary.end()) {
       return;
     }
 
-    cse::AuditedVector<std::string>& properties = m_state_dictionary.at(changestate);
+    AuditedVector<std::string>& properties = m_state_dictionary.at(change_state);
     auto found = std::find(properties.begin(), properties.end(), property);
 
     if (found != properties.end()) {
-      if (changeprop) {
-        *found = std::move(*changeprop);
+      if (change_prop) {
+        *found = std::move(*change_prop);
       } else {
         properties.erase(found);
       }
@@ -88,9 +89,9 @@ class StateGrid {
   ///Rows in grid
   int m_cols = 0;
   ///StateGridPosition to represent Agent location
-  cse::StateGridPosition m_position;
+  StateGridPosition m_position;
   ///Grid to represent game map
-  cse::AuditedVector<std::string> m_grid;
+  AuditedVector<std::string> m_grid;
   ///StateDictionary object that holds all property info about StateGrid states
   StateDictionary m_dictionary;
 
@@ -112,27 +113,27 @@ class StateGrid {
 
   void load_map(const std::string& diff);
 
-  friend std::ostream& operator<<(std::ostream& os, const cse::AuditedVector<std::string>& grid);
+  friend std::ostream& operator<<(std::ostream& os, const AuditedVector<std::string>& grid);
 
-  [[maybe_unused]] void display_grid();
+  [[maybe_unused]] void display_grid() const;
   ///REVIEW COMMENT: I had a comment about my use of std::pairs instead of a dedicated Point struct,
   /// like in SGPos, but this currently would not work with indexing into m_grid with doubles,
   /// so in advanced version I will include a better looking struct that will coincide with SGPos
   [[maybe_unused]] bool set_state(Point new_position);
 
-  char get_state(Point statepos);
+  [[nodiscard]] char get_state(Point state_pos) const;
 
-  cse::AuditedVector<std::string> define_state(char state);
+  [[nodiscard]] AuditedVector<std::string> define_state(char state) const;
 
-  [[maybe_unused]] void set_condition(char changestate, std::string property, std::string changeprop);
+  [[maybe_unused]] void set_condition(char change_state, std::string property, std::string change_prop);
 
-  [[maybe_unused]] void remove_condition(char changestate, std::string property);
+  [[maybe_unused]] void remove_condition(char change_state, std::string property);
 
-  [[maybe_unused]] std::map<std::string, cse::AuditedVector<std::string>> find_properties();
+  [[maybe_unused]] [[nodiscard]] std::map<std::string, AuditedVector<std::string>> find_properties() const;
 
-  bool validate_position(std::pair<double, double> move);
+  [[nodiscard]] bool validate_position(std::pair<double, double> move) const;
 
-  std::vector<Point> find_moves();
+  [[nodiscard]] std::vector<Point> find_moves() const;
 
   [[maybe_unused]] void modify_all_cells(const std::function<void(int, int, char&)>& func);
 };

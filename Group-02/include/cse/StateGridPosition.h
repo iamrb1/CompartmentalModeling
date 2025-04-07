@@ -58,7 +58,7 @@ class StateGridPosition {
   }
 
   ///Get the position of the object this stategrid is associated with
-  [[maybe_unused]] Point get_object_position() {
+  [[maybe_unused]] [[nodiscard]] Point get_object_position() const {
     return m_object_position;
   }
 
