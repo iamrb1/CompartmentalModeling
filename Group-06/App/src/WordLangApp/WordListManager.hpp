@@ -26,38 +26,38 @@ namespace cse {
    */
   bool load_list(const std::string& listName, const std::string& fileName);
 
-  // Combined function to combine group of sets this function can be variadic templated since we do not know the number of list to combine or can take a name to assign and vector of lists to combine
+  // Combined function to combine group of sets, string listname, vector of lists to combine return bool
 
-  // Difference function similar to combined
+  // Difference function similar to combined, listname, vector of listnames reutnrs a bool
 
-  // Intersection function similar to combined
+  // Intersection function similar to combined, listname, vector of listnames reutnrs a bool
 
-  // Copy copys an existing list to a new list and creats it
+  // Copy copys an existing list to a new list and creats it, listname, listname to copy rturn bool
 
   // Create list this is a helper
 
-  // Set current
+  // Set current, vector of listnames return bool
 
-  // Add adds the words to the set
+  // Add adds the words to the set, listname, space separated words to add returns bool
 
-  // Save saves the list into a file if exist overwrite if not creates it.
+  // Save saves the list into a file if exist overwrite if not creates it. Listname return bool
 
-  // Length function retricst the length of words to search
+  // Length function retricst the length of words to search, int number reutrns bool. (*) if used resets the length 
 
-  // Contains any updates the current list to the restriction
+  // Contains any updates the current list to the restriction, string collection of letters to include some return bool
 
-  // Contains all updates the curernt list to the restriction
+  // Contains all updates the curernt list to the restriction, string collection of letters to include all return bool
 
-  // Not Contains update the current list to the restriction
+  // Not Contains update the current list to the restriction, string collection of letters to exclude return bool
 
-  // Get searches based on pattern load found words into current set to print if asked 
+  // Get searches based on pattern load found words into current set to print if asked, string patterrn to restric return bool
 
   // Print prints the current setif number specified that number of variable if not all 
   bool print(int number = 0, bool isAll = false);
   
-  // Reset takes a listname existing and loads the file associated to it to the original 
+  // Reset takes a listname existing and loads the file associated to it to the original, listname resets back to originial(can be done only list loaded from files)
 
-  // Reset last remove last applied pattern
+  // Reset last remove last applied pattern, remove last applied change return bool
 
   // Wordle search based on this input narrow the set based on input.
 
