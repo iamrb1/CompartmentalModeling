@@ -27,7 +27,7 @@ TEST_CASE("WordLang Tests", "[WordLang]") {
   std::string input = R"(LIST list1 = LOAD "File1"
   LIST list2 = LOAD "File2"
   LIST combined = COMBINED list1 list2
-  LIST result = DIFFERANCE combined
+  LIST result = DIFFERENCE combined
   SET_CURRENT result
   LENGTH = 5
   GET "_o__s"
