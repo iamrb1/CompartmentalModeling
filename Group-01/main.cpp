@@ -234,9 +234,8 @@ private:
       var addVertexButton = document.createElement('button');
       addVertexButton.textContent = "Add Vertex";
 
-      // This part is activly being assisted by chatgpt
+      // This part was assisted by chatgpt
       // It creates a vertex at the values given by the user
-      // It currently doesn't store the id correctly for the vertex
       addVertexButton.addEventListener(
           'click', function() {
             var id = document.getElementById("vertexIdInput").value;
@@ -271,7 +270,6 @@ private:
           'click', function() {
             var id = document.getElementById("deleteVertexIdInput").value;
             if (id) {
-              console.log("Deleting vertex with ID: " + id);
               Module._deleteVertex(stringToNewUTF8(id));
             } else {
               alert("Please enter a valid vertex ID.");
@@ -334,9 +332,7 @@ public:
     int id = g.GetVertices().size();
     int x = r.GetInt(0, CANVAS_WIDTH);
     int y = r.GetInt(0, CANVAS_HEIGHT);
-
     g.AddVertex(std::to_string(++id), "blue", x, y);
-
     RedrawCanvas();
   }
 
@@ -344,13 +340,10 @@ public:
   void DeleteVertex(const char *id) {
     std::string idCpp(id);
     if (!g.HasVertex(idCpp)) {
-      std::cout << "No vertex found with ID: " << idCpp << std::endl;
       EM_ASM({ alert("Error: Vertex with this ID does not exist!"); });
       return;
     }
-
     g.RemoveVertex(idCpp);
-    std::cout << "Vertex with ID " << idCpp << " has been deleted." << std::endl;
     RedrawCanvas();
   }
 
@@ -371,12 +364,10 @@ public:
   void AddVertexWithParams(const char *id, int x, int y) {
     std::string idCpp(id);
     if (g.HasVertex(idCpp)) {
-      std::cout << "Vertex with ID " << idCpp << " already exists!" << std::endl;
       EM_ASM({ alert("Error: Vertex with this ID already exists!"); });
       return;
     }
     g.AddVertex(idCpp, "blue", x, y);
-    std::cout << "Total Vertices: " << g.GetVertices().size() << "id: " << idCpp << " " << std::endl;
     RedrawCanvas();
   }
 
