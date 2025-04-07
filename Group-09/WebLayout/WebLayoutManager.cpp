@@ -73,7 +73,7 @@ WebLayoutManager::WebLayoutManager() {
     		  var offsetX = 0;
     		  var offsetY = 0;
 
-    		  //ChatGPT ised for new position calculations
+    		  //ChatGPT used for new position calculations
     		  document.onmousemove = function(e) {
       		    var newX = (e.clientX / window.innerWidth) * 100 - offsetX;
       		    var newY = (e.clientY / window.innerHeight) * 100 - offsetY;
