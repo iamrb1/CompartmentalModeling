@@ -10,6 +10,7 @@
 #ifndef CSE_COMMAND_LINE_CPP_
 #define CSE_COMMAND_LINE_CPP_
 #include <algorithm>
+#include <any>  // Include for std::any
 #include <functional>
 #include <iostream>
 #include <string>
@@ -28,7 +29,7 @@ class CommandLine {
 public:
   CommandLine() {
     // Add a default help command
-    addCommand("help", [this]() { printHelp(); }, "Displays this help message");
+    addCommand("help", [this]() -> std::any { printHelp(); return {}; }, "Displays this help message");
   }
   
   /**
@@ -38,7 +39,7 @@ public:
   * @param func The function to be executed for the command
   * @param description The description of the command
   */
-  void addCommand(const std::string& command, std::function<void()> func,
+  void addCommand(const std::string& command, std::function<std::any()> func,
                   const std::string& description = "") {
     // Add command to the map
     mCommands[command] = func;
@@ -54,10 +55,17 @@ public:
     // Execute the command if it exists
     if (mCommands.find(command) != mCommands.end()) {
       try {
-        mCommands[command]();
+        std::any result = mCommands[command]();
         trackHistory(command);
+
+        // Print the result if it is not empty
+        if (result.has_value()) {
+          std::cout << "Command result: " << std::any_cast<std::string>(result) << std::endl;
+        }
       } catch (const std::exception& e) {
         std::cerr << "Error executing command: " << e.what() << std::endl;
+      } catch (const std::bad_any_cast& e) {
+        std::cerr << "Error casting command result: " << e.what() << std::endl;
       }
     } else {
       std::cout << "Unknown command: " << command << std::endl;
@@ -147,7 +155,7 @@ public:
   }
 private:
   /// Map of commands to functions
-  std::unordered_map<std::string, std::function<void()>> mCommands;
+  std::unordered_map<std::string, std::function<std::any()>> mCommands;
   /// Map of commands to descriptions
   std::unordered_map<std::string, std::string> mDescriptions;
   /// Vector of command history
