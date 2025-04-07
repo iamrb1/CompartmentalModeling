@@ -54,50 +54,47 @@ WebLayoutManager::WebLayoutManager() {
     }
 
     // Check if item is being dragged
-    document.addEventListener("mousedown", function(e) {
+    document.addEventListener(
+        "mousedown", function(e) {
+          // Check if clicked element is draggable
+          var draggable =
+              Module.ccall("call_isMoveableObject",  // C++ function name
+                           "boolean",                // return type
+                           ["string"],               // argument types
+                           [e.target.id]             // arguments
+              );
 
-      // Check if clicked element is draggable
-      var draggable = Module.ccall(
-        "call_isMoveableObject", // C++ function name
-        "boolean",               // return type
-        ["string"],              // argument types
-        [e.target.id]            // arguments
-       );
+          if (draggable) {
+            makeDraggable(e.target);
+          }
+        });
 
-      if (draggable) {
-        makeDraggable(e.target);
-      }
-  	});
-
-  	// Function to make an element draggable
-  	function makeDraggable(element) {
+    // Function to make an element draggable
+    function makeDraggable(element) {
       var offsetX = 0;
       var offsetY = 0;
 
-      //ChatGPT used for new position calculations
+      // ChatGPT used for new position calculations
       document.onmousemove = function(e) {
-      var newX = (e.clientX / window.innerWidth) * 100 - offsetX;
-      var newY = (e.clientY / window.innerHeight) * 100 - offsetY;
+        var newX = (e.clientX / window.innerWidth) * 100 - offsetX;
+        var newY = (e.clientY / window.innerHeight) * 100 - offsetY;
 
-      // Call C++ function to update position within the layout
-      Module.ccall("call_updatePosition", null, ["string", "number", "number"], [
-        element.id.trim(), newX, newY
-      ]);
-      // Update element's visual position
-      element.style.left = newX + "vw";
-      element.style.top = newY + "vh";
-     };
+        // Call C++ function to update position within the layout
+        Module.ccall("call_updatePosition", null,
+                     [ "string", "number", "number" ],
+                     [ element.id.trim(), newX, newY ]);
+        // Update element's visual position
+        element.style.left = newX + "vw";
+        element.style.top = newY + "vh";
+      };
 
-     document.onmouseup = function(e) {
-       // Remove event listeners
-       document.onmousemove = null;
-       document.onmouseup = null;
-     };
-
+      document.onmouseup = function(e) {
+        // Remove event listeners
+        document.onmousemove = null;
+        document.onmouseup = null;
+      };
     }
-
-   });
-
+  });
 }
 
 extern "C" {
@@ -149,6 +146,12 @@ EMSCRIPTEN_KEEPALIVE
 void updateTextBoxContent(const char* textboxId, const char* newText) {
   if (!g_manager) return;
 
+  if (g_manager->getLayouts().empty() ||
+      g_manager->getCurrentPos() >= g_manager->getLayouts().size()) {
+    std::cout << "ERROR: updateTextBoxContent(): layout index out of range.\n";
+    return;
+  }
+
   auto& layout = g_manager->getLayouts().at(g_manager->getCurrentPos());
   auto& textBoxes = layout->getTextBoxes();
 
@@ -160,9 +163,10 @@ void updateTextBoxContent(const char* textboxId, const char* newText) {
   }
 }
 
-EMSCRIPTEN_KEEPALIVE void call_updatePosition(const char* id, int newX, int newY) {
-    std::string cppId(id);
-    if (g_manager) {
+EMSCRIPTEN_KEEPALIVE void call_updatePosition(const char* id, int newX,
+                                              int newY) {
+  std::string cppId(id);
+  if (g_manager) {
     g_manager->updatePosition(cppId, newX, newY);
   } else {
     std::cout << "ERROR: g_manager is null!" << std::endl;
@@ -170,15 +174,14 @@ EMSCRIPTEN_KEEPALIVE void call_updatePosition(const char* id, int newX, int newY
 }
 
 EMSCRIPTEN_KEEPALIVE bool call_isMoveableObject(const char* id) {
-    std::string cppId(id);
-    if (g_manager) {
+  std::string cppId(id);
+  if (g_manager) {
     return g_manager->isMoveableObject(cppId);
   } else {
     std::cout << "ERROR: g_manager is null!" << std::endl;
     return false;
   }
 }
-
 }
 
 /**
@@ -281,13 +284,29 @@ void WebLayoutManager::addTextBox() {
   auto newTextBox = std::make_shared<TextBox>("", tbc);
   TextBoxLayout newLayout = {newTextBox, 50, 50};
 
+  if (layouts.empty() || currentPos >= layouts.size()) {
+    std::cout << "ERROR: No current layout to modify.\n";
+    return;
+  }
+
   layouts.at(currentPos)->addTextBox(newLayout);
 }
 
 void WebLayoutManager::addImage(const std::string& url, int width, int height,
                                 const std::string& altText) {
+  if (width <= 0 || height <= 0) {
+    std::cout << "ERROR: Invalid image dimensions: width=" << width
+              << ", height=" << height << std::endl;
+    return;
+  }
+
+  if (layouts.empty() || currentPos >= layouts.size()) {
+    std::cout << "ERROR: No current layout to add image.\n";
+    return;
+  }
+
   auto image = std::make_shared<Image>(url, width, height, altText);
-  ImageLayout layout{image, 10, 10};  // Default x/y position
+  ImageLayout layout{image, 10, 10};
   layouts.at(currentPos)->addImage(layout);
 }
 
@@ -308,14 +327,18 @@ void WebLayoutManager::addNewSlide() {
  * Updates object position
  */
 void WebLayoutManager::updatePosition(std::string id, int newX, int newY) {
-    layouts.at(currentPos)->setPosition(id, newX, newY);
+  if (layouts.empty() || currentPos >= layouts.size()) return;
+
+  layouts.at(currentPos)->setPosition(id, newX, newY);
 }
 
 /**
  * Returns if id is a moveable item
  */
-bool WebLayoutManager::isMoveableObject(std::string id) const{
-	return layouts.at(currentPos)->contains(id);
+bool WebLayoutManager::isMoveableObject(std::string id) const {
+  if (layouts.empty() || currentPos >= layouts.size()) return false;
+
+  return layouts.at(currentPos)->contains(id);
 }
 
 }  // namespace cse
