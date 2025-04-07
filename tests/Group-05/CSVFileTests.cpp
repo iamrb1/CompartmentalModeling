@@ -48,13 +48,13 @@ TEST_CASE("CSVFile LoadCsv - Valid File", "[CSVFile]") {
 
   // Check that the grid has 3 rows and 3 columns
   std::tuple<const std::size_t, const std::size_t> grid_shape =
-      data_grid.shape();
+      data_grid.Shape();
   REQUIRE(std::get<0>(grid_shape) == 3);
   REQUIRE(std::get<1>(grid_shape) == 3);
 
   // Validate header row
   {
-    std::vector<cse::Datum> row0 = data_grid.getRow(0);
+    std::vector<cse::Datum> row0 = data_grid.GetRow(0);
     REQUIRE(row0.size() == 3);
     CHECK(row0[0].GetString() == "Name");
     CHECK(row0[1].GetString() == "Age");
@@ -62,7 +62,7 @@ TEST_CASE("CSVFile LoadCsv - Valid File", "[CSVFile]") {
   }
   // Validate first data row
   {
-    std::vector<cse::Datum> row1 = data_grid.getRow(1);
+    std::vector<cse::Datum> row1 = data_grid.GetRow(1);
     REQUIRE(row1.size() == 3);
     CHECK(row1[0].GetString() == "Alice");
     CHECK(row1[1].GetDouble() == Approx(30.0));
@@ -70,7 +70,7 @@ TEST_CASE("CSVFile LoadCsv - Valid File", "[CSVFile]") {
   }
   // Validate second data row
   {
-    std::vector<cse::Datum> row2 = data_grid.getRow(2);
+    std::vector<cse::Datum> row2 = data_grid.GetRow(2);
     REQUIRE(row2.size() == 3);
     CHECK(row2[0].GetString() == "Bob");
     CHECK(row2[1].GetDouble() == Approx(25.0));
@@ -86,19 +86,19 @@ TEST_CASE("CSVFile ExportCsv - Valid DataGrid", "[CSVFile]") {
   cse::DataGrid data_grid(3, 3);
 
   // Fill header row
-  data_grid.at(0, 0) = cse::Datum("Name");
-  data_grid.at(0, 1) = cse::Datum("Age");
-  data_grid.at(0, 2) = cse::Datum("Score");
+  data_grid.At(0, 0) = cse::Datum("Name");
+  data_grid.At(0, 1) = cse::Datum("Age");
+  data_grid.At(0, 2) = cse::Datum("Score");
 
   // Fill first data row
-  data_grid.at(1, 0) = cse::Datum("Charlie");
-  data_grid.at(1, 1) = cse::Datum(28);
-  data_grid.at(1, 2) = cse::Datum(91.0);
+  data_grid.At(1, 0) = cse::Datum("Charlie");
+  data_grid.At(1, 1) = cse::Datum(28);
+  data_grid.At(1, 2) = cse::Datum(91.0);
 
   // Fill second data row
-  data_grid.at(2, 0) = cse::Datum("Diana");
-  data_grid.at(2, 1) = cse::Datum(32);
-  data_grid.at(2, 2) = cse::Datum(85.5);
+  data_grid.At(2, 0) = cse::Datum("Diana");
+  data_grid.At(2, 1) = cse::Datum(32);
+  data_grid.At(2, 2) = cse::Datum(85.5);
 
   // Export the DataGrid to a temporary CSV file
   std::string test_file_name = "test_csv_output.csv";
@@ -151,7 +151,7 @@ TEST_CASE("CSVFile LoadCsv - Empty CSV", "[CSVFile][edge]") {
 
   // Load the empty CSV file.
   cse::DataGrid grid = cse::CSVFile::LoadCsv(test_file);
-  auto shape = grid.shape();
+  auto shape = grid.Shape();
   // Expect the grid to be empty.
   REQUIRE(std::get<0>(shape) == 0);
   REQUIRE(std::get<1>(shape) == 0);
@@ -171,7 +171,7 @@ TEST_CASE("CSVFile LoadCsv - Header Only", "[CSVFile][edge]") {
 
   // Load the CSV file.
   cse::DataGrid grid = cse::CSVFile::LoadCsv(test_file);
-  auto shape = grid.shape();
+  auto shape = grid.Shape();
   // Expect 1 row (the header) and 3 columns.
   REQUIRE(std::get<0>(shape) == 1);
   REQUIRE(std::get<1>(shape) == 3);
@@ -195,13 +195,13 @@ TEST_CASE("CSVFile LoadCsv - Special Characters", "[CSVFile][edge]") {
 
   // Load the CSV file.
   cse::DataGrid grid = cse::CSVFile::LoadCsv(test_file);
-  auto shape = grid.shape();
+  auto shape = grid.Shape();
   // Expect 3 rows, 3 columns.
   REQUIRE(std::get<0>(shape) == 3);
   REQUIRE(std::get<1>(shape) == 3);
   
   // Check that special characters are preserved or handled as intended.
-  std::vector<cse::Datum> row1 = grid.getRow(1);
+  std::vector<cse::Datum> row1 = grid.GetRow(1);
   CHECK(row1[2].GetString() == "Hello, world!");
 
   std::remove(test_file.c_str());
@@ -210,7 +210,7 @@ TEST_CASE("CSVFile LoadCsv - Special Characters", "[CSVFile][edge]") {
 TEST_CASE("CSVFile ExportCsv - Zero Value Preservation", "[CSVFile][edge]") {
   // Create a DataGrid with a 0.0 value.
   cse::DataGrid data_grid(1, 1);
-  data_grid.at(0, 0) = cse::Datum(0.0);
+  data_grid.At(0, 0) = cse::Datum(0.0);
   std::string test_file = "zero_value.csv";
   bool export_success = cse::CSVFile::ExportCsv(test_file, data_grid);
   REQUIRE(export_success);
