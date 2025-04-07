@@ -323,6 +323,13 @@ void WebLayout::deactivateLayout() {
       layoutID.c_str());
 }
 
+
+/**
+ * Converts image attributes into html
+ * @param id : Object id
+ * @param newX : New x value location for object to be set at
+ * @param newY : New y value location for object to be set at
+ */
 void WebLayout::setPosition(std::string id, int newX, int newY) {
   for (auto& tbl : textBoxes) {
     if (tbl.textBox->getID() == id) {
@@ -337,18 +344,19 @@ void WebLayout::setPosition(std::string id, int newX, int newY) {
   }
 }
 
-
+/**
+ * Checks if WebLayout contains object with matching id
+ * @param id of object
+ * @return Boolean indicating if weblayout contains object
+ */
 bool WebLayout::contains(std::string id) const {
   for (const auto& tbl : textBoxes) {
-std::cout << "C++ ID length: " << tbl.textBox->getID().length() << ", Passed ID length: " << id.length() << std::endl;
-std::cout << "C++: " << tbl.textBox->getID() << ", Passed ID: " << id << std::endl;
     if (tbl.textBox->getID() == id) {
       return true;
     }
   }
 
   for (const auto& imgl : images) {
-
     if (imgl.image->getID() == id) {
       return true;
     }
