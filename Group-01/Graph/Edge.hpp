@@ -55,6 +55,8 @@ namespace cse {
     Edge() = delete;
 
     virtual bool IsConnected(const Vertex<VERTEX_DATA_T> &v1, const Vertex<VERTEX_DATA_T> &v2) {
+      assert(from != nullptr);
+      assert(to != nullptr);
       return v1 == *from && v2 == *to;
     };
 
