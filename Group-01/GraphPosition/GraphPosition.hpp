@@ -1,9 +1,9 @@
 #pragma once
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <deque>
 #include <iostream>
-#include <cmath>
 #include <queue>
 #include <set>
 #include <stdexcept>
@@ -224,6 +224,8 @@ namespace cse {
   void GraphPosition<VERTEX_DATA_T>::ResetTraversal(Vertex<VERTEX_DATA_T> const &newStartVertex) {
     visitedVertices.clear();
     traversalPath.clear();
+    traversalStack.clear();
+    traversalQueue = {};
     SetCurrentVertex(newStartVertex);
   }
 
@@ -255,7 +257,7 @@ namespace cse {
   }
 
   namespace TraversalModes {
-    
+
     /**
      * Provides a depth-first search traversal strategy
      * @return A function that performs DFS traversal on a GraphPosition
@@ -279,7 +281,6 @@ namespace cse {
 
           // Get all neighbors and sort them by ID for consistent traversal
           auto neighbors = GetSortedNeighbors(current);
-
           // Find first unvisited neighbor
           auto nonVisited = std::find_if(neighbors.begin(), neighbors.end(), [&](auto &p) {
             if (auto edge = p.second.lock()) {
@@ -328,6 +329,7 @@ namespace cse {
         Vertex<VERTEX_DATA_T> const *current = queue.front();
         queue.pop_front();
         graphPosition.SetCurrentVertex(*current);
+        graphPosition.MarkVisited(*current);
 
         // Get and sort neighbors for consistent traversal order
         std::vector<std::pair<std::string, std::weak_ptr<Edge<VERTEX_DATA_T>>>> neighbors(current->GetEdges().begin(),
@@ -342,7 +344,6 @@ namespace cse {
             auto &neighbor = edgePtr->GetTo();
             if (!graphPosition.IsVisited(neighbor)) {
               queue.push_back(&neighbor);
-              graphPosition.MarkVisited(neighbor);
             }
           }
         }
