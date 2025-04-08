@@ -188,6 +188,48 @@ class GraphVisualizer {
           'click', function() { Module._addVertex(); });
       buttonGroup.appendChild(addVertexButton);
 
+      // Random Graph button
+      var separator = document.createElement("separator");
+      separator.style.margin = "10px 0";
+      buttonGroup.appendChild(separator);
+
+      var randomGraphButton = document.createElement('button');
+      randomGraphButton.textContent = "Random Graph";
+      randomGraphButton.addEventListener('click', function() {
+        var vertices = parseInt(document.getElementById("vertexCount").value);
+        var edges = parseInt(document.getElementById("edgeCount").value);
+        Module._randomGraph(vertices, edges);
+      });
+      buttonGroup.appendChild(randomGraphButton);
+      var vertexLabel = document.createElement('label');
+      vertexLabel.setAttribute("for", "vertexCount");
+      vertexLabel.innerText = "Vertices: ";
+      buttonGroup.appendChild(vertexLabel);
+
+      // Vertex input field
+      var vertexInput = document.createElement('input');
+      vertexInput.setAttribute("id", "vertexCount");
+      vertexInput.setAttribute("type", "number");
+      vertexInput.setAttribute("placeholder", "Vertices");
+      vertexInput.setAttribute("min", "1");
+      vertexInput.setAttribute("value", "1");
+      vertexInput.style.marginRight = "10px";
+      buttonGroup.appendChild(vertexInput);
+
+      // Edges input field
+      var edgeLabel = document.createElement('label');
+      edgeLabel.setAttribute("for", "edgeCount");
+      edgeLabel.innerText = "Edges: ";
+      buttonGroup.appendChild(edgeLabel);
+      var edgeInput = document.createElement('input');
+      edgeInput.setAttribute("id", "edgeCount");
+      edgeInput.setAttribute("type", "number");
+      edgeInput.setAttribute("placeholder", "Edges");
+      edgeInput.setAttribute("min", "0");
+      edgeInput.setAttribute("value", "0");
+      edgeInput.style.marginRight = "10px";
+      buttonGroup.appendChild(edgeInput);
+
       // Clear Traversal button
       var clearTraversalButton = document.createElement('button');
       clearTraversalButton.textContent = "Clear Traversal";
@@ -334,6 +376,24 @@ class GraphVisualizer {
 
     InitiateCanvas();
     InitializeControlZone();
+    RedrawCanvas();
+  }
+
+  void RandomGraph(int vertices, int edges) {
+    g.ClearGraph();
+    for (int i = 0; i < vertices; i++) {
+      int x = r.GetInt(0, CANVAS_WIDTH);
+      int y = r.GetInt(0, CANVAS_HEIGHT);
+      g.AddVertex(std::to_string(i), "blue", x, y);
+    }
+
+    for (int i = 0; i < edges; i++) {
+      int index1 = r.GetInt(0, vertices - 1);
+      int index2 = r.GetInt(0, vertices - 1);
+      if (index1 != index2) {
+        g.AddEdge(std::to_string(index1), std::to_string(index2), 2);
+      }
+    }
     RedrawCanvas();
   }
 
@@ -494,6 +554,10 @@ void stepTraversal() {
 
 void fullTraversal() {
   init.FullTraversal();
+}
+  
+void randomGraph(int vertices, int edges) {
+  init.RandomGraph(vertices,edges);
 }
 
 void clearTraversal() {
