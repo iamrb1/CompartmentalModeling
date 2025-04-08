@@ -94,22 +94,27 @@ void cse::WordLang::parse(const std::string& input) {
             break;
         }
         case Lexer::ID_CONTAINS_ALL: {
-        break;
+            parseContainsAll();
+            break;
         }
         case Lexer::ID_NOT_CONTAINS: {
-        break;
+            parseNotContains();
+            break;
         }
         case Lexer::ID_GET: {
-        break;
+            parseGet();
+            break;
         }
         case Lexer::ID_PRINT: {
             parsePrint();
             break;
         }
         case Lexer::ID_RESET: {
-        break;
+            parseReset();
+            break;
         }
         case Lexer::ID_RESET_LAST: {
+            parseResetLast();
         break;
         }
         case Lexer::ID_WORDLE: {
@@ -356,6 +361,88 @@ void cse::WordLang::parseContainsAny() {
     // TODO 
 }
 
+void cse::WordLang::parseContainsAll() {
+    mTokenManager.Use();
+    
+    auto letters = mTokenManager.Use();
+    if (letters == mTokenManager.eof_token || letters != emplex::Lexer::ID_STRING) {
+        // Print error and return
+        mErrorManager.printInfo("Incorrect Syntax: CONTAINS_ALL must have string of letters.");
+        return;
+    }
+
+    std::string trimmedLetters = letters.lexeme.substr(1, letters.lexeme.length() - 2);
+    // TODO - call WordListManager to handle with trimmedLetters
+    // Maybe we can combine this function with parseContainsAny() to avoid code duplication?
+    // have just "parseContains" which accepts boolean 
+}
+
+void cse::WordLang::parseNotContains() {
+    mTokenManager.Use();
+
+    auto letters = mTokenManager.Use();
+    if (letters == mTokenManager.eof_token || letters != emplex::Lexer::ID_STRING) {
+        // Print error and return
+        mErrorManager.printInfo("Incorrect Syntax: NOT_CONTAINS must have string of letters.");
+        return;
+    }
+
+    std::string trimmedLetters = letters.lexeme.substr(1, letters.lexeme.length() - 2);
+
+    // TODO - call WordListManager to handle trimmedLetters
+}
+
+void cse::WordLang::parseGet() {
+    mTokenManager.Use(); // use keywords "GET"
+
+    auto letters = mTokenManager.Use();
+    if (letters == mTokenManager.eof_token || letters != emplex::Lexer::ID_STRING) {
+        // Print error and return
+        mErrorManager.printInfo("Incorrect Syntax: NOT_CONTAINS must have string of letters.");
+        return;
+    }
+
+    std::string trimmedLetters = letters.lexeme.substr(1, letters.lexeme.length() - 2);
+
+    // TODO - call WordListManager to handle trimmedLetters
+}
+
+void cse::WordLang::parseReset() {
+    mTokenManager.Use(); // use keyword "RESET"
+
+    auto listname = mTokenManager.Use();
+    if (listname.id != emplex::Lexer::ID_LISTNAME) {
+        // check if we have listname after
+        mErrorManager.printInfo("Expected list name after RESET");
+        return;
+    }
+
+    if (mTokenManager.Peek() != mTokenManager.eof_token()) {
+        // check if we don't have anything else apart from RESET
+        mErrorManager.printInfo("Encountered unknown symbols after \"RESET\" token.");
+        return;
+    }
+
+    // TODO - call WordListManager to handle RESET
+}
+
+void cse::WordLang::parseResetLast() {
+    mTokenManager.Use(); // use keyword "RESET_LAST"
+
+    if (mTokenManager.Peek() != mTokenManager.eof_token()) {
+        // check if we don't have anything else apart from RESET
+        mErrorManager.printInfo("Encountered unknown symbols after \"RESET_LAST\" token.");
+        return;
+    }
+
+    // TODO - call WordListManager to handle RESET_LAST
+}
+
+void cse::WordLang::parseWorldle() {
+    mTokenManager.Use(); // use keyword "WORDLE"
+
+    // TODO - parse and call WordListManager
+}
 // #include "WordLang.hpp"
 // #include "../../../StringSet/StringSet.hpp"
 // #include "../../../StaticString/StaticString.hpp"

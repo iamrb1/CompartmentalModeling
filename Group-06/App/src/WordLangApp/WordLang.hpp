@@ -61,6 +61,44 @@ namespace cse {
         void parseLength();
 
         void parseContainsAny();
+
+        /**
+         * @brief Parses CONTAINS_ALL
+         * 
+         */
+        void parseContainsAll();
+
+        /**
+         * @brief Parses NOT_CONTAINS
+         * 
+         */
+        void parseNotContains();
+
+        /**
+         * @brief Parses GET
+         *  This function returns words that match a pattern
+         * 
+         */
+        void parseGet();
+
+        /**
+         * @brief Parses RESET
+         * 
+         * Resets all filters applied to the list
+         */
+        void parseReset();
+
+        /**
+         * @brief Parses RESET_LAST
+         * 
+         */
+        void parseResetLast();
+
+        /**
+         * @brief Parses WORDLE
+         * 
+         */
+        void parseWorldle();
     
     private:
     /**
