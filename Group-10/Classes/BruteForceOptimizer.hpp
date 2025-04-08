@@ -10,6 +10,7 @@ Last Changed Date: 03/26/2025
 
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 #include <limits>
 #include <string>
 #include <utility>
@@ -54,11 +55,18 @@ class BruteForceOptimizer {
    */
   void SetOptimizer(bool optimize) {
     optimizeEnabled_ = optimize;
-    /// sort least to greatest
+    /// Sort greatest value first, with tiebreaker going to heavier items
     if (optimizeEnabled_) {
-      std::stable_sort(
-          items_.begin(), items_.end(),
-          [](const Item& a, const Item& b) { return a.weight < b.weight; });
+      std::stable_sort(items_.begin(), items_.end(),
+                       [](const Item& a, const Item& b) {
+                         return (a.value == b.value) ? a.weight > b.weight
+                                                     : a.value > b.value;
+                       });
+    }
+    double totalValue = 0.0;
+    for (auto iter = items_.rbegin(); iter != items_.rend(); ++iter) {
+      totalValue += (*iter).value;
+      scoreTracker_.push_back(totalValue);
     }
   }
 
@@ -120,37 +128,12 @@ class BruteForceOptimizer {
     }
 
     if (optimizeEnabled_) {
-      // With items sorted by weight, if this item goes over limit all remaining
-      // ones will as well. Update scores if possible, otherwise back up
-      if (currentWeight + items_[index].weight > capacity_) {
-        scoreCheck();
+      double remainingValue = scoreTracker_.at(items_.size() - 1 - index);
+      if (currentValue + remainingValue < bestScore_) {
         return;
       }
-      // If adding the current item prevents any further items from being
-      // evaluated, evaluate the value of adding it against the best score then
-      // test without it
-      if (capacity_ - currentWeight - items_[index].weight <=
-          items_[index].weight) {
-        // if adding the current item would beat the score, update the best
-        // score
-        if (currentValue + items_[index].value > bestScore_) {
-          currentSelection_.push_back(items_[index]);
-          updateScore(currentValue + items_[index].value);
-        }
-
-        ExploreCombinations(index + 1, currentWeight, currentValue);
-        return;
-
-      } else {
-        AverageCaseCombinations_(index, currentWeight, currentValue);
-      }
-
-      /*
-        Original Brute Force Code
-      */
-    } else {
-      AverageCaseCombinations_(index, currentWeight, currentValue);
     }
+    AverageCaseCombinations_(index, currentWeight, currentValue);
   }
 
  private:
@@ -166,12 +149,15 @@ class BruteForceOptimizer {
   std::vector<Item> currentSelection_;
   // Boolean indicating whether to optimize the search
   bool optimizeEnabled_ = false;
+  // Vector containing the total value possible at any point in items_
+  // (Inverse: First element in scoreTracker corresponds to last in items_)
+  std::vector<double> scoreTracker_;
 
   /**
    * @brief Helper Function for ExploreCombinations
    */
   void AverageCaseCombinations_(std::size_t index, double currentWeight,
-                               double currentValue) {
+                                double currentValue) {
     // Exclude the current item.
     ExploreCombinations(index + 1, currentWeight, currentValue);
     // Include the current item if it does not exceed capacity.
