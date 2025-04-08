@@ -8,8 +8,8 @@
 #include "../../Group-07/Team07Library/Serializer.hpp"
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 
-const int MAX_CASE = 10;
-const int MAX_SIZE = 50;
+const int MAX_CASE = 25;
+const int MAX_SIZE = 100;
 const std::string filename = "result.bin";
 
 std::random_device rd;
@@ -782,4 +782,55 @@ TEST_CASE("Serialize External Class/Struct", "[Serializer]")
 		REQUIRE(P1.hobbies[i] == P2.hobbies[i]);
 	}
 	std::filesystem::remove_all(folder);
+}
+
+TEST_CASE("Incompatible Types Serialization", "[Serializer]")
+{
+	cse::Serializer Saver(cse::Mode::SAVE);
+	cse::Serializer Loader(cse::Mode::LOAD);
+	int num = 22;
+	double dbl = 3.14;
+	Saver.Serialize(num, filename);
+	REQUIRE_THROWS_AS(Loader.Serialize(dbl, filename), cse::SerializationError);
+	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
+	Saver.Serialize(dbl, filename);
+	REQUIRE_THROWS_AS(Loader.Serialize(num, filename), cse::SerializationError);
+	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
+	std::string str = "Hello World!";
+	Saver.Serialize(str, filename);
+	REQUIRE_THROWS_AS(Loader.Serialize(num, filename), cse::SerializationError);
+	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
+	Saver.Serialize(num, filename);
+	REQUIRE_THROWS_AS(Loader.Serialize(str, filename), cse::SerializationError);
+	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
+	std::vector<int> v{1, 2, 3, 4};
+	std::vector<std::string> vs;
+	Saver.Serialize(v, filename);
+	REQUIRE_THROWS_AS(Loader.Serialize(vs, filename), cse::SerializationError);
+	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
+	vs = {"1", "2", "3", "4"};
+	Saver.Serialize(vs, filename);
+	REQUIRE_THROWS_AS(Loader.Serialize(v, filename), cse::SerializationError);
+	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
+	std::vector<std::vector<int>> vv{{1}, {2, 22}, {3, 33, 333}, {4, 44, 444, 4444}};
+	Saver.Serialize(v, filename);
+	REQUIRE_THROWS_AS(Loader.Serialize(vv, filename), cse::SerializationError);
+	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
+	Saver.Serialize(vv, filename);
+	REQUIRE_THROWS_AS(Loader.Serialize(v, filename), cse::SerializationError);
+	std::filesystem::remove(filename);
 }

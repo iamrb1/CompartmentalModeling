@@ -101,6 +101,8 @@ namespace cse
 		std::string currOutFile = ""; ///< Cache for the current output file name.
 		std::ifstream inFile;		  ///< Input file stream.
 		std::ofstream outFile;		  ///< Output file stream.
+		std::string currType = "";	  ///< Current type for Loading
+		bool setType = false;		  ///< Bool indicating if the type is save in the file or not
 
 		/**
 		 * @brief Opens the input file for reading.
@@ -114,6 +116,7 @@ namespace cse
 			// If switching to a new file, close the previous stream and open the new one.
 			if (filename != currInFile)
 			{
+				setType = false;
 				inFile.close();
 				currInFile = filename;
 				inFile.open(filename, std::ios::binary);
@@ -138,6 +141,7 @@ namespace cse
 			// If switching to a new file, close the previous stream and open the new one.
 			if (filename != currOutFile)
 			{
+				currType = "";
 				outFile.close();
 				currOutFile = filename;
 				outFile.open(filename, std::ios::binary | std::ios::trunc);
@@ -147,6 +151,37 @@ namespace cse
 			// If the current file stream is not valid, throw an error.
 			else if (!outFile)
 				throw cse::SerializationError("Error in opening file for writing.");
+		}
+
+		/**
+		 * @brief Print the type of data in the beginning of the output file.
+		 * @tparam T The data
+		 * @param filename The path to the output file.
+		 *
+		 * Print the type of the data in the beginning of an OPENED file, with outFile already been set
+		 */
+		template <typename T>
+		void PrintType(T &data)
+		{
+			std::string type = typeid(data).name();
+			size_t length = type.size();
+			outFile.write(reinterpret_cast<const char *>(&length), sizeof(size_t));
+			outFile.write(type.c_str(), length);
+			outFile.flush();
+			setType = true;
+		}
+
+		/**
+		 * @brief Print the type of data in the beginning of the output file.
+		 *
+		 * Print the type of the data in the beginning of an OPENED file, with outFile already been set
+		 */
+		void GetType()
+		{
+			size_t length;
+			inFile.read(reinterpret_cast<char *>(&length), sizeof(size_t));
+			currType.resize(length);
+			inFile.read(&currType[0], length);
 		}
 
 	public:
@@ -195,6 +230,8 @@ namespace cse
 		 */
 		void ResetFileStream()
 		{
+			setType = false;
+			currType = "";
 			currInFile = "";
 			currOutFile = "";
 			inFile.close();
@@ -227,6 +264,8 @@ namespace cse
 			{
 				// Set the output file stream and write the binary data.
 				SetOutFile(filename);
+				if (!setType)
+					PrintType(data);
 				outFile.write(reinterpret_cast<const char *>(&data), sizeof(T));
 				outFile.flush();
 			}
@@ -234,6 +273,15 @@ namespace cse
 			{
 				// Set the input file stream and read the binary data.
 				SetInFile(filename);
+				if (currType == "")
+				{
+					GetType();
+					std::string datatype = typeid(data).name();
+					if (currType != datatype)
+					{
+						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
+					}
+				}
 				inFile.read(reinterpret_cast<char *>(&data), sizeof(T));
 			}
 		}
@@ -252,6 +300,8 @@ namespace cse
 			{
 				// Write string size and characters.
 				SetOutFile(filename);
+				if (!setType)
+					PrintType(str);
 				size_t length = str.size();
 				outFile.write(reinterpret_cast<const char *>(&length), sizeof(size_t));
 				outFile.write(str.c_str(), length);
@@ -261,6 +311,15 @@ namespace cse
 			{
 				// Read string size and then its content.
 				SetInFile(filename);
+				if (currType == "")
+				{
+					GetType();
+					std::string datatype = typeid(str).name();
+					if (currType != datatype)
+					{
+						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
+					}
+				}
 				size_t length;
 				inFile.read(reinterpret_cast<char *>(&length), sizeof(size_t));
 				str.resize(length);
@@ -284,6 +343,8 @@ namespace cse
 			{
 				// Write vector size.
 				SetOutFile(filename);
+				if (!setType)
+					PrintType(vec);
 				size_t size = vec.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
 				// Write each element in the vector.
@@ -296,6 +357,15 @@ namespace cse
 			{
 				// Read vector size and elements.
 				SetInFile(filename);
+				if (currType == "")
+				{
+					GetType();
+					std::string datatype = typeid(vec).name();
+					if (currType != datatype)
+					{
+						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
+					}
+				}
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				vec.resize(size);
@@ -322,6 +392,8 @@ namespace cse
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
+				if (!setType)
+					PrintType(arr);
 				// Process each element in the fixed-size array.
 				for (size_t i = 0; i < N; i++)
 				{
@@ -333,6 +405,15 @@ namespace cse
 			else // LOAD mode
 			{
 				SetInFile(filename);
+				if (currType == "")
+				{
+					GetType();
+					std::string datatype = typeid(arr).name();
+					if (currType != datatype)
+					{
+						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
+					}
+				}
 				// Read each element from the file.
 				for (size_t i = 0; i < N; i++)
 				{
@@ -355,6 +436,8 @@ namespace cse
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
+				if (!setType)
+					PrintType(set);
 				// Write set size.
 				size_t size = set.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
@@ -371,6 +454,15 @@ namespace cse
 			{
 				// Read set size and then each element.
 				SetInFile(filename);
+				if (currType == "")
+				{
+					GetType();
+					std::string datatype = typeid(set).name();
+					if (currType != datatype)
+					{
+						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
+					}
+				}
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				set.clear();
@@ -397,6 +489,8 @@ namespace cse
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
+				if (!setType)
+					PrintType(uset);
 				// Write unordered_set size.
 				size_t size = uset.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
@@ -413,6 +507,15 @@ namespace cse
 			{
 				// Read size and then deserialize each element.
 				SetInFile(filename);
+				if (currType == "")
+				{
+					GetType();
+					std::string datatype = typeid(uset).name();
+					if (currType != datatype)
+					{
+						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
+					}
+				}
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				uset.clear();
@@ -439,6 +542,8 @@ namespace cse
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
+				if (!setType)
+					PrintType(mset);
 				size_t size = mset.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
 				// Iterate through multiset elements.
@@ -454,6 +559,15 @@ namespace cse
 			{
 				// Read size and then each element.
 				SetInFile(filename);
+				if (currType == "")
+				{
+					GetType();
+					std::string datatype = typeid(mset).name();
+					if (currType != datatype)
+					{
+						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
+					}
+				}
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				mset.clear();
@@ -480,6 +594,8 @@ namespace cse
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
+				if (!setType)
+					PrintType(umset);
 				size_t size = umset.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
 				// Serialize each element in the unordered_multiset.
@@ -495,6 +611,15 @@ namespace cse
 			{
 				// Read size and then deserialize each element.
 				SetInFile(filename);
+				if (currType == "")
+				{
+					GetType();
+					std::string datatype = typeid(umset).name();
+					if (currType != datatype)
+					{
+						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
+					}
+				}
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				umset.clear();
@@ -522,6 +647,8 @@ namespace cse
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
+				if (!setType)
+					PrintType(map);
 				// Write map size.
 				size_t size = map.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
@@ -542,6 +669,15 @@ namespace cse
 			{
 				// Read map size and deserialize each key-value pair.
 				SetInFile(filename);
+				if (currType == "")
+				{
+					GetType();
+					std::string datatype = typeid(map).name();
+					if (currType != datatype)
+					{
+						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
+					}
+				}
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				map.clear();
@@ -573,6 +709,8 @@ namespace cse
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
+				if (!setType)
+					PrintType(umap);
 				size_t size = umap.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
 				// Serialize each key-value pair.
@@ -592,6 +730,15 @@ namespace cse
 			{
 				// Deserialize map size and each key-value pair.
 				SetInFile(filename);
+				if (currType == "")
+				{
+					GetType();
+					std::string datatype = typeid(umap).name();
+					if (currType != datatype)
+					{
+						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
+					}
+				}
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				umap.clear();
@@ -623,6 +770,8 @@ namespace cse
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
+				if (!setType)
+					PrintType(mmap);
 				size_t size = mmap.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
 				// Serialize each key-value pair.
@@ -642,6 +791,15 @@ namespace cse
 			{
 				// Deserialize multimap size and key-value pairs.
 				SetInFile(filename);
+				if (currType == "")
+				{
+					GetType();
+					std::string datatype = typeid(mmap).name();
+					if (currType != datatype)
+					{
+						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
+					}
+				}
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				mmap.clear();
@@ -673,6 +831,8 @@ namespace cse
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
+				if (!setType)
+					PrintType(ummap);
 				size_t size = ummap.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
 				// Serialize each key-value pair.
@@ -692,6 +852,15 @@ namespace cse
 			{
 				// Deserialize size and each key-value pair.
 				SetInFile(filename);
+				if (currType == "")
+				{
+					GetType();
+					std::string datatype = typeid(ummap).name();
+					if (currType != datatype)
+					{
+						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
+					}
+				}
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				ummap.clear();
@@ -726,6 +895,8 @@ namespace cse
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
+				if (!setType)
+					PrintType(stk);
 				// Extract elements from the stack into a vector.
 				std::vector<T> vec;
 				std::stack<T> temp = stk;
@@ -749,6 +920,15 @@ namespace cse
 			{
 				// Deserialize the vector and then reconstruct the stack.
 				SetInFile(filename);
+				if (currType == "")
+				{
+					GetType();
+					std::string datatype = typeid(stk).name();
+					if (currType != datatype)
+					{
+						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
+					}
+				}
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				std::vector<T> vec(size);
@@ -779,6 +959,8 @@ namespace cse
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
+				if (!setType)
+					PrintType(q);
 				// Extract elements into a vector.
 				std::vector<T> vec;
 				std::queue<T> temp = q;
@@ -802,6 +984,15 @@ namespace cse
 			{
 				// Read the size and deserialize elements into a vector.
 				SetInFile(filename);
+				if (currType == "")
+				{
+					GetType();
+					std::string datatype = typeid(q).name();
+					if (currType != datatype)
+					{
+						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
+					}
+				}
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				std::vector<T> vec(size);
@@ -832,6 +1023,8 @@ namespace cse
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
+				if (!setType)
+					PrintType(pq);
 				// Extract elements from the priority_queue into a vector.
 				std::vector<T> vec;
 				std::priority_queue<T> temp = pq;
@@ -855,6 +1048,15 @@ namespace cse
 			{
 				// Deserialize into a vector and rebuild the priority_queue.
 				SetInFile(filename);
+				if (currType == "")
+				{
+					GetType();
+					std::string datatype = typeid(pq).name();
+					if (currType != datatype)
+					{
+						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
+					}
+				}
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				std::vector<T> vec(size);
@@ -880,6 +1082,8 @@ namespace cse
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
+				if (!setType)
+					PrintType(deq);
 				// Write the size of the deque.
 				size_t size = deq.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
@@ -895,6 +1099,15 @@ namespace cse
 			{
 				// Read size and then deserialize each element into a temporary vector.
 				SetInFile(filename);
+				if (currType == "")
+				{
+					GetType();
+					std::string datatype = typeid(deq).name();
+					if (currType != datatype)
+					{
+						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
+					}
+				}
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				std::vector<T> vec(size);
