@@ -17,7 +17,7 @@
 #include <sstream>
 #include <string>
 #include <map>
-#include <set>
+#include <functional>
 
 namespace cse {
 
