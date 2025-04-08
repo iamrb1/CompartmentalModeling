@@ -37,6 +37,8 @@ template <typename... Args>
 class EventManager {
 
  private:
+  static constexpr double NS_TO_S = 1e9;
+
   EventQueue<Args...> event_queue_; /**< Queue of events to be triggered */
   bool running_{0}; /**< Tracks if queue is currently running */
   int next_id_{0}; /**< ID for the next event to be created */
@@ -53,23 +55,26 @@ class EventManager {
    * @brief Checks for and triggers events
    */
   void TriggerEvents() {
-    while (event_queue_.size() &&
-           event_queue_.peek().getTime() <= getTime()) {  // Events to be popped
+    while (event_queue_.size() && event_queue_.peek().getTime() <= getTime()) {  // Events to be popped
       auto e = event_queue_.peek();
       if (paused_events_.find(e.getID()) != paused_events_.end()) {
         event_queue_.pop();  // Skip over paused events
         continue;
       }
+
       e.execute();
+
+      //Handle repeating events
       if (repeat_events_.find(e.getID()) != repeat_events_.end()) {
-        e.setTime(e.getTime() +
-                  repeat_events_[e.getID()]);  // Readd repeats to the queue
+        e.setTime(e.getTime() + repeat_events_[e.getID()]);  // Readd repeats to the queue
         event_queue_.update(e);
       } else {
         running_events_.erase(e.getID());
         event_queue_.pop();
       }
     }
+
+    //Check for empty queue
     if (event_queue_.size() == 0) {
       running_ = false;
     }
@@ -78,7 +83,7 @@ class EventManager {
   /**
    * @brief Stops clock from running and triggering events
    */
-  void StopQueue() {
+  void StopQueue() noexcept{
     running_ = false;
     if (start_time_ == std::chrono::steady_clock::time_point{}) {
       total_runtime_ += std::chrono::steady_clock::now() - start_time_;
@@ -88,7 +93,7 @@ class EventManager {
   /**
    * @brief Starts queue allowing for time updates
    */
-  void StartQueue() {
+  void StartQueue() noexcept{
     if (!running_) {
       running_ = true;
       start_time_ = std::chrono::steady_clock::now();
@@ -159,7 +164,7 @@ class EventManager {
       return true;
     } else if (paused_events_.find(event_id) != paused_events_.end()) {
       if (event.getTime() <= this->getTime()) {
-        event_queue_.add(paused_events_.at(event_id));
+        event_queue_.add(std::move(paused_events_.at(event_id)));
       }
       paused_events_.erase(event_id);
       running_events_.insert(event_id);
@@ -193,7 +198,7 @@ class EventManager {
    * @brief Get the number of events being managed
    * @return The number of events in event_queue_ as size_t
    */
-  size_t getNumEvents() const {
+  size_t getNumEvents() const noexcept{
     return (paused_events_.size() + running_events_.size());
   }
 
@@ -201,27 +206,27 @@ class EventManager {
    * @brief Get the current internal time
    * @return The current time in seconds
    */
-  double getTime() {
+  double getTime() const noexcept {
     if (start_time_ == std::chrono::steady_clock::time_point{}) {
       return 0;
     }
     double nanoSeconds =
         ((std::chrono::steady_clock::now() - start_time_) + total_runtime_)
             .count();
-    return nanoSeconds / std::pow(10, 9);
+    return nanoSeconds / NS_TO_S;
   }
 
   /**
    * @brief Get the set of running events
    * @return A copy of the running events set
    */
-  std::set<int> getRunningEvents() const { return running_events_; };
+  std::set<int> getRunningEvents() const noexcept{ return running_events_; };
 
   /**
    * @brief Get the map of paused Events
    * @return A copy of the paused events map
    */
-  std::unordered_map<int, Event<Args...>> getPausedEvents() const {
+  std::unordered_map<int, Event<Args...>> getPausedEvents() const noexcept{
     return paused_events_;
   };
 };

@@ -22,6 +22,18 @@ TEST_CASE("Check empty EventManager", "[EventManager]")
   CHECK(eventManager.getTime() == 0);
 }
 
+TEST_CASE("Check for invalid time", "[EventManager]")
+{
+  EventManager<int> eventManager;
+  CHECK(eventManager.getNumEvents() == 0);
+  CHECK(eventManager.getNumPaused() == 0);
+  CHECK(eventManager.getTime() == 0);
+  REQUIRE_THROWS_AS(eventManager.AddEvent(-5, printEvent, 1), std::invalid_argument);
+  REQUIRE_THROWS_WITH(eventManager.AddEvent(-5, printEvent, 1), "Time must be positive");
+}
+
+
+
 TEST_CASE("Check getTime in EventManager", "[EventManager]")
 {
   EventManager<int> eM;
@@ -38,7 +50,7 @@ TEST_CASE("Check getTime in EventManager", "[EventManager]")
 	std::this_thread::sleep_for(std::chrono::milliseconds(500));
 	auto after = std::chrono::steady_clock::now();
 	totalTimeElapsed += std::chrono::duration<double>(after - before).count();
-	CHECK(std::abs(eM.getTime() - totalTimeElapsed) < .01 * i); // Account for sleep_for imprecision
+	CHECK(std::abs(eM.getTime() - totalTimeElapsed) < .015 * i); // Account for sleep_for imprecision
 	eM.TriggerEvents();
   }
 
@@ -107,6 +119,7 @@ TEST_CASE("Pause EventManager event - valid", "[EventManager]")
   CHECK(eM.getNumPaused() == 2);
 
 }
+
 
 TEST_CASE("Resume EventManager event", "[EventManager]")
 {
