@@ -8,8 +8,8 @@
 #include "../../Group-07/Team07Library/Serializer.hpp"
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 
-const int MAX_CASE = 10;
-const int MAX_SIZE = 50;
+const int MAX_CASE = 25;
+const int MAX_SIZE = 100;
 const std::string filename = "result.bin";
 
 std::random_device rd;
@@ -421,10 +421,6 @@ TEST_CASE("Serializer Save Load Unordered Map", "[Serializer]")
 		{
 			REQUIRE(res.find(l) != res.end());
 			REQUIRE(res[l] == m[l]);
-			std::string datanameKey = (std::string)filename + "_K" + std::to_string(l);
-			std::string datanameVal = (std::string)filename + "_V" + std::to_string(l);
-			std::filesystem::remove(datanameKey);
-			std::filesystem::remove(datanameVal);
 		}
 		std::filesystem::remove(filename);
 		Saver.ResetFileStream();
@@ -453,13 +449,6 @@ TEST_CASE("Serializer Save Load Multi Map", "[Serializer]")
 		Saver.Serialize(m, filename);
 		Loader.Serialize(res, filename);
 		REQUIRE(m == res);
-		for (int l = 0; l < MAX_SIZE; l++)
-		{
-			std::string datanameKey = (std::string)filename + "_K" + std::to_string(l);
-			std::string datanameVal = (std::string)filename + "_V" + std::to_string(l);
-			std::filesystem::remove(datanameKey);
-			std::filesystem::remove(datanameVal);
-		}
 		std::filesystem::remove(filename);
 		Saver.ResetFileStream();
 		Loader.ResetFileStream();
@@ -487,13 +476,6 @@ TEST_CASE("Serializer Save Load Unordered Multi Map", "[Serializer]")
 		Saver.Serialize(m, filename);
 		Loader.Serialize(res, filename);
 		REQUIRE(m == res);
-		for (int l = 0; l < MAX_SIZE; l++)
-		{
-			std::string datanameKey = (std::string)filename + "_K" + std::to_string(l);
-			std::string datanameVal = (std::string)filename + "_V" + std::to_string(l);
-			std::filesystem::remove(datanameKey);
-			std::filesystem::remove(datanameVal);
-		}
 		std::filesystem::remove(filename);
 		Saver.ResetFileStream();
 		Loader.ResetFileStream();
@@ -798,7 +780,57 @@ TEST_CASE("Serialize External Class/Struct", "[Serializer]")
 	for (size_t i = 0; i < P1.hobbies.size(); i++)
 	{
 		REQUIRE(P1.hobbies[i] == P2.hobbies[i]);
-		std::string dataname = (std::string)filename + "_" + std::to_string(i);
 	}
 	std::filesystem::remove_all(folder);
+}
+
+TEST_CASE("Incompatible Types Serialization", "[Serializer]")
+{
+	cse::Serializer Saver(cse::Mode::SAVE);
+	cse::Serializer Loader(cse::Mode::LOAD);
+	int num = 22;
+	double dbl = 3.14;
+	Saver.Serialize(num, filename);
+	REQUIRE_THROWS_AS(Loader.Serialize(dbl, filename), cse::SerializationError);
+	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
+	Saver.Serialize(dbl, filename);
+	REQUIRE_THROWS_AS(Loader.Serialize(num, filename), cse::SerializationError);
+	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
+	std::string str = "Hello World!";
+	Saver.Serialize(str, filename);
+	REQUIRE_THROWS_AS(Loader.Serialize(num, filename), cse::SerializationError);
+	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
+	Saver.Serialize(num, filename);
+	REQUIRE_THROWS_AS(Loader.Serialize(str, filename), cse::SerializationError);
+	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
+	std::vector<int> v{1, 2, 3, 4};
+	std::vector<std::string> vs;
+	Saver.Serialize(v, filename);
+	REQUIRE_THROWS_AS(Loader.Serialize(vs, filename), cse::SerializationError);
+	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
+	vs = {"1", "2", "3", "4"};
+	Saver.Serialize(vs, filename);
+	REQUIRE_THROWS_AS(Loader.Serialize(v, filename), cse::SerializationError);
+	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
+	std::vector<std::vector<int>> vv{{1}, {2, 22}, {3, 33, 333}, {4, 44, 444, 4444}};
+	Saver.Serialize(v, filename);
+	REQUIRE_THROWS_AS(Loader.Serialize(vv, filename), cse::SerializationError);
+	std::filesystem::remove(filename);
+	Saver.ResetFileStream();
+	Loader.ResetFileStream();
+	Saver.Serialize(vv, filename);
+	REQUIRE_THROWS_AS(Loader.Serialize(v, filename), cse::SerializationError);
+	std::filesystem::remove(filename);
 }
