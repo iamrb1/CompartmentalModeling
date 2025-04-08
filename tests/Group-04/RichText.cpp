@@ -4,6 +4,8 @@
 
 #include "catch.hpp"
 
+using fmt_vec = std::vector<cse::TextFormat>;
+
 // Test constructor and size calculation
 TEST_CASE("Constructor", "[RichTextTest]") {
   cse::RichText text1;
@@ -29,24 +31,19 @@ TEST_CASE("MultipleFormatting", "[RichTextTest]") {
   cse::TextFormat bold("bold");
 
   text1.apply_format(bold, 0, 5);
-  REQUIRE(text1.formats_at(3).size() == 1);
-  REQUIRE(text1.formats_at(3).at(0) == bold);
-  REQUIRE(text1.formats_at(8).size() == 0);
+  REQUIRE(text1.formats_at(3) == fmt_vec{bold});
+  REQUIRE(text1.formats_at(8) == fmt_vec{});
 
   std::string str2 = "bold";
   cse::TextFormat f2(str2);
   REQUIRE(text1.formats_at(3).at(0) == f2);
 
+  // check that the formats applied correctly
   cse::TextFormat italic("italic");
   text1.apply_format(italic, cse::IndexSet{std::pair{4, 8}});
-  REQUIRE(text1.formats_at(3).size() == 1);
-  REQUIRE(text1.formats_at(3).at(0) == bold);
-  REQUIRE(text1.formats_at(4).size() == 2);
-  REQUIRE(text1.formats_at(4).at(0) == bold);
-  REQUIRE(text1.formats_at(4).at(1) == italic);
-  REQUIRE(text1.formats_at(7).size() == 1);
-  REQUIRE(text1.formats_at(7).at(0) == italic);
-  REQUIRE(text1.formats_at(8).size() == 0);
+  REQUIRE(text1.formats_at(3) == fmt_vec{bold});
+  REQUIRE(text1.formats_at(4) == fmt_vec{bold, italic});
+  REQUIRE(text1.formats_at(7) == fmt_vec{italic});
 }
 
 TEST_CASE("AppendFormattedText", "[RichTextTest]") {
@@ -62,10 +59,8 @@ TEST_CASE("AppendFormattedText", "[RichTextTest]") {
 
   REQUIRE(text1.size() == 11);
   REQUIRE(text1.to_string() == std::string("hello world"));
-  REQUIRE(text1.formats_at(3).size() == 1);
-  REQUIRE(text1.formats_at(3).at(0) == bold);
-  REQUIRE(text1.formats_at(8).size() == 1);
-  REQUIRE(text1.formats_at(8).at(0) == italic);
+  REQUIRE(text1.formats_at(3) == fmt_vec{bold});
+  REQUIRE(text1.formats_at(8) == fmt_vec{italic});
 }
 
 TEST_CASE("ComplexFormatting", "[RichTextTest]") {
