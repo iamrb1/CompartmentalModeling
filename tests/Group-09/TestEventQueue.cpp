@@ -107,7 +107,7 @@ TEST_CASE("Test EventQueue<int> Valid Remove", "[base]")
   eq.add(e2);
   eq.add(e3);
   eq.add(e4);
-  eq.remove(e3);
+  eq.remove(e3.getID());
   CHECK(eq.size() == 3);
   CHECK(eq.pop() == e1);
   CHECK(eq.pop() == e2);
@@ -129,9 +129,9 @@ TEST_CASE("Test EventQueue<int> Invalid Remove", "[base]")
   eq.add(e2);
   eq.add(e3);
   eq.add(e4);
-  auto remove = eq.remove(e3);
+  auto remove = eq.remove(e3.getID());
   CHECK(remove.has_value());
-  remove = eq.remove(e3);
+  remove = eq.remove(e3.getID());
   CHECK(!remove.has_value());
 }
 
