@@ -252,18 +252,27 @@ class ExpressionParser {
   template <typename T>
   static constexpr T constexprPower(T base, int exp) {
     if (exp == 0) {
-        // check sign of base number
         return base < 0 ? -1 : 1;
     }
-    if (exp < 0) {
-        return 1 / constexprPower(base, -exp);  // Handle negative exponents
+
+    bool isNegativeExp = exp < 0;
+    if (isNegativeExp) {
+        exp = -exp;
     }
-    T halfPower = constexprPower(base, exp / 2); // for explicitly handling -base to an odd exp
-    if (exp % 2 == 0) {
-        return halfPower * halfPower;  // Even exponent
-    } else {
-        return base * halfPower * halfPower;  // Odd exponent
+
+    T result = 1;
+    while (exp > 0) {
+        if (exp % 2 == 1) {
+            result *= base;
+        }
+        base *= base;
+        exp /= 2;
     }
+
+    if (isNegativeExp) {
+        return T(1) / result;
+    }
+    return result;
 }
 
 /**
