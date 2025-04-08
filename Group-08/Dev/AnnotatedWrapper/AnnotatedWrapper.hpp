@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include <functional>
+#include <optional>
 
 namespace cse {
 
@@ -16,7 +17,7 @@ namespace cse {
      *          “annotating” features to any derived class. A simple form of 
      *          annotations would be tags associated with the class."
      */
-    
+
     // A template class that stores annotations and visual styling.
     template<typename T>
     class AnnotatedWrapper {
@@ -43,7 +44,7 @@ namespace cse {
          * 
          * @param key
          * @return default-constructed T if the key is not found
-         */
+         */ 
         T getAnnotation(const std::string& key) const {
             auto it = mAnnotations.find(key);
             return (it != mAnnotations.end()) ? it->second : T{};
