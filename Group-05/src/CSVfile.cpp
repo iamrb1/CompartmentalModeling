@@ -178,13 +178,13 @@ bool CSVFile::ExportCsv(const std::string &file_name, const DataGrid &grid,
   }
 
   //CITE: Used GPT to think through and extract grid's dimensions (rows and columns) for further processing
-  std::tuple<const std::size_t, const std::size_t> shape = grid.shape();
+  std::tuple<const std::size_t, const std::size_t> shape = grid.Shape();
   std::size_t num_rows = std::get<0>(shape);
   std::size_t num_cols = std::get<1>(shape);
 
   //It loops over each row in the grid and gets a reference to the current row.
   for (std::size_t i = 0; i < num_rows; ++i) {
-    const std::vector<Datum> &row = grid.getRow(i);
+    const std::vector<Datum> &row = grid.GetRow(i);
     // Assert that each row has the expected number of columns.
     assert(row.size() == num_cols &&
            "Row does not have the expected number of columns.");

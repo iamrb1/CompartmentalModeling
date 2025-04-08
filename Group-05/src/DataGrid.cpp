@@ -26,7 +26,7 @@ namespace cse {
  * @param row_index_ Index of the row
  * @return Indexed vector row from DataGrid
  */
-DataGrid::row_t &DataGrid::getRow(const std::size_t row_index_) {
+DataGrid::row_t &DataGrid::GetRow(const std::size_t row_index_) {
   assert(row_index_ < grid_.size());
 
   if (grid_.empty() || row_index_ >= grid_.size()) {
@@ -44,7 +44,7 @@ DataGrid::row_t &DataGrid::getRow(const std::size_t row_index_) {
  * @param row_index_ Index of the row to retrieve.
  * @return A const reference to the indexed vector row from the DataGrid.
  */
-const DataGrid::row_t &DataGrid::getRow(const std::size_t row_index_) const {
+const DataGrid::row_t &DataGrid::GetRow(const std::size_t row_index_) const {
   assert(row_index_ < grid_.size());
 
   if (grid_.empty() || row_index_ >= grid_.size()) {
@@ -60,7 +60,7 @@ const DataGrid::row_t &DataGrid::getRow(const std::size_t row_index_) const {
  * @param column_index_ Index of the column
  * @return The Datum at the given index
  */
-Datum &DataGrid::getValue(const std::size_t row_index_,
+Datum &DataGrid::GetValue(const std::size_t row_index_,
                           const std::size_t column_index_) {
   assert(!grid_.empty());
   assert(row_index_ < grid_.size());
@@ -80,7 +80,7 @@ Datum &DataGrid::getValue(const std::size_t row_index_,
  * @param column_index_ Index of the column
  * @return The Datum at the given index
  */
-const Datum &DataGrid::getValue(const std::size_t row_index_,
+const Datum &DataGrid::GetValue(const std::size_t row_index_,
                                 const std::size_t column_index_) const {
   assert(!grid_.empty());
   assert(row_index_ < grid_.size());
@@ -98,7 +98,7 @@ const Datum &DataGrid::getValue(const std::size_t row_index_,
  * @brief Returns the shape of the DataGrid
  * @return tuple of (# of rows, # of columns)
  */
-std::tuple<std::size_t, std::size_t> DataGrid::shape() const {
+std::tuple<std::size_t, std::size_t> DataGrid::Shape() const {
   size_t rows = grid_.size();
   size_t columns = rows == 0 ? 0 : grid_[0].size();
   return std::make_tuple(rows, columns);
@@ -110,7 +110,7 @@ std::tuple<std::size_t, std::size_t> DataGrid::shape() const {
  * @return Indexed vector column from DataGrid
  */
 cse::ReferenceVector<Datum>
-DataGrid::getColumn(const std::size_t column_index_) {
+DataGrid::GetColumn(const std::size_t column_index_) {
   assert(!grid_.empty());
   assert(column_index_ < grid_[0].size());
 
@@ -133,7 +133,7 @@ DataGrid::getColumn(const std::size_t column_index_) {
  * @return Indexed vector column from DataGrid
  */
 cse::ReferenceVector<const Datum>
-DataGrid::getColumn(const std::size_t column_index_) const {
+DataGrid::GetColumn(const std::size_t column_index_) const {
   assert(!grid_.empty());
   assert(column_index_ < grid_[0].size());
 
@@ -155,9 +155,9 @@ DataGrid::getColumn(const std::size_t column_index_) const {
  * @param row_index_ Index at which to insert the row
  * @param default_value_ of row values
  */
-void DataGrid::insertDefaultRow(std::size_t row_index_, double default_value_) {
+void DataGrid::InsertDefaultRow(std::size_t row_index_, double default_value_) {
   // If row_index_ is not given, update row_index_ to insert to the end of grid
-  if (grid_.empty() || row_index_ == std::numeric_limits<std::size_t>::max()) {
+  if (grid_.empty() || row_index_ == kNoIndex) {
     row_index_ = grid_.size();
   }
 
@@ -166,10 +166,11 @@ void DataGrid::insertDefaultRow(std::size_t row_index_, double default_value_) {
     throw std::out_of_range("Row index out of bounds");
   }
 
-  const std::size_t num_columns = std::get<1>(shape());
+  const std::size_t num_columns = std::get<1>(Shape());
 
   // Source ChatGPT
   // Inserts row at row_index_
+  // row_index_ must be cast for proper iterator addition
   grid_.insert(grid_.begin() + static_cast<std::ptrdiff_t>(row_index_),
                std::vector<Datum>(num_columns, Datum(default_value_)));
 }
@@ -179,10 +180,10 @@ void DataGrid::insertDefaultRow(std::size_t row_index_, double default_value_) {
  * @param row_index_ Index at which to insert the row
  * @param default_value_ of row
  */
-void DataGrid::insertDefaultRow(std::size_t row_index_,
+void DataGrid::InsertDefaultRow(std::size_t row_index_,
                                 std::string default_value_) {
   // If row_index_ is not given, update row_index_ to insert to the end of grid
-  if (grid_.empty() || row_index_ == std::numeric_limits<std::size_t>::max()) {
+  if (grid_.empty() || row_index_ == kNoIndex) {
     row_index_ = grid_.size();
   }
 
@@ -191,10 +192,11 @@ void DataGrid::insertDefaultRow(std::size_t row_index_,
     throw std::out_of_range("Row index out of bounds");
   }
 
-  const std::size_t num_columns = std::get<1>(shape());
+  const std::size_t num_columns = std::get<1>(Shape());
 
   // Source ChatGPT
   // Inserts row at row_index_
+  // row_index_ must be cast for proper iterator addition
   grid_.insert(
       grid_.begin() + static_cast<std::ptrdiff_t>(row_index_),
       std::vector<Datum>(num_columns, Datum(std::move(default_value_))));
@@ -205,7 +207,7 @@ void DataGrid::insertDefaultRow(std::size_t row_index_,
  * @param column_index_ Index at which to insert the column
  * @param default_value_ of column
  */
-void DataGrid::insertDefaultColumn(std::size_t column_index_,
+void DataGrid::InsertDefaultColumn(std::size_t column_index_,
                                    double default_value_) {
   // If grid is empty, add the column, with each value being a row
   if (grid_.empty()) {
@@ -214,7 +216,7 @@ void DataGrid::insertDefaultColumn(std::size_t column_index_,
   }
 
   // If column_index_ is max, update it to insert at the end
-  if (column_index_ == std::numeric_limits<std::size_t>::max()) {
+  if (column_index_ == kNoIndex) {
     column_index_ = grid_[0].size();
   }
 
@@ -224,6 +226,7 @@ void DataGrid::insertDefaultColumn(std::size_t column_index_,
   }
 
   // Insert the new column at the specified index in each row
+  // column_index_ must be cast for proper iterator addition
   for (auto &row : grid_) {
     row.insert(row.begin() + static_cast<std::ptrdiff_t>(column_index_),
                Datum(default_value_));
@@ -235,7 +238,7 @@ void DataGrid::insertDefaultColumn(std::size_t column_index_,
  * @param column_index_ Index at which to insert the column
  * @param default_value_ of column
  */
-void DataGrid::insertDefaultColumn(std::size_t column_index_,
+void DataGrid::InsertDefaultColumn(std::size_t column_index_,
                                    const std::string &default_value_) {
   // If grid is empty, add the column, with each value being a row
   if (grid_.empty()) {
@@ -244,7 +247,7 @@ void DataGrid::insertDefaultColumn(std::size_t column_index_,
   }
 
   // If column_index_ is max, update it to insert at the end
-  if (column_index_ == std::numeric_limits<std::size_t>::max()) {
+  if (column_index_ == kNoIndex) {
     column_index_ = grid_[0].size();
   }
 
@@ -254,6 +257,7 @@ void DataGrid::insertDefaultColumn(std::size_t column_index_,
   }
 
   // Insert the new column at the specified index in each row
+  // column_index_ must be cast for proper iterator addition
   for (auto &row : grid_) {
     row.insert(row.begin() + static_cast<std::ptrdiff_t>(column_index_),
                Datum(default_value_));
@@ -261,25 +265,26 @@ void DataGrid::insertDefaultColumn(std::size_t column_index_,
 }
 
 /**
- * Insert a premade row into the DataGrid
+ * Insert a pre-made row into the DataGrid
  * @param row_
  * @param row_index_
  */
-void DataGrid::insertRow(std::vector<Datum> row_, std::size_t row_index_) {
-  if (grid_.empty() || row_index_ == std::numeric_limits<std::size_t>::max()) {
+void DataGrid::InsertRow(const std::vector<Datum>& row_, std::size_t row_index_) {
+  if (grid_.empty() || row_index_ == kNoIndex) {
     row_index_ = grid_.size();
   }
 
   assert(row_index_ <= grid_.size());
+  // column_index_ must be cast for proper iterator addition
   grid_.insert(grid_.begin() + static_cast<std::ptrdiff_t>(row_index_), row_);
 }
 
 /**
- * Insert a premade column into the DataGrid
+ * Insert a pre-made column into the DataGrid
  * @param column_
  * @param column_index_
  */
-void DataGrid::insertColumn(const std::vector<Datum>& column_, std::size_t column_index_) {
+void DataGrid::InsertColumn(const std::vector<Datum>& column_, std::size_t column_index_) {
   // If grid is empty, create rows from column_
   if (grid_.empty()) {
     for (const auto& value : column_) {
@@ -294,7 +299,7 @@ void DataGrid::insertColumn(const std::vector<Datum>& column_, std::size_t colum
   }
 
   // If column_index_ is max, append to the end
-  if (column_index_ == std::numeric_limits<std::size_t>::max()) {
+  if (column_index_ == kNoIndex) {
     column_index_ = grid_[0].size();
   }
 
@@ -304,6 +309,7 @@ void DataGrid::insertColumn(const std::vector<Datum>& column_, std::size_t colum
   }
 
   // Insert values from column_ into each row at the specified index
+  // column_index_ must be cast for proper iterator addition
   for (std::size_t i = 0; i < grid_.size(); ++i) {
     grid_[i].insert(grid_[i].begin() + static_cast<std::ptrdiff_t>(column_index_), column_[i]);
   }
@@ -313,7 +319,7 @@ void DataGrid::insertColumn(const std::vector<Datum>& column_, std::size_t colum
  * @brief Deletes a row at given index
  * @param row_index_ Index of the row to delete
  */
-void DataGrid::deleteRow(const std::size_t row_index_) {
+void DataGrid::DeleteRow(const std::size_t row_index_) {
   assert(!grid_.empty());
   assert(row_index_ < grid_.size());
 
@@ -321,6 +327,7 @@ void DataGrid::deleteRow(const std::size_t row_index_) {
     throw std::out_of_range("Row index out of bounds");
   }
 
+  // row_index_ must be cast for proper iterator addition
   grid_.erase(grid_.begin() + static_cast<std::ptrdiff_t>(row_index_));
 }
 
@@ -328,7 +335,7 @@ void DataGrid::deleteRow(const std::size_t row_index_) {
  * @brief Deletes a column at given index
  * @param column_index_ Index of the column to delete
  */
-void DataGrid::deleteColumn(const std::size_t column_index_) {
+void DataGrid::DeleteColumn(const std::size_t column_index_) {
   assert(!grid_.empty());
   assert(column_index_ < grid_[0].size());
 
@@ -337,6 +344,7 @@ void DataGrid::deleteColumn(const std::size_t column_index_) {
   }
 
   for (auto &row : grid_) {
+    // column_index_ must be cast for proper iterator addition
     row.erase(row.begin() + static_cast<std::ptrdiff_t>(column_index_));
   }
 }
@@ -347,7 +355,7 @@ void DataGrid::deleteColumn(const std::size_t column_index_) {
  * @param num_columns_
  * @param default_value_
  */
-void DataGrid::resize(const std::size_t num_rows_,
+void DataGrid::Resize(const std::size_t num_rows_,
                       const std::size_t num_columns_,
                       const double default_value_) {
   if (grid_.size() < num_rows_) {
@@ -372,7 +380,7 @@ void DataGrid::resize(const std::size_t num_rows_,
  * @param num_columns_
  * @param default_value_
  */
-void DataGrid::resize(const std::size_t num_rows_,
+void DataGrid::Resize(const std::size_t num_rows_,
                       const std::size_t num_columns_,
                       const std::string &default_value_) {
   if (grid_.size() < num_rows_) {
@@ -396,13 +404,13 @@ void DataGrid::resize(const std::size_t num_rows_,
  * @param os_
  * @return Modified output stream
  */
-std::ostream &DataGrid::print(std::ostream &os_) const {
-  auto [rows, columns] = shape();
+std::ostream &DataGrid::Print(std::ostream &os_) const {
+  auto [rows, columns] = Shape();
   os_ << "Grid Shape: " << rows << " x " << columns << "\n";
 
   for (std::size_t i = 0; i < rows; ++i) {
     for (std::size_t j = 0; j < columns; ++j) {
-      if (auto value = getValue(i, j); value.IsString()) {
+      if (auto value = GetValue(i, j); value.IsString()) {
         os_ << value.GetString() << " ";
       } else if (value.IsDouble()) {
         os_ << value.GetDouble() << " ";
@@ -419,7 +427,7 @@ std::ostream &DataGrid::print(std::ostream &os_) const {
  * @param column_index_
  * @return Reference to the Datum at the given index
  */
-Datum &DataGrid::at(std::size_t row_index_, std::size_t column_index_) {
+Datum &DataGrid::At(std::size_t row_index_, std::size_t column_index_) {
   assert(row_index_ < grid_.size());
   assert(column_index_ < grid_[0].size());
   return grid_[row_index_][column_index_];
@@ -431,7 +439,7 @@ Datum &DataGrid::at(std::size_t row_index_, std::size_t column_index_) {
  * @param column_index_
  * @return Const reference to the Datum at the given index
  */
-const Datum &DataGrid::at(std::size_t row_index_,
+const Datum &DataGrid::At(std::size_t row_index_,
                           std::size_t column_index_) const {
   assert(row_index_ < grid_.size());
   assert(column_index_ < grid_[0].size());
@@ -443,7 +451,7 @@ const Datum &DataGrid::at(std::size_t row_index_,
  * @param row_index_
  * @return Reference to the row at the given index
  */
-DataGrid::row_t &DataGrid::at(std::size_t row_index_) {
+DataGrid::row_t &DataGrid::At(std::size_t row_index_) {
   assert(row_index_ < grid_.size());
 
   if (grid_.empty() || row_index_ >= grid_.size()) {
@@ -458,7 +466,7 @@ DataGrid::row_t &DataGrid::at(std::size_t row_index_) {
  * @param row_index_
  * @return Const reference to the row at the given index
  */
-const DataGrid::row_t &DataGrid::at(std::size_t row_index_) const {
+const DataGrid::row_t &DataGrid::At(std::size_t row_index_) const {
   assert(row_index_ < grid_.size());
 
   if (grid_.empty() || row_index_ >= grid_.size()) {
@@ -474,7 +482,11 @@ const DataGrid::row_t &DataGrid::at(std::size_t row_index_) const {
  * @param row_append
  * @return merged DataGrid
  */
-DataGrid DataGrid::merge(const DataGrid &grid_two, bool row_append) const {
+DataGrid DataGrid::Merge(const DataGrid &grid_two, bool row_append) const {
+  // Return grid one or two if the other is empty
+  if (grid_.empty()) return grid_two;
+  if (grid_two.grid_.empty()) return *this;
+
   DataGrid merged = *this; // Copy
 
   // Adding the rows of grid_two to current grid_
@@ -504,7 +516,7 @@ DataGrid DataGrid::merge(const DataGrid &grid_two, bool row_append) const {
  * @param end_column_index
  * @return DataGrid
  */
-DataGrid DataGrid::slice(std::size_t start_row_index, std::size_t end_row_index,
+DataGrid DataGrid::Slice(std::size_t start_row_index, std::size_t end_row_index,
                          std::size_t start_column_index,
                          std::size_t end_column_index) {
   assert(start_row_index < grid_.size());
@@ -517,6 +529,7 @@ DataGrid DataGrid::slice(std::size_t start_row_index, std::size_t end_row_index,
   for (std::size_t i = start_row_index; i <= end_row_index; ++i) {
     // Help from ChatGPT
     std::vector<Datum> row_slice(
+    // column indices must be cast for proper iterator addition
         grid_[i].begin() + static_cast<std::ptrdiff_t>(start_column_index),
         grid_[i].begin() + static_cast<std::ptrdiff_t>(end_column_index + 1));
     sliced_data.push_back(row_slice);
@@ -530,11 +543,12 @@ DataGrid DataGrid::slice(std::size_t start_row_index, std::size_t end_row_index,
  * @param column_index
  * @param ascending
  */
-void DataGrid::sortColumn(std::size_t column_index, bool ascending) {
+void DataGrid::SortColumn(std::size_t column_index, bool ascending) {
   assert(!grid_.empty());
   assert(column_index < grid_[0].size());
 
   // Created with the help of ChatGPT
+  // Sort using a custom lambda function, where doubles > strings
   std::ranges::sort(
       grid_, [column_index, ascending](const std::vector<Datum> &a,
                                        const std::vector<Datum> &b) {
@@ -564,10 +578,11 @@ void DataGrid::sortColumn(std::size_t column_index, bool ascending) {
  * Sorts the entire grid rows by column, giving priority to left most columns
  * @param ascending
  */
-void DataGrid::sort(bool ascending) {
+void DataGrid::Sort(bool ascending) {
   assert(!grid_.empty());
 
   // Created with the help of ChatGPT
+  // Sort using a custom lambda function, where doubles > strings
   std::ranges::sort(grid_, [ascending](const std::vector<Datum> &a,
                                        const std::vector<Datum> &b) {
     size_t min_size = std::min(a.size(), b.size());
@@ -605,11 +620,11 @@ void DataGrid::sort(bool ascending) {
  * @param value
  * @return vector of indices
  */
-std::vector<size_t> DataGrid::search(std::size_t column_index,
+std::vector<size_t> DataGrid::Search(std::size_t column_index,
                                      const Datum &value) {
   std::vector<size_t> result;
   for (size_t i = 0; i < grid_.size(); ++i) {
-    if (getValue(i, column_index) == value)
+    if (GetValue(i, column_index) == value)
       result.push_back(i);
   }
 
@@ -621,12 +636,12 @@ std::vector<size_t> DataGrid::search(std::size_t column_index,
  * @param column_index The desired column index
  * @return The mean of the desired column
  */
-double DataGrid::columnMean(std::size_t column_index) const {
+double DataGrid::ColumnMean(std::size_t column_index) const {
   if (grid_.empty() || column_index >= grid_[0].size()) {
     throw std::out_of_range("Column index out of range.");
   }
 
-  return calculateMean(getDoubleValues(getColumn(column_index)));
+  return CalculateMean(GetDoubleValues(GetColumn(column_index)));
 }
 
 /**
@@ -634,12 +649,12 @@ double DataGrid::columnMean(std::size_t column_index) const {
  * @param column_index The desired column index
  * @return The median of the desired column
  */
-double DataGrid::columnMedian(std::size_t column_index) const {
+double DataGrid::ColumnMedian(std::size_t column_index) const {
   if (grid_.empty() || column_index >= grid_[0].size()) {
     throw std::out_of_range("Column index out of range.");
   }
 
-  return calculateMedian(getDoubleValues(getColumn(column_index)));
+  return CalculateMedian(GetDoubleValues(GetColumn(column_index)));
 }
 
 /**
@@ -647,12 +662,12 @@ double DataGrid::columnMedian(std::size_t column_index) const {
  * @param column_index The desired column index
  * @return A list of modes from the desired column
  */
-std::vector<double> DataGrid::columnMode(std::size_t column_index) const {
+std::vector<double> DataGrid::ColumnMode(std::size_t column_index) const {
   if (grid_.empty() || column_index >= grid_[0].size()) {
     throw std::out_of_range("Column index out of range.");
   }
 
-  return calculateMode(getDoubleValues(getColumn(column_index)));
+  return CalculateMode(GetDoubleValues(GetColumn(column_index)));
 }
 
 /**
@@ -660,12 +675,12 @@ std::vector<double> DataGrid::columnMode(std::size_t column_index) const {
  * @param column_index The desired column index
  * @return The standard deviation of the desired column
  */
-double DataGrid::columnStandardDeviation(std::size_t column_index) const {
+double DataGrid::ColumnStandardDeviation(std::size_t column_index) const {
   if (grid_.empty() || column_index >= grid_[0].size()) {
     throw std::out_of_range("Column index out of range.");
   }
 
-  return calculateStandardDeviation(getDoubleValues(getColumn(column_index)));
+  return CalculateStandardDeviation(GetDoubleValues(GetColumn(column_index)));
 }
 
 /**
@@ -673,12 +688,12 @@ double DataGrid::columnStandardDeviation(std::size_t column_index) const {
  * @param column_index The desired column index
  * @return The minimum element of the desired column
  */
-double DataGrid::columnMin(std::size_t column_index) const {
+double DataGrid::ColumnMin(std::size_t column_index) const {
   if (grid_.empty() || column_index >= grid_[0].size()) {
     throw std::out_of_range("Column index out of range.");
   }
 
-  return calculateMin(getDoubleValues(getColumn(column_index)));
+  return CalculateMin(GetDoubleValues(GetColumn(column_index)));
 }
 
 /**
@@ -686,21 +701,21 @@ double DataGrid::columnMin(std::size_t column_index) const {
  * @param column_index The desired column index
  * @return The maximum element of the desired column
  */
-double DataGrid::columnMax(std::size_t column_index) const {
+double DataGrid::ColumnMax(std::size_t column_index) const {
   if (grid_.empty() || column_index >= grid_[0].size()) {
     throw std::out_of_range("Column index out of range.");
   }
 
-  return calculateMax(getDoubleValues(getColumn(column_index)));
+  return CalculateMax(GetDoubleValues(GetColumn(column_index)));
 }
 
 /**
  * Calculates the mean, median, mode, standard deviation, min, and max of the data grid.
  * @return The mean, median, mode, standard deviation, min, and max of the data grid
  */
-DataGrid::DataGridMathSummary DataGrid::dataGridMathSummary() const {
+DataGrid::DataGridMathSummary DataGrid::CalculateDataGridMathSummary() const {
   std::vector<double> double_values;
-  for (const std::vector<Datum>& row : getDataGrid()) {
+  for (const std::vector<Datum>& row : GetDataGrid()) {
     for (const Datum& value : row) {
       if (value.IsDouble() && !std::isnan(value.GetDouble())) {
         double_values.push_back(value.GetDouble());
@@ -709,12 +724,12 @@ DataGrid::DataGridMathSummary DataGrid::dataGridMathSummary() const {
   }
 
   DataGridMathSummary data_grid_math_summary;
-  data_grid_math_summary.mean = calculateMean(double_values);
-  data_grid_math_summary.median = calculateMedian(double_values);
-  data_grid_math_summary.mode = calculateMode(double_values);
-  data_grid_math_summary.standardDeviation = calculateStandardDeviation(double_values);
-  data_grid_math_summary.min = calculateMin(double_values);
-  data_grid_math_summary.max = calculateMax(double_values);
+  data_grid_math_summary.mean = CalculateMean(double_values);
+  data_grid_math_summary.median = CalculateMedian(double_values);
+  data_grid_math_summary.mode = CalculateMode(double_values);
+  data_grid_math_summary.standardDeviation = CalculateStandardDeviation(double_values);
+  data_grid_math_summary.min = CalculateMin(double_values);
+  data_grid_math_summary.max = CalculateMax(double_values);
   return data_grid_math_summary;
 }
 
@@ -723,7 +738,7 @@ DataGrid::DataGridMathSummary DataGrid::dataGridMathSummary() const {
  * @param double_values The given doubles vector.
  * @return The mean of the vector
  */
-constexpr double DataGrid::calculateMean(const std::vector<double>& double_values) const {
+constexpr double DataGrid::CalculateMean(const std::vector<double>& double_values) {
   if (double_values.empty()) {
     return std::numeric_limits<double>::quiet_NaN();
   }
@@ -738,7 +753,7 @@ constexpr double DataGrid::calculateMean(const std::vector<double>& double_value
  * @param double_values The given doubles vector.
  * @return The median of the vector
  */
-constexpr double DataGrid::calculateMedian(std::vector<double> double_values) const {
+constexpr double DataGrid::CalculateMedian(std::vector<double> double_values) {
   if (double_values.empty()) {
     return std::numeric_limits<double>::quiet_NaN();
   }
@@ -760,7 +775,7 @@ constexpr double DataGrid::calculateMedian(std::vector<double> double_values) co
  * @param double_values The given doubles vector.
  * @return The mode(s) of the vector
  */
-std::vector<double> DataGrid::calculateMode(const std::vector<double>& double_values) const {
+std::vector<double> DataGrid::CalculateMode(const std::vector<double>& double_values) {
   if (double_values.empty()) {
     return {};
   }
@@ -789,14 +804,15 @@ std::vector<double> DataGrid::calculateMode(const std::vector<double>& double_va
  * @param double_values The given doubles vector.
  * @return The standard deviation of the vector
  */
-constexpr double DataGrid::calculateStandardDeviation(const std::vector<double>& double_values) const {
+constexpr double DataGrid::CalculateStandardDeviation(const std::vector<double>& double_values) {
   if (double_values.empty()) {
     return std::numeric_limits<double>::quiet_NaN();
   }
 
   double current_total = 0;
-  for (double value : double_values) {
-    current_total += std::pow(value - calculateMean(double_values), 2);
+  const double mean = CalculateMean(double_values);
+  for (const double value : double_values) {
+    current_total += std::pow(value - mean, 2);
   }
 
   assert(!double_values.empty());
@@ -808,7 +824,7 @@ constexpr double DataGrid::calculateStandardDeviation(const std::vector<double>&
  * @param double_values The given doubles vector.
  * @return The min value of the vector
  */
-constexpr double DataGrid::calculateMin(const std::vector<double>& double_values) const {
+constexpr double DataGrid::CalculateMin(const std::vector<double>& double_values) {
   if (double_values.empty()) {
     return std::numeric_limits<double>::quiet_NaN();
   }
@@ -823,7 +839,7 @@ constexpr double DataGrid::calculateMin(const std::vector<double>& double_values
  * @param double_values The given doubles vector.
  * @return The max value of the vector
  */
-constexpr double DataGrid::calculateMax(const std::vector<double>& double_values) const {
+constexpr double DataGrid::CalculateMax(const std::vector<double>& double_values) {
   if (double_values.empty()) {
     return std::numeric_limits<double>::quiet_NaN();
   }
@@ -840,7 +856,7 @@ constexpr double DataGrid::calculateMax(const std::vector<double>& double_values
  * @return A vector that contains only double data
  */
 std::vector<double>
-DataGrid::getDoubleValues(const ReferenceVector<const Datum> &reference_vector) const {
+DataGrid::GetDoubleValues(const ReferenceVector<const Datum> &reference_vector) {
   std::vector<double> double_values;
   for (const auto &value : reference_vector) {
     if (value.IsDouble() && !std::isnan(value.GetDouble())) {
@@ -857,9 +873,9 @@ DataGrid::getDoubleValues(const ReferenceVector<const Datum> &reference_vector) 
  * @param value The value to compare with.
  * @return Datums than are less than a given value for the specified column.
  */
-cse::ReferenceVector<Datum> DataGrid::columnLessThan(std::size_t column_index,
+cse::ReferenceVector<Datum> DataGrid::ColumnLessThan(std::size_t column_index,
                                                      const Datum &value) {
-  return determineColumnComparisons(column_index, value, operations::LESS_THAN);
+  return DetermineColumnComparisons(column_index, value, operations::LESS_THAN);
 }
 
 /**
@@ -869,8 +885,8 @@ cse::ReferenceVector<Datum> DataGrid::columnLessThan(std::size_t column_index,
  * @return Datums than are less than or equal to a given value for the specified column.
  */
 cse::ReferenceVector<Datum>
-DataGrid::columnLessThanOrEqual(std::size_t column_index, const Datum &value) {
-  return determineColumnComparisons(column_index, value,
+DataGrid::ColumnLessThanOrEqual(std::size_t column_index, const Datum &value) {
+  return DetermineColumnComparisons(column_index, value,
                                     operations::LESS_THAN_OR_EQUAL);
 }
 
@@ -880,9 +896,9 @@ DataGrid::columnLessThanOrEqual(std::size_t column_index, const Datum &value) {
  * @param value The value to compare with.
  * @return Datums than are greater than a given value for the specified column.
  */
-cse::ReferenceVector<Datum> DataGrid::columnGreaterThan(size_t column_index,
+cse::ReferenceVector<Datum> DataGrid::ColumnGreaterThan(size_t column_index,
                                                         const Datum &value) {
-  return determineColumnComparisons(column_index, value,
+  return DetermineColumnComparisons(column_index, value,
                                     operations::GREATER_THAN);
 }
 
@@ -893,8 +909,8 @@ cse::ReferenceVector<Datum> DataGrid::columnGreaterThan(size_t column_index,
  * @return Datums than are greater than or equal to a given value for the specified column.
  */
 cse::ReferenceVector<Datum>
-DataGrid::columnGreaterThanOrEqual(size_t column_index, const Datum &value) {
-  return determineColumnComparisons(column_index, value,
+DataGrid::ColumnGreaterThanOrEqual(size_t column_index, const Datum &value) {
+  return DetermineColumnComparisons(column_index, value,
                                     operations::GREATER_THAN_OR_EQUAL);
 }
 
@@ -904,9 +920,9 @@ DataGrid::columnGreaterThanOrEqual(size_t column_index, const Datum &value) {
  * @param value The value to compare with.
  * @return Datums than are equal to a given value for the specified column.
  */
-cse::ReferenceVector<Datum> DataGrid::columnEqual(size_t column_index,
+cse::ReferenceVector<Datum> DataGrid::ColumnEqual(size_t column_index,
                                                   const Datum &value) {
-  return determineColumnComparisons(column_index, value, operations::EQUAL);
+  return DetermineColumnComparisons(column_index, value, operations::EQUAL);
 }
 
 /**
@@ -915,9 +931,9 @@ cse::ReferenceVector<Datum> DataGrid::columnEqual(size_t column_index,
  * @param value The value to compare with.
  * @return Datums than are not equal to a value for the specified column.
  */
-cse::ReferenceVector<Datum> DataGrid::columnNotEqual(size_t column_index,
+cse::ReferenceVector<Datum> DataGrid::ColumnNotEqual(size_t column_index,
                                                      const Datum &value) {
-  return determineColumnComparisons(column_index, value, operations::NOT_EQUAL);
+  return DetermineColumnComparisons(column_index, value, operations::NOT_EQUAL);
 }
 
 /**
@@ -928,7 +944,7 @@ cse::ReferenceVector<Datum> DataGrid::columnNotEqual(size_t column_index,
  * @return A ReferenceVector of Datums based on the comparison for the specified column.
  */
 cse::ReferenceVector<Datum>
-DataGrid::determineColumnComparisons(std::size_t column_index,
+DataGrid::DetermineColumnComparisons(std::size_t column_index,
                                      const Datum &value, operations operation) {
 
   if (grid_.empty() || column_index >= grid_[0].size()) {
@@ -936,7 +952,7 @@ DataGrid::determineColumnComparisons(std::size_t column_index,
   }
 
   ReferenceVector<Datum> values;
-  ReferenceVector<Datum> column = getColumn(column_index);
+  ReferenceVector<Datum> column = GetColumn(column_index);
 
   // CITE: Used chatgpt and claude to help write this code which removed a lot of duplication.
   // Mostly received help for the lamda.
