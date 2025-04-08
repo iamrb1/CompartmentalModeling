@@ -21,4 +21,4 @@ server:
 	python3 -m http.server 8000
 
 clean:
-	rm -f *.js *.wasm *.map
+	rm -f *.js *.wasm *.map *.o

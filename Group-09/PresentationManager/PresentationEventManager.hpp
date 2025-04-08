@@ -21,8 +21,8 @@ class PresentationEventManager {
 		PresentationManager *_presentation_manager;
 		int _id = 0; ///< ID tracker for Events
 		bool _running = false;
-		double _slide_elapsed_time = 0; ///< Time the current slide became active
-		double _last_recorded_time = 0; ///< Current time
+		double _slide_elapsed_time = 0; ///< Time elapsed on current slide in seconds
+		double _last_recorded_time = 0; ///< Last recorded time
 		size_t _current_slide = 0; ///< Current slide being presented
 		std::vector<EventQueue<PresentationManager *, size_t> > _queues;
 		///< Vector of EventQueues where _queues[x] corresponds to slide x
@@ -54,7 +54,7 @@ class PresentationEventManager {
 
 			// Check if slide is valid
 			if (_current_slide >= _queues.size()) {
-				EM_ASM({console.log("EventManager is managing a non-existent slide"); });
+				std::cout << "Events: Slide " << _current_slide << " does not exist." << std::endl;
 				return;
 			}
 
@@ -65,10 +65,11 @@ class PresentationEventManager {
 			}
 		}
 
+		/**
+		 * Change context to current slide
+		 * @param slide_num
+		 */
 		void onSlideChanged(const size_t slide_num) {
-			if (slide_num >= _queues.size()) {
-				_queues.resize(slide_num + 1);
-			}
 			_current_slide = slide_num;
 			_slide_elapsed_time = 0.0;
 			std::cout << "Managing Events on slide:  " << slide_num << std::endl;

@@ -6,151 +6,15 @@
 
 #pragma once
 
+#include <nlohmann/json.hpp>
+
 #include "PresentationEventManager.hpp"
 #include "../WebLayout/WebLayout.hpp"
-#include <nlohmann/json.hpp>
+#include "../js_interop/bindings.hpp"
 
 using namespace cse;
 using json = nlohmann::json;
-// Aliases from PresentationEventManager:
-//	using LayoutManager = std::shared_ptr<WebLayoutManager>;
-//	using PresentationFunction = std::function<void(LayoutManager, size_t)>;
-
-/**
- * Bind the JS to the C functions
- */
-void bind() {
-	// Set up the event listener for the button click
-	EM_ASM({
-		// Setup advance button
-    var advanceButton = document.getElementById("advanceButton");
-    if (advanceButton) {
-			advanceButton.addEventListener(
-				"click",
-				function() {Module._call_advance(); });
-
-
-		}
-
-    var rewindButton = document.getElementById("reverseButton");
-    if (rewindButton) {
-			rewindButton.addEventListener(
-				"click",
-				function() {Module._call_rewind(); });
-
-
-		}
-
-    var addTextBoxButton = document.getElementById("addTextBoxButton");
-    if (addTextBoxButton) {
-			addTextBoxButton.addEventListener(
-				"click",
-				function() {Module._call_addTextBox(); });
-
-
-		}
-
-    var addImageButton = document.getElementById("addImageButton");
-    if (addImageButton) {
-			addImageButton.addEventListener(
-				"click",
-				function() {Module._call_addImage(); });
-
-
-		}
-
-    var addNewSlide = document.getElementById("addNewSlideButton");
-    if (addNewSlide) {
-			addNewSlide.addEventListener(
-				"click",
-				function() {Module._call_addNewSlide(); });
-
-
-		}
-	var startButton = document.getElementById("startButton");
-	if (startButton) {
-			startButton.addEventListener(
-				"click",
-				function() {Module._call_start(); });
-
-
-		}
-	var stopButton = document.getElementById("stopButton");
-	if (stopButton) {
-			stopButton.addEventListener(
-				"click",
-				function() {Module._call_stop(); });
-
-
-		}
-	var addTransition = document.getElementById("addTransition");
-	if (addTransition) {
-			addTransition.addEventListener(
-				"click",
-				function() {Module._call_addSlideChangeEvent(); });
-
-
-		}
-		// Check if item is being dragged
-		document.addEventListener(
-			"mousedown",
-			function(e) {
-			// Check if clicked element is draggable
-          var draggable =
-			Module.ccall("call_isMoveableObject",
-			             // C++ function name
-			             "boolean",
-			             // return type
-			             ["string"],
-			             // argument types
-			             [e.target.id] // arguments
-			);
-
-          if (draggable) {
-				makeDraggable(e.target);
-
-
-			}
-		});
-
-		// Function to make an element draggable
-    function makeDraggable(element) {
-      var offsetX = 0;
-      var offsetY = 0;
-
-			// ChatGPT used for new position calculations
-			document.onmousemove = function(e) {
-        var newX = (e.clientX / window.innerWidth) * 100 - offsetX;
-        var newY = (e.clientY / window.innerHeight) * 100 - offsetY;
-
-				// Call C++ function to update position within the layout
-				Module.ccall("call_updatePosition",
-				             null,
-				             [ "string",
-				             "number",
-				             "number"],
-				             [ element.id.trim(),
-				             newX,
-				             newY]);
-				// Update element's visual position
-				element.style.left = newX + "vw";
-				element.style.top = newY + "vh";
-
-
-			};
-
-			document.onmouseup = function(e) {
-				// Remove event listeners
-				document.onmousemove = null;
-				document.onmouseup = null;
-
-
-			};
-
-
-		}
-	});
-}
+using Slide = std::shared_ptr<WebLayout>;
 
 /**
  * Main manager for Liskov presentation program
@@ -161,105 +25,105 @@ class PresentationManager {
 		PresentationEventManager _event_manager;
 		bool _running = false;
 		int _current_pos = 0;
-		std::vector<std::shared_ptr<WebLayout> > _layouts;
+		std::vector<Slide> _slide_deck;
 
 	public:
+
+		/**
+		 * Construct, set the pointer for the eventmanager, bind js buttons
+		 */
 		PresentationManager() : _event_manager(this) {
 			bind();
 		}
 
 		/**
-         * Adds a layout to this manager
-         * @param layout
-         */
-		void addLayout(std::shared_ptr<WebLayout> layout) {
-			_layouts.push_back(layout);
-			_event_manager.resize(_layouts.size());
-		}
-
-		/**
-		 * Removes a layout to this manager
-		 * @param layout
-		 */
-		void removeLayout(std::shared_ptr<WebLayout> layout) {
-			_layouts.erase(std::remove(_layouts.begin(), _layouts.end(), layout),
-			              _layouts.end());
-		}
-
-		/**
-		 * Advances to the next layout
-		 */
-		void advance() {
-			EM_ASM({console.log("Advancing"); });
-
-			if (_layouts.empty()) {
-				EM_ASM({console.error("ERROR: No layouts exist."); });
-				return; // Exit early
-			}
-
-			if (_current_pos >= _layouts.size() - 1) {
-				EM_ASM({console.error("ERROR: Currently at last layout."); });
-				return; // Exit early
-			}
-
-			auto currentLayout = _layouts.at(_current_pos);
-			if (currentLayout) {
-				currentLayout->deactivateLayout();
-			}
-
-			_current_pos++;
-
-			currentLayout = _layouts.at(_current_pos);
-			if (currentLayout) {
-				currentLayout->activateLayout();
-			} else {
-				_current_pos--;
-			}
-			_event_manager.onSlideChanged(_current_pos);
-		}
-
-		/**
-		 * Rewinds to the previous layout
-		 */
-		void rewind() {
-			EM_ASM({console.log("Rewinding"); });
-
-			if (_layouts.empty()) {
-				EM_ASM({console.error("ERROR: No layouts exist."); });
-				return; // Exit early
-			}
-
-			if (_current_pos <= 0) {
-				EM_ASM({console.error("ERROR: Currently at first layout."); });
-				return; // Exit early
-			}
-
-			auto currentLayout = _layouts.at(_current_pos);
-			if (currentLayout) {
-				currentLayout->deactivateLayout();
-			}
-
-			_current_pos--;
-
-			currentLayout = _layouts.at(_current_pos);
-			if (_current_pos >= 0 && _current_pos < _layouts.size()) {
-				currentLayout->activateLayout();
-			} else {
-				_current_pos++;
-			}
-			_event_manager.onSlideChanged(_current_pos);
-		}
-
-		/**
-		 * Initializes the visual to the first slide if it exists
+		 * Go to the first slide, stop events, and set the eventmanager size
 		 */
 		void initialize() {
-			auto currentLayout = _layouts.at(0);
-			if (currentLayout) {
-				currentLayout->activateLayout();
-			}
+			goTo(0);
+			stop();
+			_event_manager.resize(_slide_deck.size());
 		}
 
+		/**
+		 * Clear the slides and event manager
+		 */
+		void clear() {
+			std::cout << "Clearing layouts" << std::endl;
+			for (auto &layout : _slide_deck) {
+				layout->deactivateLayout(); // Deactivate all layouts
+			}
+			_slide_deck.clear();
+			_event_manager.resize(0);
+			_current_pos = 0;
+			_event_manager.onSlideChanged(_current_pos);
+		}
+
+		/**
+		 * Start the events
+		 */
+		void start() {
+			_event_manager.start();
+			std::cout << "Starting Events" << std::endl;
+		}
+
+		/**
+		 * Stop the events
+		 */
+		void stop() {
+			_event_manager.stop();
+			std::cout << "Stopping Events" << std::endl;
+		}
+
+		/**
+		 * Main driver for timing
+		 */
+		void update() { _event_manager.update(); }
+
+		/**
+		 * Add a new slide to the deck, and go to it
+		 */
+		void addNewSlide() {
+			auto new_slide = std::make_shared<WebLayout>();
+			_slide_deck.push_back(new_slide);
+			_event_manager.resize(_slide_deck.size()); // Update the event manager
+			goTo(_slide_deck.size() - 1); // Go to the new slide
+			std::cout << "Added new slide. ID: " << new_slide->getID() << std::endl;
+		}
+
+		/**
+		 * Removes a slide
+		 * @param slide
+		 */
+		void deleteSlide(const Slide& slide) {
+			slide->deactivateLayout();
+			std::erase(_slide_deck, slide);
+			_event_manager.resize(_slide_deck.size());
+			std::cout << "Added new slide. ID: " << slide->getID() << std::endl;
+		}
+
+		/**
+		 * Add a given slide to end of the deck
+		 */
+		void pushBackSlide(const Slide& slide) {
+			_slide_deck.push_back(slide);
+			_event_manager.resize(_slide_deck.size());
+			std::cout << "Pushed slide: " << slide->getID() << std::endl;
+		}
+
+		/**
+		 * Advances to the next slide
+		 */
+		void advance() { goTo(_current_pos + 1); }
+
+		/**
+		 * Rewinds to the previous slide
+		 */
+		void rewind() { goTo(_current_pos - 1); }
+
+		/**
+		 * Add a new text box to the current slide
+		 */
 		void addTextBox() {
 			// Create a new text box with predefined properties
 			FormattedText ft;
@@ -271,15 +135,18 @@ class PresentationManager {
 			auto newTextBox = std::make_shared<TextBox>("", tbc);
 			TextBoxLayout newLayout = {newTextBox, 50, 50};
 
-			if (_layouts.empty() || _current_pos >= _layouts.size()) {
+			if (_slide_deck.empty() || _current_pos >= _slide_deck.size()) {
 				std::cout << "ERROR: No current layout to modify.\n";
 				return;
 			}
 
-			_layouts.at(_current_pos)->addTextBox(newLayout);
-			_layouts.at(_current_pos)->activateLayout();
+			_slide_deck.at(_current_pos)->addTextBox(newLayout);
+			_slide_deck.at(_current_pos)->activateLayout();
 		}
 
+		/**
+		 * Add a new image to the current slide
+		 */
 		void addImage(const std::string &url,
 		              int width,
 		              int height,
@@ -290,96 +157,78 @@ class PresentationManager {
 				return;
 			}
 
-			if (_layouts.empty() || _current_pos >= _layouts.size()) {
+			if (_slide_deck.empty() || _current_pos >= _slide_deck.size()) {
 				std::cout << "ERROR: No current layout to add image.\n";
 				return;
 			}
 
 			auto image = std::make_shared<Image>(url, width, height, altText);
 			ImageLayout layout{image, 10, 10};
-			_layouts.at(_current_pos)->addImage(layout);
-			_layouts.at(_current_pos)->activateLayout();
+			_slide_deck.at(_current_pos)->addImage(layout);
+			_slide_deck.at(_current_pos)->activateLayout();
 		}
 
 		/**
 		 * Go to a given slide
 		 * @param slide_num
 		 */
-		void goTo(const size_t slide_num) {
-			EM_ASM({console.log("Changing slide"); });
+		void goTo(const int slide_num) {
+			std::cout << "Going to slide " << slide_num << std::endl;
 
-			if (slide_num < 0 || slide_num >= _layouts.size()) {
-				EM_ASM({console.error("ERROR: Requested slide is OOB."); });
+			if (slide_num < 0 || slide_num >= _slide_deck.size()) {
+				std::cout << "ERROR: Invalid slide number: " << slide_num << std::endl;
 				return; // Exit early
 			}
 
-			auto currentLayout = _layouts.at(_current_pos);
+			auto currentLayout = _slide_deck.at(_current_pos);
 			if (currentLayout) {
 				currentLayout->deactivateLayout();
 			}
 
 			_current_pos = slide_num;
 
-			currentLayout = _layouts.at(_current_pos);
+			currentLayout = _slide_deck.at(_current_pos);
 			currentLayout->activateLayout();
 			_event_manager.onSlideChanged(_current_pos);
-		}
-
-		void addNewSlide() {
-			// Create a new weblayout
-			auto wb = std::make_shared<WebLayout>();
-			addLayout(wb);
-			auto wbID = wb->getID();
-			EM_ASM(
-				{
-                var wbID = UTF8ToString($0);
-					console.log("Added new slide: ", wbID);
-
-
-				},
-				wbID.c_str());
 		}
 
 		/**
 		 * Updates object position
 		 */
 		void updatePosition(std::string id, int newX, int newY) {
-			if (_layouts.empty() || _current_pos >= _layouts.size()) return;
-
-			_layouts.at(_current_pos)->setPosition(id, newX, newY);
+			if (_slide_deck.empty() || _current_pos >= _slide_deck.size()) return;
+			_slide_deck.at(_current_pos)->setPosition(id, newX, newY);
 		}
 
 		/**
 		 * Returns if id is a moveable item
 		 */
-		bool isMoveableObject(std::string id) const {
-			if (_layouts.empty() || _current_pos >= _layouts.size()) return false;
+		[[nodiscard]] bool isMoveableObject(std::string id) const {
+			if (_slide_deck.empty() || _current_pos >= _slide_deck.size()) return false;
 
-			return _layouts.at(_current_pos)->contains(id);
+			return _slide_deck.at(_current_pos)->contains(id);
 		}
 
-		// Getter for export support
-		const std::vector<std::shared_ptr<WebLayout> > &getLayouts() const {
-			return _layouts;
+		/**
+		 * Getter for slides
+		 * @return slides in the deck
+		 */
+		const std::vector<std::shared_ptr<WebLayout> > &getSlides() const {
+			return _slide_deck;
 		}
 
 		/**
 		 * @brief Get the Current Position of the manager
-		 * @return int current position in the layout vector
+		 * @return int current position in the slide vector
 		 */
 		const int getCurrentPos() const { return _current_pos; }
 
-		void start() {
-			_event_manager.start();
-			EM_ASM({console.log("Starting Events"); });
-		}
-		void stop() {
-			_event_manager.stop();
-			EM_ASM({console.log("Pausing Events"); });
-		}
-
-		void update() { _event_manager.update(); }
-
+		/**
+		 * Add a slide change transition
+		 * @param time in seconds
+		 * @param origin Origin slide
+		 * @param destination Destination slide
+		 */
 		void addSlideChangeEvent(const int time, const size_t origin, const size_t destination) {
 			_event_manager.addEvent(changeSlide, origin, destination, time);
 		}
@@ -388,13 +237,14 @@ class PresentationManager {
 		/// STATIC EVENT FUNCTIONS
 		/// These are passed to the Events to allow Events to change the layouts
 		////////////////////////////////////////////////////////////////////////////////////////
-		static void changeSlide(PresentationManager *presentation_manager,
-		                        size_t slideNum) {
+		static void changeSlide(PresentationManager *presentation_manager, const int slideNum) {
 			presentation_manager->goTo(slideNum);
 		}
 };
 
 PresentationManager PRESENTATION_MANAGER; ///< Global presentation manager
+
+
 
 ////////////////////////////////////////////////////////////////////////////////////////
 /// Exported Emscripten functions
@@ -412,13 +262,13 @@ void call_addImage(char *urlPtr, int width, int height, char *altPtr) {
 }
 void call_updateTextBoxContent(const char* textboxId, const char* newText) {
 
-	if (PRESENTATION_MANAGER.getLayouts().empty() ||
-		PRESENTATION_MANAGER.getCurrentPos() >= PRESENTATION_MANAGER.getLayouts().size()) {
+	if (PRESENTATION_MANAGER.getSlides().empty() ||
+		PRESENTATION_MANAGER.getCurrentPos() >= PRESENTATION_MANAGER.getSlides().size()) {
 		std::cout << "ERROR: updateTextBoxContent(): layout index out of range.\n";
 		return;
 		}
 
-	auto& layout = PRESENTATION_MANAGER.getLayouts().at(PRESENTATION_MANAGER.getCurrentPos());
+	auto& layout = PRESENTATION_MANAGER.getSlides().at(PRESENTATION_MANAGER.getCurrentPos());
 	auto& textBoxes = layout->getTextBoxes();
 
 	for (auto& tb : textBoxes) {
@@ -436,6 +286,7 @@ void call_addTextBox() { PRESENTATION_MANAGER.addTextBox(); }
 void call_addNewSlide() { PRESENTATION_MANAGER.addNewSlide(); }
 bool call_isMoveableObject(std::string id) { return PRESENTATION_MANAGER.isMoveableObject(std::move(id)); }
 void loadSlideDeckFromJson(const char *jsonStr) {
+	PRESENTATION_MANAGER.clear(); // Clear the deck before loading new slides
 	json deck = json::parse(jsonStr);
 
 	for (const auto &slide : deck["slides"]) {
@@ -467,7 +318,7 @@ void loadSlideDeckFromJson(const char *jsonStr) {
 				layout->addImage(ImageLayout(image, imgJson["x"], imgJson["y"]));
 			}
 		}
-		PRESENTATION_MANAGER.addLayout(layout); // Add to the global manager
+		PRESENTATION_MANAGER.pushBackSlide(layout); // Add to the global manager
 	}
 	PRESENTATION_MANAGER.initialize(); // Show the first slide
 }
@@ -476,7 +327,7 @@ const char *exportSlideDeckToJson() {
 	json deck;
 	deck["slides"] = json::array();
 
-	for (const auto &layout : PRESENTATION_MANAGER.getLayouts()) {
+	for (const auto &layout : PRESENTATION_MANAGER.getSlides()) {
 		json slide;
 
 		slide["textBoxes"] = json::array();
