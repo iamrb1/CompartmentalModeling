@@ -367,6 +367,7 @@ class BasicRichText {
     auto [item, inserted] = m_formatting.insert({format, indices});
     if (!inserted) {
       item->second |= indices;
+      item->second.clamp(0, m_text.size());
     }
   }
 

@@ -501,7 +501,7 @@ TEST_CASE("Test clamping", "[IndexSetClamp]") {
     REQUIRE(set == expected);
   }
 
-  SECTION("Check no-op ") {
+  SECTION("Check no-op clamp") {
     cse::IndexSet expected{set};
     set.clamp(*set.min_index(), *set.max_index() + 1);
     REQUIRE(set == expected);
