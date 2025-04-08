@@ -1,8 +1,10 @@
+#include "catch.hpp"
+
+#define TEST_CSE_ASSERT
+#include "CseAssert.hpp"
 #include "IndexSet.hpp"
 
 #include <vector>
-
-#include "catch.hpp"
 
 // Test constructor and size calculation
 TEST_CASE("Constructor", "[IndexSetTest]") {
@@ -51,7 +53,7 @@ TEST_CASE("InsertRange", "[IndexSetTest]") {
   REQUIRE(set.size() == 13);
 
   // Invalid range (start >= end)
-  set.insert_range(5, 3);
+  REQUIRE_ASSERT(set.insert_range(5, 3));
   REQUIRE(set.size() == 13); // Size should not change
 }
 

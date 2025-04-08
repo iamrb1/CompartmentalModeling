@@ -403,7 +403,7 @@ class IndexSet {
   }
 
   void insert_range(const std::size_t start, const std::size_t end) {
-    if (start >= end) return;  // Invalid range
+    dbg_assert(start < end, "Range end is not past start");
 
     // Insert new range directly
     ranges_.push_back({start, end});
