@@ -589,27 +589,12 @@ class BasicRichText {
    */
   void erase(std::size_t index, std::size_t count) {
     // 1) Physically remove the substring from the underlying text
+    std::size_t const old_size = m_text.size();
     m_text.erase(index, count);
 
-    // 2) For each format's IndexSet:
+    // 2) For each format's IndexSet, shift erased indices out
     for (auto& [format, idxSet] : m_formatting) {
-      // a) Remove indices [index..(index+count)) from the set
-      idxSet -= cse::IndexSet(std::pair{index, index + count});
-
-      // b) Shift all indices >= (index + count) left by 'count'
-      std::vector<std::size_t> toShift;
-      auto allIndices = idxSet.get_all_indices();
-      for (auto i : allIndices) {
-        if (i >= index + count) {
-          toShift.push_back(i);
-        }
-      }
-      for (auto i : toShift) {
-        idxSet.remove(i);
-      }
-      for (auto i : toShift) {
-        idxSet.insert(i - count);
-      }
+      idxSet.shift_left_within(count, index, old_size);
     }
 
     // 3) Remove formats whose sets became empty
@@ -635,7 +620,7 @@ class BasicRichText {
     std::reverse(ranges.begin(), ranges.end());
 
     // For each range, call the 2-param erase
-    for (auto& r : ranges) {
+    for (auto const& r : ranges) {
       // Overload ambiguity fix: qualify with this-> to ensure we call
       // erase(std::size_t, std::size_t) instead of erase(const IndexSet&)
       this->erase(r.start, r.end - r.start);
