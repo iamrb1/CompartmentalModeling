@@ -82,7 +82,10 @@ TEST_CASE("New RichText operations", "[RichTextAdvanced]") {
           std::optional{cse::IndexSet{std::pair{0, 5}}});
   REQUIRE(text2.get_format_range(blue) ==
           std::optional{cse::IndexSet{std::pair{7, text2.size()}}});
+  REQUIRE(text2.formats_at(4).size() == 1);
   REQUIRE(text2.formats_at(5).size() == 0);
+  REQUIRE(text2.formats_at(6).size() == 0);
+  REQUIRE(text2.formats_at(7).size() == 1);
 }
 
 TEST_CASE("RichText insertions and substitution", "[RichTextAdvanced]") {
@@ -105,11 +108,11 @@ TEST_CASE("RichText insertions and substitution", "[RichTextAdvanced]") {
 // TESTS FOR ERASE METHODS
 // --------------------------------------------------------------------
 TEST_CASE("RichText erase methods", "[RichTextAdvanced]") {
+  using cse::IndexSet;
   using cse::RichText;
   using cse::TextFormat;
-  using cse::IndexSet;
 
-  RichText text{"abcdefgh"};   // Indices: 0=a 1=b 2=c 3=d 4=e 5=f 6=g 7=h
+  RichText text{"abcdefgh"}; // Indices: 0=a 1=b 2=c 3=d 4=e 5=f 6=g 7=h
   TextFormat bold("bold");
   TextFormat italic("italic");
 
@@ -120,8 +123,7 @@ TEST_CASE("RichText erase methods", "[RichTextAdvanced]") {
   text.apply_format(italic, IndexSet(std::pair{4UL, 7UL}));
 
   REQUIRE(text.to_string() == "abcdefgh");
-  REQUIRE(text.get_format_range(bold).value() ==
-          IndexSet(std::pair{2UL, 5UL}));
+  REQUIRE(text.get_format_range(bold).value() == IndexSet(std::pair{2UL, 5UL}));
   REQUIRE(text.get_format_range(italic).value() ==
           IndexSet(std::pair{4UL, 7UL}));
 
@@ -146,9 +148,9 @@ TEST_CASE("RichText erase methods", "[RichTextAdvanced]") {
 
   SECTION("Erase with IndexSet: multiple disjoint ranges") {
     // Remove b => [1,2) plus f,g => [5,7)
-   IndexSet ranges;
-  ranges.insert_range(1UL, 2UL);  // inserts index 1
-  ranges.insert_range(5UL, 7UL);  // inserts indices 5, 6
+    IndexSet ranges;
+    ranges.insert_range(1UL, 2UL); // inserts index 1
+    ranges.insert_range(5UL, 7UL); // inserts indices 5, 6
 
     text.erase(ranges);
     REQUIRE(text.to_string() == "acdeh");
@@ -178,4 +180,3 @@ TEST_CASE("RichText erase methods", "[RichTextAdvanced]") {
             IndexSet(std::pair{4UL, 7UL}));
   }
 }
-
