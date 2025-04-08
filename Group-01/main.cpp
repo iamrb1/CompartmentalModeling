@@ -270,9 +270,6 @@ public:
         g.AddEdge(std::to_string(index1), std::to_string(index2), 2);
       }
     }
-
-    InitiateCanvas();
-    InitializeControlZone();
     RedrawCanvas();
   }
 
