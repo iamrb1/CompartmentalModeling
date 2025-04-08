@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const updatedText = target.textContent;
   
           // Call into WebAssembly to update the text box content
-          const updateTextInCpp = Module.cwrap('updateTextBoxContent', null, ['string', 'string']);
+          const updateTextInCpp = Module.cwrap('call_updateTextBoxContent', null, ['string', 'string']);
           updateTextInCpp(id, updatedText);
         };
   
