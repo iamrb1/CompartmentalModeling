@@ -4,6 +4,9 @@
 #include <memory>
 #include <unordered_map>
 #include <set>
+#include <utility>
+#include <type_traits>
+#include <cassert>  
 
 namespace cse {
 
@@ -16,7 +19,7 @@ class Aptr
 {
 public:
     // Constructor
-    explicit Aptr(TYPE* ptr = nullptr) : mPtr(ptr) {}
+    explicit constexpr Aptr(TYPE* ptr = nullptr) : mPtr(ptr) {}
 
     // Copy constructor
     Aptr(const Aptr& other) : mPtr(new TYPE(*other.mPtr)) {}
@@ -25,20 +28,19 @@ public:
     Aptr& operator=(const Aptr& other)
     {
         if (this != &other) {
-            delete mPtr;
             mPtr = new TYPE(*other.mPtr);
         }
         return *this;
     }
 
     // Move constructor
-    Aptr(Aptr&& other) : mPtr(other.mPtr)
+    Aptr(Aptr&& other) noexcept : mPtr(other.mPtr)
     {
         other.mPtr = nullptr;
     }
 
     // Move assignment operator
-    Aptr& operator=(Aptr&& other)
+    Aptr& operator=(Aptr&& other) noexcept
     {
         if (this != &other) {
             delete mPtr;
@@ -55,7 +57,7 @@ public:
     TYPE* operator->() const { return mPtr; }
 
     // Check if the pointer is null
-    explicit operator bool() const { return mPtr != nullptr; }
+    explicit constexpr operator bool() const { return mPtr != nullptr; }
 
     // Delete the managed object
     void Delete()
@@ -72,7 +74,10 @@ private:
 template <typename TYPE, typename... Args>
 Aptr<TYPE> MakeAudited(Args&&... args)
 {
-    return Aptr<TYPE>(new TYPE(std::forward<Args>(args)...));
+    auto lambda_new = [](auto&&... packed) {
+        return new TYPE(std::forward<decltype(packed)>(packed)...);
+    };
+    return Aptr<TYPE>(lambda_new(std::forward<Args>(args)...));
 }
 
 #else
@@ -82,10 +87,8 @@ Aptr<TYPE> MakeAudited(Args&&... args)
 template <typename TYPE>
 class Aptr;
 
-// LeakChecker struct to track active Aptr objects
 struct LeakChecker
 {
-    // Map to store active Aptr objects (ID -> pointer)
     std::unordered_map<int, const void*> activeAptrs;
 
     ~LeakChecker()
@@ -101,25 +104,21 @@ struct LeakChecker
         }
     }
 
-    // Add an Aptr to the active set
     void AddAptr(int id, const void* ptr)
     {
         activeAptrs[id] = ptr;
     }
 
-    // Remove an Aptr from the active set
     void RemoveAptr(int id)
     {
         activeAptrs.erase(id);
     }
 
-    // Get the active Aptr map
     std::unordered_map<int, const void*> GetActiveAptrs() const
     {
         return activeAptrs;
     }
 
-    // Find an Aptr by ID
     const void* FindAptr(int id) const
     {
         auto it = activeAptrs.find(id);
@@ -130,26 +129,34 @@ struct LeakChecker
         return nullptr;
     }
 
-    // Reset all active Aptr objects
     void Reset()
     {
         activeAptrs.clear();
     }
 };
 
-// Global instance of LeakChecker
 static LeakChecker leakChecker;
+
 
 template <typename TYPE>
 class Aptr
 {
 public:
     // Constructor
-    explicit Aptr(TYPE* ptr = nullptr) : mPtr(ptr), mID(GetNextID())
+    explicit constexpr Aptr(TYPE* ptr = nullptr) : mPtr(ptr), mID(GetNextID())
     {
         if (mPtr)
         {
             leakChecker.AddAptr(mID, mPtr);
+        }
+    }
+
+    // Destructor to catch non-deleted Aptrs at runtime
+    ~Aptr() noexcept
+    {
+        if (mPtr) {
+            leakChecker.RemoveAptr(mID);
+            assert(false && "Aptr destroyed without calling Delete() - memory leak!");
         }
     }
 
@@ -171,7 +178,6 @@ public:
             {
                 leakChecker.RemoveAptr(mID);
             }
-            delete mPtr;
             mPtr = other.mPtr ? new TYPE(*other.mPtr) : nullptr;
             if (mPtr)
             {
@@ -182,14 +188,14 @@ public:
     }
 
     // Move constructor
-    Aptr(Aptr&& other) : mPtr(other.mPtr), mID(other.mID)
+    Aptr(Aptr&& other) noexcept : mPtr(other.mPtr), mID(other.mID)
     {
         other.mPtr = nullptr;
         other.mID = 0;
     }
 
     // Move assignment operator
-    Aptr& operator=(Aptr&& other)
+    Aptr& operator=(Aptr&& other) noexcept
     {
         if (this != &other)
         {
@@ -209,29 +215,21 @@ public:
     // Dereference operator
     TYPE& operator*() const
     {
-        if (!mPtr)
-        {
-            std::cerr << "Dereferencing a null pointer (ID: " << mID << ")" << std::endl;
-            std::terminate();
-        }
+        assert(mPtr && "Dereferencing a null pointer");
         return *mPtr;
     }
 
     // Arrow operator
     TYPE* operator->() const
     {
-        if (!mPtr)
-        {
-            std::cerr << "Accessing a null pointer (ID: " << mID << ")" << std::endl;
-            std::terminate();
-        }
+        assert(mPtr && "Accessing a null pointer");
         return mPtr;
     }
 
     // Check if the pointer is null
-    explicit operator bool() const
+    explicit constexpr operator bool() const
     {
-        return mPtr != nullptr;
+        return mPtr;
     }
 
     // Delete the managed object
@@ -239,8 +237,7 @@ public:
     {
         if (!mPtr)
         {
-            std::cerr << "Deleting a null pointer (ID: " << mID << ")" << std::endl;
-            std::terminate();
+            return;
         }
         leakChecker.RemoveAptr(mID);
         delete mPtr;
@@ -248,7 +245,7 @@ public:
     }
 
     // Get the ID of this AuditedPointer
-    int GetID() const
+    constexpr int GetID() const
     {
         return mID;
     }
@@ -258,13 +255,13 @@ public:
     {
         return leakChecker.GetActiveAptrs();
     }
-    
+
     // Find an AuditedPointer by ID in the active set
     static const void* Find(int id)
     {
         return leakChecker.FindAptr(id);
     }
-    
+
     // Reset all active AuditedPointers (delete and clear the active set)
     static void Reset()
     {
@@ -272,16 +269,14 @@ public:
     }
 
 private:
-    // Base raw pointer
     TYPE* mPtr;
-
-    // Unique ID for this AuditedPointer
     int mID;
 
-    // Static counter for generating unique IDs
+    static constexpr int StartID = 1;
+
     static int GetNextID()
     {
-        static int nextID = 1;
+        static int nextID = StartID;
         return nextID++;
     }
 };
@@ -290,10 +285,13 @@ private:
 template <typename TYPE, typename... Args>
 Aptr<TYPE> MakeAudited(Args&&... args)
 {
-    TYPE* ptr = new TYPE(std::forward<Args>(args)...);
-    return Aptr<TYPE>(ptr);
+    auto lambda_new = [](auto&&... packed) {
+        // Lambda function takes the declared type of the provided value if possible
+        return new TYPE(std::forward<decltype(packed)>(packed)...);
+    };
+    return Aptr<TYPE>(lambda_new(std::forward<Args>(args)...));
 }
 
 #endif
 
-} 
+}

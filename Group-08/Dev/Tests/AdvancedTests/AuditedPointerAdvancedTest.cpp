@@ -1,6 +1,6 @@
 #include "../../../third-party/Catch/single_include/catch2/catch.hpp"
 
-#include "../AuditedPointer/AuditedPointer.h"
+#include "../AuditedPointer/AuditedPointer.hpp"
 
 TEST_CASE("Test Aptr advanced operations", "[Aptr]") 
 {
