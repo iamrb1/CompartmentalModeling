@@ -52,10 +52,10 @@ class BruteForceOptimizer {
    *
    * @param optimize Boolean stating whether we want to optimize or not.
    */
-  void setOptimizer(bool optimize) {
-    optimized_ = optimize;
-    /// sort greatest to least
-    if (optimized_) {
+  void SetOptimizer(bool optimize) {
+    optimizeEnabled_ = optimize;
+    /// sort least to greatest
+    if (optimizeEnabled_) {
       std::stable_sort(
           items_.begin(), items_.end(),
           [](const Item& a, const Item& b) { return a.weight < b.weight; });
@@ -87,7 +87,7 @@ class BruteForceOptimizer {
   std::pair<double, std::vector<Item>> FindOptimalSolution() {
     bestScore_ = std::numeric_limits<double>::lowest();
     currentSelection_.clear();
-    Search(0, 0.0, 0.0);
+    ExploreCombinations(0, 0.0, 0.0);
     return {bestScore_, bestSelection_};
   }
 
@@ -98,71 +98,58 @@ class BruteForceOptimizer {
    * @param currentWeight The total weight of the selected items so far.
    * @param currentValue The total value of the selected items so far.
    */
-  void Search(size_t index, double currentWeight, double currentValue) {
+  void ExploreCombinations(size_t index, double currentWeight,
+                           double currentValue) {
     assert(currentWeight >= 0 && currentValue >= 0);
-    // BASE CASE: Index has reached the end of the items_ vector
-    if (index >= items_.size()) {
+
+    auto updateScore = [this](double currentValue) {
+      bestScore_ = currentValue;
+      bestSelection_ = currentSelection_;
+    };
+
+    auto scoreCheck = [this, currentWeight, currentValue,
+                       updateScore]() mutable {
       if (currentWeight <= capacity_ && currentValue > bestScore_) {
-        bestScore_ = currentValue;
-        bestSelection_ = currentSelection_;
+        updateScore(currentValue);
       }
+    };
+
+    if (index >= items_.size()) {
+      scoreCheck();
       return;
     }
 
-    if (optimized_) {
+    if (optimizeEnabled_) {
       // With items sorted by weight, if this item goes over limit all remaining
       // ones will as well. Update scores if possible, otherwise back up
       if (currentWeight + items_[index].weight > capacity_) {
-        if (currentWeight <= capacity_ && currentValue > bestScore_) {
-          bestScore_ = currentValue;
-          bestSelection_ = currentSelection_;
-        }
+        scoreCheck();
         return;
       }
       // If adding the current item prevents any further items from being
-      // evaluated, evaluate adding it but do not recurse again (as the next
-      // item will not fit)
-      // Still test without current item
+      // evaluated, evaluate the value of adding it against the best score then
+      // test without it
       if (capacity_ - currentWeight - items_[index].weight <=
           items_[index].weight) {
-        Search(index + 1, currentWeight, currentValue);
-
+        // if adding the current item would beat the score, update the best
+        // score
         if (currentValue + items_[index].value > bestScore_) {
           currentSelection_.push_back(items_[index]);
-          bestScore_ = currentValue + items_[index].value;
-          bestSelection_ = currentSelection_;
+          updateScore(currentValue + items_[index].value);
         }
+
+        ExploreCombinations(index + 1, currentWeight, currentValue);
         return;
-        // Operate as normal
+
       } else {
-        // Exclude the current item.
-        Search(index + 1, currentWeight, currentValue);
-
-        // Include the current item if it does not exceed capacity.
-        const Item& item = items_[index];
-
-        if (currentWeight + item.weight <= capacity_) {
-          currentSelection_.push_back(item);
-          Search(index + 1, currentWeight + item.weight,
-                 currentValue + item.value);
-          currentSelection_.pop_back();
-        }
+        AverageCaseCombinations_(index, currentWeight, currentValue);
       }
 
       /*
         Original Brute Force Code
       */
     } else {
-      // Exclude the current item.
-      Search(index + 1, currentWeight, currentValue);
-      // Include the current item if it does not exceed capacity.
-      const Item& item = items_[index];
-      if (currentWeight + item.weight <= capacity_) {
-        currentSelection_.push_back(item);
-        Search(index + 1, currentWeight + item.weight,
-               currentValue + item.value);
-        currentSelection_.pop_back();
-      }
+      AverageCaseCombinations_(index, currentWeight, currentValue);
     }
   }
 
@@ -178,7 +165,24 @@ class BruteForceOptimizer {
   // Current selection (used during Search algorithm to record place)
   std::vector<Item> currentSelection_;
   // Boolean indicating whether to optimize the search
-  bool optimized_ = false;
+  bool optimizeEnabled_ = false;
+
+  /**
+   * @brief Helper Function for ExploreCombinations
+   */
+  void AverageCaseCombinations_(std::size_t index, double currentWeight,
+                               double currentValue) {
+    // Exclude the current item.
+    ExploreCombinations(index + 1, currentWeight, currentValue);
+    // Include the current item if it does not exceed capacity.
+    const Item& item = items_[index];
+    if (currentWeight + item.weight <= capacity_) {
+      currentSelection_.push_back(item);
+      ExploreCombinations(index + 1, currentWeight + item.weight,
+                          currentValue + item.value);
+      currentSelection_.pop_back();
+    }
+  }
 };
 
 }  // namespace cse

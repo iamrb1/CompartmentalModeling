@@ -10,13 +10,14 @@ Last Changed Date: 03/26/2025
 
 #include <algorithm>
 #include <cassert>
+#include <concepts>
 #include <cstddef>
 #include <iterator>
 #include <numeric>
+#include <optional>
 #include <ranges>
 #include <stdexcept>
 #include <vector>
-#include <concepts>
 
 template <typename Container>
 concept supportedContainer = requires(Container& testContainer) {
@@ -50,76 +51,51 @@ class ComboManager {
    * @param combinationSize The number of items per combination.
    * @param allowRepeats If true, combinations with repeated elements are
    * allowed.
+   * @param indexRequired The index of the element that is required to appear in
+   * every combination.
    * @throws assertion failure: if combinationSize is greater than the number
    * of items.
+   * @throws std::invalid_argument: if the required element index is out of
+   * range
    */
   ComboManager(const Container& container, std::size_t combinationSize,
-               bool allowRepeats = false)
+               bool allowRepeats = false,
+               std::optional<std::size_t> indexRequired = std::nullopt)
       : items_(std::begin(container),
                std::end(container)), /* Copy items from the container into a
                                         vector for random access.*/
-        numItems_(items_.size()), 
+        numItems_(items_.size()),
         comboSize_(combinationSize),
-        allowRepeats_(
-            allowRepeats),
-        totalCombinations_(0) {
+        allowRepeats_(allowRepeats),
+        isRequired_((indexRequired != std::nullopt)),
 
+        totalCombinations_(0) {
     assert(comboSize_ <= numItems_ &&
            "Combination size cannot be greater than the number of items in "
            "the container when repeats are disallowed.");
 
-    // Helper function to finish setup process
-    ManagerSetup_();
-  }
+    if (isRequired_) {
+      if (*indexRequired >= items_.size()) {
+        throw std::invalid_argument(
+            "Required Element Index is out of container limits");
+      }
+      requiredValue_ = items_.at(*indexRequired);
 
-  /**
-   * @brief Constructs a ComboManager with a required element.
-   *
-   * @param container The container of items.
-   * @param combinationSize The total number of items per combination (including
-   * the required element).
-   * @param indexRequired The index of the element that is required to appear in
-   * every combination.
-   * @param allowRepeats If true, combinations with repeated elements are
-   * allowed.
-   * @throws std::invalid_argument: if the required element index is out of
-   * range
-   * @throws assertion failure: if combinationSize is greater than the number of
-   * items.
-   */
-  ComboManager(const Container& container, std::size_t combinationSize,
-               std::size_t indexRequired, bool allowRepeats = false)
-      : items_(std::begin(container),
-               std::end(container)),  // Copy the container into a vector.
-        numItems_(container.size()),
-        comboSize_(combinationSize),
-        isRequired_(
-            true),  // Set flag to indicate that a required element is used.
-        allowRepeats_(
-            allowRepeats),       // Set flag for allowing repeated elements.
-        totalCombinations_(0) {  // Initialize total combinations to 0.
-    // Validate that the required index is within the container's bounds.
-    if (indexRequired >= items_.size()) {
-      throw std::invalid_argument(
-          "Required Element Index is out of container limits");
+      if (!allowRepeats_) {
+        auto foundRequiredValue = std::ranges::find(items_, requiredValue_);
+        items_.erase(foundRequiredValue);
+      }
+
+      --comboSize_;
+      numItems_ = items_.size();
     }
-    assert(comboSize_ <= numItems_ &&
-           "Combination size cannot be greater than the number of items in "
-           "the container.");
 
-    // Extract the required element from the container
-    requiredValue_ = items_.at(indexRequired);
-    
-    if (!allowRepeats_) {
-      auto foundRequiredValue = std::ranges::find(items_, requiredValue_);
-      items_.erase(foundRequiredValue);
-    }
-    
-    --comboSize_;
-    numItems_ = items_.size();
-
-    // Helper function to finish setup process
-    ManagerSetup_();
+    totalCombinations_ =
+        (allowRepeats_)
+            ? BinomialCoefficient_(numItems_ + comboSize_ - 1, comboSize_)
+            : BinomialCoefficient_(numItems_, comboSize_);
+    indices_.resize(comboSize_);
+    Reset();
   }
 
   // https://www.internalpointers.com/post/writing-custom-iterators-modern-cpp
@@ -337,7 +313,8 @@ class ComboManager {
       // For repeating combinations, the elements must be non-decreasing.
       // Start from the rightmost index for repeating combinations.
       for (int i = static_cast<int>(comboSize_) - 1; i >= 0; --i) {
-        // If the current index is less than numItems_ - 1, it can be incremented.
+        // If the current index is less than numItems_ - 1, it can be
+        // incremented.
         if (indices_[i] < numItems_ - 1) {
           ++indices_[i];
           // Set all indices to the right of i equal to the new value to
@@ -354,8 +331,8 @@ class ComboManager {
     } else {
       int i = static_cast<int>(comboSize_) - 1;
       // Find the first index from the right that can be incremented.
-      // The condition indices_[i] == i + numItems_ - comboSize_ indicates that the current
-      // index is at its maximum allowable value.
+      // The condition indices_[i] == i + numItems_ - comboSize_ indicates that
+      // the current index is at its maximum allowable value.
       while (i >= 0 && indices_[i] == i + numItems_ - comboSize_) {
         --i;  // Move to the left if the current index is "maxed out".
       }
@@ -388,8 +365,8 @@ class ComboManager {
         std::size_t minValue = (i == 0 ? 0 : indices_[i - 1]);
         if (indices_[i] > minValue) {
           --indices_[i];
-          // Set all indices to the right to the maximum allowed value (numItems_ - 1)
-          // to form the previous combination.
+          // Set all indices to the right to the maximum allowed value
+          // (numItems_ - 1) to form the previous combination.
           for (std::size_t j = i + 1; j < comboSize_; ++j) {
             indices_[j] = numItems_ - 1;
           }
@@ -493,7 +470,8 @@ class ComboManager {
     for (std::size_t j = i + 1; j < comboSize_; ++j) {
       // If not reverse, use lexicographical order
       // Else calculate the reverse of lexicographical
-      indices_[j] = (!reverse) ? indices_[j - 1] + 1 : numItems_ - comboSize_ + j;
+      indices_[j] =
+          (!reverse) ? indices_[j - 1] + 1 : numItems_ - comboSize_ + j;
     }
   }
 
@@ -518,22 +496,6 @@ class ComboManager {
     return std::ranges::equal(firstCombo, indices_);
   }
 
-  /**
-   * @brief Helper function that contains repeated code between the two
-   * overloaded constructors
-   */
-  void ManagerSetup_() noexcept {
-    /*
-      Calculate total number of combinations
-      When repeating, formula is C(n+k-1, k)
-      Otherwise use standard formula C(n, k)
-    */
-    totalCombinations_ = (allowRepeats_) ? BinomialCoefficient_(numItems_ + comboSize_ - 1, comboSize_)
-                                         : BinomialCoefficient_(numItems_, comboSize_);
-    indices_.resize(comboSize_);
-    Reset();  // Reset to the initial combination.
-  }
-
   // Container items stored in a vector for random access.
   std::vector<ValueType> items_;
 
@@ -546,14 +508,14 @@ class ComboManager {
   // The current combination, stored as indices into items_.
   std::vector<std::size_t> indices_;
 
+  // Flag indicating if repeating elements are allowed.
+  bool allowRepeats_ = false;
+
   // If there is an element required within the combinations
   bool isRequired_ = false;
 
   // Value that is required
   ValueType requiredValue_;
-
-  // Flag indicating if repeating elements are allowed.
-  bool allowRepeats_ = false;
 
   // Precomputed total number of combinations (n choose k).
   std::size_t totalCombinations_;

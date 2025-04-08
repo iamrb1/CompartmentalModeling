@@ -376,7 +376,7 @@ TEST_CASE("ComboManager: Testing Basic Required Element functionality",
   std::vector<int> testVector1 = {5, 4, 3, 2, 1};
 
   // Should Require the value at index 4 (1) in every combination
-  cse::ComboManager<std::vector<int>> manager(testVector1, 3, 4, false);
+  cse::ComboManager<std::vector<int>> manager(testVector1, 3, false, 4);
   std::vector<std::vector<int>> correctCombos = {
       {5, 4, 1}, {5, 3, 1}, {5, 2, 1}, {4, 3, 1}, {4, 2, 1}, {3, 2, 1}};
 
@@ -392,7 +392,7 @@ TEST_CASE("ComboManager: Testing Various Required Elements", "[ComboManager]") {
   std::vector<int> testVector1 = {5, 4, 3, 3, 1};
 
   // Should Require the value at index 2 (3) in every combination
-  cse::ComboManager<std::vector<int>> manager(testVector1, 3, 2, false);
+  cse::ComboManager<std::vector<int>> manager(testVector1, 3, false, 2);
   std::vector<std::vector<int>> correctCombos = {
       {5, 4, 3}, {5, 3, 3}, {5, 1, 3}, {4, 3, 3}, {4, 1, 3}, {3, 1, 3}};
 
@@ -404,7 +404,7 @@ TEST_CASE("ComboManager: Testing Various Required Elements", "[ComboManager]") {
   REQUIRE(index == correctCombos.size());
 
   try {
-    cse::ComboManager<std::vector<int>> manager2(testVector1, 3, 47, false);
+    cse::ComboManager<std::vector<int>> manager2(testVector1, 3, false, 47);
   } catch (const std::invalid_argument& error) {
     // Invalid Argument should be called on the out_of_range required index
     CHECK(true);
@@ -415,7 +415,7 @@ TEST_CASE("ComboManager: Testing Various Required Elements", "[ComboManager]") {
 
   // Negative numbers are rounded up due to overflow with size_t
   try {
-    cse::ComboManager<std::vector<int>> manager2(testVector1, 3, -1, false);
+    cse::ComboManager<std::vector<int>> manager2(testVector1, 3, false, -1);
   } catch (const std::invalid_argument& error) {
     // Invalid Argument should be called on the out_of_range required index
     CHECK(true);
@@ -462,7 +462,7 @@ TEST_CASE("ComboManager: Repeating Elements With Required Element",
   // elements become {10, 20, 40} and the 2-element combinations
   // (non-decreasing) are: {10, 10}, {10, 20}, {10, 40}, {20, 20}, {20, 40},
   // {40, 40}. The required element 30 is appended to each combination.
-  cse::ComboManager<std::vector<int>> manager(testVector, 3, 2, true);
+  cse::ComboManager<std::vector<int>> manager(testVector, 3, true, 2);
   std::vector<std::vector<int>> correctCombos = {
       {10, 10, 30}, {10, 20, 30}, {10, 30, 30}, {10, 40, 30}, {20, 20, 30},
       {20, 30, 30}, {20, 40, 30}, {30, 30, 30}, {30, 40, 30}, {40, 40, 30}};

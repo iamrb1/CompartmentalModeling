@@ -13,6 +13,7 @@ Last Changed Date: 3/25/2025
 #include <concepts>
 #include <functional>
 #include <iostream>
+#include <optional>
 #include <ranges>
 #include <stdexcept>
 #include <vector>
@@ -48,61 +49,41 @@ class PermutationManager {
    * @param container the container of items
    * @param permutation_size the size of the items chosen at once.
    * @param repeat boolean indicating whether elements can repeat themselves
+   * @param requiredIndex optional value indicating whether one value is
+   * required in the permutation
+   *
+   * @throws assertion failure if the combo size is not within the size of the
+   * container
+   * @throws std::invalid_argument: if the required element index is out of
+   * range
    */
   PermutationManager(const Container& container, size_t permutation_size,
-                     bool repeat)
+                     bool repeat = false,
+                     std::optional<std::size_t> requiredIndex = std::nullopt)
       : items_(std::begin(container), std::end(container)),
         numItems_(container.size()),
         comboSize_(permutation_size),
         currentPermutation_(),
-        isRequired_(false),
+        isRequired_(requiredIndex != std::nullopt),
         isRepeating_(repeat) {
     assert(comboSize_ <= numItems_ &&
            "Combination size cannot be greater than the number of items in the "
            "container.");
 
-    totalPermutations_ = PermutationNumber(numItems_, comboSize_);
+    if (isRequired_) {
+      if (*requiredIndex >= items_.size()) {
+        throw std::invalid_argument(
+            "Required Element Index is out of container limits");
+      }
 
-    Reset();
-  }
-
-  /**
-   * @brief overloaded constructor for PermutationManager - for a required
-   * value.
-   *
-   * @param container the container of items
-   * @param permutation_size k, or the size of the items chosen at once.
-   * @param repeat boolean indicating whether elements can repeat themselves
-   * @param requiredIndex
-   */
-  PermutationManager(const Container& container, size_t permutation_size,
-                     bool repeat, size_t requiredIndex)
-      : items_(std::begin(container), std::end(container)),
-        numItems_(container.size()),
-        comboSize_(permutation_size),
-        currentPermutation_(),
-        isRequired_(true),
-        requiredIndex_(requiredIndex),
-        isRepeating_(repeat) {
-    if (requiredIndex_ >= items_.size()) {
-      throw std::invalid_argument(
-          "Required Element Index is out of container limits");
-    }
-
-    if (comboSize_ > numItems_) {
-      throw std::invalid_argument(
-          "Combination size cannot be greater than the number of items in the "
-          "container.");
-    }
-
-    if (!isRepeating_) {
-      requiredValue_ = items_.at(requiredIndex);
+      requiredValue_ = items_.at(*requiredIndex);
       items_.erase(std::remove(items_.begin(), items_.end(), requiredValue_));
-    }
-    --comboSize_;
-    numItems_ = items_.size();
 
-    requiredIndex_ = 0;
+      --comboSize_;
+      numItems_ = items_.size();
+
+      requiredIndex_ = 0;
+    }
 
     totalPermutations_ = PermutationNumber(numItems_, comboSize_);
 
@@ -112,7 +93,7 @@ class PermutationManager {
   /**
    * @brief resets the permutation generator to the initial state
    */
-  void Reset() {
+  constexpr void Reset() {
     currentIndex_ = 0;
     currentPermutation_.resize(comboSize_);
     indices_.clear();
@@ -129,42 +110,31 @@ class PermutationManager {
    * @return false if we've reached the end, true otherwise
    */
   bool Next() {
-    // end condition - only if we aren't repeating elements
-    if (!isRepeating_) {
-      if (currentIndex_ >= totalPermutations_ - 1) return false;
-    }
+    /* Collect direction-specific checks (Previous vs Next) and call a
+       function with the shared code */
+    auto endCondition = [this]() {
+      if (!isRepeating_) {
+        if (currentIndex_ >= totalPermutations_ - 1) return true;
+      }
+      return false;
+    };
 
-    // either generate the next permutation w/the std algorithm (if n == k) or
-    // make a k permutation
-    if (isRequired_) {
-      if (numItems_ == comboSize_) {
-        std::next_permutation(indices_.begin(), indices_.end());
-      } else if (requiredIndex_ < comboSize_) {  //
+    auto generatePermutation = [this]() {
+      std::next_permutation(indices_.begin(), indices_.end());
+    };
+
+    auto updateRequiredIndex = [this]() {
+      if (requiredIndex_ < comboSize_) {
         ++requiredIndex_;
-      } else {
-        // handle required elements here...
-        if (!NextKPermutation_()) {
-          return false;
-        }
-        requiredIndex_ = 0;
+        return true;
       }
-    } else {
-      if (numItems_ == comboSize_) {
-        std::next_permutation(indices_.begin(), indices_.end());
-      } else {
-        // handle required elements here...
-        if (!NextKPermutation_()) {
-          return false;
-        }
-      }
-    }
+      return false;
+    };
 
-    for (size_t i = 0; i < comboSize_; ++i) {
-      currentPermutation_[i] = items_[indices_[i]];
-    }
+    auto failureCondition = [this]() { return !NextKPermutation_(); };
 
-    ++currentIndex_;
-    return true;
+    return getPermutation_(endCondition, generatePermutation,
+                          updateRequiredIndex, failureCondition, true);
   }
 
   /**
@@ -172,37 +142,29 @@ class PermutationManager {
    * @return - true if it exists, false otherwise
    */
   bool Prev() {
-    // end condition
-    if (currentIndex_ == 0) return false;
+    /* Collect direction-specific checks (Previous vs Next) and call a
+       function with the shared code */
+    auto endCondition = [this]() {
+      if (currentIndex_ == 0) return true;
+      return false;
+    };
 
-    if (isRequired_) {
-      // do it w/the standard lib algorithm if n == k
-      if (numItems_ == comboSize_) {
-        std::prev_permutation(indices_.begin(), indices_.end());
-      } else if (requiredIndex_ >
-                 0) {  // at zero we're at the last perm for this combo.
+    auto generatePermutation = [this]() {
+      std::prev_permutation(indices_.begin(), indices_.end());
+    };
+
+    auto updateRequiredIndex = [this]() {
+      if (requiredIndex_ > 0) {
         --requiredIndex_;
-      } else {
-        if (!PrevKPermutation_()) return false;
-        requiredIndex_ = comboSize_;
+        return true;
       }
-    } else {
-      // do it w/the standard lib algorithm if n == k
-      if (numItems_ == comboSize_) {
-        std::prev_permutation(indices_.begin(), indices_.end());
-      } else {
-        if (!PrevKPermutation_()) {
-          return false;
-        }
-      }
-    }
+      return false;
+    };
 
-    for (size_t i = 0; i < comboSize_; ++i) {
-      currentPermutation_[i] = items_[indices_[i]];
-    }
+    auto failureCondition = [this]() { return !PrevKPermutation_(); };
 
-    --currentIndex_;
-    return true;
+    return getPermutation_(endCondition, generatePermutation,
+                          updateRequiredIndex, failureCondition, false);
   }
 
   /**
@@ -225,7 +187,7 @@ class PermutationManager {
    * @param k - the number of items we choose
    * @return size_t for the number
    */
-  size_t PermutationNumber(std::size_t n, std::size_t k) {
+  constexpr size_t PermutationNumber(std::size_t n, std::size_t k) {
     return Factorial_(n) / Factorial_(n - k);
   }
 
@@ -234,19 +196,19 @@ class PermutationManager {
    * @return the total number of permutations for this container, given no
    * repeating or required
    */
-  size_t TotalPermutations() { return totalPermutations_; }
+  size_t TotalPermutations() noexcept { return totalPermutations_; }
 
   /**
    * @brief - Setter for the repeating attribute
    * @param repeating - if it's repearting or not
    */
-  void SetRepeating(bool repeating) { isRepeating_ = repeating; }
+  void SetRepeating(bool repeating) noexcept { isRepeating_ = repeating; }
 
   /**
    * @brief - Getter for the repeating attribute
    * @return true if repeating, false otherwise
    */
-  bool GetRepeating() { return isRepeating_; }
+  bool GetRepeating() noexcept { return isRepeating_; }
 
  private:
   // Container items stored in a vector for random access.
@@ -286,7 +248,7 @@ class PermutationManager {
    * @brief same as next k permutation but in the opposite direction
    * @return true of a previous permutation was found, false otherwise
    */
-  bool PrevKPermutation_() {
+  constexpr bool PrevKPermutation_() {
     if (std::prev_permutation(indices_.begin(), indices_.end())) return true;
 
     // sort them in ascending, this allows us to find the "largest" index that
@@ -361,7 +323,7 @@ class PermutationManager {
    * this algorithm will look similar to the one in combo manager
    * @return true if there was a new permutation found, false otherwise
    */
-  bool NextKPermutation_() {
+  constexpr bool NextKPermutation_() {
     // check if we can permute the existing set
     if (std::next_permutation(indices_.begin(), indices_.end())) return true;
 
@@ -420,7 +382,7 @@ class PermutationManager {
    * @param x - the number we are performing the factorial operation on
    * @return x!
    */
-  static size_t Factorial_(size_t x) {
+  constexpr static size_t Factorial_(size_t x) {
     if (x == 0 || x == 1) return 1;
 
     size_t res = 1;
@@ -428,6 +390,32 @@ class PermutationManager {
       res *= i;
     }
     return res;
+  }
+
+  bool getPermutation_(auto endCondition, auto generatePermutation,
+                      auto updateRequiredIndex, auto failureCondition,
+                      bool isForward) {
+    // end condition
+    if (endCondition()) return false;
+
+    // do it w/the standard lib algorithm if n == k
+    if (numItems_ == comboSize_) {
+      generatePermutation();
+    } else if (isRequired_ && updateRequiredIndex()) {
+      // If there is a required element, update (Lambda in if statement updates)
+    } else {
+      if (failureCondition()) {
+        return false;
+      }
+      if (isRequired_) requiredIndex_ = (isForward) ? 0 : comboSize_;
+    }
+
+    for (size_t i = 0; i < comboSize_; ++i) {
+      currentPermutation_[i] = items_[indices_[i]];
+    }
+
+    (isForward) ? ++currentIndex_ : --currentIndex_;
+    return true;
   }
 };
 

@@ -128,7 +128,7 @@ TEST_CASE("BruteForceOptimizer: Optimization Settings",
 
   auto unoptimizedScore = optimizer.FindOptimalSolution().first;
 
-  optimizer.setOptimizer(true);
+  optimizer.SetOptimizer(true);
 
   double optimizedTime =
       measureTime([&]() { optimizer.FindOptimalSolution(); });
@@ -160,7 +160,7 @@ TEST_CASE("BruteForceOptimizer: Optimization Settings",
 
   auto unoptimizedScore2 = optimizer2.FindOptimalSolution().first;
 
-  optimizer2.setOptimizer(true);
+  optimizer2.SetOptimizer(true);
 
   double optimizedTime2 =
       measureTime([&]() { optimizer2.FindOptimalSolution(); });
@@ -196,7 +196,7 @@ TEST_CASE("BruteForceOptimizer: Optimization Settings, higher capacities",
 
   auto unoptimizedScore = optimizer.FindOptimalSolution().first;
 
-  optimizer.setOptimizer(true);
+  optimizer.SetOptimizer(true);
 
   double optimizedTime =
   measureTime([&]() { optimizer.FindOptimalSolution(); });
@@ -227,7 +227,7 @@ TEST_CASE("BruteForceOptimizer: Optimization Settings, higher capacities",
     unoptimizedScore = optimizer2.FindOptimalSolution().first;
   });
 
-  optimizer2.setOptimizer(true);
+  optimizer2.SetOptimizer(true);
 
   optimizedTime = measureTime([&]() { 
     optimizedScore = optimizer2.FindOptimalSolution().first;
