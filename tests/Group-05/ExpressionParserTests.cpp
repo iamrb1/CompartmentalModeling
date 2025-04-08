@@ -54,6 +54,8 @@ TEST_CASE("Parser Evaluations", "[parser]") {
   symbol_table["val5"] = 0;
   symbol_table["val6"] = 30;
   symbol_table["val7"] = 1;
+  symbol_table["val8"] = 1000;
+  symbol_table["val9"] = -1000;
  
   static size_t default_index = 0;
 
@@ -89,6 +91,9 @@ TEST_CASE("Parser Evaluations", "[parser]") {
   default_index = 0;
   func=parser.MakeFunc("{val6} - {val4}", 0, default_index);
   REQUIRE(func(symbol_table) == 15);
+  default_index = 0;
+  func=parser.MakeFunc("{val8} - {val9}", 0, default_index);
+  REQUIRE(func(symbol_table) == 2000);
   default_index = 0;
   func=parser.MakeFunc("{val4} + {val4} * {val2} ^ {val2}", 0, default_index);
   REQUIRE(func(symbol_table)== 75);
@@ -129,6 +134,8 @@ TEST_CASE("Parser Evaluations", "[parser]") {
   func=parser.MakeFunc("{val7} / {val1}", 0, default_index);
   REQUIRE(func(symbol_table) == -0.5);
   default_index = 0;
+  func=parser.MakeFunc("{val8} / {val9}", 0, default_index);
+  REQUIRE(func(symbol_table) == -1);
   
   }
 
