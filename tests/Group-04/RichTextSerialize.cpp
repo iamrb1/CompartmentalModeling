@@ -8,9 +8,11 @@ TEST_CASE("Basic serialization", "[RichTextSerialize]") {
   cse::RichText text{"hello"};
   text.apply_format(bold);
 
+  // add rule for strong
   cse::RichText::Serializer serializer{"HTML"};
   serializer.AddRule("bold", "<strong>", "</strong>");
 
+  // test strong rule was applied
   std::string output = text.serialize(serializer).output;
   std::string expected = "<strong>hello</strong>";
   REQUIRE(output == expected);
@@ -22,15 +24,18 @@ TEST_CASE("Wide string serialization", "[RichTextSerialize]") {
   WideText text{L"meow"};
   text.apply_format(italic);
 
+  // add rule for emphasis, with wide string literals for the rule tokens
   WideText::Serializer serializer{"HTML"};
   serializer.AddRule("italic", L"<em>", L"</em>");
 
+  // check the output is also a wide string
   std::wstring output = text.serialize(serializer).output;
   std::wstring expected = L"<em>meow</em>";
   REQUIRE(output == expected);
 }
 
 TEST_CASE("Complex serialization", "[RichTextSerialize]") {
+  // some header/footer code to add the proper colors to the generated HTML
   std::string header = R"(<style>
 .red {
   color: #ff0000
@@ -50,8 +55,10 @@ TEST_CASE("Complex serialization", "[RichTextSerialize]") {
   text.apply_format(red, 0, 5);
   text.apply_format(blue, 6, text.size());
 
+  // set the header and footer
   cse::RichText::Serializer serializer{"HTML", header, footer};
 
+  // rule which uses the metadata to determine color class
   auto color_start = [](cse::TextFormat const &format) {
     cse_assert(std::holds_alternative<std::string>(format.metadata));
     std::string color = std::get<std::string>(format.metadata);
@@ -61,6 +68,7 @@ TEST_CASE("Complex serialization", "[RichTextSerialize]") {
 
   std::string output = text.serialize(serializer).output;
 
+  // check that the output has the correct classes and header/footer
   REQUIRE(output ==
           (header +
            "<span class=red>hello</span> <span class=blue>world</span>" +

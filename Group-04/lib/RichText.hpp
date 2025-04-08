@@ -496,7 +496,6 @@ class BasicRichText {
              (*tracker_iter->iter).first <= current) {
         // The format begins, add the token
         if ((*tracker_iter->iter).first == current) {
-          std::cout << "StartToken for '" << tracker_iter->format.name << "' at index " << current << std::endl;
           result.output += tracker_iter->rule.StartToken(tracker_iter->format);
         }
 
@@ -519,8 +518,6 @@ class BasicRichText {
           next = (*tracker_iter->iter).second;
         ++tracker_iter;
       }
-      
-      std::cout << "Appending character: " << m_text[current] << " at index " << current << std::endl;
 
       // Jump to next formatting deactivation
       result.output += m_text.substr(current, next - current);
@@ -584,49 +581,45 @@ class BasicRichText {
     return result;
   }
 
-  // ==================================================================
-  // NEW ERASE METHODS 
-  // ==================================================================
+  /**
+   * @brief Erases `count` characters starting at `index`.
+   *        Removes substring [index..index+count) from m_text and
+   *        updates each format's IndexSet accordingly, removing empty sets.
+   */
+  void erase(std::size_t index, std::size_t count) {
+    // 1) Physically remove the substring from the underlying text
+    m_text.erase(index, count);
 
-/**
- * @brief Erases `count` characters starting at `index`.
- *        Removes substring [index..index+count) from m_text and
- *        updates each format's IndexSet accordingly, removing empty sets.
- */
-void erase(std::size_t index, std::size_t count) {
-  // 1) Physically remove the substring from the underlying text
-  m_text.erase(index, count);
+    // 2) For each format's IndexSet:
+    for (auto& [format, idxSet] : m_formatting) {
+      // a) Remove indices [index..(index+count)) from the set
+      idxSet -= cse::IndexSet(std::pair{index, index + count});
 
-  // 2) For each format's IndexSet:
-  for (auto& [format, idxSet] : m_formatting) {
-    // a) Remove indices [index..(index+count)) from the set
-    idxSet -= cse::IndexSet(std::pair{index, index + count});
-
-    // b) Shift all indices >= (index + count) left by 'count'
-    std::vector<std::size_t> toShift;
-    auto allIndices = idxSet.get_all_indices();
-    for (auto i : allIndices) {
-      if (i >= index + count) {
-        toShift.push_back(i);
+      // b) Shift all indices >= (index + count) left by 'count'
+      std::vector<std::size_t> toShift;
+      auto allIndices = idxSet.get_all_indices();
+      for (auto i : allIndices) {
+        if (i >= index + count) {
+          toShift.push_back(i);
+        }
+      }
+      for (auto i : toShift) {
+        idxSet.remove(i);
+      }
+      for (auto i : toShift) {
+        idxSet.insert(i - count);
       }
     }
-    for (auto i : toShift) {
-      idxSet.remove(i);
-    }
-    for (auto i : toShift) {
-      idxSet.insert(i - count);
-    }
-  }
 
-  // 3) Remove formats whose sets became empty
-  for (auto it = m_formatting.begin(); it != m_formatting.end();) {
-    if (it->second.size() == 0) {
-      it = m_formatting.erase(it);
-    } else {
-      ++it;
+    // 3) Remove formats whose sets became empty
+    for (auto it = m_formatting.begin(); it != m_formatting.end();) {
+      if (it->second.size() == 0) {
+        it = m_formatting.erase(it);
+      } else {
+        ++it;
+      }
     }
   }
-}
 
   /**
    * @brief Erases each [start,end) in `to_erase` by calling the
@@ -634,10 +627,8 @@ void erase(std::size_t index, std::size_t count) {
    */
   void erase(const cse::IndexSet& to_erase) {
     // Gather all IndexRanges from to_erase
-    std::vector<cse::IndexSet::IndexRange> ranges{
-        to_erase.cbegin_pair(),
-        to_erase.cend_pair()
-    };
+    std::vector<cse::IndexSet::IndexRange> ranges{to_erase.cbegin_pair(),
+                                                  to_erase.cend_pair()};
 
     // Reverse them so we erase from the highest start index first
     std::reverse(ranges.begin(), ranges.end());
