@@ -1,10 +1,11 @@
 /**
- * @file bindings.hpp
+ * @file EventListeners.hpp
  *
  * @author Owen Haiar
  */
 
 #pragma once
+#include <emscripten/bind.h>
 
 /**
  * Bind the JS to the C functions
@@ -12,6 +13,7 @@
 void bind() {
 	// Set up the event listener for the button click
 	EM_ASM({
+
 		// Setup advance button
     var advanceButton = document.getElementById("advanceButton");
     if (advanceButton) {
@@ -26,7 +28,7 @@ void bind() {
     if (rewindButton) {
 			rewindButton.addEventListener(
 				"click",
-				function() {Module._call_rewind(); });
+				function() {Module._call_rewind();});
 
 
 		}
@@ -83,61 +85,44 @@ void bind() {
 		}
 		// Check if item is being dragged
 		document.addEventListener(
-			"mousedown",
-			function(e) {
-			// Check if clicked element is draggable
-          var draggable =
-			Module.ccall("call_isMoveableObject",
-			             // C++ function name
-			             "boolean",
-			             // return type
-			             ["string"],
-			             // argument types
-			             [e.target.id] // arguments
-			);
+			"mousedown", function(e) {
+			  // Check if clicked element is draggable
+			  var draggable =
+				  Module.ccall("call_isMoveableObject",  // C++ function name
+							   "boolean",                // return type
+							   ["string"],               // argument types
+							   [e.target.id]             // arguments
+				  );
 
-          if (draggable) {
+			  if (draggable) {
 				makeDraggable(e.target);
-
-
-			}
-		});
+			  }
+			});
 
 		// Function to make an element draggable
-    function makeDraggable(element) {
-      var offsetX = 0;
-      var offsetY = 0;
+		function makeDraggable(element) {
+		  var offsetX = 0;
+		  var offsetY = 0;
 
-			// ChatGPT used for new position calculations
-			document.onmousemove = function(e) {
-        var newX = (e.clientX / window.innerWidth) * 100 - offsetX;
-        var newY = (e.clientY / window.innerHeight) * 100 - offsetY;
+		  // ChatGPT used for new position calculations
+		  document.onmousemove = function(e) {
+			var newX = (e.clientX / window.innerWidth) * 100 - offsetX;
+			var newY = (e.clientY / window.innerHeight) * 100 - offsetY;
 
-				// Call C++ function to update position within the layout
-				Module.ccall("call_updatePosition",
-				             null,
-				             [ "string",
-				             "number",
-				             "number"],
-				             [ element.id.trim(),
-				             newX,
-				             newY]);
-				// Update element's visual position
-				element.style.left = newX + "vw";
-				element.style.top = newY + "vh";
+			// Call C++ function to update position within the layout
+			Module.ccall("call_updatePosition", null,
+						 [ "string", "number", "number" ],
+						 [ element.id.trim(), newX, newY ]);
+			// Update element's visual position
+			element.style.left = newX + "vw";
+			element.style.top = newY + "vh";
+		  };
 
-
-			};
-
-			document.onmouseup = function(e) {
-				// Remove event listeners
-				document.onmousemove = null;
-				document.onmouseup = null;
-
-
-			};
-
-
+		  document.onmouseup = function(e) {
+			// Remove event listeners
+			document.onmousemove = null;
+			document.onmouseup = null;
+		  };
 		}
 	});
 }

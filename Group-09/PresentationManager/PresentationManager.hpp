@@ -10,7 +10,7 @@
 
 #include "PresentationEventManager.hpp"
 #include "../WebLayout/WebLayout.hpp"
-#include "../js_interop/bindings.hpp"
+#include "../js/EventListeners.hpp"
 
 using namespace cse;
 using json = nlohmann::json;
@@ -43,6 +43,7 @@ class PresentationManager {
 			goTo(0);
 			stop();
 			_event_manager.resize(_slide_deck.size());
+			onSlideChangedJS();
 		}
 
 		/**
@@ -57,6 +58,7 @@ class PresentationManager {
 			_event_manager.resize(0);
 			_current_pos = 0;
 			_event_manager.onSlideChanged(_current_pos);
+			onSlideChangedJS();
 		}
 
 		/**
@@ -89,6 +91,7 @@ class PresentationManager {
 			_event_manager.resize(_slide_deck.size()); // Update the event manager
 			goTo(_slide_deck.size() - 1); // Go to the new slide
 			std::cout << "Added new slide. ID: " << new_slide->getID() << std::endl;
+			onSlideChangedJS();
 		}
 
 		/**
@@ -100,6 +103,7 @@ class PresentationManager {
 			std::erase(_slide_deck, slide);
 			_event_manager.resize(_slide_deck.size());
 			std::cout << "Added new slide. ID: " << slide->getID() << std::endl;
+			onSlideChangedJS();
 		}
 
 		/**
@@ -109,6 +113,7 @@ class PresentationManager {
 			_slide_deck.push_back(slide);
 			_event_manager.resize(_slide_deck.size());
 			std::cout << "Pushed slide: " << slide->getID() << std::endl;
+			onSlideChangedJS();
 		}
 
 		/**
@@ -190,6 +195,7 @@ class PresentationManager {
 			currentLayout = _slide_deck.at(_current_pos);
 			currentLayout->activateLayout();
 			_event_manager.onSlideChanged(_current_pos);
+			onSlideChangedJS();
 		}
 
 		/**
@@ -203,9 +209,8 @@ class PresentationManager {
 		/**
 		 * Returns if id is a moveable item
 		 */
-		[[nodiscard]] bool isMoveableObject(std::string id) const {
-			if (_slide_deck.empty() || _current_pos >= _slide_deck.size()) return false;
-
+		bool isMoveableObject(std::string id) const {
+			if (_slide_deck.empty()) return false;
 			return _slide_deck.at(_current_pos)->contains(id);
 		}
 
@@ -221,7 +226,25 @@ class PresentationManager {
 		 * @brief Get the Current Position of the manager
 		 * @return int current position in the slide vector
 		 */
-		const int getCurrentPos() const { return _current_pos; }
+		int getCurrentPos() const { return _current_pos; }
+
+		/**
+		 * @brief Get the Current Position of the manager
+		 * @return int current position in the slide vector
+		 */
+		int getNumSlides() const { return static_cast<int>(_slide_deck.size()); }
+
+		/**
+		 * Update html when number of slides or position has changed
+		 */
+		void onSlideChangedJS() {
+			EM_ASM({
+			const currentSlide = $0;
+			const totalSlides = $1;
+			document.getElementById("slideNumberDisplay").textContent =
+				`Slide ${currentSlide} of ${totalSlides}`;
+			}, getCurrentPos() + 1, getNumSlides());
+		}
 
 		/**
 		 * Add a slide change transition
@@ -284,7 +307,10 @@ void call_updatePosition(const char* id, int newX, int newY) {
 }
 void call_addTextBox() { PRESENTATION_MANAGER.addTextBox(); }
 void call_addNewSlide() { PRESENTATION_MANAGER.addNewSlide(); }
-bool call_isMoveableObject(std::string id) { return PRESENTATION_MANAGER.isMoveableObject(std::move(id)); }
+bool call_isMoveableObject(const char* id) {
+	std::string cppId(id);
+	return PRESENTATION_MANAGER.isMoveableObject(id);
+}
 void loadSlideDeckFromJson(const char *jsonStr) {
 	PRESENTATION_MANAGER.clear(); // Clear the deck before loading new slides
 	json deck = json::parse(jsonStr);
@@ -364,3 +390,4 @@ const char *exportSlideDeckToJson() {
 }
 void call_addSlideChangeEvent() { PRESENTATION_MANAGER.addSlideChangeEvent(10, PRESENTATION_MANAGER.getCurrentPos(), PRESENTATION_MANAGER.getCurrentPos()+1); }
 }
+
