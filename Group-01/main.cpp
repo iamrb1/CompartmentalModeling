@@ -55,6 +55,8 @@ class GraphVisualizer {
   cse::Graph<std::string> g;
   std::optional<cse::GraphPosition<std::string>> traversal;
   cse::GraphJson<std::string> graphJson{g};
+  std::optional<std::reference_wrapper<const cse::Vertex<std::string>>> startVertex; // Traversal start vertex
+  bool currentlyTraversing = false;
 
   static bool IsPointInRange(double x1, double y1, double x2, double y2,
                              double range) {
@@ -297,19 +299,45 @@ class GraphVisualizer {
 
       // Traverse Step button
       var stepButton = document.createElement('button');
+      stepButton.id = "stepTraversalButton";
       stepButton.textContent = "Next Step";
       stepButton.addEventListener('click', function() { Module._stepTraversal(); });
       buttonGroup.appendChild(stepButton);
 
       // Traverse All button
       var fullButton = document.createElement('button');
+      fullButton.id = "startTraversalButton";
       fullButton.textContent = "Traverse All";
       fullButton.addEventListener('click', function() { Module._fullTraversal(); });
       buttonGroup.appendChild(fullButton);
 
+      // Select starting traversal vertex info
+      var selectStartCheckbox = document.createElement('input');
+      selectStartCheckbox.type = 'checkbox';
+      selectStartCheckbox.id = 'selectStartToggle';
+
+      var selectStartLabel = document.createElement('label');
+      selectStartLabel.htmlFor = 'selectStartToggle';
+      selectStartLabel.textContent = ' Select Start Vertex';
+
+      buttonGroup.appendChild(selectStartCheckbox);
+      buttonGroup.appendChild(selectStartLabel);
+
+      // Start traversal vertex display info
+      var startVertexDiv = document.createElement('div');
+      startVertexDiv.id = "startVertexInfo";
+      var startVertexTitle = document.createElement('h2');
+      startVertexTitle.setAttribute("id", "startVertexTitle");
+      startVertexTitle.innerHTML = "Start Vertex";
+      var startVertexId = document.createElement('h3');
+      startVertexId.setAttribute("id", "startVertexId");
+      startVertexDiv.appendChild(startVertexTitle);
+      startVertexDiv.appendChild(startVertexId);
+
       // Add button group and vertex info to control zone
       controlZone.appendChild(buttonGroup);
       controlZone.appendChild(selectedVertexDiv);
+      controlZone.appendChild(startVertexDiv);
       mainElement.appendChild(controlZone);
     });
   }
@@ -375,6 +403,17 @@ class GraphVisualizer {
    * Resets the traversal to have not traversed anything
    */
   void ClearTraversal() {
+    startVertex.reset();
+    EM_ASM({
+      document.getElementById("startVertexId").innerHTML = "";
+      var stepBtn = document.getElementById("stepTraversalButton");
+      var fullBtn = document.getElementById("startTraversalButton");
+      stepBtn.style.backgroundColor = "#3f3f3f";
+      fullBtn.style.backgroundColor = "#3f3f3f";
+    });
+
+    currentlyTraversing = false;
+
     if (traversal) {
       traversal.reset();
       RedrawCanvas();
@@ -394,7 +433,32 @@ class GraphVisualizer {
   void HandleCanvasClick(double x, double y) {
     auto vertex = FindVertexAtPosition(x, y);
     if (vertex.has_value()) {
-      HandleSelectedVertex(vertex.value());
+      // Check if the toggle is on 
+      bool selectStart = EM_ASM_INT({
+        return document.getElementById("selectStartToggle").checked;
+      });
+  
+      if (selectStart) {
+        if (currentlyTraversing) {
+          // Show alert if trying to change start during traversal
+          EM_ASM({
+            alert("Traversal already in progress. Clear traversal to change the starting vertex.");
+          });
+          return;
+        }
+
+        startVertex = vertex.value(); // Store selected vertex
+        // Update UI to reflect selected start vertex
+        EM_ASM_({
+          var stepBtn = document.getElementById("stepTraversalButton");
+          var fullBtn = document.getElementById("startTraversalButton");
+          stepBtn.style.backgroundColor = "#4361ee";
+          fullBtn.style.backgroundColor = "#4361ee";
+          document.getElementById("startVertexId").innerHTML = "ID: " + UTF8ToString($0);
+        }, vertex->get().GetId().c_str());
+      } else {
+        HandleSelectedVertex(vertex->get()); // Just show info
+      }
     } else {
       ClearVertexSelection();
     }
@@ -402,8 +466,10 @@ class GraphVisualizer {
 
   void StartTraversal() {
     if (g.GetVertices().empty()) return;
-    auto &start = g.GetVertex("ID1");
+    auto& start = startVertex.has_value() ? const_cast<cse::Vertex<std::string>&>(startVertex->get())
+                                        : g.GetVertex("ID1");
     UpdateTraversalMode(start);
+    currentlyTraversing = true;
   }
 
   /**
@@ -431,6 +497,13 @@ class GraphVisualizer {
    * Traverse through a graph step by step when pressing the next step button
    */
   void StepTraversal() {
+    if (!startVertex.has_value()) {
+      EM_ASM({
+        alert("Please select a starting vertex before stepping through the traversal with the check box below.");
+      });
+      return;
+    }
+    
     if (!traversal.has_value()) StartTraversal();
 
     if (traversal && traversal->AdvanceToNextNeighbor()) {
@@ -449,6 +522,13 @@ class GraphVisualizer {
    * Traverse all the way through a graph in one button press
    */
   void FullTraversal() {
+    if (!startVertex.has_value()) {
+      EM_ASM({
+        alert("Please select a starting vertex before starting the traversal.");
+      });
+      return;
+    }
+
     if (!traversal.has_value()) StartTraversal();
 
     // Kick off the async step loop
