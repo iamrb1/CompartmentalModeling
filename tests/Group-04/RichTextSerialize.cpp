@@ -96,4 +96,19 @@ TEST_CASE("Default Markdown serializer", "[RichTextSerialize]") {
 
   std::wstring output = text.serialize(serializer).output;
   REQUIRE(output == std::wstring(L"**Some** unicode markdown!"));
+
+
+  cse::BasicRichText<wchar_t> text2(L"I'm a header!\nI'm text.\n");
+  text2.apply_format(cse::TextFormat("header", 1), 0, 13);
+  text2.apply_format(cse::TextFormat("italic"), 18, 22);
+
+  output = text2.serialize(serializer).output;
+  REQUIRE(output == std::wstring(L"\n# I'm a header!\n\nI'm *text*.\n"));
+
+
+  cse::BasicRichText<wchar_t> text3(L"Click here to see the schedule.");
+  text3.apply_format(cse::TextFormat("link", "https://cse498.github.io/schedule.html"), 6, 10);
+
+  output = text3.serialize(serializer).output;
+  REQUIRE(output == std::wstring(L"Click [here](https://cse498.github.io/schedule.html) to see the schedule."));
 }

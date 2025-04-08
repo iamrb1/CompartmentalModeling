@@ -13,7 +13,7 @@
 
 namespace cse {
 
-// Generate an HTML serializer for the given character type and underlying
+// Generate an Markdown serializer for the given character type and underlying
 // string-like
 template <typename CharT = char, typename Underlying = std::basic_string<CharT>>
   requires std::derived_from<Underlying, std::basic_string<CharT>>
@@ -24,8 +24,8 @@ auto SerializerMarkdown() {
   out.AddRule("bold", str_to_underlying<CharT, Underlying>("**"),
               str_to_underlying<CharT, Underlying>("**"));
 
-  out.AddRule("italic", str_to_underlying<CharT, Underlying>("_"),
-              str_to_underlying<CharT, Underlying>("_"));
+  out.AddRule("italic", str_to_underlying<CharT, Underlying>("*"),
+              str_to_underlying<CharT, Underlying>("*"));
 
   // Is there a universal color serialization model for Markdown?
   /*
@@ -46,6 +46,17 @@ auto SerializerMarkdown() {
                 return str_to_underlying<CharT, Underlying>(
                     std::format("]({})", std::get<std::string>(f.metadata)));
               });
+
+  out.AddRule("header",
+              [](const TextFormat& f) -> Underlying {
+                cse_assert(std::holds_alternative<int32_t>(f.metadata));
+                int32_t strength = std::get<int32_t>(f.metadata);
+                std::string str(strength + 2, '#');
+                str.front() = '\n';
+                str.back() = ' ';
+                return str_to_underlying<CharT, Underlying>(str);
+              },
+              str_to_underlying<CharT, Underlying>("\n"));
 
   return out;
 }
