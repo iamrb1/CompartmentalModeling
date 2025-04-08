@@ -50,7 +50,7 @@ private:
       operations operation);
 
   [[nodiscard]] static constexpr double CalculateMean(const std::vector<double>& double_values);
-  [[nodiscard]] static constexpr double CalculateMedian(std::vector<double> double_values);
+  [[nodiscard]] static double CalculateMedian(std::vector<double> double_values);
   [[nodiscard]] static std::vector<double> CalculateMode(const std::vector<double>& double_values);
   [[nodiscard]] static constexpr double CalculateStandardDeviation(const std::vector<double>& double_values);
   [[nodiscard]] static constexpr double CalculateMin(const std::vector<double>& double_values);

@@ -753,7 +753,7 @@ constexpr double DataGrid::CalculateMean(const std::vector<double>& double_value
  * @param double_values The given doubles vector.
  * @return The median of the vector
  */
-constexpr double DataGrid::CalculateMedian(std::vector<double> double_values) {
+double DataGrid::CalculateMedian(std::vector<double> double_values) {
   if (double_values.empty()) {
     return std::numeric_limits<double>::quiet_NaN();
   }
