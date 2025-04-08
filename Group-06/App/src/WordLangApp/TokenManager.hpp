@@ -5,6 +5,10 @@
 
 #include "lexer.hpp"
 
+// CITE: This class is derived from CSE450 TokenQueue class.
+// https://github.com/MSU-CSE450/Project3-Instructor/blob/main/TokenQueue.hpp
+
+
 namespace cse {
   class TokenManager {
   public:

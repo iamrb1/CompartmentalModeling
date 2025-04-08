@@ -51,7 +51,16 @@ namespace cse {
         std::vector<std::string> parseMultipleLists();
    
         void parsePrint();
+
+        void parseSetCurrent();
         
+        void parseAdd();
+
+        void parseSave();
+
+        void parseLength();
+
+        void parseContainsAny();
     
     private:
     /**
