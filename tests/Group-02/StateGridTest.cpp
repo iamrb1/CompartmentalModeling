@@ -3,7 +3,7 @@
  * @author Dominik Leisinger
  */
 
-#include <cse/StateGrid.h>
+#include <cse/StateGrid.hpp>
 #include <cse/StateGridPosition.h>
 #include <catch2/catch.hpp>
 #include <stdexcept>
