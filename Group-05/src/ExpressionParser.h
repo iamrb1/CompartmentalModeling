@@ -17,6 +17,7 @@
 #include <sstream>
 #include <string>
 #include <map>
+#include <set>
 
 namespace cse {
 
@@ -42,7 +43,7 @@ class ExpressionParser {
    * @param index representing position in expression
    * @return size_t index of next token
    */
-  size_t getToken(const std::string& expression, size_t &index);
+  size_t GetToken(const std::string& expression, size_t &index);
 
   /**
    * @brief set char to addition operator
@@ -82,15 +83,24 @@ class ExpressionParser {
   }
 
   /**
+   * @brief set char to multiplication operator
+   * 
+   * @param mult_char comparison char
+   */
+  constexpr void parenthesis(char& parenth_char){
+    parenth_char='(';
+  }
+
+  /**
    * @brief Get the content inside Parenthesis
    * 
    * @param expression string representing equation
    * @param index position in string
    * @return std::string content inside parenthesis
    */
-  std::string GetParenthContent(const std::string& expression, size_t index);
+  std::string GetParenthesisContent(const std::string& expression, size_t index);
 
-  std::map<std::string, double> symbol_table_;
+  std::string operators_ = "*+/-^(";
   /**
    * @brief Parses the next key in the equation, returning that number as a double
    *
@@ -298,43 +308,16 @@ std::function<double(std::map<std::string,double> & symbols)> MakeFunc( const st
       return [=]() constexpr { return op(left, right); };
 }
 
-  /**
-   * @brief Evaluates equation represented by expression and returns simplified value as a double
-   *
-   * @param number_map Map with value and key that will be regerences in expression
-   * @param expression Representing equation
-   * @return double representing value of equation
-   */
-  double Evaluate(const std::string &expression, int precedence, size_t &index);
-
   auto KeyLambda(std::string key){
-    return [key](std::map<std::string,double> & symbols){ return symbols[key]; 
+    return [key](std::map<std::string,double> & symbols){ 
+      assert(symbols.find(key)!=symbols.end());
+      return symbols[key]; 
     };
   }
 
   auto NumLambda(double num){
    return [num](std::map<std::string,double> &){ return num;}; 
     };
-
-   /**
-    * @brief Get the Symbol Table object
-    * 
-    * @return std::map<std::string, double> symbol table
-    */
-   std::map<std::string, double>& GetSymbolTable(){
-    return symbol_table_;
-   }
-
-   /**
-    * @brief Set a pair in the Symbol Table object
-    * 
-    * @param key string key for symbol table
-    * @param num double value for symbol table
-    */
-    void SetSymbolTable(const std::string &key, const double &num){
-      symbol_table_[key] = num;
-    }
-  };
 
   /**
    * @brief Set index to the end of the parenthesis
@@ -349,9 +332,8 @@ std::function<double(std::map<std::string,double> & symbols)> MakeFunc( const st
     }
     index++;
 }
+};
 }
-
-
 
 
 
