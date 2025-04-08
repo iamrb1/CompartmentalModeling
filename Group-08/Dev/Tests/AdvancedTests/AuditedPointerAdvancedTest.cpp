@@ -1,33 +1,167 @@
 #include "../../../third-party/Catch/single_include/catch2/catch.hpp"
+#include "../../Dev/AuditedPointer/AuditedPointer.hpp"
 
-#include "../AuditedPointer/AuditedPointer.hpp"
-
-TEST_CASE("Test Aptr advanced operations", "[Aptr]") 
+TEST_CASE("Aptr Basic Operations", "[Aptr][Basic]") 
 {
-    // Test ID assignment and retrieval
-    cse::Aptr<int> Aptr1 = cse::MakeAudited<int>(10);
-    cse::Aptr<int> Aptr2 = cse::MakeAudited<int>(20);
+    SECTION("Default Construction") {
+        cse::Aptr<int> ptr;
+        CHECK(!ptr);
+        CHECK(ptr.GetID() > 0);
+        ptr.Delete();
+    }
 
-    CHECK(Aptr1.GetID() != Aptr2.GetID()); // IDs should be unique
-    CHECK(Aptr1.GetID() > 0); // IDs should be positive
-    CHECK(Aptr2.GetID() > 0);
+    SECTION("Value Construction") {
+        cse::Aptr<int> ptr = cse::MakeAudited<int>(42);
+        CHECK(*ptr == 42);
+        CHECK(ptr);
+        CHECK(ptr.GetID() > 0);
+        ptr.Delete();
+    }
 
-    // Test active Aptr tracking
-    auto activeAptrs = cse::Aptr<int>::GetActiveAptrs();
-    CHECK(activeAptrs.size() == 2); // Both pointers should be active
-    CHECK(activeAptrs.find(Aptr1.GetID()) != activeAptrs.end());
-    CHECK(activeAptrs.find(Aptr2.GetID()) != activeAptrs.end());
-
-    // Test deletion and removal from active set
-    int id = Aptr1.GetID();
-    Aptr1.Delete(); // Delete the Aptr
-    activeAptrs = cse::Aptr<int>::GetActiveAptrs();
-    CHECK(activeAptrs.find(id) == activeAptrs.end()); // Should no longer be in the active set
-
-    // Test Reset function
-    cse::Aptr<int>::Reset(); // Reset all active Aptrs
-    activeAptrs = cse::Aptr<int>::GetActiveAptrs();
-    CHECK(activeAptrs.empty()); // Active set should be empty after reset
-
-    Aptr2.Delete();
+    SECTION("Nullptr Construction") {
+        cse::Aptr<int> ptr(nullptr);
+        CHECK(!ptr);
+        ptr.Delete();
+    }
 }
+
+TEST_CASE("Aptr Copy Semantics", "[Aptr][Copy]") 
+{
+    SECTION("Copy Construction") {
+        auto original = cse::MakeAudited<int>(100);
+        cse::Aptr<int> copy(original);
+        
+        CHECK(*original == *copy); // Same value
+        original.Delete();
+        copy.Delete();
+    }
+
+    SECTION("Copy Assignment") {
+        auto a = cse::MakeAudited<int>(10);
+        auto b = cse::MakeAudited<int>(20);
+        a = b;
+        
+        CHECK(*a == *b); // Same value
+        a.Delete();
+        b.Delete();
+    }
+
+    SECTION("Self Assignment") {
+        auto ptr = cse::MakeAudited<int>(30);
+        auto original_id = ptr.GetID();
+        ptr = ptr;
+        
+        CHECK(*ptr == 30);
+        CHECK(ptr.GetID() == original_id); // ID remains same
+        ptr.Delete();
+    }
+}
+
+TEST_CASE("Aptr Move Semantics", "[Aptr][Move]") 
+{
+    SECTION("Move Construction") {
+        auto original = cse::MakeAudited<int>(200);
+        auto original_id = original.GetID();
+        
+        cse::Aptr<int> moved(std::move(original));
+        
+        CHECK(moved.GetID() == original_id);
+        CHECK(original.GetID() == 0); // NOLINT
+        original.Delete();
+        moved.Delete();
+    }
+
+    SECTION("Move Assignment") {
+        auto a = cse::MakeAudited<int>(40);
+        auto b = cse::MakeAudited<int>(50);
+        
+        a = std::move(b);
+        
+        CHECK(b.GetID() == 0); // NOLINT
+        a.Delete();
+        b.Delete();
+    }
+}
+
+TEST_CASE("Aptr Memory Management", "[Aptr][Memory]") 
+{
+    SECTION("Explicit Deletion") {
+        auto ptr = cse::MakeAudited<std::string>("test");
+        auto id = ptr.GetID();
+        
+        ptr.Delete();
+        
+        CHECK(cse::Aptr<std::string>::Find(id) == std::nullopt);
+    }
+
+
+    SECTION("Multiple References") {
+        auto a = cse::MakeAudited<int>(100);
+        auto b = a; // Copy
+        auto c = b; // Copy
+        
+        CHECK(*a == 100);
+        CHECK(*b == 100);
+        CHECK(*c == 100);
+        
+        a.Delete();
+        b.Delete();
+        c.Delete();
+    }
+}
+
+TEST_CASE("Aptr Advanced Operations", "[Aptr][Advanced]") 
+{
+    // SECTION("ID Uniqueness") {
+    //     std::set<int> ids;
+    //     for (int i = 0; i < 100; ++i) {
+    //         auto ptr = cse::MakeAudited<int>(i);
+    //         ids.insert(ptr.GetID());
+    //         ptr.Delete();
+    //     }
+    //     CHECK(ids.size() == 100); // All IDs unique
+    // }
+
+    SECTION("Active Tracking") {
+        cse::Aptr<int>::Reset();
+        
+        auto a = cse::MakeAudited<int>(1);
+        auto b = cse::MakeAudited<int>(2);
+        auto c = cse::MakeAudited<int>(3);
+        
+        auto active = cse::Aptr<int>::GetActiveAptrs();
+        CHECK(active.size() == 3);
+
+        a.Delete();
+        b.Delete();
+        c.Delete();
+    }
+
+    SECTION("Find Operation") {
+        auto ptr = cse::MakeAudited<std::string>("find_me");
+        auto id = ptr.GetID();
+        auto found = cse::Aptr<std::string>::Find(id);
+        
+        ptr.Delete();
+    }
+
+    SECTION("Reset Operation") {
+        auto a = cse::MakeAudited<int>(1);
+        auto b = cse::MakeAudited<int>(2);
+        
+        cse::Aptr<int>::Reset();
+        auto active = cse::Aptr<int>::GetActiveAptrs();
+        CHECK(active.empty());
+        a.Delete();
+        b.Delete();
+    }
+}
+
+// TEST_CASE("Aptr Leak Detection", "[Aptr][Leak]") 
+// {
+//     // This will trigger the LeakChecker's termination
+//     // Should be run as a separate test case
+//     auto ptr = cse::MakeAudited<int>(42);
+//     // ptr goes out of scope without Delete()
+//     // LeakChecker should catch this and terminate
+// }

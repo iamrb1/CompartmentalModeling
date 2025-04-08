@@ -1,5 +1,4 @@
-#ifndef ANNOTATEDWRAPPER_H
-#define ANNOTATEDWRAPPER_H
+#pragma once
 
 #include <unordered_map>
 #include <string>
@@ -94,5 +93,3 @@ namespace cse {
 
     };
 }
-
-#endif // ANNOTATEDWRAPPER_H

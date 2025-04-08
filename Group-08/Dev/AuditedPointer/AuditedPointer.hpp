@@ -7,24 +7,40 @@
 #include <utility>
 #include <type_traits>
 #include <cassert>  
+#include <optional>
 
 namespace cse {
 
 #ifdef NDEBUG
 
-// ==================== Non-Debug Mode (Raw Pointer) ====================
-
+/**
+ * @class   Aptr
+ * @file    Aptr.hpp  
+ * @brief   A smart pointer class that provides basic ownership semantics in non-debug mode.
+ * 
+ * @tparam TYPE The type of object being managed by the pointer
+ */
 template <typename TYPE>
 class Aptr
 {
 public:
-    // Constructor
+    /**
+     * @brief Constructs an Aptr managing the given raw pointer
+     * @param ptr Raw pointer to manage (defaults to nullptr)
+     */
     explicit constexpr Aptr(TYPE* ptr = nullptr) : mPtr(ptr) {}
 
-    // Copy constructor
+    /**
+     * @brief Copy constructor - creates a deep copy of the managed object
+     * @param other Aptr to copy from
+     */
     Aptr(const Aptr& other) : mPtr(new TYPE(*other.mPtr)) {}
 
-    // Copy assignment operator
+    /**
+     * @brief Copy assignment operator - creates a deep copy of the managed object
+     * @param other Aptr to copy from
+     * @return Reference to this Aptr
+     */
     Aptr& operator=(const Aptr& other)
     {
         if (this != &other) {
@@ -33,13 +49,20 @@ public:
         return *this;
     }
 
-    // Move constructor
+    /**
+     * @brief Move constructor - transfers ownership from another Aptr
+     * @param other Aptr to move from
+     */
     Aptr(Aptr&& other) noexcept : mPtr(other.mPtr)
     {
         other.mPtr = nullptr;
     }
 
-    // Move assignment operator
+    /**
+     * @brief Move assignment operator - transfers ownership from another Aptr
+     * @param other Aptr to move from
+     * @return Reference to this Aptr 
+     */
     Aptr& operator=(Aptr&& other) noexcept
     {
         if (this != &other) {
@@ -50,16 +73,27 @@ public:
         return *this;
     }
 
-    // Dereference operator
+    /**
+     * @brief Dereference operator - provides access to the managed object
+     * @return Reference to the managed object
+     */
     TYPE& operator*() const { return *mPtr; }
 
-    // Arrow operator
+    /**
+     * @brief Member access operator - provides access to the managed object's members
+     * @return Raw pointer to the managed object
+     */
     TYPE* operator->() const { return mPtr; }
 
-    // Check if the pointer is null
+    /**
+     * @brief Checks if the Aptr is managing an object
+     * @return true if managing an object, false otherwise
+     */
     explicit constexpr operator bool() const { return mPtr != nullptr; }
 
-    // Delete the managed object
+    /**
+     * @brief Deletes the managed object and resets the Aptr to null
+     */
     void Delete()
     {
         delete mPtr;
@@ -67,10 +101,16 @@ public:
     }
 
 private:
-    TYPE* mPtr;
+    TYPE* mPtr; ///< Raw pointer to the managed object
 };
 
-// Stand-alone MakeAudited function
+/**
+ * @brief Creates a new Aptr managing a newly constructed object
+ * @tparam TYPE Type of object to create
+ * @tparam Args Types of constructor arguments
+ * @param args Arguments to forward to the object's constructor
+ * @return Aptr managing the new object
+ */
 template <typename TYPE, typename... Args>
 Aptr<TYPE> MakeAudited(Args&&... args)
 {
@@ -84,13 +124,28 @@ Aptr<TYPE> MakeAudited(Args&&... args)
 
 // ==================== Debug Mode (Audited Pointer) ====================
 
+/**
+ * @class   Aptr
+ * @file    Aptr.hpp
+ * @brief   Audited pointer class for debug mode that tracks all active pointers and detects memory leaks.
+ *          Provides additional debugging features like leak detection and pointer validation
+ * 
+ * @tparam TYPE The type of object being managed by the pointer
+ */
 template <typename TYPE>
 class Aptr;
 
+/**
+ * @class   LeakChecker
+ * @brief   Internal utility class that tracks all active Aptr instances and detects memory leaks
+ */
 struct LeakChecker
 {
-    std::unordered_map<int, const void*> activeAptrs;
+    std::unordered_map<int, const void*> activeAptrs; ///< Map of active pointer IDs to their addresses
 
+    /**
+     * @brief Destructor that checks for and reports memory leaks
+     */
     ~LeakChecker()
     {
         if (!activeAptrs.empty())
@@ -104,45 +159,69 @@ struct LeakChecker
         }
     }
 
+    /**
+     * @brief Adds a new Aptr to the tracking system
+     * @param id Unique ID of the Aptr
+     * @param ptr Raw pointer being managed
+     */
     void AddAptr(int id, const void* ptr)
     {
         activeAptrs[id] = ptr;
     }
 
+    /**
+     * @brief Removes an Aptr from the tracking system
+     * @param id Unique ID of the Aptr to remove
+     */
     void RemoveAptr(int id)
     {
         activeAptrs.erase(id);
     }
 
+    /**
+     * @brief Gets all currently active Aptrs
+     * @return Map of active pointer IDs to their addresses
+     */
     std::unordered_map<int, const void*> GetActiveAptrs() const
     {
         return activeAptrs;
     }
 
-    const void* FindAptr(int id) const
+    /**
+     * @brief Finds an Aptr by its ID
+     * @param id Unique ID to search for
+     * @return The raw pointer being managed or nullptr if not found
+     */
+    std::optional<const void*> FindAptr(int id) const
     {
         auto it = activeAptrs.find(id);
         if (it != activeAptrs.end())
         {
             return it->second;
         }
-        return nullptr;
+        return std::nullopt;
     }
 
+    /**
+     * @brief Clears all active Aptr tracking
+     */
     void Reset()
     {
         activeAptrs.clear();
     }
 };
 
-static LeakChecker leakChecker;
+static LeakChecker leakChecker; ///< Global instance of the leak checker
 
 
 template <typename TYPE>
 class Aptr
 {
 public:
-    // Constructor
+    /**
+     * @brief Constructs an Aptr managing the given raw pointer
+     * @param ptr Raw pointer to manage (defaults to nullptr)
+     */
     explicit constexpr Aptr(TYPE* ptr = nullptr) : mPtr(ptr), mID(GetNextID())
     {
         if (mPtr)
@@ -151,7 +230,9 @@ public:
         }
     }
 
-    // Destructor to catch non-deleted Aptrs at runtime
+    /**
+     * @brief Destructor that verifies proper cleanup and detects memory leaks
+     */
     ~Aptr() noexcept
     {
         if (mPtr) {
@@ -160,7 +241,10 @@ public:
         }
     }
 
-    // Copy constructor
+    /**
+     * @brief Copy constructor - creates a deep copy of the managed object
+     * @param other Aptr to copy from
+     */
     Aptr(const Aptr& other) : mPtr(other.mPtr ? new TYPE(*other.mPtr) : nullptr), mID(GetNextID())
     {
         if (mPtr)
@@ -169,7 +253,11 @@ public:
         }
     }
 
-    // Copy assignment operator
+    /**
+     * @brief Copy assignment operator - creates a deep copy of the managed object
+     * @param other Aptr to copy from
+     * @return Reference to this Aptr
+     */
     Aptr& operator=(const Aptr& other)
     {
         if (this != &other)
@@ -187,14 +275,21 @@ public:
         return *this;
     }
 
-    // Move constructor
+    /**
+     * @brief Move constructor - transfers ownership from another Aptr
+     * @param other Aptr to move from
+     */
     Aptr(Aptr&& other) noexcept : mPtr(other.mPtr), mID(other.mID)
     {
         other.mPtr = nullptr;
         other.mID = 0;
     }
 
-    // Move assignment operator
+    /**
+     * @brief Move assignment operator - transfers ownership from another Aptr
+     * @param other Aptr to move from
+     * @return Reference to this Aptr
+     */
     Aptr& operator=(Aptr&& other) noexcept
     {
         if (this != &other)
@@ -212,27 +307,40 @@ public:
         return *this;
     }
 
-    // Dereference operator
+    /**
+     * @brief Dereference operator - provides access to the managed object with null check
+     * @return Reference to the managed object
+     * @throws Assertion failure if pointer is null
+     */
     TYPE& operator*() const
     {
         assert(mPtr && "Dereferencing a null pointer");
         return *mPtr;
     }
 
-    // Arrow operator
+    /**
+     * @brief Member access operator - provides access to the managed object's members with null check
+     * @return Raw pointer to the managed object
+     * @throws Assertion failure if pointer is null
+     */
     TYPE* operator->() const
     {
         assert(mPtr && "Accessing a null pointer");
         return mPtr;
     }
 
-    // Check if the pointer is null
+    /**
+     * @brief Checks if the Aptr is managing an object
+     * @return true if managing an object, false otherwise
+     */
     explicit constexpr operator bool() const
     {
         return mPtr;
     }
 
-    // Delete the managed object
+    /**
+     * @brief Properly deletes the managed object and cleans up tracking
+     */
     void Delete()
     {
         if (!mPtr)
@@ -244,36 +352,52 @@ public:
         mPtr = nullptr;
     }
 
-    // Get the ID of this AuditedPointer
+    /**
+     * @brief Gets the unique ID of this Aptr
+     * @return The Aptr's tracking ID
+     */
     constexpr int GetID() const
     {
         return mID;
     }
 
-    // Get a set of all active AuditedPointer IDs and their pointers
+    /**
+     * @brief Gets all currently active Aptrs
+     * @return Map of active pointer IDs to their addresses
+     */
     static std::unordered_map<int, const void*> GetActiveAptrs()
     {
         return leakChecker.GetActiveAptrs();
     }
 
-    // Find an AuditedPointer by ID in the active set
-    static const void* Find(int id)
+    /**
+     * @brief Finds an Aptr by its ID
+     * @param id Unique ID to search for
+     * @return The raw pointer being managed or nullptr if not found
+     */
+    static std::optional<const void*> Find(int id)
     {
         return leakChecker.FindAptr(id);
     }
 
-    // Reset all active AuditedPointers (delete and clear the active set)
+    /**
+     * @brief Clears all active Aptr tracking
+     */
     static void Reset()
     {
         leakChecker.Reset();
     }
 
 private:
-    TYPE* mPtr;
-    int mID;
+    TYPE* mPtr; ///< Raw pointer to the managed object
+    int mID;    ///< Unique tracking ID
 
-    static constexpr int StartID = 1;
+    static constexpr int StartID = 1; ///< Starting value for ID generation
 
+    /**
+     * @brief Generates the next unique ID for Aptr tracking
+     * @return The next available ID
+     */
     static int GetNextID()
     {
         static int nextID = StartID;
@@ -281,12 +405,17 @@ private:
     }
 };
 
-// Stand-alone MakeAudited function
+/**
+ * @brief Creates a new Aptr managing a newly constructed object with debug tracking
+ * @tparam TYPE Type of object to create
+ * @tparam Args Types of constructor arguments
+ * @param args Arguments to forward to the object's constructor
+ * @return Aptr managing the new object
+ */
 template <typename TYPE, typename... Args>
 Aptr<TYPE> MakeAudited(Args&&... args)
 {
     auto lambda_new = [](auto&&... packed) {
-        // Lambda function takes the declared type of the provided value if possible
         return new TYPE(std::forward<decltype(packed)>(packed)...);
     };
     return Aptr<TYPE>(lambda_new(std::forward<Args>(args)...));
@@ -294,4 +423,4 @@ Aptr<TYPE> MakeAudited(Args&&... args)
 
 #endif
 
-}
+} 
