@@ -490,6 +490,34 @@ class IndexSet {
   }
 
   /**
+   * @brief Clamps all indices into a range
+   * @param start The minimum value an index should have
+   * @param end The maximum value an index should have (exclusive)
+   */
+  void clamp(std::size_t const start, std::size_t const end) {
+    if (ranges_.empty()) return;
+
+    // remove indices below new minimum
+    // dereference safety: if empty, we've already returned
+    for (std::size_t i = *min_index(); i < start; i++) {
+      remove(i);
+    }
+    // remove indices above new maximum
+    // dereference safety: if empty, we've already returned
+    for (std::size_t i = *max_index(); i >= end; i--) {
+      remove(i);
+    }
+  }
+
+  /**
+   * @brief Remove all indices
+   */
+  void clear() {
+    ranges_.clear();
+    total_size_ = 0;
+  }
+
+  /**
    * @brief Returns a vector containing all indices in the set
    * @return Vector of indices in ascending order
    */

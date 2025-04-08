@@ -479,3 +479,31 @@ TEST_CASE("Test shifts", "[IndexSetShift]") {
     REQUIRE(set == cse::IndexSet{2, 5, 6, 8, 10});
   }
 }
+
+TEST_CASE("Test clamping", "[IndexSetClamp]") {
+  cse::IndexSet set{};
+  set.insert_range(0, 10);
+
+  SECTION("Check simple range") {
+    cse::IndexSet expected{std::pair{3, 8}};
+    set.clamp(3, 8);
+    REQUIRE(set == expected);
+  }
+
+  set.clear();
+  set.insert_range(0, 2);
+  set.insert_range(5, 8);
+  set.insert_range(10, 15);
+
+  SECTION("Check multiple ranges") {
+    cse::IndexSet expected{5, 6, 7, 10, 11};
+    set.clamp(3, 12);
+    REQUIRE(set == expected);
+  }
+
+  SECTION("Check no-op ") {
+    cse::IndexSet expected{set};
+    set.clamp(*set.min_index(), *set.max_index() + 1);
+    REQUIRE(set == expected);
+  }
+}
