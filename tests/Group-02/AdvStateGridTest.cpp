@@ -1,6 +1,6 @@
 /**
  * @file AdvStateGridTest.cpp
- * @author Dominik Leisinger
+ * @author Dominik Leisinger, Matthew Hawkins
  */
 
 #include <cse/StateGrid.hpp>
@@ -197,3 +197,12 @@ TEST_CASE("Testing validate_position on edge cells") {
 TEST_CASE("Testing incorrect filepath throws exception") {
   REQUIRE_THROWS_AS((cse::StateGrid("nonexistent_file")), std::runtime_error);
 }
+
+TEST_CASE("Testing move of more than one space", "[StateGrid]") {
+  cse::StateGrid grid("test");
+
+  bool moved = grid.set_state(cse::Point(1, 4));
+  REQUIRE_FALSE(moved);
+  REQUIRE(grid.get_state(cse::Point(1,2)) == 'P');
+}
+
