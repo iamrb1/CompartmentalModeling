@@ -294,17 +294,16 @@ class BasicRichText {
     // get containing ranges of all formats (or lack thereof) at pos
     auto ranges =
         std::views::elements<1>(m_formatting) |
-        filter_transform([pos, &text_range](IndexSet const& fmt_indices) {
-          auto range = fmt_indices.get_containing_range(pos);
+        std::views::transform([pos, &text_range](IndexSet const& fmt_indices) {
           // if a range encompasses pos, return it
-          if (range.has_value()) {
-            return range;
+          if (auto range = fmt_indices.get_containing_range(pos)) {
+            return *range;
           }
           // otherwise, return the unformatted range encompassing pos.
-          // if the range is nullopt then the text must be empty, so just
-          // filter out the range
+          // optional can only be nullopt if the text is empty, which is
+          // impossible if we have made it this far
           auto unfmt_indices = text_range - fmt_indices;
-          return unfmt_indices.get_containing_range(pos);
+          return unfmt_indices.get_containing_range(pos).value();
         });
 
     return std::ranges::fold_left(
@@ -673,7 +672,8 @@ using RichText = BasicRichText<>;
  *
  * Known as filter map in other languages
  */
-auto filter_transform(auto const& func) {
+// we didn't end up needing this, but i'll leave it here anyway
+[[maybe_unused]] auto filter_transform(auto const& func) {
   return std::views::transform(func) |
          std::views::filter(
              [](auto const& option) { return option.has_value(); }) |
