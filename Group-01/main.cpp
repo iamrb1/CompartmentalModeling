@@ -460,10 +460,10 @@ private:
 
       // Add button group and vertex info to control zone
       flexContainer.appendChild(buttonGroup);
-      flexContainer.appendChild(AddbuttonGroup);
       flexContainer.appendChild(selectedVertexDiv);
-      flexContainer.appendChild(deleteButtonGroup);
       flexContainer.appendChild(edgeButtonGroup);
+      flexContainer.appendChild(AddbuttonGroup);
+      flexContainer.appendChild(deleteButtonGroup);
 
       controlZone.appendChild(flexContainer);
 
