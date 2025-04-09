@@ -17,7 +17,6 @@
 #include <ranges>
 #include <set>
 #include <string>
-#include <type_traits>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -291,7 +290,7 @@ class BasicRichText {
                std::format("Out of bounds access, idx: {} size: {}", pos,
                            m_text.size()));
     // index range containing entire richtext
-    IndexSet text_range{std::pair{0, m_text.size()}};
+    IndexSet text_range{{0, m_text.size()}};
     // get containing ranges of all formats (or lack thereof) at pos
     auto ranges =
         std::views::elements<1>(m_formatting) |
@@ -421,7 +420,7 @@ class BasicRichText {
         end >= begin,
         std::format("Format range ends after beginning, begin: {}, end: {}",
                     begin, end));
-    apply_format(format, std::pair{begin, end});
+    apply_format(format, {{begin, end}});
   }
 
   /**

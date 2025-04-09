@@ -320,15 +320,9 @@ class IndexSet {
     total_size_ = range.end - range.start;
   }
 
-  // Add constructor that takes std::pair for backward compatibility
-  IndexSet(const std::pair<std::size_t, std::size_t>& range) {
-    ranges_.push_back({range.first, range.second});
-    total_size_ = range.second - range.first;
-  }
-
   template <typename... T>
     requires std::convertible_to<std::common_type_t<T...>, std::size_t>
-  IndexSet(T... sizes) {
+  explicit IndexSet(T... sizes) {
     // initializer list range-for trick from
     // https://stackoverflow.com/a/50892567/4678913
     for (size_t idx : {sizes...}) {

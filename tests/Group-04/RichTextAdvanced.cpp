@@ -32,7 +32,7 @@ TEST_CASE("Clear formatting", "[RichTextAdvanced]") {
   cse::TextFormat italic("italic");
 
   text.apply_format(bold, 0, 5);
-  text.apply_format(italic, cse::IndexSet{std::pair{4, 8}});
+  text.apply_format(italic, 4, 8);
 
   SECTION("Test whole clear") {
     text.clear_format();
@@ -43,22 +43,19 @@ TEST_CASE("Clear formatting", "[RichTextAdvanced]") {
   SECTION("Test IndexSet clear") {
     text.clear_format(cse::IndexSet{2, 3});
     REQUIRE(text.get_format_range(bold).value() == cse::IndexSet{0, 1, 4});
-    REQUIRE(text.get_format_range(italic).value() ==
-            cse::IndexSet{std::pair{4, 8}});
+    REQUIRE(text.get_format_range(italic).value() == cse::IndexSet{{4, 8}});
   }
 
   SECTION("Test format clear") {
     text.clear_format(italic);
-    REQUIRE(text.get_format_range(bold).value() ==
-            cse::IndexSet{std::pair{0, 5}});
+    REQUIRE(text.get_format_range(bold).value() == cse::IndexSet{{0, 5}});
     REQUIRE_FALSE(text.get_format_range(italic).has_value());
   }
 
   SECTION("Test format and IndexSet clear") {
     text.clear_format(bold, cse::IndexSet{2, 3});
     REQUIRE(text.get_format_range(bold).value() == cse::IndexSet{0, 1, 4});
-    REQUIRE(text.get_format_range(italic).value() ==
-            cse::IndexSet{std::pair{4, 8}});
+    REQUIRE(text.get_format_range(italic).value() == cse::IndexSet{{4, 8}});
   }
 }
 
@@ -78,10 +75,9 @@ TEST_CASE("New RichText operations", "[RichTextAdvanced]") {
   text2.insert(0, text1);
 
   REQUIRE(text2.to_string() == "hello, world!");
-  REQUIRE(text2.get_format_range(red) ==
-          std::optional{cse::IndexSet{std::pair{0, 5}}});
+  REQUIRE(text2.get_format_range(red) == std::optional{cse::IndexSet{{0, 5}}});
   REQUIRE(text2.get_format_range(blue) ==
-          std::optional{cse::IndexSet{std::pair{7, text2.size()}}});
+          std::optional{cse::IndexSet{{7, text2.size()}}});
   REQUIRE(text2.formats_at(4).size() == 1);
   REQUIRE(text2.formats_at(5).size() == 0);
   REQUIRE(text2.formats_at(6).size() == 0);
@@ -120,12 +116,11 @@ TEST_CASE("RichText erase methods", "[RichTextAdvanced]") {
   text.apply_format(bold, 2, 5);
 
   // Apply italic to [4,7) => e,f,g
-  text.apply_format(italic, IndexSet(std::pair{4UL, 7UL}));
+  text.apply_format(italic, IndexSet({4, 7}));
 
   REQUIRE(text.to_string() == "abcdefgh");
-  REQUIRE(text.get_format_range(bold).value() == IndexSet(std::pair{2UL, 5UL}));
-  REQUIRE(text.get_format_range(italic).value() ==
-          IndexSet(std::pair{4UL, 7UL}));
+  REQUIRE(text.get_format_range(bold).value() == IndexSet({2, 5}));
+  REQUIRE(text.get_format_range(italic).value() == IndexSet({4, 7}));
 
   SECTION("Erase partial overlap in the middle (index/count)") {
     text.erase(3, 2); // Remove 'd'(3) and 'e'(4)
@@ -174,10 +169,8 @@ TEST_CASE("RichText erase methods", "[RichTextAdvanced]") {
   SECTION("Erase zero characters does nothing") {
     text.erase(2, 0);
     REQUIRE(text.to_string() == "abcdefgh");
-    REQUIRE(text.get_format_range(bold).value() ==
-            IndexSet(std::pair{2UL, 5UL}));
-    REQUIRE(text.get_format_range(italic).value() ==
-            IndexSet(std::pair{4UL, 7UL}));
+    REQUIRE(text.get_format_range(bold).value() == IndexSet({2, 5}));
+    REQUIRE(text.get_format_range(italic).value() == IndexSet({4, 7}));
   }
 }
 
@@ -191,7 +184,7 @@ TEST_CASE("RichText segments", "[RichTextSegment]") {
   text.apply_format(bold, 2, 5);
 
   // Apply italic to [4,7) => e,f,g
-  text.apply_format(italic, cse::IndexSet(std::pair{4, 7}));
+  text.apply_format(italic, cse::IndexSet({4, 7}));
 
   // Apply red to [11, 12) => l
   text.apply_format(red, 11, 12);

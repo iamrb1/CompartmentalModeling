@@ -40,14 +40,14 @@ TEST_CASE("MultipleFormatting", "[RichTextTest]") {
 
   // check that the formats applied correctly
   cse::TextFormat italic("italic");
-  text1.apply_format(italic, cse::IndexSet{std::pair{4, 8}});
+  text1.apply_format(italic, cse::IndexSet{{4, 8}});
   REQUIRE(text1.formats_at(3) == fmt_vec{bold});
   REQUIRE(text1.formats_at(4) == fmt_vec{bold, italic});
   REQUIRE(text1.formats_at(7) == fmt_vec{italic});
 
   // ensure that formats past the end are clamped
   text1.apply_format(bold, 0, 100);
-  cse::IndexSet expected{std::pair{0, text1.size()}};
+  cse::IndexSet expected{{0, text1.size()}};
   REQUIRE(text1.get_format_range(bold) == expected);
 }
 

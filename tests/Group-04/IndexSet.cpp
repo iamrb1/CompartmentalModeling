@@ -21,14 +21,14 @@ TEST_CASE("Constructor", "[IndexSetTest]") {
   REQUIRE(set3.get_all_indices() == std::vector<size_t>{1, 5, 8});
 
   // Range constructors
-  cse::IndexSet set4(std::pair{0, 5}); // [0,5)
+  cse::IndexSet set4({0, 5}); // [0,5)
   REQUIRE(set4.size() == 5);
 
-  cse::IndexSet set5(std::pair{10, 15}); // [10,15)
+  cse::IndexSet set5({10, 15}); // [10,15)
   REQUIRE(set5.size() == 5);
 
   // Empty range
-  cse::IndexSet set6(std::pair{3, 3}); // [3,3)
+  cse::IndexSet set6({3, 3}); // [3,3)
   REQUIRE(set6.size() == 0);
 }
 
@@ -209,7 +209,7 @@ TEST_CASE("SetOperations", "[IndexSetTest]") {
 
   SECTION("Test union") {
     // Expected: [0,7) - continuous range due to overlap
-    cse::IndexSet expected{std::pair{0, 7}};
+    cse::IndexSet expected{{0, 7}};
 
     auto union_set = set1 | set2;
     REQUIRE(union_set == expected);
@@ -485,7 +485,7 @@ TEST_CASE("Test clamping", "[IndexSetClamp]") {
   set.insert_range(0, 10);
 
   SECTION("Check simple range") {
-    cse::IndexSet expected{std::pair{3, 8}};
+    cse::IndexSet expected{{3, 8}};
     set.clamp(3, 8);
     REQUIRE(set == expected);
   }
