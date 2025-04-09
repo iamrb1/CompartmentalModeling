@@ -180,3 +180,49 @@ TEST_CASE("RichText erase methods", "[RichTextAdvanced]") {
             IndexSet(std::pair{4UL, 7UL}));
   }
 }
+
+TEST_CASE("RichText segments", "[RichTextSegment]") {
+  cse::RichText text{"abcdefghijkl"};
+  cse::TextFormat bold("bold");
+  cse::TextFormat italic("italic");
+  cse::TextFormat red("color", "red");
+
+  // Apply bold to [2,5) => c,d,e
+  text.apply_format(bold, 2, 5);
+
+  // Apply italic to [4,7) => e,f,g
+  text.apply_format(italic, cse::IndexSet(std::pair{4, 7}));
+
+  // Apply red to [11, 12) => l
+  text.apply_format(red, 11, 12);
+
+  // test helper function
+  auto segment_substr = [&](cse::IndexSet::IndexRange &segment) {
+    return text.to_string().substr(segment.start, segment.end - segment.start);
+  };
+
+  SECTION("Unformatted segment (beginning)") {
+    auto segment = text.segment_at(0);
+    REQUIRE(segment_substr(segment) == "ab");
+  }
+
+  SECTION("Bold segment") {
+    auto segment = text.segment_at(3);
+    REQUIRE(segment_substr(segment) == "cd");
+  }
+
+  SECTION("Overlapping segment") {
+    auto segment = text.segment_at(4);
+    REQUIRE(segment_substr(segment) == "e");
+  }
+
+  SECTION("Unformatted segment (middle)") {
+    auto segment = text.segment_at(10);
+    REQUIRE(segment_substr(segment) == "hijk");
+  }
+
+  SECTION("End segment") {
+    auto segment = text.segment_at(11);
+    REQUIRE(segment_substr(segment) == "l");
+  }
+}

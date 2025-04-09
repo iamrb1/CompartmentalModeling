@@ -17,6 +17,7 @@
 #include <ranges>
 #include <set>
 #include <string>
+#include <type_traits>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -171,6 +172,8 @@ class BasicRichText {
   };
 
  private:
+  using IndexRange = IndexSet::IndexRange;
+
   Underlying m_text;
   std::map<TextFormat, cse::IndexSet> m_formatting;
 
@@ -277,6 +280,41 @@ class BasicRichText {
       if (indices.contains(pos)) result.push_back(format);
     }
     return result;
+  }
+
+  /**
+   * @brief Get the largest range containing `pos` with no formatting changes
+   * @param pos The position to check for range changes
+   */
+  IndexRange segment_at(std::size_t pos) const {
+    dbg_assert(pos < m_text.size(),
+               std::format("Out of bounds access, idx: {} size: {}", pos,
+                           m_text.size()));
+    // index range containing entire richtext
+    IndexSet text_range{std::pair{0, m_text.size()}};
+    // get containing ranges of all formats (or lack thereof) at pos
+    auto ranges =
+        std::views::elements<1>(m_formatting) |
+        filter_transform([pos, &text_range](IndexSet const& fmt_indices) {
+          auto range = fmt_indices.get_containing_range(pos);
+          // if a range encompasses pos, return it
+          if (range.has_value()) {
+            return range;
+          }
+          // otherwise, return the unformatted range encompassing pos.
+          // if the range is nullopt then the text must be empty, so just
+          // filter out the range
+          auto unfmt_indices = text_range - fmt_indices;
+          return unfmt_indices.get_containing_range(pos);
+        });
+
+    return std::ranges::fold_left(
+        ranges, IndexRange{0, m_text.size()},
+        [](IndexRange const& acc, IndexRange const& it) {
+          std::size_t start = std::max(acc.start, it.start);
+          std::size_t end = std::min(acc.end, it.end);
+          return IndexRange{start, end};
+        });
   }
 
   /**
@@ -613,8 +651,8 @@ class BasicRichText {
    */
   void erase(const cse::IndexSet& to_erase) {
     // Gather all IndexRanges from to_erase
-    std::vector<cse::IndexSet::IndexRange> ranges{to_erase.cbegin_pair(),
-                                                  to_erase.cend_pair()};
+    std::vector<IndexRange> ranges{to_erase.cbegin_pair(),
+                                   to_erase.cend_pair()};
 
     // Reverse them so we erase from the highest start index first
     std::reverse(ranges.begin(), ranges.end());
@@ -629,5 +667,20 @@ class BasicRichText {
 };
 
 using RichText = BasicRichText<>;
+
+/**
+ * A composition of filter and transform.
+ *
+ * Transformed values should be enclosed in an std::optional. To filter out an
+ * element, return std::nullopt.
+ *
+ * Known as filter map in other languages
+ */
+auto filter_transform(auto const& func) {
+  return std::views::transform(func) |
+         std::views::filter(
+             [](auto const& option) { return option.has_value(); }) |
+         std::views::transform([](auto const& option) { return *option; });
+}
 
 }  // namespace cse
