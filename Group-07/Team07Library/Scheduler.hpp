@@ -14,7 +14,7 @@
 #include <cassert>
 #include <set>
 #include <deque>
-
+#include <optional>
 namespace cse {
 template <typename ProcessID=int>
 
