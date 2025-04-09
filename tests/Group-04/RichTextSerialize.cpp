@@ -1,6 +1,7 @@
 #include "RichText.hpp"
 #include "SerializerHTML.hpp"
 #include "SerializerMarkdown.hpp"
+#include "SerializerRTF.hpp"
 #include "catch.hpp"
 
 TEST_CASE("Basic serialization", "[RichTextSerialize]") {
