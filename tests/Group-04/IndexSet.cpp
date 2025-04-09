@@ -1,8 +1,10 @@
-#include "IndexSet.hpp"
+#include "catch.hpp"
 
+#define TEST_CSE_ASSERT
 #include <vector>
 
-#include "catch.hpp"
+#include "CseAssert.hpp"
+#include "IndexSet.hpp"
 
 // Test constructor and size calculation
 TEST_CASE("Constructor", "[IndexSetTest]") {
@@ -19,14 +21,14 @@ TEST_CASE("Constructor", "[IndexSetTest]") {
   REQUIRE(set3.get_all_indices() == std::vector<size_t>{1, 5, 8});
 
   // Range constructors
-  cse::IndexSet set4(std::pair{0, 5});  // [0,5)
+  cse::IndexSet set4({0, 5});  // [0,5)
   REQUIRE(set4.size() == 5);
 
-  cse::IndexSet set5(std::pair{10, 15});  // [10,15)
+  cse::IndexSet set5({10, 15});  // [10,15)
   REQUIRE(set5.size() == 5);
 
   // Empty range
-  cse::IndexSet set6(std::pair{3, 3});  // [3,3)
+  cse::IndexSet set6({3, 3});  // [3,3)
   REQUIRE(set6.size() == 0);
 }
 
@@ -51,7 +53,7 @@ TEST_CASE("InsertRange", "[IndexSetTest]") {
   REQUIRE(set.size() == 13);
 
   // Invalid range (start >= end)
-  set.insert_range(5, 3);
+  REQUIRE_ASSERT(set.insert_range(5, 3));
   REQUIRE(set.size() == 13);  // Size should not change
 }
 
@@ -207,7 +209,7 @@ TEST_CASE("SetOperations", "[IndexSetTest]") {
 
   SECTION("Test union") {
     // Expected: [0,7) - continuous range due to overlap
-    cse::IndexSet expected{std::pair{0, 7}};
+    cse::IndexSet expected{{0, 7}};
 
     auto union_set = set1 | set2;
     REQUIRE(union_set == expected);
@@ -240,28 +242,13 @@ TEST_CASE("SetOperations", "[IndexSetTest]") {
 
   SECTION("Test symmetric difference") {
     // Expected: [0,2) ∪ [3,5) ∪ [6,7)
-    // TODO: replace with equality check once adjacent insert bug is fixed
-    // REQUIRE(sym_diff_set == cse::IndexSet{0, 1, 3, 4, 6});
+    cse::IndexSet expected{0, 1, 3, 4, 6};
 
     auto sym_diff_set = set1 ^ set2;
-    REQUIRE(sym_diff_set.contains(0));
-    REQUIRE(sym_diff_set.contains(1));
-    REQUIRE_FALSE(sym_diff_set.contains(2));  // In both sets
-    REQUIRE(sym_diff_set.contains(3));
-    REQUIRE(sym_diff_set.contains(4));
-    REQUIRE_FALSE(sym_diff_set.contains(5));  // In both sets
-    REQUIRE(sym_diff_set.contains(6));
-    REQUIRE_FALSE(sym_diff_set.contains(7));
+    REQUIRE(sym_diff_set == expected);
 
     set1 ^= set2;
-    REQUIRE(set1.contains(0));
-    REQUIRE(set1.contains(1));
-    REQUIRE_FALSE(set1.contains(2));  // In both sets
-    REQUIRE(set1.contains(3));
-    REQUIRE(set1.contains(4));
-    REQUIRE_FALSE(set1.contains(5));  // In both sets
-    REQUIRE(set1.contains(6));
-    REQUIRE_FALSE(set1.contains(7));
+    REQUIRE(sym_diff_set == expected);
   }
 
   SECTION("Test comparisons") {
@@ -321,7 +308,7 @@ TEST_CASE("Test basic operations", "[IndexSetTest]") {
     set.insert(7);
     REQUIRE(!set.contains(4));
     REQUIRE(set.contains(5));
-    CHECK(!set.contains(6));  // FIXME
+    REQUIRE(!set.contains(6));
     REQUIRE(set.contains(7));
   }
 }
@@ -339,19 +326,19 @@ TEST_CASE("Test range operations", "[IndexSetTest]") {
   REQUIRE(set.size() == 5);
   auto range = set.get_containing_range(7);
   REQUIRE(range.has_value());
-  REQUIRE(range->first == 5);
-  REQUIRE(range->second == 10);
+  REQUIRE(range->start == 5);
+  REQUIRE(range->end == 10);
 
   // Test range queries
   auto next_range = set.get_next_range(4);
   REQUIRE(next_range.has_value());
-  REQUIRE(next_range->first == 5);
-  REQUIRE(next_range->second == 10);
+  REQUIRE(next_range->start == 5);
+  REQUIRE(next_range->end == 10);
 
   auto prev_range = set.get_prev_range(12);
   REQUIRE(prev_range.has_value());
-  REQUIRE(prev_range->first == 5);
-  REQUIRE(prev_range->second == 10);
+  REQUIRE(prev_range->start == 5);
+  REQUIRE(prev_range->end == 10);
 
   // Test get_all_indices
   auto indices = set.get_all_indices();
@@ -375,8 +362,8 @@ TEST_CASE("Test range merging", "[IndexSetTest]") {
   REQUIRE(set.size() == 5);
   auto range = set.get_containing_range(3);
   REQUIRE(range.has_value());
-  REQUIRE(range->first == 1);
-  REQUIRE(range->second == 6);
+  REQUIRE(range->start == 1);
+  REQUIRE(range->end == 6);
 }
 
 // Test range splitting
@@ -396,10 +383,10 @@ TEST_CASE("Test range splitting", "[IndexSetTest]") {
   auto second_range = set.get_containing_range(4);
   REQUIRE(first_range.has_value());
   REQUIRE(second_range.has_value());
-  REQUIRE(first_range->first == 1);
-  REQUIRE(first_range->second == 3);
-  REQUIRE(second_range->first == 4);
-  REQUIRE(second_range->second == 6);
+  REQUIRE(first_range->start == 1);
+  REQUIRE(first_range->end == 3);
+  REQUIRE(second_range->start == 4);
+  REQUIRE(second_range->end == 6);
 }
 
 TEST_CASE("Test Iterator", "[IndexSetTest]") {
@@ -419,10 +406,8 @@ TEST_CASE("Test Iterator", "[IndexSetTest]") {
   REQUIRE(*iterator == 2);
   REQUIRE(*iterator == 2);
 
-  // FIXME (same underlying issue as "test additional insert")
   iterator++;
-  CHECK(*iterator == 4);
-  iterator++;  // REMOVE AFTER ABOVE FIXED
+  REQUIRE(*iterator == 4);
 
   ++iterator;
   REQUIRE(*iterator == 5);
@@ -492,5 +477,33 @@ TEST_CASE("Test shifts", "[IndexSetShift]") {
     // only shifting out indices 3 and 4, range is from 2 to 6
     set.shift_right_within(2, 3, 5);
     REQUIRE(set == cse::IndexSet{2, 5, 6, 8, 10});
+  }
+}
+
+TEST_CASE("Test clamping", "[IndexSetClamp]") {
+  cse::IndexSet set{};
+  set.insert_range(0, 10);
+
+  SECTION("Check simple range") {
+    cse::IndexSet expected{{3, 8}};
+    set.clamp(3, 8);
+    REQUIRE(set == expected);
+  }
+
+  set.clear();
+  set.insert_range(0, 2);
+  set.insert_range(5, 8);
+  set.insert_range(10, 15);
+
+  SECTION("Check multiple ranges") {
+    cse::IndexSet expected{5, 6, 7, 10, 11};
+    set.clamp(3, 12);
+    REQUIRE(set == expected);
+  }
+
+  SECTION("Check no-op clamp") {
+    cse::IndexSet expected{set};
+    set.clamp(*set.min_index(), *set.max_index() + 1);
+    REQUIRE(set == expected);
   }
 }

@@ -8,9 +8,11 @@ TEST_CASE("Basic serialization", "[RichTextSerialize]") {
   cse::RichText text{"hello"};
   text.apply_format(bold);
 
+  // add rule for strong
   cse::RichText::Serializer serializer{"HTML"};
   serializer.AddRule("bold", "<strong>", "</strong>");
 
+  // test strong rule was applied
   std::string output = text.serialize(serializer).output;
   std::string expected = "<strong>hello</strong>";
   REQUIRE(output == expected);
@@ -22,15 +24,18 @@ TEST_CASE("Wide string serialization", "[RichTextSerialize]") {
   WideText text{L"meow"};
   text.apply_format(italic);
 
+  // add rule for emphasis, with wide string literals for the rule tokens
   WideText::Serializer serializer{"HTML"};
   serializer.AddRule("italic", L"<em>", L"</em>");
 
+  // check the output is also a wide string
   std::wstring output = text.serialize(serializer).output;
   std::wstring expected = L"<em>meow</em>";
   REQUIRE(output == expected);
 }
 
 TEST_CASE("Complex serialization", "[RichTextSerialize]") {
+  // some header/footer code to add the proper colors to the generated HTML
   std::string header = R"(<style>
 .red {
   color: #ff0000
@@ -50,8 +55,10 @@ TEST_CASE("Complex serialization", "[RichTextSerialize]") {
   text.apply_format(red, 0, 5);
   text.apply_format(blue, 6, text.size());
 
+  // set the header and footer
   cse::RichText::Serializer serializer{"HTML", header, footer};
 
+  // rule which uses the metadata to determine color class
   auto color_start = [](cse::TextFormat const &format) {
     cse_assert(std::holds_alternative<std::string>(format.metadata));
     std::string color = std::get<std::string>(format.metadata);
@@ -61,6 +68,7 @@ TEST_CASE("Complex serialization", "[RichTextSerialize]") {
 
   std::string output = text.serialize(serializer).output;
 
+  // check that the output has the correct classes and header/footer
   REQUIRE(output ==
           (header +
            "<span class=red>hello</span> <span class=blue>world</span>" +
@@ -68,8 +76,8 @@ TEST_CASE("Complex serialization", "[RichTextSerialize]") {
 }
 
 TEST_CASE("Default HTML serializer", "[RichTextSerialize]") {
-  std::string header = "<!DOCTYPE html>\n<html>\n<head></head>\n<body>\n";
-  std::string footer = "</body>\n</html>\n";
+  std::string header = cse::SERIALIZER_HTML_HEADER;
+  std::string footer = cse::SERIALIZER_HTML_FOOTER;
   auto serializer = cse::SerializerHTML();
 
   cse::RichText text{"Hello world!"};
@@ -88,4 +96,20 @@ TEST_CASE("Default Markdown serializer", "[RichTextSerialize]") {
 
   std::wstring output = text.serialize(serializer).output;
   REQUIRE(output == std::wstring(L"**Some** unicode markdown!"));
+
+  cse::BasicRichText<wchar_t> text2(L"I'm a header!\nI'm text.\n");
+  text2.apply_format(cse::TextFormat("header", 1), 0, 13);
+  text2.apply_format(cse::TextFormat("italic"), 18, 22);
+
+  output = text2.serialize(serializer).output;
+  REQUIRE(output == std::wstring(L"\n# I'm a header!\n\nI'm *text*.\n"));
+
+  cse::BasicRichText<wchar_t> text3(L"Click here to see the schedule.");
+  text3.apply_format(
+      cse::TextFormat("link", "https://cse498.github.io/schedule.html"), 6, 10);
+
+  output = text3.serialize(serializer).output;
+  REQUIRE(output ==
+          std::wstring(L"Click [here](https://cse498.github.io/schedule.html) "
+                       L"to see the schedule."));
 }

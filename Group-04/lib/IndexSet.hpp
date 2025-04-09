@@ -30,63 +30,51 @@ class IndexSet {
  public:
   // Define the maximum size_t value to indicate that no range ID exists.
   static constexpr std::size_t NO_RANGE = static_cast<std::size_t>(-1);
-  
+
   // Define a custom range type for better readability
   struct IndexRange {
     std::size_t start;
     std::size_t end;
-    
-    // Public member aliases for backward compatibility
-    std::size_t first;
-    std::size_t second;
-    
+
     // Constructor to initialize both sets of values
-    IndexRange(std::size_t s = 0, std::size_t e = 0) 
-      : start(s), end(e), first(s), second(e) {}
-    
+    IndexRange(std::size_t s = 0, std::size_t e = 0) : start(s), end(e) {}
+
     // Copy constructor
-    IndexRange(const IndexRange& other)
-      : start(other.start), end(other.end), first(other.start), second(other.end) {}
-    
+    IndexRange(const IndexRange& other) : start(other.start), end(other.end) {}
+
     // Copy assignment operator
     IndexRange& operator=(const IndexRange& other) {
       if (this != &other) {
         start = other.start;
         end = other.end;
-        first = other.start;
-        second = other.end;
       }
       return *this;
     }
-    
+
     // Move constructor
     IndexRange(IndexRange&& other) noexcept
-      : start(other.start), end(other.end), first(other.start), second(other.end) {}
-    
+        : start(other.start), end(other.end) {}
+
     // Move assignment operator
     IndexRange& operator=(IndexRange&& other) noexcept {
       if (this != &other) {
         start = other.start;
         end = other.end;
-        first = other.start;
-        second = other.end;
       }
       return *this;
     }
-    
+
     bool operator<(const IndexRange& other) const {
       return start < other.start;
     }
-    
+
     bool operator==(const IndexRange& other) const {
       return start == other.start && end == other.end;
     }
-    
-    bool operator!=(const IndexRange& other) const {
-      return !(*this == other);
-    }
+
+    bool operator!=(const IndexRange& other) const { return !(*this == other); }
   };
-  
+
   // Iterator class definitions
   class iterator {
    public:
@@ -96,17 +84,17 @@ class IndexSet {
     using pointer = std::size_t*;
     using reference = std::size_t&;
 
-    iterator(const std::vector<IndexRange>& ranges,
-             std::size_t range_idx = 0, std::size_t offset = 0)
+    iterator(const std::vector<IndexRange>& ranges, std::size_t range_idx = 0,
+             std::size_t offset = 0)
         : ranges_(&ranges), range_idx_(range_idx), offset_(offset) {
       // If this is an end iterator (range_idx >= size)
       if (range_idx_ >= ranges_->size()) {
         return;
       }
-      
+
       // Set current_ to the actual value at the specified range and offset
       current_ = (*ranges_)[range_idx_].start + offset_;
-      
+
       // Make sure the offset is valid for this range
       if (current_ >= (*ranges_)[range_idx_].end) {
         // If not, move to the next range if possible
@@ -119,16 +107,16 @@ class IndexSet {
     iterator& operator++() {
       // If already at end, don't advance
       if (range_idx_ >= ranges_->size()) return *this;
-      
+
       // Increment offset and current position
       offset_++;
       current_++;
-      
+
       // If we've reached the end of the current range
       if (current_ >= (*ranges_)[range_idx_].end) {
         move_to_next_valid_position();
       }
-      
+
       return *this;
     }
 
@@ -142,10 +130,10 @@ class IndexSet {
       // Check if both iterators are at the end
       bool this_at_end = range_idx_ >= ranges_->size();
       bool other_at_end = other.range_idx_ >= other.ranges_->size();
-      
+
       if (this_at_end && other_at_end) return true;
       if (this_at_end != other_at_end) return false;
-      
+
       // Otherwise, compare all fields
       return ranges_ == other.ranges_ && range_idx_ == other.range_idx_ &&
              current_ == other.current_;
@@ -156,17 +144,18 @@ class IndexSet {
    private:
     const std::vector<IndexRange>* ranges_;
     std::size_t range_idx_;
-    std::size_t offset_ = 0;  // Offset within the current range
-    std::size_t current_ = 0; // The actual value being pointed to
-    
-    // Helper method to move to the next valid position when at the end of a range
+    std::size_t offset_ = 0;   // Offset within the current range
+    std::size_t current_ = 0;  // The actual value being pointed to
+
+    // Helper method to move to the next valid position when at the end of a
+    // range
     void move_to_next_valid_position() {
       // Reset offset since we're moving to a new range
       offset_ = 0;
       // Move to the next range
       range_idx_++;
-      
-      // If there are more ranges, set current to the first element of that range
+
+      // If there are more ranges, set current to the start of that range
       if (range_idx_ < ranges_->size()) {
         current_ = (*ranges_)[range_idx_].start;
       }
@@ -181,18 +170,17 @@ class IndexSet {
     using pointer = const std::size_t*;
     using reference = const std::size_t&;
 
-    const_iterator(
-        const std::vector<IndexRange>& ranges,
-        std::size_t range_idx = 0, std::size_t offset = 0)
+    const_iterator(const std::vector<IndexRange>& ranges,
+                   std::size_t range_idx = 0, std::size_t offset = 0)
         : ranges_(&ranges), range_idx_(range_idx), offset_(offset) {
       // If this is an end iterator (range_idx >= size)
       if (range_idx_ >= ranges_->size()) {
         return;
       }
-      
+
       // Set current_ to the actual value at the specified range and offset
       current_ = (*ranges_)[range_idx_].start + offset_;
-      
+
       // Make sure the offset is valid for this range
       if (current_ >= (*ranges_)[range_idx_].end) {
         // If not, move to the next range if possible
@@ -205,16 +193,16 @@ class IndexSet {
     const_iterator& operator++() {
       // If already at end, don't advance
       if (range_idx_ >= ranges_->size()) return *this;
-      
+
       // Increment offset and current position
       offset_++;
       current_++;
-      
+
       // If we've reached the end of the current range
       if (current_ >= (*ranges_)[range_idx_].end) {
         move_to_next_valid_position();
       }
-      
+
       return *this;
     }
 
@@ -228,10 +216,10 @@ class IndexSet {
       // Check if both iterators are at the end
       bool this_at_end = range_idx_ >= ranges_->size();
       bool other_at_end = other.range_idx_ >= other.ranges_->size();
-      
+
       if (this_at_end && other_at_end) return true;
       if (this_at_end != other_at_end) return false;
-      
+
       // Otherwise, compare all fields
       return ranges_ == other.ranges_ && range_idx_ == other.range_idx_ &&
              current_ == other.current_;
@@ -244,62 +232,63 @@ class IndexSet {
    private:
     const std::vector<IndexRange>* ranges_;
     std::size_t range_idx_;
-    std::size_t offset_ = 0;  // Offset within the current range
-    std::size_t current_ = 0; // The actual value being pointed to
-    
-    // Helper method to move to the next valid position when at the end of a range
+    std::size_t offset_ = 0;   // Offset within the current range
+    std::size_t current_ = 0;  // The actual value being pointed to
+
+    // Helper method to move to the next valid position when at the end of a
+    // range
     void move_to_next_valid_position() {
       // Reset offset since we're moving to a new range
       offset_ = 0;
       // Move to the next range
       range_idx_++;
-      
-      // If there are more ranges, set current to the first element of that range
+
+      // If there are more ranges, set current to the start of that range
       if (range_idx_ < ranges_->size()) {
         current_ = (*ranges_)[range_idx_].start;
       }
     }
   };
 
-  class const_pair_iterator {
-  public:
+  class const_range_iterator {
+   public:
     using iterator_category = std::forward_iterator_tag;
     using value_type = IndexRange;
     using difference_type = std::ptrdiff_t;
     using pointer = const std::size_t*;
     using reference = const std::size_t&;
 
-    explicit const_pair_iterator(
-        const std::vector<IndexRange>& ranges,
-        std::size_t current = 0)
+    explicit const_range_iterator(const std::vector<IndexRange>& ranges,
+                                  std::size_t current = 0)
         : ranges_(&ranges), current_(current) {}
 
     value_type operator*() const {
-      dbg_assert(current_ < ranges_->size(), "Iterator dereferenced out of range.");
+      dbg_assert(current_ < ranges_->size(),
+                 "Iterator dereferenced out of range.");
       return (*ranges_)[current_];
     }
 
-    const_pair_iterator& operator++() {
+    const_range_iterator& operator++() {
       dbg_assert(current_ < ranges_->size(), "Iterator moved out of range.");
       current_ += 1;
       return *this;
     }
 
-    const_pair_iterator operator++(int) {
-      const_pair_iterator tmp = *this;
+    const_range_iterator operator++(int) {
+      const_range_iterator tmp = *this;
       ++(*this);
       return tmp;
     }
 
-    bool operator==(const const_pair_iterator& other) const {
+    bool operator==(const const_range_iterator& other) const {
       return ranges_ == other.ranges_ && current_ == other.current_;
     }
 
-    bool operator!=(const const_pair_iterator& other) const {
+    bool operator!=(const const_range_iterator& other) const {
       return !(*this == other);
     }
 
-  private:
+   private:
     const std::vector<IndexRange>* ranges_;
     std::size_t current_;
   };
@@ -313,15 +302,9 @@ class IndexSet {
     total_size_ = range.end - range.start;
   }
 
-  // Add constructor that takes std::pair for backward compatibility
-  IndexSet(const std::pair<std::size_t, std::size_t>& range) {
-    ranges_.push_back({range.first, range.second});
-    total_size_ = range.second - range.first;
-  }
-
   template <typename... T>
     requires std::convertible_to<std::common_type_t<T...>, std::size_t>
-  IndexSet(T... sizes) {
+  explicit IndexSet(T... sizes) {
     // initializer list range-for trick from
     // https://stackoverflow.com/a/50892567/4678913
     for (size_t idx : {sizes...}) {
@@ -396,7 +379,7 @@ class IndexSet {
   }
 
   void insert_range(const std::size_t start, const std::size_t end) {
-    if (start >= end) return;  // Invalid range
+    dbg_assert(start < end, "Range end is not past start");
 
     // Insert new range directly
     ranges_.push_back({start, end});
@@ -429,7 +412,6 @@ class IndexSet {
     if (range.start == index) {
       // Case 1: Removing from start of range
       range.start++;
-      range.first++;  // Update first as well
       if (range.start == range.end) {
         // Range became empty, remove it
         ranges_.erase(ranges_.begin() + range_idx);
@@ -437,12 +419,10 @@ class IndexSet {
     } else if (range.end == index + 1) {
       // Case 2: Removing from end of range
       range.end--;
-      range.second--;  // Update second as well
     } else {
       // Case 3: Removing from middle of range - need to split into two ranges
       auto second_half = IndexRange{index + 1, range.end};
       range.end = index;
-      range.second = index;  // Update second as well
       ranges_.insert(ranges_.begin() + range_idx + 1, second_half);
     }
 
@@ -468,22 +448,46 @@ class IndexSet {
    * @brief Returns the maximum index in the set
    */
   std::optional<std::size_t> min_index() const {
-    std::vector<size_t> indices = get_all_indices();
-    auto result = std::min_element(indices.begin(), indices.end());
-    // the set is empty
-    if (result == indices.end()) return std::nullopt;
-    return *result;
+    // ranges should be sorted due to merging after every mutating operation
+    if (ranges_.empty()) return std::nullopt;
+    return ranges_.front().start;
   }
 
   /**
    * @brief Returns the maximum index in the set
    */
   std::optional<std::size_t> max_index() const {
-    std::vector<size_t> indices = get_all_indices();
-    auto result = std::max_element(indices.begin(), indices.end());
-    // the set is empty
-    if (result == indices.end()) return std::nullopt;
-    return *result;
+    // ranges should be sorted due to merging after every mutating operation
+    if (ranges_.empty()) return std::nullopt;
+    return ranges_.back().end;
+  }
+
+  /**
+   * @brief Clamps all indices into a range
+   * @param start The minimum value an index should have
+   * @param end The maximum value an index should have (exclusive)
+   */
+  void clamp(std::size_t const start, std::size_t const end) {
+    if (ranges_.empty()) return;
+
+    // remove indices below new minimum
+    // dereference safety: if empty, we've already returned
+    for (std::size_t i = *min_index(); i < start; i++) {
+      remove(i);
+    }
+    // remove indices above new maximum
+    // dereference safety: if empty, we've already returned
+    for (std::size_t i = *max_index(); i >= end; i--) {
+      remove(i);
+    }
+  }
+
+  /**
+   * @brief Remove all indices
+   */
+  void clear() {
+    ranges_.clear();
+    total_size_ = 0;
   }
 
   /**
@@ -492,7 +496,7 @@ class IndexSet {
    */
   std::vector<std::size_t> get_all_indices() const {
     std::vector<std::size_t> result;
-    
+
     // First check if total_size_ is unexpectedly large
     // Set a reasonable limit to avoid bad_alloc errors
     // Cap at 10 million elements to prevent excessive memory use
@@ -502,13 +506,13 @@ class IndexSet {
       // Here we just return an empty result to prevent crash
       return result;
     }
-    
+
     result.reserve(total_size_);  // Preallocate to avoid reallocations
 
     // Expand each range into individual indices
     for (const auto& range : ranges_) {
-      if (range.end <= range.start) continue; // Skip invalid ranges
-      
+      if (range.end <= range.start) continue;  // Skip invalid ranges
+
       for (std::size_t i = range.start; i < range.end; ++i) {
         result.push_back(i);
       }
@@ -525,8 +529,7 @@ class IndexSet {
    * If the index is within a range, returns the next range after the
    * containing range. If the index is between ranges, returns the next range.
    */
-  std::optional<IndexRange> get_next_range(
-      std::size_t index) const {
+  std::optional<IndexRange> get_next_range(std::size_t index) const {
     auto range_idx = find_range_index(index);
 
     // If index is in a range, we want the next range
@@ -552,8 +555,7 @@ class IndexSet {
    * @param index The reference index
    * @return The previous range if it exists, std::nullopt otherwise
    */
-  std::optional<IndexRange> get_prev_range(
-      std::size_t index) const {
+  std::optional<IndexRange> get_prev_range(std::size_t index) const {
     auto range_idx = find_range_index(index);
 
     // Handle edge cases
@@ -586,8 +588,7 @@ class IndexSet {
    * @param index The index to find
    * @return The containing range if it exists, std::nullopt otherwise
    */
-  std::optional<IndexRange> get_containing_range(
-      std::size_t index) const {
+  std::optional<IndexRange> get_containing_range(std::size_t index) const {
     auto range_idx = find_range_index(index);
 
     // If range contains the index, return it
@@ -601,77 +602,55 @@ class IndexSet {
     for (auto& range : ranges_) {
       range.start += offset;
       range.end += offset;
-      range.first += offset;   // Update first as well
-      range.second += offset;  // Update second as well
     }
   }
 
   /**
    * @brief Shift all indices within [start, end) left by `shift_by` places
-   *
    * @param shift_by The number of places to shift by
-   * @param start Start of the range to shift within.
-   * @param end End (exclusive) of the range to shift within.
+   * @param start Start of the range to shift within
+   * @param end End (exclusive) of the range to shift within
+   *
+   * Indices shifted left past index 0 are removed.
    */
   void shift_left_within(const std::size_t shift_by, const std::size_t start,
                          const std::size_t end) {
-    dbg_assert(end > start, "Shift range end is not past start");
+    return shift_within<ShiftDirection::Left>(shift_by, start, end);
+  }
 
-    // load range into BitVector
-    BitVector indices{end - start};
-    for (size_t i = start; i < end; i++) {
-      indices[i - start] = contains(i);
-    }
-
-    // shifting indices left actually means shifting BitVector right
-    indices >>= shift_by;
-
-    // restore shifted range from BitVector
-    for (size_t i = start; i < end; i++) {
-      if (indices[i - start]) {
-        insert(i);
-      } else {
-        remove(i);
-      }
-    }
+  /**
+   * @brief Shift all indices left by `shift_by` places
+   * @param shift_by The number of places to shift by
+   *
+   * Indices shifted left past index 0 are removed.
+   */
+  void shift_left(const std::size_t shift_by) {
+    if (auto max = max_index()) shift_left_within(shift_by, 0, *max + 1);
   }
 
   /**
    * @brief Shift all indices within [start, end) right by `shift_by` places
    *
    * @param shift_by The number of places to shift by
-   * @param start Start of the range to shift within.
-   * @param end End (exclusive) of the range to shift within.
+   * @param start Start of the range to shift within
+   * @param end End (exclusive) of the range to shift within
+   *
+   * Indices shifted past `end` are removed. Set `end` to a value greater than
+   * than the largest index to shift past the end.
    */
   void shift_right_within(const std::size_t shift_by, const std::size_t start,
                           const std::size_t end) {
-    dbg_assert(end > start, "Shift range end is not past start");
-
-    // load range into BitVector
-    BitVector indices{end - start};
-    for (size_t i = start; i < end; i++) {
-      indices[i - start] = contains(i);
-    }
-
-    // shifting indices right actually means shifting BitVector left
-    indices <<= shift_by;
-
-    // restore shifted range from BitVector
-    for (size_t i = start; i < end; i++) {
-      if (indices[i - start]) {
-        insert(i);
-      } else {
-        remove(i);
-      }
-    }
+    return shift_within<ShiftDirection::Right>(shift_by, start, end);
   }
 
-  void shift_left(const std::size_t shift_by) {
-    if (auto max = max_index()) shift_left_within(shift_by, 0, *max + 1);
-  }
-
+  /**
+   * @brief Shift all indices right by `shift_by` places
+   *
+   * @param shift_by The number of places to shift by
+   */
   void shift_right(const std::size_t shift_by) {
-    if (auto max = max_index()) shift_right_within(shift_by, 0, *max + 1);
+    if (auto max = max_index())
+      shift_right_within(shift_by, 0, *max + shift_by + 1);
   }
 
   /**
@@ -744,7 +723,8 @@ class IndexSet {
   }
 
   /**
-   * @brief Keeps only elements that are in both this set and another set (in-place intersection)
+   * @brief Keeps only elements that are in both this set and another set
+   * (in-place intersection)
    * @param other The other set to intersect with
    * @return Reference to this set
    */
@@ -771,7 +751,8 @@ class IndexSet {
   }
 
   /**
-   * @brief Removes all elements in another set from this set (in-place difference)
+   * @brief Removes all elements in another set from this set (in-place
+   * difference)
    * @param other The set to subtract
    * @return Reference to this set
    */
@@ -804,7 +785,8 @@ class IndexSet {
   }
 
   /**
-   * @brief Updates this set to contain only elements that are in either set but not both (in-place symmetric difference)
+   * @brief Updates this set to contain only elements that are in either set but
+   * not both (in-place symmetric difference)
    * @param other The other set
    * @return Reference to this set
    */
@@ -843,15 +825,15 @@ class IndexSet {
   bool operator==(const IndexSet& other) const {
     // If sizes are different, they can't be equal
     if (total_size_ != other.total_size_) return false;
-    
+
     // If number of ranges is different, they can't be equal
     if (ranges_.size() != other.ranges_.size()) return false;
-    
+
     // Check that all ranges match (assuming both are sorted)
     for (size_t i = 0; i < ranges_.size(); i++) {
       if (ranges_[i] != other.ranges_[i]) return false;
     }
-    
+
     return true;
   }
 
@@ -866,8 +848,12 @@ class IndexSet {
   const_iterator cend() const {
     return const_iterator(ranges_, ranges_.size(), 0);
   }
-  [[nodiscard]] const_pair_iterator cbegin_pair() const { return const_pair_iterator(ranges_); }
-  [[nodiscard]] const_pair_iterator cend_pair() const { return const_pair_iterator(ranges_, ranges_.size()); }
+  [[nodiscard]] const_range_iterator cbegin_pair() const {
+    return const_range_iterator(ranges_);
+  }
+  [[nodiscard]] const_range_iterator cend_pair() const {
+    return const_range_iterator(ranges_, ranges_.size());
+  }
 
  private:
   // Internal representation - vector of ranges
@@ -896,12 +882,16 @@ class IndexSet {
 
     for (std::size_t i = 1; i < ranges_.size(); i++) {
       auto& back = merged.back();
-      // Check if ranges are adjacent (back.end == ranges_[i].start - 1)
-      // or overlapping (back.end >= ranges_[i].start)
-      if (back.end >= ranges_[i].start - 1) {
+
+      // Check if ranges overlap (back.end > ranges_[i].start)
+      if (back.end > ranges_[i].start) {
         // Merge the ranges by extending the end of the previous range
         back.end = std::max(back.end, ranges_[i].end);
-        back.second = back.end;  // Update second as well
+      }
+      // Check if ranges are adjacent (back.end == ranges_[i].start)
+      else if (back.end == ranges_[i].start) {
+        // Merge adjacent ranges
+        back.end = ranges_[i].end;
       } else {
         // Ranges are not adjacent or overlapping, add as new range
         merged.push_back(ranges_[i]);
@@ -912,23 +902,83 @@ class IndexSet {
   }
 
   /**
-   * @brief Finds the range that contains the given index, or returns NO_RANGE if not found
+   * @brief Finds the range that contains the given index, or returns NO_RANGE
+   * if not found
    * @param index The index to find
    * @return The index of the containing range, or NO_RANGE if not found
    */
   std::size_t find_range_index(std::size_t index) const {
-    // Use binary search to find the range that could contain this index
-    auto it = std::lower_bound(ranges_.begin(), ranges_.end(), index,
-                            [](const auto& range, std::size_t val) {
-                              return range.end <= val;
-                            });
-    
-    // Check if we found a valid range that contains the index
-    if (it != ranges_.end() && it->start <= index && index < it->end) {
-      return std::distance(ranges_.begin(), it);
+    // Early return for empty ranges
+    if (ranges_.empty()) {
+      return NO_RANGE;
     }
-    
+
+    // Use binary search to find the appropriate range
+    int left = 0;
+    int right = static_cast<int>(ranges_.size()) - 1;
+
+    while (left <= right) {
+      int mid = left + (right - left) / 2;
+      const auto& range = ranges_[mid];
+
+      // Check if index is in this range
+      if (range.start <= index && index < range.end) {
+        return static_cast<std::size_t>(mid);
+      }
+
+      // If index is less than the start of this range, look left
+      if (index < range.start) {
+        right = mid - 1;
+      }
+      // If index is past the end of this range, look right
+      else {
+        left = mid + 1;
+      }
+    }
+
     return NO_RANGE;
+  }
+
+  /**
+   * @brief Enum for use with `shift_within` to specify shift direction
+   *
+   * This has more clear semantics than a boolean template parameter
+   */
+  enum class ShiftDirection { Left, Right };
+
+  /**
+   * @brief Helper function to shift either left or right within range
+   * @param shift_by The number of places to shift by
+   * @param start Start of the range to shift within
+   * @param end End (exclusive) of the range to shift within
+   */
+  template <ShiftDirection direction>
+  void shift_within(const std::size_t shift_by, const std::size_t start,
+                    const std::size_t end) {
+    dbg_assert(end > start, "Shift range end is not past start");
+
+    // load range into BitVector
+    BitVector indices{end - start};
+    for (size_t i = start; i < end; i++) {
+      indices[i - start] = contains(i);
+    }
+
+    // shifting indices left/right actually means shifting BitVector right/left
+    if constexpr (direction == ShiftDirection::Left) {
+      indices >>= shift_by;
+    } else {
+      static_assert(direction == ShiftDirection::Right);
+      indices <<= shift_by;
+    }
+
+    // restore shifted range from BitVector.
+    for (size_t i = start; i < end; i++) {
+      if (indices[i - start]) {
+        insert(i);
+      } else {
+        remove(i);
+      }
+    }
   }
 };
 

@@ -171,6 +171,8 @@ class BasicRichText {
   };
 
  private:
+  using IndexRange = IndexSet::IndexRange;
+
   Underlying m_text;
   std::map<TextFormat, cse::IndexSet> m_formatting;
 
@@ -280,6 +282,40 @@ class BasicRichText {
   }
 
   /**
+   * @brief Get the largest range containing `pos` with no formatting changes
+   * @param pos The position to check for range changes
+   */
+  IndexRange segment_at(std::size_t pos) const {
+    dbg_assert(pos < m_text.size(),
+               std::format("Out of bounds access, idx: {} size: {}", pos,
+                           m_text.size()));
+    // index range containing entire richtext
+    IndexSet text_range{{0, m_text.size()}};
+    // get containing ranges of all formats (or lack thereof) at pos
+    auto ranges =
+        std::views::elements<1>(m_formatting) |
+        std::views::transform([pos, &text_range](IndexSet const& fmt_indices) {
+          // if a range encompasses pos, return it
+          if (auto range = fmt_indices.get_containing_range(pos)) {
+            return *range;
+          }
+          // otherwise, return the unformatted range encompassing pos.
+          // optional can only be nullopt if the text is empty, which is
+          // impossible if we have made it this far
+          auto unfmt_indices = text_range - fmt_indices;
+          return unfmt_indices.get_containing_range(pos).value();
+        });
+
+    return std::ranges::fold_left(
+        ranges, IndexRange{0, m_text.size()},
+        [](IndexRange const& acc, IndexRange const& it) {
+          std::size_t start = std::max(acc.start, it.start);
+          std::size_t end = std::min(acc.end, it.end);
+          return IndexRange{start, end};
+        });
+  }
+
+  /**
    * @brief Insert a string into RichText
    * @param index The index to insert the string at
    * @param str The string to insert
@@ -367,6 +403,7 @@ class BasicRichText {
     auto [item, inserted] = m_formatting.insert({format, indices});
     if (!inserted) {
       item->second |= indices;
+      item->second.clamp(0, m_text.size());
     }
   }
 
@@ -382,7 +419,7 @@ class BasicRichText {
         end >= begin,
         std::format("Format range ends after beginning, begin: {}, end: {}",
                     begin, end));
-    apply_format(format, std::pair{begin, end});
+    apply_format(format, {{begin, end}});
   }
 
   /**
@@ -445,19 +482,19 @@ class BasicRichText {
   struct FormatSerializeTracker {
     TextFormat format;
     SerializeRule rule;
-    IndexSet::const_pair_iterator iter;
-    IndexSet::const_pair_iterator end;
+    IndexSet::const_range_iterator iter;
+    IndexSet::const_range_iterator end;
     FormatSerializeTracker(TextFormat format, SerializeRule rule,
-                           IndexSet::const_pair_iterator begin,
-                           IndexSet::const_pair_iterator end)
+                           IndexSet::const_range_iterator begin,
+                           IndexSet::const_range_iterator end)
         : format(format), rule(rule), iter(begin), end(end) {}
 
     bool operator<(const FormatSerializeTracker& rhs) const {
       dbg_assert(iter != end,
                  "FormatSerializeTracker compare failed: invalid iterator.");
-      return (*iter).first < (*rhs.iter).first ||
-             ((*iter).first == (*rhs.iter).first &&
-              (*iter).second < (*rhs.iter).second);
+      return (*iter).start < (*rhs.iter).start ||
+             ((*iter).start == (*rhs.iter).start &&
+              (*iter).end < (*rhs.iter).end);
     }
   };
 
@@ -493,29 +530,27 @@ class BasicRichText {
 
       // Apply formats
       while (tracker_iter != trackers.end() &&
-             (*tracker_iter->iter).first <= current) {
+             (*tracker_iter->iter).start <= current) {
         // The format begins, add the token
-        if ((*tracker_iter->iter).first == current) {
+        if ((*tracker_iter->iter).start == current) {
           result.output += tracker_iter->rule.StartToken(tracker_iter->format);
         }
 
         // Keep track of when the closest formatting deactivation is
-        if ((*tracker_iter->iter).second < next)
-          next = (*tracker_iter->iter).second;
+        if ((*tracker_iter->iter).end < next) next = (*tracker_iter->iter).end;
         ++tracker_iter;
       }
 
       // Process all the upcoming activating format activations
       while (tracker_iter != trackers.end() &&
-             (*tracker_iter->iter).first < next) {
+             (*tracker_iter->iter).start < next) {
         result.output +=
-            m_text.substr(current, (*tracker_iter->iter).first - current);
+            m_text.substr(current, (*tracker_iter->iter).start - current);
         result.output += tracker_iter->rule.StartToken(tracker_iter->format);
-        current = (*tracker_iter->iter).first;
+        current = (*tracker_iter->iter).start;
 
         // Keep track of when the closest formatting deactivation is
-        if ((*tracker_iter->iter).second < next)
-          next = (*tracker_iter->iter).second;
+        if ((*tracker_iter->iter).end < next) next = (*tracker_iter->iter).end;
         ++tracker_iter;
       }
 
@@ -528,7 +563,7 @@ class BasicRichText {
       // Find the rule to end
       auto rule_to_end_iter = trackers.begin();
       while (rule_to_end_iter != trackers.end() &&
-             (*rule_to_end_iter->iter).second != next)
+             (*rule_to_end_iter->iter).end != next)
         ++rule_to_end_iter;
       dbg_assert(
           rule_to_end_iter != trackers.end(),
@@ -554,8 +589,8 @@ class BasicRichText {
           ++reapply_rule_iter;
         }
         if (reapply_rule_iter == trackers.end()) break;
-        if ((*reapply_rule_iter->iter).first > current) break;
-        if ((*reapply_rule_iter->iter).second <= current) {
+        if ((*reapply_rule_iter->iter).start > current) break;
+        if ((*reapply_rule_iter->iter).end <= current) {
           auto tracker_to_update = trackers.extract(reapply_rule_iter);
           ++tracker_to_update.value().iter;
           if (tracker_to_update.value().iter != tracker_to_update.value().end)
@@ -571,14 +606,78 @@ class BasicRichText {
       } while (tracker_iter != trackers.end());
     }
 
+    if (current < m_text.size())
+      result.output += m_text.substr(current, m_text.size());
+
     if (serializer.footer) {
       result.output += *serializer.footer;
     }
 
     return result;
   }
+
+  /**
+   * @brief Erases `count` characters starting at `index`.
+   *        Removes substring [index..index+count) from m_text and
+   *        updates each format's IndexSet accordingly, removing empty sets.
+   */
+  void erase(std::size_t index, std::size_t count) {
+    // 1) Physically remove the substring from the underlying text
+    std::size_t const old_size = m_text.size();
+    m_text.erase(index, count);
+
+    // 2) For each format's IndexSet, shift erased indices out
+    for (auto& [format, idxSet] : m_formatting) {
+      idxSet.shift_left_within(count, index, old_size);
+    }
+
+    // 3) Remove formats whose sets became empty
+    for (auto it = m_formatting.begin(); it != m_formatting.end();) {
+      if (it->second.size() == 0) {
+        it = m_formatting.erase(it);
+      } else {
+        ++it;
+      }
+    }
+  }
+
+  /**
+   * @brief Erases each [start,end) in `to_erase` by calling the
+   *        (index,count) overload in descending order of start.
+   */
+  void erase(const cse::IndexSet& to_erase) {
+    // Gather all IndexRanges from to_erase
+    std::vector<IndexRange> ranges{to_erase.cbegin_pair(),
+                                   to_erase.cend_pair()};
+
+    // Reverse them so we erase from the highest start index first
+    std::reverse(ranges.begin(), ranges.end());
+
+    // For each range, call the 2-param erase
+    for (auto const& r : ranges) {
+      // Overload ambiguity fix: qualify with this-> to ensure we call
+      // erase(std::size_t, std::size_t) instead of erase(const IndexSet&)
+      this->erase(r.start, r.end - r.start);
+    }
+  }
 };
 
 using RichText = BasicRichText<>;
+
+/**
+ * A composition of filter and transform.
+ *
+ * Transformed values should be enclosed in an std::optional. To filter out an
+ * element, return std::nullopt.
+ *
+ * Known as filter map in other languages
+ */
+// we didn't end up needing this, but i'll leave it here anyway
+[[maybe_unused]] auto filter_transform(auto const& func) {
+  return std::views::transform(func) |
+         std::views::filter(
+             [](auto const& option) { return option.has_value(); }) |
+         std::views::transform([](auto const& option) { return *option; });
+}
 
 }  // namespace cse
