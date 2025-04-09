@@ -9,55 +9,99 @@
         crossorigin="anonymous" referrerpolicy="no-referrer">
 
   <style>
-    .presentation-zone {
-      background-color: aliceblue;
-      width: 100vw;
-      height: 95vh;
+    body,
+    html {
       overflow: hidden;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f7fa;
+    }
+
+    .presentation-zone {
+      background-color: white;
+      width: 100vw;
+      height: 93vh; /* adjusted to make room for taller nav */
+      overflow: hidden;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
     }
 
     .bottom-nav {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background-color: rgb(190, 189, 189);
+      background-color: #C1D8FF;
+      border-top: 1px solid #ccc;
       width: 100%;
-      height: 5vh;
+      height: 7vh; /* increased height to prevent crowding */
       padding: 0 20px;
+      box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    .nav-left {
-      flex: 1;
+    .nav-left,
+    .nav-center,
+    .nav-right {
       display: flex;
-      justify-content: flex-start;
       align-items: center;
       gap: 10px;
+    }
+
+    .nav-left,
+    .nav-right {
+      flex: 1;
     }
 
     .nav-center {
-      flex: 1;
-      display: flex;
+      flex: 2;
       justify-content: center;
-      align-items: center;
+      flex-wrap: nowrap;
+      overflow-x: auto;
     }
 
-    .nav-right {
-      flex: 1;
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      gap: 10px;
-      padding-right: 20px;
+    .nav-center::-webkit-scrollbar {
+      display: none;
     }
 
-    html,
-    body {
-      overflow: hidden;
-      margin: 0;
-      padding: 0;
-      font-family: sans-serif;
+    button {
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 14px;
+      cursor: pointer;
+      white-space: nowrap;     /* keep button text on one line */
+      transition: all 0.2s ease-in-out;
     }
+
+    button:hover {
+      background-color: #f0f0f0;
+      transform: scale(1.03);
+    }
+
+    button:active {
+      background-color: #ddd;
+      transform: scale(0.98);
+    }
+
+    #slideNumberDisplay {
+      font-weight: bold;
+      font-size: 14px;
+      color: #333;
+    }
+
+    input[type="file"] {
+      font-size: 13px;
+    }
+
+    /*.divider {*/
+    /*  color: #999;*/
+    /*  margin: 0 6px;*/
+    /*  font-weight: bold;*/
+    /*  user-select: none;*/
+    /*}*/
   </style>
+
+
 </head>
 
 <body>
@@ -71,8 +115,10 @@
   <div class="nav-center">
     <button id="saveDeck">Save Deck</button>
     <button id="addImageButton">Add Image</button>
+    <button id="resizeImageButton">Resize Image</button>
+<!--    <select id="imageSelectDropdown"></select>-->
     <input type="file" id="imageInput" accept="image/*" style="display: none;" />
-    <button id="addTextBoxButton">Add TextBox <i class="fa-solid fa-angles-left"></i></button>
+    <button id="addTextBoxButton">Add TextBox</button>
     <button id="addNewSlideButton">Add New Slide</button>
     <button id="stopButton">Stop</button>
     <button id="startButton">Start</button>
