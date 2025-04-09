@@ -108,7 +108,7 @@ TEST_CASE("RichText erase methods", "[RichTextAdvanced]") {
   using cse::RichText;
   using cse::TextFormat;
 
-  RichText text{"abcdefgh"}; // Indices: 0=a 1=b 2=c 3=d 4=e 5=f 6=g 7=h
+  RichText text{"abcdefgh"};  // Indices: 0=a 1=b 2=c 3=d 4=e 5=f 6=g 7=h
   TextFormat bold("bold");
   TextFormat italic("italic");
 
@@ -123,7 +123,7 @@ TEST_CASE("RichText erase methods", "[RichTextAdvanced]") {
   REQUIRE(text.get_format_range(italic).value() == IndexSet({4, 7}));
 
   SECTION("Erase partial overlap in the middle (index/count)") {
-    text.erase(3, 2); // Remove 'd'(3) and 'e'(4)
+    text.erase(3, 2);  // Remove 'd'(3) and 'e'(4)
     REQUIRE(text.to_string() == "abcfgh");
     // Bold was [2,5). Now only c remains (index 2)
     REQUIRE(text.get_format_range(bold).value() == IndexSet{2UL});
@@ -133,7 +133,7 @@ TEST_CASE("RichText erase methods", "[RichTextAdvanced]") {
   }
 
   SECTION("Erase entire bold region plus part of italic region") {
-    text.erase(2, 4); // Remove c,d,e,f
+    text.erase(2, 4);  // Remove c,d,e,f
     REQUIRE(text.to_string() == "abgh");
     REQUIRE_FALSE(text.get_format_range(bold).has_value());
 
@@ -144,8 +144,8 @@ TEST_CASE("RichText erase methods", "[RichTextAdvanced]") {
   SECTION("Erase with IndexSet: multiple disjoint ranges") {
     // Remove b => [1,2) plus f,g => [5,7)
     IndexSet ranges;
-    ranges.insert_range(1UL, 2UL); // inserts index 1
-    ranges.insert_range(5UL, 7UL); // inserts indices 5, 6
+    ranges.insert_range(1UL, 2UL);  // inserts index 1
+    ranges.insert_range(5UL, 7UL);  // inserts indices 5, 6
 
     text.erase(ranges);
     REQUIRE(text.to_string() == "acdeh");

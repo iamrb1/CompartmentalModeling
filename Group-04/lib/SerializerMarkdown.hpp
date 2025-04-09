@@ -47,16 +47,17 @@ auto SerializerMarkdown() {
                     std::format("]({})", std::get<std::string>(f.metadata)));
               });
 
-  out.AddRule("header",
-              [](const TextFormat& f) -> Underlying {
-                cse_assert(std::holds_alternative<int32_t>(f.metadata));
-                int32_t strength = std::get<int32_t>(f.metadata);
-                std::string str(strength + 2, '#');
-                str.front() = '\n';
-                str.back() = ' ';
-                return str_to_underlying<CharT, Underlying>(str);
-              },
-              str_to_underlying<CharT, Underlying>("\n"));
+  out.AddRule(
+      "header",
+      [](const TextFormat& f) -> Underlying {
+        cse_assert(std::holds_alternative<int32_t>(f.metadata));
+        int32_t strength = std::get<int32_t>(f.metadata);
+        std::string str(strength + 2, '#');
+        str.front() = '\n';
+        str.back() = ' ';
+        return str_to_underlying<CharT, Underlying>(str);
+      },
+      str_to_underlying<CharT, Underlying>("\n"));
 
   return out;
 }

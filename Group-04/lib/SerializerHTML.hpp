@@ -13,7 +13,8 @@
 
 namespace cse {
 
-const std::string SERIALIZER_HTML_HEADER = "<!DOCTYPE html>\n<html>\n<head></head>\n<body>\n";
+const std::string SERIALIZER_HTML_HEADER =
+    "<!DOCTYPE html>\n<html>\n<head></head>\n<body>\n";
 const std::string SERIALIZER_HTML_FOOTER = "\n</body>\n</html>\n";
 
 // Generate an HTML serializer for the given character type and underlying
