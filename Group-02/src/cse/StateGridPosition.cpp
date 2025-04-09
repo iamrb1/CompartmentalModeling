@@ -3,9 +3,9 @@
  * @author Bram Hogg
  */
 
-#include <cse/StateGridPosition.h>
 #include <cassert>
 #include <cmath>
+#include <cse/StateGridPosition.hpp>
 
 namespace cse {
 

@@ -3,7 +3,7 @@
  * @author Nitish Maindoliya
  */
 
-#include <cse/ActionMap.h>
+#include <cse/ActionMap.hpp>
 #include <catch2/catch.hpp>
 
 TEST_CASE("ActionMap: Intialization", "[ActionMap]") {

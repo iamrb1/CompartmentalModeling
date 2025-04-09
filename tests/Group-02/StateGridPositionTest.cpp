@@ -3,7 +3,7 @@
  * @author Bram Hogg
  */
 
-#include <cse/StateGridPosition.h>
+#include <cse/StateGridPosition.hpp>
 #include <catch2/catch.hpp>
 
 TEST_CASE("default values are 0s") {

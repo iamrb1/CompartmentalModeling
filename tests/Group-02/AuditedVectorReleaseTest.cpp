@@ -7,7 +7,7 @@
  */
 
 #define NDEBUG
-#include <cse/AuditedVector.h>
+#include <cse/AuditedVector.hpp>
 #include <algorithm>
 #include <catch2/catch.hpp>
 #include <type_traits>

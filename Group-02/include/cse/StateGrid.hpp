@@ -7,14 +7,14 @@
 
 #pragma once
 
-#include <functional>
 #include <algorithm>
+#include <functional>
 #include <map>
 #include <string>
 #include <vector>
-#include "AuditedVector.h"
+#include "AuditedVector.hpp"
 #include "DataMap.hpp"
-#include "StateGridPosition.h"
+#include "StateGridPosition.hpp"
 
 namespace cse {
 

@@ -6,7 +6,7 @@
  * Because an assertion failure aborts the program, we only test valid operations here.
  */
 
-#include <cse/AuditedVector.h>
+#include <cse/AuditedVector.hpp>
 #include <algorithm>
 #include <catch2/catch.hpp>
 #include <type_traits>

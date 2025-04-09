@@ -9,7 +9,7 @@
 #include <iostream>
 #include <map>
 #include <utility>
-#include "cse/StateGridPosition.h"
+#include "cse/StateGridPosition.hpp"
 namespace cse {
 
 ///NOTE: Used ChatGPT for syntax for this overload

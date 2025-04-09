@@ -8,10 +8,10 @@ message(STATUS "Building Library: ${LIBRARY_NAME}")
 # Set the header and source files
 set(
     HEADER_FILES
-    ${PROJECT_SOURCE_DIR}/include/cse/ActionMap.h
+        ${PROJECT_SOURCE_DIR}/include/cse/ActionMap.hpp
         ${PROJECT_SOURCE_DIR}/include/cse/StateGrid.hpp
-    ${PROJECT_SOURCE_DIR}/include/cse/StateGridPosition.h
-    ${PROJECT_SOURCE_DIR}/include/cse/AuditedVector.h
+        ${PROJECT_SOURCE_DIR}/include/cse/StateGridPosition.hpp
+        ${PROJECT_SOURCE_DIR}/include/cse/AuditedVector.hpp
         ${PROJECT_SOURCE_DIR}/include/cse/DataMap.hpp
     ${PROJECT_SOURCE_DIR}/include/cse/AdvancedDataMap.hpp
 )

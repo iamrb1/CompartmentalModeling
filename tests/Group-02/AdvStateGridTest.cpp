@@ -4,7 +4,7 @@
  */
 
 #include <cse/StateGrid.hpp>
-#include <cse/StateGridPosition.h>
+#include <cse/StateGridPosition.hpp>
 #include <algorithm>
 #include <catch2/catch.hpp>
 #include <stdexcept>
