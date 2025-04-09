@@ -101,7 +101,7 @@ cse::AuditedVector<std::string> StateGrid::define_state(char state) const {
  * @return state of (row,col) position
  */
 char StateGrid::get_state(Point state_pos) const{
-  assert(state_pos.x_position < m_rows && state_pos.y_position < m_cols && "This is not inside the grid");
+  assert(state_pos.x_position < m_rows && state_pos.x_position >= 0 && state_pos.y_position < m_cols && state_pos.y_position >= 0 && "This is not inside the grid");
   return m_grid[static_cast<size_t>(state_pos.x_position)][static_cast<size_t>(state_pos.y_position)];
 }
 
@@ -111,7 +111,7 @@ char StateGrid::get_state(Point state_pos) const{
  * @return T/F of position validity
  */
 bool StateGrid::validate_position(std::pair<double, double> move) const{
-  assert(move.first < m_rows && move.second < m_cols && "This move is out of bounds");
+  assert(move.first < m_rows && move.first >= 0 && move.second < m_cols && move.second >=0 && "This move is out of bounds");
   char validate = m_grid[static_cast<size_t>(move.first)][static_cast<size_t>(move.second)];
   return (m_dictionary.find(validate) && m_dictionary.traversable(validate));
 }
@@ -125,7 +125,7 @@ bool StateGrid::validate_position(std::pair<double, double> move) const{
 std::vector<Point> StateGrid::find_moves() const{
   double row = m_position.get_object_position().x_position;
   double col = m_position.get_object_position().y_position;
-  assert(row < m_rows && col < m_cols && "This is not inside the grid");
+  assert(row < m_rows && row >= 0 && col < m_cols && col >= 0 && "This is not inside the grid");
   std::vector<Point> moves = {};
   std::vector<std::pair<double, double>> poss_moves = {
       {(row + 1), col}, {(row - 1), col}, {row, (col + 1)}, {row, (col - 1)}};

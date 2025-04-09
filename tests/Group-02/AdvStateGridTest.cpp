@@ -1,6 +1,6 @@
 /**
  * @file AdvStateGridTest.cpp
- * @author Dominik Leisinger
+ * @author Dominik Leisinger, Matthew Hawkins
  */
 
 #include <cse/StateGrid.hpp>
@@ -29,6 +29,7 @@ TEST_CASE("Testing load_map returns a valid map") {
   REQUIRE(grid.get_state(cse::Point(2, 2)) == 'X');
 
   // Row 0 is "#####"
+  // See Group-02/test.csv for the test grid layout
   std::string row0;
   for (int col = 0; col < 5; col++) {
     row0.push_back(grid.get_state(cse::Point(0, col)));
@@ -192,3 +193,16 @@ TEST_CASE("Testing validate_position on edge cells") {
   // (1,1) is an empty space so should be traversable.
   REQUIRE(grid.validate_position({1, 1}));
 }
+
+TEST_CASE("Testing incorrect filepath throws exception") {
+  REQUIRE_THROWS_AS((cse::StateGrid("nonexistent_file")), std::runtime_error);
+}
+
+TEST_CASE("Testing move of more than one space", "[StateGrid]") {
+  cse::StateGrid grid("test");
+
+  bool moved = grid.set_state(cse::Point(1, 4));
+  REQUIRE_FALSE(moved);
+  REQUIRE(grid.get_state(cse::Point(1,2)) == 'P');
+}
+
