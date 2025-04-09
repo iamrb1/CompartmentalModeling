@@ -36,46 +36,30 @@ class IndexSet {
     std::size_t start;
     std::size_t end;
 
-    // Public member aliases for backward compatibility
-    std::size_t first;
-    std::size_t second;
-
     // Constructor to initialize both sets of values
-    IndexRange(std::size_t s = 0, std::size_t e = 0)
-        : start(s), end(e), first(s), second(e) {}
+    IndexRange(std::size_t s = 0, std::size_t e = 0) : start(s), end(e) {}
 
     // Copy constructor
-    IndexRange(const IndexRange& other)
-        : start(other.start),
-          end(other.end),
-          first(other.start),
-          second(other.end) {}
+    IndexRange(const IndexRange& other) : start(other.start), end(other.end) {}
 
     // Copy assignment operator
     IndexRange& operator=(const IndexRange& other) {
       if (this != &other) {
         start = other.start;
         end = other.end;
-        first = other.start;
-        second = other.end;
       }
       return *this;
     }
 
     // Move constructor
     IndexRange(IndexRange&& other) noexcept
-        : start(other.start),
-          end(other.end),
-          first(other.start),
-          second(other.end) {}
+        : start(other.start), end(other.end) {}
 
     // Move assignment operator
     IndexRange& operator=(IndexRange&& other) noexcept {
       if (this != &other) {
         start = other.start;
         end = other.end;
-        first = other.start;
-        second = other.end;
       }
       return *this;
     }
@@ -171,8 +155,7 @@ class IndexSet {
       // Move to the next range
       range_idx_++;
 
-      // If there are more ranges, set current to the first element of that
-      // range
+      // If there are more ranges, set current to the start of that range
       if (range_idx_ < ranges_->size()) {
         current_ = (*ranges_)[range_idx_].start;
       }
@@ -260,15 +243,14 @@ class IndexSet {
       // Move to the next range
       range_idx_++;
 
-      // If there are more ranges, set current to the first element of that
-      // range
+      // If there are more ranges, set current to the start of that range
       if (range_idx_ < ranges_->size()) {
         current_ = (*ranges_)[range_idx_].start;
       }
     }
   };
 
-  class const_pair_iterator {
+  class const_range_iterator {
    public:
     using iterator_category = std::forward_iterator_tag;
     using value_type = IndexRange;
@@ -276,8 +258,8 @@ class IndexSet {
     using pointer = const std::size_t*;
     using reference = const std::size_t&;
 
-    explicit const_pair_iterator(const std::vector<IndexRange>& ranges,
-                                 std::size_t current = 0)
+    explicit const_range_iterator(const std::vector<IndexRange>& ranges,
+                                  std::size_t current = 0)
         : ranges_(&ranges), current_(current) {}
 
     value_type operator*() const {
@@ -286,23 +268,23 @@ class IndexSet {
       return (*ranges_)[current_];
     }
 
-    const_pair_iterator& operator++() {
+    const_range_iterator& operator++() {
       dbg_assert(current_ < ranges_->size(), "Iterator moved out of range.");
       current_ += 1;
       return *this;
     }
 
-    const_pair_iterator operator++(int) {
-      const_pair_iterator tmp = *this;
+    const_range_iterator operator++(int) {
+      const_range_iterator tmp = *this;
       ++(*this);
       return tmp;
     }
 
-    bool operator==(const const_pair_iterator& other) const {
+    bool operator==(const const_range_iterator& other) const {
       return ranges_ == other.ranges_ && current_ == other.current_;
     }
 
-    bool operator!=(const const_pair_iterator& other) const {
+    bool operator!=(const const_range_iterator& other) const {
       return !(*this == other);
     }
 
@@ -430,7 +412,6 @@ class IndexSet {
     if (range.start == index) {
       // Case 1: Removing from start of range
       range.start++;
-      range.first++;  // Update first as well
       if (range.start == range.end) {
         // Range became empty, remove it
         ranges_.erase(ranges_.begin() + range_idx);
@@ -438,12 +419,10 @@ class IndexSet {
     } else if (range.end == index + 1) {
       // Case 2: Removing from end of range
       range.end--;
-      range.second--;  // Update second as well
     } else {
       // Case 3: Removing from middle of range - need to split into two ranges
       auto second_half = IndexRange{index + 1, range.end};
       range.end = index;
-      range.second = index;  // Update second as well
       ranges_.insert(ranges_.begin() + range_idx + 1, second_half);
     }
 
@@ -623,8 +602,6 @@ class IndexSet {
     for (auto& range : ranges_) {
       range.start += offset;
       range.end += offset;
-      range.first += offset;   // Update first as well
-      range.second += offset;  // Update second as well
     }
   }
 
@@ -871,11 +848,11 @@ class IndexSet {
   const_iterator cend() const {
     return const_iterator(ranges_, ranges_.size(), 0);
   }
-  [[nodiscard]] const_pair_iterator cbegin_pair() const {
-    return const_pair_iterator(ranges_);
+  [[nodiscard]] const_range_iterator cbegin_pair() const {
+    return const_range_iterator(ranges_);
   }
-  [[nodiscard]] const_pair_iterator cend_pair() const {
-    return const_pair_iterator(ranges_, ranges_.size());
+  [[nodiscard]] const_range_iterator cend_pair() const {
+    return const_range_iterator(ranges_, ranges_.size());
   }
 
  private:
@@ -910,13 +887,11 @@ class IndexSet {
       if (back.end > ranges_[i].start) {
         // Merge the ranges by extending the end of the previous range
         back.end = std::max(back.end, ranges_[i].end);
-        back.second = back.end;  // Update second as well
       }
       // Check if ranges are adjacent (back.end == ranges_[i].start)
       else if (back.end == ranges_[i].start) {
         // Merge adjacent ranges
         back.end = ranges_[i].end;
-        back.second = back.end;  // Update second as well
       } else {
         // Ranges are not adjacent or overlapping, add as new range
         merged.push_back(ranges_[i]);

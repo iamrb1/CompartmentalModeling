@@ -483,19 +483,19 @@ class BasicRichText {
   struct FormatSerializeTracker {
     TextFormat format;
     SerializeRule rule;
-    IndexSet::const_pair_iterator iter;
-    IndexSet::const_pair_iterator end;
+    IndexSet::const_range_iterator iter;
+    IndexSet::const_range_iterator end;
     FormatSerializeTracker(TextFormat format, SerializeRule rule,
-                           IndexSet::const_pair_iterator begin,
-                           IndexSet::const_pair_iterator end)
+                           IndexSet::const_range_iterator begin,
+                           IndexSet::const_range_iterator end)
         : format(format), rule(rule), iter(begin), end(end) {}
 
     bool operator<(const FormatSerializeTracker& rhs) const {
       dbg_assert(iter != end,
                  "FormatSerializeTracker compare failed: invalid iterator.");
-      return (*iter).first < (*rhs.iter).first ||
-             ((*iter).first == (*rhs.iter).first &&
-              (*iter).second < (*rhs.iter).second);
+      return (*iter).start < (*rhs.iter).start ||
+             ((*iter).start == (*rhs.iter).start &&
+              (*iter).end < (*rhs.iter).end);
     }
   };
 
@@ -531,29 +531,27 @@ class BasicRichText {
 
       // Apply formats
       while (tracker_iter != trackers.end() &&
-             (*tracker_iter->iter).first <= current) {
+             (*tracker_iter->iter).start <= current) {
         // The format begins, add the token
-        if ((*tracker_iter->iter).first == current) {
+        if ((*tracker_iter->iter).start == current) {
           result.output += tracker_iter->rule.StartToken(tracker_iter->format);
         }
 
         // Keep track of when the closest formatting deactivation is
-        if ((*tracker_iter->iter).second < next)
-          next = (*tracker_iter->iter).second;
+        if ((*tracker_iter->iter).end < next) next = (*tracker_iter->iter).end;
         ++tracker_iter;
       }
 
       // Process all the upcoming activating format activations
       while (tracker_iter != trackers.end() &&
-             (*tracker_iter->iter).first < next) {
+             (*tracker_iter->iter).start < next) {
         result.output +=
-            m_text.substr(current, (*tracker_iter->iter).first - current);
+            m_text.substr(current, (*tracker_iter->iter).start - current);
         result.output += tracker_iter->rule.StartToken(tracker_iter->format);
-        current = (*tracker_iter->iter).first;
+        current = (*tracker_iter->iter).start;
 
         // Keep track of when the closest formatting deactivation is
-        if ((*tracker_iter->iter).second < next)
-          next = (*tracker_iter->iter).second;
+        if ((*tracker_iter->iter).end < next) next = (*tracker_iter->iter).end;
         ++tracker_iter;
       }
 
@@ -566,7 +564,7 @@ class BasicRichText {
       // Find the rule to end
       auto rule_to_end_iter = trackers.begin();
       while (rule_to_end_iter != trackers.end() &&
-             (*rule_to_end_iter->iter).second != next)
+             (*rule_to_end_iter->iter).end != next)
         ++rule_to_end_iter;
       dbg_assert(
           rule_to_end_iter != trackers.end(),
@@ -592,8 +590,8 @@ class BasicRichText {
           ++reapply_rule_iter;
         }
         if (reapply_rule_iter == trackers.end()) break;
-        if ((*reapply_rule_iter->iter).first > current) break;
-        if ((*reapply_rule_iter->iter).second <= current) {
+        if ((*reapply_rule_iter->iter).start > current) break;
+        if ((*reapply_rule_iter->iter).end <= current) {
           auto tracker_to_update = trackers.extract(reapply_rule_iter);
           ++tracker_to_update.value().iter;
           if (tracker_to_update.value().iter != tracker_to_update.value().end)

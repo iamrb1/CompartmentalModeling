@@ -326,19 +326,19 @@ TEST_CASE("Test range operations", "[IndexSetTest]") {
   REQUIRE(set.size() == 5);
   auto range = set.get_containing_range(7);
   REQUIRE(range.has_value());
-  REQUIRE(range->first == 5);
-  REQUIRE(range->second == 10);
+  REQUIRE(range->start == 5);
+  REQUIRE(range->end == 10);
 
   // Test range queries
   auto next_range = set.get_next_range(4);
   REQUIRE(next_range.has_value());
-  REQUIRE(next_range->first == 5);
-  REQUIRE(next_range->second == 10);
+  REQUIRE(next_range->start == 5);
+  REQUIRE(next_range->end == 10);
 
   auto prev_range = set.get_prev_range(12);
   REQUIRE(prev_range.has_value());
-  REQUIRE(prev_range->first == 5);
-  REQUIRE(prev_range->second == 10);
+  REQUIRE(prev_range->start == 5);
+  REQUIRE(prev_range->end == 10);
 
   // Test get_all_indices
   auto indices = set.get_all_indices();
@@ -362,8 +362,8 @@ TEST_CASE("Test range merging", "[IndexSetTest]") {
   REQUIRE(set.size() == 5);
   auto range = set.get_containing_range(3);
   REQUIRE(range.has_value());
-  REQUIRE(range->first == 1);
-  REQUIRE(range->second == 6);
+  REQUIRE(range->start == 1);
+  REQUIRE(range->end == 6);
 }
 
 // Test range splitting
@@ -383,10 +383,10 @@ TEST_CASE("Test range splitting", "[IndexSetTest]") {
   auto second_range = set.get_containing_range(4);
   REQUIRE(first_range.has_value());
   REQUIRE(second_range.has_value());
-  REQUIRE(first_range->first == 1);
-  REQUIRE(first_range->second == 3);
-  REQUIRE(second_range->first == 4);
-  REQUIRE(second_range->second == 6);
+  REQUIRE(first_range->start == 1);
+  REQUIRE(first_range->end == 3);
+  REQUIRE(second_range->start == 4);
+  REQUIRE(second_range->end == 6);
 }
 
 TEST_CASE("Test Iterator", "[IndexSetTest]") {
