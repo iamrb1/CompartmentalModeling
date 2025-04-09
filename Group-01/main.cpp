@@ -299,11 +299,12 @@ private:
 
       var randomGraphButton = document.createElement('button');
       randomGraphButton.textContent = "Random Graph";
-      randomGraphButton.addEventListener('click', function() {
-        var vertices = parseInt(document.getElementById("vertexCount").value);
-        var edges = parseInt(document.getElementById("edgeCount").value);
-        Module._randomGraph(vertices, edges);
-      });
+      randomGraphButton.addEventListener(
+          'click', function() {
+            var vertices = parseInt(document.getElementById("vertexCount").value);
+            var edges = parseInt(document.getElementById("edgeCount").value);
+            Module._randomGraph(vertices, edges);
+          });
       buttonGroup.appendChild(randomGraphButton);
       var vertexLabel = document.createElement('label');
       vertexLabel.setAttribute("for", "vertexCount");
@@ -450,12 +451,22 @@ private:
       fullButton.addEventListener('click', function() { Module._fullTraversal(); });
       buttonGroup.appendChild(fullButton);
 
+      // Create a flex container assisted by ChatGPT
+      var flexContainer = document.createElement("div");
+      flexContainer.style.display = "flex";
+      flexContainer.style.flexWrap = "wrap";
+      flexContainer.style.justifyContent = "center";
+      flexContainer.style.gap = "10px";
+
       // Add button group and vertex info to control zone
-      controlZone.appendChild(buttonGroup);
-      controlZone.appendChild(AddbuttonGroup);
-      controlZone.appendChild(selectedVertexDiv);
-      controlZone.appendChild(deleteButtonGroup);
-      controlZone.appendChild(edgeButtonGroup);
+      flexContainer.appendChild(buttonGroup);
+      flexContainer.appendChild(AddbuttonGroup);
+      flexContainer.appendChild(selectedVertexDiv);
+      flexContainer.appendChild(deleteButtonGroup);
+      flexContainer.appendChild(edgeButtonGroup);
+
+      controlZone.appendChild(flexContainer);
+
       mainElement.appendChild(controlZone);
     });
   }
@@ -573,12 +584,10 @@ public:
     const std::string edgeId = idCpp1 + "-" + idCpp2;
     if (g.HasEdge(edgeId)) {
       g.RemoveEdge(edgeId);
-    } 
-    else if(!g.HasVertex(idCpp1) || !g.HasVertex(idCpp2)){
+    } else if (!g.HasVertex(idCpp1) || !g.HasVertex(idCpp2)) {
       EM_ASM({ alert("Error: Entered vertices must exist!"); });
-    }
-    else{
-        g.AddEdge(idCpp1, idCpp2, weight);
+    } else {
+      g.AddEdge(idCpp1, idCpp2, weight);
     }
     RedrawCanvas();
   }
@@ -714,9 +723,9 @@ void deleteVertex(const char *id) {
 void fullTraversal() {
   init.FullTraversal();
 }
-  
+
 void randomGraph(int vertices, int edges) {
-  init.RandomGraph(vertices,edges);
+  init.RandomGraph(vertices, edges);
 }
 
 void clearTraversal() {
