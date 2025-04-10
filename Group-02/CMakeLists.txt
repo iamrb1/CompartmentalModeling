@@ -18,29 +18,16 @@ set(BUILD_SHARED_LIBS OFF)
 # Only do these if this is the main project, and not if it is included through add_subdirectory
 if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   set(CMAKE_CXX_STANDARD 20)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
   # -std=c++xx instead of -std=g++xx
   set(CMAKE_CXX_EXTENSIONS OFF)
 
-  # Set Wall, Wextra and Wpedantic flags
-  if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    add_compile_options(-Wall -Wextra -Wpedantic)
-  endif ()
-
-  find_package(Doxygen)
-  if (DOXYGEN_FOUND)
-    find_package(Doxygen)
-
-    doxygen_add_docs(
-        docs
-        ${PROJECT_SOURCE_DIR}
-        ALL
-        COMMENT "Generate HTML documentation"
-        CONFIG_FILE ${PROJECT_SOURCE_DIR}/Doxyfile
-    )
-
-  else ()
-    message(STATUS "Doxygen not found, not adding docs target")
+  # Set Wall, Wextra and Wpedantic flags for GCC/Clang and /W4 for MSVC
+  if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
+  elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    string(REGEX REPLACE "/W3" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
   endif ()
 
 endif ()
