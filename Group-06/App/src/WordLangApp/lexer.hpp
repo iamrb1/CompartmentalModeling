@@ -1,6 +1,6 @@
 #ifndef EMPLEX_LEXER_HPP_INCLUDE_
 #define EMPLEX_LEXER_HPP_INCLUDE_
-
+// \cond
 #include <algorithm>
 #include <array>
 #include <cctype>
@@ -447,4 +447,5 @@ namespace emplex {
     }
   };
 } // End of namespace emplex
+// \endcond
 #endif // #ifndef EMPLEX_LEXER_HPP_INCLUDE_

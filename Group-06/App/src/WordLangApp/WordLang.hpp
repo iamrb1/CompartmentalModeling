@@ -22,8 +22,12 @@
 
 
 namespace cse {
+
 /**
-  * @brief Main clas for WordLang application
+  * @brief Main class for WordLang application
+  * 
+  * WordLang is a simple Language that enables user to input using terminal
+  * and output values.
   * 
   */
  class WordLang {
@@ -33,6 +37,7 @@ namespace cse {
          * 
          */
         WordLang();
+
         /**
          * @brief Destroy the Word Lang object
          * 
@@ -42,24 +47,138 @@ namespace cse {
         /**
          * @brief Starts the app
          * 
+         * Continuosly takes input from the user until EXIT keyword is entered
+         * or keyboard interrupted. 
          */
         void start();
-    
+
+        /**
+         * @brief Parse the user input
+         * 
+         * Parses the user input calls functions to check syntax and ensure
+         * syntax is correct.
+         * 
+         * @param input Terminal input of the user
+         */
         void parse(const std::string& input);
         
+        /**
+         * @brief Parses LIST command 
+         * 
+         * Checks syntax and returns error messages to the terminal if syntax 
+         * is wrong.
+         * 
+         * Creates and loads list to make operations. Have multiple keywords 
+         * to narrow or broaden our lists.
+         * 
+         * Valid Commands:
+         * 
+         * LIST listname = LOAD "filename"
+         * LIST listname = COMBINED listname ... listname
+         * LIST listname = DIFFERENCE listname ... listname
+         * LIST listname = INTERSECTION listname ... listname
+         * LIST listname = COPY listname
+         *
+         */
         void parseList();
+
+        /**
+         * @brief Parses input for multiple list name inputted 
+         * 
+         * @return std::vector<std::string> Vector of multiple lists requested
+         */
         std::vector<std::string> parseMultipleLists();
-   
+
+        /**
+         * @brief Parses PRINT command 
+         * 
+         * Checks syntax and returns error messages to the terminal if syntax 
+         * is wrong.
+         * 
+         * Prints the outputs to the terminal
+         * 
+         * Valid Command:
+         *
+         * PRINT number   print only given number of values
+         * PRINT ALL  to print all values for request 
+         * 
+         */
         void parsePrint();
 
+        /**
+         * @brief Parses SET_CURRENT command 
+         * 
+         * Checks syntax and returns error messages to the terminal if syntax 
+         * is wrong.
+         * 
+         * Sets the current searches to base on given lists
+         * 
+         * Valid Command:
+         * 
+         * SET_CURRENT listname ... listname
+         * 
+         */
         void parseSetCurrent();
         
+        /**
+         * @brief Parses ADD command 
+         * 
+         * Checks syntax and returns error messages to the terminal if syntax 
+         * is wrong.
+         * 
+         * Valid Command:
+         * 
+         * ADD listname "space separated words"
+         * 
+         */
         void parseAdd();
 
+        /**
+         * @brief Parses SAVE command 
+         * 
+         * Checks syntax and returns error messages to the terminal if syntax 
+         * is wrong.
+         * 
+         * Saves the given listname's values to a given filename, creates it 
+         * if not exists, if exists writes over it.
+         * 
+         * Valid Command:
+         * 
+         * SAVE listname "filename"
+         * 
+         */
         void parseSave();
 
+        /**
+         * @brief Parses LENGTH command 
+         * 
+         * Checks syntax and returns error messages to the terminal if syntax 
+         * is wrong.
+         * 
+         * Restricts the word length for searches
+         * 
+         * Valid Command:
+         * 
+         * LENGTH = number
+         * LENGTH = *  to discard the lenght restriction
+         * 
+         */
         void parseLength();
 
+        /**
+         * @brief Parses CONTAINS_ANY command 
+         * 
+         * Checks syntax and returns error messages to the terminal if syntax 
+         * is wrong.
+         * 
+         * Restricts the search to only letters given if exists in the word of 
+         * lists
+         * 
+         * Valid Command:
+         * 
+         * CONTAINS_ANY "collection of letters"
+         * 
+         */
         void parseContainsAny();
 
         /**
@@ -101,16 +220,16 @@ namespace cse {
         void parseWorldle();
     
     private:
-    /**
-     * @brief Boolean that tracks if the app is currently running
-     * 
-     */
+        /// @brief Bool to check if program is still active
         bool mIsActive = false;
-    
+
+        /// @brief TokenManager that handles token creation
         TokenManager mTokenManager;
-   
+
+        /// @brief ErrorManager that handles error prompting
         ErrorManager mErrorManager;
-   
+
+        /// @brief WordListManager handles all the backend operations
         WordListManager mWordListManager;
     };
 

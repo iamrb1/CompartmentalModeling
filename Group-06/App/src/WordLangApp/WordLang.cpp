@@ -2,8 +2,11 @@
 #include "../../../StringSet/StringSet.hpp"
 #include "../../../StaticString/StaticString.hpp"
 #include "../../../ErrorManager/ErrorManager.hpp"
+//#include "../../../CommandLine/CommandLine.cpp"
 
 #include "FileSource.hpp"
+// #include "TokenManager.hpp"
+// #include "WordListManager.hpp"
 #include "lexer.hpp"
 #include <istream>
 #include <vector>
@@ -13,24 +16,11 @@ void cse::WordLang::start() {
 
     // Call a function that takes commandline and assigns functions and configure it
 
-    // Assign WordListManager this handles all the backend keeping track of lists
-    // Current lists, takes input returns results.
-
-    // In loop until broken by user,
-    // get input from the user feed the input into Parse function in WordLang
-    // WordListManager and CommandLine should be member variable assigned at the 
-    // Construction which allows Parse to access it whenever needed.
-
-    // In the loop call parse assign to a string or a cout returned value if has
-    // If input EXIT break the program and close
-
     std::cout << "Welcome to WordLang! Type your query below:\n";
 
     mIsActive = true;
     std::string input;
 
-    //cse::StringSet<cse::StaticString<20>> set = FileSource::load_file("top_1000_worlde.txt");
-    //std::cout << "Words loaded: " << set.size() << "\n";
     while (mIsActive) {
         std::cout << ">>> ";
         std::getline(std::cin, input);
@@ -55,17 +45,8 @@ cse::WordLang::~WordLang() {
 }
 
 void cse::WordLang::parse(const std::string& input) {
-    /* Each parse function should check syntax, required variables, if the given 
-        List name exists or file can open etc.
-
-        If no error, calls WordListManager to do the operations and couts if necessary 
-        no return required in this case since ther might be type issues.
-    */
+    // Utility class that handles tokenization
     mTokenManager.Load(input);
-
-    // for (auto t : tokens) {
-    //     std::cout << "Lexeme: " << t.lexeme << ", ID: " << t.id << ", ID_Name: " << emplex::Lexer::TokenName(t.id) << "\n";
-    // }
 
     switch (mTokenManager.Peek()) {
         using namespace emplex;
@@ -115,13 +96,14 @@ void cse::WordLang::parse(const std::string& input) {
         }
         case Lexer::ID_RESET_LAST: {
             parseResetLast();
-        break;
+            break;
         }
         case Lexer::ID_WORDLE: {
-        break;
+            break;
         }
         default:{
-        break;
+            mErrorManager.printInfo("Incorrect Syntax: Check syntax, keyword is not found.");
+            break;
         }
     }
 }
@@ -129,6 +111,7 @@ void cse::WordLang::parse(const std::string& input) {
 void cse::WordLang::parseList() {
     mTokenManager.Use();
 
+    // List name for the list created
     auto listname = mTokenManager.Use();
 
     // Check if a listname provided
@@ -145,6 +128,7 @@ void cse::WordLang::parseList() {
         return;
     }
 
+    // List identifier such as LOAD, COMBINED, COPY, INTERSECTION, DIFFERENCE
     auto listIdentifier = mTokenManager.Use();
 
     if(listIdentifier.id == 253) {          // Load the list
@@ -350,6 +334,7 @@ void cse::WordLang::parseContainsAny() {
     mTokenManager.Use();
 
     auto letters = mTokenManager.Use();
+
     if( letters == mTokenManager.eof_token || letters != emplex::Lexer::ID_STRING ) {
         // Print syntax error 
         mErrorManager.printInfo("Incorrect Syntax: CONTAINS_ANY must have string of letters.");
@@ -417,7 +402,7 @@ void cse::WordLang::parseReset() {
         return;
     }
 
-    if (mTokenManager.Peek() != mTokenManager.eof_token()) {
+    if (mTokenManager.Peek() != mTokenManager.eof_token) {
         // check if we don't have anything else apart from RESET
         mErrorManager.printInfo("Encountered unknown symbols after \"RESET\" token.");
         return;
@@ -429,7 +414,7 @@ void cse::WordLang::parseReset() {
 void cse::WordLang::parseResetLast() {
     mTokenManager.Use(); // use keyword "RESET_LAST"
 
-    if (mTokenManager.Peek() != mTokenManager.eof_token()) {
+    if (mTokenManager.Peek() != mTokenManager.eof_token) {
         // check if we don't have anything else apart from RESET
         mErrorManager.printInfo("Encountered unknown symbols after \"RESET_LAST\" token.");
         return;

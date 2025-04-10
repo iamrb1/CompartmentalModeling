@@ -12,7 +12,10 @@
 #include "../../../StaticString/StaticString.hpp"
 #include "FileSource.hpp"
 namespace cse {
- 
+ /**
+  * @brief WordListManager handles the backend of WordLang. 
+  * 
+  */
  class WordListManager {
   public:
   
@@ -52,7 +55,14 @@ namespace cse {
 
   // Get searches based on pattern load found words into current set to print if asked, string patterrn to restric return bool
 
-  // Print prints the current setif number specified that number of variable if not all 
+  /**
+   * @brief Prints the current values
+   * 
+   * @param number Int number of value to print, by default 0
+   * @param isAll Bool flag to identify if user wants all inputs
+   * @return true If print is successful
+   * @return false If print is unsuccessful
+   */
   bool print(int number = 0, bool isAll = false);
   
   // Reset takes a listname existing and loads the file associated to it to the original, listname resets back to originial(can be done only list loaded from files)
