@@ -286,34 +286,34 @@ class BasicRichText {
    * @param pos The position to check for range changes
    */
   IndexRange segment_at(std::size_t pos) const {
-    dbg_assert(pos < m_text.size(),
-               std::format("Out of bounds access, idx: {} size: {}", pos,
-                           m_text.size()));
-    // index range containing entire richtext
-    IndexSet text_range{{0, m_text.size()}};
-    // get containing ranges of all formats (or lack thereof) at pos
-    auto ranges =
-        std::views::elements<1>(m_formatting) |
-        std::views::transform([pos, &text_range](IndexSet const& fmt_indices) {
-          // if a range encompasses pos, return it
-          if (auto range = fmt_indices.get_containing_range(pos)) {
-            return *range;
-          }
-          // otherwise, return the unformatted range encompassing pos.
-          // optional can only be nullopt if the text is empty, which is
-          // impossible if we have made it this far
-          auto unfmt_indices = text_range - fmt_indices;
-          return unfmt_indices.get_containing_range(pos).value();
-        });
+  dbg_assert(pos < m_text.size(),
+             std::format("Out of bounds access, idx: {} size: {}", pos,
+                         m_text.size()));
+  // index range containing entire richtext
+  IndexSet text_range{{0, m_text.size()}};
+  // get containing ranges of all formats (or lack thereof) at pos
+  auto ranges =
+      std::views::elements<1>(m_formatting) |
+      std::views::transform([pos, &text_range](IndexSet const& fmt_indices) {
+        // if a range encompasses pos, return it
+        if (auto range = fmt_indices.get_containing_range(pos)) {
+          return *range;
+        }
+        // otherwise, return the unformatted range encompassing pos
+        auto unfmt_indices = text_range - fmt_indices;
+        // optional can only be nullopt if text is empty, which can't happen here
+        return unfmt_indices.get_containing_range(pos).value();
+      });
 
-    return std::ranges::fold_left(
-        ranges, IndexRange{0, m_text.size()},
-        [](IndexRange const& acc, IndexRange const& it) {
-          std::size_t start = std::max(acc.start, it.start);
-          std::size_t end = std::min(acc.end, it.end);
-          return IndexRange{start, end};
-        });
+  // Manual "fold" to intersect them all
+  IndexRange result{0, m_text.size()};
+  for (auto r : ranges) {
+    std::size_t s = std::max(result.start, r.start);
+    std::size_t e = std::min(result.end, r.end);
+    result = IndexRange{s, e};
   }
+  return result;
+}
 
   /**
    * @brief Insert a string into RichText

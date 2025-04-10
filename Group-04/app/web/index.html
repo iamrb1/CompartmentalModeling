@@ -1,32 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="index.css" />
-    <link rel="stylesheet" type="text/css" href="input.css" />
-    <title>Text Editor</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Text Editor</title>
+
+  <!-- Existing stylesheet links -->
+  <link rel="stylesheet" type="text/css" href="index.css" />
+  <link rel="stylesheet" type="text/css" href="input.css" />
 </head>
 <body>
-    <content>
-        <rich-input>
-            <bar id="toolbar"></bar>
-          </rich-input>
-        <output>
+  <content>
+    <rich-input>
+      <bar id="toolbar"></bar>
+    </rich-input>
 
-        </output>
-    </content>
-    
-    <script  src="input.js"></script>
-    <script src="release/app.js"></script>
-    <script>
-      window.addEventListener('DOMContentLoaded', () => {
-        Module().then((instance) => {
-          const html = instance.renderRichTextHTML();
-          document.querySelector('output').innerHTML = html;
-        });
-      });
-    </script>
-    <script  src="index.js"></script>
+    <!-- Right-hand side output with tabs -->
+    <output>
+      <!-- Tab buttons -->
+      <div id="tab-buttons">
+        <button data-tab-target="tab-html">HTML</button>
+        <button data-tab-target="tab-md">Markdown</button>
+        <button data-tab-target="tab-rtf">RTF</button>
+        <button data-tab-target="tab-raw">Raw HTML</button>
+      </div>
+
+      <!-- Tab contents -->
+      <!-- 1) RENDERED HTML will appear here -->
+      <div class="tab-content" id="tab-html"></div>
+
+      <!-- 2) MARKDOWN text in a code block -->
+      <div class="tab-content" id="tab-md">
+        <pre><code id="md-code"></code></pre>
+      </div>
+
+      <!-- 3) RTF text in a code block -->
+      <div class="tab-content" id="tab-rtf">
+        <pre><code id="rtf-code"></code></pre>
+      </div>
+
+      <!-- 4) RAW HTML text in a code block -->
+      <div class="tab-content" id="tab-raw">
+        <pre><code id="raw-html-code"></code></pre>
+      </div>
+    </output>
+  </content>
+
+  <!-- App/Wasm code (from Emscripten) -->
+  <script src="release/app.js"></script>
+  <!-- Our app logic -->
+  <script src="input.js"></script>
+  <script src="index.js"></script>
 </body>
 </html>

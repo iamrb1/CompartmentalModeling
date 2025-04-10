@@ -33,3 +33,41 @@ content > output {
 }
 
 
+/* 
+   -----------------------------------------
+   Output Tabs Styling
+   -----------------------------------------
+*/
+
+
+#tab-buttons {
+    padding: 10px;
+    background-color: #444;
+    display: flex;
+    gap: 5px;
+  }
+  
+  #tab-buttons button {
+    background-color: #666;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+  }
+  
+  #tab-buttons button:hover {
+    background-color: #777;
+  }
+  
+  .tab-content {
+    display: none;
+    padding: 1rem;
+    color: #fff; /* since your right pane is dark */
+    background-color: #555; /* or your existing color */
+  }
+  
+  .tab-content.active {
+    display: block;
+  }
+  
+
