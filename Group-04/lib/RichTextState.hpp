@@ -1,3 +1,8 @@
+/**
+ * @file RichTextBindings.hpp
+ * @author Krish
+ */
+
 #pragma once
 
 #include <string>
