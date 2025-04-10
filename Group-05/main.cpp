@@ -12,6 +12,76 @@
 /**
  * Outputs options for the grid menu
  */
+
+cse::DataGrid CreateGrid() {
+  std::size_t number_of_columns = 0;
+  std::size_t number_of_rows = 0;
+  std::string default_numbers;
+
+    // Prompt for number of columns
+  while (true) {
+    std::cout << "Enter number of rows for your DataGrid: ";
+    std::cin >> number_of_rows;
+
+    if (std::cin.fail() || number_of_rows <= 0) {
+      std::cin.clear(); // clear error state
+      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // discard invalid input
+      std::cout << "Invalid input. Please enter a positive integer.\n";
+    } else {
+      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // clear rest of line
+      break;
+    }
+  }
+
+    // Prompt for number of rows
+  while (true) {
+    std::cout << "Enter number of columns for your DataGrid: ";
+    std::cin >> number_of_columns;
+
+    if (std::cin.fail() || number_of_columns <= 0) {
+      std::cin.clear();
+      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+      std::cout << "Invalid input. Please enter a positive integer.\n";
+    } else {
+      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+      break;
+    }
+  }
+
+  // Ask if default values are numeric or strings
+  while (true) {
+    std::cout << "Would you like your default values to be numerical or strings? [n/s]: ";
+    std::getline(std::cin >> std::ws, default_numbers);
+
+    if (default_numbers == "n") {
+      double default_value;
+
+      while (true) {
+        std::cout << "Enter a numeric default value for the DataGrid: ";
+        std::cin >> default_value;
+
+        if (std::cin.fail()) {
+          std::cin.clear();
+          std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+          std::cout << "Invalid input. Please enter a valid number.\n";
+        } else {
+          std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+          return cse::DataGrid(number_of_rows, number_of_columns, default_value);
+        }
+      }
+
+    } if (default_numbers == "s") {
+      std::string default_value;
+      std::cout << "Enter a string default value for the DataGrid: ";
+      std::getline(std::cin >> std::ws, default_value);
+      return { number_of_rows, number_of_columns, default_value };
+
+    } else {
+      std::cout << "Invalid selection. Type 'n' for numeric or 's' for string.\n";
+    }
+  }
+}
+
 cse::DataGrid GridMenu() {
   bool show_csv_menu = true;
   while (show_csv_menu) {
@@ -20,6 +90,7 @@ cse::DataGrid GridMenu() {
     std::cout << "i: Import a CSV file (TODO)" << std::endl;
     std::cout << "e: Export to a CSV file (TODO)" << std::endl;
     std::cout << "** t: Creates a fake grid used for testing - will remove later**" << std::endl;
+    std::cout << "c: Create new DataGrid" << std::endl;
 
     std::string option;
     std::cin >> option;
@@ -53,6 +124,8 @@ cse::DataGrid GridMenu() {
 
       cse::DataGrid grid(math_vector);
       return grid;
+    } else if (option == "c") {
+      return CreateGrid();
     } else {
       std::cout << "Invalid option. Try again." << std::endl;
     }
@@ -173,7 +246,7 @@ void ComparisonMenu(cse::DataGrid& grid) {
 }
 
 int main() {
-  std::cout << "Welcome to **NAME**" << std::endl; // TODO - Determine name
+  std::cout << "Welcome to CSV Command Line Manipulator" << std::endl; // TODO - Determine name
   std::cout << "Developed by: Max Krawec, Calen Green, Pedro Mitkiewicz, Shahaab Ali, and Muhammad Asif Masood" << std::endl;
   std::cout << "" << std::endl;
 
