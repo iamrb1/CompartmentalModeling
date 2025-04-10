@@ -1,5 +1,5 @@
 /**
- * @file RichTextBindings.hpp
+ * @file RichTextState.hpp
  * @author Krish
  */
 
