@@ -150,7 +150,7 @@ class BasicRichText {
   struct Serializer {
     using Rules = std::map<TextFormat::FormatID, SerializeRule>;
 
-    const std::string name;
+    std::string name;
     std::optional<Underlying> header = std::nullopt;
     std::optional<Underlying> footer = std::nullopt;
     Rules rules = Rules{};
@@ -263,7 +263,7 @@ class BasicRichText {
    * @brief Get the underlying string of this RichText
    * @return The text without formatting
    */
-  [[nodiscard]] Underlying to_string() { return m_text; }
+  [[nodiscard]] Underlying to_string() const { return m_text; }
 
   /**
    * @brief Get the formats at a position

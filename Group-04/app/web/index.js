@@ -1,55 +1,70 @@
 window.addEventListener("DOMContentLoaded", () => {
-  // 1) Initialize our Emscripten module
   Module().then((instance) => {
-    // 2) Grab references to the tab content areas
+    // Create a single "app state" object
+    const app = new instance.RichTextState();
+
+    // Grab references to each tab content area
     const htmlContainer      = document.getElementById("tab-html");
     const mdCodeElement      = document.getElementById("md-code");
     const rtfCodeElement     = document.getElementById("rtf-code");
     const rawHTMLCodeElement = document.getElementById("raw-html-code");
 
-    // 3) Call each bound function from RichTextBindings
-    //    and set them into the correct tab container
+    // Function to update serialized outputs based on current state
+    const updateOutputs = () => {
+      htmlContainer.innerHTML = app.getHTML();
+      mdCodeElement.textContent = app.getMarkdown();
+      rtfCodeElement.textContent = app.getRTF();
+      rawHTMLCodeElement.textContent = app.getRawHTML();
+    };
 
-    // HTML (this returns a *full* HTML document)
-    const fullHTML = instance.renderRichTextHTML();
-    // Insert it "rendered" into the HTML tab
-    htmlContainer.innerHTML = fullHTML;
+    // Initial update of outputs
+    updateOutputs();
 
-    // Markdown
-    const markdownOutput = instance.renderRichTextMarkdown();
-    mdCodeElement.textContent = markdownOutput;
-
-    // RTF
-    const rtfOutput = instance.renderRichTextRTF();
-    rtfCodeElement.textContent = rtfOutput;
-
-    // Raw HTML (the “bare” HTML string)
-    const rawHTML = instance.renderRichTextRawHTML();
-    rawHTMLCodeElement.textContent = rawHTML;
-
-    // 4) Tab switching logic
+    // Tab switching logic remains unchanged.
     const tabButtons  = document.querySelectorAll("#tab-buttons button");
     const tabContents = document.querySelectorAll(".tab-content");
-
-    // Hide them all initially
     tabContents.forEach(div => div.classList.remove("active"));
-    // Show the first tab (HTML) by default
     document.getElementById("tab-html").classList.add("active");
 
     tabButtons.forEach(btn => {
       btn.addEventListener("click", () => {
-        // Hide all
         tabContents.forEach(div => div.classList.remove("active"));
-        // Show only the chosen tab
         const targetId = btn.getAttribute("data-tab-target");
         document.getElementById(targetId).classList.add("active");
       });
     });
 
-    // 5) Render your left‐side input bar as before
+    // Left-side input bar as before.
     const bar = document.getElementById("toolbar");
     const wrappedInput = MakeInput.textInput("", "Type here...");
     wrappedInput.style.width = "100%";
     bar.appendChild(wrappedInput);
+
+    // Create Undo and Redo buttons as proper <button> elements.
+    const undoButton = document.createElement("button");
+    undoButton.textContent = "Undo";
+    // Add a class for styling.
+    undoButton.className = "toolbar-button";
+    
+    const redoButton = document.createElement("button");
+    redoButton.textContent = "Redo";
+    redoButton.className = "toolbar-button";
+    
+    // Append the new buttons to the toolbar.
+    bar.appendChild(undoButton);
+    bar.appendChild(redoButton);
+    
+    // Hook up Undo/Redo handlers.
+    undoButton.addEventListener("click", () => {
+      app.undo();
+      updateOutputs();
+    });
+    
+    redoButton.addEventListener("click", () => {
+      app.redo();
+      updateOutputs();
+    });
+    
+    // Future: bind text input's events to update the state.
   });
 });

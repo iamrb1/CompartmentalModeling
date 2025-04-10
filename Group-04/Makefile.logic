@@ -6,8 +6,9 @@ PROJECT_NAME = app
 PROJECT_TYPE = exe
 BUILD_PREFIX =
 BUILD_FILE_TYPE = .js
+
 HEADS = $(shell find $(LIB_DIR) $(BIN_DIR) -name '*.hpp' -o -name '*.h')
-TESTS = $(shell find ../tests/Group-04 -name '*.cpp')
+
 CXX = em++
 CXX_FLAGS_all ?= -std=c++23 -Wextra -Wall -I$(BIN_DIR) -I$(LIB_DIR) --bind -sMODULARIZE=1 -sEXPORT_NAME=Module
 CXX_FLAGS_release = -O2 -DNDEBUG $(CXX_FLAGS_all)
@@ -20,7 +21,9 @@ else
 endif
 
 build: $(BUILD_DIR) $(HEADS)
-	$(CXX) $(CXX_FLAGS) $(BUILD_FLAGS) -o $(BUILD_DIR)/$(BUILD_PREFIX)$(PROJECT_NAME)$(BUILD_FILE_TYPE) $(BIN_DIR)/main.cpp
+	$(CXX) $(CXX_FLAGS) $(BUILD_FLAGS) \
+		-o $(BUILD_DIR)/$(BUILD_PREFIX)$(PROJECT_NAME)$(BUILD_FILE_TYPE) \
+		$(BIN_DIR)/main.cpp
 
 clean:
 	rm -rf $(BUILD_DIR)
@@ -36,7 +39,7 @@ $(BUILD_DIR):
 	echo "*" > $(BUILD_DIR)/.gitignore
 
 format:
-	echo $(HEADS) $(TESTS) | xargs clang-format --style=file -i
+	echo $(HEADS) | xargs clang-format --style=file -i
 
 run:
-	python -m http.server -d app/web
+	python -

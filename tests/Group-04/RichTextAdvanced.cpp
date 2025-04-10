@@ -1,11 +1,11 @@
 #include <string>
-
 #include "CseString.hpp"
 #include "IndexSet.hpp"
 #include "RichText.hpp"
 #include "catch.hpp"
+#include "RichTextState.hpp"
 
-// this test case doesn't actually have assertions, it just needs to compile
+
 TEST_CASE("RichText template support", "[RichTextAdvanced]") {
   // basic template (std::string)
   cse::RichText text1;
@@ -108,14 +108,14 @@ TEST_CASE("RichText erase methods", "[RichTextAdvanced]") {
   using cse::RichText;
   using cse::TextFormat;
 
-  RichText text{"abcdefgh"};  // Indices: 0=a 1=b 2=c 3=d 4=e 5=f 6=g 7=h
+  RichText text{"abcdefgh"};  // a, b, c, d, e, f, g, h
   TextFormat bold("bold");
   TextFormat italic("italic");
 
-  // Apply bold to [2,5) => c,d,e
+  // Apply bold to [2,5) => c, d, e
   text.apply_format(bold, 2, 5);
 
-  // Apply italic to [4,7) => e,f,g
+  // Apply italic to [4,7) => e, f, g
   text.apply_format(italic, IndexSet({4, 7}));
 
   REQUIRE(text.to_string() == "abcdefgh");
@@ -123,39 +123,27 @@ TEST_CASE("RichText erase methods", "[RichTextAdvanced]") {
   REQUIRE(text.get_format_range(italic).value() == IndexSet({4, 7}));
 
   SECTION("Erase partial overlap in the middle (index/count)") {
-    text.erase(3, 2);  // Remove 'd'(3) and 'e'(4)
+    text.erase(3, 2);  // Remove characters at indices 3 and 4.
     REQUIRE(text.to_string() == "abcfgh");
-    // Bold was [2,5). Now only c remains (index 2)
     REQUIRE(text.get_format_range(bold).value() == IndexSet{2UL});
-
-    // Italic was [4,7). Removing e => 'f'(old 5)->3, 'g'(old 6)->4 => {3,4}
     REQUIRE(text.get_format_range(italic).value() == IndexSet{3UL, 4UL});
   }
 
   SECTION("Erase entire bold region plus part of italic region") {
-    text.erase(2, 4);  // Remove c,d,e,f
+    text.erase(2, 4);  // Remove characters at indices 2,3,4,5.
     REQUIRE(text.to_string() == "abgh");
     REQUIRE_FALSE(text.get_format_range(bold).has_value());
-
-    // italic was [4,7) => e,f,g => e,f are gone; g(6) => new index 2 => {2}
     REQUIRE(text.get_format_range(italic).value() == IndexSet{2UL});
   }
 
   SECTION("Erase with IndexSet: multiple disjoint ranges") {
-    // Remove b => [1,2) plus f,g => [5,7)
+    // Remove b (index 1) and f,g (indices 5,6).
     IndexSet ranges;
-    ranges.insert_range(1UL, 2UL);  // inserts index 1
-    ranges.insert_range(5UL, 7UL);  // inserts indices 5, 6
-
+    ranges.insert_range(1UL, 2UL);
+    ranges.insert_range(5UL, 7UL);
     text.erase(ranges);
     REQUIRE(text.to_string() == "acdeh");
-
-    // Bold was [2,5) => c,d,e => after removing f,g => unchanged, but
-    // removing b(1) shifts it from {2,3,4} to {1,2,3}
     REQUIRE(text.get_format_range(bold).value() == IndexSet{1UL, 2UL, 3UL});
-
-    // Italic was [4,7) => e,f,g => removing f,g => just {4} left
-    // then removing b(1) shifts {4} => {3}
     REQUIRE(text.get_format_range(italic).value() == IndexSet{3UL});
   }
 
@@ -180,16 +168,10 @@ TEST_CASE("RichText segments", "[RichTextSegment]") {
   cse::TextFormat italic("italic");
   cse::TextFormat red("color", "red");
 
-  // Apply bold to [2,5) => c,d,e
-  text.apply_format(bold, 2, 5);
+  text.apply_format(bold, 2, 5);              // c, d, e.
+  text.apply_format(italic, cse::IndexSet({4, 7}));   // e, f, g.
+  text.apply_format(red, 11, 12);             // l.
 
-  // Apply italic to [4,7) => e,f,g
-  text.apply_format(italic, cse::IndexSet({4, 7}));
-
-  // Apply red to [11, 12) => l
-  text.apply_format(red, 11, 12);
-
-  // test helper function
   auto segment_substr = [&](cse::IndexSet::IndexRange &segment) {
     return text.to_string().substr(segment.start, segment.end - segment.start);
   };
@@ -219,3 +201,106 @@ TEST_CASE("RichText segments", "[RichTextSegment]") {
     REQUIRE(segment_substr(segment) == "l");
   }
 }
+
+// --------------------------------------------------------------------
+// NEW TESTS FOR RichTextState 
+// --------------------------------------------------------------------
+TEST_CASE("RichTextState default initialization", "[RichTextState]") {
+    // Create a RichTextState; its constructor now only sets default text.
+    RichTextState state;
+    
+    // Verify the default text.
+    REQUIRE(state.getText() == "Hello, colorful bold world!");
+    
+    // Retrieve serialized outputs (expecting plain formatting, since no methods were called).
+    std::string html = state.getHTML();
+    INFO("HTML output: " << html);
+    // Expect the output to contain the text.
+    REQUIRE(html.find("Hello, colorful bold world!") != std::string::npos);
+    
+    std::string md = state.getMarkdown();
+    INFO("Markdown output: " << md);
+    REQUIRE(md.find("Hello, colorful bold world!") != std::string::npos);
+    
+    std::string rawHtml = state.getRawHTML();
+    INFO("Raw HTML output: " << rawHtml);
+    REQUIRE(rawHtml.find("Hello, colorful bold world!") != std::string::npos);
+}
+
+TEST_CASE("RichTextState updates", "[RichTextState]") {
+    RichTextState state;
+    
+    // Update the text.
+    state.setText("Testing state update");
+    REQUIRE(state.getText() == "Testing state update");
+    
+    // Check that getHTML() reflects the new text.
+    std::string html = state.getHTML();
+    INFO("After setText: " << html);
+    REQUIRE(html.find("Testing state update") != std::string::npos);
+    
+    // Apply bold to "state" (positions 8 to 13).
+    state.applyBold(8, 13);
+    html = state.getHTML();
+    INFO("After applyBold: " << html);
+    // Expect <b> and </b> tags to be present.
+    REQUIRE(html.find("<b>") != std::string::npos);
+    REQUIRE(html.find("</b>") != std::string::npos);
+    
+    // Apply blue color to "update" (positions 14 to end).
+    state.applyColor("blue", 14, state.getText().size());
+    html = state.getHTML();
+    INFO("After applyColor: " << html);
+    // The HTML serializer (SerializerHTML) uses std::format with a pattern like
+    // "<span style=\"color: {};\">"
+    // which for "blue" becomes "<span style=\"color: blue;\">"
+    // So we test for "color: blue" (with a space).
+    REQUIRE(html.find("color: blue") != std::string::npos);
+}
+
+// --------------------------------------------------------------------
+// NEW TESTS FOR UNDO/REDO FUNCTIONALITY IN RichTextState
+// --------------------------------------------------------------------
+TEST_CASE("RichTextState undo/redo functionality", "[RichTextState]") {
+    // Create a new state.
+    RichTextState state;
+    
+    // Set initial text.
+    state.setText("First state");
+    REQUIRE(state.getText() == "First state");
+    
+    // Change to a new state.
+    state.setText("Second state");
+    REQUIRE(state.getText() == "Second state");
+    
+    // Undo: should revert to "First state".
+    state.undo();
+    REQUIRE(state.getText() == "First state");
+    
+    // Redo: should reapply "Second state".
+    state.redo();
+    REQUIRE(state.getText() == "Second state");
+
+    // Now, test with formatting operations.
+    state.setText("Undo formatting test");
+    // No formatting applied yet.
+    std::string html_noFormat = state.getHTML();
+    // Apply bold to "formatting" (positions 5 to 16).
+    state.applyBold(5, 16);
+    std::string html_withBold = state.getHTML();
+    // Expect the bold tags to appear in the HTML output.
+    REQUIRE(html_withBold.find("<b>") != std::string::npos);
+    
+    // Undo the formatting change.
+    state.undo();
+    std::string html_afterUndo = state.getHTML();
+    // Now the bold tags should not be present.
+    REQUIRE(html_afterUndo.find("<b>") == std::string::npos);
+    
+    // Redo the formatting change.
+    state.redo();
+    std::string html_afterRedo = state.getHTML();
+    // Bold tags should be present again.
+    REQUIRE(html_afterRedo.find("<b>") != std::string::npos);
+}
+
