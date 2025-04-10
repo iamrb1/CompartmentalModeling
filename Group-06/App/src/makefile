@@ -11,7 +11,7 @@ WORDLANG_DIR := WordLangApp
 ERRORMGR_DIR := ../../ErrorManager
 
 # Source files
-SRCS := $(SRC_DIR)/main.cpp $(WORDLANG_DIR)/WordLang.cpp $(WORDLANG_DIR)/FileSource.cpp $(WORDLANG_DIR)/WordListManager.cpp $(ERRORMGR_DIR)/ErrorManager.cpp
+SRCS := $(SRC_DIR)/main.cpp $(WORDLANG_DIR)/WordLang.cpp $(WORDLANG_DIR)/FileSource.cpp $(WORDLANG_DIR)/WordListManager.cpp $(WORDLANG_DIR)/TokenManager.cpp $(ERRORMGR_DIR)/ErrorManager.cpp
 OBJS := $(SRCS:.cpp=.o)
 
 # Default target
