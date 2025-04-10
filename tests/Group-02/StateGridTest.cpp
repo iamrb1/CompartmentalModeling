@@ -4,11 +4,7 @@
  */
 
 #include <cse/StateGrid.hpp>
-<<<<<<< HEAD
 #include <cse/StateGridPosition.hpp>
-=======
-#include <cse/StateGridPosition.h>
->>>>>>> origin/Ritchie
 #include <catch2/catch.hpp>
 #include <stdexcept>
 
