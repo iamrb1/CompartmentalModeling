@@ -256,6 +256,20 @@ class PresentationManager {
 			_event_manager.addEvent(changeSlide, origin, destination, time);
 		}
 
+                void updateImageSize(const std::string& id, int newWidth, int newHeight) {
+		  if (_slide_deck.empty() || _current_pos >= _slide_deck.size()) return;
+		  auto& layout = _slide_deck.at(_current_pos);
+
+		  for (auto& img : layout->getImages()) {
+		    if (img.image->getID() == id) {
+		      img.image->resize(newWidth, newHeight);
+		      break;
+		    }
+		  }
+		}
+
+
+
 		////////////////////////////////////////////////////////////////////////////////////////
 		/// STATIC EVENT FUNCTIONS
 		/// These are passed to the Events to allow Events to change the layouts
@@ -389,5 +403,8 @@ const char *exportSlideDeckToJson() {
 	return exportedJson.c_str();
 }
 void call_addSlideChangeEvent() { PRESENTATION_MANAGER.addSlideChangeEvent(10, PRESENTATION_MANAGER.getCurrentPos(), PRESENTATION_MANAGER.getCurrentPos()+1); }
+
+void call_updateImageSize(const char* id, int width, int height) { std::string cppId(id); PRESENTATION_MANAGER.updateImageSize(cppId, width, height);}
+
 }
 
