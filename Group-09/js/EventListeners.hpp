@@ -84,11 +84,23 @@ void bind() {
 
 		}
 
-    // Ability to hit ESC to leave present mode
+        // Ability to hit ESC to leave present mode
         document.addEventListener("keydown", function(e) {
           if (e.key === "Escape") {
             Module.ccall(
                 "call_leavePresentation",
+                null,
+                [],
+                []
+            );
+          }
+        });
+
+        // Ability to hit space to skip to next slide
+        document.addEventListener("keydown", function(e) {
+          if (e.code === "Space") {
+            Module.ccall(
+                "call_advance",
                 null,
                 [],
                 []

@@ -273,7 +273,7 @@ std::string WebLayout::generateID() {
 void WebLayout::activateLayout() {
   auto layoutID = getID();
 
-  std::cout << "Activating:  " << layoutID << std::endl;
+  //std::cout << "Activating:  " << layoutID << std::endl;
 
   EM_ASM(
       {
@@ -293,7 +293,7 @@ void WebLayout::activateLayout() {
 void WebLayout::deactivateLayout() {
   auto layoutID = getID();
 
-  std::cout << "Deactivating:  " << layoutID << std::endl;
+  //std::cout << "Deactivating:  " << layoutID << std::endl;
 
   EM_ASM(
       {

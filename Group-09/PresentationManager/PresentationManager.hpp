@@ -257,6 +257,12 @@ class PresentationManager {
 		 * @param destination Destination slide
 		 */
 		void addSlideChangeEvent(const int time, const size_t origin, const size_t destination) {
+            // Check if destination slide exists (destination count is 1 off for user readability on UI)
+            if(destination > getNumSlides() - 1) {
+              std::cout << "WARNING: Destination slide " << destination << " doesn't exist." << std::endl;
+              return;
+            }
+
 			_event_manager.addEvent(changeSlide, origin, destination, time);
 		}
 
@@ -421,7 +427,10 @@ void call_addSlideChangeEvent() { PRESENTATION_MANAGER.addSlideChangeEvent(10, P
 
 void call_updateImageSize(const char* id, int width, int height) { std::string cppId(id); PRESENTATION_MANAGER.updateImageSize(cppId, width, height);}
 
-void call_leavePresentation() { PRESENTATION_MANAGER.toggleBottomNav(false); }
+void call_leavePresentation() {
+  PRESENTATION_MANAGER.toggleBottomNav(false);
+  PRESENTATION_MANAGER.stop();
+}
 
 }
 
