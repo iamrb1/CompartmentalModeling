@@ -10,29 +10,34 @@
 class EditorState {
  private:
   // The underlying text content
-  cse::RichText underlying = cse::RichText();
+  cse::RichText underlying = cse::RichText("Hello World!");
   // The curently selected formats
   std::map<cse::TextFormat::FormatID, cse::TextFormat::FormatData> format_map;
   // The possible output formats
-  std::map<std::string, cse::RichText::Serializer> output_map;
+  std::map<std::string, std::pair<std::string, cse::RichText::Serializer>> output_map;
 
-  // Start and end of the current editing range.  If the values are equal then
-  // we are not currently editing anything
-  size_t edit_start = 0, edit_end = 0;
+  // Start and end of the current editing range.  If the values are negative
+  // Then we are not changing anything
+  int edit_start = -1, edit_end = -1;
 
  public:
   EditorState() {
-    output_map["html"] = cse::SerializerHTML();
-    output_map["rtf"] = cse::SerializerRTF();
-    output_map["markdown"] = cse::SerializerMarkdown();
+    output_map["html"] = std::pair("HTML", cse::SerializerHTML());
+    output_map["html"].second.header = std::nullopt;
+    output_map["html"].second.footer = std::nullopt;
+    output_map["rtf"] = std::pair("RTF", cse::SerializerRTF());
+    output_map["markdown"] = std::pair("Markdown", cse::SerializerMarkdown());
 
-    // Raw HTML serializer
-    output_map["html_raw"] = cse::SerializerHTML();
-    output_map["html_raw"].header = std::nullopt;
-    output_map["html_raw"].footer = std::nullopt;
+    // Raw HTML serializer (document)
+    output_map["html_raw"] = std::pair("Raw HTML", cse::SerializerHTML());
+
+    underlying.apply_format(cse::TextFormat("bold", std::monostate()), 0, 5);
   }
 
-  std::string start_changing(size_t idx) {
+  std::string edit_start_pos(size_t idx) {
+    if (idx >= underlying.size())
+      return "";
+
     cse::IndexSet segment = underlying.segment_at(idx);
     edit_start = segment.min_index().value_or(0);
     edit_end = segment.max_index().value_or(underlying.size());
@@ -45,15 +50,15 @@ class EditorState {
     return underlying.to_string().substr(edit_start, edit_end);
   }
 
-  std::string start_changing(size_t start, size_t end) {
+  std::string edit_start_range(size_t start, size_t end) {
+    if (start >= underlying.size() || end >= underlying.size())
+      return "";
     edit_start = start;
     edit_end = end;
     return underlying.to_string().substr(edit_start, edit_end);
   }
 
-  void change(std::string replace) {}
-
-  void stop_changing() {}
+  void edit_change(std::string replace) {}
 
   void update_format(cse::TextFormat::FormatID id,
                      cse::TextFormat::FormatData data) {
@@ -85,10 +90,10 @@ class EditorState {
   }
 
   // Get all possible output formats (string names)
-  std::vector<std::string> output_formats() {
-    std::vector<std::string> out;
-    for (const auto& [name, _] : output_map) {
-      out.push_back(name);
+  std::vector<std::vector<std::string>> output_formats() const {
+    std::vector<std::vector<std::string>> out;
+    for (auto [name, p] : output_map) {
+      out.push_back({name, p.first});
     }
     return out;
   }
@@ -96,7 +101,7 @@ class EditorState {
   // Get the output as a string (by the output format name)
   std::string output(std::string output_format) {
     if (output_map.contains(output_format)) {
-      auto result = underlying.serialize(output_map[output_format]);
+      auto result = underlying.serialize(output_map[output_format].second);
       return result.output;
     }
 
