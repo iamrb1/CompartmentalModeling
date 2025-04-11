@@ -337,6 +337,7 @@ namespace cse {
   template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
   void Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::ParseVertices(std::istream &f, size_t indent_level) {
     std::string line;
+    // Loops through the file as long as the formatting and indentation remains correct
     while (FileUtil::CheckPrefixSize(f, indent_level + cse::BASE_INDENTATION)) {
       auto vertex = std::make_shared<Vertex<VERTEX_DATA_T>>(f, indent_level + cse::BASE_INDENTATION);
       vertices[vertex->GetId()] = vertex;
