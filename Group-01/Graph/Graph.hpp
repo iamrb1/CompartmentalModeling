@@ -146,26 +146,20 @@ namespace cse {
   void Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::RemoveVertex(std::string const id) {
     auto it = vertices.find(id);
     if (it == vertices.end()) {
-      std::cout << "Did not find vertex to remove" << std::endl;
-      throw vertex_not_found_error(id);
+      throw vertex_not_found_error("Did not find vertex to remove: " + id);
     }
 
-    std::vector<std::string> edgesToRemove;
-    for (auto it = edges.begin(); it != edges.end();) {
-      std::shared_ptr<Edge<VERTEX_DATA_T>> edge = it->second;
-
+    auto itr = edges.begin();
+    while (itr != edges.end()) {
+      auto next_itr = std::next(itr);
+      std::shared_ptr<Edge<VERTEX_DATA_T>> edge = itr->second;
       if (edge->GetTo().GetId() == id) {
-        edgesToRemove.push_back(edge->GetId());
+        RemoveEdge(edge->GetId());
       } else if (edge->GetFrom().GetId() == id) {
-        edgesToRemove.push_back(edge->GetId());
+        RemoveEdge(edge->GetId());
       }
-      ++it;
+      itr = next_itr;
     }
-
-    for (auto edgeId : edgesToRemove) {
-      RemoveEdge(edgeId);
-    }
-
     vertices.erase(it);
   }
 
@@ -174,7 +168,7 @@ namespace cse {
    * @param v1_id Source vertex ID
    * @param v2_id Destination vertex ID
    * @param weight Edge weight
-   * @return Weak pointer to the created edge
+   * @return Edge<VERTEX_DATA_T> the created edge
    */
   template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
   Edge<VERTEX_DATA_T> &Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::AddEdge(std::string const v1_id, std::string const v2_id,
@@ -343,6 +337,7 @@ namespace cse {
   template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
   void Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::ParseVertices(std::istream &f, size_t indent_level) {
     std::string line;
+    // Loops through the file as long as the formatting and indentation remains correct
     while (FileUtil::CheckPrefixSize(f, indent_level + cse::BASE_INDENTATION)) {
       auto vertex = std::make_shared<Vertex<VERTEX_DATA_T>>(f, indent_level + cse::BASE_INDENTATION);
       vertices[vertex->GetId()] = vertex;
@@ -356,6 +351,7 @@ namespace cse {
    */
   template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
   void Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::ParseEdges(std::istream &f, size_t indent_level) {
+    // Loops through the file as long as the formatting and indentation remains correct
     while (FileUtil::CheckPrefixSize(f, indent_level + cse::BASE_INDENTATION)) {
       Edge<VERTEX_DATA_T>::CreateFromFile(f, indent_level + cse::BASE_INDENTATION, *this);
     }
