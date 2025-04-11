@@ -17,9 +17,8 @@ const int CANVAS_WIDTH = 1000;
 const int CANVAS_HEIGHT = 1000;
 
 class Shape {
- public:
-  static void drawLine(int x1, int y1, int x2, int y2, const char *color,
-                       int thickness = 2) {
+public:
+  static void drawLine(int x1, int y1, int x2, int y2, const char *color, int thickness = 2) {
     EM_ASM_(
         {
           var canvas = document.getElementById('canvas');
@@ -49,7 +48,7 @@ class Shape {
 };
 
 class GraphVisualizer {
- private:
+private:
   cse::Random r{0};
   std::optional<cse::Vertex<std::string>> selectedVertex;
   cse::Graph<std::string> g;
@@ -58,8 +57,7 @@ class GraphVisualizer {
   std::optional<std::reference_wrapper<const cse::Vertex<std::string>>> startVertex; // Traversal start vertex
   bool currentlyTraversing = false;
 
-  static bool IsPointInRange(double x1, double y1, double x2, double y2,
-                             double range) {
+  static bool IsPointInRange(double x1, double y1, double x2, double y2, double range) {
     double dx = x1 - x2;
     double dy = y1 - y2;
     return std::sqrt(dx * dx + dy * dy) <= range;
@@ -67,16 +65,14 @@ class GraphVisualizer {
 
   void ClearVertexSelection() {
     EM_ASM({
-      document.getElementById("selectedVertexTitle").innerHTML =
-          "No Selected Vertex";
+      document.getElementById("selectedVertexTitle").innerHTML = "No Selected Vertex";
       document.getElementById("selectedVertexId").innerHTML = "";
       document.getElementById("selectedVertexX").innerHTML = "";
       document.getElementById("selectedVertexY").innerHTML = "";
     });
   }
 
-  std::optional<std::reference_wrapper<const cse::Vertex<std::string>>>
-  FindVertexAtPosition(double x, double y) {
+  std::optional<std::reference_wrapper<const cse::Vertex<std::string>>> FindVertexAtPosition(double x, double y) {
     auto vertices = g.GetVertices();
     for (auto v : vertices) {
       if (IsPointInRange(v->GetX(), v->GetY(), x, y, VERTEX_RADIUS)) {
@@ -108,20 +104,20 @@ class GraphVisualizer {
     for (auto v : vertices) {
       std::string color = "gray"; // default
       if (traversal) {
-        if (&traversal->GetCurrentVertex() == v) color = "red";
-        else if (traversal->IsVisited(*v)) color = "green";
+        if (&traversal->GetCurrentVertex() == v)
+          color = "red";
+        else if (traversal->IsVisited(*v))
+          color = "green";
       }
       Shape::drawCircle(v->GetX(), v->GetY(), VERTEX_RADIUS, color.c_str());
     }
   }
 
   void HandleSelectedVertex(cse::Vertex<std::string> v) {
-    EM_ASM(
+    EM_ASM_(
         {
-          document.getElementById("selectedVertexTitle").innerHTML =
-              "Selected Vertex";
-          document.getElementById("selectedVertexId").innerHTML =
-              "ID: " + UTF8ToString($0);
+          document.getElementById("selectedVertexTitle").innerHTML = "Selected Vertex";
+          document.getElementById("selectedVertexId").innerHTML = "ID: " + UTF8ToString($0);
           document.getElementById("selectedVertexX").innerHTML = "X: " + $1;
           document.getElementById("selectedVertexY").innerHTML = "Y: " + $2;
         },
@@ -145,7 +141,7 @@ class GraphVisualizer {
   }
 
   void InitiateCanvas() {
-    EM_ASM({
+    EM_ASM_({
       var mainElement = document.getElementById("main");
       var canvas = document.createElement('canvas');
       canvas.setAttribute("id", "canvas");
@@ -172,35 +168,184 @@ class GraphVisualizer {
       var controlZone = document.createElement("div");
       controlZone.classList.add("control-zone");
 
-      // Button group container
-      var buttonGroup = document.createElement("div");
-      buttonGroup.classList.add("button-group");
+      // The fields required for adding and removing an edge
+      var edgeButtonGroup = document.createElement("div");
+      edgeButtonGroup.classList.add("button-group");
+      edgeButtonGroup.style.border = "2px solid black";
+      edgeButtonGroup.style.padding = "10px";
+      edgeButtonGroup.style.marginBottom = "10px";
 
-      // Clear button
-      var clearButton = document.createElement('button');
-      clearButton.textContent = "Clear Graph";
-      clearButton.addEventListener(
-          'click', function() { Module._clearCanvas(); });
-      buttonGroup.appendChild(clearButton);
+      var vertexId1Input = document.createElement("input");
+      vertexId1Input.setAttribute("id", "vertexId1Input");
+      vertexId1Input.setAttribute("placeholder", "Vertex ID 1");
+      vertexId1Input.setAttribute("type", "text");
+      edgeButtonGroup.appendChild(vertexId1Input);
+
+      var vertexId2Input = document.createElement("input");
+      vertexId2Input.setAttribute("id", "vertexId2Input");
+      vertexId2Input.setAttribute("placeholder", "Vertex ID 2");
+      vertexId2Input.setAttribute("type", "text");
+      edgeButtonGroup.appendChild(vertexId2Input);
+
+      var edgeWeightInput = document.createElement("input");
+      edgeWeightInput.setAttribute("id", "edgeWeightInput");
+      edgeWeightInput.setAttribute("placeholder", "Edge Weight");
+      edgeWeightInput.setAttribute("type", "text");
+      edgeButtonGroup.appendChild(edgeWeightInput);
+
+      var addRemoveEdgeButton = document.createElement('button');
+      addRemoveEdgeButton.textContent = "Toggle Edge";
+      addRemoveEdgeButton.addEventListener(
+          'click', function() {
+            var id1 = document.getElementById("vertexId1Input").value;
+            var id2 = document.getElementById("vertexId2Input").value;
+            var weight = parseInt(document.getElementById("edgeWeightInput").value);
+            if (id1 && id2 && !isNaN(weight)) {
+              Module._toggleEdge(stringToNewUTF8(id1), stringToNewUTF8(id2), weight);
+            } else {
+              alert("Please fill out both vertex IDs and the weight.");
+            }
+          });
+      edgeButtonGroup.appendChild(addRemoveEdgeButton);
+
+      // Adding vertex button group container
+      var AddbuttonGroup = document.createElement("div");
+      AddbuttonGroup.classList.add("button-group");
+      AddbuttonGroup.style.border = "2px solid black";
+      AddbuttonGroup.style.padding = "10px";
+      AddbuttonGroup.style.marginBottom = "10px";
+
+      // The fields required for adding a vertex
+      var idInput = document.createElement("input");
+      idInput.setAttribute("id", "vertexIdInput");
+      idInput.setAttribute("placeholder", "ID");
+      idInput.setAttribute("type", "text");
+      AddbuttonGroup.appendChild(idInput);
+
+      var xInput = document.createElement("input");
+      xInput.setAttribute("id", "vertexXInput");
+      xInput.setAttribute("placeholder", "X");
+      xInput.setAttribute("type", "number");
+      AddbuttonGroup.appendChild(xInput);
+
+      var yInput = document.createElement("input");
+      yInput.setAttribute("id", "vertexYInput");
+      yInput.setAttribute("placeholder", "Y");
+      yInput.setAttribute("type", "number");
+      AddbuttonGroup.appendChild(yInput);
 
       // Add Vertex button
       var addVertexButton = document.createElement('button');
       addVertexButton.textContent = "Add Vertex";
+
+      // This part was assisted by chatgpt
+      // It creates a vertex at the values given by the user
       addVertexButton.addEventListener(
-          'click', function() { Module._addVertex(); });
-      buttonGroup.appendChild(addVertexButton);
+          'click', function() {
+            var id = document.getElementById("vertexIdInput").value;
+            var x = parseInt(document.getElementById("vertexXInput").value);
+            var y = parseInt(document.getElementById("vertexYInput").value);
+            if (id && !isNaN(x) && !isNaN(y)) {
+              Module._addVertexWithParams(stringToNewUTF8(id), x, y);
+            } else {
+              alert("Please fill out all fields.");
+            }
+          });
+      AddbuttonGroup.appendChild(addVertexButton);
+
+      // Button group container
+      var buttonGroup = document.createElement("div");
+      buttonGroup.classList.add("button-group");
+      buttonGroup.style.border = "2px solid black";
+      buttonGroup.style.padding = "10px";
+      buttonGroup.style.marginBottom = "10px";
+
+      // Clear button
+      var clearButton = document.createElement('button');
+      clearButton.textContent = "Clear Graph";
+      clearButton.addEventListener('click', function() { Module._clearCanvas(); });
+      buttonGroup.appendChild(clearButton);
+
+      // Deleting a vertex button group container
+      var deleteButtonGroup = document.createElement("div");
+      deleteButtonGroup.classList.add("button-group");
+      deleteButtonGroup.style.border = "2px solid black";
+      deleteButtonGroup.style.padding = "10px";
+      deleteButtonGroup.style.marginBottom = "10px";
+
+      // The fields required for adding and removing an edge
+      var deleteInput = document.createElement("input");
+      deleteInput.setAttribute("id", "deleteVertexIdInput");
+      deleteInput.setAttribute("placeholder", "ID of vertex to delete");
+      deleteInput.setAttribute("type", "text");
+      deleteButtonGroup.appendChild(deleteInput);
+
+      // Delete Vertex button
+      var deleteVertexButton = document.createElement('button');
+      deleteVertexButton.textContent = "Delete Vertex";
+      deleteVertexButton.addEventListener(
+          'click', function() {
+            var id = document.getElementById("deleteVertexIdInput").value;
+            if (id) {
+              Module._deleteVertex(stringToNewUTF8(id));
+            } else {
+              alert("Please enter a valid vertex ID.");
+            }
+          });
+      deleteButtonGroup.appendChild(deleteVertexButton);
+
+      // Random Graph button
+      var separator = document.createElement("separator");
+      separator.style.margin = "10px 0";
+      buttonGroup.appendChild(separator);
+
+      var randomGraphButton = document.createElement('button');
+      randomGraphButton.textContent = "Random Graph";
+      randomGraphButton.addEventListener(
+          'click', function() {
+            var vertices = parseInt(document.getElementById("vertexCount").value);
+            var edges = parseInt(document.getElementById("edgeCount").value);
+            Module._randomGraph(vertices, edges);
+          });
+      buttonGroup.appendChild(randomGraphButton);
+      var vertexLabel = document.createElement('label');
+      vertexLabel.setAttribute("for", "vertexCount");
+      vertexLabel.innerText = "Vertices: ";
+      buttonGroup.appendChild(vertexLabel);
+
+      // Vertex input field
+      var vertexInput = document.createElement('input');
+      vertexInput.setAttribute("id", "vertexCount");
+      vertexInput.setAttribute("type", "number");
+      vertexInput.setAttribute("placeholder", "Vertices");
+      vertexInput.setAttribute("min", "1");
+      vertexInput.setAttribute("value", "1");
+      vertexInput.style.marginRight = "10px";
+      buttonGroup.appendChild(vertexInput);
+
+      // Edges input field
+      var edgeLabel = document.createElement('label');
+      edgeLabel.setAttribute("for", "edgeCount");
+      edgeLabel.innerText = "Edges: ";
+      buttonGroup.appendChild(edgeLabel);
+      var edgeInput = document.createElement('input');
+      edgeInput.setAttribute("id", "edgeCount");
+      edgeInput.setAttribute("type", "number");
+      edgeInput.setAttribute("placeholder", "Edges");
+      edgeInput.setAttribute("min", "0");
+      edgeInput.setAttribute("value", "0");
+      edgeInput.style.marginRight = "10px";
+      buttonGroup.appendChild(edgeInput);
 
       // Clear Traversal button
       var clearTraversalButton = document.createElement('button');
       clearTraversalButton.textContent = "Clear Traversal";
-      clearTraversalButton.addEventListener('click', function () {
-        Module._clearTraversal();
-      });
+      clearTraversalButton.addEventListener('click', function() { Module._clearTraversal(); });
       buttonGroup.appendChild(clearTraversalButton);
 
       /**
-       * Used ChatGPT to assist adding support to 
-       * Import and Export a Graph in JSON 
+       * Used ChatGPT to assist adding support to
+       * Import and Export a Graph in JSON
        */
       // Import Graph button
       var importButton = document.createElement('button');
@@ -217,7 +362,8 @@ class GraphVisualizer {
             fileInput.addEventListener(
                 'change', function(e) {
                   var file = e.target.files[0];
-                  if (!file) return;
+                  if (!file)
+                    return;
 
                   var reader = new FileReader();
                   reader.onload = function(e) {
@@ -225,8 +371,7 @@ class GraphVisualizer {
 
                     // Use cwrap to create a JavaScript function that calls the
                     // C++ function
-                    var importGraph =
-                        Module.cwrap('importGraph', 'boolean', ['string']);
+                    var importGraph = Module.cwrap('importGraph', 'boolean', ['string']);
 
                     // Call the import function
                     importGraph(contents);
@@ -250,8 +395,7 @@ class GraphVisualizer {
 
             // Call the export function and create a download link
             var jsonStr = exportGraph();
-            var dataStr =
-                "data:text/json;charset=utf-8," + encodeURIComponent(jsonStr);
+            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(jsonStr);
             var downloadAnchorNode = document.createElement('a');
             downloadAnchorNode.setAttribute("href", dataStr);
             downloadAnchorNode.setAttribute("download", "graph.json");
@@ -338,11 +482,28 @@ class GraphVisualizer {
       controlZone.appendChild(buttonGroup);
       controlZone.appendChild(selectedVertexDiv);
       controlZone.appendChild(startVertexDiv);
+
+      // Create a flex container assisted by ChatGPT
+      var flexContainer = document.createElement("div");
+      flexContainer.style.display = "flex";
+      flexContainer.style.flexWrap = "wrap";
+      flexContainer.style.justifyContent = "center";
+      flexContainer.style.gap = "10px";
+
+      // Add button group and vertex info to control zone
+      flexContainer.appendChild(buttonGroup);
+      flexContainer.appendChild(selectedVertexDiv);
+      flexContainer.appendChild(edgeButtonGroup);
+      flexContainer.appendChild(AddbuttonGroup);
+      flexContainer.appendChild(deleteButtonGroup);
+
+      controlZone.appendChild(flexContainer);
+      
       mainElement.appendChild(controlZone);
     });
   }
 
- public:
+public:
   GraphVisualizer() {
     // Initial values as example
     g.AddVertex("ID1", "gray", 500, 200);
@@ -362,6 +523,24 @@ class GraphVisualizer {
 
     InitiateCanvas();
     InitializeControlZone();
+    RedrawCanvas();
+  }
+
+  void RandomGraph(int vertices, int edges) {
+    g.ClearGraph();
+    for (int i = 0; i < vertices; i++) {
+      int x = r.GetInt(0, CANVAS_WIDTH);
+      int y = r.GetInt(0, CANVAS_HEIGHT);
+      g.AddVertex(std::to_string(i), "blue", x, y);
+    }
+
+    for (int i = 0; i < edges; i++) {
+      int index1 = r.GetInt(0, vertices - 1);
+      int index2 = r.GetInt(0, vertices - 1);
+      if (index1 != index2) {
+        g.AddEdge(std::to_string(index1), std::to_string(index2), 2);
+      }
+    }
     RedrawCanvas();
   }
 
@@ -420,6 +599,7 @@ class GraphVisualizer {
     }
   }
 
+  // Helper function that adds a vertex to the graph and paints it
   void AddVertex() {
     int id = g.GetVertices().size();
     int x = r.GetInt(0, CANVAS_WIDTH);
@@ -427,6 +607,43 @@ class GraphVisualizer {
 
     g.AddVertex(std::to_string(++id), "gray", x, y);
     ClearTraversal(); // Resets traversal when graph is modified
+  }
+
+  // Allows the user to delete a vertex of their choosing
+  void DeleteVertex(const char *id) {
+    std::string idCpp(id);
+    if (!g.HasVertex(idCpp)) {
+      EM_ASM({ alert("Error: Vertex with this ID does not exist!"); });
+      return;
+    }
+    g.RemoveVertex(idCpp);
+    RedrawCanvas();
+  }
+
+  // Allows the user to add and/or delete an edge between 2 verticies
+  void ToggleEdge(const char *id1, const char *id2, int weight) {
+    std::string idCpp1(id1);
+    std::string idCpp2(id2);
+    const std::string edgeId = idCpp1 + "-" + idCpp2;
+    if (g.HasEdge(edgeId)) {
+      g.RemoveEdge(edgeId);
+    } else if (!g.HasVertex(idCpp1) || !g.HasVertex(idCpp2)) {
+      EM_ASM({ alert("Error: Entered vertices must exist!"); });
+    } else {
+      g.AddEdge(idCpp1, idCpp2, weight);
+    }
+    RedrawCanvas();
+  }
+
+  // Allows the user to add a vertex where they chose
+  void AddVertexWithParams(const char *id, int x, int y) {
+    std::string idCpp(id);
+    if (g.HasVertex(idCpp)) {
+      EM_ASM({ alert("Error: Vertex with this ID already exists!"); });
+      return;
+    }
+    g.AddVertex(idCpp, "blue", x, y);
+    RedrawCanvas();
   }
 
   // Receives the virtual coordinate inside of the canvas.
@@ -478,7 +695,7 @@ class GraphVisualizer {
   // ChatGPT was used to help with the delay in traversal steps.
   static void StepTraversalAsync(void *arg) {
     auto *self = static_cast<GraphVisualizer *>(arg);
-  
+
     if (self->traversal && self->traversal->AdvanceToNextNeighbor()) {
       self->RedrawCanvas();
       // Delay next step by 500ms
@@ -486,13 +703,11 @@ class GraphVisualizer {
     } else {
       self->RedrawCanvas();
       EM_ASM({
-        setTimeout(function () {
-          alert("Traversal Finished!");
-        }, 150); // wait 150ms to let canvas update
+        setTimeout(function() { alert("Traversal Finished!"); }, 150); // wait 150ms to let canvas update
       });
     }
   }
-  
+
   /**
    * Traverse through a graph step by step when pressing the next step button
    */
@@ -511,9 +726,7 @@ class GraphVisualizer {
     } else {
       RedrawCanvas();
       EM_ASM({
-        setTimeout(function () {
-          alert("Traversal Finished!");
-        }, 150); // wait 150ms to let canvas update
+        setTimeout(function() { alert("Traversal Finished!"); }, 150); // wait 150ms to let canvas update
       });
     }
   }
@@ -560,9 +773,13 @@ GraphVisualizer init{};
  * like when a buttone is clicked must have an interface here
  */
 extern "C" {
-void clearCanvas() { init.ClearGraph(); }
+void clearCanvas() {
+  init.ClearGraph();
+}
 
-void addVertex() { init.AddVertex(); }
+void addVertex() {
+  init.AddVertex();
+}
 
 void startTraversal() {
   init.StartTraversal();
@@ -572,19 +789,43 @@ void stepTraversal() {
   init.StepTraversal();
 }
 
+void toggleEdge(const char *id1, const char *id2, int weight) {
+  init.ToggleEdge(id1, id2, weight);
+}
+
+void addVertexWithParams(const char *id, int x, int y) {
+  init.AddVertexWithParams(id, x, y);
+}
+
+void deleteVertex(const char *id) {
+  init.DeleteVertex(id);
+}
+
 void fullTraversal() {
   init.FullTraversal();
+}
+
+void randomGraph(int vertices, int edges) {
+  init.RandomGraph(vertices, edges);
 }
 
 void clearTraversal() {
   init.ClearTraversal();
 }
-  
-void handleCanvasClick(double x, double y) { init.HandleCanvasClick(x, y); }
 
-char *exportGraph() { return init.ExportGraph(); }
-
-bool importGraph(const char *jsonStr) { return init.ImportGraph(jsonStr); }
+void handleCanvasClick(double x, double y) {
+  init.HandleCanvasClick(x, y);
 }
 
-int main() { return 0; }
+char *exportGraph() {
+  return init.ExportGraph();
+}
+
+bool importGraph(const char *jsonStr) {
+  return init.ImportGraph(jsonStr);
+}
+}
+
+int main() {
+  return 0;
+}

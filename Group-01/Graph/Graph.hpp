@@ -52,6 +52,7 @@ namespace cse {
     Edge<VERTEX_DATA_T> &AddEdge(std::string const v1_id, std::string const v2_id, double const &weight = 0.0);
     Edge<VERTEX_DATA_T> &AddEdge(Vertex<VERTEX_DATA_T> const &v1, Vertex<VERTEX_DATA_T> const &v2,
                                  double const &weight = 0.0);
+    bool HasEdge(std::string const &edge_id) const;
     Edge<VERTEX_DATA_T> &GetEdge(std::string const &edge_id) const;
     Edge<VERTEX_DATA_T> &GetEdge(Vertex<VERTEX_DATA_T> const &from, Vertex<VERTEX_DATA_T> const &to) const;
     Edge<VERTEX_DATA_T> &GetEdge(std::string const &from_id, std::string const &to_id);
@@ -213,6 +214,16 @@ namespace cse {
                                                                        Vertex<VERTEX_DATA_T> const &v2,
                                                                        double const &weight) {
     return AddEdge(v1.GetId(), v2.GetId(), weight);
+  }
+
+  /**
+   * Checks if an edge exists
+   * @param edge_id ID of the edge to retrieve
+   * @return if an edge exists
+   */
+  template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
+  bool Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::HasEdge(std::string const &edge_id) const {
+    return !(edges.find(edge_id) == edges.end());
   }
 
   /**
