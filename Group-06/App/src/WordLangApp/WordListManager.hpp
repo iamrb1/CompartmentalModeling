@@ -40,10 +40,13 @@ namespace cse {
   // Create list this is a helper
 
   // -Emil
-
-  // Set current, vector of listnames return bool
+  /**
+   * @brief Sets the current list to the specified list name.
+   * @param listName The name of the list to set as current.
+   * @return true If the list was set successfully false otherwise.
+   */
   bool setCurrent(cse::StringSet<cse::StaticString<20>> currentSet = cse::StringSet<cse::StaticString<20>>()) {
-    if(currentSet == cse::StringSet<cse::StaticString<20>>()) return false;
+    if(currentSet == cse::StringSet<cse::StaticString<20>>()) return false; // Update this once we can track the most recent file loaded
     mCurrentSet = currentSet;
     return true;
   }
@@ -51,7 +54,6 @@ namespace cse {
 
   // Save saves the list into a file if exist overwrite if not creates it. Listname return bool
 
-  // Length function restricts the length of words to search, int number returns bool. (*) if used resets the length 
   /** 
    * @brief Sets the length restriction for the current list.
    * @param number The length restriction to set. Default is 0, which means no restriction.
