@@ -366,43 +366,53 @@ void cse::StringSet<T>::substring_filter(const T &substring) {
   remove_filter(substringPredicate);
 }
 /**
- * @brief Search for a string with wildcard
- * @param wildcard Wildcard string
- * @return StringSet<T> Set of strings that match the wildcard
+ * @brief Search for strings that match a regex pattern
+ * Common regex patterns:
+ * - `.*` : Matches any sequence of characters (including none).
+ * - `^` : Matches the beginning of a string.
+ * - `$` : Matches the end of a string.
+ * - `[abc]` : Matches any one of the characters 'a', 'b', or 'c'.
+ * - `[^abc]` : Matches any character except 'a', 'b', or 'c'.
+ * - `[a-z]` : Matches any lowercase letter from 'a' to 'z'.
+ * - `\d` : Matches any digit (equivalent to `[0-9]`).
+ * - `\w` : Matches any word character (alphanumeric or underscore).
+ * - `\s` : Matches any whitespace character (spaces, tabs, etc.).
+ * - `+` : Matches one or more of the preceding element.
+ * - `*` : Matches zero or more of the preceding element.
+ * - `?` : Matches zero or one of the preceding element.
+ * - `{n}` : Matches exactly 'n' occurrences of the preceding element.
+ * - `{n,}` : Matches 'n' or more occurrences of the preceding element.
+ * - `{n,m}` : Matches between 'n' and 'm' occurrences of the preceding element.
+ * - `()` : Groups patterns together.
+ * - `|` : Acts as an OR operator between patterns.
+ * 
+ * Example usage:
+ * - `^hello` : Matches strings that start with "hello".
+ * - `world$` : Matches strings that end with "world".
+ * - `\d{3}-\d{2}-\d{4}` : Matches a Social Security number format (e.g., 123-45-6789).
+ * - `a.*z` : Matches strings that start with 'a' and end with 'z', with any characters in between.
+ * 
+ * @param regexPattern The regex pattern to search for
+ * @return StringSet<T> A set of strings that match the regex pattern
  */
 template <typename T>
-cse::StringSet<T> cse::StringSet<T>::search(const T &wildcard) {
+cse::StringSet<T> cse::StringSet<T>::search(const T &regexPattern) {
   StringSet<T> result;
 
-  // Helper function to match a string with a wildcard pattern
-  auto matches = [](const T &str, const T &pattern) {
-    auto it_str = str.cbegin();
-    auto it_pat = pattern.cbegin();
+  try {
+    // Convert regexPattern to std::string_view for compatibility
+    std::string_view patternView = regexPattern;
+    std::regex pattern(patternView.begin(), patternView.end());
 
-    while (it_str != str.cend() && it_pat != pattern.cend()) {
-      if (*it_pat == '*') {
-        if (++it_pat == pattern.cend()) {
-          return true;
-        }
-        while (it_str != str.cend() && *it_str != *it_pat) {
-          ++it_str;
-        }
-      } else if (*it_pat == '?' || *it_pat == *it_str) {
-        ++it_str;
-        ++it_pat;
-      } else {
-        return false;
+    // Iterate through elements and add matching ones to the result
+    for (const auto &element : mElements) {
+      std::string_view elementView = element; // Convert element to string_view
+      if (std::regex_match(elementView.begin(), elementView.end(), pattern)) {
+        result.insert(element);
       }
     }
-
-    return it_str == str.cend() && it_pat == pattern.cend();
-  };
-
-  // Iterate through elements and add matching ones to result
-  for (const auto &element : mElements) {
-    if (matches(element, wildcard)) {
-      result.insert(element);
-    }
+  } catch (const std::regex_error &e) {
+    std::cerr << "Regex error: " << e.what() << std::endl;
   }
 
   return result;

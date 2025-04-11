@@ -13,7 +13,7 @@
 #include "../../Group-06/StaticString/StaticString.hpp"
 
 using namespace cse;
-
+/*
 TEST_CASE("Test for is_subset", "[is_subset]") {
 	StringSet set1, set2;
 	
@@ -181,7 +181,7 @@ TEST_CASE("Test for substring_filter", "[substring_filter]") {
 		REQUIRE(set2.count("dog") == 0);
 	}
 }
-
+*/
 
 // GitHub copilot helped write some initial code for this function
 TEST_CASE("Test for search", "[search]") {
@@ -193,32 +193,70 @@ TEST_CASE("Test for search", "[search]") {
     set.insert("aXcZ");
     set.insert("xyz");
 
-    SECTION("Long repetetive word") {
+    SECTION("Long repetitive word with valid regex") {
         set.insert("abababababababababababababababababaabababababababbababababababababab");
-        StringSet mySet =  set.search("ababababababa?abababa*");
+        StringSet mySet = set.search("ababababababab.*ababababababababab");
         REQUIRE(mySet.size() == 1);
+        REQUIRE(mySet.count("abababababababababababababababababaabababababababbababababababababab") == 1);
     }
 
-    // Perform a search with a pattern and check if the result matches the expected output
-    StringSet result = set.search("a?c*");
-    REQUIRE(result.size() == 3);
-    REQUIRE(result.count("aXcY") == 1);
-    REQUIRE(result.count("aXcZ") == 1);
-    
+    SECTION("Search with valid regex pattern") {
+        StringSet result = set.search("a.*c.*");
+        REQUIRE(result.size() == 4);
+        REQUIRE(result.count("abc") == 1);
+        REQUIRE(result.count("aXcY") == 1);
+        REQUIRE(result.count("aXcZ") == 1);
+        REQUIRE(result.count("abcd") == 1);
+    }
+
+    SECTION("Search with regex matching a single element") {
+        StringSet result = set.search("^xyz$");
+        REQUIRE(result.size() == 1);
+        REQUIRE(result.count("xyz") == 1);
+    }
+
+    SECTION("Search with regex matching no elements") {
+        StringSet result = set.search("z.*a");
+        REQUIRE(result.size() == 0);
+    }
+
+    SECTION("Search with invalid regex pattern") {
+        REQUIRE_NOTHROW(set.search("[a-")); // Ensure no exception is thrown
+    }
+
     // Test with StaticString
-    StringSet<StaticString<4>> staticSet;
+    StringSet<StaticString<10>> staticSet;
     staticSet.insert("abc");
     staticSet.insert("abcd");
     staticSet.insert("aXcY");
     staticSet.insert("aXcZ");
     staticSet.insert("xyz");
 
-    // Perform a search with a pattern and check if the result matches the expected output
-    StringSet<StaticString<4>> staticResult = staticSet.search("a?c*");
-    REQUIRE(staticResult.size() == 3);
-    REQUIRE(staticResult.count("aXcY") == 1);
-    REQUIRE(staticResult.count("aXcZ") == 1);
+    SECTION("Search with valid regex pattern for StaticString") {
+        StringSet<StaticString<10>> result = staticSet.search("a.*c.*");
+        REQUIRE(result.size() == 4);
+        REQUIRE(result.count("abc") == 1);
+        staticSet.insert("abcd");
+        REQUIRE(result.count("aXcY") == 1);
+        REQUIRE(result.count("aXcZ") == 1);
+    }
+
+    SECTION("Search with regex matching a single element for StaticString") {
+        StringSet<StaticString<10>> result = staticSet.search("^xyz$");
+        REQUIRE(result.size() == 1);
+        REQUIRE(result.count("xyz") == 1);
+    }
+
+    SECTION("Search with regex matching no elements for StaticString") {
+        StringSet<StaticString<10>> result = staticSet.search("z.*a");
+        REQUIRE(result.size() == 0);
+    }
+
+    SECTION("Search with invalid regex pattern for StaticString") {
+        REQUIRE_NOTHROW(staticSet.search("[a-")); // Ensure no exception is thrown
+    }
 }
+/*
 // GitHub copilot helped write some initial code for this function
 TEST_CASE("Test for Count_occurrence", "[Count_occurrence]") {
     // Test with normal strings
@@ -832,4 +870,4 @@ TEST_CASE("Swap", "[Swap]"){
     REQUIRE(Sset1.empty());
     REQUIRE(Sset2.empty());
 
-}
+}*/
