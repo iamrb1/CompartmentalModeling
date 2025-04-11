@@ -68,6 +68,19 @@ class StringSet {
   }
 
   /**
+   * @brief Copy assignment operator
+   *
+   * @param other StringSet to copy from
+   * @return StringSet& A reference to the assigned StringSet
+   */
+  StringSet &operator=(const StringSet &other) {
+    if (this != &other) { // Prevent self-assignment
+        mElements = other.mElements;
+    }
+    return *this;
+  }
+
+  /**
    * @brief Iterator to the first element of string set (begin iterator)
    * @return Iterator pointing to begining of string set
    */

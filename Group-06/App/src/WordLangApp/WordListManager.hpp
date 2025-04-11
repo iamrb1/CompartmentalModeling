@@ -42,14 +42,26 @@ namespace cse {
   // -Emil
 
   // Set current, vector of listnames return bool
-
+  bool setCurrent(cse::StringSet<cse::StaticString<20>> currentSet = cse::StringSet<cse::StaticString<20>>()) {
+    if(currentSet == cse::StringSet<cse::StaticString<20>>()) return false;
+    mCurrentSet = currentSet;
+    return true;
+  }
   // Add adds the words to the set, listname, space separated words to add returns bool
 
   // Save saves the list into a file if exist overwrite if not creates it. Listname return bool
 
-  // Length function retricst the length of words to search, int number reutrns bool. (*) if used resets the length 
+  // Length function restricts the length of words to search, int number returns bool. (*) if used resets the length 
+  /** 
+   * @brief Sets the length restriction for the current list.
+   * @param number The length restriction to set. Default is 0, which means no restriction.
+   * @return int The length restriction set.
+  */
+   int setLengthRestriction(int lengthRestriction = 0) {
 
-  // -Emil
+    mlengthRestriction = lengthRestriction;
+    return lengthRestriction;
+   }
 
   // Contains any updates the current list to the restriction, string collection of letters to include some return bool
 
@@ -57,7 +69,7 @@ namespace cse {
 
   // Not Contains update the current list to the restriction, string collection of letters to exclude return bool
 
-  // Get searches based on pattern load found words into current set to print if asked, string patterrn to restric return bool
+  // Get searches based on pattern load found words into current set to print if asked, string pattern to restric return bool
 
   /**
    * @brief Prints the current values
@@ -85,9 +97,9 @@ namespace cse {
     std::string mCurrentList;
 
     // A stringSet represents current Get command
-    
+    cse::StringSet<cse::StaticString<20>> mCurrentSet;
     // Length restriction 
-
+    int mlengthRestriction;
     // A map of listnames and associated filenames, if reset called resets based on this information. Combine list can not be resetted. We may change it later
  };
 }
