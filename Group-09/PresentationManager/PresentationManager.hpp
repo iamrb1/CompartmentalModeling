@@ -67,6 +67,8 @@ class PresentationManager {
 		void start() {
 			_event_manager.start();
 			std::cout << "Starting Events" << std::endl;
+            // Toggle bottom bar
+            toggleBottomNav(true);
 		}
 
 		/**
@@ -142,7 +144,8 @@ class PresentationManager {
 
 			if (_slide_deck.empty() || _current_pos >= _slide_deck.size()) {
 				std::cout << "ERROR: No current layout to modify.\n";
-				return;
+                // Create new slide and finish adding textbox
+                addNewSlide();
 			}
 
 			_slide_deck.at(_current_pos)->addTextBox(newLayout);
@@ -164,7 +167,8 @@ class PresentationManager {
 
 			if (_slide_deck.empty() || _current_pos >= _slide_deck.size()) {
 				std::cout << "ERROR: No current layout to add image.\n";
-				return;
+                // Create new slide and finish adding image
+                addNewSlide();
 			}
 
 			auto image = std::make_shared<Image>(url, width, height, altText);
@@ -256,7 +260,7 @@ class PresentationManager {
 			_event_manager.addEvent(changeSlide, origin, destination, time);
 		}
 
-                void updateImageSize(const std::string& id, int newWidth, int newHeight) {
+        void updateImageSize(const std::string& id, int newWidth, int newHeight) {
 		  if (_slide_deck.empty() || _current_pos >= _slide_deck.size()) return;
 		  auto& layout = _slide_deck.at(_current_pos);
 
@@ -267,6 +271,17 @@ class PresentationManager {
 		    }
 		  }
 		}
+
+        void toggleBottomNav(bool hidden) {
+            // Hide bottom edit bar
+            EM_ASM({
+                var bottomNav = document.getElementById("bottom-nav");
+                if(bottomNav){
+                  console.log('Present Mode: ', $0);
+                  bottomNav.style.visibility = $0 ? "hidden" : "visible";
+                }
+            }, hidden);
+        }
 
 
 
@@ -405,6 +420,8 @@ const char *exportSlideDeckToJson() {
 void call_addSlideChangeEvent() { PRESENTATION_MANAGER.addSlideChangeEvent(10, PRESENTATION_MANAGER.getCurrentPos(), PRESENTATION_MANAGER.getCurrentPos()+1); }
 
 void call_updateImageSize(const char* id, int width, int height) { std::string cppId(id); PRESENTATION_MANAGER.updateImageSize(cppId, width, height);}
+
+void call_leavePresentation() { PRESENTATION_MANAGER.toggleBottomNav(false); }
 
 }
 

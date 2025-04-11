@@ -83,7 +83,20 @@ void bind() {
 
 
 		}
-		// Check if item is being dragged
+
+    // Ability to hit ESC to leave present mode
+        document.addEventListener("keydown", function(e) {
+          if (e.key === "Escape") {
+            Module.ccall(
+                "call_leavePresentation",
+                null,
+                [],
+                []
+            );
+          }
+        });
+
+        // Check if item is being dragged
 		document.addEventListener(
 			"mousedown", function(e) {
 			  // Check if clicked element is draggable
