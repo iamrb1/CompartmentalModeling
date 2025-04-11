@@ -39,6 +39,8 @@ namespace cse {
 
   // Create list this is a helper
 
+  // -Emil
+
   // Set current, vector of listnames return bool
 
   // Add adds the words to the set, listname, space separated words to add returns bool
@@ -46,6 +48,8 @@ namespace cse {
   // Save saves the list into a file if exist overwrite if not creates it. Listname return bool
 
   // Length function retricst the length of words to search, int number reutrns bool. (*) if used resets the length 
+
+  // -Emil
 
   // Contains any updates the current list to the restriction, string collection of letters to include some return bool
 
