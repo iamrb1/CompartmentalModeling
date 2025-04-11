@@ -42,4 +42,4 @@ format:
 	echo $(HEADS) | xargs clang-format --style=file -i
 
 run:
-	python -
+	python -m http.server -d app/web

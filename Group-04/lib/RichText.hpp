@@ -36,6 +36,7 @@ using FormatID = std::string;
  */
 struct TextFormat {
   using FormatID = std::string;
+  using FormatData = std::variant<std::string, int32_t, std::monostate>;
   /**
    * The name/id of the format.
    */
@@ -45,7 +46,7 @@ struct TextFormat {
    * It may be an int to represent the size of the font, a string to represent
    * the target of a hyperlink, etc.
    */
-  std::variant<std::string, int32_t, std::monostate> metadata;
+  FormatData metadata;
 
   /**
    * Constructs a format with metadata
@@ -286,34 +287,35 @@ class BasicRichText {
    * @param pos The position to check for range changes
    */
   IndexRange segment_at(std::size_t pos) const {
-  dbg_assert(pos < m_text.size(),
-             std::format("Out of bounds access, idx: {} size: {}", pos,
-                         m_text.size()));
-  // index range containing entire richtext
-  IndexSet text_range{{0, m_text.size()}};
-  // get containing ranges of all formats (or lack thereof) at pos
-  auto ranges =
-      std::views::elements<1>(m_formatting) |
-      std::views::transform([pos, &text_range](IndexSet const& fmt_indices) {
-        // if a range encompasses pos, return it
-        if (auto range = fmt_indices.get_containing_range(pos)) {
-          return *range;
-        }
-        // otherwise, return the unformatted range encompassing pos
-        auto unfmt_indices = text_range - fmt_indices;
-        // optional can only be nullopt if text is empty, which can't happen here
-        return unfmt_indices.get_containing_range(pos).value();
-      });
+    dbg_assert(pos < m_text.size(),
+               std::format("Out of bounds access, idx: {} size: {}", pos,
+                           m_text.size()));
+    // index range containing entire richtext
+    IndexSet text_range{{0, m_text.size()}};
+    // get containing ranges of all formats (or lack thereof) at pos
+    auto ranges =
+        std::views::elements<1>(m_formatting) |
+        std::views::transform([pos, &text_range](IndexSet const& fmt_indices) {
+          // if a range encompasses pos, return it
+          if (auto range = fmt_indices.get_containing_range(pos)) {
+            return *range;
+          }
+          // otherwise, return the unformatted range encompassing pos
+          auto unfmt_indices = text_range - fmt_indices;
+          // optional can only be nullopt if text is empty, which can't happen
+          // here
+          return unfmt_indices.get_containing_range(pos).value();
+        });
 
-  // Manual "fold" to intersect them all
-  IndexRange result{0, m_text.size()};
-  for (auto r : ranges) {
-    std::size_t s = std::max(result.start, r.start);
-    std::size_t e = std::min(result.end, r.end);
-    result = IndexRange{s, e};
+    // Manual "fold" to intersect them all
+    IndexRange result{0, m_text.size()};
+    for (auto r : ranges) {
+      std::size_t s = std::max(result.start, r.start);
+      std::size_t e = std::min(result.end, r.end);
+      result = IndexRange{s, e};
+    }
+    return result;
   }
-  return result;
-}
 
   /**
    * @brief Insert a string into RichText

@@ -346,7 +346,7 @@ div.input-title-wrapper[type=checkbox] > input {
    -----------------------------------------
 */
 
-bar {
+.bar {
   display: flex;
   align-items: center;  
   height: 60px;
@@ -362,7 +362,7 @@ bar {
 
 /* The container for type="text" inside <bar> 
    should take full height/width with no extra border */
-bar > .input-container[type="text"] {
+.bar > .input-container[type="text"] {
   margin: 0;
   padding: 0;
   width: 100%;
@@ -379,7 +379,7 @@ bar > .input-container[type="text"] {
 
 /* The actual <input> within that container 
    also expands to fill the <bar> and has no border */
-bar > .input-container[type="text"] input[type="text"] {
+.bar > .input-container[type="text"] input[type="text"] {
   margin: 0;
   padding: 0 16px; 
   width: 100%;

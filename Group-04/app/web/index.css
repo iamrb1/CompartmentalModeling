@@ -13,7 +13,7 @@ content {
     display: flex;
 }
 
-content > rich-input {
+content > .rich-input {
     flex: 2;
     background-color: lightsteelblue;
     overflow: scroll;
