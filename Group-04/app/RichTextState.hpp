@@ -33,13 +33,8 @@ class RichTextState {
   // Begin editing the text from the given position
   //
   std::string edit_start_pos(size_t idx) {
-    if (idx >= m_richText.size()) return "";
-
-    // Get the formatting segment at the cursor
-    cse::IndexSet segment = m_richText.segment_at(idx);
-    // Update the pair (range may not exist, so do checks for that)
-    m_edit = std::pair(segment.min_index().value_or(0),
-                       segment.max_index().value_or(m_richText.size()));
+    if (idx > m_richText.size())
+      idx = m_richText.size();
 
     // Reset formatting
     reset_format();
@@ -48,19 +43,37 @@ class RichTextState {
       update_bar(format);
     }
 
+    if (idx == 0 || idx == m_richText.size()) {
+      m_edit = std::pair(idx, idx);
+      return "";
+    }
+
+    // Get the formatting segment at the cursor
+    cse::IndexSet segment = m_richText.segment_at(idx);
+    // Update the pair (range may not exist, so do checks for that)
+    m_edit = std::pair(segment.min_index().value_or(0),
+                      segment.max_index().value_or(m_richText.size()));
+
     return m_richText.to_string().substr(m_edit.first, m_edit.second);
   }
 
   // Begin editing the text in the given range
-  std::string edit_start_range(size_t start, size_t end) {
-    if (start >= m_richText.size() || end >= m_richText.size()) return "";
-    m_edit = std::pair(start, end);
-    return m_richText.to_string().substr(start, end);
+  std::string edit_start_range(size_t start, size_t count) {
+    if (start >= m_richText.size() || count + start > m_richText.size()) return "";
+    m_edit = std::pair(start, start + count);
+    return m_richText.to_string().substr(start, count);
   }
 
   // Replace the text in the range with the given string
   void edit_change(std::string replace) {
-    // TODO
+    // saveState();
+    m_richText.erase(m_edit.first, m_edit.second - m_edit.first);
+    m_edit.second = m_edit.first + replace.length();
+    cse::RichText insert = cse::RichText(replace);
+    for(const auto &[id, metadata] : m_formatMap) {
+      insert.apply_format(cse::TextFormat(id, metadata));
+    }
+    m_richText.insert(m_edit.first, insert);
   }
 
   // -- FORMAT OPERATIONS --
@@ -90,8 +103,6 @@ class RichTextState {
   void update_bar(const cse::TextFormat& format, bool clear = false) {
     if (!clear)
       m_formatMap[format.name] = format.metadata;
-    else
-      m_formatMap.erase(format.name);
     // TODO: update graphics on front end
   }
 

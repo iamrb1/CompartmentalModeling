@@ -2,6 +2,8 @@
 var last_active = null;
 // Map storing output tab elements to swap between
 var outputs = {};
+// Track whether we are selecting text
+var selecting = false;
 
 // Convert an emscripten vector to a JS array
 function convert_vector(v) {
@@ -123,23 +125,32 @@ window.addEventListener("DOMContentLoaded", () => {
     
     // Hook up Undo/Redo handlers.
     undoButton.addEventListener("click", () => {
-      // app.undo();
+      app.undo();
       updateOutputs();
     });
     
     redoButton.addEventListener("click", () => {
-      // app.redo();
+      app.redo();
       updateOutputs();
     });
     
     // Future: bind text input's events to update the state.
+    wrappedInput.addEventListener("input", (e) => {
+      app.edit_change(wrappedInput.getValue());
+      updateOutputs();
+    });
 
-    // Do funky stuff when selection changes
-    document.addEventListener("selectionchange", () => {
-      let e = document.getSelection();
-      // If the selection is outside the editor, do nothing.
-      if (!editorContainer.contains(e.anchorNode) || !editorContainer.contains(e.focusNode))
+    window.addEventListener("mousedown",  (e) => {
+      if (editorContainer.contains(e.target))
+        selecting = true;
+    });
+
+    const updateSelection = () => {
+      // if we are not selecting then do nothing
+      if (!selecting)
         return;
+
+      let e = document.getSelection();
 
       let o1 = calculate_offset(editorContainer, e.anchorNode, e.anchorOffset);
       let o2 = calculate_offset(editorContainer, e.focusNode, e.focusOffset);
@@ -152,6 +163,14 @@ window.addEventListener("DOMContentLoaded", () => {
         let str = app.edit_start_range(min, max - min);
         wrappedInput.setValue(str);
       }
+    };
+
+    document.addEventListener("selectionchange", updateSelection);
+
+    // Do funky stuff when selection changes
+    window.addEventListener("mouseup", () => {
+      updateSelection();
+      selecting = false;
     });
   });
 });

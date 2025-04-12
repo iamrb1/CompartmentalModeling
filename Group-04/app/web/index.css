@@ -23,11 +23,17 @@ content > .rich-input {
 content > output {
     flex: 1;
     background-color: #555;
+    max-width: 50%;
 }
 
 @media (max-aspect-ratio: 1) {
     content {
         flex-direction: column;
+    }
+
+    content > output {
+        max-height: 50%;
+        max-width: 100%;
     }
 }
 
@@ -86,7 +92,7 @@ content > output {
   }
   
 #text-editor {
-    margin: 15px;
+    padding: 15px;
 }
 
 

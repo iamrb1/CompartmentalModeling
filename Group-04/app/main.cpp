@@ -1,5 +1,5 @@
+#define CSE4_IMPL
 #include "RichTextState.hpp"
-#include "EditorState.hpp"
 #include "Bindings.hpp"
 
 
