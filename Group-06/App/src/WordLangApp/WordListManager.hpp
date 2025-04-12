@@ -29,23 +29,50 @@ namespace cse {
    */
   bool load_list(const std::string& listName, const std::string& fileName);
 
+
   // Combined function to combine group of sets, string listname, vector of lists to combine return bool
+     bool combine(const std::string& newListName, const std::vector<std::string>& listsToCombine);
 
-  // Difference function similar to combined, listname, vector of listnames reutnrs a bool
 
-  // Intersection function similar to combined, listname, vector of listnames reutnrs a bool
+     // Difference function similar to combined, listname, vector of listnames reutnrs a bool
+     bool difference(const std::string& newListName, const std::vector<std::string>& listsToDiff);
 
-  // Copy copys an existing list to a new list and creats it, listname, listname to copy rturn bool
 
-  // Create list this is a helper
+     // Intersection function similar to combined, listname, vector of listnames reutnrs a bool
+     bool intersection(const std::string& newListName, const std::vector<std::string>& listsToIntersect);
 
-  // Set current, vector of listnames return bool
 
+     // Copy copys an existing list to a new list and creats it, listname, listname to copy rturn bool
+     bool copy(const std::string& newListName, const std::string& copyList);
+
+
+     // Create list this is a helper
+
+  // -Emil
+  /**
+   * @brief Sets the current list to the specified list name.
+   * @param listName The name of the list to set as current.
+   * @return true If the list was set successfully false otherwise.
+   */
+  bool setCurrent(cse::StringSet<cse::StaticString<20>> currentSet = cse::StringSet<cse::StaticString<20>>()) {
+    if(currentSet == cse::StringSet<cse::StaticString<20>>()) return false; // Update this once we can track the most recent file loaded
+    mCurrentSet = currentSet;
+    return true;
+  }
   // Add adds the words to the set, listname, space separated words to add returns bool
 
   // Save saves the list into a file if exist overwrite if not creates it. Listname return bool
 
-  // Length function retricst the length of words to search, int number reutrns bool. (*) if used resets the length 
+  /** 
+   * @brief Sets the length restriction for the current list.
+   * @param number The length restriction to set. Default is 0, which means no restriction.
+   * @return int The length restriction set.
+  */
+   int setLengthRestriction(int lengthRestriction = 0) {
+
+    mlengthRestriction = lengthRestriction;
+    return lengthRestriction;
+   }
 
   // Contains any updates the current list to the restriction, string collection of letters to include some return bool
 
@@ -53,7 +80,7 @@ namespace cse {
 
   // Not Contains update the current list to the restriction, string collection of letters to exclude return bool
 
-  // Get searches based on pattern load found words into current set to print if asked, string patterrn to restric return bool
+  // Get searches based on pattern load found words into current set to print if asked, string pattern to restric return bool
 
   /**
    * @brief Prints the current values
@@ -81,9 +108,9 @@ namespace cse {
     std::string mCurrentList;
 
     // A stringSet represents current Get command
-    
+    cse::StringSet<cse::StaticString<20>> mCurrentSet;
     // Length restriction 
-
+    int mlengthRestriction;
     // A map of listnames and associated filenames, if reset called resets based on this information. Combine list can not be resetted. We may change it later
  };
 }
