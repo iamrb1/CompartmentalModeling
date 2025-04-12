@@ -4,10 +4,12 @@
 #include <cassert>
 #include <cstring>
 #include <iomanip>
+#include <sstream>
 #include <iterator>
 #include <stdexcept>
 #include <unordered_map>
 #include <vector>
+#include <fstream>
 #include "../../../StringSet/StringSet.hpp"
 #include "../../../StaticString/StaticString.hpp"
 #include "FileSource.hpp"
@@ -60,8 +62,34 @@ namespace cse {
     return true;
   }
   // Add adds the words to the set, listname, space separated words to add returns bool
-
+  bool add(const std::string& listName, const std::string& wordsToAdd) {
+    if (mWordLists.find(listName) == mWordLists.end()) {
+      return false;
+    }
+    auto& list = mWordLists[listName];
+    std::istringstream iss(wordsToAdd);
+    std::string word;
+    while (iss >> word) {
+      list.insert(word);
+    }
+    return true;
+  }
   // Save saves the list into a file if exist overwrite if not creates it. Listname return bool
+  bool save(const std::string& listName) {
+    if (mWordLists.find(listName) == mWordLists.end()) {
+      return false;
+    }
+    auto& list = mWordLists[listName];
+    std::ofstream file(listName + ".txt");
+    if (!file.is_open()) {
+      return false;
+    }
+    for (const auto& word : list) {
+      file << word << "\n";
+    }
+    file.close();
+    return true;
+  }
 
   /** 
    * @brief Sets the length restriction for the current list.
