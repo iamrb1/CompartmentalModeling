@@ -201,7 +201,11 @@ bool cse::WordListManager::save(const std::string& listName) {
     file.close();
     return true;
 }
-
+/**
+ * @brief Sets the length restriction for words in the list.
+ * @param lengthRestriction The length restriction to set.
+ * @return The length restriction that was set.
+ */
 int cse::WordListManager::setLengthRestriction(int lengthRestriction) {
     mlengthRestriction = lengthRestriction;
     return lengthRestriction;
