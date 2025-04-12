@@ -31,7 +31,7 @@ function calculate_offset(container, child, offset = 0) {
 window.addEventListener("DOMContentLoaded", () => {
   Module().then((instance) => {
     // Create a single "app state" object
-    const app = new instance.EditorState();
+    const app = new instance.RichTextState();
 
     // Output elements
     const outputContainer = document.getElementsByTagName("output")[0];

@@ -1,8 +1,6 @@
-#define CSE4_IMPL
-#include "BitVector.hpp"
-#include "RichTextBindings.hpp"
 #include "RichTextState.hpp"
 #include "EditorState.hpp"
+#include "Bindings.hpp"
 
 
 int main() {
