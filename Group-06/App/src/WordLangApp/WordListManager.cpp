@@ -91,7 +91,7 @@ bool cse::WordListManager::difference(const std::string &newListName, const std:
         {
             return false;
         }
-        result = result.Difference(mWordLists[listName]);
+        result = result.difference(mWordLists[listName]);
     }
     mWordLists[newListName] = result;
     mCurrentList = newListName;
@@ -126,7 +126,7 @@ bool cse::WordListManager::intersection(const std::string &newListName, const st
         {
             return false;
         }
-        result = result.Intersection(mWordLists[listName]);
+        result = result.intersection(mWordLists[listName]);
     }
     mWordLists[newListName] = result;
     mCurrentList = newListName;
