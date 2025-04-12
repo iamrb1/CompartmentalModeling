@@ -14,7 +14,7 @@
 
 using namespace cse;
 
-TEST_CASE("Tests for advanced memeber functions", "[StaticString]") {
+TEST_CASE("Tests for advanced member functions", "[StaticString]") {
 
   SECTION("TESTS: Find_all member function") {
     StaticString<20> s("HelloWorldHelloWorld");
