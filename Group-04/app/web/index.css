@@ -93,6 +93,7 @@ content > output {
   
 #text-editor {
     padding: 15px;
+    white-space: pre;
 }
 
 
