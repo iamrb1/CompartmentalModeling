@@ -74,19 +74,6 @@ class StringSet {
     return *this;
   }
 
-  /**
-   * Copy assignment operator
-   *
-   * @param other StringSet to copy from
-   * @return A reference to the assigned StringSet
-   */
-  StringSet& operator=(const StringSet<T> &other) {
-      if (this != &other) {
-          mElements = other.mElements;
-      }
-      return *this;
-    }
-
 
     /**
    * @brief Copy assignment operator
