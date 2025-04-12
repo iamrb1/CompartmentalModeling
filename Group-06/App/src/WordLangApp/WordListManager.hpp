@@ -29,14 +29,18 @@ namespace cse {
    */
   bool load_list(const std::string& listName, const std::string& fileName);
 
-     // Combined function to combine group of sets, string listname, vector of lists to combine return bool
+
+  // Combined function to combine group of sets, string listname, vector of lists to combine return bool
      bool combine(const std::string& newListName, const std::vector<std::string>& listsToCombine);
+
 
      // Difference function similar to combined, listname, vector of listnames reutnrs a bool
      bool difference(const std::string& newListName, const std::vector<std::string>& listsToDiff);
 
+
      // Intersection function similar to combined, listname, vector of listnames reutnrs a bool
      bool intersection(const std::string& newListName, const std::vector<std::string>& listsToIntersect);
+
 
      // Copy copys an existing list to a new list and creats it, listname, listname to copy rturn bool
      bool copy(const std::string& newListName, const std::string& copyList);

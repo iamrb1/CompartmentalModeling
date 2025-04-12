@@ -33,6 +33,7 @@ bool cse::WordListManager::print(int number, bool isAll) {
 }
 
 
+
 /**
  * @brief Combines multiple lists into one list
  * @param newListName New created list
@@ -60,6 +61,7 @@ bool cse::WordListManager::combine(const std::string &newListName, const std::ve
     mCurrentList = newListName;
     return true;
 }
+
 
 
 /**
@@ -97,6 +99,7 @@ bool cse::WordListManager::difference(const std::string &newListName, const std:
 }
 
 
+
 /**
  * @brief Intersection of lists
  * @param newListName New created list based on intersection
@@ -129,6 +132,7 @@ bool cse::WordListManager::intersection(const std::string &newListName, const st
     mCurrentList = newListName;
     return true;
 }
+
 
 
 /**
