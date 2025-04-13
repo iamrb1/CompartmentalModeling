@@ -16,6 +16,7 @@ Last Changed Date: 03/26/2025
 #include <utility>
 #include <vector>
 
+
 namespace cse {
 
 /**
@@ -32,6 +33,13 @@ struct Item {
    */
   friend bool operator==(const Item& a, const Item& b) {
     return (a.name == b.name && a.weight == b.weight && a.value == b.value);
+
+  }
+
+  friend std::ostream& operator<<(std::ostream& os, const Item& item){
+    os << "Item: " << item.name << ", Weight: " << item.weight
+              << ", Value: " << item.value << std::endl;
+    return os;
   }
 };
 
