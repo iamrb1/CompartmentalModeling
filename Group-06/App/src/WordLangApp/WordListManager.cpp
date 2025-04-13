@@ -91,7 +91,7 @@ bool cse::WordListManager::difference(const std::string &newListName, const std:
         {
             return false;
         }
-        result = result.Difference(mWordLists[listName]);
+        result = result.difference(mWordLists[listName]);
     }
     mWordLists[newListName] = result;
     mCurrentList = newListName;
@@ -126,7 +126,7 @@ bool cse::WordListManager::intersection(const std::string &newListName, const st
         {
             return false;
         }
-        result = result.Intersection(mWordLists[listName]);
+        result = result.intersection(mWordLists[listName]);
     }
     mWordLists[newListName] = result;
     mCurrentList = newListName;
@@ -150,4 +150,94 @@ bool cse::WordListManager::copy(const std::string &newListName, const std::strin
     mWordLists[newListName] = mWordLists[copyList];
     mCurrentList = newListName;
     return true;
+}
+/**
+ * @brief Sets the current list to the specified list name.
+ * @param listName The name of the list to set as current.
+ * @return true If the list was set successfully, false otherwise.
+ */
+bool cse::WordListManager::setCurrent(cse::StringSet<cse::StaticString<20>> currentSet) {
+    if (currentSet == cse::StringSet<cse::StaticString<20>>()) {
+        return false;
+    }
+    mCurrentSet = currentSet;
+    return true;
+}
+/**
+ * @brief Adds words to the specified list.
+ * @param listName The name of the list to add words to.
+ * @param wordsToAdd The words to add, separated by spaces.
+ * @return true If the words were added successfully, false otherwise.
+ */
+bool cse::WordListManager::add(const std::string& listName, const std::string& wordsToAdd) {
+    if (mWordLists.find(listName) == mWordLists.end()) {
+        return false;
+    }
+    auto& list = mWordLists[listName];
+    std::istringstream iss(wordsToAdd);
+    std::string word;
+    while (iss >> word) {
+        list.insert(word);
+    }
+    return true;
+}
+/**
+ * @brief Saves the current list to a file.
+ * @param listName The name of the list to save.
+ * @return true If the list was saved successfully, false otherwise.
+ */
+bool cse::WordListManager::save(const std::string& listName) {
+    if (mWordLists.find(listName) == mWordLists.end()) {
+        return false;
+    }
+    auto& list = mWordLists[listName];
+    std::ofstream file(listName + ".txt");
+    if (!file.is_open()) {
+        return false;
+    }
+    for (const auto& word : list) {
+        file << word << "\n";
+    }
+    file.close();
+    return true;
+}
+/**
+ * @brief Sets the length restriction for words in the list.
+ * @param lengthRestriction The length restriction to set.
+ * @return The length restriction that was set.
+ */
+int cse::WordListManager::setLengthRestriction(int lengthRestriction) {
+    mlengthRestriction = lengthRestriction;
+    return lengthRestriction;
+}
+
+/**
+ * @brief updates the current list to the restriction, string collection of letters to include some return bool.
+ * @param lengthRestriction The letters to check in the word list.
+ * @return The updated list.
+ */
+bool cse::WordListManager::ContainsAny(const std::string &lettersToCheck)
+{
+  StringSet result = mCurrentSet.search("[" +lettersToCheck + "]");
+  mCurrentSet = result;
+}
+
+/**
+ * @brief updates the curernt list to the restriction, string collection of letters to include all return bool.
+ * @param lengthRestriction The letters to check in the word list.
+ * @return The updated list.
+ */
+bool cse::WordListManager::ContainsAll(const std::string &lettersToCheck)
+{
+  std::string lettersToCheckNew = "";
+  for (int i = 0; i < lettersToCheck.length(); i++)
+  {
+    lettersToCheckNew += lettersToCheck;
+    if (i < lettersToCheck.length() - 1)
+    {
+      lettersToCheckNew += "+";
+    }
+  }
+  StringSet result = mCurrentSet.search(lettersToCheck);
+  mCurrentSet = result;
 }

@@ -47,6 +47,13 @@ class StringSet {
   StringSet() = default;
 
   /**
+   * @brief Copy constructor
+   *
+   * @param other String Set to copy from
+   */
+  StringSet(const StringSet<T> &other) : mElements(other.mElements) {}
+
+  /**
    * @brief Move constructor
    *
    * @param other StringSet to move from
@@ -67,7 +74,8 @@ class StringSet {
     return *this;
   }
 
-  /**
+
+    /**
    * @brief Copy assignment operator
    *
    * @param other StringSet to copy from
