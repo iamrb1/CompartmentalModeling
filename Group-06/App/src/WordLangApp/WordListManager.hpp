@@ -62,6 +62,12 @@ public:
     // Contains all updates the curernt list to the restriction, string collection of letters to include all return bool
     bool ContainsAll(const std::string &lettersToCheck);
 
+    // Not Contains update the current list to the restriction, string collection of letters to exclude return bool
+    bool NotContains(const std::string &lettersToCheck);
+ 
+    // Get searches based on pattern load found words into current set to print if asked, string pattern to restric return bool
+    bool Get(const std::string &patternToCheck);
+
     /** 
      * @brief Sets the length restriction for the current list.
      * @param number The length restriction to set. Default is 0, which means no restriction.
