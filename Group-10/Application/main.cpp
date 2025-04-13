@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <fstream>
 
 #include "../../Group-06/ArgManager/ArgManager.h"
 #include "../../Group-06/CommandLine/CommandLine.cpp"
@@ -11,7 +12,7 @@
 
 void BruteForceUnoptimized() { std::cout << "Run Unoptimized" << std::endl; }
 
-std::vector<cse::Item> ConstructItems(std::string){ 
+std::vector<cse::Item> ConstructItems(std::string filename){ 
     std::cout << "Constructing Items" << std::endl;
     std::vector<cse::Item> Items {};
     
@@ -21,6 +22,11 @@ std::vector<cse::Item> ConstructItems(std::string){
     Create Item
     Enter into vector of items   
     **/ 
+    std::ifstream TextFile(filename);
+    std::string line;
+    while (std::getline(TextFile, line)) {
+        std::cout << line << std::endl;
+    }
 
     return Items;
 }
@@ -48,7 +54,6 @@ int main() {
     //split input
     // command -> text file seperated by a space
     auto arguments = split(input, ' ');
-    //std::cout << arguments[1] << std::endl;
     mainCommand.executeCommand(arguments[0]);
   }
   return 0;
