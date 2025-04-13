@@ -5,6 +5,10 @@
 #include <optional>
 #include <string>
 
+#ifdef __EMSCRIPTEN__
+#include "emscripten.h"
+#endif
+
 // Entrypoints for assert macros.
 //
 // These use variadic macro to prevent accidentally splitting on commas within
@@ -80,6 +84,11 @@ void assert_fail() { throw AssertTestException(); }
 #define REQUIRE_NOASSERT(...) REQUIRE_NOTHROW(__VA_ARGS__)
 #endif
 
+#elifdef __EMSCRIPTEN__
+[[noreturn]] void assert_fail() {
+  EM_ASM({alert("Assertion failed (see console)")});
+  std::abort();
+}
 #else
 [[noreturn]] void assert_fail() { std::abort(); }
 #endif

@@ -24,7 +24,7 @@ function calculate_offset(container, child, offset = 0) {
       return sum + offset;
     else if (i.contains(child))
       return sum + calculate_offset(i, child, offset);
-    sum += i.innerText.length;
+    sum += i.textContent.length;
   }
 
   return sum;

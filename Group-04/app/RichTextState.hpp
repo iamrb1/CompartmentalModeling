@@ -33,7 +33,11 @@ class RichTextState {
   // Begin editing the text from the given position
   //
   std::string edit_start_pos(size_t idx) {
-    if (idx > m_richText.size()) idx = m_richText.size();
+    if (m_richText.size() == 0) {
+      m_edit = {0, 0};
+      return "";
+    }
+    if (idx >= m_richText.size()) idx = m_richText.size() - 1;
 
     // Reset formatting
     reset_format();
@@ -42,16 +46,9 @@ class RichTextState {
       update_bar(format);
     }
 
-    if (idx == 0 || idx == m_richText.size()) {
-      m_edit = std::pair(idx, idx);
-      return "";
-    }
-
     // Get the formatting segment at the cursor
-    cse::IndexSet segment = m_richText.segment_at(idx);
-    // Update the pair (range may not exist, so do checks for that)
-    m_edit = std::pair(segment.min_index().value_or(0),
-                       segment.max_index().value_or(m_richText.size()));
+    auto segment = m_richText.segment_at(idx);
+    m_edit = std::pair(segment.start, segment.end);
 
     return m_richText.to_string().substr(m_edit.first, m_edit.second);
   }
@@ -67,7 +64,9 @@ class RichTextState {
   // Replace the text in the range with the given string
   void edit_change(std::string replace) {
     // saveState();
-    m_richText.erase(m_edit.first, m_edit.second - m_edit.first);
+    if (m_edit.first < m_richText.size()) {
+      m_richText.erase(m_edit.first, m_edit.second - m_edit.first);
+    }
     m_edit.second = m_edit.first + replace.length();
     cse::RichText insert = cse::RichText(replace);
     for (const auto& [id, metadata] : m_formatMap) {
@@ -156,7 +155,7 @@ class RichTextState {
       m_outputMap;
 
   // The text range we are currently editing
-  std::pair<int, int> m_edit = std::pair(-1, -1);
+  std::pair<std::size_t, std::size_t> m_edit = std::pair(-1, -1);
 
   // Undo/Redo stacks.
   std::vector<cse::RichText> undoStack;
