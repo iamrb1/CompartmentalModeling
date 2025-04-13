@@ -56,6 +56,12 @@ public:
     // Save saves the list into a file if it exists overwrite if not creates it. Listname return bool
     bool save(const std::string& listName);
 
+    // Contains any updates the current list to the restriction, string collection of letters to include some return bool
+    bool ContainsAny(const std::string &lettersToCheck);
+
+    // Contains all updates the curernt list to the restriction, string collection of letters to include all return bool
+    bool ContainsAll(const std::string &lettersToCheck);
+
     /** 
      * @brief Sets the length restriction for the current list.
      * @param number The length restriction to set. Default is 0, which means no restriction.

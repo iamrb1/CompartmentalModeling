@@ -210,3 +210,34 @@ int cse::WordListManager::setLengthRestriction(int lengthRestriction) {
     mlengthRestriction = lengthRestriction;
     return lengthRestriction;
 }
+
+/**
+ * @brief updates the current list to the restriction, string collection of letters to include some return bool.
+ * @param lengthRestriction The letters to check in the word list.
+ * @return The updated list.
+ */
+bool cse::WordListManager::ContainsAny(const std::string &lettersToCheck)
+{
+  StringSet result = mCurrentSet.search("[" +lettersToCheck + "]");
+  mCurrentSet = result;
+}
+
+/**
+ * @brief updates the curernt list to the restriction, string collection of letters to include all return bool.
+ * @param lengthRestriction The letters to check in the word list.
+ * @return The updated list.
+ */
+bool cse::WordListManager::ContainsAll(const std::string &lettersToCheck)
+{
+  std::string lettersToCheckNew = "";
+  for (int i = 0; i < lettersToCheck.length(); i++)
+  {
+    lettersToCheckNew += lettersToCheck;
+    if (i < lettersToCheck.length() - 1)
+    {
+      lettersToCheckNew += "+";
+    }
+  }
+  StringSet result = mCurrentSet.search(lettersToCheck);
+  mCurrentSet = result;
+}
