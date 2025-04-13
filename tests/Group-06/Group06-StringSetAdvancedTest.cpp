@@ -8,12 +8,12 @@
 #include <algorithm>
 #include <sstream>
 #include <random>
+#include <regex>
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 #include "../../Group-06/StringSet/StringSet.hpp"
 #include "../../Group-06/StaticString/StaticString.hpp"
 
 using namespace cse;
-/*
 TEST_CASE("Test for is_subset", "[is_subset]") {
 	StringSet set1, set2;
 	
@@ -181,7 +181,6 @@ TEST_CASE("Test for substring_filter", "[substring_filter]") {
 		REQUIRE(set2.count("dog") == 0);
 	}
 }
-*/
 
 // GitHub copilot helped write some initial code for this function
 TEST_CASE("Test for search", "[search]") {
@@ -256,7 +255,7 @@ TEST_CASE("Test for search", "[search]") {
         REQUIRE_NOTHROW(staticSet.search("[a-")); // Ensure no exception is thrown
     }
 }
-/*
+
 // GitHub copilot helped write some initial code for this function
 TEST_CASE("Test for Count_occurrence", "[Count_occurrence]") {
     // Test with normal strings
@@ -870,4 +869,4 @@ TEST_CASE("Swap", "[Swap]"){
     REQUIRE(Sset1.empty());
     REQUIRE(Sset2.empty());
 
-}*/
+}

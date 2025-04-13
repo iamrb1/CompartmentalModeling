@@ -19,6 +19,7 @@
 #include <string>
 #include <unordered_set>
 #include <vector>
+#include <regex>
 namespace cse {
 
 /**
@@ -433,7 +434,7 @@ cse::StringSet<T> cse::StringSet<T>::search(const T &regexPattern) {
       }
     }
   } catch (const std::regex_error &e) {
-    std::cerr << "Regex error: " << e.what() << std::endl;
+    //std::cerr << "Regex error: " << e.what() << std::endl;
   }
 
   return result;
