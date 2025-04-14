@@ -49,8 +49,9 @@ bool cse::WordListManager::print(int number, bool isAll) {
  */
 bool cse::WordListManager::combine(const std::string &newListName, const std::vector<std::string> &listsToCombine)
 {
-    if(listsToCombine.size() < 2)
+    if(mWordLists.find(newListName) != mWordLists.end())
     {
+        mErrorManager.printInfo("Invalid File Name: \"" + newListName + "\" already exists.");
         return false;
     }
     cse::StringSet<cse::StaticString<20>> result;
@@ -59,6 +60,7 @@ bool cse::WordListManager::combine(const std::string &newListName, const std::ve
     {
         if(mWordLists.find(list) == mWordLists.end())
         {
+            mErrorManager.printInfo("Invalid File Name: File \"" + list + "\" does not exist.");
             return false;
         }
 
