@@ -231,7 +231,7 @@ bool cse::WordListManager::ContainsAny(const std::string &lettersToCheck)
 bool cse::WordListManager::ContainsAll(const std::string &lettersToCheck)
 {
     std::string lettersToCheckNew = "";
-    for (int i = 0; i < lettersToCheck.length(); i++)
+    for (size_t i = 0; i < lettersToCheck.length(); i++)
     {
         lettersToCheckNew += lettersToCheck[i];
         if (i < lettersToCheck.length() - 1)
@@ -264,7 +264,7 @@ bool cse::WordListManager::NotContains(const std::string &lettersToCheck)
 bool cse::WordListManager::Get(const std::string &patternToCheck)
 {
     std::string patternToCheckNew = "";
-    for (int i = 0; i < patternToCheck.length(); i++)
+    for (size_t i = 0; i < patternToCheck.length(); i++)
     {
       //lettersToCheckNew += lettersToCheck;
       if (patternToCheck[i] != '_')
