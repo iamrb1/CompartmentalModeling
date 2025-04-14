@@ -14,25 +14,27 @@ bool cse::WordListManager::load_list(const std::string& listName, const std::str
 
     std::cout << "Loaded " << "\"" << fileName << "\". Word count in a list: " << set.size() << "\n";
     mWordLists[listName] = std::move(set);
-    mCurrentList = listName;
+
+    mCurrentLists.clear();
+    mCurrentLists.push_back(listName);
     return true;
 }
 
 
 bool cse::WordListManager::print(int number, bool isAll) {
-    if (mWordLists.find(mCurrentList) == mWordLists.end()) {
+    if (mCurrentLists.size() == 0) {
         // Error occured
         return false;
     }
 
-    const auto& list = mWordLists[mCurrentList];
     int count = 0;
 
-    for (const auto& word : list) {
+    for (const auto& word : mCurrentSet) {
         if (!isAll && count >= number) break;
         std::cout << word << ", ";
         ++count;
     }
+
     std::cout << "\n";
     return true;
 }
@@ -63,7 +65,9 @@ bool cse::WordListManager::combine(const std::string &newListName, const std::ve
         result = result.Union(mWordLists[list]);
     }
     mWordLists[newListName] = result;
-    mCurrentList = newListName;
+
+    mCurrentLists.clear();
+    mCurrentLists.push_back(newListName);
     return true;
 }
 
@@ -99,7 +103,9 @@ bool cse::WordListManager::difference(const std::string &newListName, const std:
         result = result.difference(mWordLists[listName]);
     }
     mWordLists[newListName] = result;
-    mCurrentList = newListName;
+
+    mCurrentLists.clear();
+    mCurrentLists.push_back(newListName);
     return true;
 }
 
@@ -134,7 +140,9 @@ bool cse::WordListManager::intersection(const std::string &newListName, const st
         result = result.intersection(mWordLists[listName]);
     }
     mWordLists[newListName] = result;
-    mCurrentList = newListName;
+
+    mCurrentLists.clear();
+    mCurrentLists.push_back(newListName);
     return true;
 }
 
@@ -153,7 +161,8 @@ bool cse::WordListManager::copy(const std::string &newListName, const std::strin
         return false;
     }
     mWordLists[newListName] = mWordLists[copyList];
-    mCurrentList = newListName;
+    mCurrentLists.clear();
+    mCurrentLists.push_back(newListName);
     return true;
 }
 /**
@@ -209,11 +218,35 @@ bool cse::WordListManager::save(const std::string& listName) {
 /**
  * @brief Sets the length restriction for words in the list.
  * @param lengthRestriction The length restriction to set.
- * @return The length restriction that was set.
+ * @return true Operation was successful
+ * @return false Error with lengthRestriction value
  */
-int cse::WordListManager::setLengthRestriction(int lengthRestriction) {
-    mlengthRestriction = lengthRestriction;
-    return lengthRestriction;
+bool cse::WordListManager::setLengthRestriction(const std::string& lengthRestriction) {
+    int num = 0;
+    try {
+        num = std::stoi(lengthRestriction);
+        if (num <= 0) return false;
+    }
+    catch (...) {
+        return false;
+    }
+    // Add current lists to the current set
+    for (const auto& listname : mCurrentLists) {
+        // Ivan: Sorry, I haven't figured out how to properly copy StringSet ??
+        cse::StringSet<StaticString<20>> current_set = mWordLists[listname];
+        auto vec = current_set.to_vector();
+        mCurrentSet.insert(vec);
+    }
+
+    // Filter the whole set by length
+    mCurrentSet.size_filter(num);
+    std::cout << "Current number of words: " << mCurrentSet.size() << "\n";
+
+    return true;
+
+    // Ivan: I don't understand what these two lines were suppose to do
+    //mlengthRestriction = lengthRestriction;
+    //return lengthRestriction;
 }
 
 /**

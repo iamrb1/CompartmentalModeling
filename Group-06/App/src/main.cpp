@@ -4,7 +4,7 @@
 int main() {
     std::cout << "START:\n";
     cse::WordLang wordLang;
-    //wordLang.start();
+    wordLang.start();
     // wordLang.parse("LIST list1 = LOAD \"top_5000\"");
     // wordLang.parse("PRINT 10");
     // wordLang.parse("LIST list1 = COMBINED list2");
@@ -71,7 +71,7 @@ int main() {
     // wordLang.parse("CONTAINS_ANY 5");
     // wordLang.parse("CONTAINS_ANY \"567990\"");
 
-    wordLang.parse("LIST list1 = LOAD \"top\"");
+    // wordLang.parse("LIST list1 = LOAD \"top\"");
     
     // std::vector<std::string> input = {
     //     "reset_last\n",

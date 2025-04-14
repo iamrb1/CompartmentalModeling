@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include <istream>
+#include <filesystem>
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 #include "../../Group-06/StringSet/StringSet.hpp"
 #include "../../Group-06/StaticString/StaticString.hpp"
@@ -31,6 +32,26 @@ TEST_CASE("Fundamental WordLang Tests", "[WordLang]") {
   }
 }
 
+TEST_CASE("Length restriction Tests", "[WordLang]") {
+  std::filesystem::path current = std::filesystem::current_path();
+  std::filesystem::path target = current.parent_path().parent_path() / "Group-06" / "App" / "src";
+  std::filesystem::current_path(target);
+  std::stringstream buffer;
+  std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
+
+  cse::WordLang wordLang;
+  
+
+  SECTION("Length of 5") {
+    wordLang.parse("LIST list1 = LOAD \"top_5000\"\n");
+    wordLang.parse("LENGTH = 5\n");
+
+    REQUIRE(buffer.str() == "Loaded \"top_5000\". Word count in a list: 4354\nCurrent number of words: 688\n");
+  }
+  
+  std::cout.rdbuf(oldCout);
+
+}
 /*
 
 TEST_CASE("WordLang Tests", "[WordLang]") {

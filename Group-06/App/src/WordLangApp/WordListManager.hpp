@@ -71,12 +71,14 @@ public:
     // Get searches based on pattern load found words into current set to print if asked, string pattern to restric return bool
     bool Get(const std::string &patternToCheck);
 
-    /** 
-     * @brief Sets the length restriction for the current list.
-     * @param number The length restriction to set. Default is 0, which means no restriction.
-     * @return int The length restriction set.
-     */
-    int setLengthRestriction(int lengthRestriction = 0);
+
+    /**
+     * @brief Sets the length restriction for words in the list.
+     * @param lengthRestriction The length restriction to set.
+    * @return true Operation was successful
+    * @return false Error with lengthRestriction value
+    */
+    bool setLengthRestriction(const std::string& lengthRestriction);
 
     /**
      * @brief Prints the current values
@@ -92,8 +94,8 @@ private:
     // A map of StringSet represents different files
     std::unordered_map<std::string, cse::StringSet<cse::StaticString<20>>> mWordLists;
 
-    // Current list
-    std::string mCurrentList;
+    // Current vector of lists
+    std::vector<std::string> mCurrentLists;
 
     // A StringSet represents current Get command
     cse::StringSet<cse::StaticString<20>> mCurrentSet;

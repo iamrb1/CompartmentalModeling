@@ -395,8 +395,11 @@ void cse::WordLang::parseLength() {
         return;
     }
 
-    // Call WordListManager to handle with length.
-    // TODO 
+    bool result = mWordListManager.setLengthRestriction(length.lexeme);
+    
+    if (!result) {
+        mErrorManager.printError("Incorrect Syntax: Could now parse the length");
+    }
 }
 
 void cse::WordLang::parseContainsAny() {
