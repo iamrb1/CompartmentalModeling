@@ -1,8 +1,11 @@
 /**
  * @file StringSet.hpp
  * @author Orhan Aydin
- * @author Emil Rahn-Siegel
  * @author Ivan Bega
+ * @author Emil Rahn Siegel
+ * @author Mehmet Efe Caylan
+ * @author Will Crawford
+ * 
  * @brief Header file for StringSet class
  */
 

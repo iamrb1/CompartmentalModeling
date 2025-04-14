@@ -2,6 +2,9 @@
  * @file StaticString.hpp
  * @author Mehmet Efe Caylan
  * @author Will Crawford
+ * @author Ivan Bega
+ * @author Emil Rahn Siegel
+ * @author Orhan Aydin
  * @brief StaticString Class implementation file.
  * @version 0.2
  * @date 2025-02-06
