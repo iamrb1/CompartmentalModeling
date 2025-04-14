@@ -60,6 +60,23 @@ std::vector<cse::Item> ConstructItems(std::string filename){
 }
 
 
+/**
+ * @brief creates the arg manager from a vector of strings - converts them into c strings and then passes that to 
+ * the arg manager. the original args vector must outlive the argmanager, which should be fine for our code.abort
+ * @param args the vector of strings
+ * @return an argManager object
+ */
+cse::ArgManager createArgManager(std::vector<std::string>& args) {
+  std::vector<char *> argV(args.size());
+  for (int i = 0; i < args.size(); ++i) {
+    //argV[i] = strdup(args[i].c_str()); // duplicates a new string. Must use because c_str returns a const string
+    argV[i] = args[i].data();
+  }
+  cse::ArgManager mgr(args.size(),  argV.data());
+  return mgr;
+}
+
+
 int main() {
   cse::CommandLine mainCommand;
   mainCommand.addCommand(
@@ -75,17 +92,26 @@ int main() {
     //split input
     // command -> text file seperated by a space
     auto arguments = split(input, ' ');
+
+    auto argMgr = createArgManager(arguments);
+
+    if (argMgr.HasArg("optimized")) {
+      // do something to optimize
+      std::cout << "Is optimized." << std::endl;
+    }
+    if (argMgr.HasArg("compare")) {
+
+    }
+    if (argMgr.HasArg("weightless")) {
+
+    }
+    if (argMgr.HasArg("multiple-repeats")) {
+
+    }
     auto vectorList = ConstructItems(arguments[1]);
     mainCommand.executeCommand(arguments[0]);
 
-    // use ArgManager
-    char *argVal2 []= {(char *)"--TestGetter", (char *)"success.dat"};
-    char *argVal[vectorList.size()];
-    for (auto string : vectorList) {
-        
-    }
-    int argC2 = 2;
-    cse::ArgManager argManager(argC2, argVal2);
+    
   }
   
   return 0;
