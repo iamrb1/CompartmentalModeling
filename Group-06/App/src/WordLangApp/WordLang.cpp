@@ -36,7 +36,7 @@ void cse::WordLang::start() {
     }
 }
 
-cse::WordLang::WordLang() {
+cse::WordLang::WordLang() : mErrorManager(), mWordListManager(mErrorManager) {
 
 }
 
@@ -140,10 +140,17 @@ void cse::WordLang::parseList() {
             mErrorManager.printInfo("Incorrect Syntax: Missing filename to open.");
             return;
         }
+
+        if (mTokenManager.Peek() != mTokenManager.eof_token) {
+            // check if we don't have anything else apart from LOAD
+            mErrorManager.printInfo("Incorrect Syntax: Encountered unknown symbols after \"LOAD\" token.");
+            return;
+        }
+
         // Syntax is correct, call WordListManager to handle. WIth file name and list name to load
         std::string cut_name = filename.lexeme.substr(1,filename.lexeme.length() - 2);
         if (!mWordListManager.load_list(listname.lexeme, cut_name)) {
-            mErrorManager.printInfo("Incorrect Syntax: File can not be loaded.");
+            //mErrorManager.printInfo("Incorrect Syntax: File can not be loaded.");
             return;
         }
 
@@ -159,6 +166,13 @@ void cse::WordLang::parseList() {
             mErrorManager.printInfo("Incorrect Syntax: There must be at least two lists to be combined.");
             return;
         }
+
+        if (mTokenManager.Peek() != mTokenManager.eof_token) {
+            // check if we don't have anything else apart from COMBINE
+            mErrorManager.printInfo("Incorrect Syntax: Encountered unknown symbols after \"COMBINE\" token.");
+            return;
+        }
+
         // Call WordListManager to handle with listname, listsToCombine to combine
         // TODO
 
@@ -174,6 +188,13 @@ void cse::WordLang::parseList() {
             mErrorManager.printInfo("Incorrect Syntax: There must be at least two lists to find differences.");
             return;
         }
+
+        if (mTokenManager.Peek() != mTokenManager.eof_token) {
+            // check if we don't have anything else apart from DIFFERENCE
+            mErrorManager.printInfo("Incorrect Syntax: Encountered unknown symbols after \"DIFFERENCE\" token.");
+            return;
+        }
+
         // Call WordListManager to handle with listname, listsToDifference to difference
         // TODO
 
@@ -189,6 +210,13 @@ void cse::WordLang::parseList() {
             mErrorManager.printInfo("Incorrect Syntax: There must be at least two lists to find intersections.");
             return;
         }
+
+        if (mTokenManager.Peek() != mTokenManager.eof_token) {
+            // check if we don't have anything else apart from INTERSECTION
+            mErrorManager.printInfo("Incorrect Syntax: Encountered unknown symbols after \"INTERSECTION\" token.");
+            return;
+        }
+
         // Call WordListManager to handle with listname, listsToIntersection to intersection
         // TODO
 
@@ -200,6 +228,13 @@ void cse::WordLang::parseList() {
             mErrorManager.printInfo("Incorrect Syntax: Missing list name to copy.");
             return;
         }
+
+        if (mTokenManager.Peek() != mTokenManager.eof_token) {
+            // check if we don't have anything else apart from COPY
+            mErrorManager.printInfo("Incorrect Syntax: Encountered unknown symbols after \"COPY\" token.");
+            return;
+        }
+
         // Call WordListManager to handle with listname, listnameToCopy to copy
         // TODO
 
@@ -243,6 +278,12 @@ void cse::WordLang::parsePrint() {
         mErrorManager.printInfo("Incorrect Syntax: Incorrect identifier type, must be a number or \"ALL\"");
         return;
     }
+
+    if (mTokenManager.Peek() != mTokenManager.eof_token) {
+        // check if we don't have anything else apart from PRINT
+        mErrorManager.printInfo("Incorrect Syntax: Encountered unknown symbols after \"PRINT\" token.");
+        return;
+    }
 }
 
 void cse::WordLang::parseSetCurrent() {
@@ -255,6 +296,13 @@ void cse::WordLang::parseSetCurrent() {
         mErrorManager.printInfo("Incorrect Syntax: There must be list type to set as current.");
         return;
     }
+
+    if (mTokenManager.Peek() != mTokenManager.eof_token) {
+        // check if we don't have anything else apart from SET_CURRENT
+        mErrorManager.printInfo("Incorrect Syntax: Encountered unknown symbols after \"SET_CURRENT\" token.");
+        return;
+    }
+
     // Call WordListManager to handle with listsToSetCurrent
     // TODO
 }
@@ -277,6 +325,13 @@ void cse::WordLang::parseAdd() {
         mErrorManager.printInfo("Incorrect Syntax: Missing words to add.");
         return;
     }
+
+    if (mTokenManager.Peek() != mTokenManager.eof_token) {
+        // check if we don't have anything else apart from ADD
+        mErrorManager.printInfo("Incorrect Syntax: Encountered unknown symbols after \"ADD\" token.");
+        return;
+    }
+
     // Syntax is correct, call WordListManager to handle. WIth file name and list name to load
     std::string trimmedWords = words.lexeme.substr(1, words.lexeme.length() - 2);
 
@@ -302,6 +357,13 @@ void cse::WordLang::parseSave() {
         mErrorManager.printInfo("Incorrect Syntax: Missing filename to save.");
         return;
     }
+
+    if (mTokenManager.Peek() != mTokenManager.eof_token) {
+        // check if we don't have anything else apart from SAVE
+        mErrorManager.printInfo("Incorrect Syntax: Encountered unknown symbols after \"SAVE\" token.");
+        return;
+    }
+
     // Syntax is correct, call WordListManager to handle.
     std::string trimmedFilename = filename.lexeme.substr(1, filename.lexeme.length() - 2);
 
@@ -327,6 +389,12 @@ void cse::WordLang::parseLength() {
         return;
     }
 
+    if (mTokenManager.Peek() != mTokenManager.eof_token) {
+        // check if we don't have anything else apart from LENGTH
+        mErrorManager.printInfo("Incorrect Syntax: Encountered unknown symbols after \"LENGTH\" token.");
+        return;
+    }
+
     // Call WordListManager to handle with length.
     // TODO 
 }
@@ -339,6 +407,12 @@ void cse::WordLang::parseContainsAny() {
     if( letters == mTokenManager.eof_token || letters != emplex::Lexer::ID_STRING ) {
         // Print syntax error 
         mErrorManager.printInfo("Incorrect Syntax: CONTAINS_ANY must have string of letters.");
+        return;
+    }  
+
+    if (mTokenManager.Peek() != mTokenManager.eof_token) {
+        // check if we don't have anything else apart from CONTAINS_ANY
+        mErrorManager.printInfo("Incorrect Syntax: Encountered unknown symbols after \"CONTAINS_ANY\" token.");
         return;
     }
 
@@ -354,6 +428,12 @@ void cse::WordLang::parseContainsAll() {
     if (letters == mTokenManager.eof_token || letters != emplex::Lexer::ID_STRING) {
         // Print error and return
         mErrorManager.printInfo("Incorrect Syntax: CONTAINS_ALL must have string of letters.");
+        return;
+    }
+
+    if (mTokenManager.Peek() != mTokenManager.eof_token) {
+        // check if we don't have anything else apart from CONTAINS_ALL
+        mErrorManager.printInfo("Incorrect Syntax: Encountered unknown symbols after \"CONTAINS_ALL\" token.");
         return;
     }
 
@@ -373,6 +453,12 @@ void cse::WordLang::parseNotContains() {
         return;
     }
 
+    if (mTokenManager.Peek() != mTokenManager.eof_token) {
+        // check if we don't have anything else apart from NOT_CONTAINS
+        mErrorManager.printInfo("Incorrect Syntax: Encountered unknown symbols after \"NOT_CONTAINS\" token.");
+        return;
+    }
+
     std::string trimmedLetters = letters.lexeme.substr(1, letters.lexeme.length() - 2);
 
     // TODO - call WordListManager to handle trimmedLetters
@@ -388,6 +474,12 @@ void cse::WordLang::parseGet() {
         return;
     }
 
+    if (mTokenManager.Peek() != mTokenManager.eof_token) {
+        // check if we don't have anything else apart from GET
+        mErrorManager.printInfo("Incorrect Syntax: Encountered unknown symbols after \"GET\" token.");
+        return;
+    }
+
     std::string trimmedLetters = letters.lexeme.substr(1, letters.lexeme.length() - 2);
 
     // TODO - call WordListManager to handle trimmedLetters
@@ -399,7 +491,7 @@ void cse::WordLang::parseReset() {
     auto listname = mTokenManager.Use();
     if (listname.id != emplex::Lexer::ID_LISTNAME) {
         // check if we have listname after
-        mErrorManager.printInfo("Incorrect Syntax: Expected list name after RESET.");
+        mErrorManager.printInfo("Incorrect Syntax: Missing listname identifier.");
         return;
     }
 

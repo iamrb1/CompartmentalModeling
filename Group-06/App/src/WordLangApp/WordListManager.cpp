@@ -1,9 +1,14 @@
 #include "WordListManager.hpp"
 
+cse::WordListManager::WordListManager(cse::ErrorManager& errorManager) : mErrorManager(errorManager) {
+
+}
+
 bool cse::WordListManager::load_list(const std::string& listName, const std::string& fileName) {
 
     cse::StringSet<cse::StaticString<20>> set = FileSource::load_file(fileName);
     if(set.size() == 0) {
+        mErrorManager.printInfo("Incorrect Syntax: File can not be loaded.");
         return false;
     }
 

@@ -12,6 +12,7 @@
 #include <fstream>
 #include "../../../StringSet/StringSet.hpp"
 #include "../../../StaticString/StaticString.hpp"
+#include "../../../ErrorManager/ErrorManager.hpp"
 #include "FileSource.hpp"
 
 namespace cse {
@@ -21,6 +22,8 @@ namespace cse {
  */
 class WordListManager {
 public:
+    WordListManager(ErrorManager& errorManager);
+
     /**
      * @brief Initializes a list of words from a file
      * 
@@ -97,6 +100,8 @@ private:
 
     // Length restriction 
     int mlengthRestriction;
+
+    cse::ErrorManager& mErrorManager;
 };
 
 }  // namespace cse

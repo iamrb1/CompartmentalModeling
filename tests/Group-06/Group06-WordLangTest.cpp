@@ -11,7 +11,7 @@
 
 using namespace cse;
 
-const static bool DEBUG_MODE = true;
+const static bool DEBUG_MODE = false;
 
 TEST_CASE("Fundamental WordLang Tests", "[WordLang]") {
   SECTION("Instance of the class is created successfuly") {
@@ -30,6 +30,7 @@ TEST_CASE("Fundamental WordLang Tests", "[WordLang]") {
     REQUIRE_NOTHROW(wordLang.parse("GARBAGE"));
   }
 }
+
 /*
 
 TEST_CASE("WordLang Tests", "[WordLang]") {
@@ -333,7 +334,7 @@ TEST_CASE("Wordle Command Tests", "[WordLang]") {
     CHECK(actualOutput == expected);
   }
 }
-
+*/
 
 TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
 
@@ -947,9 +948,9 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       
     std::vector<std::string> output_result = {
       "[Info]: Incorrect Syntax: Check syntax, keyword is not found.\n",
-      "[Info]: Incorrect Syntax: Expected list name after RESET.\n",
-      "[Info]: Incorrect Syntax: Expected list name after RESET.\n",
-      "[Info]: Incorrect Syntax: Expected list name after RESET.\n",
+      "[Info]: Incorrect Syntax: Missing listname identifier.\n",
+      "[Info]: Incorrect Syntax: Missing listname identifier.\n",
+      "[Info]: Incorrect Syntax: Missing listname identifier.\n",
       "[Info]: Incorrect Syntax: Encountered unknown symbols after \"RESET\" token.\n"
     };
 
@@ -1013,4 +1014,4 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
         CHECK(actualOutput == expected);
     }
   };
-}*/
+}
