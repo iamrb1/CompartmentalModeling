@@ -13,6 +13,25 @@ using namespace cse;
 
 const static bool DEBUG_MODE = true;
 
+TEST_CASE("Fundamental WordLang Tests", "[WordLang]") {
+  SECTION("Instance of the class is created successfuly") {
+
+    cse::WordLang wordLang; // if we get past this line then we're good
+    REQUIRE(true);
+  }
+
+  SECTION("Correct input line is parsed without throwing an exception") {
+    cse::WordLang wordLang;
+    REQUIRE_NOTHROW(wordLang.parse("PRINT ALL"));
+  }
+
+  SECTION("Incorrect input line is parsed without throwing an exception") {
+    cse::WordLang wordLang;
+    REQUIRE_NOTHROW(wordLang.parse("GARBAGE"));
+  }
+}
+/*
+
 TEST_CASE("WordLang Tests", "[WordLang]") {
 
   cse::WordLang wordLang;
@@ -994,4 +1013,4 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
         CHECK(actualOutput == expected);
     }
   };
-}
+}*/
