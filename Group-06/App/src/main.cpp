@@ -71,7 +71,41 @@ int main() {
     // wordLang.parse("CONTAINS_ANY 5");
     // wordLang.parse("CONTAINS_ANY \"567990\"");
 
-    std::cout << "Finished parsing. Press Enter to exit.\n";
-    std::cin.get();
+
+    
+    std::vector<std::string> input = {
+        "reset_last\n",
+        "RESET_LAST file1\n"
+      };
+        
+      std::vector<std::string> output_result = {
+        "[Info]: Incorrect Syntax: Check syntax, keyword is not found.\n",
+        "[Info]: Incorrect Syntax: Encountered unknown symbols after \"RESET_LAST\" token.\n"
+      };
+
+
+    for (size_t i = 0; i < input.size(); ++i) {
+        std::ostringstream oss;
+        std::streambuf* oldCoutBuf = std::cout.rdbuf();
+        std::cout.rdbuf(oss.rdbuf());
+    
+        wordLang.parse(input[i]);
+    
+        std::cout.rdbuf(oldCoutBuf);
+    
+        std::string actualOutput = oss.str();
+        std::string expected = output_result[i];
+    
+        // Optional trimming / ANSI stripping here if needed
+    
+        std::cout << "Input:    " << input[i] << "\n";
+        std::cout << "Expected: " << expected;
+        std::cout << "Actual:   " << actualOutput;
+    
+        std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
+    }
+
+    // std::cout << "Finished parsing. Press Enter to exit.\n";
+    // std::cin.get();
 
 }

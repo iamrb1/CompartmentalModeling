@@ -56,7 +56,8 @@ namespace cse {
          * @brief Parse the user input
          * 
          * Parses the user input calls functions to check syntax and ensure
-         * syntax is correct.
+         * syntax is correct. Validated requests are directed to call 
+         * WordListManager class to conduct operation requested.
          * 
          * @param input Terminal input of the user
          */
@@ -70,6 +71,9 @@ namespace cse {
          * 
          * Creates and loads list to make operations. Have multiple keywords 
          * to narrow or broaden our lists.
+         * 
+         * If syntax is correct, class WordListManager to conduct operations
+         * over the lists.
          * 
          * Valid Commands:
          * 
@@ -97,6 +101,9 @@ namespace cse {
          * 
          * Prints the outputs to the terminal
          * 
+         * If syntax is correct, class WordListManager to conduct operations
+         * over the lists.
+         * 
          * Valid Command:
          *
          * PRINT number   print only given number of values
@@ -113,6 +120,9 @@ namespace cse {
          * 
          * Sets the current searches to base on given lists
          * 
+         * If syntax is correct, class WordListManager to conduct operations
+         * over the lists.
+         * 
          * Valid Command:
          * 
          * SET_CURRENT listname ... listname
@@ -125,6 +135,9 @@ namespace cse {
          * 
          * Checks syntax and returns error messages to the terminal if syntax 
          * is wrong.
+         * 
+         * If syntax is correct, class WordListManager to conduct operations
+         * over the lists.
          * 
          * Valid Command:
          * 
@@ -142,6 +155,9 @@ namespace cse {
          * Saves the given listname's values to a given filename, creates it 
          * if not exists, if exists writes over it.
          * 
+         * If syntax is correct, class WordListManager to conduct operations
+         * over the lists.
+         * 
          * Valid Command:
          * 
          * SAVE listname "filename"
@@ -156,6 +172,9 @@ namespace cse {
          * is wrong.
          * 
          * Restricts the word length for searches
+         * 
+         * If syntax is correct, class WordListManager to conduct operations
+         * over the lists.
          * 
          * Valid Command:
          * 
@@ -173,6 +192,9 @@ namespace cse {
          * 
          * Restricts the search to only letters given if exists in the word of 
          * lists
+         * 
+         * If syntax is correct, class WordListManager to conduct operations
+         * over the lists.
          * 
          * Valid Command:
          * 

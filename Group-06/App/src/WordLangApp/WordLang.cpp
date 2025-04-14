@@ -47,6 +47,7 @@ cse::WordLang::~WordLang() {
 void cse::WordLang::parse(const std::string& input) {
     // Utility class that handles tokenization
     mTokenManager.Load(input);
+    mErrorManager.enableColors(false);
 
     switch (mTokenManager.Peek()) {
         using namespace emplex;
@@ -298,7 +299,7 @@ void cse::WordLang::parseSave() {
     auto filename = mTokenManager.Use();
     if(filename == mTokenManager.eof_token || filename != emplex::Lexer::ID_STRING) { 
         // Missing file name to open
-        mErrorManager.printInfo("Incorrect Syntax: Missing filename to add.");
+        mErrorManager.printInfo("Incorrect Syntax: Missing filename to save.");
         return;
     }
     // Syntax is correct, call WordListManager to handle.
@@ -383,7 +384,7 @@ void cse::WordLang::parseGet() {
     auto letters = mTokenManager.Use();
     if (letters == mTokenManager.eof_token || letters != emplex::Lexer::ID_STRING) {
         // Print error and return
-        mErrorManager.printInfo("Incorrect Syntax: NOT_CONTAINS must have string of letters.");
+        mErrorManager.printInfo("Incorrect Syntax: GET must have string of letters or wildcards.");
         return;
     }
 
@@ -398,13 +399,13 @@ void cse::WordLang::parseReset() {
     auto listname = mTokenManager.Use();
     if (listname.id != emplex::Lexer::ID_LISTNAME) {
         // check if we have listname after
-        mErrorManager.printInfo("Expected list name after RESET");
+        mErrorManager.printInfo("Incorrect Syntax: Expected list name after RESET.");
         return;
     }
 
     if (mTokenManager.Peek() != mTokenManager.eof_token) {
         // check if we don't have anything else apart from RESET
-        mErrorManager.printInfo("Encountered unknown symbols after \"RESET\" token.");
+        mErrorManager.printInfo("Incorrect Syntax: Encountered unknown symbols after \"RESET\" token.");
         return;
     }
 
@@ -416,7 +417,7 @@ void cse::WordLang::parseResetLast() {
 
     if (mTokenManager.Peek() != mTokenManager.eof_token) {
         // check if we don't have anything else apart from RESET
-        mErrorManager.printInfo("Encountered unknown symbols after \"RESET_LAST\" token.");
+        mErrorManager.printInfo("Incorrect Syntax: Encountered unknown symbols after \"RESET_LAST\" token.");
         return;
     }
 

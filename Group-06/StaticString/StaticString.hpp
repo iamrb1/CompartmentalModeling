@@ -677,7 +677,6 @@ class StaticString {
 
     // A list of all of the indexes found
     std::vector<size_t> indexesFound = std::vector<size_t>{};
-    int counter = 0;
 
     for (std::size_t i = 0; i <= mCurrentSize - size.length(); ++i) {
       std::size_t j = 0;
@@ -686,7 +685,6 @@ class StaticString {
       }
       if (j == size.length()) {
         indexesFound.push_back(i);
-        counter++;
       }
     }
     return indexesFound;
@@ -704,12 +702,10 @@ class StaticString {
    */
   constexpr std::vector<std::size_t> findAll(char ch) const noexcept {
     std::vector<std::size_t> indexesFound = std::vector<size_t>{};
-    int counter = 0;
 
     for (std::size_t i = 0; i < mCurrentSize; ++i) {
       if (mString[i] == ch) {
         indexesFound.push_back(i);
-        counter++;
       };
     }
     return indexesFound;
@@ -772,7 +768,6 @@ class StaticString {
     std::string_view size(str);
 
     std::vector<size_t> indexesFound = std::vector<size_t>{};
-    int counter = 0;
 
     for (std::size_t i = 0; i <= mCurrentSize - size.length(); ++i) {
       std::size_t j = 0;
@@ -781,7 +776,6 @@ class StaticString {
       }
       if (j == size.length()) {
         indexesFound.insert(indexesFound.begin(), i);
-        counter++;
       }
     }
     return indexesFound;
@@ -797,12 +791,10 @@ class StaticString {
    */
   constexpr std::vector<std::size_t> rFindAll(char ch) const noexcept {
     std::vector<std::size_t> indexesFound = std::vector<size_t>{};
-    int counter = 0;
 
     for (std::size_t i = 0; i < mCurrentSize; ++i) {
       if (mString[i] == ch) {
         indexesFound.insert(indexesFound.begin(), i);
-        counter++;
       };
     }
     return indexesFound;
