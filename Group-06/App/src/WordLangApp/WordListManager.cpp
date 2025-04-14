@@ -213,31 +213,66 @@ int cse::WordListManager::setLengthRestriction(int lengthRestriction) {
 
 /**
  * @brief updates the current list to the restriction, string collection of letters to include some return bool.
- * @param lengthRestriction The letters to check in the word list.
+ * @param lettersToCheck The letters to check in the word list.
  * @return The updated list.
  */
 bool cse::WordListManager::ContainsAny(const std::string &lettersToCheck)
 {
   StringSet result = mCurrentSet.search("[" +lettersToCheck + "]");
   mCurrentSet = result;
+  return result.size() > 0;
 }
 
 /**
  * @brief updates the curernt list to the restriction, string collection of letters to include all return bool.
- * @param lengthRestriction The letters to check in the word list.
+ * @param lettersToCheck The letters to check in the word list.
  * @return The updated list.
  */
 bool cse::WordListManager::ContainsAll(const std::string &lettersToCheck)
 {
-  std::string lettersToCheckNew = "";
-  for (int i = 0; i < lettersToCheck.length(); i++)
-  {
-    lettersToCheckNew += lettersToCheck;
-    if (i < lettersToCheck.length() - 1)
+    std::string lettersToCheckNew = "";
+    for (int i = 0; i < lettersToCheck.length(); i++)
     {
-      lettersToCheckNew += "+";
+        lettersToCheckNew += lettersToCheck[i];
+        if (i < lettersToCheck.length() - 1)
+        {
+            lettersToCheckNew += "+";
+        }
     }
-  }
-  StringSet result = mCurrentSet.search(lettersToCheck);
+    StringSet result = mCurrentSet.search(lettersToCheckNew);
+    mCurrentSet = result;
+    return result.size() > 0;
+}
+
+/**
+ * @brief Not Contains update the current list to the restriction, string collection of letters to exclude return bool
+ * @param lettersToCheck The letters to check in the word list.
+ * @return The updated list.
+ */
+bool cse::WordListManager::NotContains(const std::string &lettersToCheck)
+{
+  StringSet result = mCurrentSet.search("[^" +lettersToCheck + "]");
   mCurrentSet = result;
+  return result.size() > 0;
+}
+
+/**
+ * @brief Get searches based on pattern load found words into current set to print if asked, string pattern to restric return bool
+ * @param patternToCheck the pattern to check
+ * @return The updated list
+ */
+bool cse::WordListManager::Get(const std::string &patternToCheck)
+{
+    std::string patternToCheckNew = "";
+    for (int i = 0; i < patternToCheck.length(); i++)
+    {
+      //lettersToCheckNew += lettersToCheck;
+      if (patternToCheck[i] != '_')
+      {
+        patternToCheckNew += patternToCheck[i];
+      }
+    }
+    StringSet result = mCurrentSet.search(patternToCheckNew);
+    mCurrentSet = result;
+    return result.size() > 0;
 }
