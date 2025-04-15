@@ -293,6 +293,44 @@ class PresentationManager {
 
         bool isRunning() const { return _running; }
 
+        void moveSlide(bool const forward) {
+
+          // Check if any slides exist
+          if(getNumSlides() == 0) {
+            std::cout << "WARNING: No slides exist" << std::endl;
+            return;
+          }
+
+          int destination = 0;
+
+          if(forward) {
+            // Check if is last slide
+            if(_current_pos == getNumSlides() - 1) {
+              std::cout << "WARNING: Already is last slide" << std::endl;
+              return;
+            }
+            // Move forward one slide
+            destination = _current_pos + 1;
+
+          } else {
+            // Check if is first slide
+            if(_current_pos ==  0) {
+              std::cout << "WARNING: Already is first slide" << std::endl;
+              return;
+            }
+
+            // Move back one slide
+            destination = _current_pos - 1;
+          }
+
+          // Swap position
+          std::swap(_slide_deck[_current_pos], _slide_deck[destination]);
+          std::cout << "Swapped slides " << _current_pos << " and " << destination << std::endl;
+          goTo(destination);
+          onSlideChangedJS();
+
+        }
+
 		////////////////////////////////////////////////////////////////////////////////////////
 		/// STATIC EVENT FUNCTIONS
 		/// These are passed to the Events to allow Events to change the layouts
@@ -440,6 +478,7 @@ void call_nextEvent() {
   }
 }
 
+void call_moveSlide(const bool forward) { PRESENTATION_MANAGER.moveSlide(forward); }
 
 }
 

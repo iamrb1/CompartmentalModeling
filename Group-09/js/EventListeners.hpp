@@ -24,6 +24,20 @@ void bind() {
 
 		}
 
+    var moveForwardButton = document.getElementById("moveForwardButton");
+    if (moveForwardButton) {
+          moveForwardButton.addEventListener(
+              "click",
+              function() {Module._call_moveSlide(true); });
+        }
+
+    var moveBackButton = document.getElementById("moveBackButton");
+        if (moveBackButton) {
+          moveBackButton.addEventListener(
+              "click",
+              function() {Module._call_moveSlide(false); });
+        }
+
     var rewindButton = document.getElementById("reverseButton");
     if (rewindButton) {
 			rewindButton.addEventListener(
