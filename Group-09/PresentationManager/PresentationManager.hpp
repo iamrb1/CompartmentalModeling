@@ -66,6 +66,7 @@ class PresentationManager {
 		 */
 		void start() {
 			_event_manager.start();
+            _running = true;
 			std::cout << "Starting Events" << std::endl;
             // Toggle bottom bar
             toggleBottomNav(true);
@@ -76,7 +77,8 @@ class PresentationManager {
 		 */
 		void stop() {
 			_event_manager.stop();
-			std::cout << "Stopping Events" << std::endl;
+            _running = false;
+            std::cout << "Stopping Events" << std::endl;
 		}
 
 		/**
@@ -289,7 +291,7 @@ class PresentationManager {
             }, hidden);
         }
 
-
+        bool isRunning() const { return _running; }
 
 		////////////////////////////////////////////////////////////////////////////////////////
 		/// STATIC EVENT FUNCTIONS
@@ -431,6 +433,13 @@ void call_leavePresentation() {
   PRESENTATION_MANAGER.toggleBottomNav(false);
   PRESENTATION_MANAGER.stop();
 }
+
+void call_nextEvent() {
+  if(PRESENTATION_MANAGER._isRunning()) {
+     PRESENTATION_MANAGER.advance();
+  }
+}
+
 
 }
 

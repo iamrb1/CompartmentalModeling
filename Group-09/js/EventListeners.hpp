@@ -100,7 +100,7 @@ void bind() {
         document.addEventListener("keydown", function(e) {
           if (e.code === "Space") {
             Module.ccall(
-                "call_advance",
+                "call_nextEvent",
                 null,
                 [],
                 []
