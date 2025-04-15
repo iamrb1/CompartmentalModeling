@@ -1,29 +1,63 @@
 /**
- * @file Event.h
+ * @file Event.hpp
  *
  * @author Owen Haiar
+ * @brief Contains Event class
  */
 
 #pragma once
 
+#include <functional>
+
 namespace cse {
 
 /**
- * @brief A struct to represent an event
+ * @brief A struct to represent an Event.
+ * An Event contains an id, priority, function, and the arguments to call it with.
+ * @tparam Args The types of the arguments to pass to the function
  */
+template <typename... Args>
 struct Event {
  private:
-  int id;
-  int time;
-  std::string data;
+  int id_;   /**< Unique identifier for the event */
+  int time_; /**< Priority for event execution */
+  std::function<void(Args...)> function_; /**< Function to be executed */
+  std::tuple<Args...> args_;              /**< Args to pass to function_ */
  public:
-  Event(int id, int time, std::string data) : id(id), time(time), data(std::move(data)) {}
-  [[nodiscard]] inline int getID() const { return id; }
-  [[nodiscard]] inline int getTime() const { return time; }
-  [[nodiscard]] inline std::string getData() const { return data; }
-  inline bool operator==(const Event &other) const { return id == other.id; }
-  inline bool operator!=(const Event &other) const { return id != other.id; }
+  Event(int id, int time, std::function<void(Args...)> function, Args... args)
+      : id_(id),
+        time_(time),
+        function_(function),
+        args_(std::make_tuple(std::forward<Args>(args)...)) {}
+
+  /**
+   * @brief Get the id of the event
+   */
+  [[nodiscard]] int getID() const { return id_; }
+
+  /**
+   * @brief Get the time of the event
+   */
+  [[nodiscard]] int getTime() const { return time_; }
+
+  /**
+   * @brief Set the time of the event
+   * @param time The new time for the event
+   * @attention This will not re-heapify an EventQueue, use EventQueue::update()
+   * for that
+   */
+  void setTime(int time) { time_ = time; }
+
+  /**
+   * @brief Execute the event by calling its function with its arguments
+   */
+  void execute() { std::apply(function_, args_); }
+
+  /**
+   * Equality based on id
+   */
+  bool operator==(const Event &other) const { return id_ == other.id_; }
+  bool operator!=(const Event &other) const { return id_ != other.id_; }
 };
 
-} // namespace cse
-
+}  // namespace cse
