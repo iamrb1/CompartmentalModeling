@@ -83,14 +83,16 @@ bool cse::WordListManager::combine(const std::string &newListName, const std::ve
  */
 bool cse::WordListManager::difference(const std::string &newListName, const std::vector<std::string> &listsToDiff)
 {
-    if(listsToDiff.size() < 2)
+    if(mWordLists.find(newListName) != mWordLists.end())
     {
+        mErrorManager.printInfo("Invalid File Name: \"" + newListName + "\" already exists.");
         return false;
     }
 
     const auto& firstList = listsToDiff[0];
     if(mWordLists.find(firstList) == mWordLists.end())
     {
+        mErrorManager.printInfo("Invalid File Name: File \"" + firstList + "\" does not exist.");
         return false;
     }
     cse::StringSet<cse::StaticString<20>> result = mWordLists[firstList];
@@ -100,6 +102,7 @@ bool cse::WordListManager::difference(const std::string &newListName, const std:
         const auto& listName = listsToDiff[i];
         if(mWordLists.find(listName) == mWordLists.end())
         {
+            mErrorManager.printInfo("Invalid File Name: File \"" + listName + "\" does not exist.");
             return false;
         }
         result = result.difference(mWordLists[listName]);
@@ -121,13 +124,17 @@ bool cse::WordListManager::difference(const std::string &newListName, const std:
  */
 bool cse::WordListManager::intersection(const std::string &newListName, const std::vector<std::string> &listsToIntersect)
 {
-    if(listsToIntersect.size() < 2)
+    if(mWordLists.find(newListName) != mWordLists.end())
     {
+        mErrorManager.printInfo("Invalid File Name: \"" + newListName + "\" already exists.");
         return false;
     }
+
     const auto& firstList = listsToIntersect[0];
+
     if(mWordLists.find(firstList) == mWordLists.end())
     {
+        mErrorManager.printInfo("Invalid File Name: File \"" + firstList + "\" does not exist.");
         return false;
     }
     cse::StringSet<cse::StaticString<20>> result = mWordLists[firstList];
@@ -137,6 +144,7 @@ bool cse::WordListManager::intersection(const std::string &newListName, const st
         const auto& listName = listsToIntersect[i];
         if(mWordLists.find(listName) == mWordLists.end())
         {
+            mErrorManager.printInfo("Invalid File Name: File \"" + listName + "\" does not exist.");
             return false;
         }
         result = result.intersection(mWordLists[listName]);
@@ -158,8 +166,15 @@ bool cse::WordListManager::intersection(const std::string &newListName, const st
  */
 bool cse::WordListManager::copy(const std::string &newListName, const std::string &copyList)
 {
+    if(mWordLists.find(newListName) != mWordLists.end())
+    {
+        mErrorManager.printInfo("Invalid File Name: \"" + newListName + "\" already exists.");
+        return false;
+    }
+
     if(mWordLists.find(copyList) == mWordLists.end())
     {
+        mErrorManager.printInfo("Invalid File Name: File \"" + copyList + "\" does not exist.");
         return false;
     }
     mWordLists[newListName] = mWordLists[copyList];
