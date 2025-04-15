@@ -843,29 +843,113 @@ class Student
 public:
 	std::string name;
 	int id;
-	void Serialize(cse::Serializer &Ser)
+	void Serialize(cse::Serializer &Ser, const std::string &filename)
 	{
-		Ser.Serialize(name, "Student Name.dat");
-		Ser.Serialize(name, "Student Name.dat");
+		Ser.Serialize(name, filename);
+		Ser.Serialize(id, filename);
 	}
 };
 
-// template <>
-// struct is_custom_type<Student> : std::true_type
-// {
-// };
+template <>
+struct is_custom_type<Student> : std::true_type
+{
+};
 
-// TEST_CASE("Serialize Vector of Struct/Class", "[Serializer]")
-// {
-// 	cse::Serializer Saver(cse::Mode::SAVE);
-// 	cse::Serializer Loader(cse::Mode::LOAD);
-// 	std::vector<Student> vecs;
-// 	Student S1, S2;
-// 	S1.name = "Student 1";
-// 	S1.id = 1;
-// 	S2.name = "Student 2";
-// 	S2.id = 2;
-// 	vecs.push_back(S1);
-// 	vecs.push_back(S2);
-// 	Saver.Serialize(vecs, filename);
-// }
+TEST_CASE("Serialize Vector of Struct/Class", "[Serializer]")
+{
+	cse::Serializer Saver(cse::Mode::SAVE);
+	cse::Serializer Loader(cse::Mode::LOAD);
+	std::vector<Student> vecs, vect;
+	Student S1, S2;
+	S1.name = "Student 1";
+	S1.id = 1;
+	S2.name = "Student 2";
+	S2.id = 2;
+	vecs.push_back(S1);
+	vecs.push_back(S2);
+	Saver.Serialize(vecs, filename);
+	Loader.Serialize(vect, filename);
+	REQUIRE(vect.size() == vecs.size());
+	int length = vecs.size();
+	REQUIRE(is_custom_type<std::remove_cvref_t<decltype(vecs[0])>>::value);
+	for (auto i = 0; i < length; i++)
+	{
+		REQUIRE(vecs[i].id == vect[i].id);
+		REQUIRE(vecs[i].name == vect[i].name);
+	}
+	std::filesystem::remove(filename);
+}
+
+class Inner
+{
+public:
+	int intIn;
+	std::string strIn;
+	void Serialize(cse::Serializer &Ser, const std::string &filename)
+	{
+		Ser.Serialize(intIn, filename);
+		Ser.Serialize(strIn, filename);
+	}
+};
+
+struct Outer
+{
+	char chrOut;
+	std::vector<Inner> vecOut;
+	void Serialize(cse::Serializer &Ser, const std::string &filename)
+	{
+		Ser.Serialize(chrOut, filename);
+		Ser.Serialize(vecOut, filename);
+	}
+};
+
+template <>
+struct is_custom_type<Inner> : std::true_type
+{
+};
+
+template <>
+struct is_custom_type<Outer> : std::true_type
+{
+};
+
+TEST_CASE("Ultimate Test: Nested Struct/Class and STLs", "[Serializer]")
+{
+	cse::Serializer Saver(cse::Mode::SAVE);
+	cse::Serializer Loader(cse::Mode::LOAD);
+	std::vector<Outer> vec, res;
+	Outer O1, O2;
+	O1.chrOut = '1';
+	O2.chrOut = '2';
+	Inner I11, I12, I21, I22;
+	I11.intIn = 11;
+	I11.strIn = "11";
+	I12.intIn = 12;
+	I12.strIn = "12";
+	I21.intIn = 21;
+	I21.strIn = "21";
+	I22.intIn = 22;
+	I22.strIn = "22";
+	O1.vecOut.push_back(I11);
+	O1.vecOut.push_back(I12);
+	O2.vecOut.push_back(I21);
+	O2.vecOut.push_back(I22);
+	vec.push_back(O1);
+	vec.push_back(O2);
+	Saver.Serialize(vec, filename);
+	Loader.Serialize(res, filename);
+	REQUIRE(vec.size() == res.size());
+	int s = vec.size();
+	for (int i = 0; i < s; i++)
+	{
+		REQUIRE(vec[i].chrOut == res[i].chrOut);
+		REQUIRE(vec[i].vecOut.size() == res[i].vecOut.size());
+		int t = vec[i].vecOut.size();
+		for (int j = 0; j < t; j++)
+		{
+			REQUIRE(vec[i].vecOut[j].intIn == res[i].vecOut[j].intIn);
+			REQUIRE(vec[i].vecOut[j].strIn == res[i].vecOut[j].strIn);
+		}
+	}
+	std::filesystem::remove(filename);
+}

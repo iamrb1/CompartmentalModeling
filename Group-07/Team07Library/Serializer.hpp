@@ -360,7 +360,10 @@ namespace cse
 				// Write each element in the vector.
 				for (size_t i = 0; i < size; i++)
 				{
-					Serialize(vec[i], filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
+						Serialize(vec[i], filename, true);
+					else
+						Serialize(vec[i], filename);
 				}
 			}
 			else // LOAD mode
@@ -384,7 +387,10 @@ namespace cse
 					// Check if the element type is serializable before processing.
 					if (!IsSerializable(vec[i]))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(vec[i], filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
+						Serialize(vec[i], filename, true);
+					else
+						Serialize(vec[i], filename);
 				}
 			}
 		}
@@ -409,7 +415,10 @@ namespace cse
 				{
 					if (!IsSerializable(arr[i]))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(arr[i], filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(arr[i])>>::value)
+						Serialize(arr[i], filename, true);
+					else
+						Serialize(arr[i], filename);
 				}
 			}
 			else // LOAD mode
@@ -429,7 +438,10 @@ namespace cse
 				{
 					if (!IsSerializable(arr[i]))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(arr[i], filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(arr[i])>>::value)
+						Serialize(arr[i], filename, true);
+					else
+						Serialize(arr[i], filename);
 				}
 			}
 		}
@@ -457,7 +469,10 @@ namespace cse
 					T data = *item;
 					if (!IsSerializable(data))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(data, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(data)>>::value)
+						Serialize(data, filename, true);
+					else
+						Serialize(data, filename);
 				}
 			}
 			else
@@ -481,7 +496,10 @@ namespace cse
 					T item;
 					if (!IsSerializable(item))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(item, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(item)>>::value)
+						Serialize(item, filename, true);
+					else
+						Serialize(item, filename);
 					set.insert(item);
 				}
 			}
@@ -510,7 +528,10 @@ namespace cse
 					T data = *item;
 					if (!IsSerializable(data))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(data, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(data)>>::value)
+						Serialize(data, filename, true);
+					else
+						Serialize(data, filename);
 				}
 			}
 			else
@@ -534,7 +555,10 @@ namespace cse
 					T item;
 					if (!IsSerializable(item))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(item, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(item)>>::value)
+						Serialize(item, filename, true);
+					else
+						Serialize(item, filename);
 					uset.insert(item);
 				}
 			}
@@ -562,7 +586,10 @@ namespace cse
 					T data = *item;
 					if (!IsSerializable(data))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(data, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(data)>>::value)
+						Serialize(data, filename, true);
+					else
+						Serialize(data, filename);
 				}
 			}
 			else
@@ -586,7 +613,10 @@ namespace cse
 					T item;
 					if (!IsSerializable(item))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(item, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(item)>>::value)
+						Serialize(item, filename, true);
+					else
+						Serialize(item, filename);
 					mset.insert(item);
 				}
 			}
@@ -614,7 +644,10 @@ namespace cse
 					T data = *item;
 					if (!IsSerializable(data))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(data, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(data)>>::value)
+						Serialize(data, filename, true);
+					else
+						Serialize(data, filename);
 				}
 			}
 			else
@@ -638,7 +671,10 @@ namespace cse
 					T item;
 					if (!IsSerializable(item))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(item, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(item)>>::value)
+						Serialize(item, filename, true);
+					else
+						Serialize(item, filename);
 					umset.insert(item);
 				}
 			}
@@ -669,10 +705,16 @@ namespace cse
 					V val = item->second;
 					if (!IsSerializable(key))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(key, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
+						Serialize(key, filename, true);
+					else
+						Serialize(key, filename);
 					if (!IsSerializable(val))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(val, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
+						Serialize(val, filename, true);
+					else
+						Serialize(val, filename);
 				}
 			}
 			else
@@ -697,10 +739,16 @@ namespace cse
 					V val;
 					if (!IsSerializable(key))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(key, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
+						Serialize(key, filename, true);
+					else
+						Serialize(key, filename);
 					if (!IsSerializable(val))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(val, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
+						Serialize(val, filename, true);
+					else
+						Serialize(val, filename);
 					map[key] = val;
 				}
 			}
@@ -730,10 +778,16 @@ namespace cse
 					V val = item->second;
 					if (!IsSerializable(key))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(key, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
+						Serialize(key, filename, true);
+					else
+						Serialize(key, filename);
 					if (!IsSerializable(val))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(val, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
+						Serialize(val, filename, true);
+					else
+						Serialize(val, filename);
 				}
 			}
 			else
@@ -758,10 +812,16 @@ namespace cse
 					V val;
 					if (!IsSerializable(key))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(key, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
+						Serialize(key, filename, true);
+					else
+						Serialize(key, filename);
 					if (!IsSerializable(val))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(val, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
+						Serialize(val, filename, true);
+					else
+						Serialize(val, filename);
 					umap[key] = val;
 				}
 			}
@@ -791,10 +851,16 @@ namespace cse
 					V val = item->second;
 					if (!IsSerializable(key))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(key, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
+						Serialize(key, filename, true);
+					else
+						Serialize(key, filename);
 					if (!IsSerializable(val))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(val, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
+						Serialize(val, filename, true);
+					else
+						Serialize(val, filename);
 				}
 			}
 			else
@@ -819,10 +885,16 @@ namespace cse
 					V val;
 					if (!IsSerializable(key))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(key, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
+						Serialize(key, filename, true);
+					else
+						Serialize(key, filename);
 					if (!IsSerializable(val))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(val, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
+						Serialize(val, filename, true);
+					else
+						Serialize(val, filename);
 					mmap.insert({key, val});
 				}
 			}
@@ -852,10 +924,16 @@ namespace cse
 					V val = item->second;
 					if (!IsSerializable(key))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(key, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
+						Serialize(key, filename, true);
+					else
+						Serialize(key, filename);
 					if (!IsSerializable(val))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(val, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
+						Serialize(val, filename, true);
+					else
+						Serialize(val, filename);
 				}
 			}
 			else
@@ -880,10 +958,16 @@ namespace cse
 					V val;
 					if (!IsSerializable(key))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(key, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
+						Serialize(key, filename, true);
+					else
+						Serialize(key, filename);
 					if (!IsSerializable(val))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(val, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
+						Serialize(val, filename, true);
+					else
+						Serialize(val, filename);
 					ummap.insert({key, val});
 				}
 			}
@@ -923,7 +1007,10 @@ namespace cse
 				{
 					if (!IsSerializable(vec[i]))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(vec[i], filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
+						Serialize(vec[i], filename, true);
+					else
+						Serialize(vec[i], filename);
 				}
 			}
 			else
@@ -946,7 +1033,10 @@ namespace cse
 				{
 					if (!IsSerializable(vec[i]))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(vec[i], filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
+						Serialize(vec[i], filename, true);
+					else
+						Serialize(vec[i], filename);
 				}
 				// Rebuild the stack by pushing elements in reverse order.
 				stk = std::stack<T>();
@@ -987,7 +1077,10 @@ namespace cse
 				{
 					if (!IsSerializable(vec[i]))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(vec[i], filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
+						Serialize(vec[i], filename, true);
+					else
+						Serialize(vec[i], filename);
 				}
 			}
 			else
@@ -1010,7 +1103,10 @@ namespace cse
 				{
 					if (!IsSerializable(vec[i]))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(vec[i], filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
+						Serialize(vec[i], filename, true);
+					else
+						Serialize(vec[i], filename);
 				}
 				// Rebuild the queue by pushing each element.
 				q = std::queue<T>();
@@ -1051,7 +1147,10 @@ namespace cse
 				{
 					if (!IsSerializable(vec[i]))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(vec[i], filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
+						Serialize(vec[i], filename, true);
+					else
+						Serialize(vec[i], filename);
 				}
 			}
 			else
@@ -1074,7 +1173,10 @@ namespace cse
 				{
 					if (!IsSerializable(vec[i]))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(vec[i], filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
+						Serialize(vec[i], filename, true);
+					else
+						Serialize(vec[i], filename);
 				}
 				pq = std::priority_queue<T>(vec.begin(), vec.end());
 			}
@@ -1102,7 +1204,10 @@ namespace cse
 				{
 					if (!IsSerializable(deq[i]))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(deq[i], filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(deq[i])>>::value)
+						Serialize(deq[i], filename, true);
+					else
+						Serialize(deq[i], filename);
 				}
 			}
 			else
@@ -1125,7 +1230,10 @@ namespace cse
 				{
 					if (!IsSerializable(vec[i]))
 						throw cse::SerializationError("There is unserializable type.");
-					Serialize(vec[i], filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
+						Serialize(vec[i], filename, true);
+					else
+						Serialize(vec[i], filename);
 				}
 				// Clear and rebuild the deque from the vector.
 				deq.clear();
@@ -1145,7 +1253,6 @@ namespace cse
 		 * Serialize(Serializer&) method. Ensure that your Serialize method handles file paths or directory management.
 		 */
 		template <typename T>
-			requires(std::is_class_v<T> && !std::is_same_v<T, std::string>)
 		void Serialize(T &obj, const std::string &filename, bool isCustom)
 		{
 			assert(isCustom == is_custom_type<T>::value);
