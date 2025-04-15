@@ -70,6 +70,7 @@ bool cse::WordListManager::combine(const std::string &newListName, const std::ve
 
     mCurrentLists.clear();
     mCurrentLists.push_back(newListName);
+    std::cout << "Number of words to search: " << result.size() << std::endl;
     return true;
 }
 
@@ -111,6 +112,7 @@ bool cse::WordListManager::difference(const std::string &newListName, const std:
 
     mCurrentLists.clear();
     mCurrentLists.push_back(newListName);
+    std::cout << "Number of words to search: " << result.size() << std::endl;
     return true;
 }
 
@@ -153,6 +155,7 @@ bool cse::WordListManager::intersection(const std::string &newListName, const st
 
     mCurrentLists.clear();
     mCurrentLists.push_back(newListName);
+    std::cout << "Number of words to search: " << result.size() << std::endl;
     return true;
 }
 
@@ -182,6 +185,8 @@ bool cse::WordListManager::copy(const std::string &newListName, const std::strin
     mCurrentLists.push_back(newListName);
     return true;
 }
+
+
 /**
  * @brief Sets the current list to the specified list name.
  * @param listName The name of the list to set as current.
