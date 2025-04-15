@@ -10,6 +10,11 @@
 #include "../Classes/ComboManager.hpp"
 #include "../Classes/StaticVector.hpp"
 
+
+// global variables because the command line takes no parameters i guess
+std::string filename;
+double capacity;
+
 std::vector<std::string> split(const std::string& str, char delimiter) {
     std::vector<std::string> tokens;
     std::stringstream ss(str);
@@ -31,32 +36,45 @@ void PrintVector(std::vector<T> vector) {
     std::cout << std::endl;
 }
 
-void BruteForceUnoptimized() { std::cout << "Run Unoptimized" << std::endl; }
-
 std::vector<cse::Item> ConstructItems(std::string filename){ 
-    std::cout << "Constructing Items" << std::endl;
-    std::vector<cse::Item> Items {};
-    
-    /**
-    Open file
-    Iterate through csv file
-    Create Item
-    Enter into vector of items   
-    **/ 
-    std::ifstream TextFile(filename);
-    std::string line;
-    while (std::getline(TextFile, line)) {
-        
-        cse::Item item;
-        std::vector<std::string> itemData = split(line, ',');
-        item.name = itemData[0];
-        item.weight = std::stod(itemData[1]);
-        item.value = std::stod(itemData[2]);
-        Items.push_back(item);
-        std::cout << "Item: " << item.name << " Weight: " << item.weight << " Value: " << item.value << std::endl;
-    }
+  std::cout << "Constructing Items" << std::endl;
+  std::vector<cse::Item> Items {};
+  
+  /**
+  Open file
+  Iterate through csv file
+  Create Item
+  Enter into vector of items   
+  **/ 
+  std::ifstream TextFile(filename);
+  std::string line;
+  while (std::getline(TextFile, line)) {
+      
+      cse::Item item;
+      std::vector<std::string> itemData = split(line, ',');
+      item.name = itemData[0];
+      item.weight = std::stod(itemData[1]);
+      item.value = std::stod(itemData[2]);
+      Items.push_back(item);
+      std::cout << "Item: " << item.name << " Weight: " << item.weight << " Value: " << item.value << std::endl;
+  }
 
-    return Items;
+  return Items;
+}
+
+void BruteForceUnoptimized() { 
+  auto items = ConstructItems(filename);
+  cse::BruteForceOptimizer optimizer;
+  optimizer.SetItems(items);
+  optimizer.SetCapacity(capacity);
+  auto solutionPair = optimizer.FindOptimalSolution();
+  std::cout << "Optimal Value: " << solutionPair.first << std::endl;
+  std::cout << "Item Set: " << std::endl;
+  for (auto item : solutionPair.second) {
+    std::cout << item.name << " " << item.value << " " << item.weight << std::endl;
+  }
+
+  std::cout << "Run Unoptimized" << std::endl; 
 }
 
 
@@ -95,6 +113,12 @@ int main() {
 
     auto argMgr = createArgManager(arguments);
 
+    // assign global variables
+    capacity = std::stod(argMgr.GetSingleOption("capacity"));
+    std::cout << capacity << std::endl;
+
+    filename = argMgr.GetSingleOption("filename");
+
     if (argMgr.HasArg("optimized")) {
       // do something to optimize
       std::cout << "Is optimized." << std::endl;
@@ -108,7 +132,7 @@ int main() {
     if (argMgr.HasArg("multiple-repeats")) {
 
     }
-    auto vectorList = ConstructItems(arguments[1]);
+
     mainCommand.executeCommand(arguments[0]);
 
     
