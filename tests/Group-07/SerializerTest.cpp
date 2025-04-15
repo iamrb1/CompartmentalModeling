@@ -674,7 +674,7 @@ TEST_CASE("Implemented Verifier", "[Serializer]")
 
 	std::pair<int, int> PairIntInt; // which is CURRENTLY not Serializable.
 
-	// Verifying implemented IsSerializable cases
+	// 	// Verifying implemented IsSerializable cases
 	REQUIRE(Saver.IsSerializable(Integer) == true);
 	REQUIRE(Saver.IsSerializable(Double) == true);
 	REQUIRE(Saver.IsSerializable(Character) == true);
@@ -744,35 +744,38 @@ TEST_CASE("Serializer Nested Containers and Similars", "[Serializer]")
 	}
 }
 
-TEST_CASE("Serialize External Class/Struct", "[Serializer]")
+struct Person
+{
+	std::string name;
+	int age;
+	double height;
+	std::vector<std::string> hobbies;
+	void Serialize(cse::Serializer &Ser, const std::string &filename)
+	{
+		Ser.Serialize(name, filename);
+		Ser.Serialize(age, filename);
+		Ser.Serialize(height, filename);
+		Ser.Serialize(hobbies, filename);
+	}
+};
+
+template <>
+struct is_custom_type<Person> : std::true_type
+{
+};
+
+TEST_CASE("Serialize External Class/Struct (must be global)", "[Serializer]")
 {
 	cse::Serializer Saver(cse::Mode::SAVE);
 	cse::Serializer Loader(cse::Mode::LOAD);
-	const std::string folder = "ClassTest";
-	std::filesystem::remove_all(folder);
-	std::filesystem::create_directory(folder);
-	struct Person
-	{
-		std::string name;
-		int age;
-		double height;
-		std::vector<std::string> hobbies;
-		void Serialize(cse::Serializer &Ser)
-		{
-			Ser.Serialize(name, "ClassTest/PName.dat");
-			Ser.Serialize(age, "ClassTest/PAge.dat");
-			Ser.Serialize(height, "ClassTest/PHeight.dat");
-			Ser.Serialize(hobbies, "ClassTest/PHobbies.dat");
-		}
-	};
 	Person P1, P2;
 	P1.name = "John Doe";
 	P1.age = 40;
 	P1.height = 177.5;
 	P1.hobbies.push_back("Playing Games");
 	P1.hobbies.push_back("Listening to Music");
-	Saver.Serialize(P1);
-	Loader.Serialize(P2);
+	Saver.Serialize(P1, filename, true);
+	Loader.Serialize(P2, filename, true);
 	REQUIRE(P1.name == P2.name);
 	REQUIRE(P1.age == P2.age);
 	REQUIRE(P1.height == P2.height);
@@ -781,7 +784,7 @@ TEST_CASE("Serialize External Class/Struct", "[Serializer]")
 	{
 		REQUIRE(P1.hobbies[i] == P2.hobbies[i]);
 	}
-	std::filesystem::remove_all(folder);
+	std::filesystem::remove(filename);
 }
 
 TEST_CASE("Incompatible Types Serialization", "[Serializer]")
@@ -834,3 +837,35 @@ TEST_CASE("Incompatible Types Serialization", "[Serializer]")
 	REQUIRE_THROWS_AS(Loader.Serialize(v, filename), cse::SerializationError);
 	std::filesystem::remove(filename);
 }
+
+class Student
+{
+public:
+	std::string name;
+	int id;
+	void Serialize(cse::Serializer &Ser)
+	{
+		Ser.Serialize(name, "Student Name.dat");
+		Ser.Serialize(name, "Student Name.dat");
+	}
+};
+
+// template <>
+// struct is_custom_type<Student> : std::true_type
+// {
+// };
+
+// TEST_CASE("Serialize Vector of Struct/Class", "[Serializer]")
+// {
+// 	cse::Serializer Saver(cse::Mode::SAVE);
+// 	cse::Serializer Loader(cse::Mode::LOAD);
+// 	std::vector<Student> vecs;
+// 	Student S1, S2;
+// 	S1.name = "Student 1";
+// 	S1.id = 1;
+// 	S2.name = "Student 2";
+// 	S2.id = 2;
+// 	vecs.push_back(S1);
+// 	vecs.push_back(S2);
+// 	Saver.Serialize(vecs, filename);
+// }

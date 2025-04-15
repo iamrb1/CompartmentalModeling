@@ -31,6 +31,11 @@
 #include <concepts>
 #include <cassert>
 
+template <typename T>
+struct is_custom_type : std::false_type
+{
+};
+
 namespace cse
 {
 	/**
@@ -81,9 +86,14 @@ namespace cse
 	 * a valid Serialize() call with a filename.
 	 */
 	template <typename T, typename S>
-	concept Serializable = requires(T &t, S &s, const std::string &filename) {
-		s.Serialize(t, filename);
-	};
+	concept Serializable =
+		requires(T &t, S &s, const std::string &filename) {
+			s.Serialize(t, filename);
+		} ||
+		(requires(T &t, S &s, const std::string &filename, bool b) {
+			s.Serialize(t, filename, b);
+		} &&
+		 is_custom_type<T>::value);
 
 	/**
 	 * @class Serializer
@@ -1134,12 +1144,12 @@ namespace cse
 		 * This function calls `obj.Serialize(*this);`. Your custom class must define its own
 		 * Serialize(Serializer&) method. Ensure that your Serialize method handles file paths or directory management.
 		 */
-		template <typename T,
-				  typename std::enable_if_t<
-					  std::is_class_v<T> && !std::is_same_v<T, std::string>, int> = 0>
-		void Serialize(T &obj)
+		template <typename T>
+			requires(std::is_class_v<T> && !std::is_same_v<T, std::string>)
+		void Serialize(T &obj, const std::string &filename, bool isCustom)
 		{
-			obj.Serialize(*this);
+			assert(isCustom == is_custom_type<T>::value);
+			obj.Serialize(*this, filename);
 		}
 	};
 } // namespace cse
