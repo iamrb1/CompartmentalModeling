@@ -435,7 +435,7 @@ void call_leavePresentation() {
 }
 
 void call_nextEvent() {
-  if(PRESENTATION_MANAGER._isRunning()) {
+  if(PRESENTATION_MANAGER.isRunning()) {
      PRESENTATION_MANAGER.advance();
   }
 }

@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css"
         integrity="sha512-1sCRPdkRXhBV2PBLUdRb4tMg1w2YPf37qatUFeS7zlBy7jJI8Lf4VHwWfZZfpXtYSLy85pkm9GaYVYMfw5BC1A=="
         crossorigin="anonymous" referrerpolicy="no-referrer">
-
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <style>
     body,
     html {
@@ -24,6 +24,7 @@
       height: 93vh; /* adjusted to make room for taller nav */
       overflow: hidden;
       box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+      z-index: 1;
     }
 
     .bottom-nav {
@@ -36,6 +37,9 @@
       height: 7vh; /* increased height to prevent crowding */
       padding: 0 20px;
       box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+      position: fixed;
+      bottom: 0;
     }
 
     .nav-left,
@@ -56,6 +60,7 @@
       justify-content: center;
       flex-wrap: nowrap;
       overflow-x: auto;
+      overflow: visible;
     }
 
     .nav-center::-webkit-scrollbar {
@@ -93,6 +98,11 @@
       font-size: 13px;
     }
 
+    /* Menu taken from: https://getbootstrap.com/docs/4.0/components/dropdowns/ */
+    .dropdown-menu {
+       z-index: 1000;
+    }
+
     /*.divider {*/
     /*  color: #999;*/
     /*  margin: 0 6px;*/
@@ -114,15 +124,23 @@
   </div>
   <div class="nav-center">
     <button id="saveDeck">Save Deck</button>
-    <button id="addImageButton">Add Image</button>
     <button id="resizeImageButton">Resize Image</button>
 <!--    <select id="imageSelectDropdown"></select>-->
     <input type="file" id="imageInput" accept="image/*" style="display: none;" />
-    <button id="addTextBoxButton">Add TextBox</button>
-    <button id="addNewSlideButton">Add New Slide</button>
+
     <button id="stopButton">Stop</button>
     <button id="startButton">Start</button>
     <button id="addTransition">Add Transition</button>
+    <div class="btn-group dropup">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        +
+      </button>
+      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <button id="addImageButton">Add Image</button>
+        <button id="addTextBoxButton">Add TextBox</button>
+        <button id="addNewSlideButton">Add New Slide</button>
+      </div>
+    </div>
   </div>
   <div class="nav-right">
     <button id="reverseButton">Last Slide <i class="fa-solid fa-angles-left"></i></button>
@@ -130,6 +148,10 @@
     <button id="advanceButton">Next Slide <i class="fa-solid fa-angles-right"></i></button>
   </div>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script src="output.js"></script>
 <script src="WebLayout/EditTextbox.js"></script>
