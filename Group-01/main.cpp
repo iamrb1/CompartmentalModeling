@@ -13,8 +13,8 @@
 #include "Random/Random.hpp"
 
 const int VERTEX_RADIUS = 10;
-const int CANVAS_WIDTH = 1000;
-const int CANVAS_HEIGHT = 1000;
+const int CANVAS_WIDTH = 2000;
+const int CANVAS_HEIGHT = 2000;
 
 class Shape {
 public:
@@ -175,9 +175,9 @@ private:
         selectedVertexTitle.setAttribute("id", "selectedVertexTitle");
         var selectedVertexId = document.createElement('h3');
         selectedVertexId.setAttribute("id", "selectedVertexId");
-        var selectedVertexX = document.createElement('h4');
+        var selectedVertexX = document.createElement('h3');
         selectedVertexX.setAttribute("id", "selectedVertexX");
-        var selectedVertexY = document.createElement('h4');
+        var selectedVertexY = document.createElement('h3');
         selectedVertexY.setAttribute("id", "selectedVertexY");
 
         selectedVertexDiv.appendChild(selectedVertexTitle);

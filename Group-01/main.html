@@ -8,21 +8,23 @@
   <style>
     body {
       background-color: #f0f2f5;
-      margin: 0;
-      padding: 20px;
+      height: 100vh;
+      overflow: hidden;
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     }
 
     #main {
       display: flex;
       gap: 24px;
-      min-height: 100vh;
-      padding: 20px;
+      height: 100vh;
+      padding: 24px;
+      box-sizing: border-box;
     }
 
     canvas {
-      width: 600px;
-      height: 600px;
+      width: auto;
+      height: calc(100vh - 48px);
+      aspect-ratio: 1;
       border-radius: 16px;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
       background-color: #1a1a1a;
@@ -30,21 +32,22 @@
     }
 
     .control-zone {
-      flex: 1;
+      width: 40%;
       display: flex;
       flex-direction: column;
       gap: 20px;
-      max-width: 800px;
       background-color: white;
       padding: 24px;
       border-radius: 16px;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      overflow-y: auto;
+      max-height: calc(100vh - 48px);
     }
 
     .control-section-container {
       background-color: #f8f9fa;
       border-radius: 12px;
-      padding: 20px;
+      padding: 12px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
 
@@ -54,6 +57,13 @@
       margin: 0 0 16px 0;
       padding-bottom: 12px;
       border-bottom: 2px solid #e9ecef;
+    }
+
+    .control-section-container h3, h4 {
+      color: #1a1a1a;
+      font-size: 0.8rem;
+      margin: 0 0 3px 0;
+      padding-bottom: 12px;
     }
 
     .control-section {
@@ -73,7 +83,6 @@
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
       border: 1px solid #e9ecef;
-      transition: transform 0.2s, box-shadow 0.2s;
     }
 
     input, select {
@@ -136,6 +145,7 @@
     #selectedCheckboxContainer {
       display: flex;
     }
+
     #selectStartToggle {
       width: auto;
       margin-right: 8px;
