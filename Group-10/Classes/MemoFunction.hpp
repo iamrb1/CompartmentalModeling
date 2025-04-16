@@ -35,6 +35,18 @@ class MemoFunction {
 
   /* Default Destructor */
   ~MemoFunction() = default;
+
+  /* Default Copy Constructor */
+  MemoFunction(const MemoFunction& other) = default;
+  
+  /* Default Move Constructor */
+  MemoFunction(MemoFunction&& other) = default;
+
+  /* Default Copy Assignment Operator */
+  MemoFunction& operator=(const MemoFunction& other) = default;
+
+  /* Default Move Assignment Operator */
+  MemoFunction& operator=(MemoFunction&& other) = default;
   
   /**
    * Calls the wrapped function with memoization

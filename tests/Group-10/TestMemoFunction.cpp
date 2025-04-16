@@ -1,6 +1,6 @@
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 
-#include "../../Group-10/Classes/MemoFunction.h"
+#include "../../Group-10/Classes/MemoFunction.hpp"
 
 int addFive(int a) {
   return a + 5;

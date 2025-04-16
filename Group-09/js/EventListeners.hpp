@@ -24,6 +24,20 @@ void bind() {
 
 		}
 
+    var moveForwardButton = document.getElementById("moveForwardButton");
+    if (moveForwardButton) {
+          moveForwardButton.addEventListener(
+              "click",
+              function() {Module._call_moveSlide(true); });
+        }
+
+    var moveBackButton = document.getElementById("moveBackButton");
+        if (moveBackButton) {
+          moveBackButton.addEventListener(
+              "click",
+              function() {Module._call_moveSlide(false); });
+        }
+
     var rewindButton = document.getElementById("reverseButton");
     if (rewindButton) {
 			rewindButton.addEventListener(
@@ -83,7 +97,32 @@ void bind() {
 
 
 		}
-		// Check if item is being dragged
+
+        // Ability to hit ESC to leave present mode
+        document.addEventListener("keydown", function(e) {
+          if (e.key === "Escape") {
+            Module.ccall(
+                "call_leavePresentation",
+                null,
+                [],
+                []
+            );
+          }
+        });
+
+        // Ability to hit space to skip to next slide
+        document.addEventListener("keydown", function(e) {
+          if (e.code === "Space") {
+            Module.ccall(
+                "call_nextEvent",
+                null,
+                [],
+                []
+            );
+          }
+        });
+
+        // Check if item is being dragged
 		document.addEventListener(
 			"mousedown", function(e) {
 			  // Check if clicked element is draggable

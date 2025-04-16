@@ -23,92 +23,105 @@ template <typename T, size_t MAX_SIZE>
 class StaticVector {
  private:
   /// @brief Array of size MAX_SIZE
-  T data[MAX_SIZE];
+  T data_[MAX_SIZE];
   
   /// @brief Size of the StaticVector
-  size_t currentSize;
+  size_t currentSize_{0};
 
  public:
   /// @brief Iterator for StaticVector
   using iterator = T*;
 
-  /// @brief Default contructor for StaticVector
-  StaticVector() : currentSize(0) {}
-  /// @brief Default destructor
-  ~StaticVector() = default;
-
   /// @brief Adds param value to next open slot of StaticVector
   /// @param value value to be added to StaticVector
   void push_back(const T& value) {
-    if (currentSize >= MAX_SIZE) {
+    if (currentSize_ >= MAX_SIZE) {
       throw std::out_of_range("Attempt to exceed static vector capacity.");
     }
-    data[currentSize++] = value;
+    data_[currentSize_++] = value;
   }
 
   /// @brief Removes ending value of StaticVector
   void pop_back() {
-    if (currentSize == 0) {
+    if (currentSize_ == 0) {
       throw std::out_of_range("Attempt to pop_back from empty vector.");
     }
-    --currentSize;
+    --currentSize_;
   }
 
   /// @brief Clears contents of StaticVector
-  void clear() { currentSize = 0; }
+  void clear() { currentSize_ = 0; }
 
   /// @brief Gets value from vector at param index
   /// @param index Index to get value from in StaticVector
   T& at(size_t index) {
-    if (index >= currentSize) {
+    if (index >= currentSize_) {
       throw std::out_of_range("Index out of bounds.");
     }
-    return data[index];
+    return data_[index];
+  }
+
+  /// @brief Gets const value from vector at param index
+  /// @param index Index to get value from in StaticVector
+  const T& at(size_t index) const{
+    if (index >= currentSize_) {
+      throw std::out_of_range("Index out of bounds.");
+    }
+    return data_[index];
   }
 
   /// @brief Overload operator of [] and returns value
   /// @param index Index to get value from in StaticVector
-  T& operator[](size_t index) { return data[index]; } 
+  T& operator[](size_t index) { 
+    assert(index < currentSize_ && "Trying to index out of range");
+    return data_[index]; 
+  } 
 
   /// @brief Const version Overload operator of [] and returns value
   /// @param index Index to get value from in StaticVector
   const T& operator[](size_t index) const { 
-    if (index >= currentSize) {
-      throw std::out_of_range("Index out of bounds.");
-    }
-    return data[index];
+    assert(index < currentSize_ && "Trying to index out of range");
+    return data_[index];
   }
 
   /// @brief Returns front value of StaticVector
   T& front() {
-    if (currentSize == 0) {
-      throw std::out_of_range("Accessing front from an empty vector.");
-    }
-    return data[0];
+    assert(currentSize_ != 0 && "Accessing front from an empty vector.");
+    return data_[0];
+  }
+
+  /// @brief Returns constant front value of StaticVector
+  const T& front() const{
+    assert(currentSize_ != 0 && "Accessing front from an empty vector.");
+    return data_[0];
   }
 
   /// @brief Returns back value of StaticVector
   T& back() {
-    if (currentSize == 0) {
-      throw std::out_of_range("Accessing back from an empty vector.");
-    }
-    return data[currentSize - 1];
+    assert(currentSize_ != 0 && "Accessing back from an empty vector.");
+    return data_[currentSize_ - 1];
+  }
+
+  /// @brief Returns const back value of StaticVector
+  const T& back() const{
+    assert(currentSize_ != 0 && "Accessing back from an empty vector.");
+    return data_[currentSize_ - 1];
   }
 
   /// @brief Checks if StaticVector is empty
-  bool empty() const { return currentSize == 0; }
+  bool empty() const { return currentSize_ == 0; }
 
   /// @brief Returns current size of StaticVector
-  size_t size() const { return currentSize; }
+  size_t size() const { return currentSize_; }
 
   /// @brief Returns max size of StaticVector
-  size_t max_size() const { return MAX_SIZE; }
+  constexpr size_t max_size() const { return MAX_SIZE; }
 
   /// @brief Begin iterator for StaticVector
-  iterator begin() { return data; }
+  iterator begin() { return data_; }
 
   /// @brief End iterator for StaticVector
-  iterator end() { return data + currentSize; }
+  iterator end() { return data_+ currentSize_; }
 };
 
 /// @brief Creates standard vector from StaticVector

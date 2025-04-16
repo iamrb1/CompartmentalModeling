@@ -8,11 +8,10 @@ Date: 1/31/2025
 #include <assert.h>
 
 #include <algorithm>
+#include <cmath>
 #include <list>
 #include <stdexcept>
 #include <tuple>
-
-static constexpr int DEFAULT_SIZE = 10;
 
 #ifndef MEMORYFACTORY_H
 #define MEMORYFACTORY_H
@@ -25,6 +24,12 @@ namespace cse {
 template <typename Object>
 class MemoryFactory {
  private:
+  /// @brief Size used when none is provided by the user
+  static constexpr int DEFAULT_SIZE = 10;
+
+  /// @brief Multiplier used when the MemoryFactory is allocating new space
+  static constexpr double EXPANSION_SIZE = 1.618;
+
   /// @brief Size of the MemoryFactory
   int allocationSize_;
 
@@ -78,7 +83,7 @@ class MemoryFactory {
    */
   void ExpandSpace_() {
     AllocateObjects_(allocationSize_, defaultObject_);
-    allocationSize_ = allocationSize_ * 2;
+    allocationSize_ = std::ceil(allocationSize_ * EXPANSION_SIZE);
   }
 
   /**
@@ -101,7 +106,8 @@ class MemoryFactory {
    * @param newAllocSize New count of initially allocated objects
    * @param initialState Alternate starting value for all Objects in the factory
    */
-  MemoryFactory(int newAllocSize = DEFAULT_SIZE, Object initialState = Object{}) {
+  MemoryFactory(int newAllocSize = DEFAULT_SIZE,
+                Object initialState = Object{}) {
     // No point in a MemoryFactory that doesn't store objects
     assert(newAllocSize > 0);
     allocationSize_ = newAllocSize;
@@ -164,22 +170,45 @@ class MemoryFactory {
    * @details Will take the returned Object, reset it to the default state, and
    * add it back to the pool of available Objects
    */
+
   void Deallocate(Object* targetObject) {
     // This needs to point to an object
     assert(targetObject != nullptr);
 
     // Returns an iterator to the object if it exists in the factory
     auto objectLocation = Contains_(targetObject);
+
     if (objectLocation != allocatedBlock_.end()) {
+      /*
+        If an object is Deallocated a 2nd time it means the user may be
+        attempting to use an object after they already tried to free it, which
+        means it could lead to an object being 'freed' but still being edited.
+        This could also lead to multiple user variables pointing to the same
+        object
+        std::find determines whether the pointer for the object to be
+        deallocated exists before nextAvailable. If it does, then it hasn't been
+        deallocated yet However, if find returns nextAvailable then the target
+        object has been deallocated in the past
+        https://chatgpt.com/share/67d7730b-cbb4-8001-9735-fdceca14f73d - for the
+        specific use of std::find
+      */
+      if (std::find(allocatedBlock_.begin(), nextAvailable_, *objectLocation) ==
+          nextAvailable_) {
+        throw std::invalid_argument(
+            "This has already been deallocated, use after deallocation may "
+            "result in undefined behavior");
+      }
       // Remove the object from its arbitrary location within the factory
       allocatedBlock_.erase(objectLocation);
 
-      /* Reassign the object to the default value, then move it to the end where
-       * it registers as available
-       */
+      /*
+        Reassign the object to the default value, then move it to the end
+        where it registers as available
+      */
       *targetObject = defaultObject_;
       allocatedBlock_.push_back(targetObject);
       reservedObjects_--;
+
     } else {
       throw std::invalid_argument(
           "This object does not belong to this MemoryFactory");
@@ -191,7 +220,7 @@ class MemoryFactory {
    *
    * @return The number of available Objects in the MemoryFactory
    */
-  int GetSpace() const { return allocationSize_ - reservedObjects_; }
+  int GetAvailable() const { return allocationSize_ - reservedObjects_; }
 
   /**
    * @brief Returns how many Objects are allocated by the factory
@@ -199,6 +228,23 @@ class MemoryFactory {
    * @return The total number of Objects in the MemoryFactory
    */
   int GetSize() const { return allocationSize_; }
+
+  /**
+   * @brief Runs checks on the allocated memory to ensure that the allocated
+   * size matches what is expected
+   *
+   * @return bool indicating success
+   */
+  bool RunMemoryChecks(int targetSize) {
+    /*
+      Due to allocatedBlock_ being a list of pointers, we need to find the size
+      of one of the individual Objects being pointed to and multiplying it by
+      the number of Objects reserved
+    */
+    int sizeOfAllocation =
+        sizeof(decltype(*(*allocatedBlock_.begin()))) * allocatedBlock_.size();
+    return targetSize == sizeOfAllocation;
+  }
 };
 }  // namespace cse
 #endif  // MEMORYFACTORY_H

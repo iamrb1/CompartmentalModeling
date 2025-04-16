@@ -1,4 +1,4 @@
-TEST_NAMES = TestComboManager TestStaticVector TestMemoFunction TestBruteForceOptimizer TestMemoryFactory
+TEST_NAMES = TestComboManager TestPermutationManager TestStaticVector TestMemoFunction TestBruteForceOptimizer TestMemoryFactory
 
 # -O3	  -Wl,--stack,8388608 -ftrack-macro-expansion=0
 FLAGS = -std=c++20 -g -pthread -Wall -Wextra -I../../ -DCATCH_CONFIG_MAIN

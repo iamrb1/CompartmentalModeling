@@ -66,7 +66,10 @@ class PresentationManager {
 		 */
 		void start() {
 			_event_manager.start();
+            _running = true;
 			std::cout << "Starting Events" << std::endl;
+            // Toggle bottom bar
+            toggleBottomNav(true);
 		}
 
 		/**
@@ -74,7 +77,8 @@ class PresentationManager {
 		 */
 		void stop() {
 			_event_manager.stop();
-			std::cout << "Stopping Events" << std::endl;
+            _running = false;
+            std::cout << "Stopping Events" << std::endl;
 		}
 
 		/**
@@ -142,7 +146,8 @@ class PresentationManager {
 
 			if (_slide_deck.empty() || _current_pos >= _slide_deck.size()) {
 				std::cout << "ERROR: No current layout to modify.\n";
-				return;
+                // Create new slide and finish adding textbox
+                addNewSlide();
 			}
 
 			_slide_deck.at(_current_pos)->addTextBox(newLayout);
@@ -164,7 +169,8 @@ class PresentationManager {
 
 			if (_slide_deck.empty() || _current_pos >= _slide_deck.size()) {
 				std::cout << "ERROR: No current layout to add image.\n";
-				return;
+                // Create new slide and finish adding image
+                addNewSlide();
 			}
 
 			auto image = std::make_shared<Image>(url, width, height, altText);
@@ -253,10 +259,16 @@ class PresentationManager {
 		 * @param destination Destination slide
 		 */
 		void addSlideChangeEvent(const int time, const size_t origin, const size_t destination) {
+            // Check if destination slide exists (destination count is 1 off for user readability on UI)
+            if(destination > getNumSlides() - 1) {
+              std::cout << "WARNING: Destination slide " << destination << " doesn't exist." << std::endl;
+              return;
+            }
+
 			_event_manager.addEvent(changeSlide, origin, destination, time);
 		}
 
-                void updateImageSize(const std::string& id, int newWidth, int newHeight) {
+        void updateImageSize(const std::string& id, int newWidth, int newHeight) {
 		  if (_slide_deck.empty() || _current_pos >= _slide_deck.size()) return;
 		  auto& layout = _slide_deck.at(_current_pos);
 
@@ -268,7 +280,56 @@ class PresentationManager {
 		  }
 		}
 
+        void toggleBottomNav(bool hidden) {
+            // Hide bottom edit bar
+            EM_ASM({
+                var bottomNav = document.getElementById("bottom-nav");
+                if(bottomNav){
+                  console.log('Present Mode: ', $0);
+                  bottomNav.style.visibility = $0 ? "hidden" : "visible";
+                }
+            }, hidden);
+        }
 
+        bool isRunning() const { return _running; }
+
+        void moveSlide(bool const forward) {
+
+          // Check if any slides exist
+          if(getNumSlides() == 0) {
+            std::cout << "WARNING: No slides exist" << std::endl;
+            return;
+          }
+
+          int destination = 0;
+
+          if(forward) {
+            // Check if is last slide
+            if(_current_pos == getNumSlides() - 1) {
+              std::cout << "WARNING: Already is last slide" << std::endl;
+              return;
+            }
+            // Move forward one slide
+            destination = _current_pos + 1;
+
+          } else {
+            // Check if is first slide
+            if(_current_pos ==  0) {
+              std::cout << "WARNING: Already is first slide" << std::endl;
+              return;
+            }
+
+            // Move back one slide
+            destination = _current_pos - 1;
+          }
+
+          // Swap position
+          std::swap(_slide_deck[_current_pos], _slide_deck[destination]);
+          std::cout << "Swapped slides " << _current_pos << " and " << destination << std::endl;
+          goTo(destination);
+          onSlideChangedJS();
+
+        }
 
 		////////////////////////////////////////////////////////////////////////////////////////
 		/// STATIC EVENT FUNCTIONS
@@ -405,6 +466,19 @@ const char *exportSlideDeckToJson() {
 void call_addSlideChangeEvent() { PRESENTATION_MANAGER.addSlideChangeEvent(10, PRESENTATION_MANAGER.getCurrentPos(), PRESENTATION_MANAGER.getCurrentPos()+1); }
 
 void call_updateImageSize(const char* id, int width, int height) { std::string cppId(id); PRESENTATION_MANAGER.updateImageSize(cppId, width, height);}
+
+void call_leavePresentation() {
+  PRESENTATION_MANAGER.toggleBottomNav(false);
+  PRESENTATION_MANAGER.stop();
+}
+
+void call_nextEvent() {
+  if(PRESENTATION_MANAGER.isRunning()) {
+     PRESENTATION_MANAGER.advance();
+  }
+}
+
+void call_moveSlide(const bool forward) { PRESENTATION_MANAGER.moveSlide(forward); }
 
 }
 
