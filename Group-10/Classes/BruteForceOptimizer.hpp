@@ -28,7 +28,7 @@ struct Item {
 
   Item() = default;
   Item(std::string newName, double newWeight, double newValue)
-      : name(newName), weight(newWeight), value(newValue) {};
+      : value(newValue), weight(newWeight), name(newName) {};
   ~Item() = default;
 
   /**

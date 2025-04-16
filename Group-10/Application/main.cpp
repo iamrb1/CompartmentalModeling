@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -11,16 +12,8 @@
 #include "../Classes/ComboManager.hpp"
 #include "../Classes/StaticVector.hpp"
 
-
 // global variables because the command line takes no parameters i guess
 std::string filename;
-double capacity;
-
-
-// global variables because the command line takes no parameters i guess
-std::string filename;
-double capacity;
-
 static std::vector<cse::Item> itemList;
 static double capacity = 0.0;
 
@@ -45,36 +38,6 @@ void PrintVector(std::vector<T> vector) {
   std::cout << std::endl;
 }
 
-void PrintBruteForceResults(std::pair<double, std::vector<cse::Item>> results,
-                            bool optimized = false) {
-  std::cout << "Knapsack Solver Results\n"
-            << (optimized)
-      ? "<<Optimized>>"
-      : "<<Unoptimized>>\n";
-  std::cout << "Best Score Recorded: " << results.first << '\n';
-  std::cout << "Selection of Items:";
-  PrintVector(results.second);
-}
-
-void BruteForceUnoptimized() {
-  std::cout << "Run Unoptimized" << std::endl;
-  cse::BruteForceOptimizer knapsackProblemSolver;
-  knapsackProblemSolver.SetItems(itemList);
-  knapsackProblemSolver.SetCapacity(capacity);
-  auto result = knapsackProblemSolver.FindOptimalSolution();
-  PrintBruteForceResults(result);
-}
-
-void BruteForceOptimized() {
-  std::cout << "Run Optimized" << std::endl;
-  cse::BruteForceOptimizer knapsackProblemSolver;
-  knapsackProblemSolver.SetItems(itemList);
-  knapsackProblemSolver.SetCapacity(capacity);
-  knapsackProblemSolver.SetOptimizer(true);
-  auto result = knapsackProblemSolver.FindOptimalSolution();
-  PrintBruteForceResults(result);
-}
-
 std::vector<cse::Item> ConstructItems(std::string filename) {
   std::cout << "Constructing Items" << std::endl;
   std::vector<cse::Item> Items{};
@@ -85,8 +48,8 @@ std::vector<cse::Item> ConstructItems(std::string filename) {
   Create Item
   Enter into vector of items
   **/
-  assert(filename.contains('.txt') ||
-         filename.contains('.csv') &&
+  assert((filename.contains(".txt") ||
+         filename.contains(".csv")) &&
              "This file is not one of the supported types (.txt or .csv)");
   std::ifstream TextFile(filename);
   std::string line;
@@ -101,7 +64,18 @@ std::vector<cse::Item> ConstructItems(std::string filename) {
   return Items;
 }
 
-void BruteForceUnoptimized() { 
+/* void PrintBruteForceResults(std::pair<double, std::vector<cse::Item>> results,
+                            bool optimized = false) {
+  std::cout << "Knapsack Solver Results\n"
+            << (optimized)
+      ? "<<Optimized>>\n"
+      : "<<Unoptimized>>\n";
+  std::cout << "Best Score Recorded: " << results.first << '\n';
+  std::cout << "Selection of Items:";
+  PrintVector(results.second);
+} */
+
+void BruteForceUnoptimized() {
   auto items = ConstructItems(filename);
   cse::BruteForceOptimizer optimizer;
   optimizer.SetItems(items);
@@ -110,29 +84,41 @@ void BruteForceUnoptimized() {
   std::cout << "Optimal Value: " << solutionPair.first << std::endl;
   std::cout << "Item Set: " << std::endl;
   for (auto item : solutionPair.second) {
-    std::cout << item.name << " " << item.value << " " << item.weight << std::endl;
+    std::cout << item.name << " " << item.value << " " << item.weight
+              << std::endl;
   }
 
-  std::cout << "Run Unoptimized" << std::endl; 
+  std::cout << "Run Unoptimized" << std::endl;
+}
+
+void BruteForceOptimized() {
+  std::cout << "Run Optimized" << std::endl;
+  cse::BruteForceOptimizer knapsackProblemSolver;
+  knapsackProblemSolver.SetItems(itemList);
+  knapsackProblemSolver.SetCapacity(capacity);
+  knapsackProblemSolver.SetOptimizer(true);
+  auto result = knapsackProblemSolver.FindOptimalSolution();
+  //PrintBruteForceResults(result);
 }
 
 
 /**
- * @brief creates the arg manager from a vector of strings - converts them into c strings and then passes that to 
- * the arg manager. the original args vector must outlive the argmanager, which should be fine for our code.abort
+ * @brief creates the arg manager from a vector of strings - converts them into
+ * c strings and then passes that to the arg manager. the original args vector
+ * must outlive the argmanager, which should be fine for our code.abort
  * @param args the vector of strings
  * @return an argManager object
  */
-cse::ArgManager createArgManager(std::vector<std::string>& args) {
+cse::ArgManager createArgManager(std::vector<std::string> &args) {
   std::vector<char *> argV(args.size());
-  for (int i = 0; i < args.size(); ++i) {
-    //argV[i] = strdup(args[i].c_str()); // duplicates a new string. Must use because c_str returns a const string
+  for (std::size_t i = 0; i < args.size(); ++i) {
+    // argV[i] = strdup(args[i].c_str()); // duplicates a new string. Must use
+    // because c_str returns a const string
     argV[i] = args[i].data();
   }
-  cse::ArgManager mgr(args.size(),  argV.data());
+  cse::ArgManager mgr(args.size(), argV.data());
   return mgr;
 }
-
 
 int main() {
   cse::CommandLine mainCommand;
@@ -159,18 +145,13 @@ int main() {
       std::cout << "Is optimized." << std::endl;
     }
     if (argMgr.HasArg("compare")) {
-
     }
     if (argMgr.HasArg("weightless")) {
-
     }
     if (argMgr.HasArg("multiple-repeats")) {
-
     }
 
     mainCommand.executeCommand(arguments[0]);
-
-    
   }
 
   return 0;
