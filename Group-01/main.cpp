@@ -15,14 +15,49 @@
 const int VERTEX_RADIUS = 15;
 const int CANVAS_WIDTH = 2000;
 const int CANVAS_HEIGHT = 2000;
+const double ARROW_SIZE = 25;  // Size of arrow head
+const double ARROW_ANGLE = 0.5;  // Angle in radians (roughly 30 degrees)
+const double ARROW_DELTA = 0.92;
 
 class Shape {
-public:
-  static void drawLine(int x1, int y1, int x2, int y2, const char *color, int thickness = 2) {
+private:
+  static void drawArrowHead(int x1, int y1, int x2, int y2, const char* color) {
     EM_ASM_(
         {
-          var canvas = document.getElementById('canvas');
-          var ctx = canvas.getContext('2d');
+          var ctx = document.getElementById('canvas').getContext('2d');
+          ctx.fillStyle = UTF8ToString($4);
+          
+          var dX = $2 - $0;
+          var dY = $3 - $1;
+          var startX = $0 + dX * $7;
+          var startY = $1 + dY * $7;
+
+          // Calculate arrow angles
+          var angle = Math.atan2(dY, dX);
+          
+          // Calculate arrow points
+          ctx.beginPath();
+          ctx.moveTo(startX, startY);  // Tip of the arrow
+          ctx.lineTo(
+              startX - $5 * Math.cos(angle - $6),
+              startY - $5 * Math.sin(angle - $6)
+          );
+          ctx.lineTo(
+              startX - $5 * Math.cos(angle + $6),
+              startY - $5 * Math.sin(angle + $6)
+          );
+          ctx.closePath();
+          ctx.fill();
+        },
+        x1, y1, x2, y2, color, ARROW_SIZE, ARROW_ANGLE, ARROW_DELTA);
+  }
+
+public:
+  static void drawLine(int x1, int y1, int x2, int y2, const char* color, int thickness = 2) {
+    // Draw the main line
+    EM_ASM_(
+        {
+          var ctx = document.getElementById('canvas').getContext('2d');
           ctx.strokeStyle = UTF8ToString($4);
           ctx.lineWidth = $5;
           ctx.beginPath();
@@ -31,6 +66,9 @@ public:
           ctx.stroke();
         },
         x1, y1, x2, y2, color, thickness);
+    
+    // Add arrow at the end
+    drawArrowHead(x1, y1, x2, y2, color);
   }
 
   static void drawCircle(int x, int y, int radius, const char *color) {
@@ -525,12 +563,12 @@ public:
   GraphVisualizer() {
     // Initial values as example
     g.AddVertex("ID1", "gray", 500, 200);
-    g.AddVertex("ID2", "gray", 430, 250);
-    g.AddVertex("ID3", "gray", 570, 250);
-    g.AddVertex("ID4", "gray", 380, 300);
-    g.AddVertex("ID5", "gray", 480, 300);
-    g.AddVertex("ID6", "gray", 520, 300);
-    g.AddVertex("ID7", "gray", 620, 300);
+    g.AddVertex("ID2", "gray", 400, 300);
+    g.AddVertex("ID3", "gray", 600, 300);
+    g.AddVertex("ID4", "gray", 350, 400);
+    g.AddVertex("ID5", "gray", 450, 400);
+    g.AddVertex("ID6", "gray", 550, 400);
+    g.AddVertex("ID7", "gray", 650, 400);
 
     g.AddEdge("ID1", "ID2", 2);
     g.AddEdge("ID1", "ID3", 2);
