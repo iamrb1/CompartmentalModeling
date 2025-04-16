@@ -546,6 +546,7 @@ public:
 
   void ClearGraph() {
     g.ClearGraph();
+    ClearTraversal();
     traversal.reset();
     ClearVertexSelection();
     RedrawCanvas();
