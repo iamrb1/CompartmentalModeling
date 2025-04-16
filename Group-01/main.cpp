@@ -55,6 +55,7 @@ private:
   std::optional<cse::GraphPosition<std::string>> traversal;
   cse::GraphJson<std::string> graphJson{g};
   std::optional<std::reference_wrapper<const cse::Vertex<std::string>>> startVertex; // Traversal start vertex
+  std::optional<std::reference_wrapper<const cse::Vertex<std::string>>> aStarDestVertex; // Astar traversal destination vertex
   bool currentlyTraversing = false;
 
   static bool IsPointInRange(double x1, double y1, double x2, double y2, double range) {
@@ -467,21 +468,40 @@ private:
       buttonGroup.appendChild(selectStartCheckbox);
       buttonGroup.appendChild(selectStartLabel);
 
-      // Start traversal vertex display info
-      var startVertexDiv = document.createElement('div');
-      startVertexDiv.id = "startVertexInfo";
+      // Astar destination vertex toggle
+      var selectAstarDestCheckbox = document.createElement('input');
+      selectAstarDestCheckbox.type = 'checkbox';
+      selectAstarDestCheckbox.id = 'selectAstarDestToggle';
+
+      var selectAstarDestLabel = document.createElement('label');
+      selectAstarDestLabel.htmlFor = 'selectAstarDestToggle';
+      selectAstarDestLabel.textContent = ' Select Destination Vertex';
+
+      buttonGroup.appendChild(selectAstarDestCheckbox);
+      buttonGroup.appendChild(selectAstarDestLabel);
+
+      // Traversal vertices display info
+      var traversalVertexDiv = document.createElement('div');
+      traversalVertexDiv.id = "traversalVertexInfo";
       var startVertexTitle = document.createElement('h2');
       startVertexTitle.setAttribute("id", "startVertexTitle");
       startVertexTitle.innerHTML = "Start Vertex";
       var startVertexId = document.createElement('h3');
       startVertexId.setAttribute("id", "startVertexId");
-      startVertexDiv.appendChild(startVertexTitle);
-      startVertexDiv.appendChild(startVertexId);
+      traversalVertexDiv.appendChild(startVertexTitle);
+      traversalVertexDiv.appendChild(startVertexId);
+      var aStarDestVertexTitle = document.createElement('h2');
+      aStarDestVertexTitle.setAttribute("id", "aStarDestVertexTitle");
+      aStarDestVertexTitle.innerHTML = "Astar Dest Vertex";
+      var aStarDestVertexId = document.createElement('h3');
+      aStarDestVertexId.setAttribute("id", "aStarDestVertexId");
+      traversalVertexDiv.appendChild(aStarDestVertexTitle);
+      traversalVertexDiv.appendChild(aStarDestVertexId);
 
       // Add button group and vertex info to control zone
       controlZone.appendChild(buttonGroup);
       controlZone.appendChild(selectedVertexDiv);
-      controlZone.appendChild(startVertexDiv);
+      controlZone.appendChild(traversalVertexDiv);
 
       // Create a flex container assisted by ChatGPT
       var flexContainer = document.createElement("div");
@@ -573,8 +593,14 @@ public:
       pos.SetTraversalMode(cse::TraversalModes::DFS<std::string>());
     else if (mode == 1)
       pos.SetTraversalMode(cse::TraversalModes::BFS<std::string>());
-    else if (mode == 2)
-      pos.SetTraversalMode(cse::TraversalModes::AStar<std::string>(g.GetVertex("ID6"))); // temp hardcoded target
+    else if (mode == 2) {
+      if (!aStarDestVertex.has_value()) {
+        EM_ASM({ alert("Please select a destination vertex before starting A* traversal."); });
+        return;
+      }
+      auto& dest = const_cast<cse::Vertex<std::string>&>(aStarDestVertex->get());
+      pos.SetTraversalMode(cse::TraversalModes::AStar<std::string>(dest));
+    }
 
     traversal.emplace(std::move(pos));
   }
@@ -584,8 +610,10 @@ public:
    */
   void ClearTraversal() {
     startVertex.reset();
+    aStarDestVertex.reset();
     EM_ASM({
       document.getElementById("startVertexId").innerHTML = "";
+      document.getElementById("aStarDestVertexId").innerHTML = "";
       var stepBtn = document.getElementById("stepTraversalButton");
       var fullBtn = document.getElementById("startTraversalButton");
       stepBtn.style.backgroundColor = "#3f3f3f";
@@ -651,10 +679,23 @@ public:
   void HandleCanvasClick(double x, double y) {
     auto vertex = FindVertexAtPosition(x, y);
     if (vertex.has_value()) {
-      // Check if the toggle is on 
+      // Check if the select start toggle is on 
       bool selectStart = EM_ASM_INT({
         return document.getElementById("selectStartToggle").checked;
       });
+
+      // Check if the select Astar destination toggle is on 
+      bool selectAstarDest = EM_ASM_INT({
+        return document.getElementById("selectAstarDestToggle").checked;
+      });
+
+      // Show alert and don't allow if trying to select both starting vertex and Astar destination vertex.
+      if (selectAstarDest && selectStart) {
+        EM_ASM({
+          alert("Can't select both starting vertex and Astar destination at the same time. Please unselect one.");
+        });
+        return;
+      }
   
       if (selectStart) {
         if (currentlyTraversing) {
@@ -673,6 +714,44 @@ public:
           stepBtn.style.backgroundColor = "#4361ee";
           fullBtn.style.backgroundColor = "#4361ee";
           document.getElementById("startVertexId").innerHTML = "ID: " + UTF8ToString($0);
+        }, vertex->get().GetId().c_str());
+      } 
+      else if (selectAstarDest){
+        // Get the traversal type to make sure it's Astar
+        int mode = EM_ASM_INT({
+          var mode = document.getElementById("traversalMode").value;
+          if (mode == "DFS")
+            return 0;
+          if (mode == "BFS")
+            return 1;
+          if (mode == "A*")
+            return 2;
+          return 0;
+        });
+        if (mode != 2) {
+          // Show alert if trying to change Astar destination and not in an A* traversal mode
+          EM_ASM({
+            alert("You cannot select an Astar destination vertex when not in Astar traversal mode.");
+          });
+          return;
+        }
+        if (currentlyTraversing) {
+          // Show alert if trying to change Astar destination during traversal
+          EM_ASM({
+            alert("Traversal already in progress. Clear traversal to change the Astar destination vertex.");
+          });
+          return;
+        }
+
+        aStarDestVertex = vertex.value(); // Store Astar destination vertex
+
+        // Update UI to reflect selected Astar destination vertex
+        EM_ASM_({
+          var stepBtn = document.getElementById("stepTraversalButton");
+          var fullBtn = document.getElementById("startTraversalButton");
+          stepBtn.style.backgroundColor = "#4361ee";
+          fullBtn.style.backgroundColor = "#4361ee";
+          document.getElementById("aStarDestVertexId").innerHTML = "ID: " + UTF8ToString($0);
         }, vertex->get().GetId().c_str());
       } else {
         HandleSelectedVertex(vertex->get()); // Just show info
@@ -715,7 +794,26 @@ public:
   void StepTraversal() {
     if (!startVertex.has_value()) {
       EM_ASM({
-        alert("Please select a starting vertex before stepping through the traversal with the check box below.");
+        alert("Please select a starting vertex with the check box below before stepping through the traversal.");
+      });
+      return;
+    }
+
+    // make sure Astar conditions satisfied first
+    int mode = EM_ASM_INT({
+      var mode = document.getElementById("traversalMode").value;
+      if (mode == "DFS")
+        return 0;
+      if (mode == "BFS")
+        return 1;
+      if (mode == "A*")
+        return 2;
+      return 0;
+    });
+    if (mode == 2 && !aStarDestVertex.has_value()) {
+      // Show alert if trying to start an Astar traversal without a destination
+      EM_ASM({
+        alert("You cannot start an Astar traversal without selecting a destination.");
       });
       return;
     }
