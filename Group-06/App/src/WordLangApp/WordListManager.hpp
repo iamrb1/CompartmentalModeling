@@ -89,8 +89,10 @@ public:
      * @return false If print is unsuccessful
      */
     bool print(int number = 0, bool isAll = false);
-private:
 
+    bool wordle(const std::string& word, const std::string& result);
+
+private:
     // A map of StringSet represents different files
     std::unordered_map<std::string, cse::StringSet<cse::StaticString<20>>> mWordLists;
 

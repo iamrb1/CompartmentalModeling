@@ -352,3 +352,79 @@ bool cse::WordListManager::Get(const std::string &patternToCheck)
     mCurrentSet = result;
     return result.size() > 0;
 }
+
+
+bool cse::WordListManager::wordle(const std::string& word, const std::string& result) {
+    if(word.size() != result.size()) {
+        mErrorManager.printInfo("Error : Word and matched pattern size must be same.");
+        return false;
+    }
+
+    if(word.size() != 5 || result.size() != 5) {
+        mErrorManager.printInfo("Error : Word and matched pattern size must be equal to 5.");
+        return false;
+    }
+
+    std::string lettersToNotContains = "";  // Letters marked 'b' in the result.
+    std::string lettersToContain = "";      // Letters marked 'g' or 'y' means those letters must be in the word.
+    std::string patternOfGreen = "";        // Letters marked 'g' where that letter exactly must be in that place.
+    std::unordered_map<char, size_t> lettersIndexes; // Holds the character marked yellow and its index.
+
+    for(size_t i=0; i<result.length(); i++) {
+        if (result[i] == 'b') {
+            lettersToNotContains += word[i];
+        } else if (result[i] == 'y' || result[i] == 'g') {
+            lettersToContain += word[i];
+        }
+
+        if (result[i] == 'g') {
+            patternOfGreen += word[i];
+        } else {
+            patternOfGreen += '_';
+        }
+
+        if (result[i] == 'y') {
+            lettersIndexes[word[i]] = i;
+        }
+    }
+
+    // Now we remove all the letters marked 'b' from the wordle in our search set
+    NotContains(lettersToNotContains);
+    // We make sure only the words that contains letter marked green or yellow in the search set
+    ContainsAll(lettersToContain);
+    // Filter set with a green in position with get
+    Get(patternOfGreen);
+
+    // Create a result set that where green mark is in the same index for all words and words doesn't contain black
+    // marked letters, also, yellow marked letters are not in the wrong indexes.
+    cse::StringSet<cse::StaticString<20>> possibleOptions;
+    
+    for (auto word : mCurrentSet) {
+        bool valid = false;
+        
+        for (std::size_t i = 0; i < word.size(); i++) {
+            if (lettersIndexes.contains(word[i])) { // Returns true if element is found
+                if(lettersIndexes[word[i]] != i) {     // Yellow marked letter in different location
+                    valid = true;
+                } else {
+                    valid = false;
+                }
+            }
+        }
+
+        if(valid) {
+            possibleOptions.insert(word);
+        }
+    }
+
+
+    // Might sort or request 
+    
+    // Update mCurrentSet with the new filtered list.
+    mCurrentSet.clear();
+    mCurrentSet = possibleOptions;
+
+    // Display the top 10 or fewer matching words. Might do with random in stringset for printing,
+
+    return true;
+}
