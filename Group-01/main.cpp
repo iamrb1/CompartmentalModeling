@@ -245,6 +245,8 @@ private:
         traversalSelect.appendChild(option2);
         traversalSelect.appendChild(option3);
 
+        var selectedCheckboxContainer = document.createElement('div');
+        selectedCheckboxContainer.id = 'selectedCheckboxContainer';
         var selectStartCheckbox = document.createElement('input');
         selectStartCheckbox.type = 'checkbox';
         selectStartCheckbox.id = 'selectStartToggle';
@@ -253,8 +255,9 @@ private:
         selectStartLabel.textContent = ' Select Start Vertex';
 
         modeButtonGroup.appendChild(traversalSelect);
-        modeButtonGroup.appendChild(selectStartCheckbox);
-        modeButtonGroup.appendChild(selectStartLabel);
+        selectedCheckboxContainer.appendChild(selectStartCheckbox);
+        selectedCheckboxContainer.appendChild(selectStartLabel);
+        modeButtonGroup.appendChild(selectedCheckboxContainer);
 
         // Control buttons group
         var controlButtonGroup = document.createElement("div");
