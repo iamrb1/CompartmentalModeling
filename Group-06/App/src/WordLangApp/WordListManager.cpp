@@ -4,38 +4,54 @@ cse::WordListManager::WordListManager(cse::ErrorManager& errorManager) : mErrorM
 
 }
 
-bool cse::WordListManager::load_list(const std::string& listName, const std::string& fileName) {
+bool cse::WordListManager::loadList(const std::string& listName, const std::string& fileName) {
+
+    if(mWordLists.find(listName) != mWordLists.end())
+    {
+        mErrorManager.printInfo("Invalid List Name: \"" + listName + "\" already exists.");
+        return false;
+    }
 
     cse::StringSet<cse::StaticString<20>> set = FileSource::load_file(fileName);
     if(set.size() == 0) {
-        mErrorManager.printInfo("Incorrect Syntax: File can not be loaded.");
+        mErrorManager.printInfo("Error : File can not be loaded.");
         return false;
     }
 
     std::cout << "Loaded " << "\"" << fileName << "\". Word count in a list: " << set.size() << "\n";
+    mCurrentSet = set;
     mWordLists[listName] = std::move(set);
 
     mCurrentLists.clear();
     mCurrentLists.push_back(listName);
+    // TODO Decide if we want to store mCurrentLists as values or names and what we want to mCurrentSet
     return true;
 }
 
 
 bool cse::WordListManager::print(int number, bool isAll) {
     if (mCurrentLists.size() == 0) {
-        // Error occured
+        mErrorManager.printInfo("Error : There is no file exist to be printed.");
         return false;
     }
 
     int count = 0;
+    int limit = isAll ? static_cast<int>(mCurrentSet.size()) : number;
+
+    std::cout << "[";
 
     for (const auto& word : mCurrentSet) {
-        if (!isAll && count >= number) break;
-        std::cout << word << ", ";
-        ++count;
-    }
+        if (!isAll && count > number) break;
 
-    std::cout << "\n";
+        std::cout << word;
+        ++count;
+
+        if(count < limit) {
+            std::cout << ", ";
+        }
+    }
+    
+    std::cout << "]\n";
     return true;
 }
 
@@ -192,7 +208,7 @@ bool cse::WordListManager::copy(const std::string &newListName, const std::strin
  * @param listName The name of the list to set as current.
  * @return true If the list was set successfully, false otherwise.
  */
-bool cse::WordListManager::setCurrent(cse::StringSet<cse::StaticString<20>> currentSet) {
+bool cse::WordListManager::setCurrent(cse::StringSet<cse::StaticString<20>> currentSet) { 
     if (currentSet == cse::StringSet<cse::StaticString<20>>()) {
         return false;
     }

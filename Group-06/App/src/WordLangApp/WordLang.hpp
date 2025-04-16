@@ -19,7 +19,7 @@
  #include "TokenManager.hpp"
  #include "WordListManager.hpp"
  #include "../../../ErrorManager/ErrorManager.hpp"
-
+ #include "../../../CommandLine/CommandLine.cpp"
 
 namespace cse {
 
@@ -239,7 +239,7 @@ namespace cse {
          * @brief Parses WORDLE
          * 
          */
-        void parseWorldle();
+        void parseWordle();
     
     private:
         /// @brief Bool to check if program is still active
@@ -253,6 +253,9 @@ namespace cse {
 
         /// @brief WordListManager handles all the backend operations
         WordListManager mWordListManager;
+
+        // /// @brief CommandLine that handles calls to the functions and logging
+        // CommandLine mCommandLine;
     };
 
 }

@@ -32,7 +32,7 @@ public:
      * @return true List loaded successfully
      * @return false List has not been loaded (file not found)
      */
-    bool load_list(const std::string& listName, const std::string& fileName);
+    bool loadList(const std::string& listName, const std::string& fileName);
 
     // Combined function to combine group of sets, string listname, vector of lists to combine return bool
     bool combine(const std::string& newListName, const std::vector<std::string>& listsToCombine);
@@ -89,8 +89,8 @@ public:
      * @return false If print is unsuccessful
      */
     bool print(int number = 0, bool isAll = false);
-
 private:
+
     // A map of StringSet represents different files
     std::unordered_map<std::string, cse::StringSet<cse::StaticString<20>>> mWordLists;
 

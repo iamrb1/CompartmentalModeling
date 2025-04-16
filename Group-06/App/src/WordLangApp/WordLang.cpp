@@ -1,12 +1,10 @@
 #include "WordLang.hpp"
-#include "../../../StringSet/StringSet.hpp"
-#include "../../../StaticString/StaticString.hpp"
-#include "../../../ErrorManager/ErrorManager.hpp"
-//#include "../../../CommandLine/CommandLine.cpp"
+// #include "../../../StringSet/StringSet.hpp"
+// #include "../../../StaticString/StaticString.hpp"
+// #include "../../../ErrorManager/ErrorManager.hpp"
+// #include "../../../CommandLine/CommandLine.cpp"
 
 #include "FileSource.hpp"
-// #include "TokenManager.hpp"
-// #include "WordListManager.hpp"
 #include "lexer.hpp"
 #include <istream>
 #include <vector>
@@ -100,6 +98,7 @@ void cse::WordLang::parse(const std::string& input) {
             break;
         }
         case Lexer::ID_WORDLE: {
+            parseWordle();
             break;
         }
         default:{
@@ -149,8 +148,7 @@ void cse::WordLang::parseList() {
 
         // Syntax is correct, call WordListManager to handle. WIth file name and list name to load
         std::string cut_name = filename.lexeme.substr(1,filename.lexeme.length() - 2);
-        if (!mWordListManager.load_list(listname.lexeme, cut_name)) {
-            //mErrorManager.printInfo("Incorrect Syntax: File can not be loaded.");
+        if (!mWordListManager.loadList(listname.lexeme, cut_name)) {
             return;
         }
 
@@ -175,6 +173,9 @@ void cse::WordLang::parseList() {
 
         // Call WordListManager to handle with listname, listsToCombine to combine
         // TODO
+        if (!mWordListManager.combine(listname.lexeme, listsToCombine)) {
+            return;
+        }
 
     } else if (listIdentifier.id == 251) {  // Difference the lists
         std::vector<std::string> listsToDifference = parseMultipleLists();
@@ -198,6 +199,10 @@ void cse::WordLang::parseList() {
         // Call WordListManager to handle with listname, listsToDifference to difference
         // TODO
 
+        if (!mWordListManager.difference(listname.lexeme, listsToDifference)) {
+            return;
+        }
+
     } else if (listIdentifier.id == 250) {  // Intersection the lists
         std::vector<std::string> listsToIntersection = parseMultipleLists();
 
@@ -219,6 +224,9 @@ void cse::WordLang::parseList() {
 
         // Call WordListManager to handle with listname, listsToIntersection to intersection
         // TODO
+        if (!mWordListManager.intersection(listname.lexeme, listsToIntersection)) {
+            return;
+        }
 
     } else if (listIdentifier.id == 249) {   // Copy the list
         auto listnameToCopy = mTokenManager.Use();
@@ -237,6 +245,9 @@ void cse::WordLang::parseList() {
 
         // Call WordListManager to handle with listname, listnameToCopy to copy
         // TODO
+        if (!mWordListManager.copy(listname.lexeme, listnameToCopy.lexeme)) {
+            return;
+        }
 
     } else {
         // Syntax Error 
@@ -269,10 +280,10 @@ void cse::WordLang::parsePrint() {
     auto identifier = mTokenManager.Use();
 
     if(identifier.id == 236) { // PRINT ALL
-        mWordListManager.print(0,true);
+        if (!mWordListManager.print(0,true)) return;
 
     } else if(identifier.id == 235) { // PRINT X number
-        mWordListManager.print(std::stoi(identifier.lexeme));
+        if (!mWordListManager.print(std::stoi(identifier.lexeme))) return;
 
     } else {
         mErrorManager.printInfo("Incorrect Syntax: Incorrect identifier type, must be a number or \"ALL\"");
@@ -305,6 +316,9 @@ void cse::WordLang::parseSetCurrent() {
 
     // Call WordListManager to handle with listsToSetCurrent
     // TODO
+    // if (!mWordListManager.setCurrent(listsToSetCurrent)) {
+    //     return;
+    // }
 }
 
 void cse::WordLang::parseAdd() {
@@ -337,6 +351,9 @@ void cse::WordLang::parseAdd() {
 
     // Call WordListManager to handle with listname, trimmedWords to add into list.
     // TODO 
+    if (!mWordListManager.add(listname.lexeme, trimmedWords)) {
+        return;
+    }
 }
 
 void cse::WordLang::parseSave() {
@@ -369,6 +386,9 @@ void cse::WordLang::parseSave() {
 
     // Call WordListManager to handle with listname, trimmedFilename to save into.
     // TODO 
+    // if (!mWordListManager.save(listname.lexeme, trimmedFilename)) {
+    //     return;
+    // }
 }
 
 void cse::WordLang::parseLength() {
@@ -394,12 +414,10 @@ void cse::WordLang::parseLength() {
         mErrorManager.printInfo("Incorrect Syntax: Encountered unknown symbols after \"LENGTH\" token.");
         return;
     }
-
-    bool result = mWordListManager.setLengthRestriction(length.lexeme);
     
-    if (!result) {
-        mErrorManager.printError("Incorrect Syntax: Could now parse the length");
-    }
+    // if (!mWordListManager.setLengthRestriction(length.lexeme)) {
+    //     return;
+    // }
 }
 
 void cse::WordLang::parseContainsAny() {
@@ -422,6 +440,7 @@ void cse::WordLang::parseContainsAny() {
     std::string trimmedLetters = letters.lexeme.substr(1, letters.lexeme.length() - 2);
     // Call WordListManager to handle with trimmedLetters.
     // TODO 
+    
 }
 
 void cse::WordLang::parseContainsAll() {
@@ -444,6 +463,9 @@ void cse::WordLang::parseContainsAll() {
     // TODO - call WordListManager to handle with trimmedLetters
     // Maybe we can combine this function with parseContainsAny() to avoid code duplication?
     // have just "parseContains" which accepts boolean 
+    if (!mWordListManager.ContainsAll(trimmedLetters)) {
+        return;
+    }
 }
 
 void cse::WordLang::parseNotContains() {
@@ -465,6 +487,9 @@ void cse::WordLang::parseNotContains() {
     std::string trimmedLetters = letters.lexeme.substr(1, letters.lexeme.length() - 2);
 
     // TODO - call WordListManager to handle trimmedLetters
+    if (!mWordListManager.NotContains(trimmedLetters)) {
+        return;
+    }
 }
 
 void cse::WordLang::parseGet() {
@@ -486,6 +511,9 @@ void cse::WordLang::parseGet() {
     std::string trimmedLetters = letters.lexeme.substr(1, letters.lexeme.length() - 2);
 
     // TODO - call WordListManager to handle trimmedLetters
+    if (!mWordListManager.Get(trimmedLetters)) {
+        return;
+    }
 }
 
 void cse::WordLang::parseReset() {
@@ -519,89 +547,47 @@ void cse::WordLang::parseResetLast() {
     // TODO - call WordListManager to handle RESET_LAST
 }
 
-void cse::WordLang::parseWorldle() {
+void cse::WordLang::parseWordle() {
     mTokenManager.Use(); // use keyword "WORDLE"
+  
+    if (mTokenManager.Use_if(230) == mTokenManager.eof_token) {  // Use '(' 
+        mErrorManager.printInfo("Incorrect Syntax: Wordle command must have \'(\'.");
+        return;
+    }
 
-    // TODO - parse and call WordListManager
+    auto word = mTokenManager.Use();
+
+    if(word == mTokenManager.eof_token || word != emplex::Lexer::ID_STRING) {
+        mErrorManager.printInfo("Incorrect Syntax: Missing word inputted to the wordle.");
+        return;
+    }
+
+    if (mTokenManager.Use_if(231) == mTokenManager.eof_token) {  // Use ',' 
+        mErrorManager.printInfo("Incorrect Syntax: Missing \',\' between two strings.");
+        return;
+    }
+
+    auto result = mTokenManager.Use();
+
+    if(result == mTokenManager.eof_token || result != emplex::Lexer::ID_STRING) {
+        mErrorManager.printInfo("Incorrect Syntax: Missing result string from wordle.");
+        return;
+    }
+
+    if (mTokenManager.Use_if(229) == mTokenManager.eof_token) {  // Use ')' 
+        mErrorManager.printInfo("Incorrect Syntax: Wordle command must have \')\' at the end.");
+        return;
+    }
+
+    if (mTokenManager.Peek() != mTokenManager.eof_token) {
+        // check if we don't have anything else apart from WORDLE
+        mErrorManager.printInfo("Incorrect Syntax: Encountered unknown symbols after \"WORDLE\" token.");
+        return;
+    }
+
+    std::string trimmedWord = word.lexeme.substr(1, word.lexeme.length() - 2);
+    std::string trimmedResult = result.lexeme.substr(1, result.lexeme.length() - 2);
+    if (!mWordListManager.wordle(trimmedWord, trimmedResult)) {
+        return;
+    }
 }
-// #include "WordLang.hpp"
-// #include "../../../StringSet/StringSet.hpp"
-// #include "../../../StaticString/StaticString.hpp"
-// #include "../../../CommandLine/CommandLine.cpp"
-// #include "../../../ErrorManager/ErrorManager.hpp"
-// #include "FileSource.hpp"
-// #include "WordListManager.hpp"
-// //#include <ranges>
-// //#include <algorithm>
-// //#include <iostream>
-// //#include <string>
-
-// void WordLang::start() {
-//     //Initialize commandLine
-//     cse::CommandLine cl;
-//     cse::ErrorManager errorManager;
-//     cse::WordListManager wordManager;
-//     // Call a function that takes commandline and assigns functions and configure it
-
-//     // Assign WordListManager this handles all the backend keeping track of lists
-//     // Current lists, takes input returns results.
-
-//     // In loop until broken by user,
-//     // get input from the user feed the input into Parse function in WordLang
-//     // WordListManager and CommandLine should be member variable assigned at the 
-//     // Construction which allows Parse to access it whenever needed.
-
-//     // In the loop call parse assign to a string or a cout returned value if has
-//     // If input EXIT break the program and close
-
-//     std::cout << "Welcome to WordLang! Type your query below:\n";
-
-//     mIsActive = true;
-//     std::string input;
-
-//     //cse::StringSet<cse::StaticString<20>> set = FileSource::load_file("top_5000.txt");
-//     //std::cout << "Words loaded: " << set.size() << "\n";
-//     while (mIsActive) {
-//         std::cout << ">>> ";
-//         std::getline(std::cin, input);
-
-//         auto words = cl.tokenize_line(input);
-        
-//         if (words[0] == "LIST") {
-//             if (words.size() != 5 || words[2] != "=" || words[3] != "LOAD") {
-//                 errorManager.printInfo("Usage: LIST <name> = LOAD <filename>");
-//                 continue;
-//             }
-//             std::string listname = words[1];
-//             std::string filename = words[4];
-//             // LIST name = load filename
-//             wordManager.load_list(words[1], words[4]);
-//         }
-//         if (words[0] == "EXIT") {
-//             mIsActive = false;
-//         }
-//     }
-// }
-
-// WordLang::WordLang() {
-
-// }
-
-// WordLang::~WordLang() {
-    
-// }
-
-
-// void WordLang::Parse(const std::string& input) {
-//     // In a switch tokenize the inputs to see which commands are called
-
-//     // Call command specific parse function
-//     /* Each parse function should check syntax, required variables, if the given 
-//        List name exists or file can open etc.
-
-//        If no error, calls WordListManager to do the operations and couts if necessary 
-//        no return required in this case since ther might be type issues.
-
-       
-//     */
-// }

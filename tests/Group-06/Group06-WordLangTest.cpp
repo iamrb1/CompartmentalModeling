@@ -1035,4 +1035,51 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
         CHECK(actualOutput == expected);
     }
   };
+
+  SECTION("Parse WORDLE command") {
+    cse::WordLang wordLang;
+
+    std::vector<std::string> input = {
+      "wordle (\"print\",\"bbgyb\")\n",
+      "WORDLE \"print\",\"bbgyb\"\n",
+      "WORDLE (print,\"bbgyb\")\n",
+      "WORDLE (\"print\" \"bbgyb\")\n",
+      "WORDLE (\"print\", bbgyb)\n",
+      "WORDLE (\"print\",\"bbgyb\"\n",
+      "WORDLE (\"print\",\"bbgyb\") LOAD\n"
+    };
+      
+    std::vector<std::string> output_result = {
+      "[Info]: Incorrect Syntax: Check syntax, keyword is not found.\n",
+      "[Info]: Incorrect Syntax: Wordle command must have \'(\'.\n",
+      "[Info]: Incorrect Syntax: Missing word inputted to the wordle.\n",
+      "[Info]: Incorrect Syntax: Missing \',\' between two strings.\n",
+      "[Info]: Incorrect Syntax: Missing result string from wordle.\n",
+      "[Info]: Incorrect Syntax: Wordle command must have \')\' at the end.\n",
+      "[Info]: Incorrect Syntax: Encountered unknown symbols after \"WORDLE\" token.\n"
+    };
+
+    for (size_t i = 0; i < input.size(); ++i) {
+        std::ostringstream oss;
+        std::streambuf* oldCoutBuf = std::cout.rdbuf();
+        std::cout.rdbuf(oss.rdbuf());
+    
+        wordLang.parse(input[i]);
+    
+        std::cout.rdbuf(oldCoutBuf);
+    
+        std::string actualOutput = oss.str();
+        std::string expected = output_result[i];
+
+        // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
+        if(DEBUG_MODE) {
+          std::cout << "Input:    " << input[i];
+          std::cout << "Expected: " << expected;
+          std::cout << "Actual:   " << actualOutput;
+          std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
+        }
+        
+        CHECK(actualOutput == expected);
+    }
+  };
 }
