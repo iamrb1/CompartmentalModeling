@@ -12,7 +12,7 @@
 #include "GraphPosition/GraphPosition.hpp"
 #include "Random/Random.hpp"
 
-const int VERTEX_RADIUS = 10;
+const int VERTEX_RADIUS = 15;
 const int CANVAS_WIDTH = 2000;
 const int CANVAS_HEIGHT = 2000;
 
