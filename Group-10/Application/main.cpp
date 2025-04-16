@@ -1,8 +1,9 @@
-#include <iostream>
-#include <string>
-#include <vector>
-#include <sstream>
 #include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "../../Group-06/ArgManager/ArgManager.cpp"
 #include "../../Group-06/CommandLine/CommandLine.cpp"
@@ -15,48 +16,86 @@
 std::string filename;
 double capacity;
 
-std::vector<std::string> split(const std::string& str, char delimiter) {
-    std::vector<std::string> tokens;
-    std::stringstream ss(str);
-    std::string token;
 
-    while (std::getline(ss, token, delimiter)) {
-        tokens.push_back(token);
-    }
+// global variables because the command line takes no parameters i guess
+std::string filename;
+double capacity;
 
-    return tokens;
+static std::vector<cse::Item> itemList;
+static double capacity = 0.0;
+
+std::vector<std::string> split(const std::string &str, char delimiter) {
+  std::vector<std::string> sections;
+  std::stringstream ss(str);
+  std::string token;
+
+  while (std::getline(ss, token, delimiter)) {
+    sections.push_back(token);
+  }
+
+  return sections;
 }
 
 template <typename T>
 void PrintVector(std::vector<T> vector) {
-    std::cout << std::endl;
-    for (const auto& item : vector) {
-        std::cout << item << ",";
-    }
-    std::cout << std::endl;
+  std::cout << std::endl;
+  for (const auto &item : vector) {
+    std::cout << item << ",";
+  }
+  std::cout << std::endl;
 }
 
-std::vector<cse::Item> ConstructItems(std::string filename){ 
+void PrintBruteForceResults(std::pair<double, std::vector<cse::Item>> results,
+                            bool optimized = false) {
+  std::cout << "Knapsack Solver Results\n"
+            << (optimized)
+      ? "<<Optimized>>"
+      : "<<Unoptimized>>\n";
+  std::cout << "Best Score Recorded: " << results.first << '\n';
+  std::cout << "Selection of Items:";
+  PrintVector(results.second);
+}
+
+void BruteForceUnoptimized() {
+  std::cout << "Run Unoptimized" << std::endl;
+  cse::BruteForceOptimizer knapsackProblemSolver;
+  knapsackProblemSolver.SetItems(itemList);
+  knapsackProblemSolver.SetCapacity(capacity);
+  auto result = knapsackProblemSolver.FindOptimalSolution();
+  PrintBruteForceResults(result);
+}
+
+void BruteForceOptimized() {
+  std::cout << "Run Optimized" << std::endl;
+  cse::BruteForceOptimizer knapsackProblemSolver;
+  knapsackProblemSolver.SetItems(itemList);
+  knapsackProblemSolver.SetCapacity(capacity);
+  knapsackProblemSolver.SetOptimizer(true);
+  auto result = knapsackProblemSolver.FindOptimalSolution();
+  PrintBruteForceResults(result);
+}
+
+std::vector<cse::Item> ConstructItems(std::string filename) {
   std::cout << "Constructing Items" << std::endl;
-  std::vector<cse::Item> Items {};
-  
+  std::vector<cse::Item> Items{};
+
   /**
   Open file
   Iterate through csv file
   Create Item
-  Enter into vector of items   
-  **/ 
+  Enter into vector of items
+  **/
+  assert(filename.contains('.txt') ||
+         filename.contains('.csv') &&
+             "This file is not one of the supported types (.txt or .csv)");
   std::ifstream TextFile(filename);
   std::string line;
   while (std::getline(TextFile, line)) {
-      
-      cse::Item item;
-      std::vector<std::string> itemData = split(line, ',');
-      item.name = itemData[0];
-      item.weight = std::stod(itemData[1]);
-      item.value = std::stod(itemData[2]);
-      Items.push_back(item);
-      std::cout << "Item: " << item.name << " Weight: " << item.weight << " Value: " << item.value << std::endl;
+    std::vector<std::string> itemData = split(line, ',');
+    cse::Item item(itemData[0], std::stod(itemData[1]), std::stod(itemData[2]));
+    Items.push_back(item);
+    std::cout << "Item: " << item.name << " Weight: " << item.weight
+              << " Value: " << item.value << std::endl;
   }
 
   return Items;
@@ -100,15 +139,11 @@ int main() {
   mainCommand.addCommand(
       "brute-force", BruteForceUnoptimized,
       "Find the optimal solution for a list of items without optimization.");
-  
 
-//   mainCommand.addCommand(
-//     "construct", BruteForceUnoptimized,
-//     "Find the optimal solution for a list of items without optimization.");
   std::string input;
   while (std::getline(std::cin, input)) {
-    //split input
-    // command -> text file seperated by a space
+    // split input
+    //  command -> text file seperated by a space
     auto arguments = split(input, ' ');
 
     auto argMgr = createArgManager(arguments);
@@ -137,14 +172,14 @@ int main() {
 
     
   }
-  
+
   return 0;
 }
 
 /**
     Plans:
     - Add a file name input for item lists
-        - Flags: 
+        - Flags:
             Optimized
             Compare - unoptimized vs optimized
             Weightless - ignore weights
@@ -155,7 +190,8 @@ int main() {
     Ideas:
     - Add ComboManager as useable command
         - Works with permutation or combo
-    - Allow user to give a list of names and then choose preset way of calculating weight and value
+    - Allow user to give a list of names and then choose preset way of
+calculating weight and value
         - Choose length of name or ASCII value as weight or value
     - STAAATIC VECTOR
         - Emphasis on static vector

@@ -16,29 +16,30 @@ Last Changed Date: 03/26/2025
 #include <utility>
 #include <vector>
 
-
 namespace cse {
 
 /**
  * @brief Structure representing an item with a name, weight, and value.
  */
 struct Item {
-  std::string name;
-  double weight;
   double value;
+  double weight;
+  std::string name;
+
+  Item() = default;
+  Item(std::string newName, double newWeight, double newValue)
+      : name(newName), weight(newWeight), value(newValue) {};
+  ~Item() = default;
 
   /**
-   * @brief == operator for two Items
-   * @return indication whether two Items are equal
+   * @brief comparison operator for two Items
+   * @return indication of the comparison between two Items
    */
-  friend bool operator==(const Item& a, const Item& b) {
-    return (a.name == b.name && a.weight == b.weight && a.value == b.value);
-
-  }
-
-  friend std::ostream& operator<<(std::ostream& os, const Item& item){
-    os << "Item: " << item.name << ", Weight: " << item.weight
-              << ", Value: " << item.value << std::endl;
+  auto operator<=>(const Item&) const = default;
+  
+  friend std::ostream& operator<<(std::ostream& os, const Item& item) {
+    os << "Item Name: " << item.name << ", Weight: " << item.weight
+       << ", Value: " << item.value << std::endl;
     return os;
   }
 };
@@ -65,11 +66,7 @@ class BruteForceOptimizer {
     optimizeEnabled_ = optimize;
     /// Sort greatest value first, with tiebreaker going to heavier items
     if (optimizeEnabled_) {
-      std::stable_sort(items_.begin(), items_.end(),
-                       [](const Item& a, const Item& b) {
-                         return (a.value == b.value) ? a.weight > b.weight
-                                                     : a.value > b.value;
-                       });
+      std::stable_sort(items_.begin(), items_.end(), std::greater<Item>());
     }
     double totalValue = 0.0;
     for (auto iter = items_.rbegin(); iter != items_.rend(); ++iter) {
