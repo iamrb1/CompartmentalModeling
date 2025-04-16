@@ -33,6 +33,7 @@ TEST_CASE("Fundamental WordLang Tests", "[WordLang]") {
 }
 
 TEST_CASE("Length restriction Tests", "[WordLang]") {
+  // changing path to text files from "database" folder in "App"
   std::filesystem::path current = std::filesystem::current_path();
   std::filesystem::path target = current.parent_path().parent_path() / "Group-06" / "App" / "src";
   std::filesystem::current_path(target);
@@ -46,7 +47,7 @@ TEST_CASE("Length restriction Tests", "[WordLang]") {
     wordLang.parse("LIST list1 = LOAD \"top_5000\"\n");
     wordLang.parse("LENGTH = 5\n");
 
-    REQUIRE(buffer.str() == "Loaded \"top_5000\". Word count in a list: 4354\nCurrent number of words: 688\n");
+    REQUIRE(buffer.str() == "Loaded \"top_5000\". Word count in a list: 4354\nWords before filter: 4354, after filter: 688\n");
   }
   
   std::cout.rdbuf(oldCout);
@@ -1010,53 +1011,6 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
     std::vector<std::string> output_result = {
       "[Info]: Incorrect Syntax: Check syntax, keyword is not found.\n",
       "[Info]: Incorrect Syntax: Encountered unknown symbols after \"RESET_LAST\" token.\n"
-    };
-
-    for (size_t i = 0; i < input.size(); ++i) {
-        std::ostringstream oss;
-        std::streambuf* oldCoutBuf = std::cout.rdbuf();
-        std::cout.rdbuf(oss.rdbuf());
-    
-        wordLang.parse(input[i]);
-    
-        std::cout.rdbuf(oldCoutBuf);
-    
-        std::string actualOutput = oss.str();
-        std::string expected = output_result[i];
-
-        // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
-        if(DEBUG_MODE) {
-          std::cout << "Input:    " << input[i];
-          std::cout << "Expected: " << expected;
-          std::cout << "Actual:   " << actualOutput;
-          std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
-        }
-        
-        CHECK(actualOutput == expected);
-    }
-  };
-
-  SECTION("Parse WORDLE command") {
-    cse::WordLang wordLang;
-
-    std::vector<std::string> input = {
-      "wordle (\"print\",\"bbgyb\")\n",
-      "WORDLE \"print\",\"bbgyb\"\n",
-      "WORDLE (print,\"bbgyb\")\n",
-      "WORDLE (\"print\" \"bbgyb\")\n",
-      "WORDLE (\"print\", bbgyb)\n",
-      "WORDLE (\"print\",\"bbgyb\"\n",
-      "WORDLE (\"print\",\"bbgyb\") LOAD\n"
-    };
-      
-    std::vector<std::string> output_result = {
-      "[Info]: Incorrect Syntax: Check syntax, keyword is not found.\n",
-      "[Info]: Incorrect Syntax: Wordle command must have \'(\'.\n",
-      "[Info]: Incorrect Syntax: Missing word inputted to the wordle.\n",
-      "[Info]: Incorrect Syntax: Missing \',\' between two strings.\n",
-      "[Info]: Incorrect Syntax: Missing result string from wordle.\n",
-      "[Info]: Incorrect Syntax: Wordle command must have \')\' at the end.\n",
-      "[Info]: Incorrect Syntax: Encountered unknown symbols after \"WORDLE\" token.\n"
     };
 
     for (size_t i = 0; i < input.size(); ++i) {

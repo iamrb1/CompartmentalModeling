@@ -57,7 +57,7 @@ public:
     bool add(const std::string& listName, const std::string& wordsToAdd);
 
     // Save saves the list into a file if it exists overwrite if not creates it. Listname return bool
-    bool save(const std::string& listName);
+    bool save(const std::string& fileName, const std::string& listName);
 
     // Contains any updates the current list to the restriction, string collection of letters to include some return bool
     bool ContainsAny(const std::string &lettersToCheck);
@@ -95,6 +95,9 @@ public:
 private:
     // A map of StringSet represents different files
     std::unordered_map<std::string, cse::StringSet<cse::StaticString<20>>> mWordLists;
+
+    // A map that represents listname(key) and its according filename(value)
+    std::unordered_map<std::string, std::string> mFileLists;
 
     // Current vector of lists
     std::vector<std::string> mCurrentLists;

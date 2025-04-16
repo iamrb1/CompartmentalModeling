@@ -1,4 +1,5 @@
 #include "WordListManager.hpp"
+#include "FileSource.hpp"
 
 cse::WordListManager::WordListManager(cse::ErrorManager& errorManager) : mErrorManager(errorManager) {
 
@@ -14,7 +15,7 @@ bool cse::WordListManager::loadList(const std::string& listName, const std::stri
 
     cse::StringSet<cse::StaticString<20>> set = FileSource::load_file(fileName);
     if(set.size() == 0) {
-        mErrorManager.printInfo("Error : File can not be loaded.");
+        mErrorManager.printInfo("Incorrect Syntax: File can not be loaded.");
         return false;
     }
 
@@ -24,6 +25,9 @@ bool cse::WordListManager::loadList(const std::string& listName, const std::stri
 
     mCurrentLists.clear();
     mCurrentLists.push_back(listName);
+
+    mFileLists[listName] = fileName; // store filename of a listname to load it again in the future
+
     // TODO Decide if we want to store mCurrentLists as values or names and what we want to mCurrentSet
     return true;
 }
@@ -236,21 +240,16 @@ bool cse::WordListManager::add(const std::string& listName, const std::string& w
 /**
  * @brief Saves the current list to a file.
  * @param listName The name of the list to save.
+ * @param fileName The name of the file the list will be saved into
  * @return true If the list was saved successfully, false otherwise.
  */
-bool cse::WordListManager::save(const std::string& listName) {
+bool cse::WordListManager::save(const std::string& fileName, const std::string& listName) {
     if (mWordLists.find(listName) == mWordLists.end()) {
         return false;
     }
     auto& list = mWordLists[listName];
-    std::ofstream file(listName + ".txt");
-    if (!file.is_open()) {
-        return false;
-    }
-    for (const auto& word : list) {
-        file << word << "\n";
-    }
-    file.close();
+    
+    FileSource::save_file(fileName, list);
     return true;
 }
 /**
@@ -260,31 +259,25 @@ bool cse::WordListManager::save(const std::string& listName) {
  * @return false Error with lengthRestriction value
  */
 bool cse::WordListManager::setLengthRestriction(const std::string& lengthRestriction) {
-    int num = 0;
-    try {
-        num = std::stoi(lengthRestriction);
-        if (num <= 0) return false;
+
+    // if have a number
+    if (lengthRestriction != "*") {
+        int num = std::stoi(lengthRestriction);
+        int count_before = 0, count_after = 0;
+        for (const auto& listname : mCurrentLists) {
+            count_before += mWordLists[listname].size();
+            mWordLists[listname].size_filter(num);
+            count_after += mWordLists[listname].size();
+        }
+        std::cout << "Words before filter: " << count_before << ", after filter: " << count_after << "\n";
+        return true;
     }
-    catch (...) {
-        return false;
-    }
-    // Add current lists to the current set
+
+    // if we have a star - restore all lists
     for (const auto& listname : mCurrentLists) {
-        // Ivan: Sorry, I haven't figured out how to properly copy StringSet ??
-        cse::StringSet<StaticString<20>> current_set = mWordLists[listname];
-        auto vec = current_set.to_vector();
-        mCurrentSet.insert(vec);
+        mWordLists[listname] = FileSource::load_file(mFileLists[listname]);
     }
-
-    // Filter the whole set by length
-    mCurrentSet.size_filter(num);
-    std::cout << "Current number of words: " << mCurrentSet.size() << "\n";
-
     return true;
-
-    // Ivan: I don't understand what these two lines were suppose to do
-    //mlengthRestriction = lengthRestriction;
-    //return lengthRestriction;
 }
 
 /**

@@ -384,6 +384,7 @@ void cse::WordLang::parseSave() {
     // Syntax is correct, call WordListManager to handle.
     std::string trimmedFilename = filename.lexeme.substr(1, filename.lexeme.length() - 2);
 
+    mWordListManager.save(trimmedFilename, listname.lexeme);
     // Call WordListManager to handle with listname, trimmedFilename to save into.
     // TODO 
     // if (!mWordListManager.save(listname.lexeme, trimmedFilename)) {
@@ -415,9 +416,8 @@ void cse::WordLang::parseLength() {
         return;
     }
     
-    // if (!mWordListManager.setLengthRestriction(length.lexeme)) {
-    //     return;
-    // }
+    mWordListManager.setLengthRestriction(length.lexeme);
+
 }
 
 void cse::WordLang::parseContainsAny() {
