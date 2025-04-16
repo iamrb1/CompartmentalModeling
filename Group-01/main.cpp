@@ -168,12 +168,127 @@ private:
       var controlZone = document.createElement("div");
       controlZone.classList.add("control-zone");
 
+      /** Selected vertex group */
+        var selectedVertexDiv = document.createElement('div');
+        selectedVertexDiv.setAttribute("id", "selectedVertexContainer");
+        var selectedVertexTitle = document.createElement('h2');
+        selectedVertexTitle.setAttribute("id", "selectedVertexTitle");
+        var selectedVertexId = document.createElement('h3');
+        selectedVertexId.setAttribute("id", "selectedVertexId");
+        var selectedVertexX = document.createElement('h4');
+        selectedVertexX.setAttribute("id", "selectedVertexX");
+        var selectedVertexY = document.createElement('h4');
+        selectedVertexY.setAttribute("id", "selectedVertexY");
+
+        selectedVertexDiv.appendChild(selectedVertexTitle);
+        selectedVertexDiv.appendChild(selectedVertexId);
+        selectedVertexDiv.appendChild(selectedVertexX);
+        selectedVertexDiv.appendChild(selectedVertexY);
+
+        selectedVertexTitle.innerHTML = "No Selected Vertex";
+
+
+        // Start traversal vertex display info
+        var startVertexDiv = document.createElement('div');
+        startVertexDiv.id = "startVertexInfo";
+        var startVertexTitle = document.createElement('h2');
+        startVertexTitle.setAttribute("id", "startVertexTitle");
+        startVertexTitle.innerHTML = "Start Vertex";
+        var startVertexId = document.createElement('h3');
+        startVertexId.setAttribute("id", "startVertexId");
+        startVertexDiv.appendChild(startVertexTitle);
+        startVertexDiv.appendChild(startVertexId);
+
+        
+        var selectedOptionsDiv = document.createElement('div');
+        selectedOptionsDiv.classList.add("control-section");
+        
+        var selectedOptionsDivContainer = document.createElement('div');
+        selectedOptionsDivContainer.classList.add("control-section-container");
+        /** HEADER */
+        var selectedVertexGroupHeader = document.createElement('h2');
+        selectedVertexGroupHeader.setAttribute("id", "selectedVertexGroupHeader");
+        selectedVertexGroupHeader.innerHTML = "Currently Selected Information";
+
+        selectedOptionsDiv.appendChild(selectedVertexDiv);
+        selectedOptionsDiv.appendChild(startVertexDiv);
+        selectedOptionsDivContainer.appendChild(selectedVertexGroupHeader);
+        selectedOptionsDivContainer.appendChild(selectedOptionsDiv);
+
+        controlZone.appendChild(selectedOptionsDivContainer);
+      /** END -- Selected vertex group */
+
+      /** Traversal options group */
+        // Button group container
+        var traversalButtonGroup = document.createElement("div");
+        traversalButtonGroup.classList.add("control-section");
+
+        // Clear Traversal button
+        var clearTraversalButton = document.createElement('button');
+        clearTraversalButton.textContent = "Clear Traversal";
+        clearTraversalButton.addEventListener('click', function() { Module._clearTraversal(); });
+        traversalButtonGroup.appendChild(clearTraversalButton);
+
+        // Dropdown to select traversal type
+        var traversalSelect = document.createElement('select');
+        traversalSelect.setAttribute("id", "traversalMode");
+        var option1 = document.createElement('option');
+        option1.value = "DFS";
+        option1.textContent = "DFS";
+        traversalSelect.appendChild(option1);
+        var option2 = document.createElement('option');
+        option2.value = "BFS";
+        option2.textContent = "BFS";
+        traversalSelect.appendChild(option2);
+        var option3 = document.createElement('option');
+        option3.value = "A*";
+        option3.textContent = "A*";
+        traversalSelect.appendChild(option3);
+        traversalButtonGroup.appendChild(traversalSelect);
+
+        // Traverse Step button
+        var stepButton = document.createElement('button');
+        stepButton.id = "stepTraversalButton";
+        stepButton.textContent = "Next Step";
+        stepButton.addEventListener('click', function() { Module._stepTraversal(); });
+        traversalButtonGroup.appendChild(stepButton);
+
+        // Traverse All button
+        var fullButton = document.createElement('button');
+        fullButton.id = "startTraversalButton";
+        fullButton.textContent = "Traverse All";
+        fullButton.addEventListener('click', function() { Module._fullTraversal(); });
+        traversalButtonGroup.appendChild(fullButton);
+
+        // Select starting traversal vertex info
+        var selectStartCheckbox = document.createElement('input');
+        selectStartCheckbox.type = 'checkbox';
+        selectStartCheckbox.id = 'selectStartToggle';
+
+        var selectStartLabel = document.createElement('label');
+        selectStartLabel.htmlFor = 'selectStartToggle';
+        selectStartLabel.textContent = ' Select Start Vertex';
+
+        var traversalSectionContainer = document.createElement('div');
+        traversalSectionContainer.classList.add("control-section-container");
+        /** HEADER */
+        var traversalSectionContainerHeader = document.createElement('h2');
+        traversalSectionContainerHeader.setAttribute("id", "traversalSectionContainerHeader");
+        traversalSectionContainerHeader.innerHTML = "Traversal Options";
+
+        traversalButtonGroup.appendChild(selectStartCheckbox);
+        traversalButtonGroup.appendChild(selectStartLabel);
+
+        traversalSectionContainer.appendChild(traversalSectionContainerHeader);
+        traversalSectionContainer.appendChild(traversalButtonGroup);
+
+        controlZone.appendChild(traversalSectionContainer);
+      /** END -- Traversal options group */
+
+
       // The fields required for adding and removing an edge
       var edgeButtonGroup = document.createElement("div");
       edgeButtonGroup.classList.add("button-group");
-      edgeButtonGroup.style.border = "2px solid black";
-      edgeButtonGroup.style.padding = "10px";
-      edgeButtonGroup.style.marginBottom = "10px";
 
       var vertexId1Input = document.createElement("input");
       vertexId1Input.setAttribute("id", "vertexId1Input");
@@ -211,9 +326,6 @@ private:
       // Adding vertex button group container
       var AddbuttonGroup = document.createElement("div");
       AddbuttonGroup.classList.add("button-group");
-      AddbuttonGroup.style.border = "2px solid black";
-      AddbuttonGroup.style.padding = "10px";
-      AddbuttonGroup.style.marginBottom = "10px";
 
       // The fields required for adding a vertex
       var idInput = document.createElement("input");
@@ -256,9 +368,6 @@ private:
       // Button group container
       var buttonGroup = document.createElement("div");
       buttonGroup.classList.add("button-group");
-      buttonGroup.style.border = "2px solid black";
-      buttonGroup.style.padding = "10px";
-      buttonGroup.style.marginBottom = "10px";
 
       // Clear button
       var clearButton = document.createElement('button');
@@ -269,9 +378,6 @@ private:
       // Deleting a vertex button group container
       var deleteButtonGroup = document.createElement("div");
       deleteButtonGroup.classList.add("button-group");
-      deleteButtonGroup.style.border = "2px solid black";
-      deleteButtonGroup.style.padding = "10px";
-      deleteButtonGroup.style.marginBottom = "10px";
 
       // The fields required for adding and removing an edge
       var deleteInput = document.createElement("input");
@@ -337,11 +443,6 @@ private:
       edgeInput.style.marginRight = "10px";
       buttonGroup.appendChild(edgeInput);
 
-      // Clear Traversal button
-      var clearTraversalButton = document.createElement('button');
-      clearTraversalButton.textContent = "Clear Traversal";
-      clearTraversalButton.addEventListener('click', function() { Module._clearTraversal(); });
-      buttonGroup.appendChild(clearTraversalButton);
 
       /**
        * Used ChatGPT to assist adding support to
@@ -404,100 +505,6 @@ private:
             downloadAnchorNode.remove();
           });
       buttonGroup.appendChild(exportButton);
-
-      // Selected vertex info container
-      var selectedVertexDiv = document.createElement('div');
-      selectedVertexDiv.setAttribute("id", "selectedVertexContainer");
-      var selectedVertexTitle = document.createElement('h2');
-      selectedVertexTitle.setAttribute("id", "selectedVertexTitle");
-      var selectedVertexId = document.createElement('h3');
-      selectedVertexId.setAttribute("id", "selectedVertexId");
-      var selectedVertexX = document.createElement('h4');
-      selectedVertexX.setAttribute("id", "selectedVertexX");
-      var selectedVertexY = document.createElement('h4');
-      selectedVertexY.setAttribute("id", "selectedVertexY");
-
-      selectedVertexDiv.appendChild(selectedVertexTitle);
-      selectedVertexDiv.appendChild(selectedVertexId);
-      selectedVertexDiv.appendChild(selectedVertexX);
-      selectedVertexDiv.appendChild(selectedVertexY);
-
-      selectedVertexTitle.innerHTML = "No Selected Vertex";
-
-      // Dropdown to select traversal type
-      var traversalSelect = document.createElement('select');
-      traversalSelect.setAttribute("id", "traversalMode");
-      var option1 = document.createElement('option');
-      option1.value = "DFS";
-      option1.textContent = "DFS";
-      traversalSelect.appendChild(option1);
-      var option2 = document.createElement('option');
-      option2.value = "BFS";
-      option2.textContent = "BFS";
-      traversalSelect.appendChild(option2);
-      var option3 = document.createElement('option');
-      option3.value = "A*";
-      option3.textContent = "A*";
-      traversalSelect.appendChild(option3);
-      buttonGroup.appendChild(traversalSelect);
-
-      // Traverse Step button
-      var stepButton = document.createElement('button');
-      stepButton.id = "stepTraversalButton";
-      stepButton.textContent = "Next Step";
-      stepButton.addEventListener('click', function() { Module._stepTraversal(); });
-      buttonGroup.appendChild(stepButton);
-
-      // Traverse All button
-      var fullButton = document.createElement('button');
-      fullButton.id = "startTraversalButton";
-      fullButton.textContent = "Traverse All";
-      fullButton.addEventListener('click', function() { Module._fullTraversal(); });
-      buttonGroup.appendChild(fullButton);
-
-      // Select starting traversal vertex info
-      var selectStartCheckbox = document.createElement('input');
-      selectStartCheckbox.type = 'checkbox';
-      selectStartCheckbox.id = 'selectStartToggle';
-
-      var selectStartLabel = document.createElement('label');
-      selectStartLabel.htmlFor = 'selectStartToggle';
-      selectStartLabel.textContent = ' Select Start Vertex';
-
-      buttonGroup.appendChild(selectStartCheckbox);
-      buttonGroup.appendChild(selectStartLabel);
-
-      // Start traversal vertex display info
-      var startVertexDiv = document.createElement('div');
-      startVertexDiv.id = "startVertexInfo";
-      var startVertexTitle = document.createElement('h2');
-      startVertexTitle.setAttribute("id", "startVertexTitle");
-      startVertexTitle.innerHTML = "Start Vertex";
-      var startVertexId = document.createElement('h3');
-      startVertexId.setAttribute("id", "startVertexId");
-      startVertexDiv.appendChild(startVertexTitle);
-      startVertexDiv.appendChild(startVertexId);
-
-      // Add button group and vertex info to control zone
-      controlZone.appendChild(buttonGroup);
-      controlZone.appendChild(selectedVertexDiv);
-      controlZone.appendChild(startVertexDiv);
-
-      // Create a flex container assisted by ChatGPT
-      var flexContainer = document.createElement("div");
-      flexContainer.style.display = "flex";
-      flexContainer.style.flexWrap = "wrap";
-      flexContainer.style.justifyContent = "center";
-      flexContainer.style.gap = "10px";
-
-      // Add button group and vertex info to control zone
-      flexContainer.appendChild(buttonGroup);
-      flexContainer.appendChild(selectedVertexDiv);
-      flexContainer.appendChild(edgeButtonGroup);
-      flexContainer.appendChild(AddbuttonGroup);
-      flexContainer.appendChild(deleteButtonGroup);
-
-      controlZone.appendChild(flexContainer);
       
       mainElement.appendChild(controlZone);
     });
@@ -521,8 +528,8 @@ public:
     g.AddEdge("ID3", "ID6", 2);
     g.AddEdge("ID3", "ID7", 2);
 
-    InitiateCanvas();
     InitializeControlZone();
+    InitiateCanvas();
     RedrawCanvas();
   }
 
