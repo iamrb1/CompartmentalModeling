@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "GraphFactory.hpp"
 #include "Graph/Graph.hpp"
 #include "Graph/GraphJson.hpp"
 #include "GraphPosition/GraphPosition.hpp"
@@ -561,25 +562,14 @@ private:
 
 public:
   GraphVisualizer() {
-    // Initial values as example
-    g.AddVertex("ID1", "gray", 500, 200);
-    g.AddVertex("ID2", "gray", 400, 300);
-    g.AddVertex("ID3", "gray", 600, 300);
-    g.AddVertex("ID4", "gray", 350, 400);
-    g.AddVertex("ID5", "gray", 450, 400);
-    g.AddVertex("ID6", "gray", 550, 400);
-    g.AddVertex("ID7", "gray", 650, 400);
-
-    g.AddEdge("ID1", "ID2", 2);
-    g.AddEdge("ID1", "ID3", 2);
-    g.AddEdge("ID2", "ID4", 2);
-    g.AddEdge("ID2", "ID5", 2);
-    g.AddEdge("ID3", "ID6", 2);
-    g.AddEdge("ID3", "ID7", 2);
-
+    ChooseSampleGraph(GraphFactory::DefaultGraph);
     InitializeControlZone();
     InitiateCanvas();
     RedrawCanvas();
+  }
+
+  void ChooseSampleGraph(auto func){
+    g = func();
   }
 
   void RandomGraph(int vertices, int edges) {
