@@ -30,7 +30,7 @@ void cse::WordLang::start() {
         
         parse(input);
 
-        std::cout << "You wrote: " << input << std::endl;
+        //std::cout << "You wrote: " << input << std::endl;
     }
 }
 
@@ -520,19 +520,18 @@ void cse::WordLang::parseReset() {
     mTokenManager.Use(); // use keyword "RESET"
 
     auto listname = mTokenManager.Use();
-    if (listname.id != emplex::Lexer::ID_LISTNAME) {
-        // check if we have listname after
-        mErrorManager.printInfo("Incorrect Syntax: Missing listname identifier.");
+    if (listname.id == mTokenManager.eof_token) {
+        // if we don't have any listnames - reset all current listnames
+        mWordListManager.reset();
         return;
     }
 
-    if (mTokenManager.Peek() != mTokenManager.eof_token) {
-        // check if we don't have anything else apart from RESET
-        mErrorManager.printInfo("Incorrect Syntax: Encountered unknown symbols after \"RESET\" token.");
+    if (listname == emplex::Lexer::ID_LISTNAME) {
+        mWordListManager.reset(listname.lexeme);
         return;
     }
 
-    // TODO - call WordListManager to handle RESET
+    mErrorManager.printInfo("Incorrect Syntax: encountered unknown symbols in RESET statement");
 }
 
 void cse::WordLang::parseResetLast() {

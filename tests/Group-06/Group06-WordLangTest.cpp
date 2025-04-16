@@ -32,6 +32,29 @@ TEST_CASE("Fundamental WordLang Tests", "[WordLang]") {
   }
 }
 
+TEST_CASE("Reset command", "[Reset]") {
+  //std::filesystem::path current = std::filesystem::current_path();
+  //std::filesystem::path target = current.parent_path().parent_path() / "Group-06" / "App" / "src";
+  //std::filesystem::current_path(target);
+  std::stringstream buffer;
+  std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
+
+  cse::WordLang wordLang;
+
+  SECTION("Reset with one list") {
+    wordLang.parse("LIST l = LOAD \"100000.txt\n");
+    wordLang.parse("LENGTH = 5\n");
+    buffer.str("");
+    wordLang.parse("RESET\n");
+
+    REQUIRE(buffer.str() == "[Info]: Succesfully reset all current lists to the original state.\n\n\n");
+
+  }
+
+  std::cout.rdbuf(oldCout);
+}
+
+
 TEST_CASE("Length restriction Tests", "[WordLang]") {
   // changing path to text files from "database" folder in "App"
   std::filesystem::path current = std::filesystem::current_path();
@@ -962,7 +985,6 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
 
     std::vector<std::string> input = {
       "reset\n",
-      "RESET\n",
       "RESET \"lsit1\"\n",
       "RESET LOAD\n",
       "RESET list2 \"list3\"\n"
@@ -970,10 +992,9 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       
     std::vector<std::string> output_result = {
       "[Info]: Incorrect Syntax: Check syntax, keyword is not found.\n",
-      "[Info]: Incorrect Syntax: Missing listname identifier.\n",
-      "[Info]: Incorrect Syntax: Missing listname identifier.\n",
-      "[Info]: Incorrect Syntax: Missing listname identifier.\n",
-      "[Info]: Incorrect Syntax: Encountered unknown symbols after \"RESET\" token.\n"
+      "[Info]: Incorrect Syntax: encountered unknown symbols in RESET statement\n",
+      "[Info]: Incorrect Syntax: encountered unknown symbols in RESET statement\n",
+      "[Info]: List list2 does not exist\n"
     };
 
     for (size_t i = 0; i < input.size(); ++i) {

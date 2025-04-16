@@ -252,6 +252,29 @@ bool cse::WordListManager::save(const std::string& fileName, const std::string& 
     FileSource::save_file(fileName, list);
     return true;
 }
+
+void cse::WordListManager::reset(const std::string& listname) {
+    if (listname == "") {
+        mErrorManager.printInfo("Succesfully reset all current lists to the original state.\n");
+        for (const auto& listname : mCurrentLists) {
+            mWordLists[listname] = FileSource::load_file(mFileLists[listname]);
+            std::cout << "  " << listname << ": " << mWordLists[listname].size() << " words\n";
+        }
+        std::cout << "\n";
+        return;
+    }
+
+    if (mWordLists.find(listname) == mWordLists.end()) {
+        mErrorManager.printInfo("List " + listname + " does not exist");
+        return;
+    }
+
+    mWordLists[listname] = FileSource::load_file(mFileLists[listname]);
+    mErrorManager.printInfo("Successfully reset " + listname + " to the original state.\n");
+    std::cout << "  " << listname << ": " << mWordLists[listname].size() << " words\n";
+    
+    
+}
 /**
  * @brief Sets the length restriction for words in the list.
  * @param lengthRestriction The length restriction to set.

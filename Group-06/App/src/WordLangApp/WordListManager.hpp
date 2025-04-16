@@ -71,6 +71,9 @@ public:
     // Get searches based on pattern load found words into current set to print if asked, string pattern to restric return bool
     bool Get(const std::string &patternToCheck);
 
+    // Resets current lists to the original state
+    void reset(const std::string &listName = "");
+
 
     /**
      * @brief Sets the length restriction for words in the list.

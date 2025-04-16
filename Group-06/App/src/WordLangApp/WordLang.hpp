@@ -225,7 +225,16 @@ namespace cse {
         /**
          * @brief Parses RESET
          * 
-         * Resets all filters applied to the list
+         * Parses RESET
+         * 
+         * Resets a list by reading it from the text file
+         * 
+         * Valid commands:
+         * 
+         * RESET - resets all current lists
+         * 
+         * RESET "listname" - resets specified listname
+         * 
          */
         void parseReset();
 
