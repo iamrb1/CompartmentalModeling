@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/examples/SIR.xml</file>
+        <file>resources/icons/arrow-right.svg</file>
+        <file>resources/icons/plus.svg</file>
+    </qresource>
+</RCC>

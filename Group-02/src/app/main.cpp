@@ -8,7 +8,11 @@
 #include <QScreen>
 
 int main(int argc, char *argv[]) {
-  QGuiApplication app(argc, argv);
+  const QGuiApplication app(argc, argv);
+
+  QGuiApplication::setOrganizationName("cseg2");
+  QGuiApplication::setOrganizationDomain("https://github.com/CSE498/CSE498-Spring2025/");
+  QGuiApplication::setApplicationName("Compartmental Modeling Simulator");
 
   QQmlApplicationEngine engine;
   QObject::connect(
@@ -35,5 +39,5 @@ int main(int argc, char *argv[]) {
     root_objects.first()->setProperty("y", y);
   }
 
-  return app.exec();
+  return QGuiApplication::exec();
 }

@@ -6,28 +6,43 @@ set(
     main.cpp
     Compartment.cpp
     Compartment.h
+    Application.cpp
+    Application.h
+    Simulation.cpp
+    Simulation.h
+    Connection.cpp
+    Connection.h
 )
 
 set(
-    MODULE_QML_FILES
+    MAIN_QML_FILES
     Main.qml
 )
 
 set(
     QML_MODULES
     Utilities
+    Components
 )
 
 # Qt6 setup
 find_package(Qt6 REQUIRED COMPONENTS Quick)
 qt_standard_project_setup(REQUIRES 6.8)
+# Add resources
+qt_add_resources(
+    SOURCE_FILES
+    resources.qrc
+)
 # Add the executable target
-qt_add_executable(${EXECUTABLE_NAME} ${SOURCE_FILES} ${QML_FILES})
-# Add QML files
+qt_add_executable(
+    ${EXECUTABLE_NAME}
+    ${SOURCE_FILES}
+)
+# Add Main QML files
 qt_add_qml_module(
     ${EXECUTABLE_NAME}
     URI ${EXECUTABLE_NAME}
-    QML_FILES ${MODULE_QML_FILES}
+    QML_FILES ${MAIN_QML_FILES}
 )
 
 # Set the C++ standard to C++20
@@ -51,10 +66,10 @@ target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${LIBRARY_NAME})
 
 # Link plugins
 foreach (MODULE ${QML_MODULES})
-    message(STATUS "Adding QML module: ${MODULE}")
-    add_subdirectory(${MODULE})
-    target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${MODULE}Libplugin)
-endforeach()
+  message(STATUS "Adding QML module: ${MODULE}")
+  add_subdirectory(${MODULE})
+  target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${MODULE}Libplugin)
+endforeach ()
 
 include(GNUInstallDirs)
 install(
