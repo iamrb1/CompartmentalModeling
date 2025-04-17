@@ -1,3 +1,4 @@
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <limits>
@@ -102,7 +103,6 @@ void BruteForceUnoptimized() {
     optimizer.SetOptimizer(true);
 
     std::pair<double, std::vector<cse::Item>> solutionPair;
-    
 
     double optimizedTime =
         measureTime([&]() { optimizer.FindOptimalSolution(); });
@@ -155,7 +155,6 @@ void BruteForceOptimized() {
 void AdjustWeights() {
   for (auto item : itemList) {
     item.weight = 1.0;
-
   }
 }
 
@@ -178,23 +177,38 @@ cse::ArgManager createArgManager(std::vector<std::string> &args) {
 }
 
 void AdjustRepeats() {
-  //cse::ComboManager<std::vector<cse::Item>> CM(itemList, itemList.size(), true);
-  //cse::BruteForceOptimizer RepeatProblemSolver;
-  //RepeatProblemSolver.SetCapacity(capacity);
+  // cse::ComboManager<std::vector<cse::Item>> CM(itemList, itemList.size(),
+  // true); cse::BruteForceOptimizer RepeatProblemSolver;
+  // RepeatProblemSolver.SetCapacity(capacity);
   std::vector<cse::Item> initItems = itemList;
-  for (auto item : initItems){
-    int maxItemAmount = capacity/item.weight;
-    if (maxItemAmount > 0){
-      //std::cout << maxItemAmount <<std::endl;
+  for (auto item : initItems) {
+    int maxItemAmount = capacity / item.weight;
+    if (maxItemAmount > 0) {
+      // std::cout << maxItemAmount <<std::endl;
       std::vector<cse::Item> extraItems(--maxItemAmount, item);
       itemList.insert(itemList.end(), extraItems.begin(), extraItems.end());
     }
   }
 }
 
- static std::string welcomeMessage = "Welcome to Knapsack Solver.\nThis solver can process any text or CSV file containing items with names, weights, and values and return what the best lection of items are for the space you have.\n When using this solver, here are the options:\nCommand:\nbrute-force <filepath>\n\nWee also have a collection of arguments you can pass alongside that command if you want other results.";
+void PrintTerminal() {
+  std::cout << "\nBellman-Application> ";
+}
+
+static const std::string welcomeMessage =
+    "Welcome to Knapsack Solver.\n"
+    "This solver can process any text or CSV file containing items with names, "
+    "weights, and values and return what the best lection of items are for the "
+    "space you have.\n"
+    "When using this solver, here are the options:\n"
+    "Command:\n"
+    "brute-force <filepath>\n\n"
+    "We also have a collection of arguments you can pass alongside that "
+    "command if you want other results.\n";
 
 int main() {
+  std::cout << welcomeMessage;
+  PrintTerminal();
   cse::CommandLine mainCommand;
   mainCommand.addCommand(
       "brute-force", BruteForceUnoptimized,
@@ -231,6 +245,7 @@ int main() {
       AdjustRepeats();
     }
     mainCommand.executeCommand(arguments[0]);
+    PrintTerminal();
   }
 
   return 0;

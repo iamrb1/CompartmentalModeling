@@ -1,14 +1,22 @@
 OBJS	= main.o
 SOURCE	= main.cpp
 HEADER	= ../Classes/BruteForceOptimizer.hpp ../Classes/ComboManager.hpp 
-OUT	= bellman.out
+ifeq ($(OS),Windows_NT)
+	OUT	= bellman.exe
+else
+	OUT = bellman.out
+endif
+
 FLAGS	= -std=c++23 -g3 -c -Wall -Wextra
 LFLAGS	= 
 CC	= g++
 
-all:	clean	bellman.out
+all:	clean	bellman.exe
 
-bellman.out: $(OBJS)
+run: $(OUT)
+	./$(OUT)
+
+$(OUT): $(OBJS)
 	$(CC) -g $(OBJS) -o $(OUT) $(LFLAGS)
 
 main.o: main.cpp
@@ -17,14 +25,14 @@ main.o: main.cpp
 clean:
 	rm -f $(OBJS) $(OUT)
 
-valgrind: bellman.out
-	valgrind bellman.out
+valgrind: $(OUT)
+	valgrind $(OUT)
 
-valgrind_leakcheck: bellman.out
-	valgrind --leak-check=full bellman.out
+valgrind_leakcheck: $(OUT)
+	valgrind --leak-check=full $(OUT)
 
-valgrind_extreme: bellman.out
-	valgrind --leak-check=full --show-leak-kinds=all --leak-resolution=high --track-origins=yes --vgdb=yes bellman.out
+valgrind_extreme: $(OUT)
+	valgrind --leak-check=full --show-leak-kinds=all --leak-resolution=high --track-origins=yes --vgdb=yes $(OUT)
 
-run: bellman.out
-	./bellman.out
+debug: FLAGS += -DDEBUG
+debug: all
