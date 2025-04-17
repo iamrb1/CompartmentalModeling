@@ -328,6 +328,17 @@ namespace cse {
         // Process the front of the queue
         Vertex<VERTEX_DATA_T> const *current = queue.front();
         queue.pop_front();
+
+        while(!queue.empty() && graphPosition.IsVisited(*current)){
+          // While the current is already visited, ignore
+          current = queue.front();
+          queue.pop_front();
+        }
+        if(queue.empty()){
+          // No more nodes to visit
+          return false;
+        }
+        
         graphPosition.SetCurrentVertex(*current);
         graphPosition.MarkVisited(*current);
 
