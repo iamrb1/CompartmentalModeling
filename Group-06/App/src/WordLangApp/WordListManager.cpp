@@ -13,7 +13,7 @@ bool cse::WordListManager::loadList(const std::string& listName, const std::stri
         return false;
     }
 
-    cse::StringSet<cse::StaticString<20>> set = FileSource::load_file(fileName);
+    cse::StringSet<cse::StaticString<30>> set = FileSource::load_file(fileName);
     if(set.size() == 0) {
         mErrorManager.printInfo("Incorrect Syntax: File can not be loaded.");
         return false;
@@ -74,7 +74,7 @@ bool cse::WordListManager::combine(const std::string &newListName, const std::ve
         mErrorManager.printInfo("Invalid File Name: \"" + newListName + "\" already exists.");
         return false;
     }
-    cse::StringSet<cse::StaticString<20>> result;
+    cse::StringSet<cse::StaticString<30>> result;
 
     for(const auto& list : listsToCombine)
     {
@@ -116,7 +116,7 @@ bool cse::WordListManager::difference(const std::string &newListName, const std:
         mErrorManager.printInfo("Invalid File Name: File \"" + firstList + "\" does not exist.");
         return false;
     }
-    cse::StringSet<cse::StaticString<20>> result = mWordLists[firstList];
+    cse::StringSet<cse::StaticString<30>> result = mWordLists[firstList];
 
     for(std::size_t i = 1; i < listsToDiff.size(); i++)
     {
@@ -159,7 +159,7 @@ bool cse::WordListManager::intersection(const std::string &newListName, const st
         mErrorManager.printInfo("Invalid File Name: File \"" + firstList + "\" does not exist.");
         return false;
     }
-    cse::StringSet<cse::StaticString<20>> result = mWordLists[firstList];
+    cse::StringSet<cse::StaticString<30>> result = mWordLists[firstList];
 
     for(std::size_t i = 1; i < listsToIntersect.size(); i++)
     {
@@ -212,8 +212,8 @@ bool cse::WordListManager::copy(const std::string &newListName, const std::strin
  * @param listName The name of the list to set as current.
  * @return true If the list was set successfully, false otherwise.
  */
-bool cse::WordListManager::setCurrent(cse::StringSet<cse::StaticString<20>> currentSet) { 
-    if (currentSet == cse::StringSet<cse::StaticString<20>>()) {
+bool cse::WordListManager::setCurrent(cse::StringSet<cse::StaticString<30>> currentSet) { 
+    if (currentSet == cse::StringSet<cse::StaticString<30>>()) {
         return false;
     }
     mCurrentSet = currentSet;
@@ -413,7 +413,7 @@ bool cse::WordListManager::wordle(const std::string& word, const std::string& re
 
     // Create a result set that where green mark is in the same index for all words and words doesn't contain black
     // marked letters, also, yellow marked letters are not in the wrong indexes.
-    cse::StringSet<cse::StaticString<20>> possibleOptions;
+    cse::StringSet<cse::StaticString<30>> possibleOptions;
     
     for (auto word : mCurrentSet) {
         bool valid = false;

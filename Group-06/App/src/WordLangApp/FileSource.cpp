@@ -3,20 +3,20 @@
 #include <fstream>
 
 namespace FileSource {
-    cse::StringSet<cse::StaticString<20>> load_file(const std::string& filename) {
+    cse::StringSet<cse::StaticString<30>> load_file(const std::string& filename) {
         std::ifstream file("../database/" + filename);
-        cse::StringSet<cse::StaticString<20>> set;
+        cse::StringSet<cse::StaticString<30>> set;
         std::string line;
     
         while (std::getline(file, line)) {
-            cse::StaticString<20> word = line;
+            cse::StaticString<30> word = line;
             set.insert(word);
         }
     
         return set;
     }
 
-    bool save_file(const std::string& filename, cse::StringSet<cse::StaticString<20>> set) {
+    bool save_file(const std::string& filename, cse::StringSet<cse::StaticString<30>> set) {
         std::ofstream file("../database/" + filename);
         for (const auto& word : set) {
             file << word << "\n";

@@ -17,7 +17,7 @@ namespace FileSource {
      * @param filename Name of a file to load words from
      * @return cse::StringSet set of words loaded from a file
      */
-    cse::StringSet<cse::StaticString<20>> load_file(const std::string& filename);
+    cse::StringSet<cse::StaticString<30>> load_file(const std::string& filename);
 
     /**
      * @brief Saves words into a file from a list
@@ -25,7 +25,7 @@ namespace FileSource {
      * @param filename Filename the set will be saved into
      * @param set The set that will be saved
      */
-    bool save_file(const std::string& filename, cse::StringSet<cse::StaticString<20>> set);
+    bool save_file(const std::string& filename, cse::StringSet<cse::StaticString<30>> set);
 };
 
 #endif // CSE_FILE_SOURCE_HPP

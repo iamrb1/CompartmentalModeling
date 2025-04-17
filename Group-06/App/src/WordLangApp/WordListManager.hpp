@@ -51,7 +51,7 @@ public:
      * @param listName The name of the list to set as current.
      * @return true If the list was set successfully false otherwise.
      */
-    bool setCurrent(cse::StringSet<cse::StaticString<20>> currentSet = cse::StringSet<cse::StaticString<20>>());
+    bool setCurrent(cse::StringSet<cse::StaticString<30>> currentSet = cse::StringSet<cse::StaticString<30>>());
 
     // Add adds the words to the set, listname, space-separated words to add returns bool
     bool add(const std::string& listName, const std::string& wordsToAdd);
@@ -97,7 +97,7 @@ public:
 
 private:
     // A map of StringSet represents different files
-    std::unordered_map<std::string, cse::StringSet<cse::StaticString<20>>> mWordLists;
+    std::unordered_map<std::string, cse::StringSet<cse::StaticString<30>>> mWordLists;
 
     // A map that represents listname(key) and its according filename(value)
     std::unordered_map<std::string, std::string> mFileLists;
@@ -106,7 +106,7 @@ private:
     std::vector<std::string> mCurrentLists;
 
     // A StringSet represents current Get command
-    cse::StringSet<cse::StaticString<20>> mCurrentSet;
+    cse::StringSet<cse::StaticString<30>> mCurrentSet;
 
     // Length restriction 
     int mlengthRestriction;
