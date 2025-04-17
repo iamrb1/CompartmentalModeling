@@ -170,6 +170,11 @@ ApplicationWindow {
         }
 
         // --- Sidebar ---
+        Sidebar {
+
+        }
+
+
     }
 
     // === File Dialogs ===

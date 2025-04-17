@@ -7,6 +7,7 @@ set (
     MODULE_QML_FILES
     Compartment.qml
     Connection.qml
+    Sidebar.qml
 )
 
 set (
