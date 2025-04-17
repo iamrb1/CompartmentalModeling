@@ -97,19 +97,30 @@ void update()
         // remove from its sector
         gSurface->remove_circle(victim);
     }
-//    else if (action == "add" && victim) {
-//        // clone parameters
-//        double x = victim->getX();
-//        double y = victim->getY();
-//        double r = victim->getRadius();
-//        double bs = victim->getBaseSpeed();
-//        double sp = victim->getSpeed();
-//        auto t = victim->getCircleType();
-//
-//        auto baby = std::make_shared<Circle>(x, y, r, bs, sp, t);
-//        gCircles.push_back(baby);
-//        gSurface->add_circle(baby);
-//    }
+    else if (action == "add" && victim) {
+        static Uint32 lastAddTime = 0;
+        static const Uint32 addCooldown = 1000;
+        // Only add if the type is blue
+        if (victim->getCircleType() == "blue") {
+            Uint32 currentTime = SDL_GetTicks();
+            if (currentTime - lastAddTime >= addCooldown) {
+                // clone parameters
+                double x  = victim->getX();
+                double y  = victim->getY();
+                double r  = victim->getRadius();
+                double bs = victim->getBaseSpeed();
+                double sp = victim->getSpeed();
+                auto t    = victim->getCircleType();
+    
+                auto baby = std::make_shared<Circle>(x, y, r, bs, sp, t);
+                gCircles.push_back(baby);
+                gSurface->add_circle(baby);
+    
+                lastAddTime = currentTime; // update the timer
+            }
+        }
+    }
+    
     // else "nothing" → do nothing
 }
 
