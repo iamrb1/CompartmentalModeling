@@ -2,6 +2,7 @@
 #include "SerializerHTML.hpp"
 #include "SerializerMarkdown.hpp"
 #include "SerializerRTF.hpp"
+#include "SerializerLaTeX.hpp"
 #include "catch.hpp"
 
 TEST_CASE("Basic serialization", "[RichTextSerialize]") {
@@ -113,4 +114,82 @@ TEST_CASE("Default Markdown serializer", "[RichTextSerialize]") {
   REQUIRE(output ==
           std::wstring(L"Click [here](https://cse498.github.io/schedule.html) "
                        L"to see the schedule."));
+}
+
+
+// ────────────────────────────────────────────────────────────────────────────
+// ADVANCED TESTS FOR LaTeX Serializer
+// ────────────────────────────────────────────────────────────────────────────
+
+static const std::string latex_header = R"(\documentclass{article}
+\usepackage{hyperref}
+\usepackage[normalem]{ulem}
+\begin{document}
+)";
+static const std::string latex_footer = R"(
+\end{document}
+)";
+
+TEST_CASE("LaTeX italic formatting", "[RichTextSerialize][LaTeX]") {
+    auto serializer = cse::SerializerLaTeX<char>();
+    cse::RichText text{"italic"};
+    // apply italic to entire word
+    text.apply_format(cse::TextFormat("italic", std::monostate()), 0, 6);
+
+    std::string output = text.serialize(serializer).output;
+    std::string expected = latex_header
+                         + std::string("\\textit{italic}")
+                         + latex_footer;
+    REQUIRE(output == expected);
+}
+
+TEST_CASE("LaTeX strikethrough formatting", "[RichTextSerialize][LaTeX]") {
+    auto serializer = cse::SerializerLaTeX<char>();
+    cse::RichText text{"strike"};
+    // apply strikethrough across all
+    text.apply_format(cse::TextFormat("strikethrough", std::monostate()), 0, 6);
+
+    std::string output = text.serialize(serializer).output;
+    std::string expected = latex_header
+                         + std::string("\\sout{strike}")
+                         + latex_footer;
+    REQUIRE(output == expected);
+}
+
+TEST_CASE("LaTeX link formatting", "[RichTextSerialize][LaTeX]") {
+    auto serializer = cse::SerializerLaTeX<char>();
+    cse::RichText text{"link text"};
+    // apply link to "link"
+    text.apply_format(cse::TextFormat("link", std::string("http://ex.com")), 0, 4);
+
+    std::string output = text.serialize(serializer).output;
+    // \href{url}{link} plus the trailing " text"
+    std::string expected = latex_header
+                         + std::string("\\href{http://ex.com}{link} text")
+                         + latex_footer;
+    REQUIRE(output == expected);
+}
+
+TEST_CASE("LaTeX header formatting levels", "[RichTextSerialize][LaTeX]") {
+    auto serializer = cse::SerializerLaTeX<char>();
+    cse::RichText text{"Heading\n"};
+    // level 1 => \section{…}\n
+    text.apply_format(cse::TextFormat("header", int32_t(1)), 0, 7);
+
+    std::string output = text.serialize(serializer).output;
+    // After header token, the remaining "\n" in text yields a blank line
+    std::string expected = latex_header
+                         + std::string("\\section{Heading}\n\n")
+                         + latex_footer;
+    REQUIRE(output == expected);
+
+    // Now test level 2 => \subsection{…}\n
+    text = cse::RichText{"Subheading\n"};
+    text.apply_format(cse::TextFormat("header", int32_t(2)), 0, 10);
+
+    output = text.serialize(serializer).output;
+    expected = latex_header
+             + std::string("\\subsection{Subheading}\n\n")
+             + latex_footer;
+    REQUIRE(output == expected);
 }

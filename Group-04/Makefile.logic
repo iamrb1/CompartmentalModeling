@@ -10,7 +10,11 @@ BUILD_FILE_TYPE = .js
 HEADS = $(shell find $(LIB_DIR) $(BIN_DIR) -name '*.hpp' -o -name '*.h')
 
 CXX = em++
-CXX_FLAGS_all ?= -std=c++23 -Wextra -Wall -I$(BIN_DIR) -I$(LIB_DIR) --bind -sMODULARIZE=1 -sEXPORT_NAME=Module
+CXX_FLAGS_all ?= -std=c++23 -Wextra -Wall \
+    -I$(BIN_DIR) \
+    -I$(BIN_DIR)/web \
+    -I$(LIB_DIR) \
+    --bind -sMODULARIZE=1 -sEXPORT_NAME=Module
 CXX_FLAGS_release = -O2 -DNDEBUG $(CXX_FLAGS_all)
 CXX_FLAGS_debug = -ggdb $(CXX_FLAGS_all)
 
