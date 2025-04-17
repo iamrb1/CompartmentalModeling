@@ -25,3 +25,6 @@ valgrind_leakcheck: bellman.out
 
 valgrind_extreme: bellman.out
 	valgrind --leak-check=full --show-leak-kinds=all --leak-resolution=high --track-origins=yes --vgdb=yes bellman.out
+
+run: bellman.out
+	./bellman.out
