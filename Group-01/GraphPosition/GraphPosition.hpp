@@ -334,11 +334,7 @@ namespace cse {
           current = queue.front();
           queue.pop_front();
         }
-        if(queue.empty()){
-          // No more nodes to visit
-          return false;
-        }
-        
+
         graphPosition.SetCurrentVertex(*current);
         graphPosition.MarkVisited(*current);
 
