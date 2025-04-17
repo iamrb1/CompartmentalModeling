@@ -174,14 +174,37 @@ void createDemoCircles()
 // ---------------------------------------------------------------------------
 void update()
 {
-    /* ... identical to previous version ... */
-    for (auto& c : gCircles) {
-        if (!c) continue;
-        int dx = (rand()%3) - 1;
-        int dy = (rand()%3) - 1;
-        double nx = std::clamp(c->getX()+dx*c->getSpeed(), 0.0, WINDOW_WIDTH  - c->getRadius());
-        double ny = std::clamp(c->getY()+dy*c->getSpeed(), 0.0, WINDOW_HEIGHT - c->getRadius());
-        gSurface->move_circle(c, nx, ny);
+    // Circle types
+    double cType1 = 0.0;
+    double cType2 = 0.0;
+
+    // 1) Move every circle
+    for (auto& circle : gCircles) {
+        if (!circle) continue;
+
+
+        // pick a random direction delta ∈ { -1,0,+1 }
+        double dirX = (rand() % 3) - 1;
+        double dirY = (rand() % 3) - 1;
+
+        // compute new position in double precision
+        double newX = circle->getX() + dirX * circle->getSpeed();
+        double newY = circle->getY() + dirY * circle->getSpeed();
+
+        // clamp to window
+        newX = std::clamp(newX, 0.0, WINDOW_WIDTH  - circle->getRadius());
+        newY = std::clamp(newY, 0.0, WINDOW_HEIGHT - circle->getRadius());
+
+        // now actually move it in the Surface (takes doubles)
+        gSurface->move_circle(circle, newX, newY);
+
+        // update circle type counter
+        if (circle->getCircleType() == "red") {
+            cType1 += 1;
+        }
+        if (circle->getCircleType() == "blue") {
+            cType2 += 1;
+        }
     }
     gSurface->update();
 
@@ -199,6 +222,26 @@ void update()
             gSurface->add_circle(b);
             last = SDL_GetTicks();
         }
+    }
+    
+    // else "nothing" → do nothing
+    // @TODO this is very basic and can be updated later
+    // End game if conditions are met
+    double cWinThreshold = 0.8;
+    double cPercentage1 = cType1 / (cType1 + cType2);
+    double cPercentage2 = cType2 / (cType1 + cType2);
+
+    // std::cout << "Red #: " << cType1 << "; Blue #: " << cType2 << std::endl;
+    // std::cout << "Red %: " << cPercentage1 << "; Blue %: " << cPercentage2 << std::endl;
+
+    if (cPercentage1 >= cWinThreshold) {
+        std::cout << "Winner: Red" << std::endl;
+        isRunning = false;
+    }
+
+    if (cPercentage2 >= cWinThreshold) {
+        std::cout << "Winner: Blue" << std::endl;
+        isRunning = false;
     }
 }
 
