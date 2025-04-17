@@ -474,7 +474,59 @@ private:
       // Generation controls
       var generationGroup = document.createElement("div");
       generationGroup.classList.add("button-group");
+      
+      // Sample Graph Selection
+      var sampleGraphSelect = document.createElement('select');
+      sampleGraphSelect.id = "sampleGraphSelect";
+      
+      var defaultOption = document.createElement('option');
+      defaultOption.value = "DefaultGraph";
+      defaultOption.textContent = "Default Tree";
+      
+      var cycleOption = document.createElement('option');
+      cycleOption.value = "CycleGraph";
+      cycleOption.textContent = "Cycle Graph";
+      
+      var completeOption = document.createElement('option');
+      completeOption.value = "CompleteGraph";
+      completeOption.textContent = "Complete Graph";
+      
+      var binaryOption = document.createElement('option');
+      binaryOption.value = "BinaryTree";
+      binaryOption.textContent = "Binary Tree";
+      
+      var butterflyOption = document.createElement('option');
+      butterflyOption.value = "ButterflyGraph";
+      butterflyOption.textContent = "Butterfly Graph";
+      
+      var gridOption = document.createElement('option');
+      gridOption.value = "GridGraph";
+      gridOption.textContent = "Grid Graph";
+      
+      sampleGraphSelect.appendChild(defaultOption);
+      sampleGraphSelect.appendChild(cycleOption);
+      sampleGraphSelect.appendChild(completeOption);
+      sampleGraphSelect.appendChild(binaryOption);
+      sampleGraphSelect.appendChild(butterflyOption);
+      sampleGraphSelect.appendChild(gridOption);
+      
+      var useSampleButton = document.createElement('button');
+      useSampleButton.textContent = "Use Sample Graph";
+      useSampleButton.addEventListener('click', function() {
+        var selected = document.getElementById("sampleGraphSelect").value;
+        switch(selected) {
+          case "DefaultGraph": Module._chooseSampleGraph(0); break;
+          case "CycleGraph": Module._chooseSampleGraph(1); break;
+          case "CompleteGraph": Module._chooseSampleGraph(2); break;
+          case "BinaryTree": Module._chooseSampleGraph(3); break;
+          case "ButterflyGraph": Module._chooseSampleGraph(4); break;
+          case "GridGraph": Module._chooseSampleGraph(5); break;
+        }
+      });
 
+      generationGroup.appendChild(sampleGraphSelect);
+      generationGroup.appendChild(useSampleButton);
+      
       var clearButton = document.createElement('button');
       clearButton.textContent = "Clear Graph";
       clearButton.addEventListener('click', function() { Module._clearCanvas(); });
@@ -596,11 +648,11 @@ public:
     // Initialize canvas and sample graph
     InitiateCanvas();
     ChooseSampleGraph(GraphFactory::DefaultGraph);
-    RedrawCanvas();
   }
 
   void ChooseSampleGraph(auto func){
     g = func();
+    RedrawCanvas();
   }
 
   void RandomGraph(int vertices, int edges) {
@@ -900,6 +952,17 @@ char *exportGraph() {
 
 bool importGraph(const char *jsonStr) {
   return init.ImportGraph(jsonStr);
+}
+
+void chooseSampleGraph(int type) {
+  switch(type) {
+    case 0: init.ChooseSampleGraph(GraphFactory::DefaultGraph); break;
+    case 1: init.ChooseSampleGraph(GraphFactory::CycleGraph); break;
+    case 2: init.ChooseSampleGraph(GraphFactory::CompleteGraph); break;
+    case 3: init.ChooseSampleGraph(GraphFactory::BinaryTree); break;
+    case 4: init.ChooseSampleGraph(GraphFactory::ButterflyGraph); break;
+    case 5: init.ChooseSampleGraph(GraphFactory::GridGraph); break;
+  }
 }
 }
 
