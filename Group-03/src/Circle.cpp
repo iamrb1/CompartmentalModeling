@@ -121,8 +121,8 @@ void Circle::setCharacteristic(const std::string& characteristic) {
 
 void Circle::move(double width, double height) {
     // Update position
-    x_ += dx_;
-    y_ += dy_;
+    x_ += dx_ * speed_;
+    y_ += dy_ * speed_;
 
     // Bounce off left/right walls
     if (x_ - radius_ < 0) {
@@ -178,12 +178,10 @@ void Circle::regenEnergy(int energy) {
 
 // Updates the speed of the circle based on energy and speed boost
 void Circle::updateSpeed() {
-    if (!regen_) {
-        double speedFactor = energy_ / 100.0; // Makes percentage of energy left
-        speed_ = baseSpeed_ * speedFactor;
-    }
     if (speedBoost_) {
-        speed_ = speed_ * speedBoost;
+        speed_ = baseSpeed_ * (energy_ / 100.0) * speedBoost;
+    } else {
+        speed_ = baseSpeed_ * (energy_ / 100.0);
     }
 }
 
