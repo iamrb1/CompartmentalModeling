@@ -76,7 +76,6 @@ TEST_CASE("Length restriction Tests", "[WordLang]") {
   std::cout.rdbuf(oldCout);
 
 }
-/*
 
 TEST_CASE("WordLang Tests", "[WordLang]") {
 
@@ -379,7 +378,7 @@ TEST_CASE("Wordle Command Tests", "[WordLang]") {
     CHECK(actualOutput == expected);
   }
 }
-*/
+
 
 TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
 
@@ -1104,4 +1103,82 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
         CHECK(actualOutput == expected);
     }
   };  
+}
+TEST_CASE("setLengthRestriction Tests", "[WordListManager]") {
+  cse::ErrorManager errorManager;
+  cse::WordListManager manager(errorManager);
+
+  SECTION("Valid length restriction") {
+      REQUIRE(manager.setLengthRestriction("5") == true);
+  }
+
+  SECTION("Invalid length restriction (negative number)") {
+      REQUIRE(manager.setLengthRestriction("-1") == false);
+  }
+
+  SECTION("Invalid length restriction (non-numeric)") {
+      REQUIRE(manager.setLengthRestriction("abc") == false);
+  }
+
+  SECTION("Wildcard length restriction") {
+      REQUIRE(manager.setLengthRestriction("*") == true);
+  }
+}
+
+TEST_CASE("setCurrent Tests", "[WordListManager]") {
+  /* Currently commented out as the load list function which is required for this test isn't finished yet
+  cse::ErrorManager errorManager;
+  cse::WordListManager manager(errorManager);
+
+  manager.loadList("list1", "file1.txt");
+  manager.loadList("list2", "file2.txt");
+
+  SECTION("Set current with valid lists") {
+      REQUIRE(manager.setCurrent({"list1", "list2"}) == true);
+  }
+
+  SECTION("Set current with non-existent list") {
+      REQUIRE(manager.setCurrent({"list1", "nonexistent"}) == false);
+  }
+
+  SECTION("Set current with empty list") {
+      REQUIRE(manager.setCurrent({}) == true);
+  }*/
+}
+
+TEST_CASE("save Tests", "[WordListManager]") {
+  /* Currently commented out as the load list function which is required for this test isn't finished yet
+  cse::ErrorManager errorManager;
+  cse::WordListManager manager(errorManager);
+
+  manager.loadList("list1", "file1.txt");
+
+  SECTION("Save existing list to a file") {
+      REQUIRE(manager.save("output.txt", "list1") == true);
+  }
+
+  SECTION("Save non-existent list to a file") {
+      REQUIRE(manager.save("output.txt", "nonexistent") == false);
+  }*/ 
+}
+
+TEST_CASE("add Tests", "[WordListManager]") {
+  /* Currently commented out as the load list function which is required for this test isn't finished yet
+  cse::ErrorManager errorManager;
+  cse::WordListManager manager(errorManager);
+
+  manager.loadList("list1", "file1.txt");
+
+  SECTION("Add words to an existing list") {
+      REQUIRE(manager.add("list1", "word1 word2 word3") == true);
+  }
+
+  SECTION("Add words to a non-existent list") {
+      REQUIRE(manager.add("nonexistent", "word1 word2 word3") == false);
+  }
+
+  SECTION("Add empty words to an existing list") {
+      REQUIRE(manager.add("list1", "") == true);
+  }
+      */
 }

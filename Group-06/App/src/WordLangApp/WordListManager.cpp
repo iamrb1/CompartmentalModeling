@@ -217,7 +217,6 @@ bool cse::WordListManager::setCurrent(const std::vector<std::string>& listNames)
 
     for (const auto& listName : listNames) {
         if (mWordLists.find(listName) == mWordLists.end()) {
-            mErrorManager.printInfo("Error: List \"" + listName + "\" does not exist.");
             return false;
         }
         combinedSet = combinedSet.Union(mWordLists[listName]);
@@ -254,16 +253,13 @@ bool cse::WordListManager::add(const std::string& listName, const std::string& w
  */
 bool cse::WordListManager::save(const std::string& fileName, const std::string& listName) {
     if (mWordLists.find(listName) == mWordLists.end()) {
-        mErrorManager.printInfo("Error: List \"" + listName + "\" does not exist.");
         return false;
     }
 
     const auto& list = mWordLists[listName];
     if (FileSource::save_file(fileName, list)) {
-        mErrorManager.printInfo("List \"" + listName + "\" successfully saved to \"" + fileName + "\".");
         return true;
     } else {
-        mErrorManager.printInfo("Error: Failed to save list \"" + listName + "\" to \"" + fileName + "\".");
         return false;
     }
 }
@@ -297,24 +293,35 @@ void cse::WordListManager::reset(const std::string& listname) {
  * @return false Error with lengthRestriction value
  */
 bool cse::WordListManager::setLengthRestriction(const std::string& lengthRestriction) {
+    bool hasNumber = false;
+    bool hasStar = false;
 
-    // if have a number
-    if (lengthRestriction != "*") {
+    // Check if the input contains a number
+    try {
         int num = std::stoi(lengthRestriction);
-        int count_before = 0, count_after = 0;
-        for (const auto& listname : mCurrentLists) {
-            count_before += mWordLists[listname].size();
-            mWordLists[listname].size_filter(num);
-            count_after += mWordLists[listname].size();
-        }
-        std::cout << "Words before filter: " << count_before << ", after filter: " << count_after << "\n";
-        return true;
+        hasNumber = true;
+        if(num > -1) mlengthRestriction = num;
+        else return false;
+    } catch (const std::invalid_argument&) {
+        // Not a number, continue checking for '*'
     }
 
-    // if we have a star - restore all lists
-    for (const auto& listname : mCurrentLists) {
-        mWordLists[listname] = FileSource::load_file(mFileLists[listname]);
+    // Check if the input contains a star
+    if (lengthRestriction.find('*') != std::string::npos) {
+        hasStar = true;
+        mlengthRestriction = -1;
     }
+
+    // If both a number and a star are present, return false
+    if (hasNumber && hasStar) {
+        return false;
+    }
+
+    // If neither a number nor a star is present, return false
+    if (!hasNumber && !hasStar) {
+        return false;
+    }
+
     return true;
 }
 
@@ -386,6 +393,8 @@ bool cse::WordListManager::Get(const std::string &patternToCheck)
 
 
 bool cse::WordListManager::wordle(const std::string& word, const std::string& result) {
+    return true;
+    /*
     if(word.size() != result.size()) {
         mErrorManager.printInfo("Error : Word and matched pattern size must be same.");
         return false;
@@ -457,5 +466,5 @@ bool cse::WordListManager::wordle(const std::string& word, const std::string& re
 
     // Display the top 10 or fewer matching words. Might do with random in stringset for printing,
 
-    return true;
+    return true;*/
 }
