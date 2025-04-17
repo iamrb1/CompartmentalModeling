@@ -30,8 +30,10 @@ private:
           
           var dX = $2 - $0;
           var dY = $3 - $1;
-          var startX = $0 + dX * $7;
-          var startY = $1 + dY * $7;
+          var arrowSize = Math.sqrt(dX * dX + dY * dY);
+          var arrowDelta = 1 - ($8/2/arrowSize);
+          var startX = $0 + dX * arrowDelta;
+          var startY = $1 + dY * arrowDelta;
 
           // Calculate arrow angles
           var angle = Math.atan2(dY, dX);
@@ -50,7 +52,7 @@ private:
           ctx.closePath();
           ctx.fill();
         },
-        x1, y1, x2, y2, color, ARROW_SIZE, ARROW_ANGLE, ARROW_DELTA);
+        x1, y1, x2, y2, color, ARROW_SIZE, ARROW_ANGLE, ARROW_DELTA, VERTEX_RADIUS);
   }
 
 public:
