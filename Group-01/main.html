@@ -6,115 +6,149 @@
     <title>Emscripten-Generated Code</title>
   </head>
   <style>
+    body {
+      background-color: #f0f2f5;
+      height: 100vh;
+      overflow: hidden;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
     #main {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 40px;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background-color: #f8f9fa;
+      gap: 24px;
+      height: 100vh;
+      padding: 24px;
+      box-sizing: border-box;
     }
 
     canvas {
-      width: 500px;
-      height: 500px;
-      border-radius: 12px;
-      margin-bottom: 30px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: auto;
+      height: calc(100vh - 48px);
+      aspect-ratio: 1;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      background-color: #1a1a1a;
+      transition: transform 0.2s;
     }
 
     .control-zone {
+      width: 40%;
       display: flex;
-      gap: 30px;
-      width: 500px;
-      padding: 20px;
+      flex-direction: column;
+      gap: 20px;
       background-color: white;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      overflow-y: auto;
+      max-height: calc(100vh - 48px);
+    }
+
+    .control-section-container {
+      background-color: #f8f9fa;
       border-radius: 12px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      padding: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .control-section-container h2 {
+      color: #1a1a1a;
+      font-size: 1.2rem;
+      margin: 0 0 16px 0;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e9ecef;
+    }
+
+    .control-section-container h3, h4 {
+      color: #1a1a1a;
+      font-size: 0.8rem;
+      margin: 0 0 3px 0;
+      padding-bottom: 12px;
+    }
+
+    .control-section {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
     }
 
     .button-group {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      min-width: 150px;
+      flex: 1;
+      min-width: 240px;
+      gap: 10px;
+      background-color: white;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      border: 1px solid #e9ecef;
+    }
+
+    input, select {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 8px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #4361ee;
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+    }
+
+    select {
+      background-color: white;
+      cursor: pointer;
+    }
+
+    label {
+      color: #495057;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      display: inline-block;
     }
 
     button {
-      padding: 10px 20px;
+      width: 100%;
+      padding: 12px 20px;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       background-color: #4361ee;
       color: white;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      font-size: 14px;
       font-weight: 500;
+      font-size: 14px;
+      transition: all 0.2s;
       box-shadow: 0 2px 4px rgba(67, 97, 238, 0.2);
     }
 
     button:hover {
       background-color: #3046c1;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 8px rgba(67, 97, 238, 0.3);
     }
 
-    #selectedVertexContainer {
-      flex: 1;
-      padding: 20px 25px;
-      background-color: #f8f9fa;
-      border-radius: 8px;
-      border: 1px solid #e9ecef;
-      min-height: 150px;
-      max-width: 300px;
+    #selectedVertexContainer, #startVertexInfo {
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      min-height: 160px;
+      flex:1;
+      display: flex;
+      flex-direction: column;
     }
 
-    #startVertexInfo {
-      flex: 1;
-      padding: 20px 25px;
-      background-color: #f8f9fa;
-      border-radius: 8px;
-      border: 1px solid #e9ecef;
-      min-height: 150px;
-      max-width: 300px;
+    #selectedCheckboxContainer {
+      display: flex;
     }
 
-    #startVertexTitle {
-      margin: 0 0 15px 0;
-      font-size: 1.1em;
-      color: #212529;
-      font-weight: 600;
-    }
-
-    #startVertexId {
-      margin: 10px 0;
-      color: #495057;
-      font-size: 1em;
-    }
-
-    #stepTraversalButton, #startTraversalButton {
-      background-color: #3f3f3f;
-    }
-
-    #selectedVertexTitle {
-      margin: 0 0 15px 0;
-      font-size: 1.1em;
-      color: #212529;
-      font-weight: 600;
-    }
-
-    #selectedVertexId {
-      margin: 10px 0;
-      color: #495057;
-      font-size: 1em;
-    }
-
-    #selectedVertexX, #selectedVertexY {
-      margin: 8px 0;
-      color: #6c757d;
-      font-size: 0.9em;
+    #selectStartToggle {
+      width: auto;
+      margin-right: 8px;
     }
   </style>
   <body>

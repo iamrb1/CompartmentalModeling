@@ -7,22 +7,60 @@
 #include <unordered_map>
 #include <vector>
 
+#include "GraphFactory.hpp"
 #include "Graph/Graph.hpp"
 #include "Graph/GraphJson.hpp"
 #include "GraphPosition/GraphPosition.hpp"
 #include "Random/Random.hpp"
 
-const int VERTEX_RADIUS = 10;
-const int CANVAS_WIDTH = 1000;
-const int CANVAS_HEIGHT = 1000;
+const int VERTEX_RADIUS = 15;
+const int CANVAS_WIDTH = 2000;
+const int CANVAS_HEIGHT = 2000;
+const double ARROW_SIZE = 25;  // Size of arrow head
+const double ARROW_ANGLE = 0.5;  // Angle in radians (roughly 30 degrees)
+const double ARROW_DELTA = 0.92;
 
 class Shape {
-public:
-  static void drawLine(int x1, int y1, int x2, int y2, const char *color, int thickness = 2) {
+private:
+  static void drawArrowHead(int x1, int y1, int x2, int y2, const char* color) {
     EM_ASM_(
         {
-          var canvas = document.getElementById('canvas');
-          var ctx = canvas.getContext('2d');
+          var ctx = document.getElementById('canvas').getContext('2d');
+          ctx.fillStyle = UTF8ToString($4);
+          
+          var dX = $2 - $0;
+          var dY = $3 - $1;
+          var arrowSize = Math.sqrt(dX * dX + dY * dY);
+          var arrowDelta = 1 - ($8/2/arrowSize);
+          var startX = $0 + dX * arrowDelta;
+          var startY = $1 + dY * arrowDelta;
+
+          // Calculate arrow angles
+          var angle = Math.atan2(dY, dX);
+          
+          // Calculate arrow points
+          ctx.beginPath();
+          ctx.moveTo(startX, startY);  // Tip of the arrow
+          ctx.lineTo(
+              startX - $5 * Math.cos(angle - $6),
+              startY - $5 * Math.sin(angle - $6)
+          );
+          ctx.lineTo(
+              startX - $5 * Math.cos(angle + $6),
+              startY - $5 * Math.sin(angle + $6)
+          );
+          ctx.closePath();
+          ctx.fill();
+        },
+        x1, y1, x2, y2, color, ARROW_SIZE, ARROW_ANGLE, ARROW_DELTA, VERTEX_RADIUS);
+  }
+
+public:
+  static void drawLine(int x1, int y1, int x2, int y2, const char* color, int thickness = 2) {
+    // Draw the main line
+    EM_ASM_(
+        {
+          var ctx = document.getElementById('canvas').getContext('2d');
           ctx.strokeStyle = UTF8ToString($4);
           ctx.lineWidth = $5;
           ctx.beginPath();
@@ -31,6 +69,9 @@ public:
           ctx.stroke();
         },
         x1, y1, x2, y2, color, thickness);
+    
+    // Add arrow at the end
+    drawArrowHead(x1, y1, x2, y2, color);
   }
 
   static void drawCircle(int x, int y, int radius, const char *color) {
@@ -162,342 +203,434 @@ private:
     });
   }
 
+  void CreateSelectedVertexSection() {
+    EM_ASM_(
+        {
+        /** Selected vertex group */
+        var selectedVertexDiv = document.createElement('div');
+        selectedVertexDiv.setAttribute("id", "selectedVertexContainer");
+        var selectedVertexTitle = document.createElement('h2');
+        selectedVertexTitle.setAttribute("id", "selectedVertexTitle");
+        var selectedVertexId = document.createElement('h3');
+        selectedVertexId.setAttribute("id", "selectedVertexId");
+        var selectedVertexX = document.createElement('h3');
+        selectedVertexX.setAttribute("id", "selectedVertexX");
+        var selectedVertexY = document.createElement('h3');
+        selectedVertexY.setAttribute("id", "selectedVertexY");
+
+        selectedVertexDiv.appendChild(selectedVertexTitle);
+        selectedVertexDiv.appendChild(selectedVertexId);
+        selectedVertexDiv.appendChild(selectedVertexX);
+        selectedVertexDiv.appendChild(selectedVertexY);
+
+        selectedVertexTitle.innerHTML = "No Selected Vertex";
+
+        // Start traversal vertex display info
+        var startVertexDiv = document.createElement('div');
+        startVertexDiv.id = "startVertexInfo";
+        var startVertexTitle = document.createElement('h2');
+        startVertexTitle.setAttribute("id", "startVertexTitle");
+        startVertexTitle.innerHTML = "Start Vertex";
+        var startVertexId = document.createElement('h3');
+        startVertexId.setAttribute("id", "startVertexId");
+        startVertexDiv.appendChild(startVertexTitle);
+        startVertexDiv.appendChild(startVertexId);
+
+        
+        var selectedOptionsDiv = document.createElement('div');
+        selectedOptionsDiv.classList.add("control-section");
+        
+        var selectedOptionsDivContainer = document.createElement('div');
+        selectedOptionsDivContainer.classList.add("control-section-container");
+        /** HEADER */
+        var selectedVertexGroupHeader = document.createElement('h2');
+        selectedVertexGroupHeader.setAttribute("id", "selectedVertexGroupHeader");
+        selectedVertexGroupHeader.innerHTML = "Currently Selected Information";
+
+        selectedOptionsDiv.appendChild(selectedVertexDiv);
+        selectedOptionsDiv.appendChild(startVertexDiv);
+        selectedOptionsDivContainer.appendChild(selectedVertexGroupHeader);
+        selectedOptionsDivContainer.appendChild(selectedOptionsDiv);
+
+        window.selectedVertices = selectedOptionsDivContainer;
+      /** END -- Selected vertex group */
+        });
+  }
+
+  void CreateTraversalSection() {
+    EM_ASM({
+      var container = document.createElement('div');
+      container.classList.add("control-section-container");
+      
+      var header = document.createElement('h2');
+      header.id = "traversalSectionContainerHeader";
+      header.innerHTML = "Traversal Options";
+      
+      var optionsDiv = document.createElement("div");
+      optionsDiv.classList.add("control-section");
+      
+      // Create mode selection group
+      var modeGroup = document.createElement("div");
+      modeGroup.classList.add("button-group");
+      
+      var traversalSelect = document.createElement('select');
+      traversalSelect.setAttribute("id", "traversalMode");
+      
+      // Add DFS option
+      var dfsOption = document.createElement('option');
+      dfsOption.value = "DFS";
+      dfsOption.textContent = "DFS";
+      traversalSelect.appendChild(dfsOption);
+      
+      // Add BFS option
+      var bfsOption = document.createElement('option');
+      bfsOption.value = "BFS";
+      bfsOption.textContent = "BFS";
+      traversalSelect.appendChild(bfsOption);
+      
+      // Add A* option
+      var astarOption = document.createElement('option');
+      astarOption.value = "A*";
+      astarOption.textContent = "A*";
+      traversalSelect.appendChild(astarOption);
+      
+      var checkboxContainer = document.createElement('div');
+      checkboxContainer.id = 'selectedCheckboxContainer';
+      var selectStartCheckbox = document.createElement('input');
+      selectStartCheckbox.type = 'checkbox';
+      selectStartCheckbox.id = 'selectStartToggle';
+      var selectStartLabel = document.createElement('label');
+      selectStartLabel.htmlFor = 'selectStartToggle';
+      selectStartLabel.textContent = ' Select Start Vertex';
+      
+      checkboxContainer.appendChild(selectStartCheckbox);
+      checkboxContainer.appendChild(selectStartLabel);
+      modeGroup.appendChild(traversalSelect);
+      modeGroup.appendChild(checkboxContainer);
+      
+      // Create control buttons group
+      var controlGroup = document.createElement("div");
+      controlGroup.classList.add("button-group");
+      
+      var stepButton = document.createElement('button');
+      stepButton.id = "stepTraversalButton";
+      stepButton.textContent = "Next Step";
+      stepButton.addEventListener('click', function() { Module._stepTraversal(); });
+      
+      var fullButton = document.createElement('button');
+      fullButton.id = "startTraversalButton";
+      fullButton.textContent = "Traverse All";
+      fullButton.addEventListener('click', function() { Module._fullTraversal(); });
+      
+      var clearButton = document.createElement('button');
+      clearButton.textContent = "Clear Traversal";
+      clearButton.addEventListener('click', function() { Module._clearTraversal(); });
+      
+      controlGroup.appendChild(stepButton);
+      controlGroup.appendChild(fullButton);
+      controlGroup.appendChild(clearButton);
+      
+      optionsDiv.appendChild(modeGroup);
+      optionsDiv.appendChild(controlGroup);
+      
+      container.appendChild(header);
+      container.appendChild(optionsDiv);
+      
+      window.traversalSection = container;
+    });
+  }
+
+  void CreateGraphManipulationSection() {
+    EM_ASM({
+      var container = document.createElement('div');
+      container.classList.add("control-section-container");
+      
+      var header = document.createElement('h2');
+      header.innerHTML = "Graph Manipulation";
+      
+      var manipulationDiv = document.createElement("div");
+      manipulationDiv.classList.add("control-section");
+
+      // Vertex Add Group
+      var addGroup = document.createElement("div");
+      addGroup.classList.add("button-group");
+      
+      var idInput = document.createElement("input");
+      idInput.id = "vertexIdInput";
+      idInput.placeholder = "ID";
+      idInput.type = "text";
+      
+      var xInput = document.createElement("input");
+      xInput.id = "vertexXInput";
+      xInput.placeholder = "X";
+      xInput.type = "number";
+      
+      var yInput = document.createElement("input");
+      yInput.id = "vertexYInput";
+      yInput.placeholder = "Y";
+      yInput.type = "number";
+      
+      var addButton = document.createElement("button");
+      addButton.textContent = "Add Vertex";
+      addButton.addEventListener("click", function() {
+        var id = document.getElementById("vertexIdInput").value;
+        var x = parseInt(document.getElementById("vertexXInput").value);
+        var y = parseInt(document.getElementById("vertexYInput").value);
+        if (id && !isNaN(x) && !isNaN(y)) {
+          Module._addVertexWithParams(stringToNewUTF8(id), x, y);
+        } else {
+          alert("Please fill out all fields.");
+        }
+      });
+      
+      addGroup.appendChild(idInput);
+      addGroup.appendChild(xInput);
+      addGroup.appendChild(yInput);
+      addGroup.appendChild(addButton);
+
+      // Vertex Delete Group
+      var deleteGroup = document.createElement("div");
+      deleteGroup.classList.add("button-group");
+      
+      var deleteInput = document.createElement("input");
+      deleteInput.id = "deleteVertexIdInput";
+      deleteInput.placeholder = "ID of vertex to delete";
+      deleteInput.type = "text";
+      
+      var deleteButton = document.createElement("button");
+      deleteButton.textContent = "Delete Vertex";
+      deleteButton.addEventListener("click", function() {
+        var id = document.getElementById("deleteVertexIdInput").value;
+        if (id) {
+          Module._deleteVertex(stringToNewUTF8(id));
+        } else {
+          alert("Please enter a valid vertex ID.");
+        }
+      });
+      
+      deleteGroup.appendChild(deleteInput);
+      deleteGroup.appendChild(deleteButton);
+
+      // Edge Group
+      var edgeGroup = document.createElement("div");
+      edgeGroup.classList.add("button-group");
+      
+      var vertex1Input = document.createElement("input");
+      vertex1Input.id = "vertexId1Input";
+      vertex1Input.placeholder = "Vertex ID 1";
+      vertex1Input.type = "text";
+      
+      var vertex2Input = document.createElement("input");
+      vertex2Input.id = "vertexId2Input";
+      vertex2Input.placeholder = "Vertex ID 2";
+      vertex2Input.type = "text";
+      
+      var weightInput = document.createElement("input");
+      weightInput.id = "edgeWeightInput";
+      weightInput.placeholder = "Edge Weight";
+      weightInput.type = "number";
+      
+      var edgeButton = document.createElement("button");
+      edgeButton.textContent = "Toggle Edge";
+      edgeButton.addEventListener("click", function() {
+        var id1 = document.getElementById("vertexId1Input").value;
+        var id2 = document.getElementById("vertexId2Input").value;
+        var weight = parseInt(document.getElementById("edgeWeightInput").value);
+        if (id1 && id2 && !isNaN(weight)) {
+          Module._toggleEdge(stringToNewUTF8(id1), stringToNewUTF8(id2), weight);
+        } else {
+          alert("Please fill out both vertex IDs and the weight.");
+        }
+      });
+      
+      edgeGroup.appendChild(vertex1Input);
+      edgeGroup.appendChild(vertex2Input);
+      edgeGroup.appendChild(weightInput);
+      edgeGroup.appendChild(edgeButton);
+
+      // Add all groups to the main div
+      manipulationDiv.appendChild(addGroup);
+      manipulationDiv.appendChild(deleteGroup);
+      manipulationDiv.appendChild(edgeGroup);
+      
+      container.appendChild(header);
+      container.appendChild(manipulationDiv);
+      
+      window.graphManipulationSection = container;
+    });
+  }
+
+  void CreateGraphGenerationSection() {
+    EM_ASM({
+      var container = document.createElement('div');
+      container.classList.add("control-section-container");
+      
+      var header = document.createElement('h2');
+      header.innerHTML = "Graph Generation & Import/Export";
+      
+      var generationDiv = document.createElement("div");
+      generationDiv.classList.add("control-section");
+      
+      // Generation controls
+      var generationGroup = document.createElement("div");
+      generationGroup.classList.add("button-group");
+      
+      // Sample Graph Selection
+      var sampleGraphSelect = document.createElement('select');
+      sampleGraphSelect.id = "sampleGraphSelect";
+      
+      var defaultOption = document.createElement('option');
+      defaultOption.value = "DefaultGraph";
+      defaultOption.textContent = "Default Tree";
+      
+      var cycleOption = document.createElement('option');
+      cycleOption.value = "CycleGraph";
+      cycleOption.textContent = "Cycle Graph";
+      
+      var completeOption = document.createElement('option');
+      completeOption.value = "CompleteGraph";
+      completeOption.textContent = "Complete Graph";
+      
+      var binaryOption = document.createElement('option');
+      binaryOption.value = "BinaryTree";
+      binaryOption.textContent = "Binary Tree";
+      
+      var butterflyOption = document.createElement('option');
+      butterflyOption.value = "ButterflyGraph";
+      butterflyOption.textContent = "Butterfly Graph";
+      
+      var gridOption = document.createElement('option');
+      gridOption.value = "GridGraph";
+      gridOption.textContent = "Grid Graph";
+      
+      sampleGraphSelect.appendChild(defaultOption);
+      sampleGraphSelect.appendChild(cycleOption);
+      sampleGraphSelect.appendChild(completeOption);
+      sampleGraphSelect.appendChild(binaryOption);
+      sampleGraphSelect.appendChild(butterflyOption);
+      sampleGraphSelect.appendChild(gridOption);
+      
+      var useSampleButton = document.createElement('button');
+      useSampleButton.textContent = "Use Sample Graph";
+      useSampleButton.addEventListener('click', function() {
+        var selected = document.getElementById("sampleGraphSelect").value;
+        switch(selected) {
+          case "DefaultGraph": Module._chooseSampleGraph(0); break;
+          case "CycleGraph": Module._chooseSampleGraph(1); break;
+          case "CompleteGraph": Module._chooseSampleGraph(2); break;
+          case "BinaryTree": Module._chooseSampleGraph(3); break;
+          case "ButterflyGraph": Module._chooseSampleGraph(4); break;
+          case "GridGraph": Module._chooseSampleGraph(5); break;
+        }
+      });
+
+      generationGroup.appendChild(sampleGraphSelect);
+      generationGroup.appendChild(useSampleButton);
+      
+      var clearButton = document.createElement('button');
+      clearButton.textContent = "Clear Graph";
+      clearButton.addEventListener('click', function() { Module._clearCanvas(); });
+      
+      var vertexLabel = document.createElement('label');
+      vertexLabel.setAttribute("for", "vertexCount");
+      vertexLabel.innerText = "Vertices: ";
+      var vertexInput = document.createElement('input');
+      vertexInput.setAttribute("id", "vertexCount");
+      vertexInput.setAttribute("type", "number");
+      vertexInput.setAttribute("min", "1");
+      vertexInput.setAttribute("value", "1");
+
+      var edgeLabel = document.createElement('label');
+      edgeLabel.setAttribute("for", "edgeCount");
+      edgeLabel.innerText = "Edges: ";
+      var edgeInput = document.createElement('input');
+      edgeInput.setAttribute("id", "edgeCount");
+      edgeInput.setAttribute("type", "number");
+      edgeInput.setAttribute("min", "0");
+      edgeInput.setAttribute("value", "0");
+
+      var randomGraphButton = document.createElement('button');
+      randomGraphButton.textContent = "Random Graph";
+      randomGraphButton.addEventListener('click', function() {
+        var vertices = parseInt(document.getElementById("vertexCount").value);
+        var edges = parseInt(document.getElementById("edgeCount").value);
+        Module._randomGraph(vertices, edges);
+      });
+
+      generationGroup.appendChild(clearButton);
+      generationGroup.appendChild(vertexLabel);
+      generationGroup.appendChild(vertexInput);
+      generationGroup.appendChild(edgeLabel);
+      generationGroup.appendChild(edgeInput);
+      generationGroup.appendChild(randomGraphButton);
+
+      // Import/Export controls
+      var importExportGroup = document.createElement("div");
+      importExportGroup.classList.add("button-group");
+
+      var importButton = document.createElement('button');
+      importButton.textContent = "Import Graph";
+      importButton.addEventListener('click', function() {
+        var fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = '.json';
+        fileInput.style.display = 'none';
+        document.body.appendChild(fileInput);
+
+        fileInput.addEventListener('change', function(e) {
+          var file = e.target.files[0];
+          if (!file) return;
+
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            var contents = e.target.result;
+            Module._importGraph(stringToNewUTF8(contents));
+          };
+          reader.readAsText(file);
+        });
+
+        fileInput.click();
+        document.body.removeChild(fileInput);
+      });
+
+      var exportButton = document.createElement('button');
+      exportButton.textContent = "Export Graph";
+      exportButton.addEventListener('click', function() {
+        var jsonStr = UTF8ToString(Module._exportGraph());
+        console.log(jsonStr);
+        var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(jsonStr);
+        var downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "graph.json");
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+      });
+
+      importExportGroup.appendChild(importButton);
+      importExportGroup.appendChild(exportButton);
+
+      generationDiv.appendChild(generationGroup);
+      generationDiv.appendChild(importExportGroup);
+      
+      container.appendChild(header);
+      container.appendChild(generationDiv);
+      
+      window.graphGenerationSection = container;
+    });
+  }
+
   void InitializeControlZone() {
     EM_ASM({
       var mainElement = document.getElementById("main");
       var controlZone = document.createElement("div");
       controlZone.classList.add("control-zone");
-
-      // The fields required for adding and removing an edge
-      var edgeButtonGroup = document.createElement("div");
-      edgeButtonGroup.classList.add("button-group");
-      edgeButtonGroup.style.border = "2px solid black";
-      edgeButtonGroup.style.padding = "10px";
-      edgeButtonGroup.style.marginBottom = "10px";
-
-      var vertexId1Input = document.createElement("input");
-      vertexId1Input.setAttribute("id", "vertexId1Input");
-      vertexId1Input.setAttribute("placeholder", "Vertex ID 1");
-      vertexId1Input.setAttribute("type", "text");
-      edgeButtonGroup.appendChild(vertexId1Input);
-
-      var vertexId2Input = document.createElement("input");
-      vertexId2Input.setAttribute("id", "vertexId2Input");
-      vertexId2Input.setAttribute("placeholder", "Vertex ID 2");
-      vertexId2Input.setAttribute("type", "text");
-      edgeButtonGroup.appendChild(vertexId2Input);
-
-      var edgeWeightInput = document.createElement("input");
-      edgeWeightInput.setAttribute("id", "edgeWeightInput");
-      edgeWeightInput.setAttribute("placeholder", "Edge Weight");
-      edgeWeightInput.setAttribute("type", "text");
-      edgeButtonGroup.appendChild(edgeWeightInput);
-
-      var addRemoveEdgeButton = document.createElement('button');
-      addRemoveEdgeButton.textContent = "Toggle Edge";
-      addRemoveEdgeButton.addEventListener(
-          'click', function() {
-            var id1 = document.getElementById("vertexId1Input").value;
-            var id2 = document.getElementById("vertexId2Input").value;
-            var weight = parseInt(document.getElementById("edgeWeightInput").value);
-            if (id1 && id2 && !isNaN(weight)) {
-              Module._toggleEdge(stringToNewUTF8(id1), stringToNewUTF8(id2), weight);
-            } else {
-              alert("Please fill out both vertex IDs and the weight.");
-            }
-          });
-      edgeButtonGroup.appendChild(addRemoveEdgeButton);
-
-      // Adding vertex button group container
-      var AddbuttonGroup = document.createElement("div");
-      AddbuttonGroup.classList.add("button-group");
-      AddbuttonGroup.style.border = "2px solid black";
-      AddbuttonGroup.style.padding = "10px";
-      AddbuttonGroup.style.marginBottom = "10px";
-
-      // The fields required for adding a vertex
-      var idInput = document.createElement("input");
-      idInput.setAttribute("id", "vertexIdInput");
-      idInput.setAttribute("placeholder", "ID");
-      idInput.setAttribute("type", "text");
-      AddbuttonGroup.appendChild(idInput);
-
-      var xInput = document.createElement("input");
-      xInput.setAttribute("id", "vertexXInput");
-      xInput.setAttribute("placeholder", "X");
-      xInput.setAttribute("type", "number");
-      AddbuttonGroup.appendChild(xInput);
-
-      var yInput = document.createElement("input");
-      yInput.setAttribute("id", "vertexYInput");
-      yInput.setAttribute("placeholder", "Y");
-      yInput.setAttribute("type", "number");
-      AddbuttonGroup.appendChild(yInput);
-
-      // Add Vertex button
-      var addVertexButton = document.createElement('button');
-      addVertexButton.textContent = "Add Vertex";
-
-      // This part was assisted by chatgpt
-      // It creates a vertex at the values given by the user
-      addVertexButton.addEventListener(
-          'click', function() {
-            var id = document.getElementById("vertexIdInput").value;
-            var x = parseInt(document.getElementById("vertexXInput").value);
-            var y = parseInt(document.getElementById("vertexYInput").value);
-            if (id && !isNaN(x) && !isNaN(y)) {
-              Module._addVertexWithParams(stringToNewUTF8(id), x, y);
-            } else {
-              alert("Please fill out all fields.");
-            }
-          });
-      AddbuttonGroup.appendChild(addVertexButton);
-
-      // Button group container
-      var buttonGroup = document.createElement("div");
-      buttonGroup.classList.add("button-group");
-      buttonGroup.style.border = "2px solid black";
-      buttonGroup.style.padding = "10px";
-      buttonGroup.style.marginBottom = "10px";
-
-      // Clear button
-      var clearButton = document.createElement('button');
-      clearButton.textContent = "Clear Graph";
-      clearButton.addEventListener('click', function() { Module._clearCanvas(); });
-      buttonGroup.appendChild(clearButton);
-
-      // Deleting a vertex button group container
-      var deleteButtonGroup = document.createElement("div");
-      deleteButtonGroup.classList.add("button-group");
-      deleteButtonGroup.style.border = "2px solid black";
-      deleteButtonGroup.style.padding = "10px";
-      deleteButtonGroup.style.marginBottom = "10px";
-
-      // The fields required for adding and removing an edge
-      var deleteInput = document.createElement("input");
-      deleteInput.setAttribute("id", "deleteVertexIdInput");
-      deleteInput.setAttribute("placeholder", "ID of vertex to delete");
-      deleteInput.setAttribute("type", "text");
-      deleteButtonGroup.appendChild(deleteInput);
-
-      // Delete Vertex button
-      var deleteVertexButton = document.createElement('button');
-      deleteVertexButton.textContent = "Delete Vertex";
-      deleteVertexButton.addEventListener(
-          'click', function() {
-            var id = document.getElementById("deleteVertexIdInput").value;
-            if (id) {
-              Module._deleteVertex(stringToNewUTF8(id));
-            } else {
-              alert("Please enter a valid vertex ID.");
-            }
-          });
-      deleteButtonGroup.appendChild(deleteVertexButton);
-
-      // Random Graph button
-      var separator = document.createElement("separator");
-      separator.style.margin = "10px 0";
-      buttonGroup.appendChild(separator);
-
-      var randomGraphButton = document.createElement('button');
-      randomGraphButton.textContent = "Random Graph";
-      randomGraphButton.addEventListener(
-          'click', function() {
-            var vertices = parseInt(document.getElementById("vertexCount").value);
-            var edges = parseInt(document.getElementById("edgeCount").value);
-            Module._randomGraph(vertices, edges);
-          });
-      buttonGroup.appendChild(randomGraphButton);
-      var vertexLabel = document.createElement('label');
-      vertexLabel.setAttribute("for", "vertexCount");
-      vertexLabel.innerText = "Vertices: ";
-      buttonGroup.appendChild(vertexLabel);
-
-      // Vertex input field
-      var vertexInput = document.createElement('input');
-      vertexInput.setAttribute("id", "vertexCount");
-      vertexInput.setAttribute("type", "number");
-      vertexInput.setAttribute("placeholder", "Vertices");
-      vertexInput.setAttribute("min", "1");
-      vertexInput.setAttribute("value", "1");
-      vertexInput.style.marginRight = "10px";
-      buttonGroup.appendChild(vertexInput);
-
-      // Edges input field
-      var edgeLabel = document.createElement('label');
-      edgeLabel.setAttribute("for", "edgeCount");
-      edgeLabel.innerText = "Edges: ";
-      buttonGroup.appendChild(edgeLabel);
-      var edgeInput = document.createElement('input');
-      edgeInput.setAttribute("id", "edgeCount");
-      edgeInput.setAttribute("type", "number");
-      edgeInput.setAttribute("placeholder", "Edges");
-      edgeInput.setAttribute("min", "0");
-      edgeInput.setAttribute("value", "0");
-      edgeInput.style.marginRight = "10px";
-      buttonGroup.appendChild(edgeInput);
-
-      // Clear Traversal button
-      var clearTraversalButton = document.createElement('button');
-      clearTraversalButton.textContent = "Clear Traversal";
-      clearTraversalButton.addEventListener('click', function() { Module._clearTraversal(); });
-      buttonGroup.appendChild(clearTraversalButton);
-
-      /**
-       * Used ChatGPT to assist adding support to
-       * Import and Export a Graph in JSON
-       */
-      // Import Graph button
-      var importButton = document.createElement('button');
-      importButton.textContent = "Import Graph";
-      importButton.addEventListener(
-          'click', function() {
-            // Create a file input element
-            var fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.accept = '.json';
-            fileInput.style.display = 'none';
-            document.body.appendChild(fileInput);
-
-            fileInput.addEventListener(
-                'change', function(e) {
-                  var file = e.target.files[0];
-                  if (!file)
-                    return;
-
-                  var reader = new FileReader();
-                  reader.onload = function(e) {
-                    var contents = e.target.result;
-
-                    // Use cwrap to create a JavaScript function that calls the
-                    // C++ function
-                    var importGraph = Module.cwrap('importGraph', 'boolean', ['string']);
-
-                    // Call the import function
-                    importGraph(contents);
-                  };
-                  reader.readAsText(file);
-                });
-
-            fileInput.click();
-            document.body.removeChild(fileInput);
-          });
-      buttonGroup.appendChild(importButton);
-
-      // Export Graph button
-      var exportButton = document.createElement('button');
-      exportButton.textContent = "Export Graph";
-      exportButton.addEventListener(
-          'click', function() {
-            // Use cwrap to create a JavaScript function that calls the C++
-            // function
-            var exportGraph = Module.cwrap('exportGraph', 'string', []);
-
-            // Call the export function and create a download link
-            var jsonStr = exportGraph();
-            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(jsonStr);
-            var downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "graph.json");
-            document.body.appendChild(downloadAnchorNode);
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
-          });
-      buttonGroup.appendChild(exportButton);
-
-      // Selected vertex info container
-      var selectedVertexDiv = document.createElement('div');
-      selectedVertexDiv.setAttribute("id", "selectedVertexContainer");
-      var selectedVertexTitle = document.createElement('h2');
-      selectedVertexTitle.setAttribute("id", "selectedVertexTitle");
-      var selectedVertexId = document.createElement('h3');
-      selectedVertexId.setAttribute("id", "selectedVertexId");
-      var selectedVertexX = document.createElement('h4');
-      selectedVertexX.setAttribute("id", "selectedVertexX");
-      var selectedVertexY = document.createElement('h4');
-      selectedVertexY.setAttribute("id", "selectedVertexY");
-
-      selectedVertexDiv.appendChild(selectedVertexTitle);
-      selectedVertexDiv.appendChild(selectedVertexId);
-      selectedVertexDiv.appendChild(selectedVertexX);
-      selectedVertexDiv.appendChild(selectedVertexY);
-
-      selectedVertexTitle.innerHTML = "No Selected Vertex";
-
-      // Dropdown to select traversal type
-      var traversalSelect = document.createElement('select');
-      traversalSelect.setAttribute("id", "traversalMode");
-      var option1 = document.createElement('option');
-      option1.value = "DFS";
-      option1.textContent = "DFS";
-      traversalSelect.appendChild(option1);
-      var option2 = document.createElement('option');
-      option2.value = "BFS";
-      option2.textContent = "BFS";
-      traversalSelect.appendChild(option2);
-      var option3 = document.createElement('option');
-      option3.value = "A*";
-      option3.textContent = "A*";
-      traversalSelect.appendChild(option3);
-      buttonGroup.appendChild(traversalSelect);
-
-      // Traverse Step button
-      var stepButton = document.createElement('button');
-      stepButton.id = "stepTraversalButton";
-      stepButton.textContent = "Next Step";
-      stepButton.addEventListener('click', function() { Module._stepTraversal(); });
-      buttonGroup.appendChild(stepButton);
-
-      // Traverse All button
-      var fullButton = document.createElement('button');
-      fullButton.id = "startTraversalButton";
-      fullButton.textContent = "Traverse All";
-      fullButton.addEventListener('click', function() { Module._fullTraversal(); });
-      buttonGroup.appendChild(fullButton);
-
-      // Select starting traversal vertex info
-      var selectStartCheckbox = document.createElement('input');
-      selectStartCheckbox.type = 'checkbox';
-      selectStartCheckbox.id = 'selectStartToggle';
-
-      var selectStartLabel = document.createElement('label');
-      selectStartLabel.htmlFor = 'selectStartToggle';
-      selectStartLabel.textContent = ' Select Start Vertex';
-
-      buttonGroup.appendChild(selectStartCheckbox);
-      buttonGroup.appendChild(selectStartLabel);
-
-      // Start traversal vertex display info
-      var startVertexDiv = document.createElement('div');
-      startVertexDiv.id = "startVertexInfo";
-      var startVertexTitle = document.createElement('h2');
-      startVertexTitle.setAttribute("id", "startVertexTitle");
-      startVertexTitle.innerHTML = "Start Vertex";
-      var startVertexId = document.createElement('h3');
-      startVertexId.setAttribute("id", "startVertexId");
-      startVertexDiv.appendChild(startVertexTitle);
-      startVertexDiv.appendChild(startVertexId);
-
-      // Add button group and vertex info to control zone
-      controlZone.appendChild(buttonGroup);
-      controlZone.appendChild(selectedVertexDiv);
-      controlZone.appendChild(startVertexDiv);
-
-      // Create a flex container assisted by ChatGPT
-      var flexContainer = document.createElement("div");
-      flexContainer.style.display = "flex";
-      flexContainer.style.flexWrap = "wrap";
-      flexContainer.style.justifyContent = "center";
-      flexContainer.style.gap = "10px";
-
-      // Add button group and vertex info to control zone
-      flexContainer.appendChild(buttonGroup);
-      flexContainer.appendChild(selectedVertexDiv);
-      flexContainer.appendChild(edgeButtonGroup);
-      flexContainer.appendChild(AddbuttonGroup);
-      flexContainer.appendChild(deleteButtonGroup);
-
-      controlZone.appendChild(flexContainer);
+      
+      // Add all sections
+      controlZone.appendChild(window.selectedVertices);
+      controlZone.appendChild(window.traversalSection);
+      controlZone.appendChild(window.graphManipulationSection);
+      controlZone.appendChild(window.graphGenerationSection);
       
       mainElement.appendChild(controlZone);
     });
@@ -505,24 +638,23 @@ private:
 
 public:
   GraphVisualizer() {
-    // Initial values as example
-    g.AddVertex("ID1", "gray", 500, 200);
-    g.AddVertex("ID2", "gray", 430, 250);
-    g.AddVertex("ID3", "gray", 570, 250);
-    g.AddVertex("ID4", "gray", 380, 300);
-    g.AddVertex("ID5", "gray", 480, 300);
-    g.AddVertex("ID6", "gray", 520, 300);
-    g.AddVertex("ID7", "gray", 620, 300);
-
-    g.AddEdge("ID1", "ID2", 2);
-    g.AddEdge("ID1", "ID3", 2);
-    g.AddEdge("ID2", "ID4", 2);
-    g.AddEdge("ID2", "ID5", 2);
-    g.AddEdge("ID3", "ID6", 2);
-    g.AddEdge("ID3", "ID7", 2);
-
-    InitiateCanvas();
+    // Initialize UI components
+    CreateSelectedVertexSection();
+    CreateTraversalSection();
+    CreateGraphManipulationSection();
+    CreateGraphGenerationSection();
     InitializeControlZone();
+    
+    // Initialize canvas and sample graph
+    InitiateCanvas();
+    ChooseSampleGraph(GraphFactory::GridGraph);
+  }
+
+  void ChooseSampleGraph(auto func){
+    g = func();
+    traversal.reset();
+    ClearVertexSelection();
+    ClearTraversal();
     RedrawCanvas();
   }
 
@@ -718,9 +850,21 @@ public:
       });
       return;
     }
-    
-    if (!traversal.has_value()) StartTraversal();
 
+    if (g.HasCycle()) {
+      EM_ASM({
+        alert("Can't traverse a Graph with a cycle");
+      });
+      return;
+    }
+
+    
+    if (!traversal.has_value()) {
+      StartTraversal();
+      std::cout << "Started traversal" << std::endl;
+    };
+
+    std::cout << traversal.value().GetCurrentVertex() << std::endl;
     if (traversal && traversal->AdvanceToNextNeighbor()) {
       RedrawCanvas();
     } else {
@@ -823,6 +967,17 @@ char *exportGraph() {
 
 bool importGraph(const char *jsonStr) {
   return init.ImportGraph(jsonStr);
+}
+
+void chooseSampleGraph(int type) {
+  switch(type) {
+    case 0: init.ChooseSampleGraph(GraphFactory::DefaultGraph); break;
+    case 1: init.ChooseSampleGraph(GraphFactory::CycleGraph); break;
+    case 2: init.ChooseSampleGraph(GraphFactory::CompleteGraph); break;
+    case 3: init.ChooseSampleGraph(GraphFactory::BinaryTree); break;
+    case 4: init.ChooseSampleGraph(GraphFactory::ButterflyGraph); break;
+    case 5: init.ChooseSampleGraph(GraphFactory::GridGraph); break;
+  }
 }
 }
 
