@@ -16,7 +16,7 @@ SOURCES = \
 OBJECTS = $(SOURCES:.cpp=.o)
 TARGET = index.html
 
-EMCC = emcc
+EMCC = ~/emsdk/upstream/emscripten/emcc
 
 CFLAGS = -std=c++20 -s USE_SDL=2 -s WASM=1 -O2 -g
 
