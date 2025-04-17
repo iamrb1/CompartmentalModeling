@@ -40,7 +40,7 @@ bool cse::WordListManager::print(int number, bool isAll) {
     }
 
     int count = 0;
-    int limit = isAll ? static_cast<int>(mCurrentSet.size()) : number;
+    int limit = isAll ? static_cast<int>(mCurrentSet.size() - 1) : number;
 
     std::cout << "[";
 
@@ -58,7 +58,6 @@ bool cse::WordListManager::print(int number, bool isAll) {
     std::cout << "]\n";
     return true;
 }
-
 
 
 /**
@@ -393,8 +392,7 @@ bool cse::WordListManager::Get(const std::string &patternToCheck)
 
 
 bool cse::WordListManager::wordle(const std::string& word, const std::string& result) {
-    return true;
-    /*
+    
     if(word.size() != result.size()) {
         mErrorManager.printInfo("Error : Word and matched pattern size must be same.");
         return false;
@@ -466,5 +464,5 @@ bool cse::WordListManager::wordle(const std::string& word, const std::string& re
 
     // Display the top 10 or fewer matching words. Might do with random in stringset for printing,
 
-    return true;*/
+    return true;
 }
