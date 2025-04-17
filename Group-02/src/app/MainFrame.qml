@@ -130,10 +130,7 @@ ApplicationWindow {
             color: ThemeManager.palette.window
             border.color: ThemeManager.palette.shadow
 
-            Text {
-                anchors.centerIn: parent
-                text: "Test"
-            }
+
 
             Compartment {
                 id: compartment1
