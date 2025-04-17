@@ -212,6 +212,14 @@ class PresentationManager {
 			_slide_deck.at(_current_pos)->setPosition(id, newX, newY);
 		}
 
+        /**
+        * Updates object size
+        */
+        void updateSize(std::string id, int newWidth, int newHeight) {
+          if (_slide_deck.empty() || _current_pos >= _slide_deck.size()) return;
+          _slide_deck.at(_current_pos)->setSize(id, newWidth, newHeight);
+        }
+
 		/**
 		 * Returns if id is a moveable item
 		 */
@@ -379,6 +387,10 @@ void call_updateTextBoxContent(const char* textboxId, const char* newText) {
 void call_updatePosition(const char* id, int newX, int newY) {
 	std::string cppId(id);
 	PRESENTATION_MANAGER.updatePosition(cppId, newX, newY);
+}
+void call_updateSize(const char* id, int newWidth, int newHeight) {
+  std::string cppId(id);
+  PRESENTATION_MANAGER.updateSize(cppId, newWidth, newHeight);
 }
 void call_addTextBox() { PRESENTATION_MANAGER.addTextBox(); }
 void call_addNewSlide() { PRESENTATION_MANAGER.addNewSlide(); }

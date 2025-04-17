@@ -181,6 +181,8 @@ const void WebLayout::renderTextBox(const std::string &layoutID,
             p.style.color = color;
             p.style.fontFamily = font;
             p.style.fontSize = fontSize + "px";
+            p.style.resize = "both";
+            p.style.overflow = "auto";
 
             layoutDiv.appendChild(p);
           }
@@ -247,11 +249,34 @@ void const WebLayout::renderImage(const std::string &layoutID,
         }
 
         if (layoutDiv) {
-          layoutDiv.innerHTML +=
-              "<img id=" + imageID + " src='" + msg +
-                  "' style='visibility: inherit; position: absolute; left: " + x + "vw; top: " + y +
-                  "vh; margin: 0; object-fit: contain; width:" + width +
-                  "vw; height:" + height + "vh;' />";
+          //layoutDiv.innerHTML +=
+          //    "<img id=" + imageID + " src='" + msg +
+          //        "' style='visibility: inherit; position: absolute; left: " + x + "vw; top: " + y +
+          //        "vh; margin: 0; object-fit: contain; width:" + width +
+          //        "vw; height:" + height + "vh; resize: both; overflow: auto;' />";
+
+        // Have to use div instead of img for resizing - Thanks CHATGPT for teaching me <3
+        var div = document.createElement("div");
+        div.className = "image";
+        div.id = imageID;
+
+        // Apply styles
+        div.style.position = "absolute";
+        div.style.left = x + "vw";
+        div.style.top = y + "vh";
+        div.style.width = width + "vw";
+        div.style.height = height + "vh";
+        div.style.border = "1px solid black";
+        div.style.borderRadius = "5px";
+        div.style.backgroundImage = 'url(' + msg + ')';
+        div.style.backgroundSize = "cover";
+        div.style.backgroundPosition = "center";
+        div.style.resize = "both";
+        div.style.overflow = "auto";
+        div.style.zIndex = "1";
+
+        layoutDiv.appendChild(div);
+
         }
       },
       layoutID.c_str(), url.c_str(), width, height, x, y, imageID.c_str(),
@@ -373,6 +398,26 @@ void WebLayout::setPosition(std::string id, int newX, int newY) {
   for (auto& imgl : images) {
     if (imgl.image->getID() == id) {
       imgl.setPosition(newX, newY);
+    }
+  }
+}
+
+/**
+ * Converts image attributes into html
+ * @param id : Object id
+ * @param newWidth : New width for object
+ * @param newHeight : New height for object
+ */
+void WebLayout::setSize(std::string id, int newWidth, int newHeight) {
+  for (auto& tbl : textBoxes) {
+    if (tbl.textBox->getID() == id) {
+      tbl.textBox->resize(newWidth, newHeight);
+    }
+  }
+
+  for (auto& imgl : images) {
+    if (imgl.image->getID() == id) {
+      imgl.image->resize(newWidth, newHeight);
     }
   }
 }

@@ -134,27 +134,57 @@ void bind() {
 				  );
 
 			  if (draggable) {
-				makeDraggable(e.target);
+				makeDraggable(e.target, e);
 			  }
 			});
 
 		// Function to make an element draggable
-		function makeDraggable(element) {
-		  var offsetX = 0;
-		  var offsetY = 0;
+        function makeDraggable(element, event) {
+          //Ensure images aren't default dragging - ChatGPT
+          element.ondragstart = () => false;
+
+          // Toggle for if dragging or resizing
+          var dragging = true;
+
+          //Calculate mouse offset
+          var box = element.getBoundingClientRect();
+          var offsetX = (event.clientX - box.left) / window.innerWidth * 100;
+          var offsetY = (event.clientY - box.top) / window.innerHeight * 100;
+
+          // Calculate bottom-right corner of resizing area
+          var resizeOffset = 16;
+          var xCorner = box.left + box.width - resizeOffset;
+          var yCorner = box.top + box.height - resizeOffset;
+
+          if(event.clientX >= xCorner && event.clientY >= yCorner) {
+            dragging = false;
+          }
 
 		  // ChatGPT used for new position calculations
 		  document.onmousemove = function(e) {
-			var newX = (e.clientX / window.innerWidth) * 100 - offsetX;
-			var newY = (e.clientY / window.innerHeight) * 100 - offsetY;
+            if(dragging) {
+              var newX = (e.clientX / window.innerWidth) * 100 - offsetX;
+              var newY = (e.clientY / window.innerHeight) * 100 - offsetY;
 
-			// Call C++ function to update position within the layout
-			Module.ccall("call_updatePosition", null,
-						 [ "string", "number", "number" ],
-						 [ element.id.trim(), newX, newY ]);
-			// Update element's visual position
-			element.style.left = newX + "vw";
-			element.style.top = newY + "vh";
+              // Call C++ function to update position within the layout
+              Module.ccall("call_updatePosition", null,
+              ["string", "number", "number"],
+              [ element.id.trim(), newX, newY ]);
+              // Update element's visual position
+              element.style.left = newX + "vw";
+              element.style.top = newY + "vh";
+            } else {
+              var newWidth = ((e.clientX - box.left) / window.innerWidth) * 100;
+              var newHeight = ((e.clientY - box.top) / window.innerHeight) * 100;
+
+              // Call C++ function to update size within the layout
+              Module.ccall("call_updateSize", null,
+              ["string", "number", "number"],
+              [ element.id.trim(), newWidth, newHeight ]);
+              // Update element's visual size
+              element.style.width = newWidth + "vw";
+              element.style.height = newHeight + "vh";
+            }
 		  };
 
 		  document.onmouseup = function(e) {

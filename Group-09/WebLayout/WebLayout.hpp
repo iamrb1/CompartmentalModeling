@@ -97,6 +97,7 @@ class WebLayout {
   void deactivateLayout();
 
   void setPosition(std::string id, int x, int y);
+  void setSize(std::string id, int width, int height);
   bool contains(std::string id) const;
 };
 }  // namespace cse
