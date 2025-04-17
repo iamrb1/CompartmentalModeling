@@ -134,14 +134,19 @@ void bind() {
 				  );
 
 			  if (draggable) {
-				makeDraggable(e.target);
+				makeDraggable(e.target, e);
 			  }
 			});
 
 		// Function to make an element draggable
-		function makeDraggable(element) {
-		  var offsetX = 0;
-		  var offsetY = 0;
+		function makeDraggable(element, event) {
+		  //Ensure images aren't default dragging - ChatGPT
+		  element.ondragstart = () => false;
+
+          //Calculate mouse offset
+		  var box = element.getBoundingClientRect();
+		  var offsetX = (event.clientX - box.left) / window.innerWidth * 100;
+		  var offsetY = (event.clientY - box.top) / window.innerHeight * 100;
 
 		  // ChatGPT used for new position calculations
 		  document.onmousemove = function(e) {
