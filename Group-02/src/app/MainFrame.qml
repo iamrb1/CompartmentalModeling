@@ -173,17 +173,28 @@ ApplicationWindow {
 
 
     }
-
-    // === File Dialogs ===
-    FileDialog {
-        id: openFileDialog
-        nameFilters: ["Simulation files (*.sim)"]
-        fileMode: FileDialog.OpenFile
-    }
+    signal saveRequested(url fileUrl)
+    signal loadRequested(url fileUrl)
 
     FileDialog {
         id: saveFileDialog
-        nameFilters: ["Simulation files (*.sim)"]
+        objectName: "saveFileDialog"
+        title: "Save Simulation"
+        nameFilters: ["Simulation files (*.xml)"]
         fileMode: FileDialog.SaveFile
+        onAccepted: {
+            mainFrame.saveSimulation(selectedFile)
+        }
+    }
+
+    FileDialog {
+        id: openFileDialog
+        objectName: "openFileDialog"
+        title: "Open Simulation"
+        nameFilters: ["Simulation files (*.xml)"]
+        fileMode: FileDialog.OpenFile
+        onAccepted: {
+            mainFrame.loadSimulation(selectedFile)
+        }
     }
 }

@@ -1,22 +1,21 @@
 /**
- * @file Application.h
- * @author Nitish Maindoliya
+* @file Application.h
+ * @author Nitish Maindoliya, Matthew Hawkins, Bram Hogg
  *
  *
  */
+#pragma once
 
-#ifndef MAINFRAME_H
-#define MAINFRAME_H
 #include "Simulation.h"
 
-class Application {
-private:
-  Simulation m_simulation;
-
+class MainFrame : public QObject {
+    Q_OBJECT
 public:
+    explicit MainFrame(QObject* parent = nullptr) : QObject(parent) {}
 
+    int Initialize(int argc, char *argv[]);
+    Simulation *m_simulation;
+    public slots:
+        void save_simulation(const QUrl &fileUrl) const;
+        void load_simulation(const QUrl &fileUrl) const;
 };
-
-
-
-#endif //MAINFRAME_H

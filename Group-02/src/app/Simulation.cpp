@@ -22,3 +22,19 @@ void Simulation::add_connection(std::shared_ptr<Connection> connection) {
   connection->set_simulation(this);
   m_connections.push_back(std::move(connection));
 }
+
+/**
+ * @brief load in a xml simulation file.
+ * @param filename The file path for the xml file.
+ */
+void Simulation::load_xml(const std::string& filename) {
+  // Todo: complete load_xml
+}
+
+/**
+ * @brief save the current simulation as a xml simulation file.
+ * @param filename The file path for the xml file.
+ */
+void Simulation::save_xml(const std::string& filename) {
+  // Todo: complete save_xml
+}
