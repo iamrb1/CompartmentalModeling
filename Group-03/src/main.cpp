@@ -9,6 +9,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <algorithm>
 
 // Our headers
 #include "Circle.h"
@@ -60,30 +61,56 @@ void createDemoCircles()
 
 void update()
 {
-    // Randomly move circles and let surface reassign them
+    // 1) Move every circle
     for (auto& circle : gCircles) {
         if (!circle) continue;
 
-        double newX = circle->getX() + ((rand() % 3) - 1) * circle->getSpeed();
-        double newY = circle->getY() + ((rand() % 3) - 1) * circle->getSpeed();
 
-        // Clamp to screen
-        if (newX < 0) newX = 0;
-        if (newX > WINDOW_WIDTH - circle->getRadius())
-            newX = WINDOW_WIDTH - circle->getRadius();
+        // pick a random direction delta ∈ { -1,0,+1 }
+        double dirX = (rand() % 3) - 1;
+        double dirY = (rand() % 3) - 1;
 
-        if (newY < 0) newY = 0;
-        if (newY > WINDOW_HEIGHT - circle->getRadius())
-            newY = WINDOW_HEIGHT - circle->getRadius();
+        // compute new position in double precision
+        double newX = circle->getX() + dirX * circle->getSpeed();
+        double newY = circle->getY() + dirY * circle->getSpeed();
 
-        gSurface->move_circle(circle, static_cast<int>(newX), static_cast<int>(newY));
+        // clamp to window
+        newX = std::clamp(newX, 0.0, WINDOW_WIDTH  - circle->getRadius());
+        newY = std::clamp(newY, 0.0, WINDOW_HEIGHT - circle->getRadius());
+
+        // now actually move it in the Surface (takes doubles)
+        gSurface->move_circle(circle, newX, newY);
     }
 
-    // Let Surface do internal updates
+    // 2) Let the Surface rebucket anything that spilled sectors
     gSurface->update();
 
-    // Optionally check collisions
-    gSurface->check_collision();
+    // 3) Handle the first collision (if any)
+    auto [action, victim] = gSurface->check_collision();
+
+    if (action == "delete" && victim) {
+        // remove from master list
+        gCircles.erase(
+            std::remove(gCircles.begin(), gCircles.end(), victim),
+            gCircles.end()
+        );
+        // remove from its sector
+        gSurface->remove_circle(victim);
+    }
+//    else if (action == "add" && victim) {
+//        // clone parameters
+//        double x = victim->getX();
+//        double y = victim->getY();
+//        double r = victim->getRadius();
+//        double bs = victim->getBaseSpeed();
+//        double sp = victim->getSpeed();
+//        auto t = victim->getCircleType();
+//
+//        auto baby = std::make_shared<Circle>(x, y, r, bs, sp, t);
+//        gCircles.push_back(baby);
+//        gSurface->add_circle(baby);
+//    }
+    // else "nothing" → do nothing
 }
 
 ///////////////////////////////////////////////////////////////////////////////
