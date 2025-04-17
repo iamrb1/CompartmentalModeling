@@ -61,6 +61,10 @@ void createDemoCircles()
 
 void update()
 {
+    // Circle types
+    double cType1 = 0.0;
+    double cType2 = 0.0;
+
     // 1) Move every circle
     for (auto& circle : gCircles) {
         if (!circle) continue;
@@ -80,6 +84,14 @@ void update()
 
         // now actually move it in the Surface (takes doubles)
         gSurface->move_circle(circle, newX, newY);
+
+        // update circle type counter
+        if (circle->getCircleType() == "red") {
+            cType1 += 1;
+        }
+        if (circle->getCircleType() == "blue") {
+            cType2 += 1;
+        }
     }
 
     // 2) Let the Surface rebucket anything that spilled sectors
@@ -122,6 +134,24 @@ void update()
     }
     
     // else "nothing" → do nothing
+    // @TODO this is very basic and can be updated later
+    // End game if conditions are met
+    double cWinThreshold = 0.8;
+    double cPercentage1 = cType1 / (cType1 + cType2);
+    double cPercentage2 = cType2 / (cType1 + cType2);
+
+    // std::cout << "Red #: " << cType1 << "; Blue #: " << cType2 << std::endl;
+    // std::cout << "Red %: " << cPercentage1 << "; Blue %: " << cPercentage2 << std::endl;
+
+    if (cPercentage1 >= cWinThreshold) {
+        std::cout << "Winner: Red" << std::endl;
+        isRunning = false;
+    }
+
+    if (cPercentage2 >= cWinThreshold) {
+        std::cout << "Winner: Blue" << std::endl;
+        isRunning = false;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
