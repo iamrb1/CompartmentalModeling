@@ -208,17 +208,26 @@ bool cse::WordListManager::copy(const std::string &newListName, const std::strin
 
 
 /**
- * @brief Sets the current list to the specified list name.
- * @param listName The name of the list to set as current.
- * @return true If the list was set successfully, false otherwise.
+ * @brief Sets the current list to the specified list names.
+ * @param listNames A vector of list names to set as the current list.
+ * @return true If the lists were set successfully, false otherwise.
  */
-bool cse::WordListManager::setCurrent(cse::StringSet<cse::StaticString<30>> currentSet) { 
-    if (currentSet == cse::StringSet<cse::StaticString<30>>()) {
-        return false;
+bool cse::WordListManager::setCurrent(const std::vector<std::string>& listNames) {
+    cse::StringSet<cse::StaticString<30>> combinedSet;
+
+    for (const auto& listName : listNames) {
+        if (mWordLists.find(listName) == mWordLists.end()) {
+            mErrorManager.printInfo("Error: List \"" + listName + "\" does not exist.");
+            return false;
+        }
+        combinedSet = combinedSet.Union(mWordLists[listName]);
     }
-    mCurrentSet = currentSet;
+
+    mCurrentSet = combinedSet;
+    mCurrentLists = listNames; // Update the current list names
     return true;
 }
+
 /**
  * @brief Adds words to the specified list.
  * @param listName The name of the list to add words to.
@@ -238,19 +247,25 @@ bool cse::WordListManager::add(const std::string& listName, const std::string& w
     return true;
 }
 /**
- * @brief Saves the current list to a file.
+ * @brief Saves the specified list to a file.
+ * @param fileName The name of the file to save the list into.
  * @param listName The name of the list to save.
- * @param fileName The name of the file the list will be saved into
  * @return true If the list was saved successfully, false otherwise.
  */
 bool cse::WordListManager::save(const std::string& fileName, const std::string& listName) {
     if (mWordLists.find(listName) == mWordLists.end()) {
+        mErrorManager.printInfo("Error: List \"" + listName + "\" does not exist.");
         return false;
     }
-    auto& list = mWordLists[listName];
-    
-    FileSource::save_file(fileName, list);
-    return true;
+
+    const auto& list = mWordLists[listName];
+    if (FileSource::save_file(fileName, list)) {
+        mErrorManager.printInfo("List \"" + listName + "\" successfully saved to \"" + fileName + "\".");
+        return true;
+    } else {
+        mErrorManager.printInfo("Error: Failed to save list \"" + listName + "\" to \"" + fileName + "\".");
+        return false;
+    }
 }
 
 void cse::WordListManager::reset(const std::string& listname) {

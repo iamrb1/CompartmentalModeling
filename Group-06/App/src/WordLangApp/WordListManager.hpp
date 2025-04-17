@@ -51,7 +51,7 @@ public:
      * @param listName The name of the list to set as current.
      * @return true If the list was set successfully false otherwise.
      */
-    bool setCurrent(cse::StringSet<cse::StaticString<30>> currentSet = cse::StringSet<cse::StaticString<30>>());
+    bool setCurrent(const std::vector<std::string>& listNames);
 
     // Add adds the words to the set, listname, space-separated words to add returns bool
     bool add(const std::string& listName, const std::string& wordsToAdd);
