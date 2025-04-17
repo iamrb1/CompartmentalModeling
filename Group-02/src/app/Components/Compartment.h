@@ -15,9 +15,7 @@
 class Connection;
 class Simulation;
 
-class Compartment final : public QObject {
-  Q_OBJECT
-  QML_ELEMENT
+class Compartment final {
 
  private:
   /// The parent simulation
