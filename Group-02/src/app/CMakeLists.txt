@@ -12,6 +12,8 @@ set(
     Simulation.h
     Components/Connection.cpp
     Components/Connection.h
+        Components/Sidebar.cpp
+        Components/Sidebar.h
 )
 
 set(

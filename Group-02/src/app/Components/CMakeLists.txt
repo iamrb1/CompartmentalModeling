@@ -16,6 +16,8 @@ set (
     Compartment.cpp
     Connection.h
     Connection.cpp
+        Sidebar.h
+        Sidebar.cpp
 )
 
 qt_add_qml_module(
@@ -23,4 +25,5 @@ qt_add_qml_module(
     URI Components
     QML_FILES ${MODULE_QML_FILES}
     SOURCES ${MODULE_SOURCES}
+
 )
