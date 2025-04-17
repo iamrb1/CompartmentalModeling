@@ -647,11 +647,14 @@ public:
     
     // Initialize canvas and sample graph
     InitiateCanvas();
-    ChooseSampleGraph(GraphFactory::DefaultGraph);
+    ChooseSampleGraph(GraphFactory::CompleteGraph);
   }
 
   void ChooseSampleGraph(auto func){
     g = func();
+    traversal.reset();
+    ClearVertexSelection();
+    ClearTraversal();
     RedrawCanvas();
   }
 
@@ -847,9 +850,21 @@ public:
       });
       return;
     }
-    
-    if (!traversal.has_value()) StartTraversal();
 
+    if (g.HasCycle()) {
+      EM_ASM({
+        alert("Can't traverse a Graph with a cycle");
+      });
+      return;
+    }
+
+    
+    if (!traversal.has_value()) {
+      StartTraversal();
+      std::cout << "Started traversal" << std::endl;
+    };
+
+    std::cout << traversal.value().GetCurrentVertex() << std::endl;
     if (traversal && traversal->AdvanceToNextNeighbor()) {
       RedrawCanvas();
     } else {
