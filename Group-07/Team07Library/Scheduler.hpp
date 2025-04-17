@@ -22,6 +22,9 @@
 namespace cse
 {
   template <typename ProcessID = int, int numWeights = 1>
+#include <optional>
+namespace cse {
+template <typename ProcessID=int>
 
   /*
    * Priority queue to schedule processes to run based on how often each process

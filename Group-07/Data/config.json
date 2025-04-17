@@ -46,7 +46,7 @@
         "predator": "Fox",
         "prey": "Rabbit",
         "hunt_rate": 0.2
-      }
+      },
       {
         "species": "Rabbit",
         "food": "Grass",
@@ -54,4 +54,3 @@
       }
     ]
   }
-  

@@ -40,7 +40,8 @@ TEST_CASE("DataFileManager Construct and Destruct", "[DataFileManager]") {
   REQUIRE_NOTHROW(cse::DataFileManager());
 }
 
-TEST_CASE("File Operations", "[DataFileManager]") {
+// CSV-Oriented Test Cases (Existing)
+TEST_CASE("CSV File Operations", "[DataFileManager]") {
   string projectRoot = getProjectRoot();
   string filePath = projectRoot + "/Group-07/Data/sample.csv";
   resetFile(filePath);  // Clear our file before running the test
@@ -62,7 +63,7 @@ TEST_CASE("File Operations", "[DataFileManager]") {
   resetFile(filePath);
 }
 
-TEST_CASE("Function Management", "[DataFileManager]") {
+TEST_CASE("CSV Function Management", "[DataFileManager]") {
   string projectRoot = getProjectRoot();
   string filePath = projectRoot + "/Group-07/Data/sample.csv";
   resetFile(filePath);  // Clear the file before running the test
@@ -115,7 +116,7 @@ TEST_CASE("Function Management", "[DataFileManager]") {
   resetFile(filePath);
 }
 
-TEST_CASE("File and Data Management", "[DataFileManager]") {
+TEST_CASE("CSV File and Data Management", "[DataFileManager]") {
   string projectRoot = getProjectRoot();
   string filePath = projectRoot + "/Group-07/Data/sample.csv";
   resetFile(filePath);
@@ -153,7 +154,7 @@ TEST_CASE("File and Data Management", "[DataFileManager]") {
   resetFile(filePath);
 }
 
-TEST_CASE("Setters and Getters", "[DataFileManager]") {
+TEST_CASE("CSV File Setters and Getters", "[DataFileManager]") {
   string projectRoot = getProjectRoot();
   string filePath = projectRoot + "/Group-07/Data/sample.csv";
   resetFile(filePath);
@@ -176,7 +177,7 @@ TEST_CASE("Setters and Getters", "[DataFileManager]") {
   REQUIRE(dfm.getDataCSV() == testData);
 }
 
-TEST_CASE("Function Management Edge Cases", "[DataFileManager]") {
+TEST_CASE("Function Management CSV Edge Cases", "[DataFileManager]") {
   string projectRoot = getProjectRoot();
   string filePath = projectRoot + "/Group-07/Data/sample.csv";
   resetFile(filePath);
@@ -214,7 +215,7 @@ TEST_CASE("Function Management Edge Cases", "[DataFileManager]") {
   resetFile(filePath);
 }
 
-TEST_CASE("Invalid File Operations", "[DataFileManager]") {
+TEST_CASE("Invalid CSV File Operations", "[DataFileManager]") {
   cse::DataFileManager dfm;
   string invalidPath = "/invalid/path/to/sample.csv";
 
@@ -225,7 +226,7 @@ TEST_CASE("Invalid File Operations", "[DataFileManager]") {
   REQUIRE(dfm.getFile().empty());
 }
 
-TEST_CASE("Clear and Delete Functions", "[DataFileManager]") {
+TEST_CASE("Clear and Delete CSV Functions", "[DataFileManager]") {
   cse::DataFileManager dfm;
 
   // Add functions
@@ -242,4 +243,60 @@ TEST_CASE("Clear and Delete Functions", "[DataFileManager]") {
   // Clear all functions and check
   dfm.clearFunctions();
   REQUIRE_NOTHROW(dfm.listFunctions());
+}
+
+// JSON-Oriented Test Cases
+TEST_CASE("Open JSON File", "[DataFileManager][JSON]") {
+  string projectRoot = getProjectRoot();
+  string filePath = projectRoot + "/Group-07/Data/config.json";
+
+  cse::DataFileManager dfm;
+  REQUIRE_NOTHROW(dfm.openJSON(filePath));  // Ensure no exception is thrown during file open
+  REQUIRE(dfm.getFile() == filePath);      // Verify the file path is correctly set
+}
+
+TEST_CASE("Update JSON File", "[DataFileManager][JSON]") {
+  string projectRoot = getProjectRoot();
+  string filePath = projectRoot + "/Group-07/Data/config.json";
+
+  // Back up original JSON file
+  string backupPath = projectRoot + "/Group-07/Data/config_backup.json";
+  std::filesystem::copy(filePath, backupPath, std::filesystem::copy_options::overwrite_existing);
+
+  cse::DataFileManager dfm;
+  dfm.openJSON(filePath);
+
+  int newTimeSteps = 2000;
+  int newLoggingInterval = 20;
+
+  // Add functions to update JSON keys
+  dfm.addFunction("simulation_parameters.time_steps", [&newTimeSteps]() { return newTimeSteps; });
+  dfm.addFunction("simulation_parameters.logging_interval", [&newLoggingInterval]() { return newLoggingInterval; });
+
+  REQUIRE_NOTHROW(dfm.updateJSON());  // Ensure no exception during the update
+
+  // Verify changes
+  boost::property_tree::ptree updatedJSON;
+  boost::property_tree::read_json(filePath, updatedJSON);  // Read updated JSON file
+
+  REQUIRE(updatedJSON.get<int>("simulation_parameters.time_steps") == newTimeSteps);
+  REQUIRE(updatedJSON.get<int>("simulation_parameters.logging_interval") == newLoggingInterval);
+
+  // Restore the original JSON file
+  std::filesystem::copy(backupPath, filePath, std::filesystem::copy_options::overwrite_existing);
+  std::filesystem::remove(backupPath);
+}
+
+TEST_CASE("Close JSON File", "[DataFileManager][JSON]") {
+  string projectRoot = getProjectRoot();
+  string filePath = projectRoot + "/Group-07/Data/config.json";
+
+  cse::DataFileManager dfm;
+  dfm.openJSON(filePath);
+
+  REQUIRE_NOTHROW(dfm.closeJSON());  // Ensure no exception during file close
+
+  // Verify that jsonData is cleared after closing
+  boost::property_tree::ptree emptyTree;
+  REQUIRE_NOTHROW(dfm.setDataJSON(emptyTree));
 }
