@@ -149,32 +149,32 @@ void mainLoop()
 
 int main(int argc, char* argv[])
 {
-//    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-//        std::cerr << "SDL could not init! " << SDL_GetError() << std::endl;
-//        return 1;
-//    }
-//
-//    gWindow = SDL_CreateWindow("Emscripten Demo",
-//                               SDL_WINDOWPOS_CENTERED,
-//                               SDL_WINDOWPOS_CENTERED,
-//                               WINDOW_WIDTH, WINDOW_HEIGHT,
-//                               SDL_WINDOW_SHOWN);
-//    if (!gWindow) {
-//        std::cerr << "Window could not be created: " << SDL_GetError() << std::endl;
-//        return 1;
-//    }
-//
-//    gRenderer = SDL_CreateRenderer(gWindow, -1, 0);
-//    if (!gRenderer) {
-//        std::cerr << "Renderer could not be created: " << SDL_GetError() << std::endl;
-//        return 1;
-//    }
-//
-//    // Create our Surface (with 100px sector size for demo)
-//    gSurface = std::make_unique<cse::Surface>(WINDOW_WIDTH, WINDOW_HEIGHT, 100);
-//
-//    // Create random circles
-//    createDemoCircles();
+   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+       std::cerr << "SDL could not init! " << SDL_GetError() << std::endl;
+       return 1;
+   }
+
+   gWindow = SDL_CreateWindow("Emscripten Demo",
+                              SDL_WINDOWPOS_CENTERED,
+                              SDL_WINDOWPOS_CENTERED,
+                              WINDOW_WIDTH, WINDOW_HEIGHT,
+                              SDL_WINDOW_SHOWN);
+   if (!gWindow) {
+       std::cerr << "Window could not be created: " << SDL_GetError() << std::endl;
+       return 1;
+   }
+
+   gRenderer = SDL_CreateRenderer(gWindow, -1, 0);
+   if (!gRenderer) {
+       std::cerr << "Renderer could not be created: " << SDL_GetError() << std::endl;
+       return 1;
+   }
+
+   // Create our Surface (with 100px sector size for demo)
+   gSurface = std::make_unique<cse::Surface>(WINDOW_WIDTH, WINDOW_HEIGHT, 100);
+
+   // Create random circles
+   createDemoCircles();
 
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop(mainLoop, 0, 1);

@@ -31,12 +31,16 @@ public:
 
     int speedBoost = 2;
 
+    double dx_;
+    double dy_;
+
     // Setters
     void setPosition(double x, double y);
     void setRadius(double radius);
     void setSpeed(int speed);
     void setCircleType(const std::string& circleType);
     void setEaten(int eaten);
+    void move(double width, double height);
 
     // Check if this circle overlaps with another circle
     bool overlaps(const Circle& other) const;

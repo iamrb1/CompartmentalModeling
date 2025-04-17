@@ -84,6 +84,8 @@ void Surface::update() {
             for (size_t k = 0; k < sector.circles.size();) {
                 std::shared_ptr<Circle> circle = sector.circles[k];
 
+                circle->move(surface_width, surface_height);
+
                 // Compute new sector based on updated position
                 int new_x = circle->getX() / surface_size;
                 int new_y = circle->getY() / surface_size;

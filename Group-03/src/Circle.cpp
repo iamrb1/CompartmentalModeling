@@ -1,5 +1,10 @@
 // Circle.cpp : implementation of the Circle class
 #include "Circle.h"
+#include <cstdlib>
+#include <ctime>
+#include <cmath>
+#include <numbers>
+
 
 // Constructor
 Circle::Circle(double x, double y, double radius, double baseSpeed, double speed, const std::string& circleType)
@@ -12,6 +17,16 @@ Circle::Circle(double x, double y, double radius, double baseSpeed, double speed
     if (circleType_ == "blue") {
         repopulate_ = true;
     }
+
+    static bool seeded = false;
+    if (!seeded) {
+        std::srand(static_cast<unsigned>(std::time(nullptr)));
+        seeded = true;
+    }
+
+    double angle = (std::rand() % 360) * 3.14159265358979323846 / 180.0;
+    dx_ = std::cos(angle);
+    dy_ = std::sin(angle);
 }
 
 // Destructor
@@ -104,6 +119,33 @@ void Circle::setCharacteristic(const std::string& characteristic) {
     characteristic_ = characteristic;
 }
 
+void Circle::move(double width, double height) {
+    // Update position
+    x_ += dx_;
+    y_ += dy_;
+
+    // Bounce off left/right walls
+    if (x_ - radius_ < 0) {
+        x_ = radius_;
+        dx_ *= -1;
+    }
+    else if (x_ + radius_ > width) {
+        x_ = width - radius_;
+        dx_ *= -1;
+    }
+
+    // Bounce off top/bottom walls
+    if (y_ - radius_ < 0) {
+        y_ = radius_;
+        dy_ *= -1;
+    }
+    else if (y_ + radius_ > height) {
+        y_ = height - radius_;
+        dy_ *= -1;
+    }
+}
+
+
 // Decreases energy of the circle
 // If energy is 0, set regen to true and speed to 0
 // If energy is less than 0, set it to 0
@@ -184,3 +226,5 @@ void Circle::eatPreyCircle() {
         }
     }
 }
+
+
