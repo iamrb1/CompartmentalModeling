@@ -68,8 +68,12 @@ int main() {
     boost::property_tree::ptree pt = dfm.getDataJSON();
 
     SimulationState state = loadStateFromJSON(pt);
-    SimulationRunner runner(state, log);
+
+
+    std::array<double, 1> weight_arr = { 1.0 }; // Example weights
+    SimulationRunner runner(state, weight_arr, log);
 	runner.run();
+
     dfm.closeJSON();
 
     return 0;
