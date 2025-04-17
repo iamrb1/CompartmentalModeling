@@ -5,8 +5,8 @@
  *
  */
 
-#ifndef APPLICATION_H
-#define APPLICATION_H
+#ifndef MAINFRAME_H
+#define MAINFRAME_H
 #include "Simulation.h"
 
 class Application {
@@ -19,4 +19,4 @@ public:
 
 
 
-#endif //APPLICATION_H
+#endif //MAINFRAME_H

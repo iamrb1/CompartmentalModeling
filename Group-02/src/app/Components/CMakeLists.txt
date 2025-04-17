@@ -6,11 +6,11 @@ target_link_libraries(ComponentsLib PRIVATE Qt6::Quick)
 set (
     MODULE_QML_FILES
     Compartment.qml
+    Connection.qml
 )
 
 qt_add_qml_module(
     ComponentsLib
     URI Components
     QML_FILES ${MODULE_QML_FILES}
-    QML_FILES Connection.qml
 )

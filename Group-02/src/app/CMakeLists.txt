@@ -6,8 +6,8 @@ set(
     main.cpp
     Compartment.cpp
     Compartment.h
-    Application.cpp
-    Application.h
+    MainFrame.cpp
+    MainFrame.h
     Simulation.cpp
     Simulation.h
     Connection.cpp
@@ -17,6 +17,7 @@ set(
 set(
     MAIN_QML_FILES
     Main.qml
+    MainFrame.qml
 )
 
 set(
