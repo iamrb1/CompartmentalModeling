@@ -647,7 +647,7 @@ public:
     
     // Initialize canvas and sample graph
     InitiateCanvas();
-    ChooseSampleGraph(GraphFactory::CompleteGraph);
+    ChooseSampleGraph(GraphFactory::GridGraph);
   }
 
   void ChooseSampleGraph(auto func){
