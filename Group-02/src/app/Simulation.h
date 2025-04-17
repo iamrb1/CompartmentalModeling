@@ -12,8 +12,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Compartment.h"
-#include "Connection.h"
+#include "Components/Compartment.h"
+#include "Components/Connection.h"
 
 class Simulation {
 private:
