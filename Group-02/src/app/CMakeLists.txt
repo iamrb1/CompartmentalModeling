@@ -4,20 +4,26 @@ message(STATUS "Building Executable: ${EXECUTABLE_NAME}")
 set(
     SOURCE_FILES
     main.cpp
-    Compartment.cpp
-    Compartment.h
+    Components/Compartment.cpp
+    Components/Compartment.h
     MainFrame.cpp
     MainFrame.h
     Simulation.cpp
     Simulation.h
-    Connection.cpp
-    Connection.h
+    Components/Connection.cpp
+    Components/Connection.h
 )
 
 set(
     MAIN_QML_FILES
     Main.qml
     MainFrame.qml
+)
+
+set (
+    MAIN_QML_SOURCES
+    MainFrame.h
+    MainFrame.cpp
 )
 
 set(
@@ -44,6 +50,7 @@ qt_add_qml_module(
     ${EXECUTABLE_NAME}
     URI ${EXECUTABLE_NAME}
     QML_FILES ${MAIN_QML_FILES}
+    SOURCES ${MAIN_QML_SOURCES}
 )
 
 # Set the C++ standard to C++20

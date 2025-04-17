@@ -9,8 +9,17 @@ set (
     Connection.qml
 )
 
+set (
+    MODULE_SOURCES
+    Compartment.h
+    Compartment.cpp
+    Connection.h
+    Connection.cpp
+)
+
 qt_add_qml_module(
     ComponentsLib
     URI Components
     QML_FILES ${MODULE_QML_FILES}
+    SOURCES ${MODULE_SOURCES}
 )

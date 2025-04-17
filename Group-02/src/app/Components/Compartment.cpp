@@ -23,6 +23,12 @@ const std::string& Compartment::get_name() const {
 const std::string& Compartment::get_symbol() const {
   return m_symbol;
 }
+int Compartment::get_x() const {
+  return m_x;
+}
+int Compartment::get_y() const {
+  return m_y;
+}
 
 void Compartment::set_current_amount(const float current_amount) {
   m_current_amount = current_amount;
@@ -36,6 +42,13 @@ void Compartment::set_name(const std::string& name) {
 void Compartment::set_symbol(const std::string& symbol) {
   m_symbol = symbol;
 }
+void Compartment::set_x(const int x) {
+  m_x = x;
+}
+void Compartment::set_y(const int y) {
+  m_y = y;
+}
+
 void Compartment::set_simulation(Simulation* simulation) {
   m_simulation = simulation;
 }
