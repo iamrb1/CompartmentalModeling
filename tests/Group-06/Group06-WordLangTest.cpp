@@ -1231,3 +1231,93 @@ TEST_CASE("LOAD and PRINT tests", "[WordLang]") {
     }
   };
 }
+
+/*
+TEST_CASE("Combine lists and print result", "[Combine]") {
+    cse::ErrorManager errorManager;
+    cse::WordListManager manager(errorManager);
+    cse::WordLang wordLang;
+
+    wordLang.parse("LIST a = LOAD \"FileA.txt\"\n");
+    wordLang.parse("LIST b = LOAD \"FileB.txt\"\n");
+    wordLang.parse("LIST c = COMBINED a b\n");
+    wordLang.parse("SET_CURRENT c\n");
+
+    std::ostringstream oss;
+    std::streambuf* oldCoutBuf = std::cout.rdbuf();
+    std::cout.rdbuf(oss.rdbuf());
+
+    wordLang.parse("PRINT ALL\n");
+
+    std::cout.rdbuf(oldCoutBuf);
+    std::string output = oss.str();
+
+    CHECK(output == "[table, computer, yellow, blue]\n");  // Replace with actual expected output
+}
+
+TEST_CASE("Difference between lists", "[Difference]") {
+    cse::ErrorManager errorManager;
+    cse::WordListManager manager(errorManager);
+    cse::WordLang wordLang;
+
+    wordLang.parse("LIST a = LOAD \"FileA.txt\"\n");
+    wordLang.parse("LIST b = LOAD \"FileB.txt\"\n");
+    wordLang.parse("LIST diff = DIFFERENCE a b\n");
+    wordLang.parse("SET_CURRENT diff\n");
+
+    std::ostringstream oss;
+    std::streambuf* oldCoutBuf = std::cout.rdbuf();
+    std::cout.rdbuf(oss.rdbuf());
+
+    wordLang.parse("PRINT ALL\n");
+
+    std::cout.rdbuf(oldCoutBuf);
+    std::string output = oss.str();
+
+    CHECK(output == "[table, computer]\n");
+}
+
+TEST_CASE("Intersection of lists", "[Intersection]") {
+    cse::ErrorManager errorManager;
+    cse::WordListManager manager(errorManager);
+    cse::WordLang wordLang;
+
+    wordLang.parse("LIST a = LOAD \"FileA.txt\"\n");
+    wordLang.parse("LIST b = LOAD \"FileC.txt\"\n");
+    wordLang.parse("LIST common = INTERSECTION a b\n");
+    wordLang.parse("SET_CURRENT common\n");
+
+    std::ostringstream oss;
+    std::streambuf* oldCoutBuf = std::cout.rdbuf();
+    std::cout.rdbuf(oss.rdbuf());
+
+    wordLang.parse("PRINT ALL\n");
+
+    std::cout.rdbuf(oldCoutBuf);
+    std::string output = oss.str();
+
+    CHECK(output == "[table]\n");
+}
+
+TEST_CASE("Copy list", "[Copy]") {
+
+    cse::ErrorManager errorManager;
+    cse::WordListManager manager(errorManager);
+    cse::WordLang wordLang;
+
+    wordLang.parse("LIST a = LOAD \"FileA.txt\"\n");
+    wordLang.parse("LIST b = COPY a\n");
+    wordLang.parse("SET_CURRENT b\n");
+
+    std::ostringstream oss;
+    std::streambuf* oldCoutBuf = std::cout.rdbuf();
+    std::cout.rdbuf(oss.rdbuf());
+
+    wordLang.parse("PRINT ALL\n");
+
+    std::cout.rdbuf(oldCoutBuf);
+    std::string output = oss.str();
+
+    CHECK(output == "[table, computer]\n");
+}
+*/
