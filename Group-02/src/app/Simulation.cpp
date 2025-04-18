@@ -61,10 +61,15 @@ void Simulation::load_xml(const std::string& filename) {
         xml.readNext();
         if (xml.isStartElement() && xml.name() == QLatin1String("compartment")) {
           auto attrs = xml.attributes();
-          std::string sym = attrs.value("name").toString().toStdString();
+          std::string name = attrs.value("name").toString().toStdString();
+          std::string sym = attrs.value("symbol").toString().toStdString();
           float initial = attrs.value("initial").toFloat();
+          int x_pos = attrs.value("x_pos").toInt();
+          int y_pos = attrs.value("y_pos").toInt();
 
-          auto comp_ptr = std::make_shared<Compartment>(sym, sym, initial);
+          auto comp_ptr = std::make_shared<Compartment>(name, sym, initial);
+          comp_ptr->set_x(x_pos);
+          comp_ptr->set_y(y_pos);
           add_compartment(comp_ptr);
           comp_map[sym] = comp_ptr;
         }
@@ -127,9 +132,13 @@ void Simulation::save_xml(const std::string& filename) {
   xml.writeStartElement("compartments");
   for (auto& comp : m_compartments) {
     xml.writeStartElement("compartment");
-    xml.writeAttribute("name", QString::fromStdString(comp->get_symbol()));
+    xml.writeAttribute("name", QString::fromStdString(comp->get_name()));
+    xml.writeAttribute("symbol", QString::fromStdString(comp->get_symbol()));
     xml.writeAttribute("initial", QString::number(comp->get_initial_amount()));
-    xml.writeEndElement();
+    xml.writeAttribute("x_pos", QString::number(comp->get_x()));
+    xml.writeAttribute("y_pos", QString::number(comp->get_y()));
+
+      xml.writeEndElement();
   }
   xml.writeEndElement();
 
