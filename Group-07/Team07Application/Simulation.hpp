@@ -72,43 +72,48 @@ class SimulationRunner {
             for (const auto& interaction : state.interactions) {
                 auto predatorOpt = state.FindSpecies(interaction.predator);
                 auto preyOpt = state.FindSpecies(interaction.prey);
-    
+        
                 if (predatorOpt.has_value() && preyOpt.has_value()) {
-                    auto predator = predatorOpt.value();
-                    auto prey = preyOpt.value();
-                    if (prey->population <= 0) continue; // prey extinct, skip
-                    int toEat = std::min(prey->population,
-                        static_cast<int>(speciesPopulations[predator->name] * interaction.huntRate));
-    
+                    Species& predator = predatorOpt.value().get();
+                    Species& prey = preyOpt.value().get();
+        
+                    if (prey.population <= 0) continue; // prey extinct, skip
+        
+                    int toEat = std::min(prey.population,
+                        static_cast<int>(speciesPopulations[predator.name] * interaction.huntRate));
+        
                     toEat = std::min(toEat, static_cast<int>(
                         std::count_if(state.animals.begin(), state.animals.end(),
-                            [&prey](const Animal& a) { return a.species == prey->name; })
+                            [&prey](const Animal& a) { return a.species == prey.name; })
                     ));
+        
                     // simulate hunting by using scheduler
                     for (auto _ : std::views::iota(0, toEat)) {
                         auto predID = scheduler.PopNextProcess();
                         if (!predID) break;
-    
+        
                         auto preyIt = std::find_if(state.animals.begin(), state.animals.end(),
-                            [&prey](const Animal& a) { return a.species == prey->name; });
-    
+                            [&prey](const Animal& a) { return a.species == prey.name; });
+        
                         if (preyIt != state.animals.end()) {
-                            prey->population -= 1;
-    
+                            prey.population -= 1;
+        
                             auto predIt = std::find_if(state.animals.begin(), state.animals.end(),
                                 [predID](const Animal& a) { return a.id == *predID; });
-    
+        
                             if (predIt != state.animals.end()) {
                                 predIt->lastEaten += 1;
                             }
-    
+        
                             state.animals.erase(preyIt);
                         }
                     }
+        
                     AddAnimals(toEat / 2, state, scheduler, id, interaction.predator, interaction.prey);
                 }
             }
         }
+        
     
         /**
          * @brief Process births and deaths for a specific species

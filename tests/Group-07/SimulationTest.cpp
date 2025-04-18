@@ -36,8 +36,8 @@ TEST_CASE("Simulation_NoTimeSteps", "[Simulation]") {
     auto foxes   = state.FindSpecies("Foxes");
     REQUIRE(rabbits.has_value());
     REQUIRE(foxes.has_value());
-    REQUIRE(rabbits.value()->population == 100); // no change
-    REQUIRE(foxes.value()->population == 10);
+    REQUIRE(rabbits.value().get().population == 100); // no change
+    REQUIRE(foxes.value().get().population == 10);
 
     std::string logs = capturedStream.str();
     REQUIRE(logs.find("Simulation complete.") != std::string::npos); // simulation should be compl.
@@ -64,8 +64,8 @@ TEST_CASE("Simulation_NoInteractions", "[Simulation]") {
     auto foxes   = state.FindSpecies("Foxes");
     REQUIRE(rabbits.has_value());
     REQUIRE(foxes.has_value());
-    REQUIRE(rabbits.value()->population == 117);
-    REQUIRE(foxes.value()->population == 10);
+    REQUIRE(rabbits.value().get().population == 117);
+    REQUIRE(foxes.value().get().population == 10);
 
     std::string logs = capturedStream.str();
     REQUIRE(logs.find("Simulation complete.") != std::string::npos);
@@ -94,8 +94,8 @@ TEST_CASE("Simulation_EarlyExtinction", "[Simulation]") {
     auto foxes   = state.FindSpecies("Foxes");
     REQUIRE(rabbits.has_value());
     REQUIRE(foxes.has_value());
-    REQUIRE(rabbits.value()->population == 0);
-    REQUIRE(foxes.value()->population == 0);
+    REQUIRE(rabbits.value().get().population == 0);
+    REQUIRE(foxes.value().get().population == 0);
 
     std::string logs = capturedStream.str();
     REQUIRE(logs.find("Simulation ended early: all species went extinct.") != std::string::npos);
@@ -121,7 +121,7 @@ TEST_CASE("Simulation_MissingSpeciesInteraction", "[Simulation]") {
 
     auto rabbits = state.FindSpecies("Rabbits");
     REQUIRE(rabbits.has_value());
-    REQUIRE(rabbits.value()->population == 116);
+    REQUIRE(rabbits.value().get().population == 116);
 
     std::string logs = capturedStream.str();
     REQUIRE(logs.find("Simulation complete.") != std::string::npos);
@@ -149,8 +149,8 @@ TEST_CASE("Simulation_Regular_Run", "[Simulation]") {
     auto foxes   = state.FindSpecies("Foxes");
     REQUIRE(rabbits.has_value());
     REQUIRE(foxes.has_value());
-    REQUIRE(rabbits.value()->population == 117); 
-    REQUIRE(foxes.value()->population == 10);
+    REQUIRE(rabbits.value().get().population == 117); 
+    REQUIRE(foxes.value().get().population == 10);
 
     std::string logs = capturedStream.str();
     REQUIRE(logs.find("Simulation complete.") != std::string::npos);

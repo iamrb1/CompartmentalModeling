@@ -7,9 +7,9 @@
 #include <algorithm>
 #include <memory>
 #include <optional>
+#include <functional>
 
-class Animal {
-    public:
+struct Animal {
         int id;
         std::string species;
         std::string prey;
@@ -76,21 +76,23 @@ class Animal {
             }
         }
     
-        /*
-        * FindSpecies - find a species by name
-        * @param name: the name of the species to find
-        * @return: optional shared pointer to the species if found, otherwise nullopt
-        */
-        std::optional<std::shared_ptr<Species>> FindSpecies(const std::string& name) {
-            auto it = std::find_if(speciesList.begin(), speciesList.end(),
-                                [&name](const std::shared_ptr<Species>& species) {
-                                    return species->name == name;
-                                });
-        
-            if (it != speciesList.end()) {
-                return *it; // ret shared pointer if found
-            }
-            
-            return std::nullopt;
+    /*
+    * @brief Find a species by name
+    * 
+    * This function searches for a species in the species list by its name.
+    * If found, it returns a reference to the species wrapped in std::optional.
+    * If not found, it returns std::nullopt.
+    */
+    std::optional<std::reference_wrapper<Species>> FindSpecies(const std::string& name) {
+        auto it = std::find_if(speciesList.begin(), speciesList.end(),
+            [&name](const std::shared_ptr<Species>& species) {
+                return species->name == name;
+            });
+
+        if (it != speciesList.end()) {
+            return *(*it); // dereference shared_ptr to get Species&
         }
+
+        return std::nullopt;
+    }
     };
