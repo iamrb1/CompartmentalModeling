@@ -16,8 +16,7 @@ set (
     Compartment.cpp
     Connection.h
     Connection.cpp
-        Sidebar.h
-        Sidebar.cpp
+
 )
 
 qt_add_qml_module(

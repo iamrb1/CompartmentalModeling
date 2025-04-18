@@ -183,7 +183,7 @@ ApplicationWindow {
         nameFilters: ["Simulation files (*.xml)"]
         fileMode: FileDialog.SaveFile
         onAccepted: {
-            mainFrame.saveSimulation(selectedFile)
+            mainFrame.save_simulation(selectedFile)
         }
     }
 
@@ -194,7 +194,7 @@ ApplicationWindow {
         nameFilters: ["Simulation files (*.xml)"]
         fileMode: FileDialog.OpenFile
         onAccepted: {
-            mainFrame.loadSimulation(selectedFile)
+            mainFrame.load_simulation(selectedFile)
         }
     }
 }
