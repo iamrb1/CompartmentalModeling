@@ -250,6 +250,7 @@ bool cse::WordListManager::setCurrent(const std::vector<std::string>& listNames)
  */
 bool cse::WordListManager::add(const std::string& listName, const std::string& wordsToAdd) {
     if (mWordLists.find(listName) == mWordLists.end()) {
+        mErrorManager.printInfo("List '" + listName + "' does not exist");
         return false;
     }
     auto& list = mWordLists[listName];
@@ -258,6 +259,7 @@ bool cse::WordListManager::add(const std::string& listName, const std::string& w
     while (iss >> word) {
         list.insert(word);
     }
+    mErrorManager.printInfo("Words added to list '" + listName + "'");
     return true;
 }
 /**
@@ -268,11 +270,13 @@ bool cse::WordListManager::add(const std::string& listName, const std::string& w
  */
 bool cse::WordListManager::save(const std::string& fileName, const std::string& listName) {
     if (mWordLists.find(listName) == mWordLists.end()) {
+        mErrorManager.printInfo("List '" + listName + "' does not exist");
         return false;
     }
 
     const auto& list = mWordLists[listName];
     if (FileSource::save_file(fileName, list)) {
+        mErrorManager.printInfo("List '" + listName + "' saved to " + + "'" + fileName + "'");
         return true;
     } else {
         return false;

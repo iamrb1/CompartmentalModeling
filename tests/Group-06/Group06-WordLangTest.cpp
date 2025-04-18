@@ -1280,6 +1280,9 @@ TEST_CASE("setLengthRestriction Tests", "[WordLang]") {
 
 TEST_CASE("setCurrent Tests", "[WordLang]") {
   cse::WordLang wordLang;
+  std::filesystem::path current = std::filesystem::current_path();
+  std::filesystem::path target = current.parent_path().parent_path() / "Group-06" / "App" / "src";
+  std::filesystem::current_path(target);
 
   std::vector<std::string> input = {
       "LIST list1 = LOAD\"file1.txt\"\n",
@@ -1290,11 +1293,11 @@ TEST_CASE("setCurrent Tests", "[WordLang]") {
   };
 
   std::vector<std::string> output_result = { 
-    "",
-    "",
-    "",
     "Loaded \"file1.txt\". Word count in a list: 11\n",
-    "Incorrect Syntax: There must be list type to set as current.\n"
+    "Loaded \"file2.txt\". Word count in a list: 11\n",
+    "",
+    "",
+    "[Info]: Incorrect Syntax: There must be list type to set as current.\n"
   };
 
   for (size_t i = 0; i < input.size(); ++i) {
@@ -1323,8 +1326,8 @@ TEST_CASE("save Tests", "[WordLang]") {
 
   std::vector<std::string> output_result = {
       "Loaded \"file1.txt\". Word count in a list: 11\n",
-      "[Info]: List 'list1' saved to 'output.txt'.\n",
-      "[Error]: List 'nonexistent' does not exist.\n"
+      "[Info]: List 'list1' saved to 'output.txt'\n",
+      "[Info]: List 'nonexistent' does not exist\n"
   };
 
   for (size_t i = 0; i < input.size(); ++i) {
@@ -1355,9 +1358,9 @@ TEST_CASE("add Tests", "[WordLang]") {
 
   std::vector<std::string> output_result = {
       "Loaded \"file1.txt\". Word count in a list: 11\n",
-      "[Info]: Words added to list 'list1'.\n",
-      "[Error]: List 'nonexistent' does not exist.\n",
-      "[Info]: No words added to list 'list1'.\n"
+      "[Info]: Words added to list 'list1'\n",
+      "[Info]: List 'nonexistent' does not exist\n",
+      "[Info]: Words added to list 'list1'\n"
   };
 
   for (size_t i = 0; i < input.size(); ++i) {

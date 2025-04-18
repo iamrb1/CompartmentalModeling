@@ -372,9 +372,9 @@ void cse::WordLang::parseSave() {
 
     mWordListManager.save(trimmedFilename, listname.lexeme);
     // Call WordListManager to handle with listname, trimmedFilename to save into.
-    if (!mWordListManager.save(listname.lexeme, trimmedFilename)) {
+    /*if (!mWordListManager.save(listname.lexeme, trimmedFilename)) {
         return;
-    }
+    }*/
 }
 
 void cse::WordLang::parseLength() {
