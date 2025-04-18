@@ -40,7 +40,7 @@ bool cse::WordListManager::print(int number, bool isAll) {
     int count = 0;
     int limit = isAll ? static_cast<int>(mCurrentSet.size() - 1) : number;
 
-    if(!isAll && static_cast<int>(mCurrentSet.size()) < number) {
+    if(!isAll && static_cast<int>(mCurrentSet.size()) <= number) {
         limit = static_cast<int>(mCurrentSet.size() - 1);
     }
 
@@ -296,9 +296,7 @@ void cse::WordListManager::reset(const std::string& listname) {
     }
 
     mWordLists[listname] = FileSource::load_file(mFileLists[listname]);
-    mErrorManager.printInfo("Successfully reset " + listname + " to the original state.\n");
-    std::cout << "  " << listname << ": " << mWordLists[listname].size() << " words\n";
-    
+    mErrorManager.printInfo("Successfully reset " + listname + " to the original state with " + std::to_string(mWordLists[listname].size()) + " words.");    
     
 }
 /**
@@ -444,7 +442,7 @@ bool cse::WordListManager::NotContains(const std::string &lettersToCheck)
       return false;
     }
 
-    cse::StringSet<cse::StaticString<30>> result = mCurrentSet.search("[^" +lettersToCheck + "]*");
+    cse::StringSet<cse::StaticString<30>> result = mCurrentSet.search("^[^" +lettersToCheck + "]*$");
     mCurrentSet = result;
     
     if(mPrintNumberOfWords) {
@@ -505,16 +503,17 @@ bool cse::WordListManager::wordle(const std::string& word, const std::string& re
         return false;
     }
 
-    std::string lettersToNotContains = "";  // Letters marked 'b' in the result.
-    std::string lettersToContain = "";      // Letters marked 'g' or 'y' means those letters must be in the word.
+    std::unordered_set<char> lettersToNotContainsSet;  // Letters marked 'b' in the result.
+    std::unordered_set<char> lettersToContainSet;      // Letters marked 'g' or 'y' means those letters must be in the word.
     std::string patternOfGreen = "";        // Letters marked 'g' where that letter exactly must be in that place.
     std::unordered_map<char, size_t> lettersIndexes; // Holds the character marked yellow and its index.
 
+
     for(size_t i=0; i<result.length(); i++) {
         if (result[i] == 'b') {
-            lettersToNotContains += word[i];
+            lettersToNotContainsSet.insert(word[i]);
         } else if (result[i] == 'y' || result[i] == 'g') {
-            lettersToContain += word[i];
+            lettersToContainSet.insert(word[i]);
         }
 
         if (result[i] == 'g') {
@@ -530,10 +529,18 @@ bool cse::WordListManager::wordle(const std::string& word, const std::string& re
 
     mPrintNumberOfWords = false;
 
+    std::string lettersToNotContains(lettersToNotContainsSet.begin(), lettersToNotContainsSet.end());
+    std::string lettersToContain(lettersToContainSet.begin(), lettersToContainSet.end());
+
     // Now we remove all the letters marked 'b' from the wordle in our search set
-    NotContains(lettersToNotContains);
+    if(!lettersToNotContains.empty()) {
+        NotContains(lettersToNotContains);
+    }
+    
     // We make sure only the words that contains letter marked green or yellow in the search set
-    ContainsAll(lettersToContain);
+    if(!lettersToContain.empty()) {
+        ContainsAll(lettersToContain);
+    }
     // Filter set with a green in position with get
     Get(patternOfGreen);
 

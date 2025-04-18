@@ -1,0 +1,5 @@
+fable
+label
+table
+noble
+stable

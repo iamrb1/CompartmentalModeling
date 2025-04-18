@@ -18,8 +18,6 @@
  #include <string>
  #include "TokenManager.hpp"
  #include "WordListManager.hpp"
- #include "../../../ErrorManager/ErrorManager.hpp"
- #include "../../../CommandLine/CommandLine.cpp"
 
 namespace cse {
 
@@ -262,9 +260,6 @@ namespace cse {
 
         /// @brief WordListManager handles all the backend operations
         WordListManager mWordListManager;
-
-        // /// @brief CommandLine that handles calls to the functions and logging
-        // CommandLine mCommandLine;
     };
 
 }

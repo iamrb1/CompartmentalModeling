@@ -10,10 +10,6 @@
 #include <vector>
 
 void cse::WordLang::start() {
-    //Initialize commandLine
-
-    // Call a function that takes commandline and assigns functions and configure it
-
     std::cout << "Welcome to WordLang! Type your query below:\n";
 
     mIsActive = true;
@@ -29,8 +25,6 @@ void cse::WordLang::start() {
         }
         
         parse(input);
-
-        //std::cout << "You wrote: " << input << std::endl;
     }
 }
 
@@ -146,7 +140,7 @@ void cse::WordLang::parseList() {
             return;
         }
 
-        // Syntax is correct, call WordListManager to handle. WIth file name and list name to load
+        // Syntax is correct, call WordListManager to handle. With file name and list name to load
         std::string cut_name = filename.lexeme.substr(1,filename.lexeme.length() - 2);
         if (!mWordListManager.loadList(listname.lexeme, cut_name)) {
             return;
@@ -172,7 +166,6 @@ void cse::WordLang::parseList() {
         }
 
         // Call WordListManager to handle with listname, listsToCombine to combine
-        // TODO
         if (!mWordListManager.combine(listname.lexeme, listsToCombine)) {
             return;
         }
@@ -197,8 +190,6 @@ void cse::WordLang::parseList() {
         }
 
         // Call WordListManager to handle with listname, listsToDifference to difference
-        // TODO
-
         if (!mWordListManager.difference(listname.lexeme, listsToDifference)) {
             return;
         }
@@ -223,7 +214,6 @@ void cse::WordLang::parseList() {
         }
 
         // Call WordListManager to handle with listname, listsToIntersection to intersection
-        // TODO
         if (!mWordListManager.intersection(listname.lexeme, listsToIntersection)) {
             return;
         }
@@ -244,7 +234,6 @@ void cse::WordLang::parseList() {
         }
 
         // Call WordListManager to handle with listname, listnameToCopy to copy
-        // TODO
         if (!mWordListManager.copy(listname.lexeme, listnameToCopy.lexeme)) {
             return;
         }
@@ -265,7 +254,6 @@ std::vector<std::string> cse::WordLang::parseMultipleLists() {
             lists_to_combine.push_back(list.lexeme); // Add list name to collection
         } else {
             // Syntax Error 
-            // mErrorManager.printInfo("Incorrect Syntax: Incorrect identifier type, must be an exisiting listname.");
             lists_to_combine.clear(); 
             return lists_to_combine;
         }
@@ -315,7 +303,6 @@ void cse::WordLang::parseSetCurrent() {
     }
 
     // Call WordListManager to handle with listsToSetCurrent
-    // TODO
     if (!mWordListManager.setCurrent(listsToSetCurrent)) {
         return;
     }
@@ -350,7 +337,6 @@ void cse::WordLang::parseAdd() {
     std::string trimmedWords = words.lexeme.substr(1, words.lexeme.length() - 2);
 
     // Call WordListManager to handle with listname, trimmedWords to add into list.
-    // TODO 
     if (!mWordListManager.add(listname.lexeme, trimmedWords)) {
         return;
     }
@@ -386,10 +372,9 @@ void cse::WordLang::parseSave() {
 
     mWordListManager.save(trimmedFilename, listname.lexeme);
     // Call WordListManager to handle with listname, trimmedFilename to save into.
-    // TODO 
-    // if (!mWordListManager.save(listname.lexeme, trimmedFilename)) {
-    //     return;
-    // }
+    if (!mWordListManager.save(listname.lexeme, trimmedFilename)) {
+        return;
+    }
 }
 
 void cse::WordLang::parseLength() {
@@ -439,7 +424,9 @@ void cse::WordLang::parseContainsAny() {
 
     std::string trimmedLetters = letters.lexeme.substr(1, letters.lexeme.length() - 2);
     // Call WordListManager to handle with trimmedLetters.
-    // TODO 
+    if(!mWordListManager.ContainsAny(trimmedLetters)) {
+        return;
+    }
     
 }
 
@@ -460,9 +447,6 @@ void cse::WordLang::parseContainsAll() {
     }
 
     std::string trimmedLetters = letters.lexeme.substr(1, letters.lexeme.length() - 2);
-    // TODO - call WordListManager to handle with trimmedLetters
-    // Maybe we can combine this function with parseContainsAny() to avoid code duplication?
-    // have just "parseContains" which accepts boolean 
     if (!mWordListManager.ContainsAll(trimmedLetters)) {
         return;
     }
@@ -485,8 +469,6 @@ void cse::WordLang::parseNotContains() {
     }
 
     std::string trimmedLetters = letters.lexeme.substr(1, letters.lexeme.length() - 2);
-
-    // TODO - call WordListManager to handle trimmedLetters
     if (!mWordListManager.NotContains(trimmedLetters)) {
         return;
     }
@@ -510,7 +492,6 @@ void cse::WordLang::parseGet() {
 
     std::string trimmedLetters = letters.lexeme.substr(1, letters.lexeme.length() - 2);
 
-    // TODO - call WordListManager to handle trimmedLetters
     if (!mWordListManager.Get(trimmedLetters)) {
         return;
     }
