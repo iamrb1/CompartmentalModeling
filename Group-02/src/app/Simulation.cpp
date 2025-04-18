@@ -39,6 +39,10 @@ void Simulation::load_xml(const std::string& filename) {
   QXmlStreamReader xml(&file);
   m_save_path = filename;
 
+  m_compartments.clear();
+  m_connections.clear();
+  m_variables.clear();
+
   std::unordered_map<std::string, std::shared_ptr<Compartment>> comp_map;
 
   // find simulation name
