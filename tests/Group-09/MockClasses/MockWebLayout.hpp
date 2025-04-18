@@ -21,10 +21,10 @@ struct TextBoxLayout {
   int yPos;
   int xPos;
 
-  TextBoxLayout() : textBox(), xPos(0), yPos(0){};
+  TextBoxLayout() : textBox(), yPos(0), xPos(0){};
 
   TextBoxLayout(std::shared_ptr<cse::TextBox> textBox, int x, int y)
-      : textBox(std::move(textBox)), xPos(x), yPos(y) {}
+      : textBox(std::move(textBox)), yPos(x), xPos(y) {}
 
   bool operator==(const TextBoxLayout &textboxLayout) const {
     return ((textboxLayout.textBox->getFormattedText().getText() ==
@@ -68,12 +68,12 @@ class MockWebLayout {
   std::vector<ImageLayout> images;
   std::string id;
 
-  const void renderTextBox(const std::string &layoutID, const cse::FormattedText &msg,
+  void renderTextBox(const std::string &layoutID, const cse::FormattedText &msg,
                            const int &width, const int &height, const int &x,
-                           const int &y, const std::string &textboxID);
-  void const renderImage(const std::string &layoutID, const std::string &url,
+                           const int &y, const std::string &textboxID) const;
+  void renderImage(const std::string &layoutID, const std::string &url,
                          const int &width, const int &height, const int &x,
-                         const int &y, const std::string &imageID);
+                         const int &y, const std::string &imageID) const;
 
  public:
   MockWebLayout() : id(generateID()) {}

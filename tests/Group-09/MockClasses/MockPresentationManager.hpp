@@ -1,7 +1,7 @@
 /**
  * @file MockPresentationManager.hpp
  * @brief This file contains PresentationManager with removed JS calls
- * @author Owen Haiar, Mary Holt, Allie Ianello, Grace
+ * @author Owen Haiar, Mary Holt, Allie Ianello, Grace Fitzgerald
  */
 
 #pragma once
@@ -58,8 +58,6 @@ class MockPresentationManager {
 			//_event_manager.start();
             _running = true;
 			std::cout << "Starting Events" << std::endl;
-            // Toggle bottom bar
-//            toggleBottomNav(true);
 		}
 
 		/**
@@ -132,7 +130,7 @@ class MockPresentationManager {
 			auto newTextBox = std::make_shared<TextBox>("", tbc);
 			TextBoxLayout newLayout = {newTextBox, 50, 50};
 
-			if (_slide_deck.empty() || _current_pos >= _slide_deck.size()) {
+			if (_slide_deck.empty() || _current_pos >= static_cast<int>(_slide_deck.size())) {
 				std::cout << "ERROR: No current layout to modify.\n";
                 // Create new slide and finish adding textbox
                 addNewSlide();
@@ -155,7 +153,7 @@ class MockPresentationManager {
 				return;
 			}
 
-			if (_slide_deck.empty() || _current_pos >= _slide_deck.size()) {
+			if (_slide_deck.empty() || _current_pos >= static_cast<int>(_slide_deck.size())) {
 				std::cout << "ERROR: No current layout to add image.\n";
                 // Create new slide and finish adding image
                 addNewSlide();
@@ -174,7 +172,7 @@ class MockPresentationManager {
 		void goTo(const int slide_num) {
 			std::cout << "Going to slide " << slide_num << std::endl;
 
-			if (slide_num < 0 || slide_num >= _slide_deck.size()) {
+			if (slide_num < 0 || slide_num >= static_cast<int>(_slide_deck.size())) {
 				std::cout << "ERROR: Invalid slide number: " << slide_num << std::endl;
 				return; // Exit early
 			}
@@ -189,14 +187,13 @@ class MockPresentationManager {
 			currentLayout = _slide_deck.at(_current_pos);
 			currentLayout->activateLayout();
 			//_event_manager.onSlideChanged(_current_pos);
-//			onSlideChangedJS();
 		}
 
 		/**
 		 * Updates object position
 		 */
 		void updatePosition(std::string id, int newX, int newY) {
-			if (_slide_deck.empty() || _current_pos >= _slide_deck.size()) return;
+			if (_slide_deck.empty() || _current_pos >= static_cast<int>(_slide_deck.size())) return;
 			_slide_deck.at(_current_pos)->setPosition(id, newX, newY);
 		}
 
@@ -235,9 +232,9 @@ class MockPresentationManager {
 		 * @param origin Origin slide
 		 * @param destination Destination slide
 		 */
-		void addSlideChangeEvent(const int time, const size_t origin, const size_t destination) {
+		void addSlideChangeEvent([[maybe_unused]]const int time, [[maybe_unused]]const size_t origin, const size_t destination) {
             // Check if destination slide exists (destination count is 1 off for user readability on UI)
-            if(destination > getNumSlides() - 1) {
+            if(destination > static_cast<size_t>(getNumSlides() - 1)) {
               std::cout << "WARNING: Destination slide " << destination << " doesn't exist." << std::endl;
               return;
             }
@@ -246,7 +243,7 @@ class MockPresentationManager {
 		}
 
         void updateImageSize(const std::string& id, int newWidth, int newHeight) {
-		  if (_slide_deck.empty() || _current_pos >= _slide_deck.size()) return;
+		  if (_slide_deck.empty() || _current_pos >= static_cast<int>(_slide_deck.size())) return;
 		  auto& layout = _slide_deck.at(_current_pos);
 
 		  for (auto& img : layout->getImages()) {
@@ -293,7 +290,6 @@ class MockPresentationManager {
           std::swap(_slide_deck[_current_pos], _slide_deck[destination]);
           std::cout << "Swapped slides " << _current_pos << " and " << destination << std::endl;
           goTo(destination);
-//          onSlideChangedJS();
 
         }
 
