@@ -465,7 +465,7 @@ bool cse::WordListManager::Get(const std::string &patternToCheck)
     if (mCurrentSet.size() == 0) {
       return false;
     }
-
+    
     std::string patternToCheckNew = "";
     for (size_t i = 0; i < patternToCheck.length(); i++) {
       if (patternToCheck[i] != '_' && patternToCheck[i] != '*') {
@@ -476,8 +476,10 @@ bool cse::WordListManager::Get(const std::string &patternToCheck)
         patternToCheckNew += ".*";
       }
     }
+
     cse::StringSet<cse::StaticString<30>> result = mCurrentSet.search(patternToCheckNew);
     mCurrentSet = result;
+
     if(mPrintNumberOfWords) {
         std::cout << "Number of words to search: " << mCurrentSet.size() << std::endl;
     }
