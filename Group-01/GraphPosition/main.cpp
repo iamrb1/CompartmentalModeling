@@ -1,6 +1,5 @@
-#include "GraphPosition.hpp"
 #include <iostream>
 
-int main() {
-  return 0;
-}
+#include "GraphPosition.hpp"
+
+int main() { return 0; }

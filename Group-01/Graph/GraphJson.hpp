@@ -12,8 +12,8 @@
 namespace cse {
 
 /**
- * Used ChatGPT to assist adding support to 
- * Import and Export a Graph in JSON 
+ * Used ChatGPT to assist adding support to
+ * Import and Export a Graph in JSON
  */
 template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL = false>
 class GraphJson {
@@ -23,12 +23,12 @@ class GraphJson {
  public:
   /**
    * Constructor
-   * @param g The graph 
+   * @param g The graph
    */
   GraphJson(Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL> &g) : graph(g) {}
 
   /**
-   * Exports the graph to a JSON 
+   * Exports the graph to a JSON
    * @return JSON of the graoh
    */
   std::string ExportToJson() const {
@@ -58,11 +58,11 @@ class GraphJson {
       j["edges"].push_back(edge);
     }
 
-    return j.dump(4);  
+    return j.dump(4);
   }
 
   /**
-   * Exports the graph to a JSON 
+   * Exports the graph to a JSON
    * @param filename Path to the output file
    * @return true if successful, false otherwise
    */
@@ -82,7 +82,7 @@ class GraphJson {
   }
 
   /**
-   * Imports a graph from a JSON 
+   * Imports a graph from a JSON
    * @param jsonStr JSON to import
    * @return true if successful, false otherwise
    */
@@ -132,7 +132,7 @@ class GraphJson {
   }
 
   /**
-   * Imports a graph from a JSON 
+   * Imports a graph from a JSON
    * @param filename Path to the file
    * @return true if successful, false otherwise
    */

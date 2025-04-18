@@ -1,6 +1,5 @@
-#include "WeightedSet.hpp"
 #include <iostream>
 
-int main() {
-    return 0;
-}
+#include "WeightedSet.hpp"
+
+int main() { return 0; }
