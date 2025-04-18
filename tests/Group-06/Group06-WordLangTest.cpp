@@ -1233,6 +1233,7 @@ TEST_CASE("LOAD and PRINT tests", "[WordLang]") {
 }
 
 /*
+ * Got help from LLM to write this test case
 TEST_CASE("Combine lists and print result", "[Combine]") {
     cse::ErrorManager errorManager;
     cse::WordListManager manager(errorManager);
@@ -1252,7 +1253,7 @@ TEST_CASE("Combine lists and print result", "[Combine]") {
     std::cout.rdbuf(oldCoutBuf);
     std::string output = oss.str();
 
-    CHECK(output == "[table, computer, yellow, blue]\n");  // Replace with actual expected output
+    CHECK(output == "[table, computer, yellow, blue]\n");
 }
 
 TEST_CASE("Difference between lists", "[Difference]") {
