@@ -240,13 +240,16 @@ int main() {
       PrintTerminal();
       continue;
     }
+    filename = arguments[1];
 
-    if (!arguments[1].contains(".txt") && !arguments[1].contains(".csv")) {
+    if (!filename.contains(".txt") && !filename.contains(".csv")) {
       std::cout << RedError(
           "**The file must be of a valid type (.txt or .csv)");
       PrintTerminal();
       continue;
     }
+    
+    itemList = ConstructItems(filename);
 
     std::string valString;
     std::string toFind = "-capacity=";
@@ -258,9 +261,6 @@ int main() {
       continue;
     }
     valString = capacityArg->substr(CAPACITY_ARGLENGTH, capacityArg->length());
-      
-
-    itemList = ConstructItems(filename);
 
     // assign global variables
     try {
