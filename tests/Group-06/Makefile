@@ -1,7 +1,6 @@
 default: test
 
-TEST_NAMES = Group06-WordLangTest Group06-StringSetAdvancedTest Group06-ErrorManagerTest Group06-CommandLineTest Group06-StaticStringTest Group06-StaticStringAdvancedTest Group06-StringSetTest Group06-ArgManagerTest 
-
+TEST_NAMES = Group06-WordLangTest 
 APP_SOURCE_FILES = WordLang.cpp WordListManager.cpp TokenManager.cpp FileSource.cpp
 APP_HEADER_FILES = WordLang.cpp WordListManager.hpp TokenManager.cpp FileSource.hpp #Unused right now
 

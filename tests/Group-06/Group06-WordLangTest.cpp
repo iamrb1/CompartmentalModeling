@@ -13,7 +13,6 @@
 using namespace cse;
 
 const static bool DEBUG_MODE = false;
-
 TEST_CASE("Fundamental WordLang Tests", "[WordLang]") {
   SECTION("Instance of the class is created successfuly") {
 
@@ -1109,85 +1108,138 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
   };  
 }
 
-TEST_CASE("setLengthRestriction Tests", "[WordListManager]") {
-  cse::ErrorManager errorManager;
-  cse::WordListManager manager(errorManager);
+TEST_CASE("setLengthRestriction Tests", "[WordLang]") {
+  cse::WordLang wordLang;
 
-  SECTION("Valid length restriction") {
-      REQUIRE(manager.setLengthRestriction("5") == true);
+  std::vector<std::string> input = {
+      "LENGTH = 5\n",
+      "LENGTH = -1\n",
+      "LENGTH = abc\n",
+      "LENGTH = *\n"
+  };
+
+  std::vector<std::string> output_result = {
+      "Words before filter: 0, after filter: 0\n",
+      "[Info]: Incorrect Syntax: Length value must be number or \"*\"\n",
+      "[Info]: Incorrect Syntax: Length value must be number or \"*\"\n",
+      ""
+  };
+
+  for (size_t i = 0; i < input.size(); ++i) {
+      std::ostringstream oss;
+      std::streambuf* oldCoutBuf = std::cout.rdbuf();
+      std::cout.rdbuf(oss.rdbuf());
+
+      wordLang.parse(input[i]);
+
+      std::cout.rdbuf(oldCoutBuf);
+
+      std::string actualOutput = oss.str();
+      std::string expected = output_result[i];
+
+      CHECK(actualOutput == expected);
   }
+}
+/*
+TEST_CASE("setCurrent Tests", "[WordLang]") {
+  cse::WordLang wordLang;
 
-  SECTION("Invalid length restriction (negative number)") {
-      REQUIRE(manager.setLengthRestriction("-1") == false);
-  }
+  std::vector<std::string> input = {
+      "LIST list1 = LOAD \"file1.txt\"\n",
+      "LIST list2 = LOAD \"file2.txt\"\n",
+      "SET_CURRENT list1 list2\n",
+      "SET_CURRENT list1 nonexistent\n",
+      "SET_CURRENT\n"
+  };
 
-  SECTION("Invalid length restriction (non-numeric)") {
-      REQUIRE(manager.setLengthRestriction("abc") == false);
-  }
+  std::vector<std::string> output_result = {
+      "Loaded \"file1.txt\". Word count in a list: 11\n",
+      "Loaded \"file2.txt\". Word count in a list: 11\n",
+      "[Info]: Current lists set successfully.\n",
+      "[Error]: List 'nonexistent' does not exist.\n",
+      "[Info]: No lists set as current.\n"
+  };
 
-  SECTION("Wildcard length restriction") {
-      REQUIRE(manager.setLengthRestriction("*") == true);
+  for (size_t i = 0; i < input.size(); ++i) {
+      std::ostringstream oss;
+      std::streambuf* oldCoutBuf = std::cout.rdbuf();
+      std::cout.rdbuf(oss.rdbuf());
+
+      wordLang.parse(input[i]);
+
+      std::cout.rdbuf(oldCoutBuf);
+
+      std::string actualOutput = oss.str();
+      std::string expected = output_result[i];
+
+      CHECK(actualOutput == expected);
   }
 }
 
-TEST_CASE("setCurrent Tests", "[WordListManager]") {
-  /* Currently commented out as the load list function which is required for this test isn't finished yet
-  cse::ErrorManager errorManager;
-  cse::WordListManager manager(errorManager);
+TEST_CASE("save Tests", "[WordLang]") {
+  cse::WordLang wordLang;
 
-  manager.loadList("list1", "file1.txt");
-  manager.loadList("list2", "file2.txt");
+  std::vector<std::string> input = {
+      "LIST list1 = LOAD \"file1.txt\"\n",
+      "SAVE list1 \"output.txt\"\n",
+      "SAVE nonexistent \"output.txt\"\n"
+  };
 
-  SECTION("Set current with valid lists") {
-      REQUIRE(manager.setCurrent({"list1", "list2"}) == true);
+  std::vector<std::string> output_result = {
+      "Loaded \"file1.txt\". Word count in a list: 11\n",
+      "[Info]: List 'list1' saved to 'output.txt'.\n",
+      "[Error]: List 'nonexistent' does not exist.\n"
+  };
+
+  for (size_t i = 0; i < input.size(); ++i) {
+      std::ostringstream oss;
+      std::streambuf* oldCoutBuf = std::cout.rdbuf();
+      std::cout.rdbuf(oss.rdbuf());
+
+      wordLang.parse(input[i]);
+
+      std::cout.rdbuf(oldCoutBuf);
+
+      std::string actualOutput = oss.str();
+      std::string expected = output_result[i];
+      std::cout << actualOutput << std::endl;
+      CHECK(actualOutput == expected);
   }
-
-  SECTION("Set current with non-existent list") {
-      REQUIRE(manager.setCurrent({"list1", "nonexistent"}) == false);
-  }
-
-  SECTION("Set current with empty list") {
-      REQUIRE(manager.setCurrent({}) == true);
-  }*/
 }
 
-TEST_CASE("save Tests", "[WordListManager]") {
-  /* Currently commented out as the load list function which is required for this test isn't finished yet
-  cse::ErrorManager errorManager;
-  cse::WordListManager manager(errorManager);
+TEST_CASE("add Tests", "[WordLang]") {
+  cse::WordLang wordLang;
 
-  manager.loadList("list1", "file1.txt");
+  std::vector<std::string> input = {
+      "LIST list1 = LOAD \"file1.txt\"\n",
+      "ADD list1 \"word1 word2 word3\"\n",
+      "ADD nonexistent \"word1 word2 word3\"\n",
+      "ADD list1 \"\"\n"
+  };
 
-  SECTION("Save existing list to a file") {
-      REQUIRE(manager.save("output.txt", "list1") == true);
+  std::vector<std::string> output_result = {
+      "Loaded \"file1.txt\". Word count in a list: 11\n",
+      "[Info]: Words added to list 'list1'.\n",
+      "[Error]: List 'nonexistent' does not exist.\n",
+      "[Info]: No words added to list 'list1'.\n"
+  };
+
+  for (size_t i = 0; i < input.size(); ++i) {
+      std::ostringstream oss;
+      std::streambuf* oldCoutBuf = std::cout.rdbuf();
+      std::cout.rdbuf(oss.rdbuf());
+
+      wordLang.parse(input[i]);
+
+      std::cout.rdbuf(oldCoutBuf);
+
+      std::string actualOutput = oss.str();
+      std::string expected = output_result[i];
+
+      CHECK(actualOutput == expected);
   }
-
-  SECTION("Save non-existent list to a file") {
-      REQUIRE(manager.save("output.txt", "nonexistent") == false);
-  }*/ 
 }
-
-TEST_CASE("add Tests", "[WordListManager]") {
-  /* Currently commented out as the load list function which is required for this test isn't finished yet
-  cse::ErrorManager errorManager;
-  cse::WordListManager manager(errorManager);
-
-  manager.loadList("list1", "file1.txt");
-
-  SECTION("Add words to an existing list") {
-      REQUIRE(manager.add("list1", "word1 word2 word3") == true);
-  }
-
-  SECTION("Add words to a non-existent list") {
-      REQUIRE(manager.add("nonexistent", "word1 word2 word3") == false);
-  }
-
-  SECTION("Add empty words to an existing list") {
-      REQUIRE(manager.add("list1", "") == true);
-  }
-      */
-}
-
+*/
 
 TEST_CASE("LOAD and PRINT tests", "[WordLang]") {
   SECTION("LIST LOAD and PRINT command") {
@@ -1237,8 +1289,8 @@ TEST_CASE("LOAD and PRINT tests", "[WordLang]") {
   };
 }
 
-/*
- * Got help from LLM to write this test case
+
+ // Got help from LLM to write this test case
 TEST_CASE("Combine lists and print result", "[Combine]") {
     cse::ErrorManager errorManager;
     cse::WordListManager manager(errorManager);
@@ -1326,4 +1378,3 @@ TEST_CASE("Copy list", "[Copy]") {
 
     CHECK(output == "[table, computer]\n");
 }
-*/
