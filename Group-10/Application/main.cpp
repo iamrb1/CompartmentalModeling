@@ -22,6 +22,29 @@ bool weightless = false;
 bool compare = false;
 bool optimized = false;
 
+static constexpr std::size_t CAPACITY_ARGLENGTH = 10;
+static const std::string welcomeMessage =
+    "Welcome to Knapsack Solver.\n"
+    "This solver can process any text or CSV file containing items with names, "
+    "weights, and values and return what the best lection of items are for the "
+    "space you have.\n"
+    "When using this solver, here are the options:\n";
+
+static const std::string helpMessage =
+    "Command:\n"
+    "brute-force <filepath> -capacity=<value>\n\n"
+    "All files must either be .csv, or .txt formatted in the CSV style.\n"
+    "We also have a collection of arguments you can pass alongside that "
+    "command if you want other results.\n"
+    "-help (-h) = Prints this message\n"
+    "-optimize (-o) = Turns on all optimization flags for the problem\n"
+    "-compare (-c) = Solves the problem both unoptimized and optimized, then "
+    "compares the results to see the speedup\n"
+    "-no-weight (-w) = Removes weight considerations. The algorithm will only "
+    "consider the number of items in respect to the capacity\n"
+    "-repeats (-r) = Allows for items to be used multiple times in the "
+    "solution\n";
+
 /**
  * @brief - helps split strings
  * @param str - the string
@@ -77,15 +100,29 @@ std::vector<cse::Item> ConstructItems(std::string filename) {
   return Items;
 }
 
-/* void PrintBruteForceResults(std::pair<double, std::vector<cse::Item>>
-results, bool optimized = false) { std::cout << "Knapsack Solver Results\n"
-            << (optimized)
-      ? "<<Optimized>>\n"
-      : "<<Unoptimized>>\n";
-  std::cout << "Best Score Recorded: " << results.first << '\n';
-  std::cout << "Selection of Items:";
-  PrintVector(results.second);
-} */
+void Compare() {
+  cse::BruteForceOptimizer optimizer;
+  optimizer.SetItems(itemList);
+  optimizer.SetCapacity(capacity);
+  optimizer.SetOptimizer(false);
+  double unoptimizedTime =
+      measureTime([&]() { optimizer.FindOptimalSolution(); });
+  auto unoptimizedScore = optimizer.FindOptimalSolution().first;
+
+  optimizer.SetOptimizer(true);
+
+  std::pair<double, std::vector<cse::Item>> solutionPair;
+
+  double optimizedTime =
+      measureTime([&]() { optimizer.FindOptimalSolution(); });
+  auto optimizedScore = optimizer.FindOptimalSolution().first;
+
+  std::cout << "Unoptimized Time: " << unoptimizedTime << std::endl;
+  std::cout << "Optimized Time: " << optimizedTime << std::endl;
+  std::cout << "Speedup: "
+            << ((unoptimizedTime - optimizedTime) / unoptimizedTime) * 100
+            << "%\n";
+}
 
 void BruteForceUnoptimized() {
   cse::BruteForceOptimizer optimizer;
@@ -95,40 +132,13 @@ void BruteForceUnoptimized() {
   optimizer.SetOptimizer(optimized);
 
   if (compare) {
-    optimizer.SetOptimizer(false);
-    double unoptimizedTime =
-        measureTime([&]() { optimizer.FindOptimalSolution(); });
-    auto unoptimizedScore = optimizer.FindOptimalSolution().first;
-
-    optimizer.SetOptimizer(true);
-
-    std::pair<double, std::vector<cse::Item>> solutionPair;
-
-    double optimizedTime =
-        measureTime([&]() { optimizer.FindOptimalSolution(); });
-    auto optimizedScore = optimizer.FindOptimalSolution().first;
-
-    std::cout << "Optimal Value: " << solutionPair.first << std::endl;
-    std::cout << "Item Set: " << std::endl;
-    for (auto item : solutionPair.second) {
-      std::cout << item.name << " " << item.value << " " << item.weight
-                << std::endl;
-    }
-
-    std::cout << "Unoptimized Time: " << unoptimizedTime << std::endl;
-    std::cout << "Optimized Time: " << optimizedTime << std::endl;
-    std::cout << "Speedup: "
-              << ((unoptimizedTime - optimizedTime) / unoptimizedTime) * 100
-              << "%\n";
+    Compare();
   }
 
   auto solutionPair = optimizer.FindOptimalSolution();
   std::cout << "Optimal Value: " << solutionPair.first << std::endl;
   std::cout << "Item Set: " << std::endl;
-  for (auto item : solutionPair.second) {
-    std::cout << item.name << " " << item.value << " " << item.weight
-              << std::endl;
-  }
+  PrintVector(solutionPair.second);
 
   std::cout << "Run Unoptimized" << std::endl;
 }
@@ -177,9 +187,6 @@ cse::ArgManager createArgManager(std::vector<std::string> &args) {
 }
 
 void AdjustRepeats() {
-  // cse::ComboManager<std::vector<cse::Item>> CM(itemList, itemList.size(),
-  // true); cse::BruteForceOptimizer RepeatProblemSolver;
-  // RepeatProblemSolver.SetCapacity(capacity);
   std::vector<cse::Item> initItems = itemList;
   for (auto item : initItems) {
     int maxItemAmount = capacity / item.weight;
@@ -191,23 +198,16 @@ void AdjustRepeats() {
   }
 }
 
-void PrintTerminal() {
-  std::cout << "\nBellman-Application> ";
+void HelpOutput() { std::cout << helpMessage; }
+
+void PrintTerminal() { std::cout << "\033[32m\nBellman-Application> \033[0m"; }
+
+std::string RedError(std::string &&message) {
+  return "\033[31m" + message + "\033[0m";
 }
 
-static const std::string welcomeMessage =
-    "Welcome to Knapsack Solver.\n"
-    "This solver can process any text or CSV file containing items with names, "
-    "weights, and values and return what the best lection of items are for the "
-    "space you have.\n"
-    "When using this solver, here are the options:\n"
-    "Command:\n"
-    "brute-force <filepath>\n\n"
-    "We also have a collection of arguments you can pass alongside that "
-    "command if you want other results.\n";
-
 int main() {
-  std::cout << welcomeMessage;
+  std::cout << welcomeMessage << helpMessage;
   PrintTerminal();
   cse::CommandLine mainCommand;
   mainCommand.addCommand(
@@ -219,28 +219,71 @@ int main() {
     // split input
     //  command -> text file seperated by a space
     auto arguments = split(input, ' ');
-
-    itemList = ConstructItems(arguments[1]);
+    if (!arguments.size()) {
+      PrintTerminal();
+      continue;
+    }
 
     auto argMgr = createArgManager(arguments);
 
-    // assign global variables
-    capacity = std::stod(argMgr.GetSingleOption("capacity"));
+    if (argMgr.HasArg("-help") || argMgr.HasArg("-h")) {
+      // do something to optimize
+      HelpOutput();
+      PrintTerminal();
+      continue;
+    }
 
-    filename = arguments[1];
+    if (arguments.size() < 2) {
+      std::cout << RedError(
+                       "**Please specify a filename as the second argument.")
+                << std::endl;
+      PrintTerminal();
+      continue;
+    }
+
+    if (!arguments[1].contains(".txt") && !arguments[1].contains(".csv")) {
+      std::cout << RedError(
+          "**The file must be of a valid type (.txt or .csv)");
+      PrintTerminal();
+      continue;
+    }
+
+    std::string valString;
+    std::string toFind = "-capacity=";
+    auto capacityArg = std::find_if(arguments.begin(), arguments.end(), [=](auto str) {
+      return str.find(toFind) != std::string::npos;
+    });
+    if (capacityArg == arguments.end()) {
+      std::cout << RedError("**Specify capacity=<capacity>.") << std::endl;
+      continue;
+    }
+    valString = capacityArg->substr(CAPACITY_ARGLENGTH, capacityArg->length());
+      
+
+    itemList = ConstructItems(filename);
+
+    // assign global variables
+    try {
+      capacity = std::stod(valString);
+    } catch (const std::invalid_argument &e) {
+      std::cout << RedError("**Specify capacity <capacity> as a numeric value.")
+                << std::endl;
+      PrintTerminal();
+      continue;
+    }
 
     if (argMgr.HasArg("optimized") || argMgr.HasArg("-o")) {
       // do something to optimize
       BruteForceOptimized();
     }
-    if (argMgr.HasArg("compare")) {
+    if (argMgr.HasArg("-compare") || argMgr.HasArg("-c")) {
       compare = false;
     }
-    if (argMgr.HasArg("weightless")) {
+    if (argMgr.HasArg("-no-weight") || argMgr.HasArg("-w")) {
       weightless = true;
       AdjustWeights();
     }
-    if (argMgr.HasArg("multiple-repeats")) {
+    if (argMgr.HasArg("-repeats") || argMgr.HasArg("-r")) {
       multipleRepeats = true;
       AdjustRepeats();
     }
