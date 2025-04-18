@@ -13,7 +13,7 @@
 using namespace cse;
 
 const static bool DEBUG_MODE = false;
-/*
+
 TEST_CASE("Fundamental WordLang Tests", "[WordLang]") {
   SECTION("Instance of the class is created successfuly") {
 
@@ -56,9 +56,7 @@ TEST_CASE("Length restriction Tests", "[WordLang]") {
 }
 
 TEST_CASE("Reset command", "[Reset]") {
-  //std::filesystem::path current = std::filesystem::current_path();
-  //std::filesystem::path target = current.parent_path().parent_path() / "Group-06" / "App" / "src";
-  //std::filesystem::current_path(target);
+
   std::stringstream buffer;
   std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
 
@@ -159,7 +157,7 @@ TEST_CASE("WordLang Tests 2", "[WordLang]") {
     "Loaded \"top_5000_words_database\". Word count in a list: 4354\n",
     "Loaded \"top_1000_common_worlde_words_database\". Word count in a list: 1000\n",
     "Number of words to search: 4848\n",
-    "",
+    "[Info]: List 'combined' saved to 'my_custom_list'\n",
     "Words before filter: 4848, after filter: 1182\n",
     "Number of words to search: 19\n",
     "Number of words to search: 6\n",
@@ -212,7 +210,7 @@ TEST_CASE("WordLang Tests 3", "[WordLang]") {
     "Loaded \"Ofile1.txt\". Word count in a list: 11\n",
     "Loaded \"Ofile2.txt\". Word count in a list: 11\n",
     "Number of words to search: 21\n",
-    "",
+    "[Info]: Words added to list 'combined'\n",
     "Words before filter: 25, after filter: 12\n",
     "Number of words to search: 4\n",
     "Number of words to search: 1\n",
@@ -1157,6 +1155,7 @@ TEST_CASE("LOAD and PRINT tests", "[WordLang]") {
   };
 }
  // Got help from LLM to write this test case
+ /*
 TEST_CASE("Combine lists and print result", "[Combine]") {
     cse::ErrorManager errorManager;
     cse::WordListManager manager(errorManager);
@@ -1243,8 +1242,8 @@ TEST_CASE("Copy list", "[Copy]") {
     std::string output = oss.str();
 
     CHECK(output == "[table, computer]\n");
-}
-*/
+}*/
+
 TEST_CASE("setLengthRestriction Tests", "[WordLang]") {
   cse::WordLang wordLang;
 
@@ -1280,9 +1279,6 @@ TEST_CASE("setLengthRestriction Tests", "[WordLang]") {
 
 TEST_CASE("setCurrent Tests", "[WordLang]") {
   cse::WordLang wordLang;
-  std::filesystem::path current = std::filesystem::current_path();
-  std::filesystem::path target = current.parent_path().parent_path() / "Group-06" / "App" / "src";
-  std::filesystem::current_path(target);
 
   std::vector<std::string> input = {
       "LIST list1 = LOAD\"file1.txt\"\n",
