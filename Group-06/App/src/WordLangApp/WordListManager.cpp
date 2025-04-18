@@ -331,8 +331,17 @@ bool cse::WordListManager::setLengthRestriction(const std::string& lengthRestric
  */
 bool cse::WordListManager::ContainsAny(const std::string &lettersToCheck)
 {
+  if (lettersToCheck.length() == 0)
+  {
+    mErrorManager.printInfo("Incorrect Syntax: no letters given.");
+  }
+  if (mCurrentSet.size() == 0)
+  {
+    return false;
+  }
   StringSet result = mCurrentSet.search("[" +lettersToCheck + "]");
   mCurrentSet = result;
+  std::cout << "Number of words to search: " << mCurrentSet.size() << std::endl;
   return result.size() > 0;
 }
 
@@ -343,6 +352,14 @@ bool cse::WordListManager::ContainsAny(const std::string &lettersToCheck)
  */
 bool cse::WordListManager::ContainsAll(const std::string &lettersToCheck)
 {
+    if (lettersToCheck.length() == 0)
+    {
+      mErrorManager.printInfo("Incorrect Syntax: no letters given.");
+    }
+    if (mCurrentSet.size() == 0)
+    {
+      return false;
+    }
     std::string lettersToCheckNew = "";
     for (size_t i = 0; i < lettersToCheck.length(); i++)
     {
@@ -354,6 +371,7 @@ bool cse::WordListManager::ContainsAll(const std::string &lettersToCheck)
     }
     StringSet result = mCurrentSet.search(lettersToCheckNew);
     mCurrentSet = result;
+    std::cout << "Number of words to search: " << mCurrentSet.size() << std::endl;
     return result.size() > 0;
 }
 
@@ -364,8 +382,19 @@ bool cse::WordListManager::ContainsAll(const std::string &lettersToCheck)
  */
 bool cse::WordListManager::NotContains(const std::string &lettersToCheck)
 {
+        //If there aren't any patterns being checked, print an error message
+    if (lettersToCheck.length() == 0)
+    {
+      mErrorManager.printInfo("Incorrect Syntax: no letters to check for provided.");
+    }
+    //Don't perform any opperations if there are no current lists
+    if (mCurrentSet.size() == 0)
+    {
+      return false;
+    }
   StringSet result = mCurrentSet.search("[^" +lettersToCheck + "]");
   mCurrentSet = result;
+  std::cout << "Number of words to search: " << mCurrentSet.size() << std::endl;
   return result.size() > 0;
 }
 
@@ -376,6 +405,17 @@ bool cse::WordListManager::NotContains(const std::string &lettersToCheck)
  */
 bool cse::WordListManager::Get(const std::string &patternToCheck)
 {
+    //If there aren't any patterns being checked, print an error message
+    if (patternToCheck.length() == 0)
+    {
+      mErrorManager.printInfo("Incorrect Syntax: no letters to check for provided");
+    }
+
+    //Don't perform any opperations if there are no current lists
+    if (mCurrentSet.size() == 0)
+    {
+      return false;
+    }
     std::string patternToCheckNew = "";
     for (size_t i = 0; i < patternToCheck.length(); i++)
     {
@@ -387,6 +427,7 @@ bool cse::WordListManager::Get(const std::string &patternToCheck)
     }
     StringSet result = mCurrentSet.search(patternToCheckNew);
     mCurrentSet = result;
+    std::cout << "Number of words to search: " << mCurrentSet.size() << std::endl;
     return result.size() > 0;
 }
 
