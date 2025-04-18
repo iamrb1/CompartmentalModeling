@@ -343,7 +343,6 @@ bool cse::WordListManager::setLengthRestriction(const std::string& lengthRestric
     for (const auto& listname : mCurrentLists) {
         mWordLists[listname] = FileSource::load_file(mFileLists[listname]);
     }
-    mErrorManager.printInfo("Neither a * or a number was provided");
     return false;
 }
 void cse::WordListManager::reset(const std::string& listname) {
