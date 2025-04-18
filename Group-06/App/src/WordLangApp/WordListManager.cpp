@@ -358,7 +358,6 @@ bool cse::WordListManager::setLengthRestriction(const std::string& lengthRestric
     // if we have a star - restore all lists
     for (const auto& listname : mCurrentLists) {
         mWordLists[listname] = FileSource::load_file(mFileLists[listname]);
-        std::cout << "Restored all Lists" << "\n";
     }
     return true;
 }

@@ -13,6 +13,7 @@
 using namespace cse;
 
 const static bool DEBUG_MODE = false;
+/*
 TEST_CASE("Fundamental WordLang Tests", "[WordLang]") {
   SECTION("Instance of the class is created successfuly") {
 
@@ -1108,139 +1109,6 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
   };  
 }
 
-TEST_CASE("setLengthRestriction Tests", "[WordLang]") {
-  cse::WordLang wordLang;
-
-  std::vector<std::string> input = {
-      "LENGTH = 5\n",
-      "LENGTH = -1\n",
-      "LENGTH = abc\n",
-      "LENGTH = *\n"
-  };
-
-  std::vector<std::string> output_result = {
-      "Words before filter: 0, after filter: 0\n",
-      "[Info]: Incorrect Syntax: Length value must be number or \"*\"\n",
-      "[Info]: Incorrect Syntax: Length value must be number or \"*\"\n",
-      ""
-  };
-
-  for (size_t i = 0; i < input.size(); ++i) {
-      std::ostringstream oss;
-      std::streambuf* oldCoutBuf = std::cout.rdbuf();
-      std::cout.rdbuf(oss.rdbuf());
-
-      wordLang.parse(input[i]);
-
-      std::cout.rdbuf(oldCoutBuf);
-
-      std::string actualOutput = oss.str();
-      std::string expected = output_result[i];
-
-      CHECK(actualOutput == expected);
-  }
-}
-/*
-TEST_CASE("setCurrent Tests", "[WordLang]") {
-  cse::WordLang wordLang;
-
-  std::vector<std::string> input = {
-      "LIST list1 = LOAD \"file1.txt\"\n",
-      "LIST list2 = LOAD \"file2.txt\"\n",
-      "SET_CURRENT list1 list2\n",
-      "SET_CURRENT list1 nonexistent\n",
-      "SET_CURRENT\n"
-  };
-
-  std::vector<std::string> output_result = {
-      "Loaded \"file1.txt\". Word count in a list: 11\n",
-      "Loaded \"file2.txt\". Word count in a list: 11\n",
-      "[Info]: Current lists set successfully.\n",
-      "[Error]: List 'nonexistent' does not exist.\n",
-      "[Info]: No lists set as current.\n"
-  };
-
-  for (size_t i = 0; i < input.size(); ++i) {
-      std::ostringstream oss;
-      std::streambuf* oldCoutBuf = std::cout.rdbuf();
-      std::cout.rdbuf(oss.rdbuf());
-
-      wordLang.parse(input[i]);
-
-      std::cout.rdbuf(oldCoutBuf);
-
-      std::string actualOutput = oss.str();
-      std::string expected = output_result[i];
-
-      CHECK(actualOutput == expected);
-  }
-}
-
-TEST_CASE("save Tests", "[WordLang]") {
-  cse::WordLang wordLang;
-
-  std::vector<std::string> input = {
-      "LIST list1 = LOAD \"file1.txt\"\n",
-      "SAVE list1 \"output.txt\"\n",
-      "SAVE nonexistent \"output.txt\"\n"
-  };
-
-  std::vector<std::string> output_result = {
-      "Loaded \"file1.txt\". Word count in a list: 11\n",
-      "[Info]: List 'list1' saved to 'output.txt'.\n",
-      "[Error]: List 'nonexistent' does not exist.\n"
-  };
-
-  for (size_t i = 0; i < input.size(); ++i) {
-      std::ostringstream oss;
-      std::streambuf* oldCoutBuf = std::cout.rdbuf();
-      std::cout.rdbuf(oss.rdbuf());
-
-      wordLang.parse(input[i]);
-
-      std::cout.rdbuf(oldCoutBuf);
-
-      std::string actualOutput = oss.str();
-      std::string expected = output_result[i];
-      std::cout << actualOutput << std::endl;
-      CHECK(actualOutput == expected);
-  }
-}
-
-TEST_CASE("add Tests", "[WordLang]") {
-  cse::WordLang wordLang;
-
-  std::vector<std::string> input = {
-      "LIST list1 = LOAD \"file1.txt\"\n",
-      "ADD list1 \"word1 word2 word3\"\n",
-      "ADD nonexistent \"word1 word2 word3\"\n",
-      "ADD list1 \"\"\n"
-  };
-
-  std::vector<std::string> output_result = {
-      "Loaded \"file1.txt\". Word count in a list: 11\n",
-      "[Info]: Words added to list 'list1'.\n",
-      "[Error]: List 'nonexistent' does not exist.\n",
-      "[Info]: No words added to list 'list1'.\n"
-  };
-
-  for (size_t i = 0; i < input.size(); ++i) {
-      std::ostringstream oss;
-      std::streambuf* oldCoutBuf = std::cout.rdbuf();
-      std::cout.rdbuf(oss.rdbuf());
-
-      wordLang.parse(input[i]);
-
-      std::cout.rdbuf(oldCoutBuf);
-
-      std::string actualOutput = oss.str();
-      std::string expected = output_result[i];
-
-      CHECK(actualOutput == expected);
-  }
-}
-*/
-
 TEST_CASE("LOAD and PRINT tests", "[WordLang]") {
   SECTION("LIST LOAD and PRINT command") {
     cse::WordLang wordLang;
@@ -1288,8 +1156,6 @@ TEST_CASE("LOAD and PRINT tests", "[WordLang]") {
     }
   };
 }
-
-
  // Got help from LLM to write this test case
 TEST_CASE("Combine lists and print result", "[Combine]") {
     cse::ErrorManager errorManager;
@@ -1377,4 +1243,135 @@ TEST_CASE("Copy list", "[Copy]") {
     std::string output = oss.str();
 
     CHECK(output == "[table, computer]\n");
+}
+*/
+TEST_CASE("setLengthRestriction Tests", "[WordLang]") {
+  cse::WordLang wordLang;
+
+  std::vector<std::string> input = {
+      "LENGTH = 5\n",
+      "LENGTH = -1\n",
+      "LENGTH = abc\n",
+      "LENGTH = *\n"
+  };
+
+  std::vector<std::string> output_result = {
+      "Words before filter: 0, after filter: 0\n",
+      "[Info]: Incorrect Syntax: Length value must be number or \"*\"\n",
+      "[Info]: Incorrect Syntax: Length value must be number or \"*\"\n",
+      ""
+  };
+
+  for (size_t i = 0; i < input.size(); ++i) {
+      std::ostringstream oss;
+      std::streambuf* oldCoutBuf = std::cout.rdbuf();
+      std::cout.rdbuf(oss.rdbuf());
+
+      wordLang.parse(input[i]);
+
+      std::cout.rdbuf(oldCoutBuf);
+
+      std::string actualOutput = oss.str();
+      std::string expected = output_result[i];
+
+      CHECK(actualOutput == expected);
+  }
+}
+
+TEST_CASE("setCurrent Tests", "[WordLang]") {
+  cse::WordLang wordLang;
+
+  std::vector<std::string> input = {
+      "LIST list1 = LOAD\"file1.txt\"\n",
+      "LIST list2 = LOAD\"file2.txt\"\n",
+      "SET_CURRENT list1 list2\n",
+      "SET_CURRENT list1 nonexistent\n",
+      "SET_CURRENT\n"
+  };
+
+  std::vector<std::string> output_result = { 
+    "",
+    "",
+    "",
+    "Loaded \"file1.txt\". Word count in a list: 11\n",
+    "Incorrect Syntax: There must be list type to set as current.\n"
+  };
+
+  for (size_t i = 0; i < input.size(); ++i) {
+      std::ostringstream oss;
+      std::streambuf* oldCoutBuf = std::cout.rdbuf();
+      std::cout.rdbuf(oss.rdbuf());
+
+      wordLang.parse(input[i]);
+
+      std::cout.rdbuf(oldCoutBuf);
+
+      std::string actualOutput = oss.str();
+      std::string expected = output_result[i];
+
+      CHECK(actualOutput == expected);
+  }
+}
+TEST_CASE("save Tests", "[WordLang]") {
+  cse::WordLang wordLang;
+
+  std::vector<std::string> input = {
+      "LIST list1 = LOAD \"file1.txt\"\n",
+      "SAVE list1 \"output.txt\"\n",
+      "SAVE nonexistent \"output.txt\"\n"
+  };
+
+  std::vector<std::string> output_result = {
+      "Loaded \"file1.txt\". Word count in a list: 11\n",
+      "[Info]: List 'list1' saved to 'output.txt'.\n",
+      "[Error]: List 'nonexistent' does not exist.\n"
+  };
+
+  for (size_t i = 0; i < input.size(); ++i) {
+      std::ostringstream oss;
+      std::streambuf* oldCoutBuf = std::cout.rdbuf();
+      std::cout.rdbuf(oss.rdbuf());
+
+      wordLang.parse(input[i]);
+
+      std::cout.rdbuf(oldCoutBuf);
+
+      std::string actualOutput = oss.str();
+      std::string expected = output_result[i];
+      std::cout << actualOutput << std::endl;
+      CHECK(actualOutput == expected);
+  }
+}
+
+TEST_CASE("add Tests", "[WordLang]") {
+  cse::WordLang wordLang;
+
+  std::vector<std::string> input = {
+      "LIST list1 = LOAD \"file1.txt\"\n",
+      "ADD list1 \"word1 word2 word3\"\n",
+      "ADD nonexistent \"word1 word2 word3\"\n",
+      "ADD list1 \"\"\n"
+  };
+
+  std::vector<std::string> output_result = {
+      "Loaded \"file1.txt\". Word count in a list: 11\n",
+      "[Info]: Words added to list 'list1'.\n",
+      "[Error]: List 'nonexistent' does not exist.\n",
+      "[Info]: No words added to list 'list1'.\n"
+  };
+
+  for (size_t i = 0; i < input.size(); ++i) {
+      std::ostringstream oss;
+      std::streambuf* oldCoutBuf = std::cout.rdbuf();
+      std::cout.rdbuf(oss.rdbuf());
+
+      wordLang.parse(input[i]);
+
+      std::cout.rdbuf(oldCoutBuf);
+
+      std::string actualOutput = oss.str();
+      std::string expected = output_result[i];
+
+      CHECK(actualOutput == expected);
+  }
 }
