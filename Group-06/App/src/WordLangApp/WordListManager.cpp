@@ -15,7 +15,7 @@ bool cse::WordListManager::loadList(const std::string& listName, const std::stri
 
     cse::StringSet<cse::StaticString<30>> set = FileSource::load_file(fileName);
     if(set.size() == 0) {
-        mErrorManager.printInfo("Incorrect Syntax: File can not be loaded.");
+        mErrorManager.printInfo("Error : File can not be loaded.");
         return false;
     }
 
@@ -27,8 +27,6 @@ bool cse::WordListManager::loadList(const std::string& listName, const std::stri
     mCurrentLists.push_back(listName);
 
     mFileLists[listName] = fileName; // store filename of a listname to load it again in the future
-
-    // TODO Decide if we want to store mCurrentLists as values or names and what we want to mCurrentSet
     return true;
 }
 
@@ -42,6 +40,10 @@ bool cse::WordListManager::print(int number, bool isAll) {
     int count = 0;
     int limit = isAll ? static_cast<int>(mCurrentSet.size() - 1) : number;
 
+    if(!isAll && static_cast<int>(mCurrentSet.size()) < number) {
+        limit = static_cast<int>(mCurrentSet.size() - 1);
+    }
+
     std::cout << "[";
 
     for (const auto& word : mCurrentSet) {
@@ -50,7 +52,7 @@ bool cse::WordListManager::print(int number, bool isAll) {
         std::cout << word;
         ++count;
 
-        if(count < limit) {
+        if(count <= limit) {
             std::cout << ", ";
         }
     }
@@ -70,7 +72,7 @@ bool cse::WordListManager::combine(const std::string &newListName, const std::ve
 {
     if(mWordLists.find(newListName) != mWordLists.end())
     {
-        mErrorManager.printInfo("Invalid File Name: \"" + newListName + "\" already exists.");
+        mErrorManager.printInfo("Invalid List Name: \"" + newListName + "\" already exists.");
         return false;
     }
     cse::StringSet<cse::StaticString<30>> result;
@@ -79,17 +81,21 @@ bool cse::WordListManager::combine(const std::string &newListName, const std::ve
     {
         if(mWordLists.find(list) == mWordLists.end())
         {
-            mErrorManager.printInfo("Invalid File Name: File \"" + list + "\" does not exist.");
+            mErrorManager.printInfo("Invalid List Name: List \"" + list + "\" does not exist.");
             return false;
         }
 
         result = result.Union(mWordLists[list]);
     }
-    mWordLists[newListName] = result;
+
+    mCurrentSet = result;
+    std::cout << "Number of words to search: " << result.size() << std::endl;
+
+    mWordLists[newListName] = std::move(result);
 
     mCurrentLists.clear();
     mCurrentLists.push_back(newListName);
-    std::cout << "Number of words to search: " << result.size() << std::endl;
+    
     return true;
 }
 
@@ -105,14 +111,14 @@ bool cse::WordListManager::difference(const std::string &newListName, const std:
 {
     if(mWordLists.find(newListName) != mWordLists.end())
     {
-        mErrorManager.printInfo("Invalid File Name: \"" + newListName + "\" already exists.");
+        mErrorManager.printInfo("Invalid list Name: \"" + newListName + "\" already exists.");
         return false;
     }
 
     const auto& firstList = listsToDiff[0];
     if(mWordLists.find(firstList) == mWordLists.end())
     {
-        mErrorManager.printInfo("Invalid File Name: File \"" + firstList + "\" does not exist.");
+        mErrorManager.printInfo("Invalid List Name: List \"" + firstList + "\" does not exist.");
         return false;
     }
     cse::StringSet<cse::StaticString<30>> result = mWordLists[firstList];
@@ -122,16 +128,20 @@ bool cse::WordListManager::difference(const std::string &newListName, const std:
         const auto& listName = listsToDiff[i];
         if(mWordLists.find(listName) == mWordLists.end())
         {
-            mErrorManager.printInfo("Invalid File Name: File \"" + listName + "\" does not exist.");
+            mErrorManager.printInfo("Invalid List Name: List \"" + listName + "\" does not exist.");
             return false;
         }
         result = result.difference(mWordLists[listName]);
-    }
-    mWordLists[newListName] = result;
+    }   
+
+    mCurrentSet = result;
+
+    std::cout << "Number of words to search: " << result.size() << std::endl;
+    mWordLists[newListName] = std::move(result);
 
     mCurrentLists.clear();
     mCurrentLists.push_back(newListName);
-    std::cout << "Number of words to search: " << result.size() << std::endl;
+   
     return true;
 }
 
@@ -147,7 +157,7 @@ bool cse::WordListManager::intersection(const std::string &newListName, const st
 {
     if(mWordLists.find(newListName) != mWordLists.end())
     {
-        mErrorManager.printInfo("Invalid File Name: \"" + newListName + "\" already exists.");
+        mErrorManager.printInfo("Invalid List Name: \"" + newListName + "\" already exists.");
         return false;
     }
 
@@ -155,7 +165,7 @@ bool cse::WordListManager::intersection(const std::string &newListName, const st
 
     if(mWordLists.find(firstList) == mWordLists.end())
     {
-        mErrorManager.printInfo("Invalid File Name: File \"" + firstList + "\" does not exist.");
+        mErrorManager.printInfo("Invalid List Name: List \"" + firstList + "\" does not exist.");
         return false;
     }
     cse::StringSet<cse::StaticString<30>> result = mWordLists[firstList];
@@ -165,16 +175,19 @@ bool cse::WordListManager::intersection(const std::string &newListName, const st
         const auto& listName = listsToIntersect[i];
         if(mWordLists.find(listName) == mWordLists.end())
         {
-            mErrorManager.printInfo("Invalid File Name: File \"" + listName + "\" does not exist.");
+            mErrorManager.printInfo("Invalid list Name: List \"" + listName + "\" does not exist.");
             return false;
         }
         result = result.intersection(mWordLists[listName]);
     }
-    mWordLists[newListName] = result;
+
+    mCurrentSet = result;
+    std::cout << "Number of words to search: " << result.size() << std::endl;
+
+    mWordLists[newListName] = std::move(result);
 
     mCurrentLists.clear();
     mCurrentLists.push_back(newListName);
-    std::cout << "Number of words to search: " << result.size() << std::endl;
     return true;
 }
 
@@ -190,16 +203,19 @@ bool cse::WordListManager::copy(const std::string &newListName, const std::strin
 {
     if(mWordLists.find(newListName) != mWordLists.end())
     {
-        mErrorManager.printInfo("Invalid File Name: \"" + newListName + "\" already exists.");
+        mErrorManager.printInfo("Invalid List Name: \"" + newListName + "\" already exists.");
         return false;
     }
 
     if(mWordLists.find(copyList) == mWordLists.end())
     {
-        mErrorManager.printInfo("Invalid File Name: File \"" + copyList + "\" does not exist.");
+        mErrorManager.printInfo("Invalid List Name: List \"" + copyList + "\" does not exist.");
         return false;
     }
+
     mWordLists[newListName] = mWordLists[copyList];
+    mCurrentSet = mWordLists[newListName];
+
     mCurrentLists.clear();
     mCurrentLists.push_back(newListName);
     return true;
@@ -292,35 +308,59 @@ void cse::WordListManager::reset(const std::string& listname) {
  * @return false Error with lengthRestriction value
  */
 bool cse::WordListManager::setLengthRestriction(const std::string& lengthRestriction) {
-    bool hasNumber = false;
-    bool hasStar = false;
+    // bool hasNumber = false;
+    // bool hasStar = false;
 
-    // Check if the input contains a number
-    try {
+    // // Check if the input contains a number
+    // try {
+    //     int num = std::stoi(lengthRestriction);
+    //     hasNumber = true;
+    //     if(num > -1) mlengthRestriction = num;
+    //     else return false;
+    // } catch (const std::invalid_argument&) {
+    //     // Not a number, continue checking for '*'
+    // }
+
+    // // Check if the input contains a star
+    // if (lengthRestriction.find('*') != std::string::npos) {
+    //     hasStar = true;
+    //     mlengthRestriction = -1;
+    // }
+
+    // // If both a number and a star are present, return false
+    // if (hasNumber && hasStar) {
+    //     return false;
+    // }
+
+    // // If neither a number nor a star is present, return false
+    // if (!hasNumber && !hasStar) {
+    //     return false;
+    // }
+
+    // return true;
+
+    if (lengthRestriction != "*") {
         int num = std::stoi(lengthRestriction);
-        hasNumber = true;
-        if(num > -1) mlengthRestriction = num;
-        else return false;
-    } catch (const std::invalid_argument&) {
-        // Not a number, continue checking for '*'
+        int count_before = 0, count_after = 0;
+
+        cse::StringSet<cse::StaticString<30>> result;
+
+        for (const auto& listname : mCurrentLists) {
+            count_before += mWordLists[listname].size();
+            mWordLists[listname].size_filter(num);
+            count_after += mWordLists[listname].size();
+            result = result.Union(mWordLists[listname]);
+        }
+        std::cout << "Words before filter: " << count_before << ", after filter: " << count_after << "\n";
+        // Update mCurrentSet too.
+        mCurrentSet = std::move(result);
+        return true;
     }
 
-    // Check if the input contains a star
-    if (lengthRestriction.find('*') != std::string::npos) {
-        hasStar = true;
-        mlengthRestriction = -1;
+    // if we have a star - restore all lists
+    for (const auto& listname : mCurrentLists) {
+        mWordLists[listname] = FileSource::load_file(mFileLists[listname]);
     }
-
-    // If both a number and a star are present, return false
-    if (hasNumber && hasStar) {
-        return false;
-    }
-
-    // If neither a number nor a star is present, return false
-    if (!hasNumber && !hasStar) {
-        return false;
-    }
-
     return true;
 }
 
@@ -339,9 +379,14 @@ bool cse::WordListManager::ContainsAny(const std::string &lettersToCheck)
   {
     return false;
   }
-  StringSet result = mCurrentSet.search("[" +lettersToCheck + "]");
+
+  cse::StringSet<cse::StaticString<30>> result = mCurrentSet.search(".*[" +lettersToCheck + "].*");
   mCurrentSet = result;
-  std::cout << "Number of words to search: " << mCurrentSet.size() << std::endl;
+
+  if(mPrintNumberOfWords) {
+    std::cout << "Number of words to search: " << mCurrentSet.size() << std::endl;
+  }
+
   return result.size() > 0;
 }
 
@@ -360,18 +405,24 @@ bool cse::WordListManager::ContainsAll(const std::string &lettersToCheck)
     {
       return false;
     }
-    std::string lettersToCheckNew = "";
+
+    std::string lettersToCheckNew = "^";
     for (size_t i = 0; i < lettersToCheck.length(); i++)
-    {
-        lettersToCheckNew += lettersToCheck[i];
-        if (i < lettersToCheck.length() - 1)
-        {
-            lettersToCheckNew += "+";
-        }
+    {   
+        std::string tempString = "(?=.*";
+        tempString += lettersToCheck[i];
+        tempString += ")";
+        lettersToCheckNew += tempString;
+
     }
-    StringSet result = mCurrentSet.search(lettersToCheckNew);
+    lettersToCheckNew += ".*";
+
+    cse::StringSet<cse::StaticString<30>> result = mCurrentSet.search(lettersToCheckNew);
     mCurrentSet = result;
-    std::cout << "Number of words to search: " << mCurrentSet.size() << std::endl;
+
+    if(mPrintNumberOfWords) {
+        std::cout << "Number of words to search: " << mCurrentSet.size() << std::endl;
+    }
     return result.size() > 0;
 }
 
@@ -382,7 +433,7 @@ bool cse::WordListManager::ContainsAll(const std::string &lettersToCheck)
  */
 bool cse::WordListManager::NotContains(const std::string &lettersToCheck)
 {
-        //If there aren't any patterns being checked, print an error message
+    //If there aren't any patterns being checked, print an error message
     if (lettersToCheck.length() == 0)
     {
       mErrorManager.printInfo("Incorrect Syntax: no letters to check for provided.");
@@ -392,10 +443,14 @@ bool cse::WordListManager::NotContains(const std::string &lettersToCheck)
     {
       return false;
     }
-  StringSet result = mCurrentSet.search("[^" +lettersToCheck + "]");
-  mCurrentSet = result;
-  std::cout << "Number of words to search: " << mCurrentSet.size() << std::endl;
-  return result.size() > 0;
+
+    cse::StringSet<cse::StaticString<30>> result = mCurrentSet.search("[^" +lettersToCheck + "]*");
+    mCurrentSet = result;
+    
+    if(mPrintNumberOfWords) {
+        std::cout << "Number of words to search: " << mCurrentSet.size() << std::endl;
+    }
+    return result.size() > 0;
 }
 
 /**
@@ -416,18 +471,24 @@ bool cse::WordListManager::Get(const std::string &patternToCheck)
     {
       return false;
     }
+
     std::string patternToCheckNew = "";
     for (size_t i = 0; i < patternToCheck.length(); i++)
     {
-      //lettersToCheckNew += lettersToCheck;
-      if (patternToCheck[i] != '_')
-      {
+      if (patternToCheck[i] != '_' && patternToCheck[i] != '*') {
         patternToCheckNew += patternToCheck[i];
+      } else if (patternToCheck[i] == '_') {
+        patternToCheckNew += ".";
+      } else if (patternToCheck[i] == '*') {
+        patternToCheckNew += ".*";
       }
     }
-    StringSet result = mCurrentSet.search(patternToCheckNew);
+    cse::StringSet<cse::StaticString<30>> result = mCurrentSet.search(patternToCheckNew);
     mCurrentSet = result;
-    std::cout << "Number of words to search: " << mCurrentSet.size() << std::endl;
+    if(mPrintNumberOfWords) {
+        std::cout << "Number of words to search: " << mCurrentSet.size() << std::endl;
+    }
+    
     return result.size() > 0;
 }
 
@@ -467,6 +528,8 @@ bool cse::WordListManager::wordle(const std::string& word, const std::string& re
         }
     }
 
+    mPrintNumberOfWords = false;
+
     // Now we remove all the letters marked 'b' from the wordle in our search set
     NotContains(lettersToNotContains);
     // We make sure only the words that contains letter marked green or yellow in the search set
@@ -474,24 +537,28 @@ bool cse::WordListManager::wordle(const std::string& word, const std::string& re
     // Filter set with a green in position with get
     Get(patternOfGreen);
 
+    mPrintNumberOfWords = true;
+
     // Create a result set that where green mark is in the same index for all words and words doesn't contain black
     // marked letters, also, yellow marked letters are not in the wrong indexes.
     cse::StringSet<cse::StaticString<30>> possibleOptions;
     
     for (auto word : mCurrentSet) {
-        bool valid = false;
-        
-        for (std::size_t i = 0; i < word.size(); i++) {
-            if (lettersIndexes.contains(word[i])) { // Returns true if element is found
-                if(lettersIndexes[word[i]] != i) {     // Yellow marked letter in different location
-                    valid = true;
-                } else {
+        bool valid = true;
+
+        for (std::size_t i = 0; i < word.length(); i++) {
+            char ch = word[i];
+
+            if (lettersIndexes.contains(ch)) {
+                // If any yellow letter is found in its forbidden index, word not valid
+                if (lettersIndexes[ch] == i) {
                     valid = false;
+                    break;
                 }
             }
         }
 
-        if(valid) {
+        if (valid) {
             possibleOptions.insert(word);
         }
     }
@@ -504,6 +571,7 @@ bool cse::WordListManager::wordle(const std::string& word, const std::string& re
     mCurrentSet = possibleOptions;
 
     // Display the top 10 or fewer matching words. Might do with random in stringset for printing,
+    print(10);
 
     return true;
 }

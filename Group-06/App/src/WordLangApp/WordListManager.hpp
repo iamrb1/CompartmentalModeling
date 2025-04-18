@@ -96,22 +96,24 @@ public:
     bool wordle(const std::string& word, const std::string& result);
 
 private:
-    // A map of StringSet represents different files
+    /// A map of StringSet represents different files
     std::unordered_map<std::string, cse::StringSet<cse::StaticString<30>>> mWordLists;
 
-    // A map that represents listname(key) and its according filename(value)
+    /// A map that represents listname(key) and its according filename(value)
     std::unordered_map<std::string, std::string> mFileLists;
 
-    // Current vector of lists
+    /// Current vector of lists
     std::vector<std::string> mCurrentLists;
 
-    // A StringSet represents current Get command
+    /// A StringSet represents current Get command
     cse::StringSet<cse::StaticString<30>> mCurrentSet;
 
-    // Length restriction 
+    /// Length restriction 
     int mlengthRestriction;
 
     cse::ErrorManager& mErrorManager;
+    
+    bool mPrintNumberOfWords = true;
 };
 
 }  // namespace cse

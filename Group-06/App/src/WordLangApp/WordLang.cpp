@@ -316,9 +316,9 @@ void cse::WordLang::parseSetCurrent() {
 
     // Call WordListManager to handle with listsToSetCurrent
     // TODO
-    // if (!mWordListManager.setCurrent(listsToSetCurrent)) {
-    //     return;
-    // }
+    if (!mWordListManager.setCurrent(listsToSetCurrent)) {
+        return;
+    }
 }
 
 void cse::WordLang::parseAdd() {

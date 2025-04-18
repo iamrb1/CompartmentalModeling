@@ -432,7 +432,7 @@ cse::StringSet<T> cse::StringSet<T>::search(const T &regexPattern) {
     // Iterate through elements and add matching ones to the result
     for (const auto &element : mElements) {
       std::string_view elementView = element; // Convert element to string_view
-      if (std::regex_match(elementView.begin(), elementView.end(), pattern)) {
+      if (std::regex_search(elementView.begin(), elementView.end(), pattern)) {
         result.insert(element);
       }
     }

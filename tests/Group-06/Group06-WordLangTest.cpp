@@ -1104,6 +1104,7 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
     }
   };  
 }
+
 TEST_CASE("setLengthRestriction Tests", "[WordListManager]") {
   cse::ErrorManager errorManager;
   cse::WordListManager manager(errorManager);
@@ -1202,8 +1203,8 @@ TEST_CASE("LOAD and PRINT tests", "[WordLang]") {
       "Loaded \"file2.txt\". Word count in a list: 11\n",
       "[hello, cost, host, best, cucumber, dump, kitchen, toast, chain, boats, key]\n",
       "",
-      "[hello, cost, host, best, cucumber, dump, kitchen, toast, chain, boats, key]\n",
-      "[hello, cost, host, best, cucumber, dump]\n"
+      "[Test, key, fork, word, hello, why, where, who, chain, boost, books]\n",
+      "[Test, key, fork, word, hello, why]\n"
     };
 
 
