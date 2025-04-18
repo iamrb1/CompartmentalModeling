@@ -232,6 +232,7 @@ bool cse::WordListManager::setCurrent(const std::vector<std::string>& listNames)
 
     for (const auto& listName : listNames) {
         if (mWordLists.find(listName) == mWordLists.end()) {
+            mErrorManager.printInfo("List '" + listName + "' does not exist");
             return false;
         }
         combinedSet = combinedSet.Union(mWordLists[listName]);
@@ -281,27 +282,6 @@ bool cse::WordListManager::save(const std::string& fileName, const std::string& 
     } else {
         return false;
     }
-}
-
-void cse::WordListManager::reset(const std::string& listname) {
-    if (listname == "") {
-        mErrorManager.printInfo("Succesfully reset all current lists to the original state.\n");
-        for (const auto& listname : mCurrentLists) {
-            mWordLists[listname] = FileSource::load_file(mFileLists[listname]);
-            std::cout << "  " << listname << ": " << mWordLists[listname].size() << " words\n";
-        }
-        std::cout << "\n";
-        return;
-    }
-
-    if (mWordLists.find(listname) == mWordLists.end()) {
-        mErrorManager.printInfo("List " + listname + " does not exist");
-        return;
-    }
-
-    mWordLists[listname] = FileSource::load_file(mFileLists[listname]);
-    mErrorManager.printInfo("Successfully reset " + listname + " to the original state with " + std::to_string(mWordLists[listname].size()) + " words.");    
-    
 }
 /**
  * @brief Sets the length restriction for words in the list.
@@ -363,8 +343,30 @@ bool cse::WordListManager::setLengthRestriction(const std::string& lengthRestric
     for (const auto& listname : mCurrentLists) {
         mWordLists[listname] = FileSource::load_file(mFileLists[listname]);
     }
-    return true;
+    mErrorManager.printInfo("Neither a * or a number was provided");
+    return false;
 }
+void cse::WordListManager::reset(const std::string& listname) {
+    if (listname == "") {
+        mErrorManager.printInfo("Succesfully reset all current lists to the original state.\n");
+        for (const auto& listname : mCurrentLists) {
+            mWordLists[listname] = FileSource::load_file(mFileLists[listname]);
+            std::cout << "  " << listname << ": " << mWordLists[listname].size() << " words\n";
+        }
+        std::cout << "\n";
+        return;
+    }
+
+    if (mWordLists.find(listname) == mWordLists.end()) {
+        mErrorManager.printInfo("List " + listname + " does not exist");
+        return;
+    }
+
+    mWordLists[listname] = FileSource::load_file(mFileLists[listname]);
+    mErrorManager.printInfo("Successfully reset " + listname + " to the original state with " + std::to_string(mWordLists[listname].size()) + " words.");    
+    
+}
+
 
 /**
  * @brief updates the current list to the restriction, string collection of letters to include some return bool.
