@@ -188,10 +188,10 @@ Rectangle {
                             anchors.fill: parent
                             onClicked: {
                                 // Add new variable logic would go here
-                                console.log("Add new variable")
-                                console.log(simulation.variables)
+                                // console.log("Add new variable")
+                                // console.log(simulation.variables)
                                 simulation.add_variable()
-                                console.log(simulation.variables)
+                                // console.log(simulation.variables)
                             }
                         }
                     }

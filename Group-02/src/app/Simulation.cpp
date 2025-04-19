@@ -46,11 +46,10 @@ QMap<QString, double> Simulation::get_variables_as_qobject() const {
         variables.insert(QString::fromStdString(pair.first), pair.second);
     }
 
-    // Debug output to verify data
-    qDebug() << "Variables in C++:";
-    for (auto it = variables.constBegin(); it != variables.constEnd(); ++it) {
-        qDebug() << "Key:" << it.key() << "Value:" << it.value();
-    }
+//    qDebug() << "Variables in C++:";
+//    for (auto it = variables.constBegin(); it != variables.constEnd(); ++it) {
+//        qDebug() << "Key:" << it.key() << "Value:" << it.value();
+//    }
 
     return variables;
 }
