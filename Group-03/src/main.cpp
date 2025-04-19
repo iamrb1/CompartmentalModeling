@@ -29,6 +29,7 @@
 // ---------------------------------------------------------------------------
 static constexpr int WINDOW_WIDTH  = 800;
 static constexpr int WINDOW_HEIGHT = 600;
+static constexpr double WIN_THRESHOLD = 0.8;
 
 static SDL_Window*   gWindow   = nullptr;
 static SDL_Renderer* gRenderer = nullptr;
@@ -245,22 +246,19 @@ void update()
         }
     }
     
-    // else "nothing" → do nothing
-    // @TODO this is very basic and can be updated later
     // End game if conditions are met
-    double cWinThreshold = 0.8;
     double cPercentage1 = cType1 / (cType1 + cType2);
     double cPercentage2 = cType2 / (cType1 + cType2);
 
     // std::cout << "Red #: " << cType1 << "; Blue #: " << cType2 << std::endl;
     // std::cout << "Red %: " << cPercentage1 << "; Blue %: " << cPercentage2 << std::endl;
 
-    if (cPercentage1 >= cWinThreshold) {
+    if (cPercentage1 >= WIN_THRESHOLD) {
         std::cout << "Winner: Red" << std::endl;
         isRunning = false;
     }
 
-    if (cPercentage2 >= cWinThreshold) {
+    if (cPercentage2 >= WIN_THRESHOLD) {
         std::cout << "Winner: Blue" << std::endl;
         isRunning = false;
     }
