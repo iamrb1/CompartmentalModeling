@@ -36,10 +36,9 @@ struct Item {
    * @return indication of the comparison between two Items
    */
   auto operator<=>(const Item&) const = default;
-  
+
   friend std::ostream& operator<<(std::ostream& os, const Item& item) {
-    os << "Item Name: " << item.name << ", Weight: " << item.weight
-       << ", Value: " << item.value;
+    os << "{" << item.name << ", " << item.weight << ", " << item.value << '}';
     return os;
   }
 };
@@ -64,15 +63,8 @@ class BruteForceOptimizer {
    */
   void SetOptimizer(bool optimize) {
     optimizeEnabled_ = optimize;
-    /// Sort greatest value first, with tiebreaker going to heavier items
-    if (optimizeEnabled_) {
-      std::stable_sort(items_.begin(), items_.end(), std::greater<Item>());
-    }
-    double totalValue = 0.0;
-    for (auto iter = items_.rbegin(); iter != items_.rend(); ++iter) {
-      totalValue += (*iter).value;
-      scoreTracker_.push_back(totalValue);
-    }
+    // if Optimizer was set to true, handle any sorting
+    if (optimizeEnabled_) OptimizationPreprocessing();
   }
 
   /**
@@ -80,7 +72,10 @@ class BruteForceOptimizer {
    *
    * @param newItems The vector of items to manage.
    */
-  void SetItems(const std::vector<Item>& newItems) { items_ = newItems; }
+  void SetItems(const std::vector<Item>& newItems) {
+    items_ = newItems;
+    if (optimizeEnabled_) OptimizationPreprocessing();
+  }
 
   /**
    * @brief Sets a capacity/threshold.
@@ -89,6 +84,11 @@ class BruteForceOptimizer {
    * @param cap The maximum allowed weight.
    */
   void SetCapacity(double cap) { capacity_ = cap; }
+
+  void SetRepeating(bool repeating) {
+    repeating_ = repeating;
+    if (optimizeEnabled_) OptimizationPreprocessing();
+  }
 
   /**
    * @brief Initiates the brute force/backtracking search to find the best
@@ -158,20 +158,47 @@ class BruteForceOptimizer {
   // (Inverse: First element in scoreTracker corresponds to last in items_)
   std::vector<double> scoreTracker_;
 
+  // Boolean indicating whether elements can repeat
+  bool repeating_ = false;
+  // Sorted version of items_ for optimization
+  std::vector<Item> sortedItems_;
+
   /**
    * @brief Helper Function for ExploreCombinations
    */
   void AverageCaseCombinations_(std::size_t index, double currentWeight,
                                 double currentValue) {
-    // Exclude the current item.
-    ExploreCombinations(index + 1, currentWeight, currentValue);
+
     // Include the current item if it does not exceed capacity.
     const Item& item = items_[index];
     if (currentWeight + item.weight <= capacity_) {
       currentSelection_.push_back(item);
-      ExploreCombinations(index + 1, currentWeight + item.weight,
-                          currentValue + item.value);
+      if (repeating_) {
+        ExploreCombinations(index, currentWeight + item.weight,
+                            currentValue + item.value);
+      } else {
+        ExploreCombinations(index + 1, currentWeight + item.weight,
+                            currentValue + item.value);
+      }
       currentSelection_.pop_back();
+    }
+    // Exclude the current item.
+    ExploreCombinations(index + 1, currentWeight, currentValue);
+  }
+
+  void OptimizationPreprocessing() {
+    if (repeating_) {
+      std::stable_sort(items_.begin(), items_.end(),
+                       [](const Item& l, const Item& r) {
+                         return (l.value / l.weight) > (r.value / r.weight);
+                       });
+    } else {
+      std::stable_sort(items_.begin(), items_.end(), std::greater<Item>());
+    }
+    double totalValue = 0.0;
+    for (auto iter = items_.rbegin(); iter != items_.rend(); ++iter) {
+      totalValue += (*iter).value;
+      scoreTracker_.push_back(totalValue);
     }
   }
 };

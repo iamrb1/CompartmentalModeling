@@ -191,6 +191,7 @@ void BruteForceUnoptimized() {
   optimizer.SetItems(itemList);
   optimizer.SetCapacity(capacity);
   optimizer.SetOptimizer(optimized);
+  optimizer.SetRepeating(multipleRepeats);
 
   if (compare) {
     Compare();
@@ -198,10 +199,8 @@ void BruteForceUnoptimized() {
 
   auto solutionPair = optimizer.FindOptimalSolution();
   std::cout << "Optimal Value: " << solutionPair.first << std::endl;
-  std::cout << "Item Set: " << std::endl;
+  std::cout << "Item Set: ";
   PrintVector(solutionPair.second);
-
-  std::cout << "Run Unoptimized" << std::endl;
 }
 
 void BruteForceOptimized() {
@@ -296,6 +295,7 @@ int application(std::istream & in) {
     }
 
     itemList = ConstructItems(filename);
+    
 
     std::string valString;
     std::string toFind = "-capacity=";
@@ -316,10 +316,11 @@ int application(std::istream & in) {
       PrintTerminal();
       continue;
     }
+    
 
     if (argMgr.HasArg("optimized") || argMgr.HasArg("-o")) {
       // do something to optimize
-      BruteForceOptimized();
+      optimized = true;
     }
     if (argMgr.HasArg("-compare") || argMgr.HasArg("-c")) {
       compare = true;
@@ -329,8 +330,9 @@ int application(std::istream & in) {
       AdjustWeights();
     }
     if (argMgr.HasArg("-repeats") || argMgr.HasArg("-r")) {
+      
       multipleRepeats = true;
-      AdjustRepeats();
+      //AdjustRepeats();
     }
     mainCommand.executeCommand(arguments[0]);
     PrintTerminal();
