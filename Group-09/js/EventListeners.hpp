@@ -93,14 +93,19 @@ void bind() {
 	if (addTransition) {
 			addTransition.addEventListener(
 				"click",
-				function() {Module._call_addSlideChangeEvent(); });
-
-
+				function() {
+				const input = prompt("Transition after:");
+				const value = parseInt(input, 10);
+				Module.ccall("call_addSlideChangeEvent", null,
+							 [ "number" ],
+							 [ value ]);
+			});
 		}
 
         // Ability to hit ESC to leave present mode
         document.addEventListener("keydown", function(e) {
           if (e.key === "Escape") {
+          	e.preventDefault();
             Module.ccall(
                 "call_leavePresentation",
                 null,
@@ -122,15 +127,46 @@ void bind() {
           }
         });
 
+		// Right click to animate objects
+		document.addEventListener("contextmenu", function(e) {
+		var draggable =
+			  Module.ccall("call_isMoveableObject",  // C++ function name
+						   "boolean",                // return type
+						   ["string"],               // argument types
+						   [e.target.id]             // arguments
+			  );
+
+		  if (draggable) {
+		  	e.preventDefault();
+			animateObject(e.target);
+		  }
+		});
+
+		// Add an event to the right clicked object
+		function animateObject(element) {
+			const slideNum = Module.ccall(
+				"call_getCurrentPos",
+				"number",
+				[],
+				[]
+			);
+
+			const input = prompt("Appear after:");
+			const value = parseInt(input, 10);
+			Module.ccall("call_addObjectEvent", null,
+						 [ "number", "number", "string" ],
+						 [ value, slideNum, element.id.trim() ]);
+			};
+
         // Check if item is being dragged
 		document.addEventListener(
 			"mousedown", function(e) {
 			  // Check if clicked element is draggable
 			  var draggable =
-				  Module.ccall("call_isMoveableObject",  // C++ function name
-							   "boolean",                // return type
-							   ["string"],               // argument types
-							   [e.target.id]             // arguments
+				  Module.ccall("call_isMoveableObject",
+							   "boolean",
+							   ["string"],
+							   [e.target.id]
 				  );
 
 			  if (draggable) {
