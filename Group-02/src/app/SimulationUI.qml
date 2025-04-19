@@ -4,16 +4,20 @@ import QtQuick.Layouts
 import QtQuick.Window
 import QtQuick.Dialogs
 import QtQuick.Shapes
-import QtCore
 
+import cseg2
 import Utilities
 import Components
 
 ApplicationWindow {
-    id: window
+    Simulation {
+        id: simulation
+    }
+
+    id: mainFrameUI
     width: 800
     height: 600
-    title: "Compartmental Modelling System"
+    title: simulation.name + " - Compartmental Modelling System"
     visible: true
 
     palette: ThemeManager.palette
@@ -46,7 +50,8 @@ ApplicationWindow {
                 text: "Save As"
                 onTriggered: saveFileDialog.open()
             }
-            MenuSeparator {}
+            MenuSeparator {
+            }
             Menu {
                 title: "Theme"
                 Repeater {
@@ -61,7 +66,8 @@ ApplicationWindow {
                     }
                 }
             }
-            MenuSeparator {}
+            MenuSeparator {
+            }
             Action {
                 text: "Exit"
                 onTriggered: Qt.quit()
@@ -107,6 +113,10 @@ ApplicationWindow {
                     ToolTip.visible: hovered
                     ToolTip.delay: 500
                     ToolTip.text: icon.name
+
+                    onClicked: {
+                        simulation.add_compartment()
+                    }
                 }
                 ToolButton {
                     icon.name: "Add connection"
@@ -122,68 +132,42 @@ ApplicationWindow {
             }
         }
 
-        // --- Content Area ---
         Rectangle {
-            id: contentArea
-            Layout.fillWidth: true
-            Layout.fillHeight: true
+            id: simulationUI
+            Layout.fillHeight: parent
+            Layout.fillWidth: parent
             color: ThemeManager.palette.window
             border.color: ThemeManager.palette.shadow
 
 
+            Repeater {
+                model: simulation.compartments
 
-            Compartment {
-                id: compartment1
-                x: 10
-                y: 10
-            }
-            Compartment {
-                id: compartment2
-                x: 200
-                y: 250
-            }
-            Compartment {
-                id: compartment3
-                x: 500
-                y: 500
-            }
-            Shape{
-                id: connectionCanvas
-                anchors.fill: parent
-
-                layer.enabled: true
-                layer.smooth: true
-
-                Connection {
-                    source: compartment1
-                    target: compartment2
-                }
-
-                Connection {
-                    source: compartment1
-                    target: compartment3
+                delegate: CompartmentUI {
+                    id: compartmentUI
+                    x: modelData.x || 100 + (index % 2) * 200
+                    y: modelData.y || 100 + Math.floor(index / 2) * 100
+                    color: ThemeManager.palette.base
+                    border.color: ThemeManager.palette.shadow
+                    compartment: modelData
                 }
             }
         }
 
         // --- Sidebar ---
-        Sidebar {
-
+        SidebarUI {
+            simulation: simulation
         }
-
-
     }
-    signal saveRequested(url fileUrl)
-    signal loadRequested(url fileUrl)
 
     FileDialog {
         id: saveFileDialog
         objectName: "saveFileDialog"
         title: "Save Simulation"
-        nameFilters: ["Simulation files (*.xml)"]
+        nameFilters: ["Simulation files (*.sim)"]
         fileMode: FileDialog.SaveFile
         onAccepted: {
-            mainFrame.save_simulation(selectedFile)
+            simulation.save_xml(selectedFile)
         }
     }
 
@@ -191,10 +175,10 @@ ApplicationWindow {
         id: openFileDialog
         objectName: "openFileDialog"
         title: "Open Simulation"
-        nameFilters: ["Simulation files (*.xml)"]
+        nameFilters: ["Simulation files (*.sim)"]
         fileMode: FileDialog.OpenFile
         onAccepted: {
-            mainFrame.load_simulation(selectedFile)
+            simulation.load_xml(selectedFile)
         }
     }
 }

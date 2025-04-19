@@ -2,7 +2,8 @@ pragma Singleton
 import QtQuick
 
 QtObject {
-    readonly property Palette palette: Palette {
+    readonly property Palette palette: Palette
+    {
         alternateBase: "#000"
         base: "#000"
         button: "#111"

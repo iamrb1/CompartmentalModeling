@@ -3,53 +3,94 @@
  * @author Nitish Maindoliya, Matthew Hawkins
  */
 
+// #include "pch.h"
 #include "Simulation.h"
 #include <QFile>
 #include <QXmlStreamReader>
-#include <stdexcept>
+#include <ranges>
+#include "Components/Compartment.h"
 
 /**
- * @brief Add a compartment to the simulation. Also sets the simulation for the compartment.
- * @param compartment Compartment to add
+ * @brief Creates and adds a compartment to the simulation. Also sets the simulation for the compartment.
  */
-void Simulation::add_compartment(std::shared_ptr<Compartment> compartment) {
-  compartment->set_simulation(this);
-  m_compartments.push_back(std::move(compartment));
+void Simulation::add_compartment() {
+  // Generate a new compartment with a unique symbol
+  auto symbol = QString(static_cast<char>('A' + m_compartment_number));
+  auto name = QString("Compartment %1").arg(symbol);
+
+  auto compartment = std::make_shared<Compartment>(name, symbol, 0, this);
+  m_compartments[symbol] = std::move(compartment);
+  m_compartment_number++;
+
+  // Emit signal to notify that compartments have changed
+  emit compartmentsChanged();
 }
 
 /**
- * @brief Add a connection to the simulation. Also sets the simulation for the connection.
- * @param connection Connection to add
+ * @brief Return a list of all compartments in the simulation.
  */
-void Simulation::add_connection(std::shared_ptr<Connection> connection) {
-  connection->set_simulation(this);
-  m_connections.push_back(std::move(connection));
+QVector<QObject*> Simulation::get_compartments_as_qobject() const {
+  QVector<QObject*> compartments;
+  for (const auto& compartment : m_compartments | std::views::values) {
+    compartments.push_back(compartment.get());
+  }
+  return compartments;
+}
+
+/**
+ * @brief Return a map of all variables in the simulation.
+ */
+QMap<QString, double> Simulation::get_variables_as_qobject() const {
+  QMap<QString, double> variables;
+  for (const auto& [key, value] : m_variables) {
+    variables[QString::fromStdString(key)] = value;
+  }
+  return variables;
+}
+
+void Simulation::add_variable(const QString& name, double value) {
+  std::string stdName = name.toStdString();
+  m_variables[stdName] = value;
+  emit variablesChanged();
+}
+
+void Simulation::remove_variable(const QString& name) {
+  std::string stdName = name.toStdString();
+  auto it = m_variables.find(stdName);
+  if (it != m_variables.end()) {
+    m_variables.erase(it);
+    emit variablesChanged();
+  }
+}
+
+void Simulation::update_variable(const QString& name, double value) {
+  std::string stdName = name.toStdString();
+  m_variables[stdName] = value;
+  emit variablesChanged();
 }
 
 /**
  * @brief load in a xml simulation file.
  * @param filename The file path for the xml file.
  */
-void Simulation::load_xml(const std::string& filename) {
-  QFile file(QString::fromStdString(filename));
+void Simulation::load_xml(const QString& filename) {
+  const QUrl fileUrl(filename);
+  QFile file(fileUrl.toLocalFile());
+
   if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    throw std::runtime_error("Cannot open file for reading: " + filename);
+    qWarning() << "Could not open file:" << filename << "Error:" << file.errorString();
+    return;
   }
 
   QXmlStreamReader xml(&file);
+  clear_simulation();
   m_save_path = filename;
-
-  m_compartments.clear();
-  m_connections.clear();
-  m_variables.clear();
-
-  std::unordered_map<std::string, std::shared_ptr<Compartment>> comp_map;
 
   // find simulation name
   while (!xml.atEnd() && !xml.hasError()) {
     xml.readNext();
     if (xml.isStartElement() && xml.name() == QLatin1String("simulation")) {
-      m_name = xml.attributes().value("name").toString().toStdString();
+      m_name = xml.attributes().value("name").toString();
       break;
     }
   }
@@ -60,59 +101,62 @@ void Simulation::load_xml(const std::string& filename) {
     if (!xml.isStartElement())
       continue;
 
-    if (xml.name() == QLatin1String("compartments")) {
-      while (!(xml.tokenType() == QXmlStreamReader::EndElement && xml.name() == QLatin1String("compartments"))) {
+    if (xml.name() == "compartments") {
+      while (!(xml.tokenType() == QXmlStreamReader::EndElement && xml.name() == "compartments")) {
         xml.readNext();
-        if (xml.isStartElement() && xml.name() == QLatin1String("compartment")) {
+        if (xml.isStartElement() && xml.name() == "compartment") {
           auto attrs = xml.attributes();
-          std::string name = attrs.value("name").toString().toStdString();
-          std::string sym = attrs.value("symbol").toString().toStdString();
+          QString name = attrs.value("name").toString();
+          QString symbol = attrs.value("symbol").toString();
           float initial = attrs.value("initial").toFloat();
-          int x_pos = attrs.value("x_pos").toInt();
-          int y_pos = attrs.value("y_pos").toInt();
+          const int x = attrs.value("x").toInt();
+          const int y = attrs.value("y").toInt();
 
-          auto comp_ptr = std::make_shared<Compartment>(name, sym, initial);
-          comp_ptr->set_x(x_pos);
-          comp_ptr->set_y(y_pos);
-          add_compartment(comp_ptr);
-          comp_map[sym] = comp_ptr;
+          auto compartment = std::make_shared<Compartment>(name, symbol, initial, this);
+          compartment->set_x(x);
+          compartment->set_y(y);
+          m_compartments[symbol] = std::move(compartment);
         }
       }
-    } else if (xml.name() == QLatin1String("parameters")) {
-      while (!(xml.tokenType() == QXmlStreamReader::EndElement && xml.name() == QLatin1String("parameters"))) {
+    } else if (xml.name() == QLatin1String("variables")) {
+      while (!(xml.tokenType() == QXmlStreamReader::EndElement && xml.name() == "variables")) {
         xml.readNext();
-        if (xml.isStartElement() && xml.name() == QLatin1String("parameter")) {
+        if (xml.isStartElement() && xml.name() == "variable") {
           auto attrs = xml.attributes();
           std::string key = attrs.value("name").toString().toStdString();
-          float value = attrs.value("value").toFloat();
+          const double value = attrs.value("value").toDouble();
           m_variables[key] = value;
         }
       }
     } else if (xml.name() == QLatin1String("connections")) {
-      while (!(xml.tokenType() == QXmlStreamReader::EndElement && xml.name() == QLatin1String("connections"))) {
+      while (!(xml.tokenType() == QXmlStreamReader::EndElement && xml.name() == "connections")) {
         xml.readNext();
         if (xml.isStartElement() && xml.name() == QLatin1String("connection")) {
           auto attrs = xml.attributes();
-          std::string nm = attrs.value("name").toString().toStdString();
-          std::string from = attrs.value("from").toString().toStdString();
-          std::string to = attrs.value("to").toString().toStdString();
-          std::string rate = attrs.value("rate").toString().toStdString();
+          QString name = attrs.value("name").toString();
+          QString from = attrs.value("from").toString();
+          QString to = attrs.value("to").toString();
+          QString rate = attrs.value("rate").toString();
 
-          auto source_iter = comp_map.find(from);
-          auto to_iter = comp_map.find(to);
-          if (source_iter == comp_map.end() || to_iter == comp_map.end()) {
-            throw std::runtime_error("Unknown compartment in connection: " + from + " → " += to);
+          if (!m_compartments.contains(from) || !m_compartments.contains(to)) {
+            qWarning() << "Connection references non-existent compartments:" << from << to;
+            continue;
           }
 
-          auto connPtr = std::make_shared<Connection>(nm, source_iter->second, to_iter->second, rate);
-          add_connection(connPtr);
+          auto from_compartment = m_compartments[from];
+          auto to_compartment = m_compartments[to];
+
+          auto connection = std::make_shared<Connection>(name, from_compartment, to_compartment, rate, this);
+          m_connections.push_back(std::move(connection));
         }
       }
     }
   }
 
   if (xml.hasError()) {
-    throw std::runtime_error("XML parse error in " + filename + ": " + xml.errorString().toStdString());
+    qWarning() << "XML Error:" << xml.errorString();
+  } else {
+    emit compartmentsChanged();
   }
 }
 
@@ -120,10 +164,13 @@ void Simulation::load_xml(const std::string& filename) {
  * @brief save the current simulation as a xml simulation file.
  * @param filename The file path for the xml file.
  */
-void Simulation::save_xml(const std::string& filename) {
-  QFile file(QString::fromStdString(filename));
+void Simulation::save_xml(const QString& filename) {
+  const QUrl fileUrl(filename);
+  QFile file(fileUrl.toLocalFile());
+
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    throw std::runtime_error("Cannot open file for writing: " + filename);
+    qWarning() << "Could not open file:" << filename << "Error:" << file.errorString();
+    return;
   }
 
   QXmlStreamWriter xml(&file);
@@ -131,37 +178,37 @@ void Simulation::save_xml(const std::string& filename) {
   xml.writeStartDocument();
 
   xml.writeStartElement("simulation");
-  xml.writeAttribute("name", QString::fromStdString(m_name));
+  xml.writeAttribute("name", m_name);
 
   xml.writeStartElement("compartments");
-  for (auto& comp : m_compartments) {
+  for (const auto& compartment : m_compartments | std::views::values) {
     xml.writeStartElement("compartment");
-    xml.writeAttribute("name", QString::fromStdString(comp->get_name()));
-    xml.writeAttribute("symbol", QString::fromStdString(comp->get_symbol()));
-    xml.writeAttribute("initial", QString::number(comp->get_initial_amount()));
-    xml.writeAttribute("x_pos", QString::number(comp->get_x()));
-    xml.writeAttribute("y_pos", QString::number(comp->get_y()));
+    xml.writeAttribute("name", compartment->get_name());
+    xml.writeAttribute("symbol", compartment->get_symbol());
+    xml.writeAttribute("initial", QString::number(compartment->get_initial_amount()));
+    xml.writeAttribute("x", QString::number(compartment->get_x()));
+    xml.writeAttribute("y", QString::number(compartment->get_y()));
 
-      xml.writeEndElement();
+    xml.writeEndElement();
   }
   xml.writeEndElement();
 
-  xml.writeStartElement("parameters");
-  for (auto& kv : m_variables) {
-    xml.writeStartElement("parameter");
-    xml.writeAttribute("name", QString::fromStdString(kv.first));
-    xml.writeAttribute("value", QString::number(kv.second));
+  xml.writeStartElement("variables");
+  for (auto& [name, value] : m_variables) {
+    xml.writeStartElement("variable");
+    xml.writeAttribute("name", QString::fromStdString(name));
+    xml.writeAttribute("value", QString::number(value));
     xml.writeEndElement();
   }
   xml.writeEndElement();
 
   xml.writeStartElement("connections");
-  for (auto& conn : m_connections) {
+  for (const auto& connection : m_connections) {
     xml.writeStartElement("connection");
-    xml.writeAttribute("name", QString::fromStdString(conn->get_name()));
-    xml.writeAttribute("from", QString::fromStdString(conn->get_source()->get_symbol()));
-    xml.writeAttribute("to", QString::fromStdString(conn->get_target()->get_symbol()));
-    xml.writeAttribute("rate", QString::fromStdString(conn->get_rate_expression()));
+    xml.writeAttribute("name", connection->get_name());
+    xml.writeAttribute("from", connection->get_source()->get_symbol());
+    xml.writeAttribute("to", connection->get_target()->get_symbol());
+    xml.writeAttribute("rate", connection->get_rate_expression());
     xml.writeEndElement();
   }
 

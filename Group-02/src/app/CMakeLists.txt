@@ -4,27 +4,13 @@ message(STATUS "Building Executable: ${EXECUTABLE_NAME}")
 set(
     SOURCE_FILES
     main.cpp
-    Components/Compartment.cpp
-    Components/Compartment.h
-    MainFrame.cpp
-    MainFrame.h
     Simulation.cpp
     Simulation.h
-    Components/Connection.cpp
-    Components/Connection.h
-
 )
 
 set(
     MAIN_QML_FILES
-    Main.qml
-    MainFrame.qml
-)
-
-set (
-    MAIN_QML_SOURCES
-    MainFrame.h
-    MainFrame.cpp
+    SimulationUI.qml
 )
 
 set(
@@ -44,18 +30,19 @@ qt_add_resources(
 # Add the executable target
 qt_add_executable(
     ${EXECUTABLE_NAME}
-    ${SOURCE_FILES}
 )
 # Add Main QML files
 qt_add_qml_module(
     ${EXECUTABLE_NAME}
     URI ${EXECUTABLE_NAME}
     QML_FILES ${MAIN_QML_FILES}
-    SOURCES ${MAIN_QML_SOURCES}
+    SOURCES ${SOURCE_FILES}
 )
 
 # Set the C++ standard to C++20
 target_compile_features(${EXECUTABLE_NAME} PRIVATE cxx_std_20)
+# Precompiled header
+#target_precompile_headers(${EXECUTABLE_NAME} PRIVATE pch.h)
 
 # Set the executable properties
 set_target_properties(${EXECUTABLE_NAME} PROPERTIES
@@ -75,9 +62,9 @@ target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${LIBRARY_NAME})
 
 # Link plugins
 foreach (MODULE ${QML_MODULES})
-  message(STATUS "Adding QML module: ${MODULE}")
-  add_subdirectory(${MODULE})
-  target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${MODULE}Libplugin)
+    message(STATUS "Adding QML module: ${MODULE}")
+    add_subdirectory(${MODULE})
+    target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${MODULE}Libplugin)
 endforeach ()
 
 include(GNUInstallDirs)

@@ -8,39 +8,60 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
-#include <memory>
-#include <string>
+#include <QObject>
+#include <qqml.h>
 
 class Simulation;
 class Compartment;
 
-class Connection {
+class Connection : public QObject {
+  Q_OBJECT
+  QML_ELEMENT
+
  private:
   Simulation* m_simulation = nullptr;
-
-  std::string m_name;
+  QString m_name;
   std::shared_ptr<Compartment> m_source;
   std::shared_ptr<Compartment> m_target;
-  std::string m_rate_expression;
+  QString m_rate_expression;
 
  public:
-  Connection(std::string name, std::shared_ptr<Compartment> source, std::shared_ptr<Compartment> target, std::string rate_expression);
-  /// Default constructor (deleted - name, source, and target and rate_expression are required)
-  Connection() = delete;
-  /// Destructor
-  ~Connection() = default;
+  explicit Connection(QObject* parent = nullptr) : QObject(parent) {}
 
-  [[nodiscard]] const std::string& get_name() const;
-  [[nodiscard]] std::shared_ptr<Compartment> get_source() const;
-  [[nodiscard]] std::shared_ptr<Compartment> get_target() const;
-  [[nodiscard]] const std::string& get_rate_expression() const;
-  [[nodiscard]] Simulation* get_simulation() const;
+  Connection(QString name, std::shared_ptr<Compartment> source, std::shared_ptr<Compartment> target,
+             QString rate_expression, Simulation* parent = nullptr);
 
-  void set_name(const std::string& name);
-  void set_source(std::shared_ptr<Compartment> source);
-  void set_target(std::shared_ptr<Compartment> target);
-  void set_rate_expression(const std::string& rate_expression);
-  void set_simulation(Simulation* simulation);
+  [[nodiscard]] const QString& get_name() const {
+    return m_name;
+  }
+  [[nodiscard]] std::shared_ptr<Compartment> get_source() const {
+    return m_source;
+  }
+  [[nodiscard]] std::shared_ptr<Compartment> get_target() const {
+    return m_target;
+  }
+  [[nodiscard]] const QString& get_rate_expression() const {
+    return m_rate_expression;
+  }
+  [[nodiscard]] Simulation* get_simulation() const {
+    return m_simulation;
+  }
+
+  void set_name(const QString& name) {
+    m_name = name;
+  }
+  void set_source(std::shared_ptr<Compartment> source) {
+    m_source = std::move(source);
+  }
+  void set_target(std::shared_ptr<Compartment> target) {
+    m_target = std::move(target);
+  }
+  void set_rate_expression(const QString& rate_expression) {
+    m_rate_expression = rate_expression;
+  }
+  void set_simulation(Simulation* simulation) {
+    m_simulation = simulation;
+  }
 };
 
 #endif  //CONNECTION_H

@@ -3,12 +3,37 @@
  * @author Nitish Maindoliya
  */
 
-#include <QQmlContext>
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
 #include <QScreen>
-#include "MainFrame.h"
 
-int main(int argc, char *argv[]) {
-    MainFrame frame;
-    return frame.Initialize(argc, argv);
+int main(int argc, char* argv[]) {
+  QGuiApplication app(argc, argv);
+  QGuiApplication::setOrganizationName("cseg2");
+  QGuiApplication::setOrganizationDomain("https://github.com/CSE498/CSE498-Spring2025/");
+  QGuiApplication::setApplicationName("Compartmental Modeling Simulator");
 
+  QQmlApplicationEngine engine;
+
+  engine.loadFromModule("cseg2", "SimulationUI");
+
+  if (engine.rootObjects().isEmpty())
+    return -1;
+
+  const auto& root = engine.rootObjects();
+
+  if (const QScreen* screen = QGuiApplication::primaryScreen()) {
+    const auto screen_geometry = screen->geometry();
+    const int w = static_cast<int>(screen_geometry.width() * 0.7);
+    const int h = static_cast<int>(screen_geometry.height() * 0.7);
+    const int x = (screen_geometry.width() - w) / 2;
+    const int y = (screen_geometry.height() - h) / 2;
+    const auto rootObj = root.first();
+    rootObj->setProperty("width", w);
+    rootObj->setProperty("height", h);
+    rootObj->setProperty("x", x);
+    rootObj->setProperty("y", y);
+  }
+
+  return QGuiApplication::exec();
 }

@@ -2,21 +2,21 @@ qt_add_library(ComponentsLib STATIC)
 
 set_target_properties(ComponentsLib PROPERTIES AUTOMOC ON)
 target_link_libraries(ComponentsLib PRIVATE Qt6::Quick)
+#target_precompile_headers(ComponentsLib PRIVATE ../pch.h)
 
-set (
+set(
     MODULE_QML_FILES
-    Compartment.qml
-    Connection.qml
-    Sidebar.qml
+    CompartmentUI.qml
+    ConnectionUI.qml
+    SidebarUI.qml
 )
 
-set (
+set(
     MODULE_SOURCES
     Compartment.h
     Compartment.cpp
     Connection.h
     Connection.cpp
-
 )
 
 qt_add_qml_module(
@@ -24,5 +24,4 @@ qt_add_qml_module(
     URI Components
     QML_FILES ${MODULE_QML_FILES}
     SOURCES ${MODULE_SOURCES}
-
 )

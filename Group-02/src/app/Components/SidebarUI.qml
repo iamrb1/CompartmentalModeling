@@ -1,8 +1,15 @@
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 import Utilities
+import Components
+import cseg2
 
 Rectangle {
+    property Simulation simulation: null
+
+    id: sidebarUI
+
     Layout.fillHeight: true
     width: 200
     Layout.preferredWidth: 200
@@ -81,7 +88,6 @@ Rectangle {
                     }
                 }
 
-
                 Text {
                     text: "Rate of Transfer"
                     color: ThemeManager.palette.text
@@ -108,7 +114,9 @@ Rectangle {
                         anchors.bottom: parent.bottom
                     }
                 }
-                Item { Layout.fillHeight: true } // Spacer
+                Item {
+                    Layout.fillHeight: true
+                } // Spacer
             }
         }
 
@@ -137,6 +145,20 @@ Rectangle {
                     Layout.fillWidth: true
                     spacing: 10
 
+                    // Header Text - now centered with correct layout settings
+                    Item {
+                        Layout.fillWidth: true
+                        height: 24
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: "Variables"
+                            font.bold: true
+                            font.pixelSize: 14
+                            color: ThemeManager.palette.text
+                        }
+                    }
+
                     // Plus button
                     Rectangle {
                         width: 24
@@ -159,122 +181,77 @@ Rectangle {
                             onClicked: {
                                 // Add new variable logic would go here
                                 console.log("Add new variable")
-                            }
-                        }
-                    }
-
-                    // Header Text - now centered with correct layout settings
-                    Item {
-                        Layout.fillWidth: true
-                        height: 24
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: "Variables"
-                            font.bold: true
-                            font.pixelSize: 14
-                            color: ThemeManager.palette.text
-                        }
-                    }
-
-                    // Minus button
-                    Rectangle {
-                        width: 24
-                        height: 24
-                        radius: 4
-                        color: minusMouseArea.pressed ? ThemeManager.palette.mid : "transparent"
-                        border.width: 1
-                        border.color: ThemeManager.palette.mid
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: "-"
-                            font.pixelSize: 14
-                            color: ThemeManager.palette.text
-                        }
-
-                        MouseArea {
-                            id: minusMouseArea
-                            anchors.fill: parent
-                            onClicked: {
-                                // Remove variable logic would go here
-                                console.log("Remove variable")
+                                console.log(simulation.variables)
+                                simulation.add_variable("k4", 0.5)
+                                console.log(simulation.variables)
                             }
                         }
                     }
                 }
 
-
-                GridLayout {
+                ColumnLayout {
+                    id: variableGrid
                     Layout.fillWidth: true
-                    columns: 2
-                    columnSpacing: 10
-                    rowSpacing: 5
+                    Layout.fillHeight: true
 
-                    Text {
-                        text: "k1:"
-                        color: ThemeManager.palette.text
-                    }
-                    Rectangle {
-                        Layout.fillWidth: true
-                        height: 24
-                        border.width: 1
-                        border.color: ThemeManager.palette.mid
-                        color: "transparent"
-
-                        TextInput {
-                            anchors.fill: parent
-                            anchors.margins: 2
-                            text: "0.01"
-                            color: ThemeManager.palette.text
-                            verticalAlignment: TextInput.AlignVCenter
-                            selectByMouse: true
+                    // Example variable rows (these would be dynamically generated)
+                    Repeater {
+                        model: simulation.variables
+                        Component.onCompleted: {
+                            console.log("Repeater model:", model)
+                            console.log("Repeater count:", count)
                         }
-                    }
 
-                    Text {
-                        text: "k2:"
-                        color: ThemeManager.palette.text
-                    }
-                    Rectangle {
-                        Layout.fillWidth: true
-                        height: 24
-                        border.width: 1
-                        border.color: ThemeManager.palette.mid
-                        color: "transparent"
+                        delegate: RowLayout {
+                            spacing: 10
 
-                        TextInput {
-                            anchors.fill: parent
-                            anchors.margins: 2
-                            text: "0.1"
-                            color: ThemeManager.palette.text
-                            verticalAlignment: TextInput.AlignVCenter
-                            selectByMouse: true
-                        }
-                    }
+                            Text {
+                                text: modelData
+                            }
 
-                    Text {
-                        text: "k3:"
-                        color: ThemeManager.palette.text
-                    }
-                    Rectangle {
-                        Layout.fillWidth: true
-                        height: 24
-                        border.width: 1
-                        border.color: ThemeManager.palette.mid
-                        color: "transparent"
+                            Rectangle {
+                                Layout.fillWidth: true
+                                height: 30
+                                border.width: 1
+                                border.color: ThemeManager.palette.mid
+                                color: "transparent"
 
-                        TextInput {
-                            anchors.fill: parent
-                            anchors.margins: 2
-                            text: "0.5"
-                            color: ThemeManager.palette.text
-                            verticalAlignment: TextInput.AlignVCenter
-                            selectByMouse: true
+                                TextInput {
+                                    anchors.fill: parent
+                                    anchors.margins: 5
+                                    verticalAlignment: TextInput.AlignVCenter
+                                    text: "Variable " + (index + 1)
+                                    color: ThemeManager.palette.text
+                                }
+                            }
+
+                            Rectangle {
+                                width: 24
+                                height: 24
+                                radius: 4
+                                color: minusMouseArea.pressed ? ThemeManager.palette.mid : "transparent"
+                                border.width: 1
+                                border.color: ThemeManager.palette.mid
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "-"
+                                    font.pixelSize: 14
+                                    color: ThemeManager.palette.text
+                                }
+
+                                MouseArea {
+                                    id: minusMouseArea
+                                    anchors.fill: parent
+                                    onClicked: {
+                                        // Remove variable logic would go here
+                                        console.log("Remove variable")
+                                    }
+                                }
+                            }
                         }
                     }
                 }
-                Item { Layout.fillHeight: true } // Spacer
             }
         }
     }

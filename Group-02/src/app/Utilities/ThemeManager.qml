@@ -6,8 +6,8 @@ QtObject {
     id: themeManager
     // List of available themes
     readonly property var themeList: [
-        { name: "Light", value: "light", palette: LightTheme.palette },
-        { name: "Dark", value: "dark", palette: DarkTheme.palette },
+        {name: "Light", value: "light", palette: LightTheme.palette},
+        {name: "Dark", value: "dark", palette: DarkTheme.palette},
     ]
 
     // Current theme

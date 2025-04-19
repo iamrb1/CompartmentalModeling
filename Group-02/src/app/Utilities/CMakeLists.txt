@@ -3,7 +3,7 @@ qt_add_library(UtilitiesLib STATIC)
 set_target_properties(UtilitiesLib PROPERTIES AUTOMOC ON)
 target_link_libraries(UtilitiesLib PRIVATE Qt6::Quick)
 
-set (
+set(
     MODULE_QML_FILES
     ThemeManager.qml
     LightTheme.qml
