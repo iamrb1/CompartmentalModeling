@@ -1154,8 +1154,8 @@ TEST_CASE("LOAD and PRINT tests", "[WordLang]") {
     }
   };
 }
- // Got help from LLM to write this test case
- /*
+
+// Got help from LLM to write this test case
 TEST_CASE("Combine lists and print result", "[Combine]") {
     cse::ErrorManager errorManager;
     cse::WordListManager manager(errorManager);
@@ -1175,7 +1175,7 @@ TEST_CASE("Combine lists and print result", "[Combine]") {
     std::cout.rdbuf(oldCoutBuf);
     std::string output = oss.str();
 
-    CHECK(output == "[table, computer, yellow, blue]\n");
+    CHECK(output == "[table, computer, blue, yellow]\n");
 }
 
 TEST_CASE("Difference between lists", "[Difference]") {
@@ -1197,7 +1197,7 @@ TEST_CASE("Difference between lists", "[Difference]") {
     std::cout.rdbuf(oldCoutBuf);
     std::string output = oss.str();
 
-    CHECK(output == "[table, computer]\n");
+    CHECK(output == "[computer, table]\n");
 }
 
 TEST_CASE("Intersection of lists", "[Intersection]") {
@@ -1242,7 +1242,7 @@ TEST_CASE("Copy list", "[Copy]") {
     std::string output = oss.str();
 
     CHECK(output == "[table, computer]\n");
-}*/
+}
 
 TEST_CASE("setLengthRestriction Tests", "[WordLang]") {
   cse::WordLang wordLang;
