@@ -22,63 +22,113 @@ ApplicationWindow {
 
     palette: ThemeManager.palette
 
-    menuBar: MenuBar {
-        id: menuBar
-        Layout.fillWidth: true
+    menuBar: Rectangle {
+        height: 40
+        width: parent.width
+        color: ThemeManager.palette.base
 
-        z: 10
+        RowLayout {
+            anchors.fill: parent
+            anchors.margins: 5
+            spacing: 10
 
-        background: Rectangle {
-            color: ThemeManager.palette.base
-        }
+            MenuBar {
+                id: menuBar
+                Layout.preferredWidth: implicitWidth
+                background: Rectangle { color: "transparent" }
 
-        Menu {
-            title: "File"
-            Action {
-                text: "New Simulation"
-                onTriggered: console.log("New Simulation")
-            }
-            Action {
-                text: "Open"
-                onTriggered: openFileDialog.open()
-            }
-            Action {
-                text: "Save"
-                onTriggered: saveFileDialog.open()
-            }
-            Action {
-                text: "Save As"
-                onTriggered: saveFileDialog.open()
-            }
-            MenuSeparator {
-            }
-            Menu {
-                title: "Theme"
-                Repeater {
-                    model: ThemeManager.themeList
-                    MenuItem {
-                        text: modelData.name
-                        checkable: true
-                        checked: modelData.value === ThemeManager.theme
-                        onTriggered: {
-                            ThemeManager.setTheme(modelData.value)
+                Menu {
+                    title: "File"
+                    Action {
+                        text: "New Simulation"
+                        onTriggered: console.log("New Simulation")
+                    }
+
+                    Action {
+                        text: "Open"
+                        onTriggered: openFileDialog.open()
+                    }
+
+                    Action {
+                        text: "Save"
+                        onTriggered: saveFileDialog.open()
+                    }
+
+                    Action {
+                        text: "Save As"
+                        onTriggered: saveFileDialog.open()
+                    }
+
+                    MenuSeparator {}
+                    Menu {
+                        title: "Theme"
+                        Repeater {
+                            model: ThemeManager.themeList
+                            MenuItem {
+                                text: modelData.name
+                                checkable: true
+                                checked: modelData.value === ThemeManager.theme
+                                onTriggered: ThemeManager.setTheme(modelData.value)
+                            }
                         }
+                    }
+                    MenuSeparator {}
+                    Action {
+                        text: "Exit"
+                        onTriggered: Qt.quit()
+                    }
+                }
+
+                Menu {
+                    title: "Help"
+                    Action {
+                        text: "About"
+                        onTriggered: console.log("About clicked")
                     }
                 }
             }
-            MenuSeparator {
-            }
-            Action {
-                text: "Exit"
-                onTriggered: Qt.quit()
-            }
-        }
 
-        Menu {
-            title: "Help"
-            Action {
-                text: "About"
-                onTriggered: console.log("About clicked")
+            Item {
+                Layout.fillWidth: true
+            }
+
+            Button {
+                width: 50
+                height: 25
+                text: "Play"
+                font.pixelSize: 12
+                background: Rectangle {
+                    color: ThemeManager.palette.button
+                    border.color: ThemeManager.palette.shadow
+                    radius: 3
+                }
+                onClicked: {
+                    console.log("Play clicked")
+                    //simulation play functionality
+                    // simulation.play()
+                }
+            }
+
+            Button {
+                width: 50
+                height: 25
+                text: "Pause"
+                font.pixelSize: 12
+                background: Rectangle {
+                    color: ThemeManager.palette.button
+                    border.color: ThemeManager.palette.shadow
+                    radius: 3
+                }
+                onClicked: {
+                    console.log("Pause clicked")
+                    //simulation pause functionality here
+                    // simulation.pause()
+                }
+            }
+
+            Item {
+                width: 95
+                Layout.preferredWidth: width
             }
         }
     }
@@ -215,19 +265,61 @@ ApplicationWindow {
                 color: ThemeManager.palette.window
                 border.color: ThemeManager.palette.shadow
 
-                Repeater {
-                    model: simulation.compartments
+                Item {
+                    id: clipContainer
+                    anchors.fill: parent
+                    clip: true
 
-                    delegate: CompartmentUI {
-                        id: compartmentUI
-                        x: modelData.x || 100 + (index % 2) * 200
-                        y: modelData.y || 100 + Math.floor(index / 2) * 100
-                        color: ThemeManager.palette.base
-                        border.color: ThemeManager.palette.shadow
-                        compartment: modelData
+                    Item {
+                        id: compartmentContainer
+                        width: parent.width
+                        height: parent.height
+                        scale: 1.0
+                        transformOrigin: Item.Center
+                        anchors.centerIn: parent
+
+                        Repeater {
+                            model: simulation.compartments
+
+                            delegate: CompartmentUI {
+                                id: compartmentUI
+                                x: modelData.x || 100 + (index % 2) * 200
+                                y: modelData.y || 100 + Math.floor(index / 2) * 100
+                                color: ThemeManager.palette.base
+                                border.color: ThemeManager.palette.shadow
+                                compartment: modelData
+                            }
+                        }
                     }
                 }
 
+                // Add scaling buttons in top right corner
+                Row {
+                    anchors.top: parent.top
+                    anchors.right: parent.right
+                    anchors.margins: 5
+                    spacing: 5
+                    z: 10
+                    visible: simulationUI.width >= (30 * 2 + 5 + 10) // Buttons disappear when screen is too small
+
+                    Button {
+                        text: "+"
+                        width: 30
+                        height: 30
+                        onClicked: {
+                            compartmentContainer.scale = Math.min(compartmentContainer.scale + 0.1, 2.0)
+                        }
+                    }
+
+                    Button {
+                        text: "-"
+                        width: 30
+                        height: 30
+                        onClicked: {
+                            compartmentContainer.scale = Math.max(compartmentContainer.scale - 0.1, 0.5)
+                        }
+                    }
+                }
             }
         }
 
