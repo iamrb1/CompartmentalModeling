@@ -14,15 +14,16 @@
 #include "../Classes/StaticVector.hpp"
 
 // global variables because the command line takes no parameters i guess
-std::string filename;
-static std::vector<cse::Item> itemList;
+static std::string filename = "";
+static std::vector<cse::Item> itemList = {};
 static double capacity = 0.0;
-bool multipleRepeats = false;
-bool weightless = false;
-bool compare = false;
-bool optimized = false;
+static bool multipleRepeats = false;
+static bool weightless = false;
+static bool compare = false;
+static bool optimized = false;
 
 static constexpr std::size_t CAPACITY_ARGLENGTH = 10;
+
 static const std::string welcomeMessage =
     "Welcome to Knapsack Solver.\n"
     "This solver can process any text or CSV file containing items with names, "
@@ -32,18 +33,47 @@ static const std::string welcomeMessage =
 
 static const std::string helpMessage =
     "Command:\n"
-    "brute-force <filepath> -capacity=<value>\n\n"
+    "\033[34mbrute-force \033[32m<filepath>\033[34m "
+    "-capacity=\033[32m<value>\033[0m\n\n"
     "All files must either be .csv, or .txt formatted in the CSV style.\n"
     "We also have a collection of arguments you can pass alongside that "
     "command if you want other results.\n"
-    "-help (-h) = Prints this message\n"
-    "-optimize (-o) = Turns on all optimization flags for the problem\n"
-    "-compare (-c) = Solves the problem both unoptimized and optimized, then "
+    "\033[32m-help\033[0m (\033[32m-h\033[0m) = Prints this message\n"
+    "\033[32m-optimize\033[0m (\033[32m-o\033[0m) = Turns on all optimization "
+    "flags for the problem\n"
+    "\033[32m-compare\033[0m (\033[32m-c\033[0m) = Solves the problem both "
+    "unoptimized and optimized, then "
     "compares the results to see the speedup\n"
-    "-no-weight (-w) = Removes weight considerations. The algorithm will only "
+    "\033[32m-no-weight\033[0m (\033[32m-w\033[0m) = Removes weight "
+    "considerations. The algorithm will only "
     "consider the number of items in respect to the capacity\n"
-    "-repeats (-r) = Allows for items to be used multiple times in the "
+    "\033[32m-repeats\033[0m (\033[32m-r\033[0m) = Allows for items to be used "
+    "multiple times in the "
     "solution\n";
+
+/**
+ * Utility Functions:
+ *  - ResetGlobalVariables - clears data for nnext command
+ *  - split - used for separating strings according to delimiters
+ *  - MeasureTime - used for speed/time checks
+ *  - printVector - basic function to handle the printing of a vector to the
+ * console
+ *  - HelpOutput - common output when the user inputs -h or -help
+ *  - PrintTerminal - prints a basic terminal to the screen for user experience
+ *  - RedError - Handles the red coloring for all error messages
+ *  - EndProgram - Helper function to terminate the application
+ *  - CreateArgManager - Interface function for the ArgManager class constructor
+ */
+
+void ResetGlobalVariables() {
+  filename = "";
+  itemList = {};
+  capacity = 0.0;
+  multipleRepeats = false;
+  weightless = false;
+  compare = false;
+  optimized = false;
+}
 
 /**
  * @brief - helps split strings
@@ -65,7 +95,7 @@ std::vector<std::string> split(const std::string &str, char delimiter) {
 
 // Utility function to measure execution time
 template <typename Func>
-double measureTime(Func &&func) {
+double MeasureTime(Func &&func) {
   auto start = std::chrono::high_resolution_clock::now();
   func();
   auto end = std::chrono::high_resolution_clock::now();
@@ -76,10 +106,43 @@ template <typename T>
 void PrintVector(std::vector<T> vector) {
   std::cout << std::endl;
   for (const auto &item : vector) {
-    std::cout << item << ",";
+    std::cout << item << "," << std::endl;
   }
   std::cout << std::endl;
 }
+
+void HelpOutput() { std::cout << helpMessage; }
+
+void PrintTerminal() { std::cout << "\033[32m\nBellman-Application> \033[0m"; }
+
+std::string RedError(std::string &&message) {
+  return "\033[31m" + message + "\033[0m\n";
+}
+
+[[noreturn]] void EndProgram() { std::exit(0); }
+
+
+/**
+ * @brief creates the arg manager from a vector of strings - converts them into
+ * c strings and then passes that to the arg manager. the original args vector
+ * must outlive the argmanager, which should be fine for our code.abort
+ * @param args the vector of strings
+ * @return an argManager object
+ */
+cse::ArgManager CreateArgManager(std::vector<std::string> &args) {
+  std::vector<char *> argV(args.size());
+  for (std::size_t i = 0; i < args.size(); ++i) {
+    // argV[i] = strdup(args[i].c_str()); // duplicates a new string. Must use
+    // because c_str returns a const string
+    argV[i] = args[i].data();
+  }
+  cse::ArgManager mgr(args.size(), argV.data());
+  return mgr;
+}
+
+/**
+ *
+ */
 
 std::vector<cse::Item> ConstructItems(std::string filename) {
   std::vector<cse::Item> Items{};
@@ -106,7 +169,7 @@ void Compare() {
   optimizer.SetCapacity(capacity);
   optimizer.SetOptimizer(false);
   double unoptimizedTime =
-      measureTime([&]() { optimizer.FindOptimalSolution(); });
+      MeasureTime([&]() { optimizer.FindOptimalSolution(); });
   auto unoptimizedScore = optimizer.FindOptimalSolution().first;
 
   optimizer.SetOptimizer(true);
@@ -114,7 +177,7 @@ void Compare() {
   std::pair<double, std::vector<cse::Item>> solutionPair;
 
   double optimizedTime =
-      measureTime([&]() { optimizer.FindOptimalSolution(); });
+      MeasureTime([&]() { optimizer.FindOptimalSolution(); });
   auto optimizedScore = optimizer.FindOptimalSolution().first;
 
   std::cout << "Unoptimized Time: " << unoptimizedTime << std::endl;
@@ -163,27 +226,10 @@ void BruteForceOptimized() {
  * 1 'item'
  */
 void AdjustWeights() {
-  for (auto item : itemList) {
+  for (auto &item : itemList) {
     item.weight = 1.0;
   }
-}
-
-/**
- * @brief creates the arg manager from a vector of strings - converts them into
- * c strings and then passes that to the arg manager. the original args vector
- * must outlive the argmanager, which should be fine for our code.abort
- * @param args the vector of strings
- * @return an argManager object
- */
-cse::ArgManager createArgManager(std::vector<std::string> &args) {
-  std::vector<char *> argV(args.size());
-  for (std::size_t i = 0; i < args.size(); ++i) {
-    // argV[i] = strdup(args[i].c_str()); // duplicates a new string. Must use
-    // because c_str returns a const string
-    argV[i] = args[i].data();
-  }
-  cse::ArgManager mgr(args.size(), argV.data());
-  return mgr;
+  PrintVector(itemList);
 }
 
 void AdjustRepeats() {
@@ -196,14 +242,6 @@ void AdjustRepeats() {
       itemList.insert(itemList.end(), extraItems.begin(), extraItems.end());
     }
   }
-}
-
-void HelpOutput() { std::cout << helpMessage; }
-
-void PrintTerminal() { std::cout << "\033[32m\nBellman-Application> \033[0m"; }
-
-std::string RedError(std::string &&message) {
-  return "\033[31m" + message + "\033[0m";
 }
 
 int main() {
@@ -222,9 +260,21 @@ int main() {
     if (!arguments.size()) {
       PrintTerminal();
       continue;
+    } else if ((arguments.at(0) == "q" || arguments.at(0) == "Q" ||
+                arguments.at(0) == "quit" || arguments.at(0) == "exit")) {
+      if (arguments.size() > 1) {
+        std::cout
+            << RedError(
+                   "**Error: the quit command cannot be run with additional "
+                   "arguments.");
+        PrintTerminal();
+        continue;
+      } else {
+        EndProgram();
+      }
     }
 
-    auto argMgr = createArgManager(arguments);
+    auto argMgr = CreateArgManager(arguments);
 
     if (argMgr.HasArg("-help") || argMgr.HasArg("-h")) {
       // do something to optimize
@@ -235,29 +285,27 @@ int main() {
 
     if (arguments.size() < 2) {
       std::cout << RedError(
-                       "**Please specify a filename as the second argument.")
-                << std::endl;
+                       "**Please specify a filename as the second argument.");
       PrintTerminal();
       continue;
     }
     filename = arguments[1];
 
     if (!filename.contains(".txt") && !filename.contains(".csv")) {
-      std::cout << RedError(
-          "**The file must be of a valid type (.txt or .csv)");
+      std::cout << RedError("**The file must be of a valid type (.txt or .csv)");
       PrintTerminal();
       continue;
     }
-    
+
     itemList = ConstructItems(filename);
 
     std::string valString;
     std::string toFind = "-capacity=";
-    auto capacityArg = std::find_if(arguments.begin(), arguments.end(), [=](auto str) {
-      return str.find(toFind) != std::string::npos;
-    });
+    auto capacityArg = std::find_if(
+        arguments.begin(), arguments.end(),
+        [=](auto str) { return str.find(toFind) != std::string::npos; });
     if (capacityArg == arguments.end()) {
-      std::cout << RedError("**Specify capacity=<capacity>.") << std::endl;
+      std::cout << RedError("**Specify capacity=<capacity>.");
       continue;
     }
     valString = capacityArg->substr(CAPACITY_ARGLENGTH, capacityArg->length());
@@ -266,8 +314,7 @@ int main() {
     try {
       capacity = std::stod(valString);
     } catch (const std::invalid_argument &e) {
-      std::cout << RedError("**Specify capacity <capacity> as a numeric value.")
-                << std::endl;
+      std::cout << RedError("**Specify capacity <capacity> as a numeric value.");
       PrintTerminal();
       continue;
     }
@@ -277,7 +324,7 @@ int main() {
       BruteForceOptimized();
     }
     if (argMgr.HasArg("-compare") || argMgr.HasArg("-c")) {
-      compare = false;
+      compare = true;
     }
     if (argMgr.HasArg("-no-weight") || argMgr.HasArg("-w")) {
       weightless = true;

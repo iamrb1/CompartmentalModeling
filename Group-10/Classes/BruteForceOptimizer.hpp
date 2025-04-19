@@ -39,7 +39,7 @@ struct Item {
   
   friend std::ostream& operator<<(std::ostream& os, const Item& item) {
     os << "Item Name: " << item.name << ", Weight: " << item.weight
-       << ", Value: " << item.value << std::endl;
+       << ", Value: " << item.value;
     return os;
   }
 };
