@@ -187,7 +187,6 @@ Rectangle {
                             id: plusMouseArea
                             anchors.fill: parent
                             onClicked: {
-                                // Add new variable logic would go here
                                 // console.log("Add new variable")
                                 // console.log(simulation.variables)
                                 simulation.add_variable()
@@ -244,6 +243,31 @@ Rectangle {
                                 width: 24
                                 height: 24
                                 radius: 4
+                                color: editMouseArea.pressed ? ThemeManager.palette.mid : "transparent"
+                                border.width: 1
+                                border.color: ThemeManager.palette.mid
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "✎"
+                                    font.pixelSize: 14
+                                    color: ThemeManager.palette.text
+                                }
+
+                                MouseArea {
+                                    id: editMouseArea
+                                    anchors.fill: parent
+                                    onClicked: {
+                                        editDialog.oldName = modelData
+                                        editDialog.open()
+                                    }
+                                }
+                            }
+
+                            Rectangle {
+                                width: 24
+                                height: 24
+                                radius: 4
                                 color: removeMouseArea.pressed ? ThemeManager.palette.mid : "transparent"
                                 border.width: 1
                                 border.color: ThemeManager.palette.mid
@@ -267,6 +291,87 @@ Rectangle {
                     }
                 }
             }
+        }
+    }
+
+    /// edit the variable name dialog box implemented here
+    Dialog {
+        id: editDialog
+        title: "Edit Variable Name"
+        standardButtons: Dialog.Ok | Dialog.Cancel
+        modal: true
+        closePolicy: Popup.CloseOnEscape
+        width: 300
+
+        parent: Overlay.overlay
+        x: (parent.width - width) / 2
+        y: (parent.height - height) / 2
+
+        property string oldName: ""
+
+        ColumnLayout {
+            anchors.fill: parent
+            spacing: 10
+
+            Text {
+                text: "New Name:"
+                color: ThemeManager.palette.text
+            }
+
+            TextField {
+                id: newNameField
+                Layout.fillWidth: true
+                text: editDialog.oldName
+                selectByMouse: true
+            }
+        }
+
+        onAccepted: {
+            if (newNameField.text.trim() !== "" && newNameField.text !== editDialog.oldName) {
+                renameVariable(editDialog.oldName, newNameField.text)
+            }
+        }
+
+        function renameVariable(oldName, newName) {
+            if (oldName === newName) {
+                return;
+            }
+            const variableNames = simulation.variableNames;
+            for (let i = 0; i < variableNames.length; i++) {
+                if (variableNames[i] === newName) {
+                    errorDialog.message = "A variable with name '" + newName + "' already exists.";
+                    errorDialog.open();
+                    return;
+                }
+            }
+
+            const value = simulation.getVariableValue(oldName);
+            simulation.remove_variable(oldName);
+            simulation.add_variable(newName, value);
+        }
+    }
+
+    /// errorDialog box for same variable name added
+    Dialog {
+        id: errorDialog
+        title: "Error"
+        standardButtons: Dialog.Ok
+        modal: true
+        closePolicy: Popup.CloseOnEscape
+
+        parent: Overlay.overlay
+        x: (parent.width - width) / 2
+        y: (parent.height - height) / 2
+
+        width: 300
+
+        property string message: ""
+
+        Label {
+            anchors.fill: parent
+            text: errorDialog.message
+            wrapMode: Text.WordWrap
+            color: ThemeManager.palette.text
         }
     }
 }
