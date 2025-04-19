@@ -174,8 +174,8 @@ namespace cse
 		void PrintType(T &data)
 		{
 			std::string type = typeid(data).name();
-			size_t length = type.size();
-			outFile.write(reinterpret_cast<const char *>(&length), sizeof(size_t));
+			int length = type.size();
+			outFile.write(reinterpret_cast<const char *>(&length), sizeof(int));
 			outFile.write(type.c_str(), length);
 			outFile.flush();
 			setType = true;
@@ -188,8 +188,8 @@ namespace cse
 		 */
 		void GetType()
 		{
-			size_t length;
-			inFile.read(reinterpret_cast<char *>(&length), sizeof(size_t));
+			int length;
+			inFile.read(reinterpret_cast<char *>(&length), sizeof(int));
 			currType.resize(length);
 			inFile.read(&currType[0], length);
 		}
@@ -312,8 +312,8 @@ namespace cse
 				SetOutFile(filename);
 				if (!setType)
 					PrintType(str);
-				size_t length = str.size();
-				outFile.write(reinterpret_cast<const char *>(&length), sizeof(size_t));
+				int length = str.size();
+				outFile.write(reinterpret_cast<const char *>(&length), sizeof(int));
 				outFile.write(str.c_str(), length);
 				outFile.flush();
 			}
@@ -330,8 +330,8 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t length;
-				inFile.read(reinterpret_cast<char *>(&length), sizeof(size_t));
+				int length;
+				inFile.read(reinterpret_cast<char *>(&length), sizeof(int));
 				str.resize(length);
 				inFile.read(&str[0], length);
 			}
@@ -355,10 +355,10 @@ namespace cse
 				SetOutFile(filename);
 				if (!setType)
 					PrintType(vec);
-				size_t size = vec.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				int size = vec.size();
+				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				// Write each element in the vector.
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
 						Serialize(vec[i], filename, true);
@@ -379,12 +379,12 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+				int size;
+				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				vec.resize(size);
 				// Check if the element type is serializable before processing.
 				static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
 						Serialize(vec[i], filename, true);
@@ -412,7 +412,7 @@ namespace cse
 				if (!setType)
 					PrintType(arr);
 				// Process each element in the fixed-size array.
-				for (size_t i = 0; i < N; i++)
+				for (unsigned int i = 0; i < N; i++)
 				{
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(arr[i])>>::value)
 						Serialize(arr[i], filename, true);
@@ -433,7 +433,7 @@ namespace cse
 					}
 				}
 				// Read each element from the file.
-				for (size_t i = 0; i < N; i++)
+				for (unsigned int i = 0; i < N; i++)
 				{
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(arr[i])>>::value)
 						Serialize(arr[i], filename, true);
@@ -460,8 +460,8 @@ namespace cse
 				if (!setType)
 					PrintType(set);
 				// Write set size.
-				size_t size = set.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				int size = set.size();
+				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				// Iterate through the set and serialize each element.
 				for (auto item = set.begin(); item != set.end(); ++item)
 				{
@@ -485,10 +485,10 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+				int size;
+				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				set.clear();
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					T item;
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(item)>>::value)
@@ -517,8 +517,8 @@ namespace cse
 				if (!setType)
 					PrintType(uset);
 				// Write unordered_set size.
-				size_t size = uset.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				int size = uset.size();
+				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				// Serialize each element.
 				for (auto item = uset.begin(); item != uset.end(); ++item)
 				{
@@ -542,10 +542,10 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+				int size;
+				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				uset.clear();
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					T item;
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(item)>>::value)
@@ -573,8 +573,8 @@ namespace cse
 				SetOutFile(filename);
 				if (!setType)
 					PrintType(mset);
-				size_t size = mset.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				int size = mset.size();
+				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				// Iterate through multiset elements.
 				for (auto item = mset.begin(); item != mset.end(); ++item)
 				{
@@ -598,10 +598,10 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+				int size;
+				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				mset.clear();
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					T item;
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(item)>>::value)
@@ -629,8 +629,8 @@ namespace cse
 				SetOutFile(filename);
 				if (!setType)
 					PrintType(umset);
-				size_t size = umset.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				int size = umset.size();
+				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				// Serialize each element in the unordered_multiset.
 				for (auto item = umset.begin(); item != umset.end(); ++item)
 				{
@@ -654,10 +654,10 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+				int size;
+				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				umset.clear();
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					T item;
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(item)>>::value)
@@ -688,8 +688,8 @@ namespace cse
 				if (!setType)
 					PrintType(map);
 				// Write map size.
-				size_t size = map.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				int size = map.size();
+				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				// Serialize each key-value pair.
 				for (auto item = map.begin(); item != map.end(); ++item)
 				{
@@ -718,10 +718,10 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+				int size;
+				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				map.clear();
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					K key;
 					V val;
@@ -756,8 +756,8 @@ namespace cse
 				SetOutFile(filename);
 				if (!setType)
 					PrintType(umap);
-				size_t size = umap.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				int size = umap.size();
+				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				// Serialize each key-value pair.
 				for (auto item = umap.begin(); item != umap.end(); ++item)
 				{
@@ -786,10 +786,10 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+				int size;
+				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				umap.clear();
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					K key;
 					V val;
@@ -824,8 +824,8 @@ namespace cse
 				SetOutFile(filename);
 				if (!setType)
 					PrintType(mmap);
-				size_t size = mmap.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				int size = mmap.size();
+				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				// Serialize each key-value pair.
 				for (auto item = mmap.begin(); item != mmap.end(); ++item)
 				{
@@ -854,10 +854,10 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+				int size;
+				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				mmap.clear();
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					K key;
 					V val;
@@ -892,8 +892,8 @@ namespace cse
 				SetOutFile(filename);
 				if (!setType)
 					PrintType(ummap);
-				size_t size = ummap.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				int size = ummap.size();
+				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				// Serialize each key-value pair.
 				for (auto item = ummap.begin(); item != ummap.end(); ++item)
 				{
@@ -922,10 +922,10 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+				int size;
+				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				ummap.clear();
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					K key;
 					V val;
@@ -971,10 +971,10 @@ namespace cse
 					temp.pop();
 				}
 				// Write the number of elements.
-				size_t size = vec.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				int size = vec.size();
+				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				// Serialize each element.
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
 						Serialize(vec[i], filename, true);
@@ -995,10 +995,10 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+				int size;
+				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				std::vector<T> vec(size);
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
 						Serialize(vec[i], filename, true);
@@ -1039,10 +1039,10 @@ namespace cse
 					temp.pop();
 				}
 				// Write the size of the queue.
-				size_t size = vec.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				int size = vec.size();
+				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				// Serialize each element.
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
 						Serialize(vec[i], filename, true);
@@ -1063,10 +1063,10 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+				int size;
+				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				std::vector<T> vec(size);
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
 						Serialize(vec[i], filename, true);
@@ -1107,10 +1107,10 @@ namespace cse
 					temp.pop();
 				}
 				// Write the number of elements.
-				size_t size = vec.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				int size = vec.size();
+				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				// Serialize each element.
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
 						Serialize(vec[i], filename, true);
@@ -1131,10 +1131,10 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+				int size;
+				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				std::vector<T> vec(size);
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
 						Serialize(vec[i], filename, true);
@@ -1162,10 +1162,10 @@ namespace cse
 				if (!setType)
 					PrintType(deq);
 				// Write the size of the deque.
-				size_t size = deq.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				int size = deq.size();
+				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				// Serialize each element using its index.
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(deq[i])>>::value)
 						Serialize(deq[i], filename, true);
@@ -1186,10 +1186,10 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+				int size;
+				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				std::vector<T> vec(size);
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
 						Serialize(vec[i], filename, true);
