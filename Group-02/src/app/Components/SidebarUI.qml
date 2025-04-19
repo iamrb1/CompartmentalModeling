@@ -159,6 +159,14 @@ Rectangle {
                         }
                     }
 
+                    // Add this right after the Variables header in your QML
+                    Item {
+                        Layout.fillWidth: true
+                        height: 30
+
+
+                    }
+
                     // Plus button
                     Rectangle {
                         width: 24
@@ -182,7 +190,7 @@ Rectangle {
                                 // Add new variable logic would go here
                                 console.log("Add new variable")
                                 console.log(simulation.variables)
-                                simulation.add_variable("k4", 0.5)
+                                simulation.add_variable()
                                 console.log(simulation.variables)
                             }
                         }
@@ -195,18 +203,22 @@ Rectangle {
                     Layout.fillHeight: true
 
                     // Example variable rows (these would be dynamically generated)
-                    Repeater {
-                        model: simulation.variables
-                        Component.onCompleted: {
-                            console.log("Repeater model:", model)
-                            console.log("Repeater count:", count)
-                        }
+                    ListView {
+                        id: variablesListView
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        clip: true
+
+                        model: simulation ? simulation.variableNames : []
 
                         delegate: RowLayout {
+                            width: parent.width
                             spacing: 10
 
                             Text {
                                 text: modelData
+                                color: ThemeManager.palette.text
+                                Layout.preferredWidth: 40
                             }
 
                             Rectangle {
@@ -220,8 +232,11 @@ Rectangle {
                                     anchors.fill: parent
                                     anchors.margins: 5
                                     verticalAlignment: TextInput.AlignVCenter
-                                    text: "Variable " + (index + 1)
+                                    text: simulation.getVariableValue(modelData).toFixed(2)
                                     color: ThemeManager.palette.text
+                                    onEditingFinished: {
+                                        simulation.update_variable(modelData, parseFloat(text))
+                                    }
                                 }
                             }
 
@@ -229,7 +244,7 @@ Rectangle {
                                 width: 24
                                 height: 24
                                 radius: 4
-                                color: minusMouseArea.pressed ? ThemeManager.palette.mid : "transparent"
+                                color: removeMouseArea.pressed ? ThemeManager.palette.mid : "transparent"
                                 border.width: 1
                                 border.color: ThemeManager.palette.mid
 
@@ -241,11 +256,10 @@ Rectangle {
                                 }
 
                                 MouseArea {
-                                    id: minusMouseArea
+                                    id: removeMouseArea
                                     anchors.fill: parent
                                     onClicked: {
-                                        // Remove variable logic would go here
-                                        console.log("Remove variable")
+                                        simulation.remove_variable(modelData)
                                     }
                                 }
                             }

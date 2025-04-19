@@ -1,4 +1,5 @@
 message(STATUS "Building Executable: ${EXECUTABLE_NAME}")
+set(CMAKE_PREFIX_PATH "/Users/rahul/Qt/6.9.0/macos" ${CMAKE_PREFIX_PATH})
 
 # Set the source files
 set(
@@ -72,4 +73,5 @@ install(
     TARGETS ${EXECUTABLE_NAME}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    BUNDLE DESTINATION .
 )
