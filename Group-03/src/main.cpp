@@ -1,15 +1,13 @@
-// main.cpp  – no SDL_ttf; built‑in 3×5 bitmap font draws “PREDATORS NN”
-//                                                and “PREY NN” in‑window.
-//
-// Native build
+// main.cpp – draws "PREDATORS NN" and "PREY NN" using a built-in 3x5 bitmap font (no SDL_ttf)
+
+// Native build:
 //   g++ main.cpp Circle.cpp Surface.cpp -lSDL2 -std=c++17 -O2 -o circles
-//
-// Emscripten build
+// Emscripten build:
 //   emcc main.cpp Circle.cpp Surface.cpp -sUSE_SDL=2 -std=c++17 -O2 -o circles.html
 
 #include <SDL2/SDL.h>
 #ifdef __EMSCRIPTEN__
-#  include <emscripten/emscripten.h>
+#include <emscripten/emscripten.h>
 #endif
 
 #include <vector>
@@ -19,14 +17,10 @@
 #include <ctime>
 #include <algorithm>
 #include <string>
-
-// -------- your own headers ----------
 #include "Circle.h"
 #include "Surface.h"
 
-// ---------------------------------------------------------------------------
 // Globals
-// ---------------------------------------------------------------------------
 static constexpr int WINDOW_WIDTH  = 800;
 static constexpr int WINDOW_HEIGHT = 600;
 static constexpr double WIN_THRESHOLD = 0.8;
@@ -39,48 +33,43 @@ static std::vector<std::shared_ptr<Circle>> gCircles;
 
 static bool isRunning = true;
 
-// ---------------------------------------------------------------------------
-// 3×5 bitmap font  (only the characters we need)
-// bit rows are 3‑bit values, high‑bit = left pixel
-// ---------------------------------------------------------------------------
-static constexpr int FONT_SCALE   = 4;           // bitmap‑>screen scale factor
+// 3x5 bitmap font 
+static constexpr int FONT_SCALE   = 4;
 static constexpr int CHAR_W       = 3 * FONT_SCALE;
 static constexpr int CHAR_H       = 5 * FONT_SCALE;
-static constexpr int CHAR_SPACING = FONT_SCALE;  // gap between glyphs
+static constexpr int CHAR_SPACING = FONT_SCALE;
 
-/* digits 0‑9 */
+// Digits
 static const uint8_t DIGIT[10][5] = {
- /*0*/ {0b111,0b101,0b101,0b101,0b111},
- /*1*/ {0b010,0b110,0b010,0b010,0b111},
- /*2*/ {0b111,0b001,0b111,0b100,0b111},
- /*3*/ {0b111,0b001,0b111,0b001,0b111},
- /*4*/ {0b101,0b101,0b111,0b001,0b001},
- /*5*/ {0b111,0b100,0b111,0b001,0b111},
- /*6*/ {0b111,0b100,0b111,0b101,0b111},
- /*7*/ {0b111,0b001,0b010,0b010,0b010},
- /*8*/ {0b111,0b101,0b111,0b101,0b111},
- /*9*/ {0b111,0b101,0b111,0b001,0b111}
+ {0b111,0b101,0b101,0b101,0b111},  // 0
+ {0b010,0b110,0b010,0b010,0b111},  // 1
+ {0b111,0b001,0b111,0b100,0b111},  // 2
+ {0b111,0b001,0b111,0b001,0b111},  // 3
+ {0b101,0b101,0b111,0b001,0b001},  // 4
+ {0b111,0b100,0b111,0b001,0b111},  // 5
+ {0b111,0b100,0b111,0b101,0b111},  // 6
+ {0b111,0b001,0b010,0b010,0b010},  // 7
+ {0b111,0b101,0b111,0b101,0b111},  // 8
+ {0b111,0b101,0b111,0b001,0b111}   // 9
 };
 
-/* uppercase letters we need: A,D,E,O,P,R,S,T,Y  (index = letter-'A')        */
+// Letters A, D, E, O, P, R, S, T, Y 
 static const uint8_t LETTER[26][5] = {
-/* A */ {0b111,0b101,0b111,0b101,0b101},
-/* B */ {0}, /* C */ {0}, /* D */ {0b110,0b101,0b101,0b101,0b110},
-/* E */ {0b111,0b100,0b111,0b100,0b111},
-/* F‑H */ {0},{0},{0},
-/* I‑O */ {0},{0},{0},{0},{0},{0}, {0b111,0b101,0b101,0b101,0b111},
-/* P */ {0b111,0b101,0b111,0b100,0b100},
-/* Q,R */ {0},{0b111,0b101,0b111,0b101,0b101},
-/* S */ {0b111,0b100,0b111,0b001,0b111},
-/* T */ {0b111,0b010,0b010,0b010,0b010},
-/* U‑X */ {0},{0},{0},{0},
-/* Y */ {0b101,0b101,0b010,0b010,0b010},
-/* Z */ {0}
+{0b111,0b101,0b111,0b101,0b101}, // A
+{0}, {0}, {0b110,0b101,0b101,0b101,0b110}, // D
+{0b111,0b100,0b111,0b100,0b111}, // E
+{0},{0},{0}, {0},{0},{0},{0},{0},{0},
+{0b111,0b101,0b101,0b101,0b111}, // O
+{0b111,0b101,0b111,0b100,0b100}, // P
+{0}, {0b111,0b101,0b111,0b101,0b101}, // R
+{0b111,0b100,0b111,0b001,0b111}, // S
+{0b111,0b010,0b010,0b010,0b010}, // T
+{0},{0},{0},{0},
+{0b101,0b101,0b010,0b010,0b010}, // Y
+{0}
 };
 
-// ---------------------------------------------------------------------------
-// helpers
-// ---------------------------------------------------------------------------
+// Count circles of a given type
 int countCircles(const std::string& type)
 {
     return std::count_if(gCircles.begin(), gCircles.end(),
@@ -89,7 +78,7 @@ int countCircles(const std::string& type)
                          });
 }
 
-// draw a single 3×5 glyph (digit OR letter)
+// Draw a digit or letter
 void drawGlyph(const uint8_t rows[5], int x, int y, SDL_Color col)
 {
     SDL_SetRenderDrawColor(gRenderer, col.r, col.g, col.b, 255);
@@ -106,26 +95,26 @@ void drawGlyph(const uint8_t rows[5], int x, int y, SDL_Color col)
     }
 }
 
-/* draw a digit (0‑9) */
+// Draw a digit (0–9)
 void drawDigit(int d, int x, int y, SDL_Color col)
 {
     if (d < 0 || d > 9) return;
     drawGlyph(DIGIT[d], x, y, col);
 }
 
-/* draw an uppercase A‑Z that we have in LETTER[] */
+// Draw an uppercase letter (A–Z) if available
 void drawLetter(char ch, int x, int y, SDL_Color col)
 {
     if (ch < 'A' || ch > 'Z') return;
     const uint8_t* rows = LETTER[ch - 'A'];
-    if (rows[0] == 0) return;                   // unknown glyph
+    if (rows[0] == 0) return;
     drawGlyph(rows, x, y, col);
 }
 
-/* width of an n‑char string in pixels */
+// Calculate width in pixels of an n-character string
 int textWidth(int len) { return len*CHAR_W + (len-1)*CHAR_SPACING; }
 
-/* draw a string of uppercase letters */
+// Draw a string of uppercase letters
 void drawString(const std::string& s, int x, int y, SDL_Color col)
 {
     int cx = x;
@@ -137,7 +126,7 @@ void drawString(const std::string& s, int x, int y, SDL_Color col)
     }
 }
 
-/* draw a left‑aligned (max two‑digit) positive integer */
+// Draw a number (0–99), left-aligned
 void drawNumber(int n, int x, int y, SDL_Color col)
 {
     n = std::clamp(n, 0, 99);
@@ -150,9 +139,7 @@ void drawNumber(int n, int x, int y, SDL_Color col)
     drawDigit(ones, x, y, col);
 }
 
-// ---------------------------------------------------------------------------
-// random circles
-// ---------------------------------------------------------------------------
+// Create 10 demo circles (half red, half blue)
 void createDemoCircles()
 {
     std::srand(static_cast<unsigned>(std::time(nullptr)));
@@ -170,123 +157,96 @@ void createDemoCircles()
     }
 }
 
-// ---------------------------------------------------------------------------
-// update & draw
-// ---------------------------------------------------------------------------
+// Update all circles and game state
 void update()
 {
-    // Circle types
     double cType1 = 0.0;
     double cType2 = 0.0;
 
-    // 1) Move every circle
     for (auto& circle : gCircles) {
         if (!circle) continue;
 
         if (circle->getCircleType() == "red") {
-
             if (circle->isResting()) {
                 circle->regenEnergy(10);
-
-                if (circle->getEnergy() >= 1000) {
-                    circle->setResting(false);  // Fully recharged!
-                }
-
-                continue;  // Don't move while resting
+                if (circle->getEnergy() >= 1000)
+                    circle->setResting(false);
+                continue;
             }
-
-            // Still active: move and drain
             circle->decreaseEnergy(5);
-
             if (circle->getEnergy() <= 0) {
-                circle->setResting(true);  // Enter resting mode next frame
+                circle->setResting(true);
                 continue;
             }
         }
 
-
-        // pick a random direction delta ∈ { -1,0,+1 }
+        // Random movement
         double dirX = (rand() % 3) - 1;
         double dirY = (rand() % 3) - 1;
-
-        // compute new position in double precision
         double newX = circle->getX() + dirX * circle->getSpeed();
         double newY = circle->getY() + dirY * circle->getSpeed();
-
-        // clamp to window
         newX = std::clamp(newX, 0.0, WINDOW_WIDTH  - circle->getRadius());
         newY = std::clamp(newY, 0.0, WINDOW_HEIGHT - circle->getRadius());
-
-        // now actually move it in the Surface (takes doubles)
         gSurface->move_circle(circle, newX, newY);
 
-        // update circle type counter
-        if (circle->getCircleType() == "red") {
-            cType1 += 1;
-        }
-        if (circle->getCircleType() == "blue") {
-            cType2 += 1;
-        }
+        // Count types
+        if (circle->getCircleType() == "red")  cType1 += 1;
+        if (circle->getCircleType() == "blue") cType2 += 1;
     }
+
     gSurface->update();
 
-    auto [act,vic] = gSurface->check_collision();
-    if (act=="delete" && vic) {
-        gCircles.erase(std::remove(gCircles.begin(), gCircles.end(), vic),
-                       gCircles.end());
+    // Handle collisions
+    auto [act, vic] = gSurface->check_collision();
+    if (act == "delete" && vic) {
+        gCircles.erase(std::remove(gCircles.begin(), gCircles.end(), vic), gCircles.end());
         gSurface->remove_circle(vic);
-    }
-    else if (act=="add" && vic && vic->getCircleType()=="blue") {
-        static Uint32 last=0;
-        if (SDL_GetTicks()-last>=1000) {
+    } else if (act == "add" && vic && vic->getCircleType() == "blue") {
+        static Uint32 last = 0;
+        if (SDL_GetTicks() - last >= 1000) {
             auto b = std::make_shared<Circle>(*vic);
             gCircles.push_back(b);
             gSurface->add_circle(b);
             last = SDL_GetTicks();
         }
     }
-    
-    // End game if conditions are met
+
+    // Check win condition
     double cPercentage1 = cType1 / (cType1 + cType2);
     double cPercentage2 = cType2 / (cType1 + cType2);
-
-    // std::cout << "Red #: " << cType1 << "; Blue #: " << cType2 << std::endl;
-    // std::cout << "Red %: " << cPercentage1 << "; Blue %: " << cPercentage2 << std::endl;
 
     if (cPercentage1 >= WIN_THRESHOLD) {
         std::cout << "Winner: Red" << std::endl;
         isRunning = false;
     }
-
     if (cPercentage2 >= WIN_THRESHOLD) {
         std::cout << "Winner: Blue" << std::endl;
         isRunning = false;
     }
 }
 
+// Draw all circles and labels
 void draw()
 {
-    SDL_SetRenderDrawColor(gRenderer, 0,0,0,255);
+    SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
     SDL_RenderClear(gRenderer);
 
-    // circles
+    // Draw circles
     for (auto& c : gCircles) {
         if (!c) continue;
         SDL_SetRenderDrawColor(gRenderer,
-            c->getCircleType()=="red" ? 255 : 0,
+            c->getCircleType() == "red" ? 255 : 0,
             0,
-            c->getCircleType()=="blue"?255:0,
+            c->getCircleType() == "blue" ? 255 : 0,
             255);
-        int cx = (int)c->getX(), cy = (int)c->getY(), r=(int)c->getRadius();
-        for (int dx=-r; dx<=r; ++dx)
-            for (int dy=-r; dy<=r; ++dy)
-                if (dx*dx+dy*dy<=r*r)
-                    SDL_RenderDrawPoint(gRenderer,cx+dx,cy+dy);
+        int cx = (int)c->getX(), cy = (int)c->getY(), r = (int)c->getRadius();
+        for (int dx = -r; dx <= r; ++dx)
+            for (int dy = -r; dy <= r; ++dy)
+                if (dx*dx + dy*dy <= r*r)
+                    SDL_RenderDrawPoint(gRenderer, cx + dx, cy + dy);
     }
 
-    // ------------------------------------------------------------
-    // labels + numbers
-    // ------------------------------------------------------------
+    // Draw labels and counts
     int preds = countCircles("red");
     int prey  = countCircles("blue");
 
@@ -297,43 +257,37 @@ void draw()
     std::string labelPred = "PREDATORS";
     std::string labelPrey = "PREY";
 
-    // width calculations
     int wPredLabel = textWidth(labelPred.size());
-    int nDigitsPred = (preds>=10)?2:1;
-    int wPredNum   = textWidth(nDigitsPred);
+    int nDigitsPred = (preds >= 10) ? 2 : 1;
+    int wPredNum = textWidth(nDigitsPred);
     int wTotalPred = wPredLabel + CHAR_SPACING + wPredNum;
 
     int wPreyLabel = textWidth(labelPrey.size());
-    int nDigitsPrey = (prey>=10)?2:1;
-    int wPreyNum   = textWidth(nDigitsPrey);
+    int nDigitsPrey = (prey >= 10) ? 2 : 1;
+    int wPreyNum = textWidth(nDigitsPrey);
     int wTotalPrey = wPreyLabel + CHAR_SPACING + wPreyNum;
 
-    // right edge margin 8 px
     int xPredLabel = WINDOW_WIDTH - 8 - wTotalPred;
     int yPred      = 8;
 
     int xPreyLabel = WINDOW_WIDTH - 8 - wTotalPrey;
-    int yPrey      = yPred + CHAR_H + 2*CHAR_SPACING;
+    int yPrey      = yPred + CHAR_H + 2 * CHAR_SPACING;
 
-    // draw predator line
     drawString(labelPred, xPredLabel, yPred, white);
     drawNumber(preds,    xPredLabel + wPredLabel + CHAR_SPACING, yPred, red);
 
-    // draw prey line
     drawString(labelPrey, xPreyLabel, yPrey, white);
     drawNumber(prey,      xPreyLabel + wPreyLabel + CHAR_SPACING, yPrey, blue);
 
     SDL_RenderPresent(gRenderer);
 }
 
-// ---------------------------------------------------------------------------
-// event / main loop
-// ---------------------------------------------------------------------------
+// Handle events and run main loop
 void mainLoop()
 {
     SDL_Event e;
     while (SDL_PollEvent(&e))
-        if (e.type==SDL_QUIT) isRunning=false;
+        if (e.type == SDL_QUIT) isRunning = false;
 
     if (!isRunning) {
 #ifdef __EMSCRIPTEN__
@@ -345,21 +299,27 @@ void mainLoop()
     draw();
 }
 
-// ---------------------------------------------------------------------------
-// main()
-// ---------------------------------------------------------------------------
-int main(int argc,char* argv[])
+// Entry point
+int main(int argc, char* argv[])
 {
-    if (SDL_Init(SDL_INIT_VIDEO)<0){
-        std::cerr<<"SDL init failed: "<<SDL_GetError()<<'\n';return 1;}
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        std::cerr << "SDL init failed: " << SDL_GetError() << '\n';
+        return 1;
+    }
 
     gWindow = SDL_CreateWindow("Predator / Prey demo",
-        SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,
-        WINDOW_WIDTH,WINDOW_HEIGHT,SDL_WINDOW_SHOWN);
-    if(!gWindow){std::cerr<<"Window error: "<<SDL_GetError()<<'\n';return 1;}
+        SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+        WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+    if (!gWindow) {
+        std::cerr << "Window error: " << SDL_GetError() << '\n';
+        return 1;
+    }
 
-    gRenderer = SDL_CreateRenderer(gWindow,-1,SDL_RENDERER_ACCELERATED);
-    if(!gRenderer){std::cerr<<"Renderer error: "<<SDL_GetError()<<'\n';return 1;}
+    gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
+    if (!gRenderer) {
+        std::cerr << "Renderer error: " << SDL_GetError() << '\n';
+        return 1;
+    }
 
     gSurface = std::make_unique<cse::Surface>(WINDOW_WIDTH, WINDOW_HEIGHT, 100);
     createDemoCircles();
@@ -367,7 +327,10 @@ int main(int argc,char* argv[])
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop(mainLoop, 0, 1);
 #else
-    while(isRunning){mainLoop();SDL_Delay(16);}
+    while (isRunning) {
+        mainLoop();
+        SDL_Delay(16);
+    }
 #endif
 
     gCircles.clear();
@@ -377,4 +340,3 @@ int main(int argc,char* argv[])
     SDL_Quit();
     return 0;
 }
-// comment
