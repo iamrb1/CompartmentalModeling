@@ -1,7 +1,7 @@
 qt_add_library(ComponentsLib STATIC)
 
 set_target_properties(ComponentsLib PROPERTIES AUTOMOC ON)
-target_link_libraries(ComponentsLib PRIVATE Qt6::Quick)
+target_link_libraries(ComponentsLib PRIVATE Qt6::Quick Qt6::Charts Qt6::Widgets)
 #target_precompile_headers(ComponentsLib PRIVATE ../pch.h)
 
 set(
@@ -9,6 +9,7 @@ set(
     CompartmentUI.qml
     ConnectionUI.qml
     SidebarUI.qml
+    TimePlotUI.qml
 )
 
 set(

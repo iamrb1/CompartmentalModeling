@@ -1,4 +1,5 @@
 message(STATUS "Building Executable: ${EXECUTABLE_NAME}")
+set(CMAKE_PREFIX_PATH "/Users/rahul/Qt/6.9.0/macos" ${CMAKE_PREFIX_PATH})
 
 
 # Set the source files
@@ -21,7 +22,7 @@ set(
 )
 
 # Qt6 setup
-find_package(Qt6 REQUIRED COMPONENTS Quick)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Quick Charts)
 qt_standard_project_setup(REQUIRES 6.8)
 # Add resources
 qt_add_resources(
@@ -58,7 +59,7 @@ set_target_properties(${EXECUTABLE_NAME} PROPERTIES
 )
 
 # Link libraries
-target_link_libraries(${EXECUTABLE_NAME} PRIVATE Qt6::Quick)
+target_link_libraries(${EXECUTABLE_NAME} PRIVATE Qt6::Quick Qt6::Widgets Qt6::Charts)
 target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${LIBRARY_NAME})
 
 # Link plugins
@@ -73,4 +74,5 @@ install(
     TARGETS ${EXECUTABLE_NAME}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    BUNDLE DESTINATION .
 )

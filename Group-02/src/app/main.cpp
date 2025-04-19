@@ -3,12 +3,13 @@
  * @author Nitish Maindoliya
  */
 
-#include <QGuiApplication>
+#include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QScreen>
 
+
 int main(int argc, char* argv[]) {
-  QGuiApplication app(argc, argv);
+  QApplication app(argc, argv);
   QGuiApplication::setOrganizationName("cseg2");
   QGuiApplication::setOrganizationDomain("https://github.com/CSE498/CSE498-Spring2025/");
   QGuiApplication::setApplicationName("Compartmental Modeling Simulator");
@@ -35,5 +36,5 @@ int main(int argc, char* argv[]) {
     rootObj->setProperty("y", y);
   }
 
-  return QGuiApplication::exec();
+  return QApplication::exec();
 }
