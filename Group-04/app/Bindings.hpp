@@ -29,6 +29,8 @@ EMSCRIPTEN_BINDINGS(rich_text_module) {
       static_cast<void(RichTextState::*)()>(&RichTextState::applyBold))
     .function("applyItalic",        
       static_cast<void(RichTextState::*)()>(&RichTextState::applyItalic))
+    .function("applyUnderline",
+      static_cast<void(RichTextState::*)()>(&RichTextState::applyUnderline))
     .function("applyStrikethrough", 
       static_cast<void(RichTextState::*)()>(&RichTextState::applyStrikethrough))
     .function("applyColor",         
@@ -37,12 +39,18 @@ EMSCRIPTEN_BINDINGS(rich_text_module) {
       static_cast<void(RichTextState::*)(const std::string&)>(&RichTextState::applyLink))
     .function("applyHeader",        
       static_cast<void(RichTextState::*)(int)>(&RichTextState::applyHeader))
+    
+    // Generic format function
+    .function("update_format",
+      static_cast<void(RichTextState::*)(cse::TextFormat::FormatID, cse::TextFormat::FormatData)>(&RichTextState::update_format))
 
     // Range‑based formatting (distinct JS names)
     .function("applyBoldRange",      
       static_cast<void(RichTextState::*)(std::size_t, std::size_t)>(&RichTextState::applyBold))
     .function("applyItalicRange",    
       static_cast<void(RichTextState::*)(std::size_t, std::size_t)>(&RichTextState::applyItalic))
+    .function("applyUnderlineRange",
+      static_cast<void(RichTextState::*)(std::size_t, std::size_t)>(&RichTextState::applyUnderline))
     .function("applyStrikeRange",    
       static_cast<void(RichTextState::*)(std::size_t, std::size_t)>(&RichTextState::applyStrikethrough))
     .function("applyColorRange",     

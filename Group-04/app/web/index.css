@@ -18,6 +18,7 @@ content > .rich-input {
     background-color: lightsteelblue;
     overflow: scroll;
     z-index: 1;
+    padding: 15px;
 }
 
 content > output {
@@ -37,6 +38,163 @@ content > output {
     }
 }
 
+/* Formatting button styles */
+.format-buttons {
+    display: flex;
+    gap: 5px;
+    margin: 10px 0;
+}
+
+.format-button {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #ccc;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bold-button {
+    font-weight: bold;
+}
+
+.italic-button {
+    font-style: italic;
+}
+
+.underline-button {
+    text-decoration: underline;
+}
+
+.color-button {
+    position: relative;
+    text-decoration: underline;
+    text-decoration-color: currentColor;
+}
+
+.color-picker {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.color-picker:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+}
+
+/* Custom format section */
+.custom-format-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    padding: 15px;
+    background-color: #eee;
+    border-radius: 4px;
+    margin: 50px 0 20px 0;
+    position: relative;
+    max-width: 95%;
+}
+
+.custom-format-container label {
+    font-weight: bold;
+    margin-right: 5px;
+    min-width: 60px;
+}
+
+.custom-format-container input[type="text"] {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 150px;
+    margin-bottom: 10px;
+}
+
+/* Dropdown select styling */
+.format-select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 150px;
+    background-color: white;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23444%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 10px;
+    padding-right: 25px;
+}
+
+.format-select:hover {
+    border-color: #999;
+}
+
+.format-select:focus {
+    outline: none;
+    border-color: #4b8bf4;
+    box-shadow: 0 0 0 2px rgba(75, 139, 244, 0.3);
+}
+
+/* Format input styling */
+.format-input, .format-value-input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 150px;
+    background-color: white;
+    font-size: 14px;
+}
+
+.format-input:hover, .format-value-input:hover {
+    border-color: #999;
+}
+
+.format-input:focus, .format-value-input:focus {
+    outline: none;
+    border-color: #4b8bf4;
+    box-shadow: 0 0 0 2px rgba(75, 139, 244, 0.3);
+}
+
+.format-value-container {
+    display: flex;
+    flex-direction: column;
+    min-width: 200px;
+}
+
+.apply-format-button {
+    padding: 8px 16px;
+    background-color: #666;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.apply-format-button:hover {
+    background-color: #777;
+}
+
+/* Format success message */
+.format-success-message {
+    background-color: #4CAF50;
+}
+
+/* Format error message */
+.error-message {
+    background-color: #F44336;
+}
 
 /* Toolbar Button Styling */
 #toolbar button.toolbar-button {
@@ -94,6 +252,51 @@ content > output {
 #text-editor {
     padding: 15px;
     white-space: pre;
+}
+
+#toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding-bottom: 30px;
+}
+
+/* Format text input style */
+#toolbar input[type="text"] {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+/* Operation success messages */
+.operation-message {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 4px;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    animation: fadeIn 0.3s, fadeOut 0.5s 1.5s;
+}
+
+.undo-message {
+    background-color: #4CAF50; /* Green */
+}
+
+.redo-message {
+    background-color: #2196F3; /* Blue */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
 }
 
 

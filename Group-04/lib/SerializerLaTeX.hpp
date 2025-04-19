@@ -48,6 +48,13 @@ auto SerializerLaTeX() {
     str_to_underlying<CharT, Underlying>("}")
   );
 
+  // Underline - using the ulem package
+  out.AddRule(
+    "underline",
+    str_to_underlying<CharT, Underlying>("\\uline{"),
+    str_to_underlying<CharT, Underlying>("}")
+  );
+
   // Strikethrough
   out.AddRule(
     "strikethrough",

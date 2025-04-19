@@ -103,38 +103,319 @@ window.addEventListener("DOMContentLoaded", () => {
     // Initial update of outputs
     updateOutputs();
 
-    // Left-side input bar as before.
+    // Left-side input bar
     const bar = document.getElementById("toolbar");
     const wrappedInput = MakeInput.textInput("", "Type here...");
     wrappedInput.style.width = "100%";
     bar.appendChild(wrappedInput);
 
-    // Create Undo and Redo buttons as proper <button> elements.
+    // Add some spacing
+    bar.appendChild(document.createElement("br"));
+    bar.appendChild(document.createElement("br"));
+
+    // Create formatting buttons
+    const formatButtonsContainer = document.createElement("div");
+    formatButtonsContainer.className = "format-buttons";
+    
+    // Bold button
+    const boldButton = document.createElement("button");
+    boldButton.textContent = "B";
+    boldButton.className = "format-button bold-button";
+    boldButton.addEventListener("click", () => {
+      app.applyBold();
+      updateOutputs();
+    });
+    
+    // Italic button
+    const italicButton = document.createElement("button");
+    italicButton.textContent = "I";
+    italicButton.className = "format-button italic-button";
+    italicButton.addEventListener("click", () => {
+      app.applyItalic();
+      updateOutputs();
+    });
+    
+    // Underline button
+    const underlineButton = document.createElement("button");
+    underlineButton.textContent = "U";
+    underlineButton.className = "format-button underline-button";
+    underlineButton.addEventListener("click", () => {
+      app.applyUnderline();
+      updateOutputs();
+    });
+    
+    // Color button
+    const colorButton = document.createElement("button");
+    colorButton.textContent = "A";
+    colorButton.className = "format-button color-button";
+    colorButton.addEventListener("click", () => {
+      const color = document.getElementById("colorPicker").value;
+      console.log("Applying color:", color); // Debug
+      app.applyColor(color);
+      updateOutputs();
+    });
+    
+    // Color picker input
+    const colorPicker = document.createElement("input");
+    colorPicker.type = "color";
+    colorPicker.id = "colorPicker";
+    colorPicker.className = "color-picker";
+    colorPicker.value = "#000000";
+    
+    // Add event listener to color picker to apply color directly when changed
+    colorPicker.addEventListener("input", () => {
+      const color = colorPicker.value;
+      console.log("Color picked:", color);
+      app.applyColor(color);
+      updateOutputs();
+      
+      // Show a visual indicator that color was applied
+      const colorMessage = document.createElement("div");
+      colorMessage.textContent = `Color ${color} applied`;
+      colorMessage.className = "operation-message color-message";
+      colorMessage.style.backgroundColor = color;
+      
+      // Adjust text color based on background color brightness for readability
+      const r = parseInt(color.slice(1, 3), 16);
+      const g = parseInt(color.slice(3, 5), 16);
+      const b = parseInt(color.slice(5, 7), 16);
+      const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+      colorMessage.style.color = brightness > 125 ? 'black' : 'white';
+      
+      bar.appendChild(colorMessage);
+      
+      // Remove the message after a delay
+      setTimeout(() => {
+        if (colorMessage.parentNode) {
+          colorMessage.parentNode.removeChild(colorMessage);
+        }
+      }, 2000);
+    });
+    
+    // Append formatting buttons to container
+    formatButtonsContainer.appendChild(boldButton);
+    formatButtonsContainer.appendChild(italicButton);
+    formatButtonsContainer.appendChild(underlineButton);
+    formatButtonsContainer.appendChild(colorPicker);
+    formatButtonsContainer.appendChild(colorButton);
+    
+    // Add spacing after format buttons
+    bar.appendChild(formatButtonsContainer);
+    bar.appendChild(document.createElement("br"));
+    bar.appendChild(document.createElement("br"));
+    
+    // Custom format section
+    const customFormatContainer = document.createElement("div");
+    customFormatContainer.className = "custom-format-container";
+    
+    // Format input (text input instead of dropdown)
+    const formatNameLabel = document.createElement("label");
+    formatNameLabel.textContent = "Format:";
+    formatNameLabel.htmlFor = "formatName";
+    
+    const formatNameInput = document.createElement("input");
+    formatNameInput.type = "text";
+    formatNameInput.id = "formatName";
+    formatNameInput.className = "format-input";
+    formatNameInput.placeholder = "bold, italic, color, etc.";
+    
+    // Format value input
+    const formatValueContainer = document.createElement("div");
+    formatValueContainer.id = "valueContainer";
+    formatValueContainer.className = "format-value-container";
+    
+    const formatValueLabel = document.createElement("label");
+    formatValueLabel.textContent = "Value:";
+    formatValueLabel.htmlFor = "formatValue";
+    
+    const formatValueInput = document.createElement("input");
+    formatValueInput.type = "text";
+    formatValueInput.id = "formatValue";
+    formatValueInput.className = "format-value-input";
+    formatValueInput.placeholder = "Value (if needed)";
+    
+    formatValueContainer.appendChild(formatValueLabel);
+    formatValueContainer.appendChild(formatValueInput);
+    
+    // Apply custom format button
+    const applyFormatButton = document.createElement("button");
+    applyFormatButton.textContent = "Apply";
+    applyFormatButton.className = "apply-format-button";
+    applyFormatButton.addEventListener("click", () => {
+      const formatName = formatNameInput.value.trim().toLowerCase();
+      const formatValue = formatValueInput.value.trim();
+      
+      console.log("Applying custom format:", formatName, formatValue);
+      
+      if (!formatName) {
+        // Show error message if format name is empty
+        const errorMessage = document.createElement("div");
+        errorMessage.textContent = "Format name is required";
+        errorMessage.className = "operation-message error-message";
+        bar.appendChild(errorMessage);
+        
+        setTimeout(() => {
+          if (errorMessage.parentNode) {
+            errorMessage.parentNode.removeChild(errorMessage);
+          }
+        }, 2000);
+        
+        return;
+      }
+      
+      try {
+        // Handle different format types
+        if (formatName === "bold") {
+          app.applyBold();
+        } 
+        else if (formatName === "italic") {
+          app.applyItalic();
+        } 
+        else if (formatName === "underline") {
+          app.applyUnderline();
+        } 
+        else if (formatName === "strikethrough") {
+          app.applyStrikethrough();
+        } 
+        else if (formatName === "color" && formatValue) {
+          app.applyColor(formatValue);
+        } 
+        else if (formatName === "link" && formatValue) {
+          app.applyLink(formatValue);
+        } 
+        else if (formatName === "header" && formatValue && !isNaN(parseInt(formatValue))) {
+          app.applyHeader(parseInt(formatValue));
+        } 
+        else {
+          // Attempt to apply a custom format with the given name and value
+          // This allows for future extensibility even if we don't have a specific method
+          console.log(`Applying custom format "${formatName}" with value "${formatValue}"`);
+          
+          // Here we need to infer the type based on the format name and value
+          // For now, if value is empty, use monostate, otherwise use the string as is
+          let success = false;
+          
+          if (!formatValue) {
+            // No value, apply as a boolean flag format (like bold, italic)
+            app.update_format(formatName, {});
+            success = true;
+          } else if (!isNaN(parseInt(formatValue))) {
+            // Numeric value - try to apply as integer
+            try {
+              const numValue = parseInt(formatValue);
+              app.update_format(formatName, numValue);
+              success = true;
+            } catch (e) {
+              console.error("Failed to apply numeric format:", e);
+              // Fall back to string format
+              app.update_format(formatName, formatValue);
+              success = true;
+            }
+          } else {
+            // String value
+            app.update_format(formatName, formatValue);
+            success = true;
+          }
+          
+          if (!success) {
+            throw new Error(`Unknown format type: ${formatName}`);
+          }
+        }
+        
+        updateOutputs();
+        
+        // Show success message
+        const successMessage = document.createElement("div");
+        successMessage.textContent = `"${formatName}" formatting applied`;
+        successMessage.className = "operation-message format-success-message";
+        bar.appendChild(successMessage);
+        
+        setTimeout(() => {
+          if (successMessage.parentNode) {
+            successMessage.parentNode.removeChild(successMessage);
+          }
+        }, 2000);
+      } catch (error) {
+        console.error("Error applying format:", error);
+        
+        // Show error message
+        const errorMessage = document.createElement("div");
+        errorMessage.textContent = `Error applying "${formatName}": ${error.message}`;
+        errorMessage.className = "operation-message error-message";
+        bar.appendChild(errorMessage);
+        
+        setTimeout(() => {
+          if (errorMessage.parentNode) {
+            errorMessage.parentNode.removeChild(errorMessage);
+          }
+        }, 2000);
+      }
+    });
+    
+    // Append format elements to container
+    const formatNameContainer = document.createElement("div");
+    formatNameContainer.style.marginBottom = "10px";
+    formatNameContainer.appendChild(formatNameLabel);
+    formatNameContainer.appendChild(formatNameInput);
+    
+    customFormatContainer.appendChild(formatNameContainer);
+    customFormatContainer.appendChild(formatValueContainer);
+    customFormatContainer.appendChild(applyFormatButton);
+    
+    // Create Undo and Redo buttons
     const undoButton = document.createElement("button");
     undoButton.textContent = "Undo";
-    // Add a class for styling.
     undoButton.className = "toolbar-button";
     
     const redoButton = document.createElement("button");
     redoButton.textContent = "Redo";
     redoButton.className = "toolbar-button";
     
-    // Append the new buttons to the toolbar.
+    // Append all UI elements to the toolbar
+    bar.appendChild(customFormatContainer);
+    bar.appendChild(document.createElement("br"));
+    bar.appendChild(document.createElement("br"));
     bar.appendChild(undoButton);
     bar.appendChild(redoButton);
     
-    // Hook up Undo/Redo handlers.
+    // Hook up Undo/Redo handlers
     undoButton.addEventListener("click", () => {
       app.undo();
       updateOutputs();
+      
+      // Create and show a success message
+      const undoMessage = document.createElement("div");
+      undoMessage.textContent = "Undo applied successfully";
+      undoMessage.className = "operation-message undo-message";
+      bar.appendChild(undoMessage);
+      
+      // Remove the message after a delay
+      setTimeout(() => {
+        if (undoMessage.parentNode) {
+          undoMessage.parentNode.removeChild(undoMessage);
+        }
+      }, 2000);
     });
     
     redoButton.addEventListener("click", () => {
       app.redo();
       updateOutputs();
+      
+      // Create and show a success message
+      const redoMessage = document.createElement("div");
+      redoMessage.textContent = "Redo applied successfully";
+      redoMessage.className = "operation-message redo-message";
+      bar.appendChild(redoMessage);
+      
+      // Remove the message after a delay
+      setTimeout(() => {
+        if (redoMessage.parentNode) {
+          redoMessage.parentNode.removeChild(redoMessage);
+        }
+      }, 2000);
     });
     
-    // Future: bind text input's events to update the state.
+    // Bind text input's events to update the state
     wrappedInput.addEventListener("input", (e) => {
       app.edit_change(wrappedInput.getValue());
       updateOutputs();

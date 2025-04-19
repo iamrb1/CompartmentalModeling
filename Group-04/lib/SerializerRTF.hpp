@@ -35,6 +35,9 @@ auto SerializerRTF() {
   out.AddRule("italic", str_to_underlying<CharT, Underlying>("{\\i "),
               str_to_underlying<CharT, Underlying>(" }"));
 
+  out.AddRule("underline", str_to_underlying<CharT, Underlying>("{\\ul "),
+              str_to_underlying<CharT, Underlying>(" }"));
+
   out.AddRule(
       "color",
       [](const TextFormat& f) -> Underlying {

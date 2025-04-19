@@ -33,6 +33,9 @@ auto SerializerHTML() {
   out.AddRule("italic", str_to_underlying<CharT, Underlying>("<i>"),
               str_to_underlying<CharT, Underlying>("</i>"));
 
+  out.AddRule("underline", str_to_underlying<CharT, Underlying>("<u>"),
+              str_to_underlying<CharT, Underlying>("</u>"));
+
   out.AddRule(
       "color",
       [](const TextFormat& f) -> Underlying {

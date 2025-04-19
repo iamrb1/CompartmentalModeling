@@ -64,6 +64,9 @@ public:
   }
 
   void edit_change(std::string replace) {
+    // Save current state before making changes
+    saveState();
+    
     if (m_edit.first < m_richText.size())
       m_richText.erase(m_edit.first, m_edit.second - m_edit.first);
 
@@ -77,6 +80,9 @@ public:
   // — FORMAT OPERATIONS —
   void update_format(cse::TextFormat::FormatID id,
                      cse::TextFormat::FormatData data) {
+    // Save current state before making changes
+    saveState();
+    
     cse::TextFormat fmt{id, data};
     if (m_edit.second > m_edit.first)
       m_richText.apply_format(fmt, m_edit.first, m_edit.second);
@@ -146,6 +152,7 @@ public:
   // Single‑arg convenience formatting
   void applyBold()          { update_format("bold", std::monostate{}); }
   void applyItalic()        { update_format("italic", std::monostate{}); }
+  void applyUnderline()     { update_format("underline", std::monostate{}); }
   void applyStrikethrough() { update_format("strikethrough", std::monostate{}); }
   void applyColor(const std::string& c) { update_format("color", c); }
   void applyLink(const std::string& u)  { update_format("link", u); }
@@ -157,6 +164,9 @@ public:
   }
   void applyItalic(size_t start, size_t end) {
     m_richText.apply_format(cse::TextFormat("italic", std::monostate()), start, end);
+  }
+  void applyUnderline(size_t start, size_t end) {
+    m_richText.apply_format(cse::TextFormat("underline", std::monostate()), start, end);
   }
   void applyStrikethrough(size_t start, size_t end) {
     m_richText.apply_format(cse::TextFormat("strikethrough", std::monostate()), start, end);
