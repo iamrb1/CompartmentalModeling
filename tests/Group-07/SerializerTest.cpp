@@ -650,53 +650,29 @@ TEST_CASE("Implemented Verifier", "[Serializer]")
 {
 	cse::Serializer Saver;
 
-	int Integer;
-	double Double;
-	char Character;
-	std::vector<int> VectorInt;
-	std::vector<std::vector<int>> VVectorInt;
-	std::string String;
-	std::vector<std::string> VectorString;
-	std::array<int, MAX_SIZE> ArrayInt;
-	std::set<std::string> SetString;
-	std::unordered_set<int> USetInt;
-	std::multiset<double> MSetDouble;
-	std::unordered_multiset<int> UMSetInt;
-	std::map<int, double> MapIntDouble;
-	std::map<std::vector<int>, std::string> MapVectorString;
-	std::unordered_map<std::string, int> UMapStringInt;
-	std::multimap<std::string, double> MMapStringDouble;
-	std::unordered_multimap<int, char> UMMapIntChar;
-	std::stack<int> StackInt;
-	std::queue<double> QueueDouble;
-	std::priority_queue<int> PQueueInt;
-	std::deque<std::string> DequeString;
-
-	std::pair<int, int> PairIntInt; // which is CURRENTLY not Serializable.
-
-	// Verifying implemented IsSerializable cases
-	REQUIRE(Saver.IsSerializable(Integer) == true);
-	REQUIRE(Saver.IsSerializable(Double) == true);
-	REQUIRE(Saver.IsSerializable(Character) == true);
-	REQUIRE(Saver.IsSerializable(VectorInt) == true);
-	REQUIRE(Saver.IsSerializable(VVectorInt) == true);
-	REQUIRE(Saver.IsSerializable(String) == true);
-	REQUIRE(Saver.IsSerializable(VectorString) == true);
-	REQUIRE(Saver.IsSerializable(ArrayInt) == true);
-	REQUIRE(Saver.IsSerializable(SetString) == true);
-	REQUIRE(Saver.IsSerializable(USetInt) == true);
-	REQUIRE(Saver.IsSerializable(MSetDouble) == true);
-	REQUIRE(Saver.IsSerializable(UMSetInt) == true);
-	REQUIRE(Saver.IsSerializable(MapIntDouble) == true);
-	REQUIRE(Saver.IsSerializable(MapVectorString) == true);
-	REQUIRE(Saver.IsSerializable(UMapStringInt) == true);
-	REQUIRE(Saver.IsSerializable(MMapStringDouble) == true);
-	REQUIRE(Saver.IsSerializable(UMMapIntChar) == true);
-	REQUIRE(Saver.IsSerializable(StackInt) == true);
-	REQUIRE(Saver.IsSerializable(QueueDouble) == true);
-	REQUIRE(Saver.IsSerializable(PQueueInt) == true);
-	REQUIRE(Saver.IsSerializable(DequeString) == true);
-	REQUIRE(Saver.IsSerializable(PairIntInt) == false);
+	// 	// Verifying implemented IsSerializable cases
+	REQUIRE(Saver.IsSerializable<int>() == true);
+	REQUIRE(Saver.IsSerializable<double>() == true);
+	REQUIRE(Saver.IsSerializable<char>() == true);
+	REQUIRE(Saver.IsSerializable<std::vector<int>>() == true);
+	REQUIRE(Saver.IsSerializable<std::vector<std::vector<int>>>() == true);
+	REQUIRE(Saver.IsSerializable<std::string>() == true);
+	REQUIRE(Saver.IsSerializable<std::vector<std::string>>() == true);
+	REQUIRE(Saver.IsSerializable<std::array<int, MAX_SIZE>>() == true);
+	REQUIRE(Saver.IsSerializable<std::set<std::string>>() == true);
+	REQUIRE(Saver.IsSerializable<std::unordered_set<int>>() == true);
+	REQUIRE(Saver.IsSerializable<std::multiset<double>>() == true);
+	REQUIRE(Saver.IsSerializable<std::unordered_multiset<int>>() == true);
+	REQUIRE(Saver.IsSerializable<std::map<int, double>>() == true);
+	REQUIRE(Saver.IsSerializable<std::map<std::vector<int>, std::string>>() == true);
+	REQUIRE(Saver.IsSerializable<std::unordered_map<std::string, int>>() == true);
+	REQUIRE(Saver.IsSerializable<std::multimap<std::string, double>>() == true);
+	REQUIRE(Saver.IsSerializable<std::unordered_map<int, char>>() == true);
+	REQUIRE(Saver.IsSerializable<std::stack<int>>() == true);
+	REQUIRE(Saver.IsSerializable<std::queue<double>>() == true);
+	REQUIRE(Saver.IsSerializable<std::priority_queue<int>>() == true);
+	REQUIRE(Saver.IsSerializable<std::deque<std::string>>() == true);
+	REQUIRE(Saver.IsSerializable<std::pair<int, int>>() == false);
 }
 
 TEST_CASE("Serializer Nested Containers and Similars", "[Serializer]")
@@ -744,35 +720,38 @@ TEST_CASE("Serializer Nested Containers and Similars", "[Serializer]")
 	}
 }
 
-TEST_CASE("Serialize External Class/Struct", "[Serializer]")
+struct Person
+{
+	std::string name;
+	int age;
+	double height;
+	std::vector<std::string> hobbies;
+	void Serialize(cse::Serializer &Ser, const std::string &filename)
+	{
+		Ser.Serialize(name, filename);
+		Ser.Serialize(age, filename);
+		Ser.Serialize(height, filename);
+		Ser.Serialize(hobbies, filename);
+	}
+};
+
+template <>
+struct is_custom_type<Person> : std::true_type
+{
+};
+
+TEST_CASE("Serialize External Class/Struct (must be global)", "[Serializer]")
 {
 	cse::Serializer Saver(cse::Mode::SAVE);
 	cse::Serializer Loader(cse::Mode::LOAD);
-	const std::string folder = "ClassTest";
-	std::filesystem::remove_all(folder);
-	std::filesystem::create_directory(folder);
-	struct Person
-	{
-		std::string name;
-		int age;
-		double height;
-		std::vector<std::string> hobbies;
-		void Serialize(cse::Serializer &Ser)
-		{
-			Ser.Serialize(name, "ClassTest/PName.dat");
-			Ser.Serialize(age, "ClassTest/PAge.dat");
-			Ser.Serialize(height, "ClassTest/PHeight.dat");
-			Ser.Serialize(hobbies, "ClassTest/PHobbies.dat");
-		}
-	};
 	Person P1, P2;
 	P1.name = "John Doe";
 	P1.age = 40;
 	P1.height = 177.5;
 	P1.hobbies.push_back("Playing Games");
 	P1.hobbies.push_back("Listening to Music");
-	Saver.Serialize(P1);
-	Loader.Serialize(P2);
+	Saver.Serialize(P1, filename, true);
+	Loader.Serialize(P2, filename, true);
 	REQUIRE(P1.name == P2.name);
 	REQUIRE(P1.age == P2.age);
 	REQUIRE(P1.height == P2.height);
@@ -781,7 +760,7 @@ TEST_CASE("Serialize External Class/Struct", "[Serializer]")
 	{
 		REQUIRE(P1.hobbies[i] == P2.hobbies[i]);
 	}
-	std::filesystem::remove_all(folder);
+	std::filesystem::remove(filename);
 }
 
 TEST_CASE("Incompatible Types Serialization", "[Serializer]")
@@ -832,5 +811,121 @@ TEST_CASE("Incompatible Types Serialization", "[Serializer]")
 	Loader.ResetFileStream();
 	Saver.Serialize(vv, filename);
 	REQUIRE_THROWS_AS(Loader.Serialize(v, filename), cse::SerializationError);
+	std::filesystem::remove(filename);
+}
+
+class Student
+{
+public:
+	std::string name;
+	int id;
+	void Serialize(cse::Serializer &Ser, const std::string &filename)
+	{
+		Ser.Serialize(name, filename);
+		Ser.Serialize(id, filename);
+	}
+};
+
+template <>
+struct is_custom_type<Student> : std::true_type
+{
+};
+
+TEST_CASE("Serialize Vector of Struct/Class", "[Serializer]")
+{
+	cse::Serializer Saver(cse::Mode::SAVE);
+	cse::Serializer Loader(cse::Mode::LOAD);
+	std::vector<Student> vecs, vect;
+	Student S1, S2;
+	S1.name = "Student 1";
+	S1.id = 1;
+	S2.name = "Student 2";
+	S2.id = 2;
+	vecs.push_back(S1);
+	vecs.push_back(S2);
+	Saver.Serialize(vecs, filename);
+	Loader.Serialize(vect, filename);
+	REQUIRE(vect.size() == vecs.size());
+	int length = vecs.size();
+	REQUIRE(is_custom_type<std::remove_cvref_t<decltype(vecs[0])>>::value);
+	for (auto i = 0; i < length; i++)
+	{
+		REQUIRE(vecs[i].id == vect[i].id);
+		REQUIRE(vecs[i].name == vect[i].name);
+	}
+	std::filesystem::remove(filename);
+}
+
+class Inner
+{
+public:
+	int intIn;
+	std::string strIn;
+	void Serialize(cse::Serializer &Ser, const std::string &filename)
+	{
+		Ser.Serialize(intIn, filename);
+		Ser.Serialize(strIn, filename);
+	}
+};
+
+struct Outer
+{
+	char chrOut;
+	std::vector<Inner> vecOut;
+	void Serialize(cse::Serializer &Ser, const std::string &filename)
+	{
+		Ser.Serialize(chrOut, filename);
+		Ser.Serialize(vecOut, filename);
+	}
+};
+
+template <>
+struct is_custom_type<Inner> : std::true_type
+{
+};
+
+template <>
+struct is_custom_type<Outer> : std::true_type
+{
+};
+
+TEST_CASE("Ultimate Test: Nested Struct/Class and STLs", "[Serializer]")
+{
+	cse::Serializer Saver(cse::Mode::SAVE);
+	cse::Serializer Loader(cse::Mode::LOAD);
+	std::vector<Outer> vec, res;
+	Outer O1, O2;
+	O1.chrOut = '1';
+	O2.chrOut = '2';
+	Inner I11, I12, I21, I22;
+	I11.intIn = 11;
+	I11.strIn = "11";
+	I12.intIn = 12;
+	I12.strIn = "12";
+	I21.intIn = 21;
+	I21.strIn = "21";
+	I22.intIn = 22;
+	I22.strIn = "22";
+	O1.vecOut.push_back(I11);
+	O1.vecOut.push_back(I12);
+	O2.vecOut.push_back(I21);
+	O2.vecOut.push_back(I22);
+	vec.push_back(O1);
+	vec.push_back(O2);
+	Saver.Serialize(vec, filename);
+	Loader.Serialize(res, filename);
+	REQUIRE(vec.size() == res.size());
+	int s = vec.size();
+	for (int i = 0; i < s; i++)
+	{
+		REQUIRE(vec[i].chrOut == res[i].chrOut);
+		REQUIRE(vec[i].vecOut.size() == res[i].vecOut.size());
+		int t = vec[i].vecOut.size();
+		for (int j = 0; j < t; j++)
+		{
+			REQUIRE(vec[i].vecOut[j].intIn == res[i].vecOut[j].intIn);
+			REQUIRE(vec[i].vecOut[j].strIn == res[i].vecOut[j].strIn);
+		}
+	}
 	std::filesystem::remove(filename);
 }

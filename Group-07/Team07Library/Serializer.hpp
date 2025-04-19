@@ -31,6 +31,11 @@
 #include <concepts>
 #include <cassert>
 
+template <typename T>
+struct is_custom_type : std::false_type
+{
+};
+
 namespace cse
 {
 	/**
@@ -81,9 +86,14 @@ namespace cse
 	 * a valid Serialize() call with a filename.
 	 */
 	template <typename T, typename S>
-	concept Serializable = requires(T &t, S &s, const std::string &filename) {
-		s.Serialize(t, filename);
-	};
+	concept Serializable =
+		requires(T &t, S &s, const std::string &filename) {
+			s.Serialize(t, filename);
+		} ||
+		(requires(T &t, S &s, const std::string &filename, bool b) {
+			s.Serialize(t, filename, b);
+		} &&
+		 is_custom_type<T>::value);
 
 	/**
 	 * @class Serializer
@@ -164,8 +174,8 @@ namespace cse
 		void PrintType(T &data)
 		{
 			std::string type = typeid(data).name();
-			size_t length = type.size();
-			outFile.write(reinterpret_cast<const char *>(&length), sizeof(size_t));
+			int length = type.size();
+			outFile.write(reinterpret_cast<const char *>(&length), sizeof(int));
 			outFile.write(type.c_str(), length);
 			outFile.flush();
 			setType = true;
@@ -178,8 +188,8 @@ namespace cse
 		 */
 		void GetType()
 		{
-			size_t length;
-			inFile.read(reinterpret_cast<char *>(&length), sizeof(size_t));
+			int length;
+			inFile.read(reinterpret_cast<char *>(&length), sizeof(int));
 			currType.resize(length);
 			inFile.read(&currType[0], length);
 		}
@@ -245,7 +255,7 @@ namespace cse
 		 * @return True if the type meets the Serializable concept requirements.
 		 */
 		template <typename T>
-		bool IsSerializable(T &) { return Serializable<T, Serializer>; }
+		static constexpr bool IsSerializable() { return Serializable<T, Serializer>; }
 
 		/**
 		 * @brief Serializes or deserializes an arithmetic type (e.g., int, float, double) to/from a binary file.
@@ -302,8 +312,8 @@ namespace cse
 				SetOutFile(filename);
 				if (!setType)
 					PrintType(str);
-				size_t length = str.size();
-				outFile.write(reinterpret_cast<const char *>(&length), sizeof(size_t));
+				int length = str.size();
+				outFile.write(reinterpret_cast<const char *>(&length), sizeof(int));
 				outFile.write(str.c_str(), length);
 				outFile.flush();
 			}
@@ -320,8 +330,8 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t length;
-				inFile.read(reinterpret_cast<char *>(&length), sizeof(size_t));
+				int length;
+				inFile.read(reinterpret_cast<char *>(&length), sizeof(int));
 				str.resize(length);
 				inFile.read(&str[0], length);
 			}
@@ -345,12 +355,15 @@ namespace cse
 				SetOutFile(filename);
 				if (!setType)
 					PrintType(vec);
-				size_t size = vec.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				int size = vec.size();
+				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				// Write each element in the vector.
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
-					Serialize(vec[i], filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
+						Serialize(vec[i], filename, true);
+					else
+						Serialize(vec[i], filename);
 				}
 			}
 			else // LOAD mode
@@ -366,15 +379,17 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+				int size;
+				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				vec.resize(size);
-				for (size_t i = 0; i < size; i++)
+				// Check if the element type is serializable before processing.
+				static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
+				for (int i = 0; i < size; i++)
 				{
-					// Check if the element type is serializable before processing.
-					if (!IsSerializable(vec[i]))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(vec[i], filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
+						Serialize(vec[i], filename, true);
+					else
+						Serialize(vec[i], filename);
 				}
 			}
 		}
@@ -389,17 +404,20 @@ namespace cse
 		template <typename T, std::size_t N>
 		void Serialize(std::array<T, N> &arr, const std::string &filename)
 		{
+			// Check if the element type is serializable before processing.
+			static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
 				if (!setType)
 					PrintType(arr);
 				// Process each element in the fixed-size array.
-				for (size_t i = 0; i < N; i++)
+				for (unsigned int i = 0; i < N; i++)
 				{
-					if (!IsSerializable(arr[i]))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(arr[i], filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(arr[i])>>::value)
+						Serialize(arr[i], filename, true);
+					else
+						Serialize(arr[i], filename);
 				}
 			}
 			else // LOAD mode
@@ -415,11 +433,12 @@ namespace cse
 					}
 				}
 				// Read each element from the file.
-				for (size_t i = 0; i < N; i++)
+				for (unsigned int i = 0; i < N; i++)
 				{
-					if (!IsSerializable(arr[i]))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(arr[i], filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(arr[i])>>::value)
+						Serialize(arr[i], filename, true);
+					else
+						Serialize(arr[i], filename);
 				}
 			}
 		}
@@ -433,21 +452,24 @@ namespace cse
 		template <typename T>
 		void Serialize(std::set<T> &set, const std::string &filename)
 		{
+			// Check if the element type is serializable before processing.
+			static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
 				if (!setType)
 					PrintType(set);
 				// Write set size.
-				size_t size = set.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				int size = set.size();
+				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				// Iterate through the set and serialize each element.
 				for (auto item = set.begin(); item != set.end(); ++item)
 				{
 					T data = *item;
-					if (!IsSerializable(data))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(data, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(data)>>::value)
+						Serialize(data, filename, true);
+					else
+						Serialize(data, filename);
 				}
 			}
 			else
@@ -463,15 +485,16 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+				int size;
+				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				set.clear();
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					T item;
-					if (!IsSerializable(item))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(item, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(item)>>::value)
+						Serialize(item, filename, true);
+					else
+						Serialize(item, filename);
 					set.insert(item);
 				}
 			}
@@ -486,21 +509,24 @@ namespace cse
 		template <typename T>
 		void Serialize(std::unordered_set<T> &uset, const std::string &filename)
 		{
+			// Check if the element type is serializable before processing.
+			static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
 				if (!setType)
 					PrintType(uset);
 				// Write unordered_set size.
-				size_t size = uset.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				int size = uset.size();
+				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				// Serialize each element.
 				for (auto item = uset.begin(); item != uset.end(); ++item)
 				{
 					T data = *item;
-					if (!IsSerializable(data))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(data, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(data)>>::value)
+						Serialize(data, filename, true);
+					else
+						Serialize(data, filename);
 				}
 			}
 			else
@@ -516,15 +542,16 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+				int size;
+				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				uset.clear();
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					T item;
-					if (!IsSerializable(item))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(item, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(item)>>::value)
+						Serialize(item, filename, true);
+					else
+						Serialize(item, filename);
 					uset.insert(item);
 				}
 			}
@@ -539,20 +566,23 @@ namespace cse
 		template <typename T>
 		void Serialize(std::multiset<T> &mset, const std::string &filename)
 		{
+			// Check if the element type is serializable before processing.
+			static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
 				if (!setType)
 					PrintType(mset);
-				size_t size = mset.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				int size = mset.size();
+				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				// Iterate through multiset elements.
 				for (auto item = mset.begin(); item != mset.end(); ++item)
 				{
 					T data = *item;
-					if (!IsSerializable(data))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(data, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(data)>>::value)
+						Serialize(data, filename, true);
+					else
+						Serialize(data, filename);
 				}
 			}
 			else
@@ -568,15 +598,16 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+				int size;
+				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				mset.clear();
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					T item;
-					if (!IsSerializable(item))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(item, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(item)>>::value)
+						Serialize(item, filename, true);
+					else
+						Serialize(item, filename);
 					mset.insert(item);
 				}
 			}
@@ -591,20 +622,23 @@ namespace cse
 		template <typename T>
 		void Serialize(std::unordered_multiset<T> &umset, const std::string &filename)
 		{
+			// Check if the element type is serializable before processing.
+			static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
 				if (!setType)
 					PrintType(umset);
-				size_t size = umset.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				int size = umset.size();
+				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				// Serialize each element in the unordered_multiset.
 				for (auto item = umset.begin(); item != umset.end(); ++item)
 				{
 					T data = *item;
-					if (!IsSerializable(data))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(data, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(data)>>::value)
+						Serialize(data, filename, true);
+					else
+						Serialize(data, filename);
 				}
 			}
 			else
@@ -620,15 +654,16 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+				int size;
+				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				umset.clear();
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					T item;
-					if (!IsSerializable(item))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(item, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(item)>>::value)
+						Serialize(item, filename, true);
+					else
+						Serialize(item, filename);
 					umset.insert(item);
 				}
 			}
@@ -644,25 +679,30 @@ namespace cse
 		template <typename K, typename V>
 		void Serialize(std::map<K, V> &map, const std::string &filename)
 		{
+			// Check if the element type is serializable before processing.
+			static_assert(IsSerializable<K>(), "Trying to serialize a type that is not serializable.");
+			static_assert(IsSerializable<V>(), "Trying to serialize a type that is not serializable.");
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
 				if (!setType)
 					PrintType(map);
 				// Write map size.
-				size_t size = map.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				int size = map.size();
+				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				// Serialize each key-value pair.
 				for (auto item = map.begin(); item != map.end(); ++item)
 				{
 					K key = item->first;
 					V val = item->second;
-					if (!IsSerializable(key))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(key, filename);
-					if (!IsSerializable(val))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(val, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
+						Serialize(key, filename, true);
+					else
+						Serialize(key, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
+						Serialize(val, filename, true);
+					else
+						Serialize(val, filename);
 				}
 			}
 			else
@@ -678,19 +718,21 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+				int size;
+				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				map.clear();
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					K key;
 					V val;
-					if (!IsSerializable(key))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(key, filename);
-					if (!IsSerializable(val))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(val, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
+						Serialize(key, filename, true);
+					else
+						Serialize(key, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
+						Serialize(val, filename, true);
+					else
+						Serialize(val, filename);
 					map[key] = val;
 				}
 			}
@@ -706,24 +748,29 @@ namespace cse
 		template <typename K, typename V>
 		void Serialize(std::unordered_map<K, V> &umap, const std::string &filename)
 		{
+			// Check if the element type is serializable before processing.
+			static_assert(IsSerializable<K>(), "Trying to serialize a type that is not serializable.");
+			static_assert(IsSerializable<V>(), "Trying to serialize a type that is not serializable.");
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
 				if (!setType)
 					PrintType(umap);
-				size_t size = umap.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				int size = umap.size();
+				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				// Serialize each key-value pair.
 				for (auto item = umap.begin(); item != umap.end(); ++item)
 				{
 					K key = item->first;
 					V val = item->second;
-					if (!IsSerializable(key))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(key, filename);
-					if (!IsSerializable(val))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(val, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
+						Serialize(key, filename, true);
+					else
+						Serialize(key, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
+						Serialize(val, filename, true);
+					else
+						Serialize(val, filename);
 				}
 			}
 			else
@@ -739,19 +786,21 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+				int size;
+				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				umap.clear();
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					K key;
 					V val;
-					if (!IsSerializable(key))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(key, filename);
-					if (!IsSerializable(val))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(val, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
+						Serialize(key, filename, true);
+					else
+						Serialize(key, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
+						Serialize(val, filename, true);
+					else
+						Serialize(val, filename);
 					umap[key] = val;
 				}
 			}
@@ -767,24 +816,29 @@ namespace cse
 		template <typename K, typename V>
 		void Serialize(std::multimap<K, V> &mmap, const std::string &filename)
 		{
+			// Check if the element type is serializable before processing.
+			static_assert(IsSerializable<K>(), "Trying to serialize a type that is not serializable.");
+			static_assert(IsSerializable<V>(), "Trying to serialize a type that is not serializable.");
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
 				if (!setType)
 					PrintType(mmap);
-				size_t size = mmap.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				int size = mmap.size();
+				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				// Serialize each key-value pair.
 				for (auto item = mmap.begin(); item != mmap.end(); ++item)
 				{
 					K key = item->first;
 					V val = item->second;
-					if (!IsSerializable(key))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(key, filename);
-					if (!IsSerializable(val))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(val, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
+						Serialize(key, filename, true);
+					else
+						Serialize(key, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
+						Serialize(val, filename, true);
+					else
+						Serialize(val, filename);
 				}
 			}
 			else
@@ -800,19 +854,21 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+				int size;
+				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				mmap.clear();
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					K key;
 					V val;
-					if (!IsSerializable(key))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(key, filename);
-					if (!IsSerializable(val))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(val, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
+						Serialize(key, filename, true);
+					else
+						Serialize(key, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
+						Serialize(val, filename, true);
+					else
+						Serialize(val, filename);
 					mmap.insert({key, val});
 				}
 			}
@@ -828,24 +884,29 @@ namespace cse
 		template <typename K, typename V>
 		void Serialize(std::unordered_multimap<K, V> &ummap, const std::string &filename)
 		{
+			// Check if the element type is serializable before processing.
+			static_assert(IsSerializable<K>(), "Trying to serialize a type that is not serializable.");
+			static_assert(IsSerializable<V>(), "Trying to serialize a type that is not serializable.");
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
 				if (!setType)
 					PrintType(ummap);
-				size_t size = ummap.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				int size = ummap.size();
+				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				// Serialize each key-value pair.
 				for (auto item = ummap.begin(); item != ummap.end(); ++item)
 				{
 					K key = item->first;
 					V val = item->second;
-					if (!IsSerializable(key))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(key, filename);
-					if (!IsSerializable(val))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(val, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
+						Serialize(key, filename, true);
+					else
+						Serialize(key, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
+						Serialize(val, filename, true);
+					else
+						Serialize(val, filename);
 				}
 			}
 			else
@@ -861,19 +922,21 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+				int size;
+				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				ummap.clear();
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					K key;
 					V val;
-					if (!IsSerializable(key))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(key, filename);
-					if (!IsSerializable(val))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(val, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
+						Serialize(key, filename, true);
+					else
+						Serialize(key, filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
+						Serialize(val, filename, true);
+					else
+						Serialize(val, filename);
 					ummap.insert({key, val});
 				}
 			}
@@ -892,6 +955,8 @@ namespace cse
 		template <typename T>
 		void Serialize(std::stack<T> &stk, const std::string &filename)
 		{
+			// Check if the element type is serializable before processing.
+			static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
@@ -906,14 +971,15 @@ namespace cse
 					temp.pop();
 				}
 				// Write the number of elements.
-				size_t size = vec.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				int size = vec.size();
+				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				// Serialize each element.
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
-					if (!IsSerializable(vec[i]))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(vec[i], filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
+						Serialize(vec[i], filename, true);
+					else
+						Serialize(vec[i], filename);
 				}
 			}
 			else
@@ -929,14 +995,15 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+				int size;
+				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				std::vector<T> vec(size);
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
-					if (!IsSerializable(vec[i]))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(vec[i], filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
+						Serialize(vec[i], filename, true);
+					else
+						Serialize(vec[i], filename);
 				}
 				// Rebuild the stack by pushing elements in reverse order.
 				stk = std::stack<T>();
@@ -956,6 +1023,8 @@ namespace cse
 		template <typename T>
 		void Serialize(std::queue<T> &q, const std::string &filename)
 		{
+			// Check if the element type is serializable before processing.
+			static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
@@ -970,14 +1039,15 @@ namespace cse
 					temp.pop();
 				}
 				// Write the size of the queue.
-				size_t size = vec.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				int size = vec.size();
+				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				// Serialize each element.
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
-					if (!IsSerializable(vec[i]))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(vec[i], filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
+						Serialize(vec[i], filename, true);
+					else
+						Serialize(vec[i], filename);
 				}
 			}
 			else
@@ -993,14 +1063,15 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+				int size;
+				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				std::vector<T> vec(size);
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
-					if (!IsSerializable(vec[i]))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(vec[i], filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
+						Serialize(vec[i], filename, true);
+					else
+						Serialize(vec[i], filename);
 				}
 				// Rebuild the queue by pushing each element.
 				q = std::queue<T>();
@@ -1020,6 +1091,8 @@ namespace cse
 		template <typename T>
 		void Serialize(std::priority_queue<T> &pq, const std::string &filename)
 		{
+			// Check if the element type is serializable before processing.
+			static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
@@ -1034,14 +1107,15 @@ namespace cse
 					temp.pop();
 				}
 				// Write the number of elements.
-				size_t size = vec.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				int size = vec.size();
+				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				// Serialize each element.
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
-					if (!IsSerializable(vec[i]))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(vec[i], filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
+						Serialize(vec[i], filename, true);
+					else
+						Serialize(vec[i], filename);
 				}
 			}
 			else
@@ -1057,14 +1131,15 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+				int size;
+				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				std::vector<T> vec(size);
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
-					if (!IsSerializable(vec[i]))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(vec[i], filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
+						Serialize(vec[i], filename, true);
+					else
+						Serialize(vec[i], filename);
 				}
 				pq = std::priority_queue<T>(vec.begin(), vec.end());
 			}
@@ -1079,20 +1154,23 @@ namespace cse
 		template <typename T>
 		void Serialize(std::deque<T> &deq, const std::string &filename)
 		{
+			// Check if the element type is serializable before processing.
+			static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
 				if (!setType)
 					PrintType(deq);
 				// Write the size of the deque.
-				size_t size = deq.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(size_t));
+				int size = deq.size();
+				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				// Serialize each element using its index.
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
-					if (!IsSerializable(deq[i]))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(deq[i], filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(deq[i])>>::value)
+						Serialize(deq[i], filename, true);
+					else
+						Serialize(deq[i], filename);
 				}
 			}
 			else
@@ -1108,14 +1186,15 @@ namespace cse
 						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
 					}
 				}
-				size_t size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
+				int size;
+				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				std::vector<T> vec(size);
-				for (size_t i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
-					if (!IsSerializable(vec[i]))
-						throw cse::SerializationError("There is unserializable type.");
-					Serialize(vec[i], filename);
+					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
+						Serialize(vec[i], filename, true);
+					else
+						Serialize(vec[i], filename);
 				}
 				// Clear and rebuild the deque from the vector.
 				deq.clear();
@@ -1134,12 +1213,11 @@ namespace cse
 		 * This function calls `obj.Serialize(*this);`. Your custom class must define its own
 		 * Serialize(Serializer&) method. Ensure that your Serialize method handles file paths or directory management.
 		 */
-		template <typename T,
-				  typename std::enable_if_t<
-					  std::is_class_v<T> && !std::is_same_v<T, std::string>, int> = 0>
-		void Serialize(T &obj)
+		template <typename T>
+		void Serialize(T &obj, const std::string &filename, bool isCustom)
 		{
-			obj.Serialize(*this);
+			assert(isCustom == is_custom_type<T>::value);
+			obj.Serialize(*this, filename);
 		}
 	};
 } // namespace cse
