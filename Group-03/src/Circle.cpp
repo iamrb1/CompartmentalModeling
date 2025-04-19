@@ -8,7 +8,7 @@
 
 // Constructor
 Circle::Circle(double x, double y, double radius, double baseSpeed, double speed, const std::string& circleType)
-    : x_(x), y_(y), radius_(radius), baseSpeed_(baseSpeed), speed_(speed), circleType_(circleType), energy_(100), 
+    : x_(x), y_(y), radius_(radius), baseSpeed_(baseSpeed), speed_(speed), circleType_(circleType), energy_(1000), 
     regen_(false), repopulate_(false), eatingCounter_(0), proximityRadius_(radius * 2), speedBoost_(false) {
 
     if (radius <= 0) {
@@ -150,7 +150,7 @@ void Circle::move(double width, double height) {
 // If energy is 0, set regen to true and speed to 0
 // If energy is less than 0, set it to 0
 // If energy is greater than 0, update speed
-void Circle::decreaseEnergy(int energy) {
+void Circle::decreaseEnergy(double energy) {
     if (energy_ > 0 && !regen_) {
         energy_ -= energy;
        
@@ -179,9 +179,9 @@ void Circle::regenEnergy(int energy) {
 // Updates the speed of the circle based on energy and speed boost
 void Circle::updateSpeed() {
     if (speedBoost_) {
-        speed_ = baseSpeed_ * (energy_ / 100.0) * speedBoost;
+        speed_ = baseSpeed_ * (energy_ / 1000.0) * speedBoost;
     } else {
-        speed_ = baseSpeed_ * (energy_ / 100.0);
+        speed_ = baseSpeed_ * (energy_ / 1000.0);
     }
 }
 

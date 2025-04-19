@@ -13,6 +13,8 @@ public:
     ~Circle();
 
     // Getters
+    bool isResting() const {return resting;}
+    void setResting(bool r) {resting = r;}
     double getX() const;
     double getY() const;
     double getRadius() const;
@@ -24,7 +26,7 @@ public:
     bool getSpeedBoost() const;
 
     // Inital energy for the circle
-    int initialEnergy = 100;
+    int initialEnergy = 1000;
 
     // Circle Reproduce number
     int reproduceNumber = 5;
@@ -50,7 +52,7 @@ public:
     std::string getCharacteristic() const;
 
     //Energy methods
-    void decreaseEnergy(int energy);
+    void decreaseEnergy(double energy);
     void regenEnergy(int energy);
     void updateSpeed();
 
@@ -75,4 +77,5 @@ private:
     bool speedBoost_;
     bool repopulate_;
     int eatingCounter_;
+    bool resting = false;
 };

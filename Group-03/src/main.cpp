@@ -182,6 +182,27 @@ void update()
     for (auto& circle : gCircles) {
         if (!circle) continue;
 
+        if (circle->getCircleType() == "red") {
+
+            if (circle->isResting()) {
+                circle->regenEnergy(10);
+
+                if (circle->getEnergy() >= 1000) {
+                    circle->setResting(false);  // Fully recharged!
+                }
+
+                continue;  // Don't move while resting
+            }
+
+            // Still active: move and drain
+            circle->decreaseEnergy(5);
+
+            if (circle->getEnergy() <= 0) {
+                circle->setResting(true);  // Enter resting mode next frame
+                continue;
+            }
+        }
+
 
         // pick a random direction delta ∈ { -1,0,+1 }
         double dirX = (rand() % 3) - 1;
