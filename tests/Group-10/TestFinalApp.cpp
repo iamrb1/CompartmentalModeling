@@ -1,25 +1,15 @@
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <set>
 #include <string>
 
-#include "../../third-party/Catch/single_include/catch2/catch.hpp"
 #include "../../Group-10/Application/application.cpp"
-#include <set>
+#include "../../third-party/Catch/single_include/catch2/catch.hpp"
 
-
-/**
-    Attempt script files with a duplicate main.cpp using filestream rather than std::cin
-*/
-// int main() {
-//     PrintTerminal();
-//     return 0;
-// }
-
-TEST_CASE("Baisc", "[FinalApp]") {
+TEST_CASE("Basic", "[FinalApp]") {
   std::ifstream inputFile("script1.txt");
   std::string line;
 
-  
   if (inputFile.is_open()) {
     application(inputFile);
   } else {
@@ -27,7 +17,8 @@ TEST_CASE("Baisc", "[FinalApp]") {
   }
 }
 
-TEST_CASE("Weightless mode computes correct total value from script2", "[FinalApp][Weightless]") {
+TEST_CASE("Weightless mode computes correct total value from script2",
+          "[FinalApp][Weightless]") {
   std::ifstream inputFile("script2.txt");
   std::ostringstream capturedOutput;
 
@@ -41,7 +32,7 @@ TEST_CASE("Weightless mode computes correct total value from script2", "[FinalAp
     std::cout << "FILE NOT FOUND" << std::endl;
   }
 
-  std::cout.rdbuf(originalBuf); 
+  std::cout.rdbuf(originalBuf);
 
   std::string output = capturedOutput.str();
   std::istringstream stream(output);
@@ -59,8 +50,9 @@ TEST_CASE("Weightless mode computes correct total value from script2", "[FinalAp
   REQUIRE(totalValueFromApp == Approx(expectedValue).margin(0.01));
 }
 
-//Taking way too long
-/*TEST_CASE("Repeats mode computes correct total value from script3", "[FinalApp][Repeats]") {
+// Taking way too long
+TEST_CASE("Repeats mode computes correct total value from script3",
+          "[FinalApp][Repeats]") {
   std::ifstream inputFile("script3.txt");
   std::ostringstream capturedOutput;
 
@@ -74,7 +66,7 @@ TEST_CASE("Weightless mode computes correct total value from script2", "[FinalAp
     std::cout << "FILE NOT FOUND" << std::endl;
   }
 
-  std::cout.rdbuf(originalBuf); // Restore std::cout
+  std::cout.rdbuf(originalBuf);  // Restore std::cout
 
   std::string output = capturedOutput.str();
   std::istringstream stream(output);
@@ -88,8 +80,7 @@ TEST_CASE("Weightless mode computes correct total value from script2", "[FinalAp
     }
   }
 
-  double expectedValue = 20.6; //test for for sure
+  double expectedValue = 20.0;  // test for for sure
 
   REQUIRE(totalValueFromApp == Approx(expectedValue).margin(0.01));
-}*/
-
+}

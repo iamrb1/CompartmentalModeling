@@ -11,7 +11,7 @@ FLAGS	= -std=c++23 -g3 -c -Wall -Wextra
 LFLAGS	= 
 CC	= g++
 
-all:	clean	bellman.exe
+all:	clean	run
 
 run: $(OUT)
 	./$(OUT)
