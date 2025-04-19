@@ -1,6 +1,6 @@
 /**
  * @file Simulation.cpp
- * @author Nitish Maindoliya, Matthew Hawkins
+ * @author Nitish Maindoliya, Matthew Hawkins, Rahul Baragur
  */
 
 // #include "pch.h"

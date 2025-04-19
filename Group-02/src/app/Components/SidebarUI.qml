@@ -1,3 +1,8 @@
+/**
+ * @file SidebarUI.qml
+ * @author Rahul Baragur
+ */
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
