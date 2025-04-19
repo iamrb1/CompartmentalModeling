@@ -255,7 +255,7 @@ namespace cse
 		 * @return True if the type meets the Serializable concept requirements.
 		 */
 		template <typename T>
-		bool IsSerializable(T &) { return Serializable<T, Serializer>; }
+		static constexpr bool IsSerializable() { return Serializable<T, Serializer>; }
 
 		/**
 		 * @brief Serializes or deserializes an arithmetic type (e.g., int, float, double) to/from a binary file.
@@ -382,11 +382,10 @@ namespace cse
 				size_t size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(size_t));
 				vec.resize(size);
+				// Check if the element type is serializable before processing.
+				static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
 				for (size_t i = 0; i < size; i++)
 				{
-					// Check if the element type is serializable before processing.
-					if (!IsSerializable(vec[i]))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
 						Serialize(vec[i], filename, true);
 					else
@@ -405,6 +404,8 @@ namespace cse
 		template <typename T, std::size_t N>
 		void Serialize(std::array<T, N> &arr, const std::string &filename)
 		{
+			// Check if the element type is serializable before processing.
+			static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
@@ -413,8 +414,6 @@ namespace cse
 				// Process each element in the fixed-size array.
 				for (size_t i = 0; i < N; i++)
 				{
-					if (!IsSerializable(arr[i]))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(arr[i])>>::value)
 						Serialize(arr[i], filename, true);
 					else
@@ -436,8 +435,6 @@ namespace cse
 				// Read each element from the file.
 				for (size_t i = 0; i < N; i++)
 				{
-					if (!IsSerializable(arr[i]))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(arr[i])>>::value)
 						Serialize(arr[i], filename, true);
 					else
@@ -455,6 +452,8 @@ namespace cse
 		template <typename T>
 		void Serialize(std::set<T> &set, const std::string &filename)
 		{
+			// Check if the element type is serializable before processing.
+			static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
@@ -467,8 +466,6 @@ namespace cse
 				for (auto item = set.begin(); item != set.end(); ++item)
 				{
 					T data = *item;
-					if (!IsSerializable(data))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(data)>>::value)
 						Serialize(data, filename, true);
 					else
@@ -494,8 +491,6 @@ namespace cse
 				for (size_t i = 0; i < size; i++)
 				{
 					T item;
-					if (!IsSerializable(item))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(item)>>::value)
 						Serialize(item, filename, true);
 					else
@@ -514,6 +509,8 @@ namespace cse
 		template <typename T>
 		void Serialize(std::unordered_set<T> &uset, const std::string &filename)
 		{
+			// Check if the element type is serializable before processing.
+			static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
@@ -526,8 +523,6 @@ namespace cse
 				for (auto item = uset.begin(); item != uset.end(); ++item)
 				{
 					T data = *item;
-					if (!IsSerializable(data))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(data)>>::value)
 						Serialize(data, filename, true);
 					else
@@ -553,8 +548,6 @@ namespace cse
 				for (size_t i = 0; i < size; i++)
 				{
 					T item;
-					if (!IsSerializable(item))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(item)>>::value)
 						Serialize(item, filename, true);
 					else
@@ -573,6 +566,8 @@ namespace cse
 		template <typename T>
 		void Serialize(std::multiset<T> &mset, const std::string &filename)
 		{
+			// Check if the element type is serializable before processing.
+			static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
@@ -584,8 +579,6 @@ namespace cse
 				for (auto item = mset.begin(); item != mset.end(); ++item)
 				{
 					T data = *item;
-					if (!IsSerializable(data))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(data)>>::value)
 						Serialize(data, filename, true);
 					else
@@ -611,8 +604,6 @@ namespace cse
 				for (size_t i = 0; i < size; i++)
 				{
 					T item;
-					if (!IsSerializable(item))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(item)>>::value)
 						Serialize(item, filename, true);
 					else
@@ -631,6 +622,8 @@ namespace cse
 		template <typename T>
 		void Serialize(std::unordered_multiset<T> &umset, const std::string &filename)
 		{
+			// Check if the element type is serializable before processing.
+			static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
@@ -642,8 +635,6 @@ namespace cse
 				for (auto item = umset.begin(); item != umset.end(); ++item)
 				{
 					T data = *item;
-					if (!IsSerializable(data))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(data)>>::value)
 						Serialize(data, filename, true);
 					else
@@ -669,8 +660,6 @@ namespace cse
 				for (size_t i = 0; i < size; i++)
 				{
 					T item;
-					if (!IsSerializable(item))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(item)>>::value)
 						Serialize(item, filename, true);
 					else
@@ -690,6 +679,9 @@ namespace cse
 		template <typename K, typename V>
 		void Serialize(std::map<K, V> &map, const std::string &filename)
 		{
+			// Check if the element type is serializable before processing.
+			static_assert(IsSerializable<K>(), "Trying to serialize a type that is not serializable.");
+			static_assert(IsSerializable<V>(), "Trying to serialize a type that is not serializable.");
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
@@ -703,14 +695,10 @@ namespace cse
 				{
 					K key = item->first;
 					V val = item->second;
-					if (!IsSerializable(key))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
 						Serialize(key, filename, true);
 					else
 						Serialize(key, filename);
-					if (!IsSerializable(val))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
 						Serialize(val, filename, true);
 					else
@@ -737,14 +725,10 @@ namespace cse
 				{
 					K key;
 					V val;
-					if (!IsSerializable(key))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
 						Serialize(key, filename, true);
 					else
 						Serialize(key, filename);
-					if (!IsSerializable(val))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
 						Serialize(val, filename, true);
 					else
@@ -764,6 +748,9 @@ namespace cse
 		template <typename K, typename V>
 		void Serialize(std::unordered_map<K, V> &umap, const std::string &filename)
 		{
+			// Check if the element type is serializable before processing.
+			static_assert(IsSerializable<K>(), "Trying to serialize a type that is not serializable.");
+			static_assert(IsSerializable<V>(), "Trying to serialize a type that is not serializable.");
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
@@ -776,14 +763,10 @@ namespace cse
 				{
 					K key = item->first;
 					V val = item->second;
-					if (!IsSerializable(key))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
 						Serialize(key, filename, true);
 					else
 						Serialize(key, filename);
-					if (!IsSerializable(val))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
 						Serialize(val, filename, true);
 					else
@@ -810,14 +793,10 @@ namespace cse
 				{
 					K key;
 					V val;
-					if (!IsSerializable(key))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
 						Serialize(key, filename, true);
 					else
 						Serialize(key, filename);
-					if (!IsSerializable(val))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
 						Serialize(val, filename, true);
 					else
@@ -837,6 +816,9 @@ namespace cse
 		template <typename K, typename V>
 		void Serialize(std::multimap<K, V> &mmap, const std::string &filename)
 		{
+			// Check if the element type is serializable before processing.
+			static_assert(IsSerializable<K>(), "Trying to serialize a type that is not serializable.");
+			static_assert(IsSerializable<V>(), "Trying to serialize a type that is not serializable.");
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
@@ -849,14 +831,10 @@ namespace cse
 				{
 					K key = item->first;
 					V val = item->second;
-					if (!IsSerializable(key))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
 						Serialize(key, filename, true);
 					else
 						Serialize(key, filename);
-					if (!IsSerializable(val))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
 						Serialize(val, filename, true);
 					else
@@ -883,14 +861,10 @@ namespace cse
 				{
 					K key;
 					V val;
-					if (!IsSerializable(key))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
 						Serialize(key, filename, true);
 					else
 						Serialize(key, filename);
-					if (!IsSerializable(val))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
 						Serialize(val, filename, true);
 					else
@@ -910,6 +884,9 @@ namespace cse
 		template <typename K, typename V>
 		void Serialize(std::unordered_multimap<K, V> &ummap, const std::string &filename)
 		{
+			// Check if the element type is serializable before processing.
+			static_assert(IsSerializable<K>(), "Trying to serialize a type that is not serializable.");
+			static_assert(IsSerializable<V>(), "Trying to serialize a type that is not serializable.");
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
@@ -922,14 +899,10 @@ namespace cse
 				{
 					K key = item->first;
 					V val = item->second;
-					if (!IsSerializable(key))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
 						Serialize(key, filename, true);
 					else
 						Serialize(key, filename);
-					if (!IsSerializable(val))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
 						Serialize(val, filename, true);
 					else
@@ -956,14 +929,10 @@ namespace cse
 				{
 					K key;
 					V val;
-					if (!IsSerializable(key))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
 						Serialize(key, filename, true);
 					else
 						Serialize(key, filename);
-					if (!IsSerializable(val))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
 						Serialize(val, filename, true);
 					else
@@ -986,6 +955,8 @@ namespace cse
 		template <typename T>
 		void Serialize(std::stack<T> &stk, const std::string &filename)
 		{
+			// Check if the element type is serializable before processing.
+			static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
@@ -1005,8 +976,6 @@ namespace cse
 				// Serialize each element.
 				for (size_t i = 0; i < size; i++)
 				{
-					if (!IsSerializable(vec[i]))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
 						Serialize(vec[i], filename, true);
 					else
@@ -1031,8 +1000,6 @@ namespace cse
 				std::vector<T> vec(size);
 				for (size_t i = 0; i < size; i++)
 				{
-					if (!IsSerializable(vec[i]))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
 						Serialize(vec[i], filename, true);
 					else
@@ -1056,6 +1023,8 @@ namespace cse
 		template <typename T>
 		void Serialize(std::queue<T> &q, const std::string &filename)
 		{
+			// Check if the element type is serializable before processing.
+			static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
@@ -1075,8 +1044,6 @@ namespace cse
 				// Serialize each element.
 				for (size_t i = 0; i < size; i++)
 				{
-					if (!IsSerializable(vec[i]))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
 						Serialize(vec[i], filename, true);
 					else
@@ -1101,8 +1068,6 @@ namespace cse
 				std::vector<T> vec(size);
 				for (size_t i = 0; i < size; i++)
 				{
-					if (!IsSerializable(vec[i]))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
 						Serialize(vec[i], filename, true);
 					else
@@ -1126,6 +1091,8 @@ namespace cse
 		template <typename T>
 		void Serialize(std::priority_queue<T> &pq, const std::string &filename)
 		{
+			// Check if the element type is serializable before processing.
+			static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
@@ -1145,8 +1112,6 @@ namespace cse
 				// Serialize each element.
 				for (size_t i = 0; i < size; i++)
 				{
-					if (!IsSerializable(vec[i]))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
 						Serialize(vec[i], filename, true);
 					else
@@ -1171,8 +1136,6 @@ namespace cse
 				std::vector<T> vec(size);
 				for (size_t i = 0; i < size; i++)
 				{
-					if (!IsSerializable(vec[i]))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
 						Serialize(vec[i], filename, true);
 					else
@@ -1191,6 +1154,8 @@ namespace cse
 		template <typename T>
 		void Serialize(std::deque<T> &deq, const std::string &filename)
 		{
+			// Check if the element type is serializable before processing.
+			static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
@@ -1202,8 +1167,6 @@ namespace cse
 				// Serialize each element using its index.
 				for (size_t i = 0; i < size; i++)
 				{
-					if (!IsSerializable(deq[i]))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(deq[i])>>::value)
 						Serialize(deq[i], filename, true);
 					else
@@ -1228,8 +1191,6 @@ namespace cse
 				std::vector<T> vec(size);
 				for (size_t i = 0; i < size; i++)
 				{
-					if (!IsSerializable(vec[i]))
-						throw cse::SerializationError("There is unserializable type.");
 					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
 						Serialize(vec[i], filename, true);
 					else

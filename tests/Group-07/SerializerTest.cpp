@@ -650,53 +650,29 @@ TEST_CASE("Implemented Verifier", "[Serializer]")
 {
 	cse::Serializer Saver;
 
-	int Integer;
-	double Double;
-	char Character;
-	std::vector<int> VectorInt;
-	std::vector<std::vector<int>> VVectorInt;
-	std::string String;
-	std::vector<std::string> VectorString;
-	std::array<int, MAX_SIZE> ArrayInt;
-	std::set<std::string> SetString;
-	std::unordered_set<int> USetInt;
-	std::multiset<double> MSetDouble;
-	std::unordered_multiset<int> UMSetInt;
-	std::map<int, double> MapIntDouble;
-	std::map<std::vector<int>, std::string> MapVectorString;
-	std::unordered_map<std::string, int> UMapStringInt;
-	std::multimap<std::string, double> MMapStringDouble;
-	std::unordered_multimap<int, char> UMMapIntChar;
-	std::stack<int> StackInt;
-	std::queue<double> QueueDouble;
-	std::priority_queue<int> PQueueInt;
-	std::deque<std::string> DequeString;
-
-	std::pair<int, int> PairIntInt; // which is CURRENTLY not Serializable.
-
 	// 	// Verifying implemented IsSerializable cases
-	REQUIRE(Saver.IsSerializable(Integer) == true);
-	REQUIRE(Saver.IsSerializable(Double) == true);
-	REQUIRE(Saver.IsSerializable(Character) == true);
-	REQUIRE(Saver.IsSerializable(VectorInt) == true);
-	REQUIRE(Saver.IsSerializable(VVectorInt) == true);
-	REQUIRE(Saver.IsSerializable(String) == true);
-	REQUIRE(Saver.IsSerializable(VectorString) == true);
-	REQUIRE(Saver.IsSerializable(ArrayInt) == true);
-	REQUIRE(Saver.IsSerializable(SetString) == true);
-	REQUIRE(Saver.IsSerializable(USetInt) == true);
-	REQUIRE(Saver.IsSerializable(MSetDouble) == true);
-	REQUIRE(Saver.IsSerializable(UMSetInt) == true);
-	REQUIRE(Saver.IsSerializable(MapIntDouble) == true);
-	REQUIRE(Saver.IsSerializable(MapVectorString) == true);
-	REQUIRE(Saver.IsSerializable(UMapStringInt) == true);
-	REQUIRE(Saver.IsSerializable(MMapStringDouble) == true);
-	REQUIRE(Saver.IsSerializable(UMMapIntChar) == true);
-	REQUIRE(Saver.IsSerializable(StackInt) == true);
-	REQUIRE(Saver.IsSerializable(QueueDouble) == true);
-	REQUIRE(Saver.IsSerializable(PQueueInt) == true);
-	REQUIRE(Saver.IsSerializable(DequeString) == true);
-	REQUIRE(Saver.IsSerializable(PairIntInt) == false);
+	REQUIRE(Saver.IsSerializable<int>() == true);
+	REQUIRE(Saver.IsSerializable<double>() == true);
+	REQUIRE(Saver.IsSerializable<char>() == true);
+	REQUIRE(Saver.IsSerializable<std::vector<int>>() == true);
+	REQUIRE(Saver.IsSerializable<std::vector<std::vector<int>>>() == true);
+	REQUIRE(Saver.IsSerializable<std::string>() == true);
+	REQUIRE(Saver.IsSerializable<std::vector<std::string>>() == true);
+	REQUIRE(Saver.IsSerializable<std::array<int, MAX_SIZE>>() == true);
+	REQUIRE(Saver.IsSerializable<std::set<std::string>>() == true);
+	REQUIRE(Saver.IsSerializable<std::unordered_set<int>>() == true);
+	REQUIRE(Saver.IsSerializable<std::multiset<double>>() == true);
+	REQUIRE(Saver.IsSerializable<std::unordered_multiset<int>>() == true);
+	REQUIRE(Saver.IsSerializable<std::map<int, double>>() == true);
+	REQUIRE(Saver.IsSerializable<std::map<std::vector<int>, std::string>>() == true);
+	REQUIRE(Saver.IsSerializable<std::unordered_map<std::string, int>>() == true);
+	REQUIRE(Saver.IsSerializable<std::multimap<std::string, double>>() == true);
+	REQUIRE(Saver.IsSerializable<std::unordered_map<int, char>>() == true);
+	REQUIRE(Saver.IsSerializable<std::stack<int>>() == true);
+	REQUIRE(Saver.IsSerializable<std::queue<double>>() == true);
+	REQUIRE(Saver.IsSerializable<std::priority_queue<int>>() == true);
+	REQUIRE(Saver.IsSerializable<std::deque<std::string>>() == true);
+	REQUIRE(Saver.IsSerializable<std::pair<int, int>>() == false);
 }
 
 TEST_CASE("Serializer Nested Containers and Similars", "[Serializer]")
