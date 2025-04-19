@@ -16,6 +16,34 @@ using namespace cse;
 using json = nlohmann::json;
 using Slide = std::shared_ptr<WebLayout>;
 
+enum class ObjectType {
+	Image,
+	Textbox
+};
+
+inline ObjectType parseType(const std::string& object_id) {
+	size_t dashpos = object_id.find('-');
+
+	if (dashpos == std::string::npos) {
+		throw std::invalid_argument("Invalid object ID");
+	}
+	const std::string prefix = object_id.substr(0, dashpos);
+	const ObjectType type = prefix == "textbox" ? ObjectType::Textbox : ObjectType::Image;
+	return type;
+}
+
+inline int parseID(const std::string& object_id) {
+	size_t dashpos = object_id.find('-');
+
+	if (dashpos == std::string::npos) {
+		throw std::invalid_argument("Invalid object ID");
+	}
+
+	const std::string id = object_id.substr(dashpos + 1);
+	return stoi(id);
+}
+
+
 /**
  * Main manager for Liskov presentation program
  * Initialized globally, and update() is called in a loop while running
@@ -26,6 +54,10 @@ class PresentationManager {
 		bool _running = false;
 		int _current_pos = 0;
 		std::vector<Slide> _slide_deck;
+
+		/// Store events for json output
+		std::map<std::string, int> _object_events; ///< object id -> time
+		std::map<int, std::tuple<int, int>> _transition_events; ///< slideNum -> (time, destination)
 
 	public:
 
@@ -55,7 +87,9 @@ class PresentationManager {
 				layout->deactivateLayout(); // Deactivate all layouts
 			}
 			_slide_deck.clear();
-			_event_manager.resize(0);
+			_event_manager.clear();
+			_object_events.clear();
+			_transition_events.clear();
 			_current_pos = 0;
 			_event_manager.onSlideChanged(_current_pos);
 			onSlideChangedJS();
@@ -119,6 +153,10 @@ class PresentationManager {
 			std::cout << "Pushed slide: " << slide->getID() << std::endl;
 			onSlideChangedJS();
 		}
+
+		[[nodiscard]] auto getObjectEvents() const { return _object_events; }
+
+		[[nodiscard]] auto getTransitionEvents() const { return _transition_events; }
 
 		/**
 		 * Advances to the next slide
@@ -184,10 +222,10 @@ class PresentationManager {
 		 * @param slide_num
 		 */
 		void goTo(const int slide_num) {
-			std::cout << "Going to slide " << slide_num << std::endl;
+			std::cout << "Going to slide " << (slide_num + 1) << std::endl;
 
 			if (slide_num < 0 || slide_num >= _slide_deck.size()) {
-				std::cout << "ERROR: Invalid slide number: " << slide_num << std::endl;
+				std::cout << "ERROR: Invalid slide number: " << (slide_num + 1) << std::endl;
 				return; // Exit early
 			}
 
@@ -248,7 +286,7 @@ class PresentationManager {
 			const currentSlide = $0;
 			const totalSlides = $1;
 			document.getElementById("slideNumberDisplay").textContent =
-				`Slide ${currentSlide} of ${totalSlides}`;
+				`${currentSlide} of ${totalSlides}`;
 			}, getCurrentPos() + 1, getNumSlides());
 		}
 
@@ -258,15 +296,64 @@ class PresentationManager {
 		 * @param origin Origin slide
 		 * @param destination Destination slide
 		 */
-		void addSlideChangeEvent(const int time, const size_t origin, const size_t destination) {
+		void addSlideChangeEvent(const int time, const int origin, const int destination) {
             // Check if destination slide exists (destination count is 1 off for user readability on UI)
-            if(destination > getNumSlides() - 1) {
-              std::cout << "WARNING: Destination slide " << destination << " doesn't exist." << std::endl;
+            if (destination > getNumSlides() - 1 || getNumSlides() == 0) {
+              std::cout << "WARNING: Destination slide " << (destination + 1) << " doesn't exist." << std::endl;
               return;
             }
 
+			std::cout << "Added slide transition: Go from slide " << (origin + 1)
+			<< " to slide " << (destination + 1) << " after " << time << " seconds." << std::endl;
 			_event_manager.addEvent(changeSlide, origin, destination, time);
+			_transition_events[origin] = std::tuple{time, destination};
 		}
+
+		/**
+		 * Object events are when textbox or images appear after a certain time
+		 * They are actually two events: make the object invisible at time 0, and visible at time "timing"
+		 * @param timing
+		 * @param slideNum
+		 * @param id
+		 */
+		void addObjectEvent(const int timing, const int slideNum, const std::string& id) {
+			_object_events[id] = timing;
+			if (parseType(id) == ObjectType::Image) { // Image
+				std::cout << "Added image event: ID " << id << " appearing after " << timing << " seconds." << std::endl;
+				// This will make it initially disappear in presentation mode
+				_event_manager.addEvent(imageToggle, slideNum, parseID(id), 0);
+				// This will make it reappear after "timing" seconds
+				_event_manager.addEvent(imageToggle, slideNum, parseID(id), timing);
+			}
+			else { // Textbox
+				std::cout << "Added textbox event: ID " << id << " appearing after " << timing << " seconds." << std::endl;
+				// This will make it initially disappear in presentation mode
+				_event_manager.addEvent(textBoxToggle, slideNum, parseID(id), 0);
+				// This will make it reappear after "timing" seconds
+				_event_manager.addEvent(textBoxToggle, slideNum, parseID(id), timing);
+			}
+		}
+
+		/**
+		 * Toggle an image on the slide on/off
+		 * @param id
+		 */
+		void toggleImage(const std::string& id) const {
+			const Slide slide = _slide_deck.at(_current_pos);
+			const auto imageLayout = slide->getImageFromID(id);
+			slide->toggleImage(imageLayout);
+		}
+
+		/**
+		 * Toggle a textbox on the slide on/off
+		 * @param id
+		 */
+		void toggleTextbox(const std::string& id) const {
+			const Slide slide = _slide_deck.at(_current_pos);
+			const auto textBoxLayout = slide->getTextboxFromID(id);
+			slide->toggleTextBox(textBoxLayout);
+		}
+
 
         void updateImageSize(const std::string& id, int newWidth, int newHeight) {
 		  if (_slide_deck.empty() || _current_pos >= _slide_deck.size()) return;
@@ -338,10 +425,17 @@ class PresentationManager {
 		static void changeSlide(PresentationManager *presentation_manager, const int slideNum) {
 			presentation_manager->goTo(slideNum);
 		}
+
+		static void imageToggle(PresentationManager *presentation_manager, const int id) {
+			presentation_manager->toggleImage("image-" + std::to_string(id));
+		}
+
+		static void textBoxToggle(PresentationManager *presentation_manager, const int id) {
+			presentation_manager->toggleTextbox("textbox-" + std::to_string(id));
+		}
 };
 
 PresentationManager PRESENTATION_MANAGER; ///< Global presentation manager
-
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -387,10 +481,15 @@ bool call_isMoveableObject(const char* id) {
 	return PRESENTATION_MANAGER.isMoveableObject(id);
 }
 void loadSlideDeckFromJson(const char *jsonStr) {
+	std::cout << "clearing" << std::endl;
 	PRESENTATION_MANAGER.clear(); // Clear the deck before loading new slides
-	json deck = json::parse(jsonStr);
+	std::cout << "done" << std::endl;
 
+	std::vector<std::tuple<int, int, int>> transitionBuffer; // We dont know how many slides there are until done loading
+	json deck = json::parse(jsonStr);
+	int slide_num = 0;
 	for (const auto &slide : deck["slides"]) {
+
 		auto layout = std::make_shared<WebLayout>();
 
 		// Load all text boxes
@@ -407,6 +506,9 @@ void loadSlideDeckFromJson(const char *jsonStr) {
 				};
 				auto textbox = std::make_shared<TextBox>("", tbConfig);
 				layout->addTextBox(TextBoxLayout(textbox, tbJson["x"], tbJson["y"]));
+				if (tbJson.contains("event")) {
+					PRESENTATION_MANAGER.addObjectEvent(tbJson["event"]["time"], slide_num, textbox->getID());
+				}
 			}
 		}
 
@@ -417,9 +519,20 @@ void loadSlideDeckFromJson(const char *jsonStr) {
 				                                     imgJson["width"],
 				                                     imgJson["height"]);
 				layout->addImage(ImageLayout(image, imgJson["x"], imgJson["y"]));
+				if (imgJson.contains("event")) {
+					PRESENTATION_MANAGER.addObjectEvent(imgJson["event"]["time"], slide_num, image->getID());
+				}
 			}
 		}
 		PRESENTATION_MANAGER.pushBackSlide(layout); // Add to the global manager
+		if (slide.contains("event")) {
+			transitionBuffer.emplace_back(slide["event"]["time"], slide_num, slide["event"]["dest"]);
+		}
+		slide_num++;
+	}
+	for (auto t : transitionBuffer) {
+		auto [time, origin, dest] = t;
+		PRESENTATION_MANAGER.addSlideChangeEvent(time, origin, dest);
 	}
 	PRESENTATION_MANAGER.initialize(); // Show the first slide
 }
@@ -427,14 +540,22 @@ const char *exportSlideDeckToJson() {
 	static std::string exportedJson;
 	json deck;
 	deck["slides"] = json::array();
-
+	auto transitionEvents = PRESENTATION_MANAGER.getTransitionEvents();
+	auto objectEvents = PRESENTATION_MANAGER.getObjectEvents();
+	int slide_num = 0;
 	for (const auto &layout : PRESENTATION_MANAGER.getSlides()) {
 		json slide;
+
+		if (transitionEvents.contains(slide_num)) {
+			auto [time, dest] = transitionEvents[slide_num];
+			slide["event"]["time"] = time;
+			slide["event"]["dest"] = dest;
+		}
 
 		slide["textBoxes"] = json::array();
 		for (const auto &tb : layout->getTextBoxes()) {
 			const auto &text = tb.textBox->getFormattedText();
-			slide["textBoxes"].push_back({
+			json tbJson = {
 				{"text", text.getText()},
 				{"font", text.getFont()},
 				{"fontSize", text.getFontSize()},
@@ -443,27 +564,36 @@ const char *exportSlideDeckToJson() {
 				{"height", tb.textBox->getHeight()},
 				{"x", tb.xPos},
 				{"y", tb.yPos}
-			});
+			};
+			if (objectEvents.contains(tb.textBox->getID())) {
+				tbJson["event"]["time"] = objectEvents[tb.textBox->getID()];
+			}
+			slide["textBoxes"].push_back(tbJson);
 		}
 
 		slide["images"] = json::array();
 		for (const auto &img : layout->getImages()) {
-			slide["images"].push_back({
+			json imgJson = {
 				{"url", img.image->getURL()},
 				{"width", img.image->getWidth()},
 				{"height", img.image->getHeight()},
 				{"x", img.xPos},
 				{"y", img.yPos}
-			});
+			};
+			if (objectEvents.contains(img.image->getID())) {
+				imgJson["event"]["time"] = objectEvents[img.image->getID()];
+			}
+			slide["images"].push_back(imgJson);
 		}
 
 		deck["slides"].push_back(slide);
+		slide_num += 1;
 	}
 
 	exportedJson = deck.dump(2); // pretty print
 	return exportedJson.c_str();
 }
-void call_addSlideChangeEvent() { PRESENTATION_MANAGER.addSlideChangeEvent(10, PRESENTATION_MANAGER.getCurrentPos(), PRESENTATION_MANAGER.getCurrentPos()+1); }
+void call_addSlideChangeEvent(const int time) { PRESENTATION_MANAGER.addSlideChangeEvent(time, PRESENTATION_MANAGER.getCurrentPos(), PRESENTATION_MANAGER.getCurrentPos()+1); }
 
 void call_updateImageSize(const char* id, int width, int height) { std::string cppId(id); PRESENTATION_MANAGER.updateImageSize(cppId, width, height);}
 
@@ -480,5 +610,10 @@ void call_nextEvent() {
 
 void call_moveSlide(const bool forward) { PRESENTATION_MANAGER.moveSlide(forward); }
 
+void call_addObjectEvent(const int timing, const int slideNum, const char *id) {
+	PRESENTATION_MANAGER.addObjectEvent(timing, slideNum, id);
 }
+int call_getCurrentPos() { return PRESENTATION_MANAGER.getCurrentPos(); }
+}
+
 
