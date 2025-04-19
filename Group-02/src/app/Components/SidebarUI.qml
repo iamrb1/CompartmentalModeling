@@ -140,12 +140,12 @@ Rectangle {
                 anchors.margins: 10
                 spacing: 10
 
-                // Header with variable controls
+
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: 10
 
-                    // Header Text - now centered with correct layout settings
+
                     Item {
                         Layout.fillWidth: true
                         height: 24
@@ -159,12 +159,10 @@ Rectangle {
                         }
                     }
 
-                    // Add this right after the Variables header in your QML
+
                     Item {
                         Layout.fillWidth: true
                         height: 30
-
-
                     }
 
                     // Plus button
@@ -187,10 +185,11 @@ Rectangle {
                             id: plusMouseArea
                             anchors.fill: parent
                             onClicked: {
-                                // console.log("Add new variable")
-                                // console.log(simulation.variables)
+                                // Add new variable logic would go here
+                                console.log("Add new variable")
+                                console.log(simulation.variables)
                                 simulation.add_variable()
-                                // console.log(simulation.variables)
+                                console.log(simulation.variables)
                             }
                         }
                     }
@@ -239,6 +238,7 @@ Rectangle {
                                 }
                             }
 
+                            // Pencil button for editing variable name
                             Rectangle {
                                 width: 24
                                 height: 24
@@ -249,7 +249,7 @@ Rectangle {
 
                                 Text {
                                     anchors.centerIn: parent
-                                    text: "✎"
+                                    text: "✎" // Pencil Unicode character
                                     font.pixelSize: 14
                                     color: ThemeManager.palette.text
                                 }
@@ -259,31 +259,8 @@ Rectangle {
                                     anchors.fill: parent
                                     onClicked: {
                                         editDialog.oldName = modelData
+                                        editDialog.currentValue = simulation.getVariableValue(modelData)
                                         editDialog.open()
-                                    }
-                                }
-                            }
-
-                            Rectangle {
-                                width: 24
-                                height: 24
-                                radius: 4
-                                color: removeMouseArea.pressed ? ThemeManager.palette.mid : "transparent"
-                                border.width: 1
-                                border.color: ThemeManager.palette.mid
-
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: "-"
-                                    font.pixelSize: 14
-                                    color: ThemeManager.palette.text
-                                }
-
-                                MouseArea {
-                                    id: removeMouseArea
-                                    anchors.fill: parent
-                                    onClicked: {
-                                        simulation.remove_variable(modelData)
                                     }
                                 }
                             }
@@ -294,11 +271,12 @@ Rectangle {
         }
     }
 
-    /// edit the variable name dialog box implemented here
+    // Dialog for editing variable name and value
     Dialog {
         id: editDialog
-        title: "Edit Variable Name"
-        standardButtons: Dialog.Ok | Dialog.Cancel
+        title: "Edit Variable"
+
+        standardButtons: Dialog.NoButton
         modal: true
         closePolicy: Popup.CloseOnEscape
         width: 300
@@ -308,50 +286,107 @@ Rectangle {
         y: (parent.height - height) / 2
 
         property string oldName: ""
+        property double currentValue: 0.0
 
-        ColumnLayout {
-            anchors.fill: parent
-            spacing: 10
-
-            Text {
-                text: "New Name:"
-                color: ThemeManager.palette.text
-            }
-
-            TextField {
-                id: newNameField
-                Layout.fillWidth: true
-                text: editDialog.oldName
-                selectByMouse: true
-            }
-        }
-
-        onAccepted: {
-            if (newNameField.text.trim() !== "" && newNameField.text !== editDialog.oldName) {
-                renameVariable(editDialog.oldName, newNameField.text)
-            }
-        }
-
-        function renameVariable(oldName, newName) {
+        function renameAndUpdateVariable(oldName, newName, newValue) {
             if (oldName === newName) {
-                return;
+                simulation.update_variable(oldName, newValue)
+                return
             }
-            const variableNames = simulation.variableNames;
+
+            const variableNames = simulation.variableNames
             for (let i = 0; i < variableNames.length; i++) {
                 if (variableNames[i] === newName) {
-                    errorDialog.message = "A variable with name '" + newName + "' already exists.";
-                    errorDialog.open();
-                    return;
+                    errorDialog.message = "A variable with name '" + newName + "' already exists."
+                    errorDialog.open()
+                    return
                 }
             }
 
-            const value = simulation.getVariableValue(oldName);
-            simulation.remove_variable(oldName);
-            simulation.add_variable(newName, value);
+            simulation.remove_variable(oldName)
+
+            simulation.add_variable(newName, newValue)
+        }
+
+        ColumnLayout {
+            anchors.fill: parent
+            spacing: 15
+
+            RowLayout {
+                Layout.fillWidth: true
+
+                Text {
+                    text: "Name:"
+                    color: ThemeManager.palette.text
+                    Layout.preferredWidth: 60
+                }
+
+                TextField {
+                    id: newNameField
+                    Layout.fillWidth: true
+                    text: editDialog.oldName
+                    selectByMouse: true
+                }
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+
+                Text {
+                    text: "Value:"
+                    color: ThemeManager.palette.text
+                    Layout.preferredWidth: 60
+                }
+
+                TextField {
+                    id: valueField
+                    Layout.fillWidth: true
+                    text: editDialog.currentValue.toFixed(2)
+                    selectByMouse: true
+                    validator: DoubleValidator {}
+                }
+            }
+
+            DialogButtonBox {
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignRight
+
+                Button {
+                    text: "Delete"
+                    DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole
+                    onClicked: {
+                        simulation.remove_variable(editDialog.oldName)
+                        editDialog.close()
+                    }
+                }
+
+                Button {
+                    text: "Cancel"
+                    DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
+                    onClicked: editDialog.reject()
+                }
+
+                Button {
+                    text: "OK"
+                    DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
+                    onClicked: {
+                        const newName = newNameField.text.trim()
+                        const newValue = parseFloat(valueField.text)
+
+                        if (newName !== "" && !isNaN(newValue)) {
+                            editDialog.renameAndUpdateVariable(editDialog.oldName, newName, newValue)
+                        }
+
+                        editDialog.accept()
+                    }
+                }
+
+                alignment: Qt.AlignRight
+            }
         }
     }
 
-    /// errorDialog box for same variable name added
+    /// Error Dialog box for when the name is same
     Dialog {
         id: errorDialog
         title: "Error"
