@@ -224,6 +224,16 @@ class PresentationManager {
 		void goTo(const int slide_num) {
 			std::cout << "Going to slide " << (slide_num + 1) << std::endl;
 
+            // If running presentation and last slide, go to end
+            if(_running && slide_num >= _slide_deck.size()) {
+              std::cout << "END OF PRESENTATION" << std::endl;
+              auto currentLayout = _slide_deck.at(_current_pos);
+              currentLayout->deactivateLayout();
+              toggleEndScreen(true);
+
+              //			_current_pos = slide_num;
+            }
+
 			if (slide_num < 0 || slide_num >= _slide_deck.size()) {
 				std::cout << "ERROR: Invalid slide number: " << (slide_num + 1) << std::endl;
 				return; // Exit early
@@ -242,6 +252,24 @@ class PresentationManager {
 			onSlideChangedJS();
 		}
 
+        void toggleEndScreen(bool visible) {
+
+          std::string visibility = "hidden";
+
+          if(visible) {
+            visibility = "visible";
+          }
+
+          EM_ASM(
+              {
+                  var vis = UTF8ToString($0);
+                var layoutDiv = document.getElementById('end-slide');
+                if (layoutDiv) {
+                  layoutDiv.style.visibility = vis;
+                }
+              }, visibility.c_str());
+        }
+
 		/**
 		 * Updates object position
 		 */
@@ -249,6 +277,14 @@ class PresentationManager {
 			if (_slide_deck.empty() || _current_pos >= _slide_deck.size()) return;
 			_slide_deck.at(_current_pos)->setPosition(id, newX, newY);
 		}
+
+        /**
+        * Updates object size
+        */
+        void updateSize(std::string id, int newWidth, int newHeight) {
+          if (_slide_deck.empty() || _current_pos >= _slide_deck.size()) return;
+          _slide_deck.at(_current_pos)->setSize(id, newWidth, newHeight);
+        }
 
 		/**
 		 * Returns if id is a moveable item
@@ -474,6 +510,10 @@ void call_updatePosition(const char* id, int newX, int newY) {
 	std::string cppId(id);
 	PRESENTATION_MANAGER.updatePosition(cppId, newX, newY);
 }
+void call_updateSize(const char* id, int newWidth, int newHeight) {
+  std::string cppId(id);
+  PRESENTATION_MANAGER.updateSize(cppId, newWidth, newHeight);
+}
 void call_addTextBox() { PRESENTATION_MANAGER.addTextBox(); }
 void call_addNewSlide() { PRESENTATION_MANAGER.addNewSlide(); }
 bool call_isMoveableObject(const char* id) {
@@ -599,6 +639,11 @@ void call_updateImageSize(const char* id, int width, int height) { std::string c
 
 void call_leavePresentation() {
   PRESENTATION_MANAGER.toggleBottomNav(false);
+
+  // Ensure end screen is disabled
+  PRESENTATION_MANAGER.toggleEndScreen(false);
+  PRESENTATION_MANAGER.goTo(PRESENTATION_MANAGER.getCurrentPos());
+
   PRESENTATION_MANAGER.stop();
 }
 
