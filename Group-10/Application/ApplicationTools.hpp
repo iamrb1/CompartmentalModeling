@@ -7,7 +7,7 @@
 namespace cse {
 struct PresetMessages {
   const std::string welcomeMessage =
-      "Welcome to Knapsack Solver.\n"
+      "\n\nWelcome to Knapsack Solver.\n"
       "This solver can process any text or CSV file containing items with "
       "names, "
       "weights, and values and return what the best lection of items are for "

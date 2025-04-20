@@ -5,6 +5,7 @@
 #include <optional>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -92,10 +93,44 @@ std::string RedError(std::string &&message) {
 
 [[noreturn]] void EndProgram() { std::exit(0); }
 
+void PrintOptimizerResults(std::pair<double, std::vector<cse::Item>> solution) {
+  std::cout << "Optimal Value Calculated: " << solution.first << std::endl;
+  std::unordered_map<std::string, int> chosenItems;
+  double capacityUsed = 0.0;
+
+  for (const auto &item : solution.second) {
+    if (chosenItems.contains(item.name)) {
+      chosenItems.at(item.name) += 1;
+    } else {
+      chosenItems.insert({item.name, 1});
+    }
+    capacityUsed += item.weight;
+  }
+
+  std::cout << "Total Capacity used: (" << capacityUsed << '/'
+            << settings.capacity << ")\nThe Items selected for the solution:\n";
+  auto itemIter = chosenItems.begin();
+  while (itemIter != chosenItems.end()) {
+    auto item = (*itemIter).first;
+    auto itemCount = (*itemIter).second;
+    std::cout << item;
+    if (itemCount > 1) {
+      std::cout << '(' << itemCount << "x)";
+    }
+    std::cout << std::endl;
+    ++itemIter;
+  }
+  std::cout << std::endl;
+}
+
+void PrintTiming(double timing) {
+  std::cout << std::setprecision(4) << timing << " seconds" << std::endl;
+}
+
 /**
- * @brief creates the arg manager from a vector of strings - converts them into
- * c strings and then passes that to the arg manager. the original args vector
- * must outlive the argmanager, which should be fine for our code.abort
+ * @brief creates the arg manager from a vector of strings - converts them
+ * into c strings and then passes that to the arg manager. the original args
+ * vector must outlive the argmanager, which should be fine for our code.abort
  * @param args the vector of strings
  * @return an argManager object
  */
@@ -160,11 +195,19 @@ void CallBruteForceOptimizer() {
   if (!settings.optimized || settings.compare) {
     // Call Optimizer
     // Print out results, along with time if requested
+    auto solutionPair = optimizer.FindOptimalSolution();
+    PrintOptimizerResults(solutionPair);
+    if (settings.timeSearch) {
+      auto time = MeasureTime([&]() { optimizer.FindOptimalSolution(); });
+      PrintTiming(time);
+    }
   }
   if (settings.optimized || settings.compare) {
     optimizer.SetOptimizer(settings.optimized);
     // Call optimizer with the settings done
     // Print out results, along with time if requested
+    auto solutionPair = optimizer.FindOptimalSolution();
+    PrintOptimizerResults(solutionPair);
   }
 
   if (settings.compare) {
@@ -172,17 +215,15 @@ void CallBruteForceOptimizer() {
     Compare();
   }
 
-  auto solutionPair = optimizer.FindOptimalSolution();
+  /*auto solutionPair = optimizer.FindOptimalSolution();
   std::cout << "Optimal Value: " << solutionPair.first << std::endl;
   std::cout << "Item Set: ";
-  PrintVector(solutionPair.second);
+  PrintVector(solutionPair.second);*/
 }
 
-void CallSetCapacity() {}
-
 /**
- * For Commands where weights should have no influence, set to a weight of 1 for
- * 1 'item'
+ * For Commands where weights should have no influence, set to a weight of 1
+ * for 1 'item'
  */
 void AdjustWeights() {
   for (auto &item : settings.itemList) {
@@ -297,6 +338,7 @@ int application(std::istream &in) {
         if (capacityArg == arguments.end()) {
           std::cout << RedError(
               "**Specify capacity=\033[32m<capacity>\033[0m.");
+          PrintTerminal();
           continue;
         }
         valString =
@@ -318,6 +360,7 @@ int application(std::istream &in) {
       }
       if (argMgr.HasArg("-compare") || argMgr.HasArg("-c")) {
         settings.compare = true;
+        settings.timeSearch = true;
       }
       if (argMgr.HasArg("-no-weight") || argMgr.HasArg("-w")) {
         settings.weightless = true;
@@ -334,7 +377,8 @@ int application(std::istream &in) {
 
     else {
       std::cout << RedError(
-          "**Command not recognized.\n\nUse command \"help\" to see a list of "
+          "**Command not recognized.\n\nUse command \"help\" to see a list "
+          "of "
           "available commands.");
     }
     PrintTerminal();
