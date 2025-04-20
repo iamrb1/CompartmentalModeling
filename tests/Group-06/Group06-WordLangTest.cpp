@@ -689,6 +689,133 @@ TEST_CASE("add Tests", "[WordLang]") {
   }
 }
 
+TEST_CASE("Contains ANY tests", "[WordLang]") 
+{
+  cse::WordLang wordLang;
+
+  std::vector<std::string> input = {
+      "LIST list1 = LOAD\"file2.txt\"\n",
+      "CONTAINS_ANY \"lo\"\n",
+      "PRINT ALL"
+  };
+
+  std::vector<std::string> output_result = { 
+    "Loaded \"file2.txt\". Word count in a list: 11\n",
+    "Number of words to search: 5\n",
+    "[hello, cost, host, toast, boats]\n",
+  };
+
+  for (size_t i = 0; i < input.size(); ++i) {
+      std::ostringstream oss;
+      std::streambuf* oldCoutBuf = std::cout.rdbuf();
+      std::cout.rdbuf(oss.rdbuf());
+
+      wordLang.parse(input[i]);
+
+      std::cout.rdbuf(oldCoutBuf);
+
+      std::string actualOutput = oss.str();
+      std::string expected = output_result[i];
+
+      CHECK(actualOutput == expected);
+  }
+}
+
+TEST_CASE("Contains ALL tests", "[WordLang]") 
+{
+  cse::WordLang wordLang;
+
+  std::vector<std::string> input = {
+      "LIST list1 = LOAD\"file2.txt\"\n",
+      "CONTAINS_ALL \"llo\"\n",
+      "PRINT ALL"
+  };
+
+  std::vector<std::string> output_result = { 
+    "Loaded \"file2.txt\". Word count in a list: 11\n",
+    "Number of words to search: 1\n",
+    "[hello]\n",
+  };
+
+  for (size_t i = 0; i < input.size(); ++i) {
+      std::ostringstream oss;
+      std::streambuf* oldCoutBuf = std::cout.rdbuf();
+      std::cout.rdbuf(oss.rdbuf());
+
+      wordLang.parse(input[i]);
+
+      std::cout.rdbuf(oldCoutBuf);
+
+      std::string actualOutput = oss.str();
+      std::string expected = output_result[i];
+
+      CHECK(actualOutput == expected);
+  }
+}
+TEST_CASE("Not Contains tests", "[WordLang]") 
+{
+  cse::WordLang wordLang;
+
+  std::vector<std::string> input = {
+      "LIST list1 = LOAD\"file1.txt\"\n",
+      "NOT_CONTAINS \"a\"\n",
+      "PRINT ALL"
+  };
+
+  std::vector<std::string> output_result = { 
+    "Loaded \"file1.txt\". Word count in a list: 11\n",
+    "Number of words to search: 10\n",
+    "[books, boost, who, where, why, hello, word, fork, key, Test]\n",
+  };
+
+  for (size_t i = 0; i < input.size(); ++i) {
+      std::ostringstream oss;
+      std::streambuf* oldCoutBuf = std::cout.rdbuf();
+      std::cout.rdbuf(oss.rdbuf());
+
+      wordLang.parse(input[i]);
+
+      std::cout.rdbuf(oldCoutBuf);
+
+      std::string actualOutput = oss.str();
+      std::string expected = output_result[i];
+
+      CHECK(actualOutput == expected);
+  }
+}
+
+TEST_CASE("Get tests", "[WordLang]") 
+{
+  cse::WordLang wordLang;
+
+  std::vector<std::string> input = {
+      "LIST list1 = LOAD\"file1.txt\"\n",
+      "GET \"_oo__\"\n",
+      "PRINT ALL"
+  };
+
+  std::vector<std::string> output_result = { 
+    "Loaded \"file1.txt\". Word count in a list: 11\n",
+    "Number of words to search: 2\n",
+    "[books, boost]\n",
+  };
+
+  for (size_t i = 0; i < input.size(); ++i) {
+      std::ostringstream oss;
+      std::streambuf* oldCoutBuf = std::cout.rdbuf();
+      std::cout.rdbuf(oss.rdbuf());
+
+      wordLang.parse(input[i]);
+
+      std::cout.rdbuf(oldCoutBuf);
+
+      std::string actualOutput = oss.str();
+      std::string expected = output_result[i];
+
+      CHECK(actualOutput == expected);
+  }
+}
+
 TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
 
   SECTION("Parse LIST and LOAD command") {
