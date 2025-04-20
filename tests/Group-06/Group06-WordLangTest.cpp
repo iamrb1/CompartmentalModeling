@@ -45,10 +45,10 @@ TEST_CASE("Length restriction Tests", "[WordLang]") {
   
 
   SECTION("Length of 5") {
-    wordLang.parse("LIST list1 = LOAD \"top_5000\"\n");
+    wordLang.parse("LIST list1 = LOAD \"top_5000.txt\"\n");
     wordLang.parse("LENGTH = 5\n");
 
-    REQUIRE(buffer.str() == "Loaded \"top_5000\". Word count in a list: 4354\nWords before filter: 4354, after filter: 688\n");
+    REQUIRE(buffer.str() == "Loaded \"top_5000.txt\". Word count in a list: 5000\nWords before filter: 5000, after filter: 752\n");
   }
   
   std::cout.rdbuf(oldCout);
@@ -57,22 +57,40 @@ TEST_CASE("Length restriction Tests", "[WordLang]") {
 
 TEST_CASE("Reset command", "[Reset]") {
 
-  std::stringstream buffer;
-  std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
-
   cse::WordLang wordLang;
 
-  SECTION("Reset with one list") {
-    wordLang.parse("LIST l = LOAD \"100000.txt\n");
-    wordLang.parse("LENGTH = 5\n");
-    buffer.str("");
-    wordLang.parse("RESET\n");
+  std::vector<std::string> input = {
+    "LIST l = LOAD \"100000.txt\"\n",
+    "RESET\n",
+  };
+    
+  std::vector<std::string> output_result = {
+    "Loaded \"100000.txt\". Word count in a list: 100000\n",
+    "[Info]: Succesfully reset all current lists to the original state.\n\n  l: 100000 words\n\n"
+  };
 
-    REQUIRE(buffer.str() == "[Info]: Succesfully reset all current lists to the original state.\n\n\n");
+  for (size_t i = 0; i < input.size(); ++i) {
+    std::ostringstream oss;
+    std::streambuf* oldCoutBuf = std::cout.rdbuf();
+    std::cout.rdbuf(oss.rdbuf());
 
+    wordLang.parse(input[i]);
+
+    std::cout.rdbuf(oldCoutBuf);
+
+    std::string actualOutput = oss.str();
+    std::string expected = output_result[i];
+
+    // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
+    if(DEBUG_MODE) {
+      std::cout << "Input:    " << input[i];
+      std::cout << "Expected: " << expected;
+      std::cout << "Actual:   " << actualOutput;
+      std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
+    }
+    
+    CHECK(actualOutput == expected);
   }
-
-  std::cout.rdbuf(oldCout);
 }
 
 
@@ -136,8 +154,8 @@ TEST_CASE("WordLang Tests 2", "[WordLang]") {
   cse::WordLang wordLang;
 
   std::vector<std::string> input = {
-    "LIST list1 = LOAD \"top_5000_words_database\"\n",
-    "LIST list2 = LOAD \"top_1000_common_worlde_words_database\"\n",
+    "LIST list1 = LOAD \"top_5000.txt\"\n",
+    "LIST list2 = LOAD \"top_1000_wordle.txt\"\n",
     "LIST combined = COMBINED list1 list2\n",
     "SAVE combined \"my_custom_list\"\n",
     "LENGTH = 5\n",
@@ -148,13 +166,13 @@ TEST_CASE("WordLang Tests 2", "[WordLang]") {
   };
     
   std::vector<std::string> output_result = {
-    "Loaded \"top_5000_words_database\". Word count in a list: 4354\n",
-    "Loaded \"top_1000_common_worlde_words_database\". Word count in a list: 1000\n",
-    "Number of words to search: 4848\n",
+    "Loaded \"top_5000.txt\". Word count in a list: 5000\n",
+    "Loaded \"top_1000_wordle.txt\". Word count in a list: 1000\n",
+    "Number of words to search: 5248\n",
     "[Info]: List 'combined' saved to 'my_custom_list'\n",
-    "Words before filter: 4848, after filter: 1182\n",
-    "Number of words to search: 19\n",
-    "Number of words to search: 6\n",
+    "Words before filter: 5248, after filter: 1000\n",
+    "Number of words to search: 13\n",
+    "Number of words to search: 3\n",
     "Number of words to search: 1\n",
     "[aware]\n"
   };
@@ -251,12 +269,12 @@ TEST_CASE("WordLang Tests 4", "[WordLang]") {
     
   std::vector<std::string> output_result = {
     "Loaded \"top_1000_wordle.txt\". Word count in a list: 1000\n",
-    "Loaded \"top_5000.txt\". Word count in a list: 4354\n",
-    "Number of words to search: 4848\n",
-    "Words before filter: 4848, after filter: 1182\n",
-    "[weeks, packs, total, merit, peace, stare, votes, inter, greet, alien, stick, roles, fence, flash, cheek, login, jerry, loves, sweat, stair, irish]\n",
-    "[fatal, malta, islam, laura, usual, latin, linda, lamps, salad, talks, loyal]\n",
-    "[coral, moral, royal]\n"
+    "Loaded \"top_5000.txt\". Word count in a list: 5000\n",
+    "Number of words to search: 5248\n",
+    "Words before filter: 5248, after filter: 1000\n",
+    "[smile, porno, north, shoot, rapid, pizza, boxes, storm, blend, sides, pulse, quote, rough, adult, swiss, shelf, omaha, carry, worst, aside, discs]\n",
+    "[total, final, rural, vocal, lamps, atlas, laura, malta, valid, larry, lands]\n",
+    "[moral, coral, royal]\n"
   };
 
   for (size_t i = 0; i < input.size(); ++i) {
