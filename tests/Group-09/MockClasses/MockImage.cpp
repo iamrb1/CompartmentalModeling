@@ -1,5 +1,5 @@
 /**
- * @file MockImage.cpp
+ * @file Image.cpp
  *
  * @author Mia Bodenhorn
  */
@@ -7,10 +7,13 @@
 #include "MockImage.hpp"
 
 #include <assert.h>
+
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
 
+namespace cse {
+void Alert(const std::string& msg) {}
 
 /**
  * @brief Validates whether URL starts with http or https
@@ -26,7 +29,7 @@ bool validateURL(const std::string& url) {
 }
 
 /**
- * @brief Constructs an MockImage object with specified URL, dimensions, and
+ * @brief Constructs an Image object with specified URL, dimensions, and
  * alternative text.
  *
  * @param url The image url
@@ -133,8 +136,6 @@ std::string MockImage::generateJS() const {
  * This function prints image attributes such as URL, dimensions, and alt text,
  * along with the generated HTML and JavaScript, to the browser console.
  *
- * Uses emscripten_log to output messages to the browser console when running in
- * a WebAssembly environment.
  */
 void MockImage::preview() const {
   std::ostringstream output;
@@ -145,30 +146,17 @@ void MockImage::preview() const {
          << "HTML: " << renderHTML() << "\n"
          << "JavaScript: " << generateJS() << "\n";
 
-  emscripten_log(EM_LOG_CONSOLE, "%s", output.str().c_str());
 }
 
 /**
  * @brief Injects the image into the HTML document using JavaScript
  *
- * This function creates an `<img>` element in the DOM with the image's URL,
- * width, height, and alt text. It is executed using Emscripten's `EM_ASM_`
- * macro to interact with JavaScript from C++
  *
  * The image is appended to the document body
  */
 
-void Image::injectJS() const {
-  EM_ASM_(
-      {
-        var img = document.createElement('img');
-        img.src = UTF8ToString($0);
-        img.width = $1;
-        img.height = $2;
-        img.alt = UTF8ToString($3);
-        document.body.appendChild(img);
-      },
-      url.c_str(), width, height, altText.c_str());
+void MockImage::injectJS() const {
+
 }
 
-
+}  // namespace cse

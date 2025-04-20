@@ -1,14 +1,16 @@
 /**
- * @file WebLayout.cpp
- * @author Mary Holt,Grace Fitzgerald
+ * @file MockWebLayout.cpp
+ * @author Mary Holt,Grace Fitzgerald, Owen Haiar
  *
  */
 
-#include "WebLayout.hpp"
+#include "MockWebLayout.hpp"
 
 #include <cassert>
 #include <iostream>
+#include <algorithm>
 
+namespace cse {
 
 // Magic Numbers
 constexpr int MAX_WIDTH_PERCENT = 100;
@@ -93,7 +95,7 @@ const std::vector<TextBoxLayout> &MockWebLayout::getTextBoxes() {
  * @param height height of the textbox
  */
 const void MockWebLayout::renderTextBox(const std::string &layoutID,
-                                    const cse::FormattedText &formattedText,
+                                    const FormattedText &formattedText,
                                     const int &width, const int &height,
                                     const int &x, const int &y,
                                     const std::string &textboxID) {
@@ -107,87 +109,6 @@ const void MockWebLayout::renderTextBox(const std::string &layoutID,
   auto font = formattedText.getFont();
   auto fontSize = formattedText.getFontSize();
 
-  EM_ASM(
-      {
-        var layoutID = UTF8ToString($0);
-        var msg = UTF8ToString($1);
-        var width = $2;
-        var height = $3;
-        var x = $4;
-        var y = $5;
-        var textboxID = UTF8ToString($6);
-        var MAX_WIDTH_PERCENT = $7;
-        var MAX_HEIGHT_PERCENT = $8;
-        var color = UTF8ToString($9);
-        var font = UTF8ToString($10);
-        var fontSize = $11;
-
-
-        // Calculate the ratio to view height/width (1%)
-        var widthRatio =
-            document.documentElement.clientWidth / MAX_WIDTH_PERCENT;
-        var heightRatio =
-            document.documentElement.clientHeight / MAX_WIDTH_PERCENT;
-
-        // Don't let placement exceed 100% of view width/height
-        if (width > MAX_WIDTH_PERCENT) {
-          width = MAX_WIDTH_PERCENT;
-        }
-        if (height > MAX_HEIGHT_PERCENT) {
-          height = MAX_HEIGHT_PERCENT;
-        }
-        if (x > MAX_WIDTH_PERCENT) {
-          x = MAX_WIDTH_PERCENT - width;
-        }
-        if (y > MAX_HEIGHT_PERCENT) {
-          y = MAX_HEIGHT_PERCENT - height;
-        }
-
-        // Finds div with presentation-zone id, where all boxes and images will
-        // be placed
-        var textBoxDiv = document.getElementById("presentation-zone");
-
-        var layoutDiv = document.getElementById(layoutID);
-        if (!layoutDiv) {
-          // If it doesn't exist, create div
-          layoutDiv = document.createElement("div");
-          layoutDiv.style.visibility = "hidden";
-          layoutDiv.id = layoutID;
-          textBoxDiv.appendChild(layoutDiv);
-        }
-
-        // position: absolute; left: x px; top: y px;
-
-        if (layoutDiv) {
-          // Check if textbox already exists in layout
-          var currentTextBox = document.getElementById(textboxID);
-          if (!currentTextBox) {
-            var p = document.createElement("p");
-            p.className = "textbox";
-            p.id = textboxID;
-            p.textContent = msg;  // Set raw text content, not HTML
-
-            // Apply styles
-            p.style.visibility = "inherit";
-            p.style.position = "absolute";
-            p.style.left = x + "vw";
-            p.style.top = y + "vh";
-            p.style.border = "1px solid black";
-            p.style.margin = "0";
-            p.style.borderRadius = "5px";
-            p.style.height = height + "vh";
-            p.style.width = width + "vw";
-            p.style.color = color;
-            p.style.fontFamily = font;
-            p.style.fontSize = fontSize + "px";
-
-            layoutDiv.appendChild(p);
-          }
-        }
-      },
-      layoutID.c_str(), text.c_str(), width, height, x, y, textboxID.c_str(),
-      MAX_WIDTH_PERCENT, MAX_HEIGHT_PERCENT, color.c_str(), font.c_str(),
-      fontSize);
 }
 
 /**
@@ -206,55 +127,6 @@ void const MockWebLayout::renderImage(const std::string &layoutID,
          height >= MIN_PERCENT);  // assert width and height are positive
   assert(x >= MIN_PERCENT && y >= MIN_PERCENT);  // assert x and y are positive
 
-  EM_ASM(
-      {
-        var layoutID = UTF8ToString($0);
-        var msg = UTF8ToString($1);
-        var width = $2;
-        var height = $3;
-        var x = $4;
-        var y = $5;
-        var imageID = UTF8ToString($6);
-        var MAX_WIDTH_PERCENT = $7;
-        var MAX_HEIGHT_PERCENT = $8;
-
-        // Don't let placement exceed 100% of view width/height or 95% height
-        if (width > MAX_WIDTH_PERCENT) {
-          width = MAX_WIDTH_PERCENT;
-        }
-        if (height > MAX_HEIGHT_PERCENT) {
-          height = MAX_HEIGHT_PERCENT;
-        }
-        if (x > MAX_WIDTH_PERCENT) {
-          x = MAX_WIDTH_PERCENT - width;
-        }
-        if (y > MAX_HEIGHT_PERCENT) {
-          y = MAX_HEIGHT_PERCENT - height;
-        }
-
-        // Finds div with presentation-zone id, where all boxes and images will
-        // be placed
-        var imageBoxDiv = document.getElementById("presentation-zone");
-
-        var layoutDiv = document.getElementById(layoutID);
-        if (!layoutDiv) {
-          // If it doesn't exist, create div
-          layoutDiv = document.createElement("div");
-          layoutDiv.style.visibility = "hidden";
-          layoutDiv.id = layoutID;
-          imageBoxDiv.appendChild(layoutDiv);
-        }
-
-        if (layoutDiv) {
-          layoutDiv.innerHTML +=
-              "<img id=" + imageID + " src='" + msg +
-                  "' style='visibility: inherit; position: absolute; left: " + x + "vw; top: " + y +
-                  "vh; margin: 0; object-fit: contain; width:" + width +
-                  "vw; height:" + height + "vh;' />";
-        }
-      },
-      layoutID.c_str(), url.c_str(), width, height, x, y, imageID.c_str(),
-      MAX_WIDTH_PERCENT, MAX_HEIGHT_PERCENT);
 }
 
 /**
@@ -272,18 +144,8 @@ std::string MockWebLayout::generateID() {
 void MockWebLayout::activateLayout() {
   auto layoutID = getID();
 
-  std::cout << "Activating:  " << layoutID << std::endl;
+  //std::cout << "Activating:  " << layoutID << std::endl;
 
-  EM_ASM(
-      {
-        var layoutID = UTF8ToString($0);
-
-        var layoutDiv = document.getElementById(layoutID);
-        if (layoutDiv) {
-          layoutDiv.style.visibility = "visible";
-        }
-      },
-      layoutID.c_str());
 }
 
 /**
@@ -292,67 +154,33 @@ void MockWebLayout::activateLayout() {
 void MockWebLayout::deactivateLayout() {
   auto layoutID = getID();
 
-  std::cout << "Deactivating:  " << layoutID << std::endl;
+  //std::cout << "Deactivating:  " << layoutID << std::endl;
 
-  EM_ASM(
-      {
-        var layoutID = UTF8ToString($0);
-        var layoutDiv = document.getElementById(layoutID);
-        if (layoutDiv) {
-          layoutDiv.style.visibility = "hidden";
-        }
-      },
-      layoutID.c_str());
 }
 
 void MockWebLayout::toggleImage(const cse::ImageLayout &image) {
   auto imageID = image.image->getID();
 
-  EM_ASM(
-      {
-        var imageID = UTF8ToString($0);
-        var imageDiv = document.getElementById(imageID);
-        if (imageDiv) {
-          // flip current visibility
-          var visibility = window.getComputedStyle(imageDiv).visibility;
 
-          //console.log(visibility);
-          if(visibility == "hidden") {
-            imageDiv.style.visibility = "inherit";
-          } else {
-            imageDiv.style.visibility = "hidden";
-          }
-        }
-        //console.log(imageID);
-      },
-      imageID.c_str());
 }
+ImageLayout MockWebLayout::getImageFromID(const std::string& id) const {
+  if (const auto image = std::ranges::find_if(images,[id](const ImageLayout& im) { return im.image->getID() == id; }); image != images.end()) {
+    return *image;
+  }
+  throw std::runtime_error("Image not found");
+}
+
+TextBoxLayout MockWebLayout::getTextboxFromID(const std::string& id) const {
+  if (const auto textbox = std::ranges::find_if(textBoxes,[id](const TextBoxLayout& tb) { return tb.textBox->getID() == id; }); textbox != textBoxes.end()) {
+    return *textbox;
+  }
+  throw std::runtime_error("Textbox not found");
+}
+
 
 void MockWebLayout::toggleTextBox(const cse::TextBoxLayout &textBox) {
   auto textBoxID = textBox.textBox->getID();
 
-  EM_ASM(
-      {
-        var textBoxID = UTF8ToString($0);
-        var textBoxDiv = document.getElementById(textBoxID);
-        if (textBoxDiv) {
-          console.log('Found ', textBoxID);
-          // flip current visibility
-          //var visibility = textBoxDiv.style.visibility;
-          // window.getComputedStyle learned through ChatGPT usage when exploring problem of visibility
-          // returning as '' when set to inherit from parent
-          var visibility = window.getComputedStyle(textBoxDiv).visibility;
-
-          if(visibility == "hidden") {
-            textBoxDiv.style.visibility = "inherit";
-          } else {
-            textBoxDiv.style.visibility = "hidden";
-          }
-        } else {
-          console.log('not found', textBoxID);
-        }
-      },
-      textBoxID.c_str());
 }
 
 
@@ -372,6 +200,26 @@ void MockWebLayout::setPosition(std::string id, int newX, int newY) {
   for (auto& imgl : images) {
     if (imgl.image->getID() == id) {
       imgl.setPosition(newX, newY);
+    }
+  }
+}
+
+/**
+ * Converts image attributes into html
+ * @param id : Object id
+ * @param newWidth : New width for object
+ * @param newHeight : New height for object
+ */
+void MockWebLayout::setSize(std::string id, int newWidth, int newHeight) {
+  for (auto& tbl : textBoxes) {
+    if (tbl.textBox->getID() == id) {
+      tbl.textBox->resize(newWidth, newHeight);
+    }
+  }
+
+  for (auto& imgl : images) {
+    if (imgl.image->getID() == id) {
+      imgl.image->resize(newWidth, newHeight);
     }
   }
 }
@@ -398,3 +246,4 @@ bool MockWebLayout::contains(std::string id) const {
 }
 
 
+}  // namespace cse

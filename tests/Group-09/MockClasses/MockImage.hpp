@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <string>
 
+namespace cse {
 /**
  * @brief A struct to represent an image
  */
@@ -33,6 +34,12 @@ class MockImage {
   void resize(int newWidth, int newHeight, bool maintainAspect = true);
   void updateAltText(const std::string& newAltText);
 
+  std::string renderHTML() const;
+  std::string generateJS() const;
+
+  void injectJS() const;
+
+  void preview() const;
 
   /** @return std::string unique ID for MockImage */
   static std::string generateID() {
@@ -49,4 +56,7 @@ class MockImage {
   // bool validateURL(const std::string& url) const;
 };
 
+void Alert(const std::string& msg);
 
+
+}  // namespace cse

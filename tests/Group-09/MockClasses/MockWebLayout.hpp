@@ -1,7 +1,7 @@
 /**
  * Holds various text boxes and images to create "slides"
  *
- * @file MockWebLayout.hpp
+ * @file MockWebLayout.h
  * @author Mary Holt, Grace Fitzgerald
  *
  */
@@ -15,16 +15,17 @@
 #include "MockImage.hpp"
 #include "../../../Group-09/TextBox/TextBox.hpp"
 
+namespace cse {
 
 struct TextBoxLayout {
-  std::shared_ptr<cse::TextBox> textBox;
+  std::shared_ptr<TextBox> textBox;
   int yPos;
   int xPos;
 
-  TextBoxLayout() : textBox(), yPos(0), xPos(0){};
+  TextBoxLayout() : textBox(), xPos(0), yPos(0){};
 
-  TextBoxLayout(std::shared_ptr<cse::TextBox> textBox, int x, int y)
-      : textBox(std::move(textBox)), yPos(x), xPos(y) {}
+  TextBoxLayout(std::shared_ptr<TextBox> textBox, int x, int y)
+      : textBox(std::move(textBox)), xPos(x), yPos(y) {}
 
   bool operator==(const TextBoxLayout &textboxLayout) const {
     return ((textboxLayout.textBox->getFormattedText().getText() ==
@@ -68,12 +69,12 @@ class MockWebLayout {
   std::vector<ImageLayout> images;
   std::string id;
 
-  void renderTextBox(const std::string &layoutID, const cse::FormattedText &msg,
+  const void renderTextBox(const std::string &layoutID, const FormattedText &msg,
                            const int &width, const int &height, const int &x,
-                           const int &y, const std::string &textboxID) const;
-  void renderImage(const std::string &layoutID, const std::string &url,
+                           const int &y, const std::string &textboxID);
+  void const renderImage(const std::string &layoutID, const std::string &url,
                          const int &width, const int &height, const int &x,
-                         const int &y, const std::string &imageID) const;
+                         const int &y, const std::string &imageID);
 
  public:
   MockWebLayout() : id(generateID()) {}
@@ -86,6 +87,8 @@ class MockWebLayout {
   const std::vector<TextBoxLayout> &getTextBoxes();
   void toggleTextBox(const TextBoxLayout &textBox);
   void toggleImage(const ImageLayout &image);
+  ImageLayout getImageFromID(const std::string& id) const;
+  TextBoxLayout getTextboxFromID(const std::string& id) const;
 
   static std::string generateID();
   const std::string getID() { return id; }
@@ -95,6 +98,7 @@ class MockWebLayout {
   void deactivateLayout();
 
   void setPosition(std::string id, int x, int y);
+  void setSize(std::string id, int width, int height);
   bool contains(std::string id) const;
 };
-
+}  // namespace cse
