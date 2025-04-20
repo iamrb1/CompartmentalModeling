@@ -123,8 +123,8 @@ void PrintOptimizerResults(std::pair<double, std::vector<cse::Item>> solution) {
   std::cout << std::endl;
 }
 
-void PrintTiming(double timing) {
-  std::cout << std::setprecision(4) << timing << " seconds" << std::endl;
+void PrintTiming(double timingInMilliseconds) {
+  std::cout << std::setprecision(4) << timingInMilliseconds << " milliseconds" << std::endl;
 }
 
 /**
@@ -163,63 +163,80 @@ std::vector<cse::Item> ConstructItems(std::string filename) {
 
   return Items;
 }
-
+/** 
 void Compare() {
   cse::BruteForceOptimizer optimizer;
   optimizer.SetItems(settings.itemList);
   optimizer.SetCapacity(settings.capacity);
+
+  // Unoptimized brute force
   optimizer.SetOptimizer(false);
-  double unoptimizedTime =
-      MeasureTime([&]() { optimizer.FindOptimalSolution(); });
+  double unoptimizedTime = MeasureTime([&]() {
+    auto solutionPair = optimizer.FindOptimalSolution();
+    PrintOptimizerResults(solutionPair);
+  });
 
+  // Optimized brute force
   optimizer.SetOptimizer(true);
+  double optimizedTime = MeasureTime([&]() {
+    auto solutionPair = optimizer.FindOptimalSolution();
+    PrintOptimizerResults(solutionPair);
+  });
 
-  std::pair<double, std::vector<cse::Item>> solutionPair;
-
-  double optimizedTime =
-      MeasureTime([&]() { optimizer.FindOptimalSolution(); });
-
-  std::cout << "Unoptimized Time: " << unoptimizedTime << std::endl;
-  std::cout << "Optimized Time: " << optimizedTime << std::endl;
+  // Print timing results
+  std::cout << "Unoptimized Time: " << unoptimizedTime << " milliseconds" << std::endl;
+  std::cout << "Optimized Time: " << optimizedTime << " milliseconds" << std::endl;
   std::cout << "Speedup: "
             << ((unoptimizedTime - optimizedTime) / unoptimizedTime) * 100
             << "%\n";
 }
-
+*/
 void CallBruteForceOptimizer() {
   cse::BruteForceOptimizer optimizer;
   optimizer.SetItems(settings.itemList);
   optimizer.SetCapacity(settings.capacity);
   optimizer.SetRepeating(settings.multipleRepeats);
 
+  double unoptimizedTime = 0.0;
+  double optimizedTime = 0.0;
+
   if (!settings.optimized || settings.compare) {
-    // Call Optimizer
-    // Print out results, along with time if requested
-    auto solutionPair = optimizer.FindOptimalSolution();
-    PrintOptimizerResults(solutionPair);
-    if (settings.timeSearch) {
-      auto time = MeasureTime([&]() { optimizer.FindOptimalSolution(); });
-      PrintTiming(time);
-    }
+    // Unoptimized brute force
+    optimizer.SetOptimizer(false);
+    unoptimizedTime = MeasureTime([&]() {
+      auto solutionPair = optimizer.FindOptimalSolution();
+      PrintOptimizerResults(solutionPair);
+    });
   }
+
   if (settings.optimized || settings.compare) {
-    optimizer.SetOptimizer(settings.optimized);
-    // Call optimizer with the settings done
-    // Print out results, along with time if requested
-    auto solutionPair = optimizer.FindOptimalSolution();
-    PrintOptimizerResults(solutionPair);
+    // Optimized brute force
+    optimizer.SetOptimizer(true);
+    optimizedTime = MeasureTime([&]() {
+      auto solutionPair = optimizer.FindOptimalSolution();
+      PrintOptimizerResults(solutionPair);
+    });
+  }
+
+  // Print timings
+  if (!settings.compare) {
+    if (!settings.optimized) {
+      PrintTiming(unoptimizedTime); // Print unoptimized timing
+    } else {
+      PrintTiming(optimizedTime); // Print optimized timing
+    }
   }
 
   if (settings.compare) {
-    // print time comparisons
-    Compare();
+    // Print comparison results
+    std::cout << "Unoptimized Time: " << unoptimizedTime << " milliseconds" << std::endl;
+    std::cout << "Optimized Time: " << optimizedTime << " milliseconds" << std::endl;
+    std::cout << "Speedup: "
+              << ((unoptimizedTime - optimizedTime) / unoptimizedTime) * 100
+              << "%\n";
   }
-
-  /*auto solutionPair = optimizer.FindOptimalSolution();
-  std::cout << "Optimal Value: " << solutionPair.first << std::endl;
-  std::cout << "Item Set: ";
-  PrintVector(solutionPair.second);*/
 }
+
 
 /**
  * For Commands where weights should have no influence, set to a weight of 1
