@@ -7,7 +7,7 @@
 #include <emscripten.h>
 #include "PresentationManager/PresentationManager.hpp"
 
-constexpr int FPS = 5; ///< Update rate for main loop
+constexpr int FPS = 60; ///< Update rate for main loop
 
 using namespace cse;
 

@@ -92,6 +92,8 @@
       font-weight: bold;
       font-size: 14px;
       color: #333;
+      text-align: center;
+      white-space: nowrap;
     }
 
     input[type="file"] {
@@ -100,7 +102,9 @@
 
     /* Menu taken from: https://getbootstrap.com/docs/4.0/components/dropdowns/ */
     .dropdown-menu {
-       z-index: 1000;
+      z-index: 1000;
+      background-color: transparent;
+      border: none;
     }
 
     #end-slide {
@@ -149,7 +153,6 @@
 
     <button id="stopButton">Stop</button>
     <button id="startButton">Start</button>
-    <button id="addTransition">Add Transition</button>
     <div class="btn-group dropup">
     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         +
@@ -158,13 +161,14 @@
         <button id="addImageButton">Add Image</button>
         <button id="addTextBoxButton">Add TextBox</button>
         <button id="addNewSlideButton">Add New Slide</button>
+        <button id="addTransition">Add Transition</button>
       </div>
     </div>
   </div>
   <div class="nav-right">
     <button id="moveBackButton">Swap<i class="fa-solid fa-angles-left"></i></button>
     <button id="reverseButton">Last Slide<i class="fa-solid fa-angles-left"></i></button>
-    <span id="slideNumberDisplay">Slide 0 of 0</span>
+    <span id="slideNumberDisplay">0 of 0</span>
     <button id="advanceButton">Next Slide<i class="fa-solid fa-angles-right"></i></button>
     <button id="moveForwardButton">Swap<i class="fa-solid fa-angles-right"></i></button>
   </div>
@@ -188,10 +192,20 @@
     const reader = new FileReader();
     reader.onload = function (event) {
       const jsonStr = event.target.result;
+      // I have to do this for large files to prevent stack overflow (did not know that was a real thing)
+      const lengthBytes = lengthBytesUTF8(jsonStr) + 1;
+      const buffer = Module._malloc(lengthBytes);
+      if (!buffer) {
+        alert("Failed to allocate mem.");
+        return;
+      }
       try {
-        loadDeck(jsonStr);
+        stringToUTF8(jsonStr, buffer, lengthBytes);
+        Module.ccall("loadSlideDeckFromJson", null, ["number"], [buffer]);
       } catch (err) {
         alert("Failed to load deck: " + err);
+      } finally {
+        Module._free(buffer);
       }
     };
     reader.readAsText(file);
