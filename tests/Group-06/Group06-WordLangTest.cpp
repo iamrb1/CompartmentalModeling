@@ -688,7 +688,90 @@ TEST_CASE("add Tests", "[WordLang]") {
       CHECK(actualOutput == expected);
   }
 }
+TEST_CASE("setLengthRestriction: No current lists and star restore", "[WordLang]") {
+  cse::WordLang wordLang;
 
+  // No lists loaded, should print 0 before/after
+  std::ostringstream oss;
+  std::streambuf* oldCoutBuf = std::cout.rdbuf(oss.rdbuf());
+  wordLang.parse("LENGTH = 5\n");
+  std::cout.rdbuf(oldCoutBuf);
+  CHECK(oss.str() == "Words before filter: 0, after filter: 0\n");
+
+  // Load, filter, then restore with *
+  wordLang.parse("LIST l = LOAD \"file1.txt\"\n");
+  wordLang.parse("LENGTH = 5\n");
+  std::ostringstream oss2;
+  std::cout.rdbuf(oss2.rdbuf());
+  wordLang.parse("LENGTH = *\n");
+  std::cout.rdbuf(oldCoutBuf);
+  // After restore, no output expected
+  CHECK(oss2.str() == "");
+}
+
+TEST_CASE("setCurrent: Multiple lists and non-existent list", "[WordLang]") {
+  cse::WordLang wordLang;
+
+  wordLang.parse("LIST l1 = LOAD \"file1.txt\"\n");
+  wordLang.parse("LIST l2 = LOAD \"file2.txt\"\n");
+
+  // Set both as current
+  std::ostringstream oss;
+  std::streambuf* oldCoutBuf = std::cout.rdbuf(oss.rdbuf());
+  wordLang.parse("SET_CURRENT l1 l2\n");
+  std::cout.rdbuf(oldCoutBuf);
+  CHECK(oss.str() == "");
+
+  // Set with a non-existent list
+  std::ostringstream oss2;
+  std::cout.rdbuf(oss2.rdbuf());
+  wordLang.parse("SET_CURRENT l1 l3\n");
+  std::cout.rdbuf(oldCoutBuf);
+  CHECK(oss2.str() == "[Info]: List 'l3' does not exist\n");
+}
+
+TEST_CASE("save: Overwrite, empty list, and invalid file", "[WordLang]") {
+  cse::WordLang wordLang;
+
+  // Save before loading any list
+  std::ostringstream oss;
+  std::streambuf* oldCoutBuf = std::cout.rdbuf(oss.rdbuf());
+  wordLang.parse("SAVE l1 \"out.txt\"\n");
+  std::cout.rdbuf(oldCoutBuf);
+  CHECK(oss.str() == "[Info]: List 'l1' does not exist\n");
+
+  // Load and save, then save again (simulate overwrite)
+  wordLang.parse("LIST l1 = LOAD \"file1.txt\"\n");
+  std::ostringstream oss2;
+  std::cout.rdbuf(oss2.rdbuf());
+  wordLang.parse("SAVE l1 \"out.txt\"\n");
+  wordLang.parse("SAVE l1 \"out.txt\"\n");
+  std::cout.rdbuf(oldCoutBuf);
+  // Should print save info twice
+  CHECK(oss2.str() == "[Info]: List 'l1' saved to 'out.txt'\n[Info]: List 'l1' saved to 'out.txt'\n");
+}
+
+TEST_CASE("add: Add to empty, duplicate, and empty string", "[WordLang]") {
+  cse::WordLang wordLang;
+
+  // Add to non-existent list
+  std::ostringstream oss;
+  std::streambuf* oldCoutBuf = std::cout.rdbuf(oss.rdbuf());
+  wordLang.parse("ADD l1 \"word\"\n");
+  std::cout.rdbuf(oldCoutBuf);
+  CHECK(oss.str() == "[Info]: List 'l1' does not exist\n");
+
+  // Load, add, add duplicate, add empty string
+  wordLang.parse("LIST l1 = LOAD \"file1.txt\"\n");
+  std::ostringstream oss2;
+  std::cout.rdbuf(oss2.rdbuf());
+  wordLang.parse("ADD l1 \"word1\"\n");
+  wordLang.parse("ADD l1 \"word1\"\n");
+  wordLang.parse("ADD l1 \"\"\n");
+  std::cout.rdbuf(oldCoutBuf);
+  // Should print added info three times
+  CHECK(oss2.str() == "[Info]: Words added to list 'l1'\n[Info]: Words added to list 'l1'\n[Info]: Words added to list 'l1'\n");
+}
 TEST_CASE("Contains ANY tests", "[WordLang]") 
 {
   cse::WordLang wordLang;
