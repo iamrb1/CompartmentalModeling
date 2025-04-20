@@ -1,3 +1,17 @@
+/**
+ * @file TokenManager.cpp
+ * @author Mehmet Efe Caylan
+ * @author Will Crawford
+ * @author Ivan Bega
+ * @author Orhan Aydin
+ * @author Emil Rahn Siegel
+ * @brief TokenManager implementation file.
+ * @version 0.1
+ * @date 2025-04-19
+ * 
+ * @copyright Copyright (c) 2025
+ * 
+ */
 #include "TokenManager.hpp"
 
 namespace cse {

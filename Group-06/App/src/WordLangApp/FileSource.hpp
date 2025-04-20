@@ -1,3 +1,17 @@
+/**
+ * @file FileSource.hpp
+ * @author Mehmet Efe Caylan
+ * @author Will Crawford
+ * @author Ivan Bega
+ * @author Orhan Aydin
+ * @author Emil Rahn Siegel
+ * @brief FileSource header file.
+ * @version 0.1
+ * @date 2025-04-19
+ * 
+ * @copyright Copyright (c) 2025
+ * 
+ */
 #include "../../../StringSet/StringSet.hpp"
 #include "../../../StaticString/StaticString.hpp"
 #include <iostream>
@@ -24,6 +38,7 @@ namespace FileSource {
      * 
      * @param filename Filename the set will be saved into
      * @param set The set that will be saved
+     * @return True if successful, false otherwise
      */
     bool save_file(const std::string& filename, cse::StringSet<cse::StaticString<30>> set);
 };

@@ -1,3 +1,18 @@
+/**
+ * @file WordLang.cpp
+ * @author Mehmet Efe Caylan
+ * @author Will Crawford
+ * @author Ivan Bega
+ * @author Orhan Aydin
+ * @author Emil Rahn Siegel
+ * @brief WordLang implementation file.
+ * @version 0.1
+ * @date 2025-03-29
+ * 
+ * @copyright Copyright (c) 2025
+ * 
+ */
+
 #include "WordLang.hpp"
 // #include "../../../StringSet/StringSet.hpp"
 // #include "../../../StaticString/StaticString.hpp"
@@ -85,10 +100,6 @@ void cse::WordLang::parse(const std::string& input) {
         }
         case Lexer::ID_RESET: {
             parseReset();
-            break;
-        }
-        case Lexer::ID_RESET_LAST: {
-            parseResetLast();
             break;
         }
         case Lexer::ID_WORDLE: {
@@ -513,18 +524,6 @@ void cse::WordLang::parseReset() {
     }
 
     mErrorManager.printInfo("Incorrect Syntax: encountered unknown symbols in RESET statement");
-}
-
-void cse::WordLang::parseResetLast() {
-    mTokenManager.Use(); // use keyword "RESET_LAST"
-
-    if (mTokenManager.Peek() != mTokenManager.eof_token) {
-        // check if we don't have anything else apart from RESET
-        mErrorManager.printInfo("Incorrect Syntax: Encountered unknown symbols after \"RESET_LAST\" token.");
-        return;
-    }
-
-    // TODO - call WordListManager to handle RESET_LAST
 }
 
 void cse::WordLang::parseWordle() {

@@ -237,12 +237,6 @@ namespace cse {
         void parseReset();
 
         /**
-         * @brief Parses RESET_LAST
-         * 
-         */
-        void parseResetLast();
-
-        /**
          * @brief Parses WORDLE
          * 
          */

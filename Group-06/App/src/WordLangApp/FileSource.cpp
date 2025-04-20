@@ -1,3 +1,17 @@
+/**
+ * @file FileSource.cpp
+ * @author Mehmet Efe Caylan
+ * @author Will Crawford
+ * @author Ivan Bega
+ * @author Orhan Aydin
+ * @author Emil Rahn Siegel
+ * @brief FileSource implementation file.
+ * @version 0.1
+ * @date 2025-04-19
+ * 
+ * @copyright Copyright (c) 2025
+ * 
+ */
 #include "FileSource.hpp"
 #include "../../../StaticString/StaticString.hpp"
 #include <fstream>

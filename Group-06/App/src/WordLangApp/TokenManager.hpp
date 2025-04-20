@@ -1,3 +1,17 @@
+/**
+ * @file TokenManager.hpp
+ * @author Mehmet Efe Caylan
+ * @author Will Crawford
+ * @author Ivan Bega
+ * @author Orhan Aydin
+ * @author Emil Rahn Siegel
+ * @brief TokenManager header file.
+ * @version 0.1
+ * @date 2025-04-19
+ * 
+ * @copyright Copyright (c) 2025
+ * 
+ */
 #ifndef CSE_TOKENMANAGER_HPP_
 #define CSE_TOKENMANAGER_HPP_
 
