@@ -13,60 +13,11 @@
 #include "../Classes/BruteForceOptimizer.hpp"
 #include "../Classes/ComboManager.hpp"
 #include "../Classes/StaticVector.hpp"
-
-namespace cse {
-struct OptimizerSettings {
-  std::string filename = "";
-  std::vector<cse::Item> itemList = {};
-  double capacity = 0.0;
-  bool multipleRepeats = false;
-  bool weightless = false;
-  bool compare = false;
-  bool optimized = false;
-  bool timeSearch = false;
-  std::optional<double> defaultCapacity = std::nullopt;
-
-  const std::string optimizerHelpMessage =
-      "\033[34mbrute-force \033[32m<filepath>\033[34m "
-      "-capacity=\033[32m<value>\033[0m\n\n"
-      "All files must either be .csv, or .txt formatted in the CSV style.\n"
-      "We also have a collection of arguments you can pass alongside that "
-      "command if you want other results.\n"
-      "\033[32m-help\033[0m (\033[32m-h\033[0m) = Prints this message\n"
-      "\033[32m-optimize\033[0m (\033[32m-o\033[0m) = Turns on all "
-      "optimization "
-      "flags for the problem\n"
-      "\033[32m-compare\033[0m (\033[32m-c\033[0m) = Solves the problem both "
-      "unoptimized and optimized, then "
-      "compares the results to see the speedup\n"
-      "\033[32m-no-weight\033[0m (\033[32m-w\033[0m) = Removes weight "
-      "considerations. The algorithm will only "
-      "consider the number of items in respect to the capacity\n"
-      "\033[32m-repeats\033[0m (\033[32m-r\033[0m) = Allows for items to be "
-      "used "
-      "multiple times in the "
-      "solution\n";
-};
-}  // namespace cse
+#include "ApplicationTools.hpp"
 
 static cse::OptimizerSettings settings;
-
+static const cse::PresetMessages messages;
 static constexpr std::size_t CAPACITY_ARGLENGTH = 10;
-
-const std::string welcomeMessage =
-    "Welcome to Knapsack Solver.\n"
-    "This solver can process any text or CSV file containing items with names, "
-    "weights, and values and return what the best lection of items are for the "
-    "space you have.\n"
-    "When using this solver, here are the command options:\n"
-    "\033[34mbrute-force \033[32m<filepath>\033[34m "
-    "-capacity=\033[32m<value>\033[0m - This will run the Knapsack Solver on "
-    "the provided data file and return the results.\n"
-    "\033[34mset-capacity \033[32m<value>\033[34m\033[0m - This can set a default "
-    "capacity for the solver to use when you do not manually set a capacity "
-    "using brute-force\n";
-
-const std::string capacity;
 
 /**
  * Utility Functions:
@@ -82,7 +33,7 @@ const std::string capacity;
  *  - CreateArgManager - Interface function for the ArgManager class constructor
  */
 
-void ResetGlobalVariables(cse::OptimizerSettings &settings) {
+void ResetGlobalVariables() {
   settings.filename = "";
   settings.itemList = {};
   settings.capacity = (settings.defaultCapacity.has_value())
@@ -131,7 +82,7 @@ void PrintVector(std::vector<T> vector) {
   std::cout << std::endl;
 }
 
-void HelpOutput() { std::cout << settings.optimizerHelpMessage; }
+void HelpOutput() { std::cout << messages.optimizerHelpMessage; }
 
 void PrintTerminal() { std::cout << "\033[32m\nBellman-Application> \033[0m"; }
 
@@ -254,7 +205,7 @@ void AdjustRepeats() {
 }
 
 int application(std::istream &in) {
-  std::cout << welcomeMessage;
+  std::cout << messages.welcomeMessage << messages.commandListMessage;
   PrintTerminal();
   cse::CommandLine mainCommand;
   mainCommand.addCommand(
@@ -263,10 +214,11 @@ int application(std::istream &in) {
 
   std::string input;
   while (std::getline(in, input)) {
-    ResetGlobalVariables(settings);
+    ResetGlobalVariables();
     // split input
     //  command -> text file seperated by a space
     auto arguments = split(input, ' ');
+    auto argMgr = CreateArgManager(arguments);
     if (!arguments.size()) {
       PrintTerminal();
       continue;
@@ -283,6 +235,10 @@ int application(std::istream &in) {
       }
     }
 
+    else if (arguments.at(0) == "help") {
+      std::cout << "All commands:\n" << messages.commandListMessage;
+    }
+
     else if (arguments[0] == "set-capacity") {
       if (arguments.size() == 1) {
         std::cout << RedError("**Must specify a default capacity");
@@ -290,6 +246,12 @@ int application(std::istream &in) {
         std::cout << RedError("**Too many arguments provided for set-capacity");
       } else {
         try {
+          if (argMgr.HasArg("-help") || argMgr.HasArg("-h")) {
+            // do something to optimize
+            HelpOutput();
+            PrintTerminal();
+            continue;
+          }
           std::cout << std::stod(arguments.at(1)) << std::endl;
           double givenCapacity = std::stod(arguments.at(1));
           settings.defaultCapacity = givenCapacity;
@@ -301,8 +263,6 @@ int application(std::istream &in) {
     }
 
     else if (arguments[0] == "brute-force") {
-      auto argMgr = CreateArgManager(arguments);
-
       if (argMgr.HasArg("-help") || argMgr.HasArg("-h")) {
         // do something to optimize
         HelpOutput();
@@ -335,7 +295,8 @@ int application(std::istream &in) {
             arguments.begin(), arguments.end(),
             [=](auto str) { return str.find(toFind) != std::string::npos; });
         if (capacityArg == arguments.end()) {
-          std::cout << RedError("**Specify capacity=\033[32m<capacity>\033[0m.");
+          std::cout << RedError(
+              "**Specify capacity=\033[32m<capacity>\033[0m.");
           continue;
         }
         valString =
@@ -345,8 +306,7 @@ int application(std::istream &in) {
         try {
           settings.capacity = std::stod(valString);
         } catch (const std::invalid_argument &e) {
-          std::cout << RedError(
-              "**Capacity must be a numeric value.");
+          std::cout << RedError("**Capacity must be a numeric value.");
           PrintTerminal();
           continue;
         }
