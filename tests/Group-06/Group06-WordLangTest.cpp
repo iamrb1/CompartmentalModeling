@@ -14,60 +14,8 @@ using namespace cse;
 
 const static bool DEBUG_MODE = false;
 
-TEST_CASE("Fundamental WordLang Tests", "[WordLang]") {
-  SECTION("Instance of the class is created successfuly") {
-
-    cse::WordLang wordLang; // if we get past this line then we're good
-    REQUIRE(true);
-  }
-
-  SECTION("Correct input line is parsed without throwing an exception") {
-    cse::WordLang wordLang;
-    REQUIRE_NOTHROW(wordLang.parse("PRINT ALL"));
-  }
-
-  SECTION("Incorrect input line is parsed without throwing an exception") {
-    cse::WordLang wordLang;
-    REQUIRE_NOTHROW(wordLang.parse("GARBAGE"));
-  }
-}
-
-
-TEST_CASE("Length restriction Tests", "[WordLang]") {
-  // changing path to text files from "database" folder in "App"
-  std::filesystem::path current = std::filesystem::current_path();
-  std::filesystem::path target = current.parent_path().parent_path() / "Group-06" / "App" / "src";
-  std::filesystem::current_path(target);
-  std::stringstream buffer;
-  std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
-
+void test_function(const std::vector<std::string>& input, const std::vector<std::string>& output_result) {
   cse::WordLang wordLang;
-  
-
-  SECTION("Length of 5") {
-    wordLang.parse("LIST list1 = LOAD \"top_5000.txt\"\n");
-    wordLang.parse("LENGTH = 5\n");
-
-    REQUIRE(buffer.str() == "Loaded \"top_5000.txt\". Word count in a list: 5000\nWords before filter: 5000, after filter: 752\n");
-  }
-  
-  std::cout.rdbuf(oldCout);
-
-}
-
-TEST_CASE("Reset command", "[Reset]") {
-
-  cse::WordLang wordLang;
-
-  std::vector<std::string> input = {
-    "LIST l = LOAD \"100000.txt\"\n",
-    "RESET\n",
-  };
-    
-  std::vector<std::string> output_result = {
-    "Loaded \"100000.txt\". Word count in a list: 100000\n",
-    "[Info]: Succesfully reset all current lists to the original state.\n\n  l: 100000 words\n\n"
-  };
 
   for (size_t i = 0; i < input.size(); ++i) {
     std::ostringstream oss;
@@ -94,9 +42,62 @@ TEST_CASE("Reset command", "[Reset]") {
 }
 
 
-TEST_CASE("WordLang Tests", "[WordLang]") {
+TEST_CASE("Fundamental WordLang Tests", "[WordLang]") {
+  SECTION("Instance of the class is created successfuly") {
 
-  cse::WordLang wordLang;
+    cse::WordLang wordLang; // if we get past this line then we're good
+    REQUIRE(true);
+  }
+
+  SECTION("Correct input line is parsed without throwing an exception") {
+    cse::WordLang wordLang;
+    REQUIRE_NOTHROW(wordLang.parse("PRINT ALL"));
+  }
+
+  SECTION("Incorrect input line is parsed without throwing an exception") {
+    cse::WordLang wordLang;
+    REQUIRE_NOTHROW(wordLang.parse("GARBAGE"));
+  }
+}
+
+
+TEST_CASE("Length restriction Tests", "[WordLang]") {
+  // changing path to text files from "database" folder in "App"
+  std::filesystem::path current = std::filesystem::current_path();
+  std::filesystem::path target = current.parent_path().parent_path() / "Group-06" / "App" / "src";
+  std::filesystem::current_path(target);
+
+  std::vector<std::string> input = {
+    "LIST list1 = LOAD \"top_5000.txt\"\n",
+    "LENGTH = 5\n",
+  };
+    
+  std::vector<std::string> output_result = {
+    "Loaded \"top_5000.txt\". Word count in a list: 5000\n",
+    "Words before filter: 5000, after filter: 752\n",
+  };
+
+  test_function(input, output_result);
+
+}
+
+TEST_CASE("Reset command", "[Reset]") {
+
+  std::vector<std::string> input = {
+    "LIST l = LOAD \"100000.txt\"\n",
+    "RESET\n",
+  };
+    
+  std::vector<std::string> output_result = {
+    "Loaded \"100000.txt\". Word count in a list: 100000\n",
+    "[Info]: Succesfully reset all current lists to the original state.\n\n  l: 100000 words\n\n"
+  };
+
+  test_function(input, output_result);
+}
+
+
+TEST_CASE("WordLang Tests", "[WordLang]") {
 
   std::vector<std::string> input = {
     "LIST list1 = LOAD \"file1.txt\"\n",
@@ -124,34 +125,11 @@ TEST_CASE("WordLang Tests", "[WordLang]") {
     "[books]\n"
   };
 
-  for (size_t i = 0; i < input.size(); ++i) {
-    std::ostringstream oss;
-    std::streambuf* oldCoutBuf = std::cout.rdbuf();
-    std::cout.rdbuf(oss.rdbuf());
-
-    wordLang.parse(input[i]);
-
-    std::cout.rdbuf(oldCoutBuf);
-
-    std::string actualOutput = oss.str();
-    std::string expected = output_result[i];
-
-    // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
-    if(DEBUG_MODE) {
-      std::cout << "Input:    " << input[i];
-      std::cout << "Expected: " << expected;
-      std::cout << "Actual:   " << actualOutput;
-      std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
-    }
-    
-    CHECK(actualOutput == expected);
-  }
+  test_function(input, output_result);
 
 }
 
 TEST_CASE("WordLang Tests 2", "[WordLang]") {
-
-  cse::WordLang wordLang;
 
   std::vector<std::string> input = {
     "LIST list1 = LOAD \"top_5000.txt\"\n",
@@ -177,35 +155,12 @@ TEST_CASE("WordLang Tests 2", "[WordLang]") {
     "[aware]\n"
   };
 
-  for (size_t i = 0; i < input.size(); ++i) {
-    std::ostringstream oss;
-    std::streambuf* oldCoutBuf = std::cout.rdbuf();
-    std::cout.rdbuf(oss.rdbuf());
-
-    wordLang.parse(input[i]);
-
-    std::cout.rdbuf(oldCoutBuf);
-
-    std::string actualOutput = oss.str();
-    std::string expected = output_result[i];
-
-    // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
-    if(DEBUG_MODE) {
-      std::cout << "Input:    " << input[i];
-      std::cout << "Expected: " << expected;
-      std::cout << "Actual:   " << actualOutput;
-      std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
-    }
-    
-    CHECK(actualOutput == expected);
-  }
+  test_function(input, output_result);
 
 }
 
 
 TEST_CASE("WordLang Tests 3", "[WordLang]") {
-
-  cse::WordLang wordLang;
 
   std::vector<std::string> input = {
     "LIST list1 = LOAD \"Ofile1.txt\"\n",
@@ -229,33 +184,10 @@ TEST_CASE("WordLang Tests 3", "[WordLang]") {
     "[apple]\n"
   };
 
-  for (size_t i = 0; i < input.size(); ++i) {
-    std::ostringstream oss;
-    std::streambuf* oldCoutBuf = std::cout.rdbuf();
-    std::cout.rdbuf(oss.rdbuf());
-
-    wordLang.parse(input[i]);
-
-    std::cout.rdbuf(oldCoutBuf);
-
-    std::string actualOutput = oss.str();
-    std::string expected = output_result[i];
-
-    // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
-    if(DEBUG_MODE) {
-      std::cout << "Input:    " << input[i];
-      std::cout << "Expected: " << expected;
-      std::cout << "Actual:   " << actualOutput;
-      std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
-    }
-    
-    CHECK(actualOutput == expected);
-  }
+  test_function(input, output_result);
 }
 
 TEST_CASE("WordLang Tests 4", "[WordLang]") {
-
-  cse::WordLang wordLang;
 
   std::vector<std::string> input = {
     "LIST list1 = LOAD \"top_1000_wordle.txt\"\n",
@@ -277,33 +209,10 @@ TEST_CASE("WordLang Tests 4", "[WordLang]") {
     "[moral, coral, royal]\n"
   };
 
-  for (size_t i = 0; i < input.size(); ++i) {
-    std::ostringstream oss;
-    std::streambuf* oldCoutBuf = std::cout.rdbuf();
-    std::cout.rdbuf(oss.rdbuf());
-
-    wordLang.parse(input[i]);
-
-    std::cout.rdbuf(oldCoutBuf);
-
-    std::string actualOutput = oss.str();
-    std::string expected = output_result[i];
-
-    // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
-    if(DEBUG_MODE) {
-      std::cout << "Input:    " << input[i];
-      std::cout << "Expected: " << expected;
-      std::cout << "Actual:   " << actualOutput;
-      std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
-    }
-    
-    CHECK(actualOutput == expected);
-  }
+  test_function(input, output_result);
 }
 
 TEST_CASE("Intersection and Filter Tests", "[WordLang]") {
-
-  cse::WordLang wordLang;
 
   std::vector<std::string> input = {
     "LIST a = LOAD \"intersect_file1.txt\"\n",
@@ -323,34 +232,10 @@ TEST_CASE("Intersection and Filter Tests", "[WordLang]") {
     "[table, fable, label, stable]\n"
   };
 
-  for (size_t i = 0; i < input.size(); ++i) {
-    std::ostringstream oss;
-    std::streambuf* oldCoutBuf = std::cout.rdbuf();
-    std::cout.rdbuf(oss.rdbuf());
-
-    wordLang.parse(input[i]);
-
-    std::cout.rdbuf(oldCoutBuf);
-
-    std::string actualOutput = oss.str();
-    std::string expected = output_result[i];
-
-    // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
-    if(DEBUG_MODE) {
-      std::cout << "Input:    " << input[i];
-      std::cout << "Expected: " << expected;
-      std::cout << "Actual:   " << actualOutput;
-      std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
-    }
-    
-    CHECK(actualOutput == expected);
-  }
+  test_function(input, output_result);
 }
 
 TEST_CASE("Copy and Reset Tests", "[WordLang]") {
-
-  cse::WordLang wordLang;
-
   std::vector<std::string> input = {
     "LIST original = LOAD \"reset_test.txt\"\n",
     "LIST backup = COPY original\n",
@@ -375,32 +260,10 @@ TEST_CASE("Copy and Reset Tests", "[WordLang]") {
     "[eater, rathe, hater, earth, heart]\n"
   };
 
-  for (size_t i = 0; i < input.size(); ++i) {
-    std::ostringstream oss;
-    std::streambuf* oldCoutBuf = std::cout.rdbuf();
-    std::cout.rdbuf(oss.rdbuf());
-
-    wordLang.parse(input[i]);
-
-    std::cout.rdbuf(oldCoutBuf);
-
-    std::string actualOutput = oss.str();
-    std::string expected = output_result[i];
-
-    // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
-    if(DEBUG_MODE) {
-      std::cout << "Input:    " << input[i];
-      std::cout << "Expected: " << expected;
-      std::cout << "Actual:   " << actualOutput;
-      std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
-    }
-    
-    CHECK(actualOutput == expected);
-  }
+  test_function(input, output_result);
 }
 
 TEST_CASE("Wordle Command Tests", "[WordLang]") {
-  cse::WordLang wordLang;
 
   std::vector<std::string> input = {
     "LIST list1 = LOAD \"wordle_file.txt\"\n",
@@ -415,33 +278,11 @@ TEST_CASE("Wordle Command Tests", "[WordLang]") {
   };
 
 
-  for (size_t i = 0; i < input.size(); ++i) {
-    std::ostringstream oss;
-    std::streambuf* oldCoutBuf = std::cout.rdbuf();
-    std::cout.rdbuf(oss.rdbuf());
-
-    wordLang.parse(input[i]);
-
-    std::cout.rdbuf(oldCoutBuf);
-
-    std::string actualOutput = oss.str();
-    std::string expected = output_result[i];
-
-    // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
-    if(DEBUG_MODE) {
-      std::cout << "Input:    " << input[i];
-      std::cout << "Expected: " << expected;
-      std::cout << "Actual:   " << actualOutput;
-      std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
-    }
-    
-    CHECK(actualOutput == expected);
-  }
+  test_function(input, output_result);
 }
 
 TEST_CASE("LOAD and PRINT tests", "[WordLang]") {
   SECTION("LIST LOAD and PRINT command") {
-    cse::WordLang wordLang;
 
     std::vector<std::string> input = {
       "LIST list1 = LOAD \"file1.txt\"\n",
@@ -461,30 +302,8 @@ TEST_CASE("LOAD and PRINT tests", "[WordLang]") {
       "[Test, key, fork, word, hello, why]\n"
     };
 
-
-    for (size_t i = 0; i < input.size(); ++i) {
-        std::ostringstream oss;
-        std::streambuf* oldCoutBuf = std::cout.rdbuf();
-        std::cout.rdbuf(oss.rdbuf());
-    
-        wordLang.parse(input[i]);
-    
-        std::cout.rdbuf(oldCoutBuf);
-    
-        std::string actualOutput = oss.str();
-        std::string expected = output_result[i];
-
-        // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
-        if(DEBUG_MODE) {
-          std::cout << "Input:    " << input[i];
-          std::cout << "Expected: " << expected;
-          std::cout << "Actual:   " << actualOutput;
-          std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
-        }
-        
-        CHECK(actualOutput == expected);
-    }
-  };
+    test_function(input, output_result);
+  }
 }
 
 // Got help from LLM to write this test case
@@ -610,7 +429,6 @@ TEST_CASE("setLengthRestriction Tests", "[WordLang]") {
 }
 
 TEST_CASE("setCurrent Tests", "[WordLang]") {
-  cse::WordLang wordLang;
 
   std::vector<std::string> input = {
       "LIST list1 = LOAD\"file1.txt\"\n",
@@ -628,24 +446,10 @@ TEST_CASE("setCurrent Tests", "[WordLang]") {
     "[Info]: Incorrect Syntax: There must be list type to set as current.\n"
   };
 
-  for (size_t i = 0; i < input.size(); ++i) {
-      std::ostringstream oss;
-      std::streambuf* oldCoutBuf = std::cout.rdbuf();
-      std::cout.rdbuf(oss.rdbuf());
-
-      wordLang.parse(input[i]);
-
-      std::cout.rdbuf(oldCoutBuf);
-
-      std::string actualOutput = oss.str();
-      std::string expected = output_result[i];
-
-      CHECK(actualOutput == expected);
-  }
+  test_function(input, output_result);
 }
-TEST_CASE("save Tests", "[WordLang]") {
-  cse::WordLang wordLang;
 
+TEST_CASE("save Tests", "[WordLang]") {
   std::vector<std::string> input = {
       "LIST list1 = LOAD \"file1.txt\"\n",
       "SAVE list1 \"output.txt\"\n",
@@ -658,25 +462,10 @@ TEST_CASE("save Tests", "[WordLang]") {
       "[Info]: List 'nonexistent' does not exist\n"
   };
 
-  for (size_t i = 0; i < input.size(); ++i) {
-      std::ostringstream oss;
-      std::streambuf* oldCoutBuf = std::cout.rdbuf();
-      std::cout.rdbuf(oss.rdbuf());
-
-      wordLang.parse(input[i]);
-
-      std::cout.rdbuf(oldCoutBuf);
-
-      std::string actualOutput = oss.str();
-      std::string expected = output_result[i];
-      std::cout << actualOutput << std::endl;
-      CHECK(actualOutput == expected);
-  }
+  test_function(input, output_result);
 }
 
 TEST_CASE("add Tests", "[WordLang]") {
-  cse::WordLang wordLang;
-
   std::vector<std::string> input = {
       "LIST list1 = LOAD \"file1.txt\"\n",
       "ADD list1 \"word1 word2 word3\"\n",
@@ -691,21 +480,9 @@ TEST_CASE("add Tests", "[WordLang]") {
       "[Info]: Words added to list 'list1'\n"
   };
 
-  for (size_t i = 0; i < input.size(); ++i) {
-      std::ostringstream oss;
-      std::streambuf* oldCoutBuf = std::cout.rdbuf();
-      std::cout.rdbuf(oss.rdbuf());
-
-      wordLang.parse(input[i]);
-
-      std::cout.rdbuf(oldCoutBuf);
-
-      std::string actualOutput = oss.str();
-      std::string expected = output_result[i];
-
-      CHECK(actualOutput == expected);
-  }
+  test_function(input, output_result);
 }
+
 TEST_CASE("setLengthRestriction: No current lists and star restore", "[WordLang]") {
   cse::WordLang wordLang;
 
@@ -792,8 +569,6 @@ TEST_CASE("add: Add to empty, duplicate, and empty string", "[WordLang]") {
 }
 TEST_CASE("Contains ANY tests", "[WordLang]") 
 {
-  cse::WordLang wordLang;
-
   std::vector<std::string> input = {
       "LIST list1 = LOAD\"file2.txt\"\n",
       "CONTAINS_ANY \"lo\"\n",
@@ -806,26 +581,11 @@ TEST_CASE("Contains ANY tests", "[WordLang]")
     "[hello, cost, host, toast, boats]\n",
   };
 
-  for (size_t i = 0; i < input.size(); ++i) {
-      std::ostringstream oss;
-      std::streambuf* oldCoutBuf = std::cout.rdbuf();
-      std::cout.rdbuf(oss.rdbuf());
-
-      wordLang.parse(input[i]);
-
-      std::cout.rdbuf(oldCoutBuf);
-
-      std::string actualOutput = oss.str();
-      std::string expected = output_result[i];
-
-      CHECK(actualOutput == expected);
-  }
+  test_function(input, output_result);
 }
 
 TEST_CASE("Contains ALL tests", "[WordLang]") 
 {
-  cse::WordLang wordLang;
-
   std::vector<std::string> input = {
       "LIST list1 = LOAD\"file2.txt\"\n",
       "CONTAINS_ALL \"llo\"\n",
@@ -838,25 +598,10 @@ TEST_CASE("Contains ALL tests", "[WordLang]")
     "[hello]\n",
   };
 
-  for (size_t i = 0; i < input.size(); ++i) {
-      std::ostringstream oss;
-      std::streambuf* oldCoutBuf = std::cout.rdbuf();
-      std::cout.rdbuf(oss.rdbuf());
-
-      wordLang.parse(input[i]);
-
-      std::cout.rdbuf(oldCoutBuf);
-
-      std::string actualOutput = oss.str();
-      std::string expected = output_result[i];
-
-      CHECK(actualOutput == expected);
-  }
+  test_function(input, output_result);
 }
 TEST_CASE("Not Contains tests", "[WordLang]") 
 {
-  cse::WordLang wordLang;
-
   std::vector<std::string> input = {
       "LIST list1 = LOAD\"file1.txt\"\n",
       "NOT_CONTAINS \"a\"\n",
@@ -869,26 +614,11 @@ TEST_CASE("Not Contains tests", "[WordLang]")
     "[books, boost, who, where, why, hello, word, fork, key, Test]\n",
   };
 
-  for (size_t i = 0; i < input.size(); ++i) {
-      std::ostringstream oss;
-      std::streambuf* oldCoutBuf = std::cout.rdbuf();
-      std::cout.rdbuf(oss.rdbuf());
-
-      wordLang.parse(input[i]);
-
-      std::cout.rdbuf(oldCoutBuf);
-
-      std::string actualOutput = oss.str();
-      std::string expected = output_result[i];
-
-      CHECK(actualOutput == expected);
-  }
+  test_function(input, output_result);
 }
 
 TEST_CASE("Get tests", "[WordLang]") 
 {
-  cse::WordLang wordLang;
-
   std::vector<std::string> input = {
       "LIST list1 = LOAD\"file1.txt\"\n",
       "GET \"_oo__\"\n",
@@ -901,26 +631,12 @@ TEST_CASE("Get tests", "[WordLang]")
     "[books, boost]\n",
   };
 
-  for (size_t i = 0; i < input.size(); ++i) {
-      std::ostringstream oss;
-      std::streambuf* oldCoutBuf = std::cout.rdbuf();
-      std::cout.rdbuf(oss.rdbuf());
-
-      wordLang.parse(input[i]);
-
-      std::cout.rdbuf(oldCoutBuf);
-
-      std::string actualOutput = oss.str();
-      std::string expected = output_result[i];
-
-      CHECK(actualOutput == expected);
-  }
+  test_function(input, output_result);
 }
 
 TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
 
   SECTION("Parse LIST and LOAD command") {
-    cse::WordLang wordLang;
 
     std::vector<std::string> input = {
       "LIST = LOAD \"File2\"\n",
@@ -944,34 +660,10 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Error : File can not be loaded.\n"
     };
 
-
-    for (size_t i = 0; i < input.size(); ++i) {
-        std::ostringstream oss;
-        std::streambuf* oldCoutBuf = std::cout.rdbuf();
-        std::cout.rdbuf(oss.rdbuf());
-    
-        wordLang.parse(input[i]);
-    
-        std::cout.rdbuf(oldCoutBuf);
-    
-        std::string actualOutput = oss.str();
-        std::string expected = output_result[i];
-
-        // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
-        if(DEBUG_MODE) {
-          std::cout << "Input:    " << input[i];
-          std::cout << "Expected: " << expected;
-          std::cout << "Actual:   " << actualOutput;
-          std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
-        }
-        
-        CHECK(actualOutput == expected);
-    }
-  };
+    test_function(input, output_result);
+  }
 
   SECTION("Parse LIST COMBINE command") {
-    cse::WordLang wordLang;
-
     std::vector<std::string> input = {
       "LIST list1 = \"File2\"\n",
       "LIST list1 = combined \"File2\"\n",
@@ -990,29 +682,8 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Incorrect Syntax: There must be lists to be combined.\n"
     };
 
-    for (size_t i = 0; i < input.size(); ++i) {
-        std::ostringstream oss;
-        std::streambuf* oldCoutBuf = std::cout.rdbuf();
-        std::cout.rdbuf(oss.rdbuf());
-    
-        wordLang.parse(input[i]);
-    
-        std::cout.rdbuf(oldCoutBuf);
-    
-        std::string actualOutput = oss.str();
-        std::string expected = output_result[i];
-
-        // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
-        if(DEBUG_MODE) {
-          std::cout << "Input:    " << input[i];
-          std::cout << "Expected: " << expected;
-          std::cout << "Actual:   " << actualOutput;
-          std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
-        }
-        
-        CHECK(actualOutput == expected);
-    }
-  };
+    test_function(input, output_result);
+  }
 
   SECTION("Parse LIST DIFFERENCE command") {
     cse::WordLang wordLang;
@@ -1035,32 +706,10 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Incorrect Syntax: There must be lists to find differences.\n"
     };
 
-    for (size_t i = 0; i < input.size(); ++i) {
-        std::ostringstream oss;
-        std::streambuf* oldCoutBuf = std::cout.rdbuf();
-        std::cout.rdbuf(oss.rdbuf());
-    
-        wordLang.parse(input[i]);
-    
-        std::cout.rdbuf(oldCoutBuf);
-    
-        std::string actualOutput = oss.str();
-        std::string expected = output_result[i];
-
-        // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
-        if(DEBUG_MODE) {
-          std::cout << "Input:    " << input[i];
-          std::cout << "Expected: " << expected;
-          std::cout << "Actual:   " << actualOutput;
-          std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
-        }
-        
-        CHECK(actualOutput == expected);
-    }
-  };
+    test_function(input, output_result);
+  }
 
   SECTION("Parse LIST INTERSECTION command") {
-    cse::WordLang wordLang;
 
     std::vector<std::string> input = {
       "LIST list1 = \"File2\"\n",
@@ -1080,33 +729,10 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Incorrect Syntax: There must be lists to find intersections.\n"
     };
 
-    for (size_t i = 0; i < input.size(); ++i) {
-        std::ostringstream oss;
-        std::streambuf* oldCoutBuf = std::cout.rdbuf();
-        std::cout.rdbuf(oss.rdbuf());
-    
-        wordLang.parse(input[i]);
-    
-        std::cout.rdbuf(oldCoutBuf);
-    
-        std::string actualOutput = oss.str();
-        std::string expected = output_result[i];
-
-        // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
-        if(DEBUG_MODE) {
-          std::cout << "Input:    " << input[i];
-          std::cout << "Expected: " << expected;
-          std::cout << "Actual:   " << actualOutput;
-          std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
-        }
-        
-        CHECK(actualOutput == expected);
-    }
-  };
+    test_function(input, output_result);
+  }
 
   SECTION("Parse LIST COPY command") {
-    cse::WordLang wordLang;
-
     std::vector<std::string> input = {
       "LIST list1 = \"File2\"\n",
       "LIST list1 = copy list1\n",
@@ -1121,33 +747,10 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Incorrect Syntax: Missing list name to copy.\n"
     };
 
-    for (size_t i = 0; i < input.size(); ++i) {
-        std::ostringstream oss;
-        std::streambuf* oldCoutBuf = std::cout.rdbuf();
-        std::cout.rdbuf(oss.rdbuf());
-    
-        wordLang.parse(input[i]);
-    
-        std::cout.rdbuf(oldCoutBuf);
-    
-        std::string actualOutput = oss.str();
-        std::string expected = output_result[i];
-
-        // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
-        if(DEBUG_MODE) {
-          std::cout << "Input:    " << input[i];
-          std::cout << "Expected: " << expected;
-          std::cout << "Actual:   " << actualOutput;
-          std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
-        }
-        
-        CHECK(actualOutput == expected);
-    }
-  };
+    test_function(input, output_result);
+  }
 
   SECTION("Parse PRINT command") {
-    cse::WordLang wordLang;
-
     std::vector<std::string> input = {
       "PRINT\n",
       "print\n",
@@ -1164,33 +767,10 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Incorrect Syntax: Incorrect identifier type, must be a number or \"ALL\"\n"
     };
 
-    for (size_t i = 0; i < input.size(); ++i) {
-        std::ostringstream oss;
-        std::streambuf* oldCoutBuf = std::cout.rdbuf();
-        std::cout.rdbuf(oss.rdbuf());
-    
-        wordLang.parse(input[i]);
-    
-        std::cout.rdbuf(oldCoutBuf);
-    
-        std::string actualOutput = oss.str();
-        std::string expected = output_result[i];
-
-        // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
-        if(DEBUG_MODE) {
-          std::cout << "Input:    " << input[i];
-          std::cout << "Expected: " << expected;
-          std::cout << "Actual:   " << actualOutput;
-          std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
-        }
-        
-        CHECK(actualOutput == expected);
-    }
-  };
+    test_function(input, output_result);
+  }
 
   SECTION("Parse SET_CURRENT command") {
-    cse::WordLang wordLang;
-
     std::vector<std::string> input = {
       "Set_Current\n",
       "SETCURRENT\n",
@@ -1205,33 +785,10 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Incorrect Syntax: There must be list type to set as current.\n"
     };
 
-    for (size_t i = 0; i < input.size(); ++i) {
-        std::ostringstream oss;
-        std::streambuf* oldCoutBuf = std::cout.rdbuf();
-        std::cout.rdbuf(oss.rdbuf());
-    
-        wordLang.parse(input[i]);
-    
-        std::cout.rdbuf(oldCoutBuf);
-    
-        std::string actualOutput = oss.str();
-        std::string expected = output_result[i];
-
-        // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
-        if(DEBUG_MODE) {
-          std::cout << "Input:    " << input[i];
-          std::cout << "Expected: " << expected;
-          std::cout << "Actual:   " << actualOutput;
-          std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
-        }
-        
-        CHECK(actualOutput == expected);
-    }
+    test_function(input, output_result);
   };
 
   SECTION("Parse ADD command") {
-    cse::WordLang wordLang;
-
     std::vector<std::string> input = {
       "add\n",
       "ADD \"test words list\"\n",
@@ -1246,32 +803,10 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Incorrect Syntax: Missing listname identifier.\n"
     };
 
-    for (size_t i = 0; i < input.size(); ++i) {
-        std::ostringstream oss;
-        std::streambuf* oldCoutBuf = std::cout.rdbuf();
-        std::cout.rdbuf(oss.rdbuf());
-    
-        wordLang.parse(input[i]);
-    
-        std::cout.rdbuf(oldCoutBuf);
-    
-        std::string actualOutput = oss.str();
-        std::string expected = output_result[i];
-
-        // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
-        if(DEBUG_MODE) {
-          std::cout << "Input:    " << input[i];
-          std::cout << "Expected: " << expected;
-          std::cout << "Actual:   " << actualOutput;
-          std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
-        }
-        
-        CHECK(actualOutput == expected);
-    }
-  };
+    test_function(input, output_result);
+  }
 
   SECTION("Parse SAVE command") {
-    cse::WordLang wordLang;
 
     std::vector<std::string> input = {
       "save\n",
@@ -1287,33 +822,10 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Incorrect Syntax: Missing listname identifier.\n"
     };
 
-    for (size_t i = 0; i < input.size(); ++i) {
-        std::ostringstream oss;
-        std::streambuf* oldCoutBuf = std::cout.rdbuf();
-        std::cout.rdbuf(oss.rdbuf());
-    
-        wordLang.parse(input[i]);
-    
-        std::cout.rdbuf(oldCoutBuf);
-    
-        std::string actualOutput = oss.str();
-        std::string expected = output_result[i];
-
-        // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
-        if(DEBUG_MODE) {
-          std::cout << "Input:    " << input[i];
-          std::cout << "Expected: " << expected;
-          std::cout << "Actual:   " << actualOutput;
-          std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
-        }
-        
-        CHECK(actualOutput == expected);
-    }
-  };
+    test_function(input, output_result);
+  }
 
   SECTION("Parse LENGTH command") {
-    cse::WordLang wordLang;
-
     std::vector<std::string> input = {
       "Length\n",
       "LENGTH \"file1\"\n",
@@ -1334,33 +846,10 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Incorrect Syntax: Length value must be number or \"*\"\n"
     };
 
-    for (size_t i = 0; i < input.size(); ++i) {
-        std::ostringstream oss;
-        std::streambuf* oldCoutBuf = std::cout.rdbuf();
-        std::cout.rdbuf(oss.rdbuf());
-    
-        wordLang.parse(input[i]);
-    
-        std::cout.rdbuf(oldCoutBuf);
-    
-        std::string actualOutput = oss.str();
-        std::string expected = output_result[i];
-
-        // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
-        if(DEBUG_MODE) {
-          std::cout << "Input:    " << input[i];
-          std::cout << "Expected: " << expected;
-          std::cout << "Actual:   " << actualOutput;
-          std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
-        }
-        
-        CHECK(actualOutput == expected);
-    }
+    test_function(input, output_result);
   };
 
   SECTION("Parse CONTAINS_ANY command") {
-    cse::WordLang wordLang;
-
     std::vector<std::string> input = {
       "Contains_any\n",
       "CONTAINS_ANY\n",
@@ -1373,33 +862,10 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Incorrect Syntax: CONTAINS_ANY must have string of letters.\n"
     };
 
-    for (size_t i = 0; i < input.size(); ++i) {
-        std::ostringstream oss;
-        std::streambuf* oldCoutBuf = std::cout.rdbuf();
-        std::cout.rdbuf(oss.rdbuf());
-    
-        wordLang.parse(input[i]);
-    
-        std::cout.rdbuf(oldCoutBuf);
-    
-        std::string actualOutput = oss.str();
-        std::string expected = output_result[i];
-
-        // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
-        if(DEBUG_MODE) {
-          std::cout << "Input:    " << input[i];
-          std::cout << "Expected: " << expected;
-          std::cout << "Actual:   " << actualOutput;
-          std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
-        }
-        
-        CHECK(actualOutput == expected);
-    }
-  };
+    test_function(input, output_result);
+  }
 
   SECTION("Parse CONTAINS_ALL command") {
-    cse::WordLang wordLang;
-
     std::vector<std::string> input = {
       "Contains_all\n",
       "CONTAINS_ALL\n",
@@ -1412,33 +878,10 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Incorrect Syntax: CONTAINS_ALL must have string of letters.\n"
     };
 
-    for (size_t i = 0; i < input.size(); ++i) {
-        std::ostringstream oss;
-        std::streambuf* oldCoutBuf = std::cout.rdbuf();
-        std::cout.rdbuf(oss.rdbuf());
-    
-        wordLang.parse(input[i]);
-    
-        std::cout.rdbuf(oldCoutBuf);
-    
-        std::string actualOutput = oss.str();
-        std::string expected = output_result[i];
-
-        // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
-        if(DEBUG_MODE) {
-          std::cout << "Input:    " << input[i];
-          std::cout << "Expected: " << expected;
-          std::cout << "Actual:   " << actualOutput;
-          std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
-        }
-        
-        CHECK(actualOutput == expected);
-    }
-  };
+    test_function(input, output_result);
+  }
 
   SECTION("Parse NOT_CONTAINS command") {
-    cse::WordLang wordLang;
-
     std::vector<std::string> input = {
       "Not_Contains\n",
       "NOT_CONTAINS\n",
@@ -1451,33 +894,10 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Incorrect Syntax: NOT_CONTAINS must have string of letters.\n"
     };
 
-    for (size_t i = 0; i < input.size(); ++i) {
-        std::ostringstream oss;
-        std::streambuf* oldCoutBuf = std::cout.rdbuf();
-        std::cout.rdbuf(oss.rdbuf());
-    
-        wordLang.parse(input[i]);
-    
-        std::cout.rdbuf(oldCoutBuf);
-    
-        std::string actualOutput = oss.str();
-        std::string expected = output_result[i];
-
-        // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
-        if(DEBUG_MODE) {
-          std::cout << "Input:    " << input[i];
-          std::cout << "Expected: " << expected;
-          std::cout << "Actual:   " << actualOutput;
-          std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
-        }
-        
-        CHECK(actualOutput == expected);
-    }
-  };
+    test_function(input, output_result);
+  }
 
   SECTION("Parse GET command") {
-    cse::WordLang wordLang;
-
     std::vector<std::string> input = {
       "get\n",
       "GET\n",
@@ -1492,29 +912,8 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Incorrect Syntax: GET must have string of letters or wildcards.\n"
     };
 
-    for (size_t i = 0; i < input.size(); ++i) {
-        std::ostringstream oss;
-        std::streambuf* oldCoutBuf = std::cout.rdbuf();
-        std::cout.rdbuf(oss.rdbuf());
-    
-        wordLang.parse(input[i]);
-    
-        std::cout.rdbuf(oldCoutBuf);
-    
-        std::string actualOutput = oss.str();
-        std::string expected = output_result[i];
-
-        // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
-        if(DEBUG_MODE) {
-          std::cout << "Input:    " << input[i];
-          std::cout << "Expected: " << expected;
-          std::cout << "Actual:   " << actualOutput;
-          std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
-        }
-        
-        CHECK(actualOutput == expected);
-    }
-  };
+    test_function(input, output_result);
+  }
 
   SECTION("Parse RESET command") {
     cse::WordLang wordLang;
@@ -1533,33 +932,10 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: List list2 does not exist\n"
     };
 
-    for (size_t i = 0; i < input.size(); ++i) {
-        std::ostringstream oss;
-        std::streambuf* oldCoutBuf = std::cout.rdbuf();
-        std::cout.rdbuf(oss.rdbuf());
-    
-        wordLang.parse(input[i]);
-    
-        std::cout.rdbuf(oldCoutBuf);
-    
-        std::string actualOutput = oss.str();
-        std::string expected = output_result[i];
-
-        // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
-        if(DEBUG_MODE) {
-          std::cout << "Input:    " << input[i];
-          std::cout << "Expected: " << expected;
-          std::cout << "Actual:   " << actualOutput;
-          std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
-        }
-        
-        CHECK(actualOutput == expected);
-    }
-  };
+    test_function(input, output_result);
+  }
 
   SECTION("Parse WORDLE command") {
-    cse::WordLang wordLang;
-
     std::vector<std::string> input = {
       "wordle (\"print\",\"bbgyb\")\n",
       "WORDLE \"print\",\"bbgyb\"\n",
@@ -1580,27 +956,6 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Incorrect Syntax: Encountered unknown symbols after \"WORDLE\" token.\n"
     };
 
-    for (size_t i = 0; i < input.size(); ++i) {
-        std::ostringstream oss;
-        std::streambuf* oldCoutBuf = std::cout.rdbuf();
-        std::cout.rdbuf(oss.rdbuf());
-
-        wordLang.parse(input[i]);
-
-        std::cout.rdbuf(oldCoutBuf);
-
-        std::string actualOutput = oss.str();
-        std::string expected = output_result[i];
-
-        // If DEBUG_MODE flag set, print out input output and Pass or Fail to test
-        if(DEBUG_MODE) {
-          std::cout << "Input:    " << input[i];
-          std::cout << "Expected: " << expected;
-          std::cout << "Actual:   " << actualOutput;
-          std::cout << ((actualOutput == expected) ? "[\033[32mPASS\033[0m]\n\n" : "[\033[31mFAIL\033[0m]\n\n");
-        }
-
-        CHECK(actualOutput == expected);
-    }
-  };  
+    test_function(input, output_result);
+  }
 }
