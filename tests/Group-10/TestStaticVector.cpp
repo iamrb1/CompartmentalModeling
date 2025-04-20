@@ -1,5 +1,5 @@
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
-#include "../../Group-10/Classes/StaticVector.h" 
+#include "../../Group-10/Classes/StaticVector.hpp" 
 
 /// Tests for StaticVector functionality
 
@@ -8,6 +8,10 @@ TEST_CASE("StaticVector operations", "[StaticVector]") {
 
     SECTION("Empty vector") {
         REQUIRE(sv.size() == 0);
+    }
+
+    SECTION("Max size") {
+        REQUIRE(sv.max_size() == 5);
     }
 
     SECTION("Pushing elements") {
@@ -27,16 +31,22 @@ TEST_CASE("StaticVector operations", "[StaticVector]") {
     }
 
     SECTION("Accessing front and back") {
+        // Push multiple items to ensure front() and back() work correctly.
         sv.push_back(10);
         sv.push_back(20);
+        sv.push_back(30);
         REQUIRE(sv.front() == 10);
-        REQUIRE(sv.back() == 20);
+        REQUIRE(sv.back() == 30);
     }
 
     SECTION("Clearing vector") {
         sv.push_back(1);
         sv.clear();
         REQUIRE(sv.empty());
+        // After clearing, we should be able to add new elements.
+        sv.push_back(2);
+        REQUIRE(sv.size() == 1);
+        REQUIRE(sv.front() == 2);
     }
 
     SECTION("ToVector conversion") {
@@ -46,5 +56,10 @@ TEST_CASE("StaticVector operations", "[StaticVector]") {
         REQUIRE(std_vec.size() == 2);
         REQUIRE(std_vec[0] == 1);
         REQUIRE(std_vec[1] == 2);
+    }
+
+    SECTION("Access out-of-range element") {
+        // Trying to access an element in an empty vector should throw.
+        REQUIRE_THROWS(sv.at(0));
     }
 }

@@ -24,6 +24,20 @@ void bind() {
 
 		}
 
+    var moveForwardButton = document.getElementById("moveForwardButton");
+    if (moveForwardButton) {
+          moveForwardButton.addEventListener(
+              "click",
+              function() {Module._call_moveSlide(true); });
+        }
+
+    var moveBackButton = document.getElementById("moveBackButton");
+        if (moveBackButton) {
+          moveBackButton.addEventListener(
+              "click",
+              function() {Module._call_moveSlide(false); });
+        }
+
     var rewindButton = document.getElementById("reverseButton");
     if (rewindButton) {
 			rewindButton.addEventListener(
@@ -79,30 +93,96 @@ void bind() {
 	if (addTransition) {
 			addTransition.addEventListener(
 				"click",
-				function() {Module._call_addSlideChangeEvent(); });
-
-
+				function() {
+				const input = prompt("Transition after:");
+				const value = parseInt(input, 10);
+				Module.ccall("call_addSlideChangeEvent", null,
+							 [ "number" ],
+							 [ value ]);
+			});
 		}
-		// Check if item is being dragged
+
+        // Ability to hit ESC to leave present mode
+        document.addEventListener("keydown", function(e) {
+          if (e.key === "Escape") {
+          	e.preventDefault();
+            Module.ccall(
+                "call_leavePresentation",
+                null,
+                [],
+                []
+            );
+          }
+        });
+
+        // Ability to hit space to skip to next slide
+        document.addEventListener("keydown", function(e) {
+          if (e.code === "Space") {
+            Module.ccall(
+                "call_nextEvent",
+                null,
+                [],
+                []
+            );
+          }
+        });
+
+		// Right click to animate objects
+		document.addEventListener("contextmenu", function(e) {
+		var draggable =
+			  Module.ccall("call_isMoveableObject",  // C++ function name
+						   "boolean",                // return type
+						   ["string"],               // argument types
+						   [e.target.id]             // arguments
+			  );
+
+		  if (draggable) {
+		  	e.preventDefault();
+			animateObject(e.target);
+		  }
+		});
+
+		// Add an event to the right clicked object
+		function animateObject(element) {
+			const slideNum = Module.ccall(
+				"call_getCurrentPos",
+				"number",
+				[],
+				[]
+			);
+
+			const input = prompt("Appear after:");
+			const value = parseInt(input, 10);
+			Module.ccall("call_addObjectEvent", null,
+						 [ "number", "number", "string" ],
+						 [ value, slideNum, element.id.trim() ]);
+			};
+
+        // Check if item is being dragged
 		document.addEventListener(
 			"mousedown", function(e) {
 			  // Check if clicked element is draggable
 			  var draggable =
-				  Module.ccall("call_isMoveableObject",  // C++ function name
-							   "boolean",                // return type
-							   ["string"],               // argument types
-							   [e.target.id]             // arguments
+				  Module.ccall("call_isMoveableObject",
+							   "boolean",
+							   ["string"],
+							   [e.target.id]
 				  );
 
 			  if (draggable) {
-				makeDraggable(e.target);
+				makeDraggable(e.target, e);
 			  }
 			});
 
 		// Function to make an element draggable
-		function makeDraggable(element) {
-		  var offsetX = 0;
-		  var offsetY = 0;
+		function makeDraggable(element, event) {
+		  //Ensure images aren't default dragging - ChatGPT
+		  element.ondragstart = () => false;
+
+          //Calculate mouse offset
+		  var box = element.getBoundingClientRect();
+		  var offsetX = (event.clientX - box.left) / window.innerWidth * 100;
+		  var offsetY = (event.clientY - box.top) / window.innerHeight * 100;
 
 		  // ChatGPT used for new position calculations
 		  document.onmousemove = function(e) {

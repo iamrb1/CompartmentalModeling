@@ -1,6 +1,6 @@
 /**
  * @file WebLayout.cpp
- * @author Mary Holt,Grace Fitzgerald
+ * @author Mary Holt,Grace Fitzgerald, Owen Haiar
  *
  */
 
@@ -8,6 +8,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <algorithm>
 
 namespace cse {
 
@@ -273,7 +274,7 @@ std::string WebLayout::generateID() {
 void WebLayout::activateLayout() {
   auto layoutID = getID();
 
-  std::cout << "Activating:  " << layoutID << std::endl;
+  //std::cout << "Activating:  " << layoutID << std::endl;
 
   EM_ASM(
       {
@@ -293,7 +294,7 @@ void WebLayout::activateLayout() {
 void WebLayout::deactivateLayout() {
   auto layoutID = getID();
 
-  std::cout << "Deactivating:  " << layoutID << std::endl;
+  //std::cout << "Deactivating:  " << layoutID << std::endl;
 
   EM_ASM(
       {
@@ -328,6 +329,20 @@ void WebLayout::toggleImage(const cse::ImageLayout &image) {
       },
       imageID.c_str());
 }
+ImageLayout WebLayout::getImageFromID(const std::string& id) const {
+  if (const auto image = std::ranges::find_if(images,[id](const ImageLayout& im) { return im.image->getID() == id; }); image != images.end()) {
+    return *image;
+  }
+  throw std::runtime_error("Image not found");
+}
+
+TextBoxLayout WebLayout::getTextboxFromID(const std::string& id) const {
+  if (const auto textbox = std::ranges::find_if(textBoxes,[id](const TextBoxLayout& tb) { return tb.textBox->getID() == id; }); textbox != textBoxes.end()) {
+    return *textbox;
+  }
+  throw std::runtime_error("Textbox not found");
+}
+
 
 void WebLayout::toggleTextBox(const cse::TextBoxLayout &textBox) {
   auto textBoxID = textBox.textBox->getID();
