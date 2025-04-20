@@ -1,6 +1,6 @@
 /**
  * @file WebLayout.cpp
- * @author Mary Holt,Grace Fitzgerald
+ * @author Mary Holt,Grace Fitzgerald, Owen Haiar
  *
  */
 
@@ -8,6 +8,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <algorithm>
 
 namespace cse {
 
@@ -123,6 +124,7 @@ const void WebLayout::renderTextBox(const std::string &layoutID,
         var font = UTF8ToString($10);
         var fontSize = $11;
 
+
         // Calculate the ratio to view height/width (1%)
         var widthRatio =
             document.documentElement.clientWidth / MAX_WIDTH_PERCENT;
@@ -167,11 +169,6 @@ const void WebLayout::renderTextBox(const std::string &layoutID,
             p.id = textboxID;
             p.textContent = msg;  // Set raw text content, not HTML
 
-            p.ondblclick = function(event) {
-              const rect = p.getBoundingClientRect();
-              showFormattingMenu(p.id, rect.right + 10, rect.top);
-            };
-
             // Apply styles
             p.style.visibility = "inherit";
             p.style.position = "absolute";
@@ -185,6 +182,8 @@ const void WebLayout::renderTextBox(const std::string &layoutID,
             p.style.color = color;
             p.style.fontFamily = font;
             p.style.fontSize = fontSize + "px";
+            p.style.resize = "both";
+            p.style.overflow = "auto";
 
             layoutDiv.appendChild(p);
           }
@@ -251,12 +250,34 @@ void const WebLayout::renderImage(const std::string &layoutID,
         }
 
         if (layoutDiv) {
-          layoutDiv.innerHTML +=
-              "<img id=" + imageID + " src='" + msg +
-              "' style='visibility: inherit; position: absolute; left: " + x +
-              "vw; top: " + y +
-              "vh; margin: 0; object-fit: contain; width:" + width +
-              "vw; height:" + height + "vh;' />";
+          //layoutDiv.innerHTML +=
+          //    "<img id=" + imageID + " src='" + msg +
+          //        "' style='visibility: inherit; position: absolute; left: " + x + "vw; top: " + y +
+          //        "vh; margin: 0; object-fit: contain; width:" + width +
+          //        "vw; height:" + height + "vh; resize: both; overflow: auto;' />";
+
+        // Have to use div instead of img for resizing - Thanks CHATGPT for teaching me <3
+        var div = document.createElement("div");
+        div.className = "image";
+        div.id = imageID;
+
+        // Apply styles
+        div.style.position = "absolute";
+        div.style.left = x + "vw";
+        div.style.top = y + "vh";
+        div.style.width = width + "vw";
+        div.style.height = height + "vh";
+        div.style.border = "1px solid black";
+        div.style.borderRadius = "5px";
+        div.style.backgroundImage = 'url(' + msg + ')';
+        div.style.backgroundSize = "cover";
+        div.style.backgroundPosition = "center";
+        div.style.resize = "both";
+        div.style.overflow = "auto";
+        div.style.zIndex = "1";
+
+        layoutDiv.appendChild(div);
+
         }
       },
       layoutID.c_str(), url.c_str(), width, height, x, y, imageID.c_str(),
@@ -278,7 +299,7 @@ std::string WebLayout::generateID() {
 void WebLayout::activateLayout() {
   auto layoutID = getID();
 
-  // std::cout << "Activating:  " << layoutID << std::endl;
+  //std::cout << "Activating:  " << layoutID << std::endl;
 
   EM_ASM(
       {
@@ -298,7 +319,7 @@ void WebLayout::activateLayout() {
 void WebLayout::deactivateLayout() {
   auto layoutID = getID();
 
-  // std::cout << "Deactivating:  " << layoutID << std::endl;
+  //std::cout << "Deactivating:  " << layoutID << std::endl;
 
   EM_ASM(
       {
@@ -322,17 +343,31 @@ void WebLayout::toggleImage(const cse::ImageLayout &image) {
           // flip current visibility
           var visibility = window.getComputedStyle(imageDiv).visibility;
 
-          // console.log(visibility);
-          if (visibility == "hidden") {
+          //console.log(visibility);
+          if(visibility == "hidden") {
             imageDiv.style.visibility = "inherit";
           } else {
             imageDiv.style.visibility = "hidden";
           }
         }
-        // console.log(imageID);
+        //console.log(imageID);
       },
       imageID.c_str());
 }
+ImageLayout WebLayout::getImageFromID(const std::string& id) const {
+  if (const auto image = std::ranges::find_if(images,[id](const ImageLayout& im) { return im.image->getID() == id; }); image != images.end()) {
+    return *image;
+  }
+  throw std::runtime_error("Image not found");
+}
+
+TextBoxLayout WebLayout::getTextboxFromID(const std::string& id) const {
+  if (const auto textbox = std::ranges::find_if(textBoxes,[id](const TextBoxLayout& tb) { return tb.textBox->getID() == id; }); textbox != textBoxes.end()) {
+    return *textbox;
+  }
+  throw std::runtime_error("Textbox not found");
+}
+
 
 void WebLayout::toggleTextBox(const cse::TextBoxLayout &textBox) {
   auto textBoxID = textBox.textBox->getID();
@@ -344,13 +379,12 @@ void WebLayout::toggleTextBox(const cse::TextBoxLayout &textBox) {
         if (textBoxDiv) {
           console.log('Found ', textBoxID);
           // flip current visibility
-          // var visibility = textBoxDiv.style.visibility;
-          // window.getComputedStyle learned through ChatGPT usage when
-          // exploring problem of visibility returning as '' when set to inherit
-          // from parent
+          //var visibility = textBoxDiv.style.visibility;
+          // window.getComputedStyle learned through ChatGPT usage when exploring problem of visibility
+          // returning as '' when set to inherit from parent
           var visibility = window.getComputedStyle(textBoxDiv).visibility;
 
-          if (visibility == "hidden") {
+          if(visibility == "hidden") {
             textBoxDiv.style.visibility = "inherit";
           } else {
             textBoxDiv.style.visibility = "hidden";
@@ -362,6 +396,7 @@ void WebLayout::toggleTextBox(const cse::TextBoxLayout &textBox) {
       textBoxID.c_str());
 }
 
+
 /**
  * Converts image attributes into html
  * @param id : Object id
@@ -369,15 +404,35 @@ void WebLayout::toggleTextBox(const cse::TextBoxLayout &textBox) {
  * @param newY : New y value location for object to be set at
  */
 void WebLayout::setPosition(std::string id, int newX, int newY) {
-  for (auto &tbl : textBoxes) {
+  for (auto& tbl : textBoxes) {
     if (tbl.textBox->getID() == id) {
       tbl.setPosition(newX, newY);
     }
   }
 
-  for (auto &imgl : images) {
+  for (auto& imgl : images) {
     if (imgl.image->getID() == id) {
       imgl.setPosition(newX, newY);
+    }
+  }
+}
+
+/**
+ * Converts image attributes into html
+ * @param id : Object id
+ * @param newWidth : New width for object
+ * @param newHeight : New height for object
+ */
+void WebLayout::setSize(std::string id, int newWidth, int newHeight) {
+  for (auto& tbl : textBoxes) {
+    if (tbl.textBox->getID() == id) {
+      tbl.textBox->resize(newWidth, newHeight);
+    }
+  }
+
+  for (auto& imgl : images) {
+    if (imgl.image->getID() == id) {
+      imgl.image->resize(newWidth, newHeight);
     }
   }
 }
@@ -388,13 +443,13 @@ void WebLayout::setPosition(std::string id, int newX, int newY) {
  * @return Boolean indicating if weblayout contains object
  */
 bool WebLayout::contains(std::string id) const {
-  for (const auto &tbl : textBoxes) {
+  for (const auto& tbl : textBoxes) {
     if (tbl.textBox->getID() == id) {
       return true;
     }
   }
 
-  for (const auto &imgl : images) {
+  for (const auto& imgl : images) {
     if (imgl.image->getID() == id) {
       return true;
     }
@@ -402,5 +457,6 @@ bool WebLayout::contains(std::string id) const {
 
   return false;
 }
+
 
 }  // namespace cse

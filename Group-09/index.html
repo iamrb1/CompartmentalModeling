@@ -5,8 +5,8 @@
   <meta charset="UTF-8">
   <title>Presentation App</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css"
-    integrity="sha512-1sCRPdkRXhBV2PBLUdRb4tMg1w2YPf37qatUFeS7zlBy7jJI8Lf4VHwWfZZfpXtYSLy85pkm9GaYVYMfw5BC1A=="
-    crossorigin="anonymous" referrerpolicy="no-referrer">
+        integrity="sha512-1sCRPdkRXhBV2PBLUdRb4tMg1w2YPf37qatUFeS7zlBy7jJI8Lf4VHwWfZZfpXtYSLy85pkm9GaYVYMfw5BC1A=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <style>
     body,
@@ -21,8 +21,7 @@
     .presentation-zone {
       background-color: white;
       width: 100vw;
-      height: 93vh;
-      /* adjusted to make room for taller nav */
+      height: 93vh; /* adjusted to make room for taller nav */
       overflow: hidden;
       box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
       z-index: 1;
@@ -35,8 +34,7 @@
       background-color: #C1D8FF;
       border-top: 1px solid #ccc;
       width: 100%;
-      height: 7vh;
-      /* increased height to prevent crowding */
+      height: 7vh; /* increased height to prevent crowding */
       padding: 0 20px;
       box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
       z-index: 10;
@@ -76,8 +74,7 @@
       padding: 6px 10px;
       font-size: 14px;
       cursor: pointer;
-      white-space: nowrap;
-      /* keep button text on one line */
+      white-space: nowrap;     /* keep button text on one line */
       transition: all 0.2s ease-in-out;
     }
 
@@ -95,6 +92,8 @@
       font-weight: bold;
       font-size: 14px;
       color: #333;
+      text-align: center;
+      white-space: nowrap;
     }
 
     input[type="file"] {
@@ -104,6 +103,23 @@
     /* Menu taken from: https://getbootstrap.com/docs/4.0/components/dropdowns/ */
     .dropdown-menu {
       z-index: 1000;
+      background-color: transparent;
+      border: none;
+    }
+
+    #end-slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      visibility: hidden;
+      color: white;
+      font-size: 6.5em;
     }
 
     /*.divider {*/
@@ -112,7 +128,7 @@
     /*  font-weight: bold;*/
     /*  user-select: none;*/
     /*}*/
-
+    
     #formatting-menu {
       position: absolute;
       z-index: 9999;
@@ -136,9 +152,13 @@
 
 <body>
 
-  <div class="presentation-zone" id="presentation-zone"></div>
-
-  <div id="formatting-menu">
+<div class="presentation-zone" id="presentation-zone">
+  <div id="end-slide">
+    <p>El Fin.</p>
+  </div>
+</div>
+  
+<div id="formatting-menu">
     <label>Font:
       <select id="font-select">
         <option>Arial</option>
@@ -158,118 +178,127 @@
     <button id="cancel-formatting-btn">Cancel</button>
   </div>
 
-  <div style="visibility: visible" id="bottom-nav" class="bottom-nav">
-    <div class="nav-left">
-      <input type="file" id="fileInput" accept=".json">
-    </div>
-    <div class="nav-center">
-      <button id="saveDeck">Save Deck</button>
-      <button id="resizeImageButton">Resize Image</button>
-      <!--    <select id="imageSelectDropdown"></select>-->
-      <input type="file" id="imageInput" accept="image/*" style="display: none;" />
+<div style="visibility: visible" id="bottom-nav" class="bottom-nav">
+  <div class="nav-left">
+    <input type="file" id="fileInput" accept=".json">
+  </div>
+  <div class="nav-center">
+    <button id="saveDeck">Save Deck</button>
+    <!-- <button id="resizeImageButton">Resize Image</button> -->
+<!--    <select id="imageSelectDropdown"></select>-->
+    <input type="file" id="imageInput" accept="image/*" style="display: none;" />
 
-      <button id="stopButton">Stop</button>
-      <button id="startButton">Start</button>
-      <button id="addTransition">Add Transition</button>
-      <div class="btn-group dropup">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
-          aria-haspopup="true" aria-expanded="false">
-          +
-        </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <button id="addImageButton">Add Image</button>
-          <button id="addTextBoxButton">Add TextBox</button>
-          <button id="addNewSlideButton">Add New Slide</button>
-        </div>
+    <button id="stopButton">Stop</button>
+    <button id="startButton">Start</button>
+    <div class="btn-group dropup">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        +
+      </button>
+      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <button id="addImageButton">Add Image</button>
+        <button id="addTextBoxButton">Add TextBox</button>
+        <button id="addNewSlideButton">Add New Slide</button>
+        <button id="addTransition">Add Transition</button>
       </div>
     </div>
-
-    <div class="nav-right">
-      <button id="moveBackButton">Swap<i class="fa-solid fa-angles-left"></i></button>
-      <button id="reverseButton">Last Slide<i class="fa-solid fa-angles-left"></i></button>
-      <span id="slideNumberDisplay">Slide 0 of 0</span>
-      <button id="advanceButton">Next Slide<i class="fa-solid fa-angles-right"></i></button>
-      <button id="moveForwardButton">Swap<i class="fa-solid fa-angles-right"></i></button>
-    </div>
   </div>
+  
+  <div class="nav-right">
+    <button id="moveBackButton">Swap<i class="fa-solid fa-angles-left"></i></button>
+    <button id="reverseButton">Last Slide<i class="fa-solid fa-angles-left"></i></button>
+    <span id="slideNumberDisplay">0 of 0</span>
+    <button id="advanceButton">Next Slide<i class="fa-solid fa-angles-right"></i></button>
+    <button id="moveForwardButton">Swap<i class="fa-solid fa-angles-right"></i></button>
+  </div>
+</div>
 
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-  <script src="output.js"></script>
-  <script src="WebLayout/EditTextbox.js"></script>
+<script src="output.js"></script>
+<script src="WebLayout/EditTextbox.js"></script>
 
-  <script>
-    const loadDeck = Module.cwrap('loadSlideDeckFromJson', null, ['string']);
-    const saveDeck = Module.cwrap('exportSlideDeckToJson', 'string', []);
+<script>
+  const loadDeck = Module.cwrap('loadSlideDeckFromJson', null, ['string']);
+  const saveDeck = Module.cwrap('exportSlideDeckToJson', 'string', []);
 
-    document.getElementById("fileInput").addEventListener("change", function (e) {
+  document.getElementById("fileInput").addEventListener("change", function (e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      const jsonStr = event.target.result;
+      // I have to do this for large files to prevent stack overflow (did not know that was a real thing)
+      const lengthBytes = lengthBytesUTF8(jsonStr) + 1;
+      const buffer = Module._malloc(lengthBytes);
+      if (!buffer) {
+        alert("Failed to allocate mem.");
+        return;
+      }
+      try {
+        stringToUTF8(jsonStr, buffer, lengthBytes);
+        Module.ccall("loadSlideDeckFromJson", null, ["number"], [buffer]);
+      } catch (err) {
+        alert("Failed to load deck: " + err);
+      } finally {
+        Module._free(buffer);
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  document.getElementById("saveDeck").addEventListener("click", function () {
+    const exported = saveDeck();
+    const blob = new Blob([exported], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = "slides.json";
+    link.click();
+  });
+
+  // for adding images
+  document.addEventListener("DOMContentLoaded", function () {
+    const addImageBtn = document.getElementById("addImageButton");
+    const imageInput = document.getElementById("imageInput");
+
+    function toUTF8(str) {
+      const len = Module.lengthBytesUTF8(str) + 1;
+      const ptr = Module._malloc(len);
+      Module.stringToUTF8(str, ptr, len);
+      return ptr;
+    }
+
+    addImageBtn.addEventListener("click", () => {
+      imageInput.click();
+    });
+
+    imageInput.addEventListener("change", (e) => {
       const file = e.target.files[0];
       if (!file) return;
 
       const reader = new FileReader();
       reader.onload = function (event) {
-        const jsonStr = event.target.result;
-        try {
-          loadDeck(jsonStr);
-        } catch (err) {
-          alert("Failed to load deck: " + err);
-        }
+        const dataUrl = event.target.result;
+
+        const urlPtr = toUTF8(dataUrl);
+        const altPtr = toUTF8("User Image");
+
+        Module.ccall("call_addImage", null,
+                ["number", "number", "number", "number"],
+                [urlPtr, 300, 200, altPtr]
+        );
+
+        _free(urlPtr);
+        _free(altPtr);
       };
-      reader.readAsText(file);
+
+      reader.readAsDataURL(file);
     });
 
-    document.getElementById("saveDeck").addEventListener("click", function () {
-      const exported = saveDeck();
-      const blob = new Blob([exported], { type: 'application/json' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = "slides.json";
-      link.click();
-    });
-
-    // for adding images
-    document.addEventListener("DOMContentLoaded", function () {
-      const addImageBtn = document.getElementById("addImageButton");
-      const imageInput = document.getElementById("imageInput");
-
-      function toUTF8(str) {
-        const len = Module.lengthBytesUTF8(str) + 1;
-        const ptr = Module._malloc(len);
-        Module.stringToUTF8(str, ptr, len);
-        return ptr;
-      }
-
-      addImageBtn.addEventListener("click", () => {
-        imageInput.click();
-      });
-
-      imageInput.addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function (event) {
-          const dataUrl = event.target.result;
-
-          const urlPtr = toUTF8(dataUrl);
-          const altPtr = toUTF8("User Image");
-
-          Module.ccall("call_addImage", null,
-            ["number", "number", "number", "number"],
-            [urlPtr, 300, 200, altPtr]
-          );
-
-          _free(urlPtr);
-          _free(altPtr);
-        };
-
-        reader.readAsDataURL(file);
-      });
-
-    });
-  </script>
+  });
+</script>
 
 </body>
 
