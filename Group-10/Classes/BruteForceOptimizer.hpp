@@ -37,6 +37,9 @@ struct Item {
    */
   auto operator<=>(const Item&) const = default;
 
+  /**
+   * @brief simple ostream operator
+   */
   friend std::ostream& operator<<(std::ostream& os, const Item& item) {
     os << "{" << item.name << ", " << item.weight << ", " << item.value << '}';
     return os;
@@ -64,7 +67,7 @@ class BruteForceOptimizer {
   void SetOptimizer(bool optimize) {
     optimizeEnabled_ = optimize;
     // if Optimizer was set to true, handle any sorting
-    if (optimizeEnabled_) OptimizationPreprocessing();
+    if (optimizeEnabled_) OptimizationPreprocessing_();
   }
 
   /**
@@ -74,7 +77,7 @@ class BruteForceOptimizer {
    */
   void SetItems(const std::vector<Item>& newItems) {
     items_ = newItems;
-    if (optimizeEnabled_) OptimizationPreprocessing();
+    if (optimizeEnabled_) OptimizationPreprocessing_();
   }
 
   /**
@@ -87,7 +90,7 @@ class BruteForceOptimizer {
 
   void SetRepeating(bool repeating) {
     repeating_ = repeating;
-    if (optimizeEnabled_) OptimizationPreprocessing();
+    if (optimizeEnabled_) OptimizationPreprocessing_();
   }
 
   /**
@@ -133,7 +136,7 @@ class BruteForceOptimizer {
     }
 
     if (optimizeEnabled_) {
-      double remainingValue = scoreTracker_.at(items_.size() - 1 - index);
+      double remainingValue = scoreTracker_.at(sortedItems_.size() - 1 - index);
       if (currentValue + remainingValue < bestScore_) {
         return;
       }
@@ -157,7 +160,6 @@ class BruteForceOptimizer {
   // Vector containing the total value possible at any point in items_
   // (Inverse: First element in scoreTracker corresponds to last in items_)
   std::vector<double> scoreTracker_;
-
   // Boolean indicating whether elements can repeat
   bool repeating_ = false;
   // Sorted version of items_ for optimization
@@ -168,9 +170,8 @@ class BruteForceOptimizer {
    */
   void AverageCaseCombinations_(std::size_t index, double currentWeight,
                                 double currentValue) {
-
     // Include the current item if it does not exceed capacity.
-    const Item& item = items_[index];
+    const Item& item = (optimizeEnabled_) ? sortedItems_[index] : items_[index];
     if (currentWeight + item.weight <= capacity_) {
       currentSelection_.push_back(item);
       if (repeating_) {
@@ -186,17 +187,27 @@ class BruteForceOptimizer {
     ExploreCombinations(index + 1, currentWeight, currentValue);
   }
 
-  void OptimizationPreprocessing() {
+  /**
+   * @brief Handles the sorting and preprocessing involved with the optimization
+   * settings
+   */
+  void OptimizationPreprocessing_() {
+    // sort by value density (descending) when repeating elements,
+    // otherwise by overall value (descending)
+    sortedItems_ = items_;
     if (repeating_) {
-      std::stable_sort(items_.begin(), items_.end(),
+      std::stable_sort(sortedItems_.begin(), sortedItems_.end(),
                        [](const Item& l, const Item& r) {
                          return (l.value / l.weight) > (r.value / r.weight);
                        });
     } else {
-      std::stable_sort(items_.begin(), items_.end(), std::greater<Item>());
+      std::stable_sort(sortedItems_.begin(), sortedItems_.end(),
+                       std::greater<Item>());
     }
+    // Create value array based on the remaining overall value at any index
     double totalValue = 0.0;
-    for (auto iter = items_.rbegin(); iter != items_.rend(); ++iter) {
+    for (auto iter = sortedItems_.rbegin(); iter != sortedItems_.rend();
+         ++iter) {
       totalValue += (*iter).value;
       scoreTracker_.push_back(totalValue);
     }
