@@ -11,7 +11,10 @@
 #include <any>
 
 namespace cse {
-
+/**
+ * @brief A call for managing a command-line process.
+ * 
+ */
 class CommandLine {
 public:
   CommandLine() {
@@ -82,10 +85,29 @@ public:
   }
 
 private:
+  /**
+   * @brief adds a command to history
+   * 
+   * @param command command to be added 
+   */
   void trackHistory(const std::string& command) { mHistory.push_back(command); }
 
+  /**
+   * @brief a container which maps commands to functions
+   * 
+   */
   std::unordered_map<std::string, std::function<std::any()>> mCommands;
+
+  /**
+   * @brief a container which maps commands to their descriptions
+   * 
+   */
   std::unordered_map<std::string, std::string> mDescriptions;
+
+  /**
+   * @brief a vector which keeps a list of commands for history purposes
+   * 
+   */
   std::vector<std::string> mHistory;
 };
 

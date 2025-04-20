@@ -81,14 +81,16 @@ TEST_CASE("Length restriction Tests", "[WordLang]") {
 
 }
 
-TEST_CASE("Reset command", "[Reset]") {
+TEST_CASE("Reset unit test", "[Reset]") {
 
   std::vector<std::string> input = {
+    "RESET none\n",
     "LIST l = LOAD \"100000.txt\"\n",
     "RESET\n",
   };
     
   std::vector<std::string> output_result = {
+    "[Info]: List none does not exist\n",
     "Loaded \"100000.txt\". Word count in a list: 100000\n",
     "[Info]: Succesfully reset all current lists to the original state.\n\n  l: 100000 words\n\n"
   };
