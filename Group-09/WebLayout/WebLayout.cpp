@@ -123,7 +123,6 @@ const void WebLayout::renderTextBox(const std::string &layoutID,
         var font = UTF8ToString($10);
         var fontSize = $11;
 
-
         // Calculate the ratio to view height/width (1%)
         var widthRatio =
             document.documentElement.clientWidth / MAX_WIDTH_PERCENT;
@@ -167,6 +166,11 @@ const void WebLayout::renderTextBox(const std::string &layoutID,
             p.className = "textbox";
             p.id = textboxID;
             p.textContent = msg;  // Set raw text content, not HTML
+
+            p.ondblclick = function(event) {
+              const rect = p.getBoundingClientRect();
+              showFormattingMenu(p.id, rect.right + 10, rect.top);
+            };
 
             // Apply styles
             p.style.visibility = "inherit";
@@ -249,9 +253,10 @@ void const WebLayout::renderImage(const std::string &layoutID,
         if (layoutDiv) {
           layoutDiv.innerHTML +=
               "<img id=" + imageID + " src='" + msg +
-                  "' style='visibility: inherit; position: absolute; left: " + x + "vw; top: " + y +
-                  "vh; margin: 0; object-fit: contain; width:" + width +
-                  "vw; height:" + height + "vh;' />";
+              "' style='visibility: inherit; position: absolute; left: " + x +
+              "vw; top: " + y +
+              "vh; margin: 0; object-fit: contain; width:" + width +
+              "vw; height:" + height + "vh;' />";
         }
       },
       layoutID.c_str(), url.c_str(), width, height, x, y, imageID.c_str(),
@@ -273,7 +278,7 @@ std::string WebLayout::generateID() {
 void WebLayout::activateLayout() {
   auto layoutID = getID();
 
-  //std::cout << "Activating:  " << layoutID << std::endl;
+  // std::cout << "Activating:  " << layoutID << std::endl;
 
   EM_ASM(
       {
@@ -293,7 +298,7 @@ void WebLayout::activateLayout() {
 void WebLayout::deactivateLayout() {
   auto layoutID = getID();
 
-  //std::cout << "Deactivating:  " << layoutID << std::endl;
+  // std::cout << "Deactivating:  " << layoutID << std::endl;
 
   EM_ASM(
       {
@@ -317,14 +322,14 @@ void WebLayout::toggleImage(const cse::ImageLayout &image) {
           // flip current visibility
           var visibility = window.getComputedStyle(imageDiv).visibility;
 
-          //console.log(visibility);
-          if(visibility == "hidden") {
+          // console.log(visibility);
+          if (visibility == "hidden") {
             imageDiv.style.visibility = "inherit";
           } else {
             imageDiv.style.visibility = "hidden";
           }
         }
-        //console.log(imageID);
+        // console.log(imageID);
       },
       imageID.c_str());
 }
@@ -339,12 +344,13 @@ void WebLayout::toggleTextBox(const cse::TextBoxLayout &textBox) {
         if (textBoxDiv) {
           console.log('Found ', textBoxID);
           // flip current visibility
-          //var visibility = textBoxDiv.style.visibility;
-          // window.getComputedStyle learned through ChatGPT usage when exploring problem of visibility
-          // returning as '' when set to inherit from parent
+          // var visibility = textBoxDiv.style.visibility;
+          // window.getComputedStyle learned through ChatGPT usage when
+          // exploring problem of visibility returning as '' when set to inherit
+          // from parent
           var visibility = window.getComputedStyle(textBoxDiv).visibility;
 
-          if(visibility == "hidden") {
+          if (visibility == "hidden") {
             textBoxDiv.style.visibility = "inherit";
           } else {
             textBoxDiv.style.visibility = "hidden";
@@ -356,7 +362,6 @@ void WebLayout::toggleTextBox(const cse::TextBoxLayout &textBox) {
       textBoxID.c_str());
 }
 
-
 /**
  * Converts image attributes into html
  * @param id : Object id
@@ -364,13 +369,13 @@ void WebLayout::toggleTextBox(const cse::TextBoxLayout &textBox) {
  * @param newY : New y value location for object to be set at
  */
 void WebLayout::setPosition(std::string id, int newX, int newY) {
-  for (auto& tbl : textBoxes) {
+  for (auto &tbl : textBoxes) {
     if (tbl.textBox->getID() == id) {
       tbl.setPosition(newX, newY);
     }
   }
 
-  for (auto& imgl : images) {
+  for (auto &imgl : images) {
     if (imgl.image->getID() == id) {
       imgl.setPosition(newX, newY);
     }
@@ -383,13 +388,13 @@ void WebLayout::setPosition(std::string id, int newX, int newY) {
  * @return Boolean indicating if weblayout contains object
  */
 bool WebLayout::contains(std::string id) const {
-  for (const auto& tbl : textBoxes) {
+  for (const auto &tbl : textBoxes) {
     if (tbl.textBox->getID() == id) {
       return true;
     }
   }
 
-  for (const auto& imgl : images) {
+  for (const auto &imgl : images) {
     if (imgl.image->getID() == id) {
       return true;
     }
@@ -397,6 +402,5 @@ bool WebLayout::contains(std::string id) const {
 
   return false;
 }
-
 
 }  // namespace cse
