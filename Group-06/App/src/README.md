@@ -119,11 +119,75 @@ LIST list1 = LOAD "my_test_file1.txt"
 CONTAINS_ANY "aeiou"
 ```
 
-CONTAINS_ANY “collection of letters” and CONTAINS_ALL “collection of letters” // orginize list based on given letters all in it or some 
-NOT_CONTAINS “collection of letters” // orginize list based on given letters are not in the words in the list
-GET “pattern”  // orginize the list based on pattern ‘_’ for a character, ‘*’ for 0 or more character
-PRINT <number>  // prints results starting from top until number reached or ALL to print all results
-RESET <list name> // resets the list to its original state
+**CONTAINS_ALL**
+Filters the lists in current that each word must have all of the letters given in contains_all.
+```
+LIST list1 = LOAD "my_test_file1.txt"
 
-	Game Specifics:
- WORDLE(“word inputted “, “results of wordle”)  // For the results user inputs G(Green), Y(yellow), or B(Black). It returns top 10 possible words in the current list.
+CONTAINS_ALL "ae"
+```
+
+**NOT_CONTAINS**
+Filters the lists in current that each word must not have any of the letters given in not_contains.
+```
+LIST list1 = LOAD "my_test_file1.txt"
+
+NOT_CONTAINS "mjkl"
+```
+
+**GET**
+Organizes the lists in current based on pattern provided by user.
+'_' reflects exactly on character can be anything.
+'*' reflects zero or more any characters.
+```
+LIST list1 = LOAD "my_test_file1.txt"
+
+GET "_pp_e"  // This should get you apple
+GET "_oo*"   // This can get book, boots, foot, cooking ...
+```
+
+**PRINT**
+Prints the sepecified number or all results from the current working lists.
+```
+LIST list1 = LOAD "my_test_file1.txt"
+
+PRINT 3      // [Test, word, print]
+PRINT ALL    // [Test, word, print, all, words, thats, all]
+```
+
+**RESET**
+Resets the list that loaded from a file to its original state.
+If no list name specified resets all lists in current working lists.
+```
+LIST list1 = LOAD "my_test_file1.txt
+LIST list2 = LOAD "my_test_file2.txt
+
+RESET list1
+RESET
+```
+
+**WORDLE**
+Provides words suggestion to the user based on wordle input and output. 
+Works as a wordle solver. Returns the top 10 result only. 
+If you want to see more options use `PRINT ALL`.
+'b' = black letters not found in the word 
+'y' = yellow letter is in the word but in wrong position
+'g' = green letter is correct
+
+```
+LIST list1 = LOAD "my_test_file1.txt
+LIST list2 = LOAD "my_test_file2.txt
+LIST combined = COMBINED list1 list2
+
+WORDLE("whale","bbyyb")  
+// OUTPUTS = [total, final, rural, vocal, lamps, atlas, laura, malta, valid, larry, lands]
+WORDLE("solar","bgygy")
+// OUTPUTS = [moral, coral, royal] where moral is correct word of the Wordle
+```
+
+
+## TESTING ##
+
+To run WordLang tests, change your directory in your terminal to `tests\Group-06`
+then run the `make` command to compile the program and run the tests. Make file will
+run all the tests.

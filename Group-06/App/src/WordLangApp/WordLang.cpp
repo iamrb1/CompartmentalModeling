@@ -22,9 +22,6 @@
 void cse::WordLang::start() {
     std::cout << "Welcome to WordLang! Type your query below:\n";
 
-    // BEFORE TESTING TURN COLORS FALSE, OTHERWISE ALL TESTS WILL FAIL
-    mErrorManager.enableColors(false);
-
     mIsActive = true;
     std::string input;
 
@@ -52,8 +49,9 @@ cse::WordLang::~WordLang() {
 void cse::WordLang::parse(const std::string& input) {
     // Utility class that handles tokenization
     mTokenManager.Load(input);
-    // If tests are failing, try uncommenting this as a TEMP fix
-    // mErrorManager.enableColors(false);
+
+    // IF TESTS ARE RUNNING TURN THIS FALSE, OTHERWISE TESTS WILL FAIL
+    mErrorManager.enableColors(false);
     
     switch (mTokenManager.Peek()) {
         using namespace emplex;
