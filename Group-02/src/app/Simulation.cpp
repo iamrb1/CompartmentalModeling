@@ -40,10 +40,10 @@ QVector<QObject*> Simulation::get_compartments_as_qobject() const {
 /**
  * @brief Return a map of all variables in the simulation.
  */
-QMap<QString, double> Simulation::get_variables_as_qobject() const {
-    QMap<QString, double> variables;
-    for (const auto& pair : m_variables) {
-        variables.insert(QString::fromStdString(pair.first), pair.second);
+QVariantMap Simulation::get_variables_as_qobject() const {
+    QVariantMap variables;
+    for (const auto& [name, value] : m_variables) {
+      variables.insert(QString::fromStdString(name), value);
     }
 
 //    qDebug() << "Variables in C++:";
@@ -54,22 +54,10 @@ QMap<QString, double> Simulation::get_variables_as_qobject() const {
     return variables;
 }
 
-Q_INVOKABLE void Simulation::add_variable(const QString& name, double value) {
+void Simulation::add_variable(const QString& name, double value) {
     if (name.isEmpty()) {
-        int maxNum = 0;
-        for (const auto& pair : m_variables) {
-            QString key = QString::fromStdString(pair.first);
-            if (key.startsWith("k")) {
-                bool ok;
-                int num = key.mid(1).toInt(&ok);
-                if (ok && num > maxNum) {
-                    maxNum = num;
-                }
-            }
-        }
-
-        QString nextName = QString("k%1").arg(maxNum + 1);
-        m_variables[nextName.toStdString()] = value;
+        QString var_name = QString("k%1").arg(m_variables.size() + 1);
+        m_variables[var_name.toStdString()] = value;
     } else {
         m_variables[name.toStdString()] = value;
     }
@@ -78,18 +66,28 @@ Q_INVOKABLE void Simulation::add_variable(const QString& name, double value) {
 }
 
 void Simulation::remove_variable(const QString& name) {
-  std::string stdName = name.toStdString();
-  auto it = m_variables.find(stdName);
+  auto key = name.toStdString();
+  auto it = m_variables.find(key);
   if (it != m_variables.end()) {
     m_variables.erase(it);
     emit variablesChanged();
   }
 }
 
-void Simulation::update_variable(const QString& name, double value) {
-  std::string stdName = name.toStdString();
-  m_variables[stdName] = value;
-  emit variablesChanged();
+void Simulation::update_variable(const QString& name, const QString& new_name, double value) {
+  auto key = name.toStdString();
+  if (m_variables.contains(key)) {
+    if (name == new_name) {
+      m_variables[key] = value;
+    } else {
+      auto node_handler = m_variables.extract(key);
+      node_handler.key() = new_name.toStdString();
+      node_handler.mapped() = value;
+      m_variables.insert(std::move(node_handler));
+    }
+
+    emit variablesChanged();
+  }
 }
 
 /**
@@ -239,34 +237,4 @@ void Simulation::save_xml(const QString& filename) {
   xml.writeEndElement();
   xml.writeEndDocument();
   file.close();
-}
-
-QStringList Simulation::getVariableNames() const {
-    QStringList names;
-    for (const auto& pair : m_variables) {
-        names.append(QString::fromStdString(pair.first));
-    }
-
-    std::sort(names.begin(), names.end(), [](const QString &a, const QString &b) {
-        if (a.startsWith('k') && b.startsWith('k')) {
-            bool okA, okB;
-            int numA = a.mid(1).toInt(&okA);
-            int numB = b.mid(1).toInt(&okB);
-
-            if (okA && okB) {
-                return numA > numB;
-            }
-        }
-        return a > b;
-    });
-
-    return names;
-}
-
-double Simulation::getVariableValue(const QString& name) const {
-    auto it = m_variables.find(name.toStdString());
-    if (it != m_variables.end()) {
-        return it->second;
-    }
-    return 0.0;
 }

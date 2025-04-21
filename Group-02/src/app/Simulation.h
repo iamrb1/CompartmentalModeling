@@ -11,6 +11,7 @@
 #include <QList>
 #include <QObject>
 #include <qqml.h>
+#include <QVariant>
 
 #include "Components/Compartment.h"
 #include "Components/Connection.h"
@@ -20,8 +21,7 @@ class Simulation : public QObject {
   QML_ELEMENT
   Q_PROPERTY(QVector<QObject*> compartments READ get_compartments_as_qobject NOTIFY compartmentsChanged)
   Q_PROPERTY(QString name MEMBER m_name NOTIFY nameChanged)
-  Q_PROPERTY(QMap<QString, double> variables READ get_variables_as_qobject NOTIFY variablesChanged)
-    Q_PROPERTY(QStringList variableNames READ getVariableNames NOTIFY variablesChanged)
+  Q_PROPERTY(QVariantMap variables READ get_variables_as_qobject NOTIFY variablesChanged)
 
  signals:
   void compartmentsChanged();
@@ -72,14 +72,11 @@ class Simulation : public QObject {
   Q_INVOKABLE void save_xml(const QString& filename);
 
   [[nodiscard]] QVector<QObject*> get_compartments_as_qobject() const;
-  [[nodiscard]] QMap<QString, double> get_variables_as_qobject() const;
+  [[nodiscard]] QVariantMap get_variables_as_qobject() const;
 
-  Q_INVOKABLE void add_variable(const QString& name = QString(), double value = 0.0);
+  Q_INVOKABLE void add_variable(const QString& name=QString(), double value = 0.0);
   Q_INVOKABLE void remove_variable(const QString& name);
-  Q_INVOKABLE void update_variable(const QString& name, double value);
-  Q_INVOKABLE double getVariableValue(const QString& name) const;
-
-    QStringList getVariableNames() const;
+  Q_INVOKABLE void update_variable(const QString& name, const QString& new_name, double value);
 };
 
 #endif  //SIMULATION_H

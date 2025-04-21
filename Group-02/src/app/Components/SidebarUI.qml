@@ -190,11 +190,7 @@ Rectangle {
                             id: plusMouseArea
                             anchors.fill: parent
                             onClicked: {
-                                // Add new variable logic would go here
-                                console.log("Add new variable")
-                                console.log(simulation.variables)
                                 simulation.add_variable()
-                                console.log(simulation.variables)
                             }
                         }
                     }
@@ -207,19 +203,17 @@ Rectangle {
 
                     // Example variable rows (these would be dynamically generated)
                     ListView {
-                        id: variablesListView
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         clip: true
-
-                        model: simulation ? simulation.variableNames : []
+                        model: simulation ? Object.entries(simulation.variables) : []
 
                         delegate: RowLayout {
-                            width: parent.width
+                            width: variableGrid.width
                             spacing: 10
 
                             Text {
-                                text: modelData
+                                text: modelData[0]
                                 color: ThemeManager.palette.text
                                 Layout.preferredWidth: 40
                             }
@@ -235,11 +229,12 @@ Rectangle {
                                     anchors.fill: parent
                                     anchors.margins: 5
                                     verticalAlignment: TextInput.AlignVCenter
-                                    text: simulation.getVariableValue(modelData).toFixed(2)
+                                    text: modelData[1]
                                     color: ThemeManager.palette.text
                                     onEditingFinished: {
-                                        simulation.update_variable(modelData, parseFloat(text))
+                                        simulation.update_variable(modelData[0], modelData[0], parseFloat(text))
                                     }
+                                    clip: true
                                 }
                             }
 
@@ -263,8 +258,8 @@ Rectangle {
                                     id: editMouseArea
                                     anchors.fill: parent
                                     onClicked: {
-                                        editDialog.oldName = modelData
-                                        editDialog.currentValue = simulation.getVariableValue(modelData)
+                                        editDialog.oldName = modelData[0]
+                                        editDialog.currentValue = modelData[1]
                                         editDialog.open()
                                     }
                                 }
@@ -293,24 +288,22 @@ Rectangle {
         property string oldName: ""
         property double currentValue: 0.0
 
-        function renameAndUpdateVariable(oldName, newName, newValue) {
+        function updateVariable(oldName, newName, newValue) {
             if (oldName === newName) {
-                simulation.update_variable(oldName, newValue)
-                return
+                simulation.update_variable(oldName, newName, newValue)
+                return;
             }
 
-            const variableNames = simulation.variableNames
-            for (let i = 0; i < variableNames.length; i++) {
-                if (variableNames[i] === newName) {
+            const variables = simulation.variables
+            for (let name in variables) {
+                if (name === newName) {
                     errorDialog.message = "A variable with name '" + newName + "' already exists."
                     errorDialog.open()
                     return
                 }
             }
 
-            simulation.remove_variable(oldName)
-
-            simulation.add_variable(newName, newValue)
+            simulation.update_variable(oldName, newName, newValue)
         }
 
         ColumnLayout {
@@ -379,7 +372,7 @@ Rectangle {
                         const newValue = parseFloat(valueField.text)
 
                         if (newName !== "" && !isNaN(newValue)) {
-                            editDialog.renameAndUpdateVariable(editDialog.oldName, newName, newValue)
+                            editDialog.updateVariable(editDialog.oldName, newName, newValue)
                         }
 
                         editDialog.accept()
