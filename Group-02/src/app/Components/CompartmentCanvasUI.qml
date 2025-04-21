@@ -171,20 +171,6 @@ Rectangle {
     Component.onCompleted:
     {
         console.log(simulation)
-        {
-            if (compartment.x === undefined) {
-                x = 100 + (index % 2) * 200
-            } else {
-                x = compartment.x
-            }
-
-            if (compartment.y === undefined) {
-                y = 100 + Math.floor(index / 2) * 100
-            } else {
-                y = compartment.y
-            }
-        }
-
         updateTargetBoundaries()
 
     }
