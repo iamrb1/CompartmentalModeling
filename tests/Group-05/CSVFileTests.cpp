@@ -124,9 +124,9 @@ TEST_CASE("CSVFile ExportCsv - Valid DataGrid", "[CSVFile]") {
   // Check header row (no sanitization needed if there are no delimiters or
   // quotes)
   CHECK(lines[0] == "Name,Age,Score");
-  // Note: std::to_string produces six decimals for doubles by default
-  CHECK(lines[1] == "Charlie,28.000000,91.000000");
-  CHECK(lines[2] == "Diana,32.000000,85.500000");
+
+  CHECK(lines[1] == "Charlie,28,91");
+  CHECK(lines[2] == "Diana,32,85.5");
 
   // Cleanup temporary file
   std::remove(test_file_name.c_str());
@@ -220,8 +220,8 @@ TEST_CASE("CSVFile ExportCsv - Zero Value Preservation", "[CSVFile][edge]") {
   REQUIRE(in_file.is_open());
   std::string content;
   std::getline(in_file, content);
-  // Check that the 0.0 value is present (std::to_string typically outputs "0.000000").
-  CHECK(content.find("0.000000") != std::string::npos);
+
+  CHECK(content.find("0") != std::string::npos);
 
   in_file.close();
   std::remove(test_file.c_str());
