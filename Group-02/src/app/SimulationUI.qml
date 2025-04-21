@@ -14,7 +14,7 @@ ApplicationWindow {
         id: simulation
     }
 
-    id: mainFrameUI
+    id: simulationUI
     width: 800
     height: 600
     title: simulation.name + " - Compartmental Modelling System"
@@ -245,75 +245,15 @@ ApplicationWindow {
             Layout.fillWidth: true
 
             // --- Simulation UI ---
-            Rectangle {
-                id: simulationUI
+            ScrollCanvasUI {
+                id: simulationCanvas
                 SplitView.fillWidth: true
                 SplitView.minimumWidth: 200
                 SplitView.fillHeight: true
-                color: ThemeManager.palette.window
-                border.color: ThemeManager.palette.shadow
 
-                Item {
-                    id: compartmentContainer
-                    clip: true
-                    anchors.fill: parent
-                    scale: 1.0
-                    transformOrigin: Item.Center
-                    anchors.centerIn: parent
-
-                    Repeater {
-                        model: simulation.compartments
-
-                        delegate: CompartmentUI {
-                            compartment: modelData
-                            parentSimulation: simulation
-
-                            x: compartment.x || 100 + (index % 2) * 200
-                            y: compartment.y || 100 + Math.floor(
-                                   index / 2) * 100
-                        }
-                    }
-
-                    Repeater {
-                        model: simulation.connections
-
-                        delegate: ConnectionUI {
-                            connection: modelData
-                            parentSimulation: simulation
-                        }
-                    }
-                }
-
-                // Add scaling buttons in top right corner
-                Row {
-                    anchors.top: parent.top
-                    anchors.right: parent.right
-                    anchors.margins: 5
-                    spacing: 5
-                    z: 10
-
-                    Button {
-                        text: "+"
-                        width: 30
-                        height: 30
-                        onClicked: {
-                            compartmentContainer.scale = Math.min(
-                                        compartmentContainer.scale + 0.1, 2.0)
-                        }
-                    }
-
-                    Button {
-                        text: "-"
-                        width: 30
-                        height: 30
-                        onClicked: {
-                            compartmentContainer.scale = Math.max(
-                                        compartmentContainer.scale - 0.1, 0.5)
-                        }
-                    }
-                }
+                // Connect to your simulation model
+                simulation: simulation
             }
-
             // --- Sidebar ---
             SidebarUI {
                 id: sidebarUI

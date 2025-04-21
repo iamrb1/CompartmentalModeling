@@ -27,4 +27,5 @@ qt_add_qml_module(
     URI Components
     QML_FILES ${MODULE_QML_FILES}
     SOURCES ${MODULE_SOURCES}
+    QML_FILES ScrollCanvasUI.qml
 )
