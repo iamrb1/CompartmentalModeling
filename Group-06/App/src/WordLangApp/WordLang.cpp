@@ -14,11 +14,6 @@
  */
 
 #include "WordLang.hpp"
-// #include "../../../StringSet/StringSet.hpp"
-// #include "../../../StaticString/StaticString.hpp"
-// #include "../../../ErrorManager/ErrorManager.hpp"
-// #include "../../../CommandLine/CommandLine.cpp"
-
 #include "FileSource.hpp"
 #include "lexer.hpp"
 #include <istream>
@@ -26,6 +21,9 @@
 
 void cse::WordLang::start() {
     std::cout << "Welcome to WordLang! Type your query below:\n";
+
+    // BEFORE TESTING TURN COLORS FALSE, OTHERWISE ALL TESTS WILL FAIL
+    mErrorManager.enableColors(true);
 
     mIsActive = true;
     std::string input;
@@ -54,8 +52,7 @@ cse::WordLang::~WordLang() {
 void cse::WordLang::parse(const std::string& input) {
     // Utility class that handles tokenization
     mTokenManager.Load(input);
-    mErrorManager.enableColors(false);
-
+    
     switch (mTokenManager.Peek()) {
         using namespace emplex;
         case Lexer::ID_LIST: {
@@ -381,11 +378,9 @@ void cse::WordLang::parseSave() {
     // Syntax is correct, call WordListManager to handle.
     std::string trimmedFilename = filename.lexeme.substr(1, filename.lexeme.length() - 2);
 
-    mWordListManager.save(trimmedFilename, listname.lexeme);
-    // Call WordListManager to handle with listname, trimmedFilename to save into.
-    /*if (!mWordListManager.save(listname.lexeme, trimmedFilename)) {
+    if(!mWordListManager.save(trimmedFilename, listname.lexeme)) {
         return;
-    }*/
+    }
 }
 
 void cse::WordLang::parseLength() {

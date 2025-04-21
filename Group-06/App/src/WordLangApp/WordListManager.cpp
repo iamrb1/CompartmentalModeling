@@ -314,10 +314,12 @@ bool cse::WordListManager::ContainsAny(const std::string &lettersToCheck)
     // If there aren't any letters being checked, print an error message
     if (lettersToCheck.length() == 0) {
         mErrorManager.printInfo("Incorrect Syntax: no letters given.");
+        return false;
     }
 
     // Don't perform any opperations if there are no current lists
     if (mCurrentSet.size() == 0) {
+        mErrorManager.printInfo("Error: No lists exists or set as current list to filter.");
         return false;
     }
 
@@ -329,7 +331,6 @@ bool cse::WordListManager::ContainsAny(const std::string &lettersToCheck)
         result = result.Union(mWordLists[list]);
     }
 
-    // cse::StringSet<cse::StaticString<30>> result = mCurrentSet.search(".*[" +lettersToCheck + "].*");
     mCurrentSet = result;
 
     if(mPrintNumberOfWords) {
@@ -344,10 +345,12 @@ bool cse::WordListManager::ContainsAll(const std::string &lettersToCheck)
     // If there aren't any letters being checked, print an error message
     if (lettersToCheck.length() == 0) {
       mErrorManager.printInfo("Incorrect Syntax: no letters given.");
+      return false;
     }
 
     // Don't perform any opperations if there are no current lists
     if (mCurrentSet.size() == 0) {
+      mErrorManager.printInfo("Error: No lists exists or set as current list to filter.");
       return false;
     }
 
@@ -369,7 +372,6 @@ bool cse::WordListManager::ContainsAll(const std::string &lettersToCheck)
       result = result.Union(mWordLists[list]);
     }
 
-    // cse::StringSet<cse::StaticString<30>> result = mCurrentSet.search(regexPattern);
     mCurrentSet = result;
 
     if(mPrintNumberOfWords) {
@@ -383,9 +385,11 @@ bool cse::WordListManager::NotContains(const std::string &lettersToCheck)
     // If there aren't any letters being checked, print an error message
     if (lettersToCheck.length() == 0) {
       mErrorManager.printInfo("Incorrect Syntax: no letters to check for provided.");
+      return false;
     }
     // Don't perform any opperations if there are no current lists
     if (mCurrentSet.size() == 0) {
+      mErrorManager.printInfo("Error: No lists exists or set as current list to filter.");
       return false;
     }
 
@@ -397,7 +401,6 @@ bool cse::WordListManager::NotContains(const std::string &lettersToCheck)
       result = result.Union(mWordLists[list]);
     }
 
-    // cse::StringSet<cse::StaticString<30>> result = mCurrentSet.search("^[^" +lettersToCheck + "]*$");
     mCurrentSet = result;
     
     if(mPrintNumberOfWords) {
@@ -411,10 +414,12 @@ bool cse::WordListManager::Get(const std::string &patternToCheck)
     // If there aren't any patterns being checked, print an error message
     if (patternToCheck.length() == 0) {
       mErrorManager.printInfo("Incorrect Syntax: no patterns to check for provided.");
+      return false;
     }
 
     // Don't perform any opperations if there are no current lists
     if (mCurrentSet.size() == 0) {
+      mErrorManager.printInfo("Error: No lists exists or set as current list to filter.");
       return false;
     }
     
@@ -437,7 +442,6 @@ bool cse::WordListManager::Get(const std::string &patternToCheck)
       result = result.Union(mWordLists[list]);
     }
 
-    // cse::StringSet<cse::StaticString<30>> result = mCurrentSet.search(regexPattern);
     mCurrentSet = result;
 
     if(mPrintNumberOfWords) {

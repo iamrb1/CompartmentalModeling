@@ -239,6 +239,19 @@ namespace cse {
         /**
          * @brief Parses WORDLE
          * 
+         * Parses WORDLE command 
+         * 
+         * Checks syntax and returns error messages to the terminal if syntax 
+         * is wrong.
+         * 
+         * Prints the top 10 outputs to the terminal
+         * 
+         * If syntax is correct, class WordListManager to conduct operations
+         * over the lists.
+         * 
+         * Valid Command:
+         *
+         * WORDLE ("whale","bbgyb")  
          */
         void parseWordle();
     
