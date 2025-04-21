@@ -245,7 +245,7 @@ ApplicationWindow {
             Layout.fillWidth: true
 
             // --- Simulation UI ---
-            ScrollCanvasUI {
+            CompartmentCanvasUI {
                 id: simulationCanvas
                 SplitView.fillWidth: true
                 SplitView.minimumWidth: 200
@@ -254,6 +254,7 @@ ApplicationWindow {
                 // Connect to your simulation model
                 simulation: simulation
             }
+
             // --- Sidebar ---
             SidebarUI {
                 id: sidebarUI
