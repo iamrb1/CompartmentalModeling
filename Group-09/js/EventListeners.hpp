@@ -1,7 +1,7 @@
 /**
  * @file EventListeners.hpp
  *
- * @author Owen Haiar
+ * @author Owen Haiar, Mary Holt
  */
 
 #pragma once
@@ -73,14 +73,22 @@ void bind() {
 
 
 		}
-    var deleteSlide = document.getElementById("deleteSlideButton");
+
+        var deleteSlide = document.getElementById("deleteSlideButton");
         if (deleteSlide) {
-          deleteSlide.addEventListener(
-              "click",
-              function() {Module._call_deleteSlide(); });
+          deleteSlide.addEventListener("click", function (e) {
+            e.stopPropagation();
 
+            var doubleConfirmInner = document.querySelector('.double-confirm-inner');
+            if (doubleConfirmInner) {
+              doubleConfirmInner.classList.remove('-translate-x-full');
+            }
 
+            Module._call_deleteSlide();
+
+          });
         }
+
 	var startButton = document.getElementById("startButton");
 	if (startButton) {
 			startButton.addEventListener(

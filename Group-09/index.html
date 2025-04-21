@@ -8,6 +8,8 @@
         integrity="sha512-1sCRPdkRXhBV2PBLUdRb4tMg1w2YPf37qatUFeS7zlBy7jJI8Lf4VHwWfZZfpXtYSLy85pkm9GaYVYMfw5BC1A=="
         crossorigin="anonymous" referrerpolicy="no-referrer">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+
   <style>
     body,
     html {
@@ -153,7 +155,24 @@
 
     <button id="stopButton">Stop</button>
     <button id="startButton">Start</button>
-    <button id="deleteSlideButton">Delete Slide</button>
+    <!--<button id="deleteSlideButton">Delete Slide</button> -->
+
+    <!-- Tutorial from https://www.youtube.com/watch?v=REjbmMwiQ8w&ab_channel=ChrisSev -->
+    <form>
+      <div class="double-confirm overflow-hidden">
+        <div id="double-confirm-inner" class="double-confirm-inner relative transform transition duration-500 ease-in-out">
+        <!-- delete button -->
+          <button type="button">
+          Delete Slide
+        </button>
+          <!-- confirm button -->
+          <button type="button" id="deleteSlideButton" class="absolute bg-red-800 text-red-300">
+          You Sure?
+        </button>
+        </div>
+      </div>
+    </form>
+
     <div class="btn-group dropup">
     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         +
@@ -261,6 +280,40 @@
     });
 
   });
+
+  // BELOW IS CODE FOR DELETE CONFIRMATION
+  let timeout;
+
+  function resetConfirmButton() {
+    doubleConfirmInner.classList.remove('-translate-x-full');
+  }
+
+  // grab buttons for delete slide
+  const doubleConfirm = document.querySelector('.double-confirm');
+  const doubleConfirmInner = document.querySelector('.double-confirm-inner');
+
+  // add button event listener
+  doubleConfirm.addEventListener('click', (e) => {
+    e.stopPropagation(); // From ChatGPT: stops clicks inside group triggering reset
+
+    doubleConfirmInner.classList.add('-translate-x-full');
+
+    // https://www.w3schools.com/jsref/met_win_settimeout.asp
+    if(timeout) clearTimeout(timeout);
+
+    timeout = setTimeout(() => {
+      resetConfirmButton();
+    }, 3000);
+
+  });
+
+  // If click elsewhere, reset confirm button
+  document.addEventListener('click', (e) => {
+    if (doubleConfirmInner.classList.contains('-translate-x-full')) {
+      resetConfirmButton();
+    }
+  });
+
 </script>
 
 </body>
