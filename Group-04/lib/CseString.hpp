@@ -133,6 +133,20 @@ class String : public std::string {
   }
 
   /**
+   * @brief Insert a string into this String at the specified position, with
+   * debug checks.
+   *
+   * @param pos The position at which the content should be inserted.
+   * @param str The string to insert.
+   * @return Reference to this String after insertion.
+   */
+  String &insert(auto iter, const auto &str) {
+    dbg_assert(iter < end(), "cse::String insert() iterator out of range");
+    std::string::insert(iter, str);
+    return *this;
+  }
+
+  /**
    * @brief Erase a portion of this String, with debug checks.
    *
    * @param pos The starting position of the erase operation.

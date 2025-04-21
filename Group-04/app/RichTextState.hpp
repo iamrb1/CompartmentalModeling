@@ -12,6 +12,7 @@
 #include "SerializerMarkdown.hpp"
 #include "SerializerRTF.hpp"
 #include "SerializerLaTeX.hpp"
+#include "CseString.hpp"
 
 #include <map>
 #include <optional>
@@ -20,20 +21,22 @@
 
 class RichTextState {
 public:
+  using Text = cse::BasicRichText<char, cse::String>;
+
   RichTextState() {
     // HTML (no header/footer)
-    m_outputMap["html"]     = { "HTML",      cse::SerializerHTML()   };
+    m_outputMap["html"]     = { "HTML",      cse::SerializerHTML<char, cse::String>()   };
     m_outputMap["html"].second.header = std::nullopt;
     m_outputMap["html"].second.footer = std::nullopt;
 
     // RTF
-    m_outputMap["rtf"]      = { "RTF",       cse::SerializerRTF()    };
+    m_outputMap["rtf"]      = { "RTF",       cse::SerializerRTF<char, cse::String>()    };
     // Markdown
-    m_outputMap["markdown"] = { "Markdown",  cse::SerializerMarkdown() };
+    m_outputMap["markdown"] = { "Markdown",  cse::SerializerMarkdown<char, cse::String>() };
     // LaTeX
-    m_outputMap["latex"]    = { "LaTeX",     cse::SerializerLaTeX()  };
+    m_outputMap["latex"]    = { "LaTeX",     cse::SerializerLaTeX<char, cse::String>()  };
     // Raw HTML (full document)
-    m_outputMap["html_raw"] = { "Raw HTML",  cse::SerializerHTML()   };
+    m_outputMap["html_raw"] = { "Raw HTML",  cse::SerializerHTML<char, cse::String>()   };
 
     // Demo: bold the first 5 characters
     m_richText.apply_format(cse::TextFormat("bold", std::monostate()), 0, 5);
@@ -71,7 +74,7 @@ public:
       m_richText.erase(m_edit.first, m_edit.second - m_edit.first);
 
     m_edit.second = m_edit.first + replace.size();
-    cse::RichText insert{ replace };
+    Text insert{ replace };
     for (auto& [id, meta] : m_formatMap)
       insert.apply_format(cse::TextFormat(id, meta));
     m_richText.insert(m_edit.first, insert);
@@ -139,7 +142,7 @@ public:
     return m_richText.to_string();
   }
   void setText(const std::string& txt) {
-    m_richText = cse::RichText(txt);
+    m_richText = Text(txt);
   }
 
   // Serialization shortcuts
@@ -182,11 +185,11 @@ public:
   }
 
 private:
-  cse::RichText m_richText{"Hello World!"};
+  Text m_richText{"Hello World!"};
   std::map<cse::TextFormat::FormatID, cse::TextFormat::FormatData> m_formatMap;
-  std::map<std::string, std::pair<std::string, cse::RichText::Serializer>> m_outputMap;
+  std::map<std::string, std::pair<std::string, Text::Serializer>> m_outputMap;
   std::pair<size_t,size_t> m_edit{0,0};
-  std::vector<cse::RichText> undoStack, redoStack;
+  std::vector<Text> undoStack, redoStack;
 
   void saveState() {
     undoStack.push_back(m_richText);

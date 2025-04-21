@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Text Editor</title>
+
+  <!-- Existing stylesheet links -->
+  <link rel="stylesheet" type="text/css" href="index.css" />
+  <link rel="stylesheet" type="text/css" href="input.css" />
+</head>
+<body>
+  <content>
+    <div class="rich-input">
+      <div class="bar" id="toolbar"></div>
+      <div id="text-editor"></div>
+    </div>
+
+    <!-- Right-hand side output with tabs -->
+    <output>
+      <!-- Tab buttons -->
+      <div id="tab-buttons">
+      </div>
+
+      <!-- Tab contents -->
+    </output>
+  </content>
+
+  <!-- App/Wasm code (from Emscripten) -->
+  <script src="debug/app.js"></script>
+  <!-- Our app logic -->
+  <script src="input.js"></script>
+  <script src="index.js"></script>
+</body>
+</html>
