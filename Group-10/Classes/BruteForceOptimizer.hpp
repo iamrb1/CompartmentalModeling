@@ -129,7 +129,7 @@ class BruteForceOptimizer {
         updateScore(currentValue);
       }
     };
-
+    scoreCheck();
     if (index >= items_.size()) {
       scoreCheck();
       return;
@@ -170,6 +170,9 @@ class BruteForceOptimizer {
    */
   void AverageCaseCombinations_(std::size_t index, double currentWeight,
                                 double currentValue) {
+
+    // Exclude the current item.
+    ExploreCombinations(index + 1, currentWeight, currentValue);
     // Include the current item if it does not exceed capacity.
     const Item& item = (optimizeEnabled_) ? sortedItems_[index] : items_[index];
     if (currentWeight + item.weight <= capacity_) {
@@ -183,8 +186,6 @@ class BruteForceOptimizer {
       }
       currentSelection_.pop_back();
     }
-    // Exclude the current item.
-    ExploreCombinations(index + 1, currentWeight, currentValue);
   }
 
   /**

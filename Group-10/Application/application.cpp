@@ -23,8 +23,6 @@ static constexpr double THRESHOLD_TO_SECONDS = 500;
 static constexpr double MILLISECONDS_IN_SECONDS = 1000;
 static constexpr double SPEEDUP_ADJUSTMENT_CONSTANT = 100;
 
-
-
 /**
  * Utility Functions:
  *  - ResetGlobalVariables - clears data for nnext command
@@ -175,34 +173,7 @@ std::vector<cse::Item> ConstructItems(std::string filename) {
 
   return Items;
 }
-/**
-void Compare() {
-  cse::BruteForceOptimizer optimizer;
-  optimizer.SetItems(settings.itemList);
-  optimizer.SetCapacity(settings.capacity);
 
-  // Unoptimized brute force
-  optimizer.SetOptimizer(false);
-  double unoptimizedTime = MeasureTime([&]() {
-    auto solutionPair = optimizer.FindOptimalSolution();
-    PrintOptimizerResults(solutionPair);
-  });
-
-  // Optimized brute force
-  optimizer.SetOptimizer(true);
-  double optimizedTime = MeasureTime([&]() {
-    auto solutionPair = optimizer.FindOptimalSolution();
-    PrintOptimizerResults(solutionPair);
-  });
-
-  // Print timing results
-  std::cout << "Unoptimized Time: " << unoptimizedTime << " milliseconds" <<
-std::endl; std::cout << "Optimized Time: " << optimizedTime << " milliseconds"
-<< std::endl; std::cout << "Speedup: "
-            << ((unoptimizedTime - optimizedTime) / unoptimizedTime) * 100
-            << "%\n";
-}
-*/
 void CallBruteForceOptimizer() {
   cse::BruteForceOptimizer optimizer;
   optimizer.SetItems(settings.itemList);
@@ -323,7 +294,6 @@ int application(std::istream &in) {
             PrintTerminal();
             continue;
           }
-          std::cout << std::stod(arguments.at(1)) << std::endl;
           double givenCapacity = std::stod(arguments.at(1));
           settings.defaultCapacity = givenCapacity;
           settings.capacity = givenCapacity;
@@ -358,19 +328,26 @@ int application(std::istream &in) {
       }
 
       settings.itemList = ConstructItems(settings.filename);
+      std::string valString;
+      std::string toFind = "-capacity=";
+      auto capacityArg = std::find_if(
+          arguments.begin(), arguments.end(),
+          [=](auto str) { return str.find(toFind) != std::string::npos; });
 
-      if (!settings.defaultCapacity.has_value()) {
-        std::string valString;
-        std::string toFind = "-capacity=";
-        auto capacityArg = std::find_if(
-            arguments.begin(), arguments.end(),
-            [=](auto str) { return str.find(toFind) != std::string::npos; });
-        if (capacityArg == arguments.end()) {
+      // If -capacity=<value> is not present
+      if (capacityArg == arguments.end()) {
+        // no default capacity either, throw error
+        if (!settings.defaultCapacity.has_value()) {
           std::cout << RedError(
               "**Specify capacity=\033[32m<capacity>\033[0m.");
           PrintTerminal();
           continue;
         }
+        // Default capacity exists, assign value
+        else {
+          settings.capacity = settings.defaultCapacity.value();
+        }
+      } else {
         valString =
             capacityArg->substr(CAPACITY_ARGLENGTH, capacityArg->length());
 
