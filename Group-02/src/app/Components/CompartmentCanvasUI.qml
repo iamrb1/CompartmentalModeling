@@ -33,11 +33,6 @@ Rectangle {
     property real targetMaxX: width
     property real targetMaxY: height
 
-    Component.onCompleted: {
-        console.log(simulation)
-        updateTargetBoundaries()
-    }
-
     // Update target boundaries based on compartment positions
     function updateTargetBoundaries() {
         if (!simulation) return
@@ -175,6 +170,7 @@ Rectangle {
 
     Component.onCompleted:
     {
+        console.log(simulation)
         {
             if (compartment.x === undefined) {
                 x = 100 + (index % 2) * 200
