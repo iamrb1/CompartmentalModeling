@@ -146,79 +146,33 @@ TEST_CASE("Weightless mode computes correct total value from script2",
           "[FinalApp][Weightless]") {
   std::ifstream inputFile1("WeightlessAppScripts/ex2cap5.txt");
   std::ostringstream capturedOutput;
+  std::string line;
 
   // Redirect std::cout
   auto* originalBuf = std::cout.rdbuf();
   std::cout.rdbuf(capturedOutput.rdbuf());
 
-  if (inputFile1.is_open()) {
-    application(inputFile1);
-  } else {
-    std::cout << "FILE NOT FOUND" << std::endl;
-  }
+  double foundValue = RunOneOutputTest(inputFile1, line, capturedOutput);
 
-  std::cout.rdbuf(originalBuf);
-
-  std::string output = capturedOutput.str();
-  std::istringstream stream(output);
-  std::string line;
-
-  double totalValueFromApp = -1.0;
-
-  while (std::getline(stream, line)) {
-    if (line.find("Optimal Value Calculated:") != std::string::npos) {
-      totalValueFromApp = std::stod(line.substr(line.find(":") + 1));
-    }
-  }
   double expectedValue = 27.1;
 
-  REQUIRE(totalValueFromApp == Approx(expectedValue).margin(0.01));
+  REQUIRE(foundValue == Approx(expectedValue).margin(0.01));
 
   std::ifstream inputFile2("WeightlessAppScripts/ex2cap10.txt");
-  // Redirect std::cout
-  std::cout.rdbuf(capturedOutput.rdbuf());
 
-  if (inputFile2.is_open()) {
-    application(inputFile2);
-  } else {
-    std::cout << "FILE NOT FOUND" << std::endl;
-  }
-  std::cout.rdbuf(originalBuf);
-
-  output = capturedOutput.str();
-  std::istringstream stream2(output);
-
-  totalValueFromApp = -1.0;
-  while (std::getline(stream2, line)) {
-    if (line.find("Optimal Value Calculated:") != std::string::npos) {
-      totalValueFromApp = std::stod(line.substr(line.find(":") + 1));
-    }
-  }
+  line = "";
+  foundValue = RunOneOutputTest(inputFile2, line, capturedOutput);
+  
   expectedValue = 39.2;
-  REQUIRE(totalValueFromApp == Approx(expectedValue).margin(0.1));
+  REQUIRE(foundValue == Approx(expectedValue).margin(0.1));
 
   std::ifstream inputFile3("WeightlessAppScripts/ex1cap5.txt");
-  // Redirect std::cout
-  std::cout.rdbuf(capturedOutput.rdbuf());
-
-  if (inputFile3.is_open()) {
-    application(inputFile3);
-  } else {
-    std::cout << "FILE NOT FOUND" << std::endl;
-  }
-  std::cout.rdbuf(originalBuf);
-
-  output = capturedOutput.str();
-  std::istringstream stream3(output);
-
-  totalValueFromApp = -1.0;
-  while (std::getline(stream3, line)) {
-    if (line.find("Optimal Value Calculated:") != std::string::npos) {
-      totalValueFromApp = std::stod(line.substr(line.find(":") + 1));
-    }
-  }
+  line = "";
+  foundValue = RunOneOutputTest(inputFile3, line, capturedOutput);
   expectedValue = 29.7;
-  REQUIRE(totalValueFromApp == Approx(expectedValue).margin(0.1));
+  REQUIRE(foundValue == Approx(expectedValue).margin(0.1));
+
+  std::cout.rdbuf(originalBuf);
 
 }
 
@@ -282,9 +236,7 @@ void TestCompare(const std::string & path) {
   double speedUp;
   
   while (std::getline(stream, line)) {
-    std::cout << line << std::endl;
     if (line.find("Optimal Value Calculated:") != std::string::npos) {
-      std::cout << "FOUND LINE" << std::endl;
       valuesFound.push_back(std::stod(line.substr(line.find(":") + 1)));
     }
     if (line.find("Speedup:") != std::string::npos) {
@@ -298,12 +250,10 @@ void TestCompare(const std::string & path) {
 
 TEST_CASE("Compare has the same values for both optimized and unoptimized, as well as a positive speedup",
   "[FinalApp][Compare]") {
-  //std::cout << "IS THIS EVEN HAPPENING" << std::endl;
   
   std::vector<std::string> filePaths = {"CompareAppScripts/ex1cap10.txt", "CompareAppScripts/ex2cap10.txt",
     "CompareAppScripts/ex1cap5.txt"};
   for (auto path : filePaths) {
     TestCompare(path);
   }
-  //REQUIRE(false);
 }
