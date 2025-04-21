@@ -78,6 +78,7 @@ bool cse::WordListManager::print(int number, bool isAll) {
 
 bool cse::WordListManager::combine(const std::string &newListName, const std::vector<std::string> &listsToCombine)
 {
+    // check if newListName is unique
     if(mWordLists.find(newListName) != mWordLists.end())
     {
         mErrorManager.printInfo("Invalid List Name: \"" + newListName + "\" already exists.");
@@ -85,6 +86,7 @@ bool cse::WordListManager::combine(const std::string &newListName, const std::ve
     }
     cse::StringSet<cse::StaticString<30>> result;
 
+    // loop through listsTocombine and call Union on result
     for(const auto& list : listsToCombine)
     {
         if(mWordLists.find(list) == mWordLists.end())
@@ -96,11 +98,13 @@ bool cse::WordListManager::combine(const std::string &newListName, const std::ve
         result = result.Union(mWordLists[list]);
     }
 
+    // update the current set
     mCurrentSet = result;
     std::cout << "Number of words to search: " << result.size() << std::endl;
 
     mWordLists[newListName] = std::move(result);
 
+    // set the resulting list as current
     mCurrentLists.clear();
     mCurrentLists.push_back(newListName);
     
@@ -109,12 +113,14 @@ bool cse::WordListManager::combine(const std::string &newListName, const std::ve
 
 bool cse::WordListManager::difference(const std::string &newListName, const std::vector<std::string> &listsToDiff)
 {
+    // check if newListName is unique
     if(mWordLists.find(newListName) != mWordLists.end())
     {
         mErrorManager.printInfo("Invalid list Name: \"" + newListName + "\" already exists.");
         return false;
     }
 
+    // check if all listnames that user provided us with exist
     const auto& firstList = listsToDiff[0];
     if(mWordLists.find(firstList) == mWordLists.end())
     {
@@ -123,6 +129,7 @@ bool cse::WordListManager::difference(const std::string &newListName, const std:
     }
     cse::StringSet<cse::StaticString<30>> result = mWordLists[firstList];
 
+    // take difference from appropriate lists and store it in the result
     for(std::size_t i = 1; i < listsToDiff.size(); i++)
     {
         const auto& listName = listsToDiff[i];
@@ -134,11 +141,12 @@ bool cse::WordListManager::difference(const std::string &newListName, const std:
         result = result.difference(mWordLists[listName]);
     }   
 
+    // update current list and display info to the user
     mCurrentSet = result;
-
     std::cout << "Number of words to search: " << result.size() << std::endl;
     mWordLists[newListName] = std::move(result);
 
+    // update current list with the result
     mCurrentLists.clear();
     mCurrentLists.push_back(newListName);
    
@@ -147,6 +155,7 @@ bool cse::WordListManager::difference(const std::string &newListName, const std:
 
 bool cse::WordListManager::intersection(const std::string &newListName, const std::vector<std::string> &listsToIntersect)
 {
+    // check if newListName is unique
     if(mWordLists.find(newListName) != mWordLists.end())
     {
         mErrorManager.printInfo("Invalid List Name: \"" + newListName + "\" already exists.");
@@ -154,7 +163,7 @@ bool cse::WordListManager::intersection(const std::string &newListName, const st
     }
 
     const auto& firstList = listsToIntersect[0];
-
+    //check if listsToIntersect exist
     if(mWordLists.find(firstList) == mWordLists.end())
     {
         mErrorManager.printInfo("Invalid List Name: List \"" + firstList + "\" does not exist.");
@@ -162,6 +171,7 @@ bool cse::WordListManager::intersection(const std::string &newListName, const st
     }
     cse::StringSet<cse::StaticString<30>> result = mWordLists[firstList];
 
+    // intersect lists accordingly
     for(std::size_t i = 1; i < listsToIntersect.size(); i++)
     {
         const auto& listName = listsToIntersect[i];
@@ -173,6 +183,7 @@ bool cse::WordListManager::intersection(const std::string &newListName, const st
         result = result.intersection(mWordLists[listName]);
     }
 
+    // update current set and current lists
     mCurrentSet = result;
     std::cout << "Number of words to search: " << result.size() << std::endl;
 
@@ -185,18 +196,21 @@ bool cse::WordListManager::intersection(const std::string &newListName, const st
 
 bool cse::WordListManager::copy(const std::string &newListName, const std::string &copyList)
 {
+    // check if newListName is unique
     if(mWordLists.find(newListName) != mWordLists.end())
     {
         mErrorManager.printInfo("Invalid List Name: \"" + newListName + "\" already exists.");
         return false;
     }
 
+    // check if copyList is unique
     if(mWordLists.find(copyList) == mWordLists.end())
     {
         mErrorManager.printInfo("Invalid List Name: List \"" + copyList + "\" does not exist.");
         return false;
     }
 
+    // perform copy and update current set/list
     mWordLists[newListName] = mWordLists[copyList];
     mCurrentSet = mWordLists[newListName];
 
@@ -213,7 +227,7 @@ bool cse::WordListManager::setCurrent(const std::vector<std::string>& listNames)
             mErrorManager.printInfo("List '" + listName + "' does not exist");
             return false;
         }
-        combinedSet = combinedSet.Union(mWordLists[listName]);
+        combinedSet = combinedSet.Union(mWordLists[listName]); // add all words from current lists together
     }
 
     mCurrentSet = std::move(combinedSet);
@@ -222,6 +236,7 @@ bool cse::WordListManager::setCurrent(const std::vector<std::string>& listNames)
 }
 
 bool cse::WordListManager::add(const std::string& listName, const std::string& wordsToAdd) {
+    // check if list exists
     if (mWordLists.find(listName) == mWordLists.end()) {
         mErrorManager.printInfo("List '" + listName + "' does not exist");
         return false;
@@ -229,6 +244,7 @@ bool cse::WordListManager::add(const std::string& listName, const std::string& w
     auto& list = mWordLists[listName];
     std::istringstream iss(wordsToAdd);
     std::string word;
+    // add words to list
     while (iss >> word) {
         list.insert(word);
     }
@@ -237,12 +253,14 @@ bool cse::WordListManager::add(const std::string& listName, const std::string& w
 }
 
 bool cse::WordListManager::save(const std::string& fileName, const std::string& listName) {
+    // check if list exists
     if (mWordLists.find(listName) == mWordLists.end()) {
         mErrorManager.printInfo("List '" + listName + "' does not exist");
         return false;
     }
 
     const auto& list = mWordLists[listName];
+    // save file
     if (FileSource::save_file(fileName, list)) {
         mErrorManager.printInfo("List '" + listName + "' saved to " + + "'" + fileName + "'");
         return true;
@@ -252,7 +270,10 @@ bool cse::WordListManager::save(const std::string& fileName, const std::string& 
 }
 
 bool cse::WordListManager::setLengthRestriction(const std::string& lengthRestriction) {
-    
+    // we are guaranteed by the parser to have either a star
+    // or a string that will be converted to a positive integer
+
+    // if we have star - remove length restriction
     if (lengthRestriction != "*") {
         int num = std::stoi(lengthRestriction);
         int count_before = 0, count_after = 0;
@@ -282,6 +303,7 @@ bool cse::WordListManager::setLengthRestriction(const std::string& lengthRestric
 }
 
 void cse::WordListManager::reset(const std::string& listname) {
+    // if no listname provided - reset all lists
     if (listname == "") {
         mErrorManager.printInfo("Succesfully reset all current lists to the original state.\n");
         mCurrentSet.clear();
@@ -294,6 +316,7 @@ void cse::WordListManager::reset(const std::string& listname) {
         return;
     }
 
+    // check if list name provided by the user exists
     if (mWordLists.find(listname) == mWordLists.end()) {
         mErrorManager.printInfo("List " + listname + " does not exist");
         return;

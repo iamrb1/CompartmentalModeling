@@ -437,7 +437,7 @@ void cse::WordLang::parseContainsAny() {
 }
 
 void cse::WordLang::parseContainsAll() {
-    mTokenManager.Use();
+    mTokenManager.Use(); // use current token
     
     auto letters = mTokenManager.Use();
     if (letters == mTokenManager.eof_token || letters != emplex::Lexer::ID_STRING) {
@@ -474,6 +474,7 @@ void cse::WordLang::parseNotContains() {
         return;
     }
 
+    // remove "" and call word list manager
     std::string trimmedLetters = letters.lexeme.substr(1, letters.lexeme.length() - 2);
     if (!mWordListManager.NotContains(trimmedLetters)) {
         return;
@@ -514,6 +515,7 @@ void cse::WordLang::parseReset() {
     }
 
     if (listname == emplex::Lexer::ID_LISTNAME) {
+        // if we have a specific listname - reset only it
         mWordListManager.reset(listname.lexeme);
         return;
     }
