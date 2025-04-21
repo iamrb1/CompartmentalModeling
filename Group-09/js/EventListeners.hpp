@@ -14,22 +14,20 @@ void bind() {
 	// Set up the event listener for the button click
 	EM_ASM({
 
-		// Setup advance button
+	// Setup advance button
     var advanceButton = document.getElementById("advanceButton");
     if (advanceButton) {
 			advanceButton.addEventListener(
 				"click",
-				function() {Module._call_advance(); });
-
-
-		}
+				function() {Module._call_advance();} );
+	}
 
     var moveForwardButton = document.getElementById("moveForwardButton");
     if (moveForwardButton) {
           moveForwardButton.addEventListener(
               "click",
               function() {Module._call_moveSlide(true); });
-        }
+    }
 
     var moveBackButton = document.getElementById("moveBackButton");
         if (moveBackButton) {
@@ -174,8 +172,12 @@ void bind() {
 			  }
 			});
 
+        var currentSelectedItem = null;
+        var isDragging = false;
 		// Function to make an element draggable
         function makeDraggable(element, event) {
+          currentlySelectedItem = element;
+          isDragging = true;
           //Ensure images aren't default dragging - ChatGPT
           element.ondragstart = () => false;
 
@@ -220,14 +222,30 @@ void bind() {
               // Update element's visual size
               element.style.width = newWidth + "vw";
               element.style.height = newHeight + "vh";
-            }
+              }
 		  };
 
 		  document.onmouseup = function(e) {
 			// Remove event listeners
 			document.onmousemove = null;
 			document.onmouseup = null;
+            isDragging = false;
 		  };
 		}
+
+		document.addEventListener("keydown", function(e) {
+  		  if (e.key === "Delete" && currentlySelectedItem && isDragging){
+    	    const id = currentlySelectedItem.id; //Get selected item id
+
+    	    const success = Module.ccall("call_deleteItem", "boolean", ["string"], [id]);
+
+    	    if (success) {
+      	      currentlySelectedItem.remove();
+      	      currentlySelectedItem = null;
+      	      isDragging = false;
+    	    }
+          }
+  	    });
+
 	});
 }

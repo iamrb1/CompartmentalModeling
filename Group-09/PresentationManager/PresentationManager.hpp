@@ -294,6 +294,23 @@ class PresentationManager {
 			return _slide_deck.at(_current_pos)->contains(id);
 		}
 
+        /**
+		 * Removes object from slides if moveable object
+		 */
+		bool deleteItem(std::string id){
+			if (isMoveableObject(id)) {
+                auto slide = _slide_deck.at(_current_pos);
+                const std::vector<ImageLayout> images = slide->getImages();
+                const auto imageCheck = std::ranges::find_if(images, [id](const ImageLayout& im) { return im.image->getID() == id; });
+                if(imageCheck != images.end())
+                  slide->removeImage(slide->getImageFromID(id));
+                else
+                  slide->removeTextBox(slide->getTextboxFromID(id));
+                return true;
+			}
+            return false;
+		}
+
 		/**
 		 * Getter for slides
 		 * @return slides in the deck
@@ -719,4 +736,7 @@ void call_addObjectEvent(const int timing, const int slideNum, const char *id) {
 	PRESENTATION_MANAGER.addObjectEvent(timing, slideNum, id);
 }
 int call_getCurrentPos() { return PRESENTATION_MANAGER.getCurrentPos(); }
+bool call_deleteItem(const char* id) { std::string cppId(id); return PRESENTATION_MANAGER.deleteItem(cppId);}
+
 }
+
