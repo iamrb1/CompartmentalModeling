@@ -410,7 +410,7 @@ bool cse::WordListManager::Get(const std::string &patternToCheck)
 {
     //If there aren't any patterns being checked, print an error message
     if (patternToCheck.length() == 0) {
-      mErrorManager.printInfo("Incorrect Syntax: no letters to check for provided");
+      mErrorManager.printInfo("Incorrect Syntax: no patterns to check for provided.");
     }
 
     //Don't perform any opperations if there are no current lists

@@ -668,6 +668,9 @@ TEST_CASE("Contains ANY tests", "[WordLang]")
       "PRINT ALL\n",
       "LIST list3 = LOAD\"file1.txt\"\n",
       "CONTAINS_ANY \"e\"\n",
+      "PRINT ALL\n",
+      "LIST list4 = LOAD\"file2.txt\"\n",
+      "CONTAINS_ANY \"\"\n",
       "PRINT ALL"
   };
 
@@ -681,6 +684,9 @@ TEST_CASE("Contains ANY tests", "[WordLang]")
     "Loaded \"file1.txt\". Word count in a list: 11\n",
     "Number of words to search: 4\n",
     "[where, hello, key, Test]\n",
+    "Loaded \"file2.txt\". Word count in a list: 11\n",
+    "[Info]: Incorrect Syntax: no letters given.\nNumber of words to search: 0\n",
+    "[]\n"
   };
 
   test_function(input, output_result);
@@ -697,6 +703,9 @@ TEST_CASE("Contains ALL tests", "[WordLang]")
       "PRINT ALL\n",
       "LIST list3 = LOAD\"file1.txt\"\n",
       "CONTAINS_ALL \"wh\"\n",
+      "PRINT ALL\n",
+      "LIST list4 = LOAD\"file1.txt\"\n",
+      "CONTAINS_ANY \"\"\n",
       "PRINT ALL"
   };
 
@@ -709,7 +718,10 @@ TEST_CASE("Contains ALL tests", "[WordLang]")
     "[cucumber, dump]\n",
     "Loaded \"file1.txt\". Word count in a list: 11\n",
     "Number of words to search: 3\n",
-    "[who, where, why]\n"
+    "[who, where, why]\n",
+    "Loaded \"file1.txt\". Word count in a list: 11\n",
+    "[Info]: Incorrect Syntax: no letters given.\nNumber of words to search: 0\n",
+    "[]\n"
   };
 
   test_function(input, output_result);
@@ -725,6 +737,9 @@ TEST_CASE("Not Contains tests", "[WordLang]")
       "PRINT ALL",
       "LIST list3 = LOAD\"notcontains_file.txt\"\n",
       "NOT_CONTAINS \"zl\"\n",
+      "PRINT ALL\n",
+      "LIST list4 = LOAD\"notcontains_file.txt\"\n",
+      "NOT_CONTAINS \"\"\n",
       "PRINT ALL"
   };
 
@@ -737,7 +752,10 @@ TEST_CASE("Not Contains tests", "[WordLang]")
     "[maple]\n",
     "Loaded \"notcontains_file.txt\". Word count in a list: 11\n",
     "Number of words to search: 2\n",
-    "[back, rabbit]\n"
+    "[back, rabbit]\n",
+    "Loaded \"notcontains_file.txt\". Word count in a list: 11\n",
+    "[Info]: Incorrect Syntax: no letters to check for provided.\nNumber of words to search: 11\n",
+    "[unable, slab, able, maple, cable, back, tangible, stable, rabbit, table, fable]\n"
   };
 
   test_function(input, output_result);
@@ -756,6 +774,9 @@ TEST_CASE("Get tests", "[WordLang]")
       "GET \"___m\"\n",
       //"GET \"__m\"\n", //TODO:  use this for a later test
       //"GET \"*m\"\n",
+      "PRINT ALL\n",
+      "LIST list4 = LOAD\"get_file.txt\"\n",
+      "GET \"\"\n",
       "PRINT ALL"
   };
 
@@ -769,6 +790,9 @@ TEST_CASE("Get tests", "[WordLang]")
     "Loaded \"get_file.txt\". Word count in a list: 21\n",
     "Number of words to search: 2\n",
     "[worm, team]\n",
+    "Loaded \"get_file.txt\". Word count in a list: 21\n",
+    "[Info]: Incorrect Syntax: no patterns to check for provided.\nNumber of words to search: 21\n",
+    "[worm, make, break, earth, texture, mosaic, pop, plate, lable, maze, pound, slate, team, underground, toad, zap, tunnel, train, sled, lead, log]\n"
   };
 
   test_function(input, output_result);
