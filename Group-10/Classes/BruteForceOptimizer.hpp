@@ -195,20 +195,18 @@ class BruteForceOptimizer {
     // sort by value density (descending) when repeating elements,
     // otherwise by overall value (descending)
     sortedItems_ = items_;
-    if (repeating_) {
-      std::stable_sort(sortedItems_.begin(), sortedItems_.end(),
-                       [](const Item& l, const Item& r) {
-                         return (l.value / l.weight) > (r.value / r.weight);
-                       });
-    } else {
-      std::stable_sort(sortedItems_.begin(), sortedItems_.end(),
-                       std::greater<Item>());
-    }
+    std::stable_sort(sortedItems_.begin(), sortedItems_.end(),
+                     std::greater<Item>());
     // Create value array based on the remaining overall value at any index
     double totalValue = 0.0;
     for (auto iter = sortedItems_.rbegin(); iter != sortedItems_.rend();
-         ++iter) {
-      totalValue += (*iter).value;
+         ++iter) { 
+      if (repeating_) {
+        int maxItemAmount = capacity_ / (*iter).weight;
+        totalValue += (maxItemAmount * (*iter).value);
+      } else {
+        totalValue += (*iter).value;
+      }
       scoreTracker_.push_back(totalValue);
     }
   }

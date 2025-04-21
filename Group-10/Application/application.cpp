@@ -19,6 +19,11 @@
 static cse::OptimizerSettings settings;
 static const cse::PresetMessages messages;
 static constexpr std::size_t CAPACITY_ARGLENGTH = 10;
+static constexpr double THRESHOLD_TO_SECONDS = 500;
+static constexpr double MILLISECONDS_IN_SECONDS = 1000;
+static constexpr double SPEEDUP_ADJUSTMENT_CONSTANT = 100;
+
+
 
 /**
  * Utility Functions:
@@ -124,7 +129,14 @@ void PrintOptimizerResults(std::pair<double, std::vector<cse::Item>> solution) {
 }
 
 void PrintTiming(double timingInMilliseconds) {
-  std::cout << std::setprecision(4) << timingInMilliseconds << " milliseconds" << std::endl;
+  if (timingInMilliseconds >= THRESHOLD_TO_SECONDS) {
+    std::cout << std::setprecision(4)
+              << timingInMilliseconds / MILLISECONDS_IN_SECONDS << " seconds"
+              << std::endl;
+  } else {
+    std::cout << std::setprecision(4) << timingInMilliseconds << " milliseconds"
+              << std::endl;
+  }
 }
 
 /**
@@ -163,7 +175,7 @@ std::vector<cse::Item> ConstructItems(std::string filename) {
 
   return Items;
 }
-/** 
+/**
 void Compare() {
   cse::BruteForceOptimizer optimizer;
   optimizer.SetItems(settings.itemList);
@@ -184,9 +196,9 @@ void Compare() {
   });
 
   // Print timing results
-  std::cout << "Unoptimized Time: " << unoptimizedTime << " milliseconds" << std::endl;
-  std::cout << "Optimized Time: " << optimizedTime << " milliseconds" << std::endl;
-  std::cout << "Speedup: "
+  std::cout << "Unoptimized Time: " << unoptimizedTime << " milliseconds" <<
+std::endl; std::cout << "Optimized Time: " << optimizedTime << " milliseconds"
+<< std::endl; std::cout << "Speedup: "
             << ((unoptimizedTime - optimizedTime) / unoptimizedTime) * 100
             << "%\n";
 }
@@ -221,22 +233,23 @@ void CallBruteForceOptimizer() {
   // Print timings
   if (!settings.compare) {
     if (!settings.optimized) {
-      PrintTiming(unoptimizedTime); // Print unoptimized timing
+      PrintTiming(unoptimizedTime);  // Print unoptimized timing
     } else {
-      PrintTiming(optimizedTime); // Print optimized timing
+      PrintTiming(optimizedTime);  // Print optimized timing
     }
   }
 
   if (settings.compare) {
     // Print comparison results
-    std::cout << "Unoptimized Time: " << unoptimizedTime << " milliseconds" << std::endl;
-    std::cout << "Optimized Time: " << optimizedTime << " milliseconds" << std::endl;
+    PrintTiming(unoptimizedTime);
+    PrintTiming(optimizedTime);
     std::cout << "Speedup: "
-              << ((unoptimizedTime - optimizedTime) / unoptimizedTime) * 100
+              << ((unoptimizedTime / optimizedTime) *
+                  SPEEDUP_ADJUSTMENT_CONSTANT) -
+                     SPEEDUP_ADJUSTMENT_CONSTANT
               << "%\n";
   }
 }
-
 
 /**
  * For Commands where weights should have no influence, set to a weight of 1

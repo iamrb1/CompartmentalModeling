@@ -6,20 +6,69 @@
 #include "../../Group-10/Application/application.cpp"
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 
-TEST_CASE("Basic", "[FinalApp]") {
-  std::ifstream inputFile("script1.txt");
-  std::string line;
+double FindOptimalValue (std::istream& stream, std::string line) {
+  double totalValueFromApp = -1.0;
+  while (std::getline(stream, line)) {
+    if (line.find("Optimal Value Calculated:") != std::string::npos) {
+      totalValueFromApp = std::stod(line.substr(line.find(":") + 1));
+    }
+  }
+  return totalValueFromApp;
+}
 
+double RunOneOutputTest(std::ifstream& inputFile, std::string& line, std::ostringstream& capturedOutput) {
   if (inputFile.is_open()) {
     application(inputFile);
   } else {
     std::cout << "FILE NOT FOUND" << std::endl;
   }
+  std::string output = capturedOutput.str();
+  std::istringstream stream(output);
+
+  double totalValueFromApp = FindOptimalValue(stream, line);
+  return totalValueFromApp;
+}
+
+
+
+TEST_CASE("Basic", "[FinalApp]") {
+  std::ifstream inputFile("DefaultAppScripts/cap10.txt");
+  std::string line;
+  std::ostringstream capturedOutput;
+
+  // Redirect std::cout
+  auto* originalBuf = std::cout.rdbuf();
+  std::cout.rdbuf(capturedOutput.rdbuf());
+
+  double totalValueFromApp = RunOneOutputTest(inputFile, line, capturedOutput);
+
+  double expectedValue = 26.0;
+  REQUIRE(totalValueFromApp == Approx(expectedValue).margin(0.01));
+  
+  inputFile = std::ifstream("DefaultAppScripts/cap2.txt");
+  totalValueFromApp = RunOneOutputTest(inputFile, line, capturedOutput);
+  
+  expectedValue = 6.8;
+  REQUIRE(totalValueFromApp == Approx(expectedValue).margin(0.01));
+
+  inputFile = std::ifstream("DefaultAppScripts/cap12.txt");
+  totalValueFromApp = RunOneOutputTest(inputFile, line, capturedOutput);
+  
+  expectedValue = 30.1;
+  REQUIRE(totalValueFromApp == Approx(expectedValue).margin(0.01));
+
+  inputFile = std::ifstream("DefaultAppScripts/cap5.5.txt");
+  totalValueFromApp = RunOneOutputTest(inputFile, line, capturedOutput);
+  
+  expectedValue = 6.0;
+  REQUIRE(totalValueFromApp == Approx(expectedValue).margin(0.01));
+
+  std::cout.rdbuf(originalBuf);
 }
 
 TEST_CASE("Weightless mode computes correct total value from script2",
           "[FinalApp][Weightless]") {
-  std::ifstream inputFile("script2.txt");
+  std::ifstream inputFile("WeightlessAppScripts/ex2cap5.txt");
   std::ostringstream capturedOutput;
 
   // Redirect std::cout
@@ -41,7 +90,7 @@ TEST_CASE("Weightless mode computes correct total value from script2",
   double totalValueFromApp = -1.0;
 
   while (std::getline(stream, line)) {
-    if (line.find("Optimal Value:") != std::string::npos) {
+    if (line.find("Optimal Value Calculated:") != std::string::npos) {
       totalValueFromApp = std::stod(line.substr(line.find(":") + 1));
     }
   }
@@ -75,7 +124,7 @@ TEST_CASE("Repeats mode computes correct total value from script3",
   double totalValueFromApp = -1.0;
 
   while (std::getline(stream, line)) {
-    if (line.find("Optimal Value:") != std::string::npos) {
+    if (line.find("Optimal Value Calculated:") != std::string::npos) {
       totalValueFromApp = std::stod(line.substr(line.find(":") + 1));
     }
   }
