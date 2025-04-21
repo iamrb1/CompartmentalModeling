@@ -2,8 +2,9 @@ TEST_NAMES = Assert BitVector RichText RichTextAdvanced RichTextSerialize RTFSer
 
 CATCH = ../../third-party/Catch/single_include/catch2
 GROUP4 = ../../Group-04/lib
+GROUP4APP = ../../Group-04/app
 
-FLAGS = -std=c++23 -g -pthread -Wall -Wextra -I../../ -I$(GROUP4) -I$(CATCH) -DCATCH_CONFIG_MAIN -DCSE4_IMPL
+FLAGS = -std=c++23 -g -pthread -Wall -Wextra -I../../ -I$(GROUP4) -I$(GROUP4APP) -I$(CATCH) -DCATCH_CONFIG_MAIN -DCSE4_IMPL
 
 default: test
 
