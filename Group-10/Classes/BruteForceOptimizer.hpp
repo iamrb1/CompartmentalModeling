@@ -16,6 +16,8 @@ Last Changed Date: 03/26/2025
 #include <utility>
 #include <vector>
 
+static constexpr double MARGIN_OF_ERROR = 0.000001;
+
 namespace cse {
 
 /**
@@ -125,7 +127,8 @@ class BruteForceOptimizer {
 
     auto scoreCheck = [this, currentWeight, currentValue,
                        updateScore]() mutable {
-      if (currentWeight <= capacity_ && currentValue > bestScore_) {
+      if (currentWeight <= capacity_ + MARGIN_OF_ERROR &&
+          currentValue > bestScore_) {
         updateScore(currentValue);
       }
     };
@@ -175,7 +178,7 @@ class BruteForceOptimizer {
     ExploreCombinations(index + 1, currentWeight, currentValue);
     // Include the current item if it does not exceed capacity.
     const Item& item = (optimizeEnabled_) ? sortedItems_[index] : items_[index];
-    if (currentWeight + item.weight <= capacity_) {
+    if (currentWeight + item.weight <= capacity_ + MARGIN_OF_ERROR) {
       currentSelection_.push_back(item);
       if (repeating_) {
         ExploreCombinations(index, currentWeight + item.weight,
@@ -201,7 +204,7 @@ class BruteForceOptimizer {
     // Create value array based on the remaining overall value at any index
     double totalValue = 0.0;
     for (auto iter = sortedItems_.rbegin(); iter != sortedItems_.rend();
-         ++iter) { 
+         ++iter) {
       if (repeating_) {
         int maxItemAmount = capacity_ / (*iter).weight;
         totalValue += (maxItemAmount * (*iter).value);
