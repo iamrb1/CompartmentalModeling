@@ -95,6 +95,36 @@ namespace cse
 		} &&
 		 is_custom_type<T>::value);
 
+	template <typename T>
+	concept ResizableContainer = requires(T a, size_t n) {
+		a.resize(n);
+		a.begin();
+		a.end();
+	} && !std::is_same_v<T, std::string>;
+
+	template <typename T>
+	concept MapContainer = requires(T a) {
+		typename T::key_type;
+		typename T::mapped_type;
+		a.begin();
+		a.end();
+	};
+
+	template <typename T>
+	concept FixedSizeContainer = requires {
+		std::tuple_size<T>::value;
+	} && requires(T a) {
+		a.begin();
+		a.end();
+	};
+
+	template <typename T>
+	concept SetContainer = requires(T a, typename T::value_type val) {
+		a.insert(val);
+		a.begin();
+		a.end();
+	} && !MapContainer<T>;
+
 	/**
 	 * @class Serializer
 	 * @brief A utility class for serializing and deserializing various data types to/from binary files.
@@ -289,7 +319,7 @@ namespace cse
 					std::string datatype = typeid(data).name();
 					if (currType != datatype)
 					{
-						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
+						throw cse::SerializationError("Type mismatch or corrupted file.");
 					}
 				}
 				inFile.read(reinterpret_cast<char *>(&data), sizeof(T));
@@ -327,7 +357,7 @@ namespace cse
 					std::string datatype = typeid(str).name();
 					if (currType != datatype)
 					{
-						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
+						throw cse::SerializationError("Type mismatch or corrupted file.");
 					}
 				}
 				int length;
@@ -338,58 +368,53 @@ namespace cse
 		}
 
 		/**
-		 * @brief Serializes or deserializes a `std::vector` of any type to/from a binary file.
+		 * @brief Serializes or deserializes a `std::vector` or related of any type to/from a binary file.
 		 * @tparam T The type of elements stored in the vector.
-		 * @param vec Reference to the vector to write or read.
+		 * @param container Reference to the resizable container to write or read.
 		 * @param filename Path to the binary file.
 		 *
 		 * In SAVE mode, writes the size of the vector followed by each element.
 		 * In LOAD mode, reads the size, resizes the vector, and then reads each element.
 		 */
-		template <typename T>
-		void Serialize(std::vector<T> &vec, const std::string &filename)
+		template <ResizableContainer Vec>
+		void Serialize(Vec &container, const std::string &filename)
 		{
+			using T = typename Vec::value_type;
+			static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
+
 			if (mode_ == Mode::SAVE)
 			{
-				// Write vector size.
 				SetOutFile(filename);
 				if (!setType)
-					PrintType(vec);
-				int size = vec.size();
+					PrintType(container);
+				int size = container.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
-				// Write each element in the vector.
-				for (int i = 0; i < size; i++)
+				for (auto &elem : container)
 				{
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
-						Serialize(vec[i], filename, true);
+					if constexpr (is_custom_type<std::remove_cvref_t<T>>::value)
+						Serialize(elem, filename, true);
 					else
-						Serialize(vec[i], filename);
+						Serialize(elem, filename);
 				}
 			}
-			else // LOAD mode
+			else
 			{
-				// Read vector size and elements.
 				SetInFile(filename);
 				if (currType == "")
 				{
 					GetType();
-					std::string datatype = typeid(vec).name();
-					if (currType != datatype)
-					{
-						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
-					}
+					if (currType != typeid(container).name())
+						throw SerializationError("Type mismatch or corrupted file.");
 				}
 				int size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
-				vec.resize(size);
-				// Check if the element type is serializable before processing.
-				static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
-				for (int i = 0; i < size; i++)
+				container.resize(size);
+				for (auto &elem : container)
 				{
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
-						Serialize(vec[i], filename, true);
+					if constexpr (is_custom_type<std::remove_cvref_t<T>>::value)
+						Serialize(elem, filename, true);
 					else
-						Serialize(vec[i], filename);
+						Serialize(elem, filename);
 				}
 			}
 		}
@@ -429,7 +454,7 @@ namespace cse
 					std::string datatype = typeid(arr).name();
 					if (currType != datatype)
 					{
-						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
+						throw cse::SerializationError("Type mismatch or corrupted file.");
 					}
 				}
 				// Read each element from the file.
@@ -444,25 +469,23 @@ namespace cse
 		}
 
 		/**
-		 * @brief Serializes or deserializes a `std::set` of elements to/from a binary file.
-		 * @tparam T The type of elements in the set.
+		 * @brief Serializes or deserializes a `std::set` and related of elements to/from a binary file.
 		 * @param set Reference to the set to write or read.
 		 * @param filename Path to the binary file.
 		 */
-		template <typename T>
-		void Serialize(std::set<T> &set, const std::string &filename)
+		template <SetContainer Set>
+		void Serialize(Set &set, const std::string &filename)
 		{
-			// Check if the element type is serializable before processing.
+			using T = typename Set::value_type;
 			static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
+
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
 				if (!setType)
 					PrintType(set);
-				// Write set size.
 				int size = set.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
-				// Iterate through the set and serialize each element.
 				for (auto item = set.begin(); item != set.end(); ++item)
 				{
 					T data = *item;
@@ -474,24 +497,20 @@ namespace cse
 			}
 			else
 			{
-				// Read set size and then each element.
 				SetInFile(filename);
 				if (currType == "")
 				{
 					GetType();
-					std::string datatype = typeid(set).name();
-					if (currType != datatype)
-					{
-						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
-					}
+					if (currType != typeid(set).name())
+						throw SerializationError("Type mismatch or corrupted file.");
 				}
 				int size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
 				set.clear();
-				for (int i = 0; i < size; i++)
+				for (int i = 0; i < size; ++i)
 				{
 					T item;
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(item)>>::value)
+					if constexpr (is_custom_type<std::remove_cvref_t<T>>::value)
 						Serialize(item, filename, true);
 					else
 						Serialize(item, filename);
@@ -500,206 +519,36 @@ namespace cse
 			}
 		}
 
-		/**
-		 * @brief Serializes or deserializes a `std::unordered_set` of elements to/from a binary file.
-		 * @tparam T The type of elements in the unordered_set.
-		 * @param uset Reference to the unordered_set to write or read.
-		 * @param filename Path to the binary file.
-		 */
-		template <typename T>
-		void Serialize(std::unordered_set<T> &uset, const std::string &filename)
+		// /**
+		//  * @brief Serializes or deserializes a `std::map` and related (key-value pairs) to/from a binary file.
+		//  * @param map Reference to the map to write or read.
+		//  * @param filename Path to the binary file.
+		//  */
+		template <MapContainer Map>
+		void Serialize(Map &map, const std::string &filename)
 		{
-			// Check if the element type is serializable before processing.
-			static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
-			if (mode_ == Mode::SAVE)
-			{
-				SetOutFile(filename);
-				if (!setType)
-					PrintType(uset);
-				// Write unordered_set size.
-				int size = uset.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
-				// Serialize each element.
-				for (auto item = uset.begin(); item != uset.end(); ++item)
-				{
-					T data = *item;
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(data)>>::value)
-						Serialize(data, filename, true);
-					else
-						Serialize(data, filename);
-				}
-			}
-			else
-			{
-				// Read size and then deserialize each element.
-				SetInFile(filename);
-				if (currType == "")
-				{
-					GetType();
-					std::string datatype = typeid(uset).name();
-					if (currType != datatype)
-					{
-						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
-					}
-				}
-				int size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
-				uset.clear();
-				for (int i = 0; i < size; i++)
-				{
-					T item;
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(item)>>::value)
-						Serialize(item, filename, true);
-					else
-						Serialize(item, filename);
-					uset.insert(item);
-				}
-			}
-		}
-
-		/**
-		 * @brief Serializes or deserializes a `std::multiset` of elements to/from a binary file.
-		 * @tparam T The type of elements in the multiset.
-		 * @param mset Reference to the multiset to write or read.
-		 * @param filename Path to the binary file.
-		 */
-		template <typename T>
-		void Serialize(std::multiset<T> &mset, const std::string &filename)
-		{
-			// Check if the element type is serializable before processing.
-			static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
-			if (mode_ == Mode::SAVE)
-			{
-				SetOutFile(filename);
-				if (!setType)
-					PrintType(mset);
-				int size = mset.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
-				// Iterate through multiset elements.
-				for (auto item = mset.begin(); item != mset.end(); ++item)
-				{
-					T data = *item;
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(data)>>::value)
-						Serialize(data, filename, true);
-					else
-						Serialize(data, filename);
-				}
-			}
-			else
-			{
-				// Read size and then each element.
-				SetInFile(filename);
-				if (currType == "")
-				{
-					GetType();
-					std::string datatype = typeid(mset).name();
-					if (currType != datatype)
-					{
-						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
-					}
-				}
-				int size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
-				mset.clear();
-				for (int i = 0; i < size; i++)
-				{
-					T item;
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(item)>>::value)
-						Serialize(item, filename, true);
-					else
-						Serialize(item, filename);
-					mset.insert(item);
-				}
-			}
-		}
-
-		/**
-		 * @brief Serializes or deserializes a `std::unordered_multiset` of elements to/from a binary file.
-		 * @tparam T The type of elements in the unordered_multiset.
-		 * @param umset Reference to the unordered_multiset to write or read.
-		 * @param filename Path to the binary file.
-		 */
-		template <typename T>
-		void Serialize(std::unordered_multiset<T> &umset, const std::string &filename)
-		{
-			// Check if the element type is serializable before processing.
-			static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
-			if (mode_ == Mode::SAVE)
-			{
-				SetOutFile(filename);
-				if (!setType)
-					PrintType(umset);
-				int size = umset.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
-				// Serialize each element in the unordered_multiset.
-				for (auto item = umset.begin(); item != umset.end(); ++item)
-				{
-					T data = *item;
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(data)>>::value)
-						Serialize(data, filename, true);
-					else
-						Serialize(data, filename);
-				}
-			}
-			else
-			{
-				// Read size and then deserialize each element.
-				SetInFile(filename);
-				if (currType == "")
-				{
-					GetType();
-					std::string datatype = typeid(umset).name();
-					if (currType != datatype)
-					{
-						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
-					}
-				}
-				int size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
-				umset.clear();
-				for (int i = 0; i < size; i++)
-				{
-					T item;
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(item)>>::value)
-						Serialize(item, filename, true);
-					else
-						Serialize(item, filename);
-					umset.insert(item);
-				}
-			}
-		}
-
-		/**
-		 * @brief Serializes or deserializes a `std::map` (key-value pairs) to/from a binary file.
-		 * @tparam K The key type.
-		 * @tparam V The value type.
-		 * @param map Reference to the map to write or read.
-		 * @param filename Path to the binary file.
-		 */
-		template <typename K, typename V>
-		void Serialize(std::map<K, V> &map, const std::string &filename)
-		{
-			// Check if the element type is serializable before processing.
+			using K = typename Map::key_type;
+			using V = typename Map::mapped_type;
 			static_assert(IsSerializable<K>(), "Trying to serialize a type that is not serializable.");
 			static_assert(IsSerializable<V>(), "Trying to serialize a type that is not serializable.");
+
 			if (mode_ == Mode::SAVE)
 			{
 				SetOutFile(filename);
 				if (!setType)
 					PrintType(map);
-				// Write map size.
 				int size = map.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
-				// Serialize each key-value pair.
 				for (auto item = map.begin(); item != map.end(); ++item)
 				{
 					K key = item->first;
 					V val = item->second;
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
+					if constexpr (is_custom_type<std::remove_cvref_t<K>>::value)
 						Serialize(key, filename, true);
 					else
 						Serialize(key, filename);
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
+
+					if constexpr (is_custom_type<std::remove_cvref_t<V>>::value)
 						Serialize(val, filename, true);
 					else
 						Serialize(val, filename);
@@ -707,16 +556,12 @@ namespace cse
 			}
 			else
 			{
-				// Read map size and deserialize each key-value pair.
 				SetInFile(filename);
 				if (currType == "")
 				{
 					GetType();
-					std::string datatype = typeid(map).name();
-					if (currType != datatype)
-					{
-						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
-					}
+					if (currType != typeid(map).name())
+						throw SerializationError("Type mismatch or corrupted file.");
 				}
 				int size;
 				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
@@ -725,219 +570,17 @@ namespace cse
 				{
 					K key;
 					V val;
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
+					if constexpr (is_custom_type<std::remove_cvref_t<K>>::value)
 						Serialize(key, filename, true);
 					else
 						Serialize(key, filename);
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
-						Serialize(val, filename, true);
-					else
-						Serialize(val, filename);
-					map[key] = val;
-				}
-			}
-		}
 
-		/**
-		 * @brief Serializes or deserializes a `std::unordered_map` (key-value pairs) to/from a binary file.
-		 * @tparam K The key type.
-		 * @tparam V The value type.
-		 * @param umap Reference to the unordered_map to write or read.
-		 * @param filename Path to the binary file.
-		 */
-		template <typename K, typename V>
-		void Serialize(std::unordered_map<K, V> &umap, const std::string &filename)
-		{
-			// Check if the element type is serializable before processing.
-			static_assert(IsSerializable<K>(), "Trying to serialize a type that is not serializable.");
-			static_assert(IsSerializable<V>(), "Trying to serialize a type that is not serializable.");
-			if (mode_ == Mode::SAVE)
-			{
-				SetOutFile(filename);
-				if (!setType)
-					PrintType(umap);
-				int size = umap.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
-				// Serialize each key-value pair.
-				for (auto item = umap.begin(); item != umap.end(); ++item)
-				{
-					K key = item->first;
-					V val = item->second;
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
-						Serialize(key, filename, true);
-					else
-						Serialize(key, filename);
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
+					if constexpr (is_custom_type<std::remove_cvref_t<V>>::value)
 						Serialize(val, filename, true);
 					else
 						Serialize(val, filename);
-				}
-			}
-			else
-			{
-				// Deserialize map size and each key-value pair.
-				SetInFile(filename);
-				if (currType == "")
-				{
-					GetType();
-					std::string datatype = typeid(umap).name();
-					if (currType != datatype)
-					{
-						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
-					}
-				}
-				int size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
-				umap.clear();
-				for (int i = 0; i < size; i++)
-				{
-					K key;
-					V val;
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
-						Serialize(key, filename, true);
-					else
-						Serialize(key, filename);
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
-						Serialize(val, filename, true);
-					else
-						Serialize(val, filename);
-					umap[key] = val;
-				}
-			}
-		}
 
-		/**
-		 * @brief Serializes or deserializes a `std::multimap` (key-value pairs) to/from a binary file.
-		 * @tparam K The key type.
-		 * @tparam V The value type.
-		 * @param mmap Reference to the multimap to write or read.
-		 * @param filename Path to the binary file.
-		 */
-		template <typename K, typename V>
-		void Serialize(std::multimap<K, V> &mmap, const std::string &filename)
-		{
-			// Check if the element type is serializable before processing.
-			static_assert(IsSerializable<K>(), "Trying to serialize a type that is not serializable.");
-			static_assert(IsSerializable<V>(), "Trying to serialize a type that is not serializable.");
-			if (mode_ == Mode::SAVE)
-			{
-				SetOutFile(filename);
-				if (!setType)
-					PrintType(mmap);
-				int size = mmap.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
-				// Serialize each key-value pair.
-				for (auto item = mmap.begin(); item != mmap.end(); ++item)
-				{
-					K key = item->first;
-					V val = item->second;
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
-						Serialize(key, filename, true);
-					else
-						Serialize(key, filename);
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
-						Serialize(val, filename, true);
-					else
-						Serialize(val, filename);
-				}
-			}
-			else
-			{
-				// Deserialize multimap size and key-value pairs.
-				SetInFile(filename);
-				if (currType == "")
-				{
-					GetType();
-					std::string datatype = typeid(mmap).name();
-					if (currType != datatype)
-					{
-						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
-					}
-				}
-				int size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
-				mmap.clear();
-				for (int i = 0; i < size; i++)
-				{
-					K key;
-					V val;
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
-						Serialize(key, filename, true);
-					else
-						Serialize(key, filename);
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
-						Serialize(val, filename, true);
-					else
-						Serialize(val, filename);
-					mmap.insert({key, val});
-				}
-			}
-		}
-
-		/**
-		 * @brief Serializes or deserializes a `std::unordered_multimap` (key-value pairs) to/from a binary file.
-		 * @tparam K The key type.
-		 * @tparam V The value type.
-		 * @param ummap Reference to the unordered_multimap to write or read.
-		 * @param filename Path to the binary file.
-		 */
-		template <typename K, typename V>
-		void Serialize(std::unordered_multimap<K, V> &ummap, const std::string &filename)
-		{
-			// Check if the element type is serializable before processing.
-			static_assert(IsSerializable<K>(), "Trying to serialize a type that is not serializable.");
-			static_assert(IsSerializable<V>(), "Trying to serialize a type that is not serializable.");
-			if (mode_ == Mode::SAVE)
-			{
-				SetOutFile(filename);
-				if (!setType)
-					PrintType(ummap);
-				int size = ummap.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
-				// Serialize each key-value pair.
-				for (auto item = ummap.begin(); item != ummap.end(); ++item)
-				{
-					K key = item->first;
-					V val = item->second;
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
-						Serialize(key, filename, true);
-					else
-						Serialize(key, filename);
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
-						Serialize(val, filename, true);
-					else
-						Serialize(val, filename);
-				}
-			}
-			else
-			{
-				// Deserialize size and each key-value pair.
-				SetInFile(filename);
-				if (currType == "")
-				{
-					GetType();
-					std::string datatype = typeid(ummap).name();
-					if (currType != datatype)
-					{
-						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
-					}
-				}
-				int size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
-				ummap.clear();
-				for (int i = 0; i < size; i++)
-				{
-					K key;
-					V val;
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(key)>>::value)
-						Serialize(key, filename, true);
-					else
-						Serialize(key, filename);
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(val)>>::value)
-						Serialize(val, filename, true);
-					else
-						Serialize(val, filename);
-					ummap.insert({key, val});
+					map.insert({key, val});
 				}
 			}
 		}
@@ -992,7 +635,7 @@ namespace cse
 					std::string datatype = typeid(stk).name();
 					if (currType != datatype)
 					{
-						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
+						throw cse::SerializationError("Type mismatch or corrupted file.");
 					}
 				}
 				int size;
@@ -1060,7 +703,7 @@ namespace cse
 					std::string datatype = typeid(q).name();
 					if (currType != datatype)
 					{
-						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
+						throw cse::SerializationError("Type mismatch or corrupted file.");
 					}
 				}
 				int size;
@@ -1128,7 +771,7 @@ namespace cse
 					std::string datatype = typeid(pq).name();
 					if (currType != datatype)
 					{
-						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
+						throw cse::SerializationError("Type mismatch or corrupted file.");
 					}
 				}
 				int size;
@@ -1142,66 +785,6 @@ namespace cse
 						Serialize(vec[i], filename);
 				}
 				pq = std::priority_queue<T>(vec.begin(), vec.end());
-			}
-		}
-
-		/**
-		 * @brief Serializes or deserializes a `std::deque` to/from a binary file.
-		 * @tparam T The type of elements in the deque.
-		 * @param deq Reference to the deque to write or read.
-		 * @param filename Path to the binary file.
-		 */
-		template <typename T>
-		void Serialize(std::deque<T> &deq, const std::string &filename)
-		{
-			// Check if the element type is serializable before processing.
-			static_assert(IsSerializable<T>(), "Trying to serialize a type that is not serializable.");
-			if (mode_ == Mode::SAVE)
-			{
-				SetOutFile(filename);
-				if (!setType)
-					PrintType(deq);
-				// Write the size of the deque.
-				int size = deq.size();
-				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
-				// Serialize each element using its index.
-				for (int i = 0; i < size; i++)
-				{
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(deq[i])>>::value)
-						Serialize(deq[i], filename, true);
-					else
-						Serialize(deq[i], filename);
-				}
-			}
-			else
-			{
-				// Read size and then deserialize each element into a temporary vector.
-				SetInFile(filename);
-				if (currType == "")
-				{
-					GetType();
-					std::string datatype = typeid(deq).name();
-					if (currType != datatype)
-					{
-						throw cse::SerializationError("The data in file not suitable for the desired data type, or the file has been corrupted.");
-					}
-				}
-				int size;
-				inFile.read(reinterpret_cast<char *>(&size), sizeof(int));
-				std::vector<T> vec(size);
-				for (int i = 0; i < size; i++)
-				{
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
-						Serialize(vec[i], filename, true);
-					else
-						Serialize(vec[i], filename);
-				}
-				// Clear and rebuild the deque from the vector.
-				deq.clear();
-				for (const T &item : vec)
-				{
-					deq.push_back(item);
-				}
 			}
 		}
 
