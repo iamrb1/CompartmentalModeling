@@ -65,7 +65,8 @@ public:
      * @brief Combines multiple lists into one list
      * @param newListName New created list
      * @param listsToCombine List names that needs to be combined
-     * @return True if lists exist and successful, false if less than 2 lists provided and one of the lists or both doesn't exist
+     * @return True and combines listsToCombine if newListName does not already exist and all listsToCombine exist,
+     * false otherwise
      */
     bool combine(const std::string& newListName, const std::vector<std::string>& listsToCombine);
 
@@ -73,7 +74,8 @@ public:
      * @brief Difference between first and other lists
      * @param newListName New list based on the difference
      * @param listsToDiff List names that we need for difference
-     * @return True if lists exist and successful, false if less than 2 lists and any of them does not exist
+     * @return True and computes the difference of listsToDiff if newListName does not already exist and all
+     * listToDiff exist, false otherwise
      */
     bool difference(const std::string& newListName, const std::vector<std::string>& listsToDiff);
 
@@ -81,7 +83,8 @@ public:
      * @brief Intersection of lists
      * @param newListName New created list based on intersection
      * @param listsToIntersect List names that we need for intersection
-     * @return True if lists exist and successful, false if less than 2 lists and any of them does not exist
+     * @return True and computes the intersection of listsToIntersect if newListName does not already exist
+     * and all listsToIntersect exist, false otherwise
      */
     bool intersection(const std::string& newListName, const std::vector<std::string>& listsToIntersect);
 
@@ -89,7 +92,8 @@ public:
      * @brief Creates a copy of a list
      * @param newListName New list we created
      * @param copyList List name we need to copy
-     * @return True if copyList exists and successful, false if copyList does not exist
+     * @return True and copies copyList to newListName if newListName does not already exist and copyList exists,
+     * false otherwise
      */
     bool copy(const std::string& newListName, const std::string& copyList);
 
