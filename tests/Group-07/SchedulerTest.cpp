@@ -92,6 +92,18 @@ TEST_CASE("SchedulerTest Queue", "[Scheduler]") {
   }
 
   CHECK(expected == actual);
+
+  cse::Scheduler scheduler4({1}),scheduler5({1});
+
+  scheduler4.AddProcess(0,{1});
+  scheduler5.AddProcess(0,scheduler4.GetProcessWeights(0).value());
+  scheduler4.UpdateProcessPriority(0,{2});
+
+  std::optional<std::array<double,1>> schedule4Check = std::array<double,1>{2.0}, schedule5Check = std::array<double,1>{1.0};
+  CHECK(schedule4Check == scheduler4.GetProcessWeights(0));
+  CHECK(0 == scheduler4.PopNextProcess());
+  CHECK(schedule5Check == scheduler5.GetProcessWeights(0));
+  CHECK(0 == scheduler5.PopNextProcess());
 }
 
 TEST_CASE("SchedulerTest Override", "[Scheduler]") {
@@ -118,6 +130,15 @@ TEST_CASE("SchedulerTest Override", "[Scheduler]") {
 
     scheduler.RemoveProcess(0);
     CHECK(0 == scheduler.GetCurrProcesses());
+    CHECK(std::nullopt == scheduler.PopNextProcess());
+
+    scheduler.AddProcess(0,{1});
+    scheduler.AddProcess(1,{1});
+    scheduler.OverridePriority(1);
+    scheduler.OverridePriority(0);
+
+    CHECK(1 == scheduler.PopNextProcess());
+    CHECK(0 == scheduler.PopNextProcess());
     CHECK(std::nullopt == scheduler.PopNextProcess());
 }
 
