@@ -291,19 +291,19 @@ void TestCompare(const std::string & path) {
       speedUp = std::stod(line.substr(line.find(":") + 1, line.length() - 1));
     }
   }
-  REQUIRE(valuesFound.size() == 0);
+  REQUIRE(valuesFound.size() == 2);
   REQUIRE(valuesFound[0] == valuesFound[1]);
   REQUIRE(speedUp > 0.0);
 }
 
 TEST_CASE("Compare has the same values for both optimized and unoptimized, as well as a positive speedup",
   "[FinalApp][Compare]") {
-  std::cout << "IS THIS EVEN HAPPENING" << std::endl;
+  //std::cout << "IS THIS EVEN HAPPENING" << std::endl;
   
-  // std::vector<std::string> filePaths = {"CompareAppScripts/ex1cap10.txt", "CompareAppScripts/ex2cap10.txt",
-  //   "CompareAppScripts/ex1cap5.txt"};
-  // for (auto path : filePaths) {
-  //   TestCompare(path);
-  // }
-  REQUIRE(false);
+  std::vector<std::string> filePaths = {"CompareAppScripts/ex1cap10.txt", "CompareAppScripts/ex2cap10.txt",
+    "CompareAppScripts/ex1cap5.txt"};
+  for (auto path : filePaths) {
+    TestCompare(path);
+  }
+  //REQUIRE(false);
 }
