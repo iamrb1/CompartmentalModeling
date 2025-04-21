@@ -89,9 +89,8 @@ private:
   cse::Graph<std::string> g;
   std::optional<cse::GraphPosition<std::string>> traversal;
   cse::GraphJson<std::string> graphJson{g};
-  std::optional<std::reference_wrapper<const cse::Vertex<std::string>>> startVertex; // Traversal start vertex
-  std::optional<std::reference_wrapper<const cse::Vertex<std::string>>>
-      aStarDestVertex; // Astar traversal destination vertex
+  std::optional<std::reference_wrapper<const cse::Vertex<std::string>>> startVertex;     // Traversal start vertex
+  std::optional<std::reference_wrapper<const cse::Vertex<std::string>>> aStarDestVertex; // Astar traversal destination vertex
   bool currentlyTraversing = false;
 
   static bool IsPointInRange(double x1, double y1, double x2, double y2, double range) {
@@ -960,9 +959,7 @@ public:
       // Show alert and don't allow if trying to select both starting vertex and
       // Astar destination vertex.
       if (selectADest && selectStart) {
-        EM_ASM({
-          alert("Can't select both starting vertex and Astar destination at the same time. Please unselect one.");
-        });
+        EM_ASM({ alert("Can't select both starting vertex and Astar destination at the same time. Please unselect one."); });
         return;
       }
 
@@ -1031,8 +1028,7 @@ public:
   void StartTraversal() {
     if (g.GetVertices().empty())
       return;
-    auto &start =
-        startVertex.has_value() ? const_cast<cse::Vertex<std::string> &>(startVertex->get()) : g.GetVertex("ID1");
+    auto &start = startVertex.has_value() ? const_cast<cse::Vertex<std::string> &>(startVertex->get()) : g.GetVertex("ID1");
     UpdateTraversalMode(start);
     currentlyTraversing = true;
   }
@@ -1062,9 +1058,7 @@ public:
    */
   void StepTraversal() {
     if (!startVertex.has_value()) {
-      EM_ASM({
-        alert("Please select a starting vertex with the check box below before stepping through the traversal.");
-      });
+      EM_ASM({ alert("Please select a starting vertex with the check box below before stepping through the traversal."); });
       return;
     }
 

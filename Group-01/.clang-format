@@ -2,7 +2,7 @@ IndentWidth: 2
 IndentCaseLabels: true
 AlignAfterOpenBracket: Align
 BreakBeforeBraces: Attach
-ColumnLimit: 120
+ColumnLimit: 150
 AlignTrailingComments: true
 NamespaceIndentation: All
 AllowShortFunctionsOnASingleLine: Inline
