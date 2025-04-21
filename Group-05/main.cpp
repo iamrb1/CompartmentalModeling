@@ -10,6 +10,7 @@
 
 #include "src/Datum.h"
 #include "src/DataGrid.h"
+#include "src/ExpressionParser.cpp"
 #include "src/ExpressionParser.h"
 #include "src/CSVfile.h"
 
@@ -58,12 +59,13 @@ std::optional<int> IsValidInt(const std::string &input) {
 }
 
 // Repeatedly prompts for valid column index
-int GetColumnIndex() {
+int GetColumnIndex(int grid_size) {
   while (true) {
     std::cout << "Please enter column index: ";
     std::string index_str;
     std::cin >> index_str;
-    if (auto index = IsValidInt(index_str)) {
+    auto index = IsValidInt(index_str);
+    if (index && index.value() < grid_size) {
       return index.value();
     }
     std::cout << "Invalid option. Try again." << std::endl;
@@ -243,28 +245,28 @@ void MathMenu(const cse::DataGrid &grid) {
     std::cin >> option;
 
     if (option == "cmean") {
-      int index = GetColumnIndex();
+      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())));
       std::cout << "Mean at column " << index << ": " << grid.ColumnMean(index) << std::endl;
       return;
     } else if (option == "cmed") {
-      int index = GetColumnIndex();
+      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())));
       std::cout << "Median at column " << index << ": " << grid.ColumnMedian(index) << std::endl;
       return;
     } else if (option == "csd") {
-      int index = GetColumnIndex();
+      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())));
       std::cout << "Standard deviation at column " << index << ": "
                 << grid.ColumnStandardDeviation(index) << std::endl;
       return;
     } else if (option == "cmin") {
-      int index = GetColumnIndex();
+      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())));
       std::cout << "Min at column " << index << ": " << grid.ColumnMin(index) << std::endl;
       return;
     } else if (option == "cmax") {
-      int index = GetColumnIndex();
+      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())));
       std::cout << "Max at column " << index << ": " << grid.ColumnMax(index) << std::endl;
       return;
     } else if (option == "cmode") {
-      int index = GetColumnIndex();
+      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())));
       std::cout << "Mode(s) at column " << index << ": ";
       for (const double &mode_val : grid.ColumnMode(index)) {
         std::cout << mode_val << " ";
@@ -312,37 +314,37 @@ void ComparisonMenu(cse::DataGrid &grid) {
     std::cin >> option;
 
     if (option == "clt") {
-      int index = GetColumnIndex();
+      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())));
       cse::Datum datum = GetDataValue();
       std::cout << "Values less than given value:" << std::endl;
       PrintColumn(grid.ColumnLessThan(index, datum));
       return;
     } else if (option == "clte") {
-      int index = GetColumnIndex();
+      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())));
       cse::Datum datum = GetDataValue();
       std::cout << "Values less than or equal to given value:" << std::endl;
       PrintColumn(grid.ColumnLessThanOrEqual(index, datum));
       return;
     } else if (option == "cgt") {
-      int index = GetColumnIndex();
+      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())));
       cse::Datum datum = GetDataValue();
       std::cout << "Values greater than given value:" << std::endl;
       PrintColumn(grid.ColumnGreaterThan(index, datum));
       return;
     } else if (option == "cgte") {
-      int index = GetColumnIndex();
+      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())));
       cse::Datum datum = GetDataValue();
       std::cout << "Values greater than or equal to given value:" << std::endl;
       PrintColumn(grid.ColumnGreaterThanOrEqual(index, datum));
       return;
     } else if (option == "ce") {
-      int index = GetColumnIndex();
+      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())));
       cse::Datum datum = GetDataValue();
       std::cout << "Values equal to given value:" << std::endl;
       PrintColumn(grid.ColumnEqual(index, datum));
       return;
     } else if (option == "cne") {
-      int index = GetColumnIndex();
+      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())));
       cse::Datum datum = GetDataValue();
       std::cout << "Values not equal to given value:" << std::endl;
       PrintColumn(grid.ColumnNotEqual(index, datum));
@@ -468,7 +470,7 @@ void PrintSubmenu(cse::DataGrid &grid) {
           break;
         }
         case 4:
-          std::cout << grid;
+          grid.Print(std::cout);
           break;
         case 0:
           break;
@@ -879,7 +881,7 @@ int main() {
     std::cout << "x: Export to a CSV file" << std::endl;
     std::cout << "e: Edit CSV Grid" << std::endl;
     std::cout << "m: Math Operations" << std::endl;
-    std::cout << "c: Comparisons (WIP)" << std::endl;
+    std::cout << "c: Comparisons" << std::endl;
     std::cout << "q: Quit" << std::endl;
     std::cout << "\nPlease enter an option from the list above: ";
     std::string option;
