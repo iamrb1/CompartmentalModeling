@@ -10,6 +10,7 @@
 
 #include "src/Datum.h"
 #include "src/DataGrid.h"
+#include "src/ExpressionParser.cpp"
 #include "src/ExpressionParser.h"
 #include "src/CSVfile.h"
 
