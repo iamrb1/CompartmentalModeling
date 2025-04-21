@@ -685,8 +685,8 @@ TEST_CASE("Contains ANY tests", "[WordLang]")
     "Number of words to search: 4\n",
     "[where, hello, key, Test]\n",
     "Loaded \"file2.txt\". Word count in a list: 11\n",
-    "[Info]: Incorrect Syntax: no letters given.\nNumber of words to search: 0\n",
-    "[]\n"
+    "[Info]: Incorrect Syntax: no letters given.\n",
+    "[hello, cost, host, best, cucumber, dump, kitchen, toast, chain, boats, key]\n"
   };
 
   test_function(input, output_result);
@@ -720,8 +720,8 @@ TEST_CASE("Contains ALL tests", "[WordLang]")
     "Number of words to search: 3\n",
     "[who, where, why]\n",
     "Loaded \"file1.txt\". Word count in a list: 11\n",
-    "[Info]: Incorrect Syntax: no letters given.\nNumber of words to search: 0\n",
-    "[]\n"
+    "[Info]: Incorrect Syntax: no letters given.\n",
+    "[books, boost, chain, who, where, why, hello, word, fork, key, Test]\n"
   };
 
   test_function(input, output_result);
@@ -757,7 +757,7 @@ TEST_CASE("Not Contains tests", "[WordLang]")
     "Number of words to search: 2\n",
     "[back, rabbit]\n",
     "Loaded \"notcontains_file.txt\". Word count in a list: 11\n",
-    "[Info]: Incorrect Syntax: no letters to check for provided.\nNumber of words to search: 11\n",
+    "[Info]: Incorrect Syntax: no letters to check for provided.\n",
     "[unable, slab, able, maple, cable, back, tangible, stable, rabbit, table, fable]\n",
     "Loaded \"notcontains_file.txt\". Word count in a list: 11\n",
     "Number of words to search: 0\n",
@@ -806,8 +806,8 @@ TEST_CASE("Get tests", "[WordLang]")
     "Number of words to search: 2\n",
     "[worm, team]\n",
     "Loaded \"get_file.txt\". Word count in a list: 21\n",
-    "[Info]: Incorrect Syntax: no patterns to check for provided.\nNumber of words to search: 21\n",
-    "[worm, make, break, earth, texture, mosaic, pop, plate, lable, maze, pound, slate, team, underground, toad, zap, tunnel, train, sled, lead, log]\n",
+    "[Info]: Incorrect Syntax: no patterns to check for provided.\n",
+    "[sled, lead, tunnel, log, pop, mosaic, earth, break, make, worm, texture, plate, train, zap, maze, toad, underground, team, slate, pound, lable]\n",
     "Loaded \"get_file.txt\". Word count in a list: 21\n",
     "Number of words to search: 2\n",
     "[plate, slate]\n",
