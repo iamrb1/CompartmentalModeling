@@ -1,5 +1,5 @@
 /*
-Random class 
+Random class
 */
 #pragma once
 
