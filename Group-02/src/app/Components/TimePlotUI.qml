@@ -1,3 +1,7 @@
+/**
+  @file TimePlotUI
+  @author Dominik Leisinger
+**/
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtCharts

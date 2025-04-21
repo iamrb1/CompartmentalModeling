@@ -18,6 +18,7 @@ Rectangle {
 
     property var simulation: null
     property real expansionRate: 0.2
+    property real paddingSize: 75  // Add padding around compartments
 
     // Content Area Boundaries
     property real minContentX: 0
@@ -42,17 +43,25 @@ Rectangle {
 
         // Check all compartments to adjust content area boundaries
         for(let i = 0; i < simulation.compartments.length; i++) {
-            const comp = simulation.compartments[i]
-            if(comp.x < minX) minX = comp.x
-            if(comp.y < minY) minY = comp.y
-            if(comp.x + comp.width > maxX) maxX = comp.x + comp.width
-            if(comp.y + comp.height > maxY) maxY = comp.y + comp.height
-        }
+                    const comp = simulation.compartments[i]
 
-        targetMinX = minX
-        targetMinY = minY
-        targetMaxX = maxX
-        targetMaxY = maxY
+                    // Get the compartment width and height if available
+                    const compWidth = comp.width || 100  // Default width if not specified
+                    const compHeight = comp.height || 100  // Default height if not specified
+
+                    // Check top-left corner for minimum boundaries
+                    if(comp.x < minX) minX = comp.x
+                    if(comp.y < minY) minY = comp.y
+
+                    // Check bottom-right corner for maximum boundaries
+                    if(comp.x + compWidth > maxX) maxX = comp.x + compWidth
+                    if(comp.y + compHeight > maxY) maxY = comp.y + compHeight
+                }
+
+        targetMinX = minX - paddingSize
+        targetMinY = minY - paddingSize
+        targetMaxX = maxX + paddingSize
+        targetMaxY = maxY + paddingSize
 
         // Start animation timer if not already running
         if (!boundaryAnimation.running) {
@@ -158,7 +167,25 @@ Rectangle {
     }
 
 
-    Component.onCompleted: updateTargetBoundaries()
+    Component.onCompleted:
+    {
+        {
+            if (compartment.x === undefined) {
+                x = 100 + (index % 2) * 200
+            } else {
+                x = compartment.x
+            }
+
+            if (compartment.y === undefined) {
+                y = 100 + Math.floor(index / 2) * 100
+            } else {
+                y = compartment.y
+            }
+        }
+
+        updateTargetBoundaries()
+
+    }
 
     onSimulationChanged: {
         if (simulation) {
@@ -209,8 +236,8 @@ Rectangle {
                         compartment: modelData
                         parentSimulation: simulation
 
-                        x: compartment.x || 100 + (index % 2) * 200
-                        y: compartment.y || 100 + Math.floor(index / 2) * 100
+                        // x: compartment.x || 100 + (index % 2) * 200
+                        // y: compartment.y || 100 + Math.floor(index / 2) * 100
 
                         // Update content boundaries when this compartment moves
                         onXChanged: root.updateTargetBoundaries()
