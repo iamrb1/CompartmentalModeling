@@ -1,100 +1,109 @@
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
-
 #include "../../Group-03/src/DataTracker.h"
-#include <vector>
-#define CATCH_CONFIG_MAIN
 
-TEST_CASE("DataTrackerTest Empty", "[DataTracker]") {
+#include <string>
+#include <limits>
+#include <vector>
+
+TEST_CASE("DataTracker Empty", "[DataTracker]") {
     cse::DataTracker<int> tracker;
     CHECK(tracker.total() == 0);
     CHECK(tracker.mean() == 0.0);
     CHECK(tracker.median() == 0.0);
-    CHECK(tracker.min() == 0.0);
-    CHECK(tracker.max() == 0.0);
+    CHECK(tracker.min() == 0);
+    CHECK(tracker.max() == 0);
+    CHECK(tracker.mode() == 0);
 }
 
-TEST_CASE("DataTrackerTest Add", "[DataTracker]") {
+TEST_CASE("DataTracker Add Integers", "[DataTracker]") {
     cse::DataTracker<int> tracker;
-    tracker.add_value(10.0);
+    tracker.add_value(10);
     CHECK(tracker.total() == 1);
     CHECK(tracker.mean() == 10.0);
     CHECK(tracker.median() == 10.0);
-    CHECK(tracker.min() == 10.0);
-    CHECK(tracker.max() == 10.0);
+    CHECK(tracker.min() == 10);
+    CHECK(tracker.max() == 10);
+    CHECK(tracker.mode() == 10);
 }
 
-TEST_CASE("DataTrackerTest Add not nice numbers", "[DataTracker]"){
+TEST_CASE("DataTracker Add Non-Nice Doubles", "[DataTracker]") {
     cse::DataTracker<double> tracker;
-    tracker.add_value(-400.5);
+    std::vector<double> vals = {-1000.33, 500.5, 100.25, -1000.33, 400.2};
+    for (double val : vals) tracker.add_value(val);
+    CHECK(tracker.total() == vals.size());
+    CHECK(tracker.min() == -1000.33);
+    CHECK(tracker.max() == 500.5);
+    CHECK(tracker.mode() == -1000.33);
+    CHECK(tracker.mean() == Approx(-0.226).epsilon(0.001)); // calculated mean
+}
+
+TEST_CASE("DataTracker Add With Duplicates", "[DataTracker]") {
+    cse::DataTracker<int> tracker;
+    tracker.add_value(1);
+    tracker.add_value(2);
+    tracker.add_value(2);
+    tracker.add_value(3);
+    CHECK(tracker.mode() == 2);
+}
+
+TEST_CASE("DataTracker Median Even", "[DataTracker]") {
+    cse::DataTracker<int> tracker;
+    tracker.add_value(1);
+    tracker.add_value(2);
+    tracker.add_value(3);
+    tracker.add_value(4);
+    CHECK(tracker.median() == 2.5);
+}
+
+TEST_CASE("DataTracker Delete Value Edge Cases", "[DataTracker]") {
+    cse::DataTracker<int> tracker;
+    tracker.add_value(10);
+    tracker.add_value(20);
+    tracker.add_value(10);
+    CHECK(tracker.delete_value(10)); // Deletes one 10
+    CHECK(tracker.total() == 2);
+    CHECK(tracker.delete_value(10)); // Deletes the second 10
+    CHECK(tracker.delete_value(10) == false); // Nothing left to delete
     CHECK(tracker.total() == 1);
-    CHECK(tracker.mean() == -400.5);
-    CHECK(tracker.median() == -400.5);
-    CHECK(tracker.min() == -400.5);
-    CHECK(tracker.max() == -400.5);
+    CHECK(tracker.delete_value(30) == false); // Not present
 }
 
-TEST_CASE("DataTracker Multiple", "[DataTracker]") {
+TEST_CASE("DataTracker Large and Small Values", "[DataTracker]") {
     cse::DataTracker<int> tracker;
-    tracker.add_value(5.0);
-    tracker.add_value(10.0);
-    tracker.add_value(15.0);
+    tracker.add_value(std::numeric_limits<int>::min());
+    tracker.add_value(std::numeric_limits<int>::max());
+    CHECK(tracker.min() == std::numeric_limits<int>::min());
+    CHECK(tracker.max() == std::numeric_limits<int>::max());
+}
+
+TEST_CASE("DataTracker Unsigned Int", "[DataTracker]") {
+    cse::DataTracker<unsigned int> tracker;
+    tracker.add_value(0);
+    tracker.add_value(100);
+    CHECK(tracker.min() == 0);
+    CHECK(tracker.max() == 100);
+    CHECK(tracker.mean() == 50.0);
+}
+
+TEST_CASE("DataTracker Strings", "[DataTracker]") {
+    cse::DataTracker<std::string> tracker;
+    tracker.add_value("apple");
+    tracker.add_value("banana");
+    tracker.add_value("apple");
+    CHECK(tracker.mode() == "apple");
     CHECK(tracker.total() == 3);
-    CHECK(tracker.mean() == 10.0);
-    CHECK(tracker.median() == 10.0);
-    CHECK(tracker.min() == 5.0);
-    CHECK(tracker.max() == 15.0);
-}
-
-TEST_CASE("DataTracker Delete", "[DataTracker]") {
-    cse::DataTracker<int> tracker;
-    tracker.add_value(5.0);
-    tracker.add_value(10.0);
-    tracker.add_value(15.0);
-    tracker.delete_value(10.0);
+    tracker.delete_value("banana");
     CHECK(tracker.total() == 2);
-    CHECK(tracker.mean() == 10.0);
-    CHECK(tracker.median() == 15.0);
-    CHECK(tracker.min() == 5.0);
-    CHECK(tracker.max() == 15.0);
-    tracker.add_value(20.0);
-    CHECK(tracker.median() == 15.0);
+    CHECK(tracker.min() == "apple");
+    CHECK(tracker.max() == "banana");
 }
 
-
-TEST_CASE("DataTracker Even Number", "[DataTracker]") {
-    cse::DataTracker<int> tracker;
-    tracker.add_value(1.0);
-    tracker.add_value(3.0);
-    tracker.add_value(2.0);
-    tracker.add_value(4.0);
-    CHECK(tracker.median() == 3.0);
-}
-
-TEST_CASE("Delete Nonexistent Value", "[DataTracker]") {
-    cse::DataTracker<int> tracker;
-    tracker.add_value(5.0);
-    tracker.add_value(10.0);
-    CHECK(tracker.delete_value(15.0) == false);  // Should return false
-    CHECK(tracker.total() == 2);  // Total should remain unchanged
-}
-
-TEST_CASE("Duplicate Values Handling", "[DataTracker]") {
-    cse::DataTracker<int> tracker;
-    tracker.add_value(10.0);
-    tracker.add_value(10.0);
-    tracker.add_value(20.0);
-    tracker.delete_value(10.0);  // Only one instance should be removed
-    CHECK(tracker.total() == 2);
-    CHECK(tracker.min() == 10.0);
-    CHECK(tracker.max() == 20.0);
-}
-
-TEST_CASE("Negative and Large Values", "[DataTracker]") {
-    cse::DataTracker<int> tracker;
-    tracker.add_value(-100.0);
-    tracker.add_value(5000.0);
-    tracker.add_value(200.0);
-    CHECK(tracker.mean() > 1600.0);
-    CHECK(tracker.min() == -100.0);
-    CHECK(tracker.max() == 5000.0);
+TEST_CASE("DataTracker Median Complex Sorting", "[DataTracker]") {
+    cse::DataTracker<double> tracker;
+    tracker.add_value(3.5);
+    tracker.add_value(7.8);
+    tracker.add_value(1.2);
+    tracker.add_value(6.6);
+    tracker.add_value(2.1);
+    CHECK(tracker.median() == Approx(3.5));
 }
