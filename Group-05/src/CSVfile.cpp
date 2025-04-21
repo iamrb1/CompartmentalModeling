@@ -16,6 +16,7 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <iomanip>
 
 namespace cse {
 
@@ -195,7 +196,9 @@ bool CSVFile::ExportCsv(const std::string &file_name, const DataGrid &grid,
       if (row[j].IsDouble()) {
         double val = row[j].GetDouble();
         // Convert the numeric value to a string—this ensures that even 0.0 is properly represented. Otherwise, use the string stored in the cell.
-        out_value = std::to_string(val);
+        std::ostringstream oss;
+        oss << std::defaultfloat << val;
+        out_value = oss.str();
       } else {
         out_value = row[j].GetString();
       }
