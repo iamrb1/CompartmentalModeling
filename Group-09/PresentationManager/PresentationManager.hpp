@@ -506,6 +506,66 @@ void call_updateTextBoxContent(const char* textboxId, const char* newText) {
 		}
 	}
 }
+void call_updateTextBoxFont(const char* textboxId, const char* newFont) {
+  if (PRESENTATION_MANAGER.getSlides().empty() ||
+      PRESENTATION_MANAGER.getCurrentPos() >=
+          PRESENTATION_MANAGER.getSlides().size()) {
+    std::cout << "ERROR: updateTextBoxContent(): layout index out of range.\n";
+    return;
+  }
+
+  auto& layout =
+      PRESENTATION_MANAGER.getSlides().at(PRESENTATION_MANAGER.getCurrentPos());
+  auto& textBoxes = layout->getTextBoxes();
+
+  for (auto& tb : textBoxes) {
+    if (tb.textBox->getID() == textboxId) {
+      tb.textBox->getFormattedText().setFont(newFont);
+      break;
+    }
+  }
+}
+
+void call_updateTextBoxFontSize(const char* textboxId, int fontSize) {
+  if (PRESENTATION_MANAGER.getSlides().empty() ||
+      PRESENTATION_MANAGER.getCurrentPos() >=
+          PRESENTATION_MANAGER.getSlides().size()) {
+    std::cout << "ERROR: updateTextBoxContent(): layout index out of range.\n";
+    return;
+  }
+
+  auto& layout =
+      PRESENTATION_MANAGER.getSlides().at(PRESENTATION_MANAGER.getCurrentPos());
+  auto& textBoxes = layout->getTextBoxes();
+
+  for (auto& tb : textBoxes) {
+    if (tb.textBox->getID() == textboxId) {
+      tb.textBox->getFormattedText().setFontSize(fontSize);
+      break;
+    }
+  }
+}
+
+void call_updateTextBoxColor(const char* textboxId, const char* newColor) {
+  if (PRESENTATION_MANAGER.getSlides().empty() ||
+      PRESENTATION_MANAGER.getCurrentPos() >=
+          PRESENTATION_MANAGER.getSlides().size()) {
+    std::cout << "ERROR: updateTextBoxContent(): layout index out of range.\n";
+    return;
+  }
+
+  auto& layout =
+      PRESENTATION_MANAGER.getSlides().at(PRESENTATION_MANAGER.getCurrentPos());
+  auto& textBoxes = layout->getTextBoxes();
+
+  for (auto& tb : textBoxes) {
+    if (tb.textBox->getID() == textboxId) {
+      tb.textBox->getFormattedText().setColor(newColor);
+      break;
+    }
+  }
+}
+  
 void call_updatePosition(const char* id, int newX, int newY) {
 	std::string cppId(id);
 	PRESENTATION_MANAGER.updatePosition(cppId, newX, newY);
@@ -660,5 +720,3 @@ void call_addObjectEvent(const int timing, const int slideNum, const char *id) {
 }
 int call_getCurrentPos() { return PRESENTATION_MANAGER.getCurrentPos(); }
 }
-
-
