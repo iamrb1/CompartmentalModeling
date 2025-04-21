@@ -39,6 +39,7 @@ class Simulation : public QObject {
   void connectionModeChanged();
   void sidebarCompartmentChanged();
   void sidebarConnectionChanged();
+  void simulationDataUpdated(double time, const QVariantMap& values);
 
  private:
   /// Simulation name
@@ -47,7 +48,8 @@ class Simulation : public QObject {
   QString m_save_path;
 
   /// Simulation time
-  double m_time = 0.0;
+
+  double m_current_time = 0.0;
 
   /// Unordered map of compartments with their symbols as keys
   std::unordered_map<QString, std::shared_ptr<Compartment>> m_compartments;
@@ -72,14 +74,19 @@ class Simulation : public QObject {
   /// Selected compartment
   Compartment* m_sidebar_compartment = nullptr;
 
+  Q_INVOKABLE double evaluateExpression(const QString& expression);
+
  public:
   explicit Simulation(QObject* parent = nullptr) : QObject(parent) {}
 
   Q_INVOKABLE void add_compartment();
   // Q_INVOKABLE void add_connection(Compartment* source, Compartment* target);
 
+  Q_INVOKABLE void startSimulation();
+  Q_INVOKABLE void stepSimulation(double dt);
+
   void clear_simulation() {
-    m_time = 0.0;
+    m_current_time = 0.0;
     m_save_path.clear();
     m_compartments.clear();
     m_connections.clear();

@@ -357,3 +357,96 @@ void Simulation::save_xml(const QString& filename) {
   xml.writeEndDocument();
   file.close();
 }
+
+void Simulation::startSimulation() {
+    m_current_time = 0.0;
+
+    for (const auto& compartment : m_compartments | std::views::values) {
+        compartment->set_current_amount(compartment->get_initial_amount());
+    }
+}
+
+void Simulation::stepSimulation(double dt) {
+    m_current_time += dt;
+
+    std::unordered_map<QString, double> delta_amounts;
+
+    for (const auto& [symbol, compartment] : m_compartments) {
+        delta_amounts[symbol] = 0.0;
+    }
+
+    /// Calculate changes based on connections
+    for (const auto& connection : m_connections) {
+        Compartment* source = connection->get_source();
+        Compartment* target = connection->get_target();
+
+        /// Expression parser called for rate? need to see this
+        double rate = evaluateExpression(connection->get_rate_expression());
+
+        /// based on claude -> not sure what is to be graphed i just asked generic compartamental project stuff
+        double transfer_amount = rate * source->get_current_amount() * dt;
+
+        delta_amounts[source->get_symbol()] -= transfer_amount;
+        delta_amounts[target->get_symbol()] += transfer_amount;
+    }
+
+    /// setting amounts after each step
+    QVariantMap values;
+    for (const auto& [symbol, compartment] : m_compartments) {
+        double new_amount = compartment->get_current_amount() + delta_amounts[symbol];
+        compartment->set_current_amount(new_amount);
+        values[symbol] = new_amount;
+    }
+
+    /// emit signal with current time and values
+    emit simulationDataUpdated(m_current_time, values);
+}
+
+double Simulation::evaluateExpression(const QString& expression) {
+
+    /// This is just some base expression parsing from claude can be changed to whatever u seem fit for
+
+    std::string expr_str = expression.toStdString();
+
+    bool ok;
+    double value = expression.toDouble(&ok);
+    if (ok) {
+        return value;
+    }
+
+    if (m_variables.contains(expr_str)) {
+        return m_variables[expr_str];
+    }
+
+    QStringList parts = expression.split('*');
+    double result = 1.0;
+
+    for (const QString& part : parts) {
+        QString trimmed = part.trimmed();
+
+        /// number check here
+        value = trimmed.toDouble(&ok);
+        if (ok) {
+            result *= value;
+            continue;
+        }
+
+        /// variable check here
+        std::string part_str = trimmed.toStdString();
+        if (m_variables.contains(part_str)) {
+            result *= m_variables[part_str];
+            continue;
+        }
+
+        /// COmpartment name check here
+        if (m_compartments.contains(trimmed)) {
+            result *= m_compartments[trimmed]->get_current_amount();
+            continue;
+        }
+
+        qWarning() << "Unknown term in expression:" << trimmed;
+        return 0.0;
+    }
+
+    return result;
+}

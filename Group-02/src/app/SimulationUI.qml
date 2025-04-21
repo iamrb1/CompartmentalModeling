@@ -14,6 +14,15 @@ ApplicationWindow {
         id: simulation
     }
 
+    property var graphWindow: null
+
+    /// component for creating graph window -rahul
+    Component {
+        id: graphWindowComponent
+        GraphWindowUI {
+        }
+    }
+
     id: simulationUI
     width: 800
     height: 600
@@ -282,6 +291,17 @@ ApplicationWindow {
                     ToolTip.visible: hovered
                     ToolTip.delay: 500
                     ToolTip.text: icon.name
+
+                    onClicked: {
+                        if (!graphWindow || !graphWindow.visible) {
+                            graphWindow = graphWindowComponent.createObject(simulationUI);
+                            graphWindow.simulation = simulation;  // Make sure this line is present
+                            graphWindow.show();
+                        } else {
+                            graphWindow.raise();
+                            graphWindow.requestActivate();
+                        }
+                    }
                 }
             }
         }

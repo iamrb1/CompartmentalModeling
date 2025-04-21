@@ -13,6 +13,7 @@ set(
     ConnectionEditUI.qml
     CompartmentEditUI.qml
     CompartmentCanvasUI.qml
+    GraphWindowUI.qml
 )
 
 set(
