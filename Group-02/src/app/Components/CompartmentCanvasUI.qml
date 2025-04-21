@@ -1,5 +1,5 @@
 /**
-    @file ScrollCanvasUI.qml
+    @file CompartmentCanvasUI.qml
     @author Dominik Leisinger
     @brief represents the content area of the program, where compartments and connections reside
     @comment used ClaudeAI to learn about Flickable and its properties, as well as the need for boundary expansion animation logic
@@ -7,6 +7,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import cseg2
 import Utilities
 
 Rectangle {
@@ -16,7 +17,7 @@ Rectangle {
     clip: true
 
 
-    property var simulation: null
+    property Simulation simulation: null
     property real expansionRate: 0.2
 
     // Content Area Boundaries
@@ -30,6 +31,11 @@ Rectangle {
     property real targetMinY: 0
     property real targetMaxX: width
     property real targetMaxY: height
+
+    Component.onCompleted: {
+        console.log(simulation)
+        updateTargetBoundaries()
+    }
 
     // Update target boundaries based on compartment positions
     function updateTargetBoundaries() {
@@ -157,9 +163,6 @@ Rectangle {
         updateTargetBoundaries()
     }
 
-
-    Component.onCompleted: updateTargetBoundaries()
-
     onSimulationChanged: {
         if (simulation) {
             // Connect to simulation changes
@@ -209,8 +212,8 @@ Rectangle {
                         compartment: modelData
                         parentSimulation: simulation
 
-                        x: compartment.x || 100 + (index % 2) * 200
-                        y: compartment.y || 100 + Math.floor(index / 2) * 100
+                        x: modelData.x
+                        y: modelData.y
 
                         // Update content boundaries when this compartment moves
                         onXChanged: root.updateTargetBoundaries()
