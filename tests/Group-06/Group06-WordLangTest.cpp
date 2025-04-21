@@ -662,6 +662,12 @@ TEST_CASE("Contains ANY tests", "[WordLang]")
   std::vector<std::string> input = {
       "LIST list1 = LOAD\"file2.txt\"\n",
       "CONTAINS_ANY \"lo\"\n",
+      "PRINT ALL\n",
+      "LIST list2 = LOAD\"file1.txt\"\n",
+      "CONTAINS_ANY \"z\"\n",
+      "PRINT ALL\n",
+      "LIST list3 = LOAD\"file1.txt\"\n",
+      "CONTAINS_ANY \"e\"\n",
       "PRINT ALL"
   };
 
@@ -669,6 +675,12 @@ TEST_CASE("Contains ANY tests", "[WordLang]")
     "Loaded \"file2.txt\". Word count in a list: 11\n",
     "Number of words to search: 5\n",
     "[hello, cost, host, toast, boats]\n",
+    "Loaded \"file1.txt\". Word count in a list: 11\n",
+    "Number of words to search: 0\n",
+    "[]\n",
+    "Loaded \"file1.txt\". Word count in a list: 11\n",
+    "Number of words to search: 4\n",
+    "[where, hello, key, Test]\n",
   };
 
   test_function(input, output_result);
@@ -679,6 +691,12 @@ TEST_CASE("Contains ALL tests", "[WordLang]")
   std::vector<std::string> input = {
       "LIST list1 = LOAD\"file2.txt\"\n",
       "CONTAINS_ALL \"llo\"\n",
+      "PRINT ALL\n",
+      "LIST list2 = LOAD\"file2.txt\"\n",
+      "CONTAINS_ALL \"um\"\n",
+      "PRINT ALL\n",
+      "LIST list3 = LOAD\"file1.txt\"\n",
+      "CONTAINS_ALL \"wh\"\n",
       "PRINT ALL"
   };
 
@@ -686,6 +704,12 @@ TEST_CASE("Contains ALL tests", "[WordLang]")
     "Loaded \"file2.txt\". Word count in a list: 11\n",
     "Number of words to search: 1\n",
     "[hello]\n",
+    "Loaded \"file2.txt\". Word count in a list: 11\n",
+    "Number of words to search: 2\n",
+    "[cucumber, dump]\n",
+    "Loaded \"file1.txt\". Word count in a list: 11\n",
+    "Number of words to search: 3\n",
+    "[who, where, why]\n"
   };
 
   test_function(input, output_result);
@@ -695,6 +719,12 @@ TEST_CASE("Not Contains tests", "[WordLang]")
   std::vector<std::string> input = {
       "LIST list1 = LOAD\"file1.txt\"\n",
       "NOT_CONTAINS \"a\"\n",
+      "PRINT ALL\n",
+      "LIST list2 = LOAD\"notcontains_file.txt\"\n",
+      "NOT_CONTAINS \"b\"\n",
+      "PRINT ALL",
+      "LIST list3 = LOAD\"notcontains_file.txt\"\n",
+      "NOT_CONTAINS \"zl\"\n",
       "PRINT ALL"
   };
 
@@ -702,6 +732,12 @@ TEST_CASE("Not Contains tests", "[WordLang]")
     "Loaded \"file1.txt\". Word count in a list: 11\n",
     "Number of words to search: 10\n",
     "[books, boost, who, where, why, hello, word, fork, key, Test]\n",
+    "Loaded \"notcontains_file.txt\". Word count in a list: 11\n",
+    "Number of words to search: 1\n",
+    "[maple]\n",
+    "Loaded \"notcontains_file.txt\". Word count in a list: 11\n",
+    "Number of words to search: 2\n",
+    "[back, rabbit]\n"
   };
 
   test_function(input, output_result);
@@ -712,6 +748,14 @@ TEST_CASE("Get tests", "[WordLang]")
   std::vector<std::string> input = {
       "LIST list1 = LOAD\"file1.txt\"\n",
       "GET \"_oo__\"\n",
+      "PRINT ALL\n",
+      "LIST list2 = LOAD\"get_file.txt\"\n",
+      "GET \"*u*\"\n",
+      "PRINT ALL",
+      "LIST list3 = LOAD\"get_file.txt\"\n",
+      "GET \"___m\"\n",
+      //"GET \"__m\"\n", //TODO:  use this for a later test
+      //"GET \"*m\"\n",
       "PRINT ALL"
   };
 
@@ -719,6 +763,12 @@ TEST_CASE("Get tests", "[WordLang]")
     "Loaded \"file1.txt\". Word count in a list: 11\n",
     "Number of words to search: 2\n",
     "[books, boost]\n",
+    "Loaded \"get_file.txt\". Word count in a list: 21\n",
+    "Number of words to search: 4\n",
+    "[tunnel, texture, underground, pound]\n",
+    "Loaded \"get_file.txt\". Word count in a list: 21\n",
+    "Number of words to search: 2\n",
+    "[worm, team]\n",
   };
 
   test_function(input, output_result);
