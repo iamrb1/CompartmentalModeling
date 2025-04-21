@@ -7,36 +7,38 @@
  */
 #pragma once
 
-#include "RichText.hpp"
-#include "SerializerHTML.hpp"
-#include "SerializerMarkdown.hpp"
-#include "SerializerRTF.hpp"
-#include "SerializerLaTeX.hpp"
-#include "CseString.hpp"
-
 #include <map>
 #include <optional>
 #include <string>
 #include <vector>
 
+#include "CseString.hpp"
+#include "RichText.hpp"
+#include "SerializerHTML.hpp"
+#include "SerializerLaTeX.hpp"
+#include "SerializerMarkdown.hpp"
+#include "SerializerRTF.hpp"
+
 class RichTextState {
-public:
+ public:
   using Text = cse::BasicRichText<char, cse::String>;
 
   RichTextState() {
     // HTML (no header/footer)
-    m_outputMap["html"]     = { "HTML",      cse::SerializerHTML<char, cse::String>()   };
+    m_outputMap["html"] = {"HTML", cse::SerializerHTML<char, cse::String>()};
     m_outputMap["html"].second.header = std::nullopt;
     m_outputMap["html"].second.footer = std::nullopt;
 
     // RTF
-    m_outputMap["rtf"]      = { "RTF",       cse::SerializerRTF<char, cse::String>()    };
+    m_outputMap["rtf"] = {"RTF", cse::SerializerRTF<char, cse::String>()};
     // Markdown
-    m_outputMap["markdown"] = { "Markdown",  cse::SerializerMarkdown<char, cse::String>() };
+    m_outputMap["markdown"] = {"Markdown",
+                               cse::SerializerMarkdown<char, cse::String>()};
     // LaTeX
-    m_outputMap["latex"]    = { "LaTeX",     cse::SerializerLaTeX<char, cse::String>()  };
+    m_outputMap["latex"] = {"LaTeX", cse::SerializerLaTeX<char, cse::String>()};
     // Raw HTML (full document)
-    m_outputMap["html_raw"] = { "Raw HTML",  cse::SerializerHTML<char, cse::String>()   };
+    m_outputMap["html_raw"] = {"Raw HTML",
+                               cse::SerializerHTML<char, cse::String>()};
 
     // Demo: bold the first 5 characters
     m_richText.apply_format(cse::TextFormat("bold", std::monostate()), 0, 5);
@@ -45,36 +47,35 @@ public:
   // — BASIC TEXT OPERATIONS —
   std::string edit_start_pos(size_t idx) {
     if (m_richText.size() == 0) {
-      m_edit = {0,0};
+      m_edit = {0, 0};
       return "";
     }
     if (idx >= m_richText.size()) idx = m_richText.size() - 1;
 
     reset_format();
-    for (auto& fmt : m_richText.formats_at(idx))
-      update_bar(fmt);
+    for (auto& fmt : m_richText.formats_at(idx)) update_bar(fmt);
 
     auto seg = m_richText.segment_at(idx);
-    m_edit = { seg.start, seg.end };
+    m_edit = {seg.start, seg.end};
     return m_richText.to_string().substr(m_edit.first, m_edit.second);
   }
 
   std::string edit_start_range(size_t start, size_t count) {
     if (start >= m_richText.size() || start + count > m_richText.size())
       return "";
-    m_edit = { start, start + count };
+    m_edit = {start, start + count};
     return m_richText.to_string().substr(start, count);
   }
 
   void edit_change(std::string replace) {
     // Save current state before making changes
     saveState();
-    
+
     if (m_edit.first < m_richText.size())
       m_richText.erase(m_edit.first, m_edit.second - m_edit.first);
 
     m_edit.second = m_edit.first + replace.size();
-    Text insert{ replace };
+    Text insert{replace};
     for (auto& [id, meta] : m_formatMap)
       insert.apply_format(cse::TextFormat(id, meta));
     m_richText.insert(m_edit.first, insert);
@@ -85,7 +86,7 @@ public:
                      cse::TextFormat::FormatData data) {
     // Save current state before making changes
     saveState();
-    
+
     cse::TextFormat fmt{id, data};
     if (m_edit.second > m_edit.first)
       m_richText.apply_format(fmt, m_edit.first, m_edit.second);
@@ -93,7 +94,7 @@ public:
   }
 
   void reset_format() {
-    for (auto& [name,_] : m_formatMap)
+    for (auto& [name, _] : m_formatMap)
       update_bar(cse::TextFormat(name, std::monostate()), true);
     m_formatMap.clear();
   }
@@ -122,8 +123,7 @@ public:
   // — OUTPUT —
   std::vector<std::vector<std::string>> output_formats() const {
     std::vector<std::vector<std::string>> out;
-    for (auto& [key,p] : m_outputMap)
-      out.push_back({ key, p.first });
+    for (auto& [key, p] : m_outputMap) out.push_back({key, p.first});
     return out;
   }
 
@@ -138,41 +138,43 @@ public:
   // — TEST‑COMPATIBILITY API —
 
   // Raw text
-  std::string getText() const {
-    return m_richText.to_string();
-  }
-  void setText(const std::string& txt) {
-    m_richText = Text(txt);
-  }
+  std::string getText() const { return m_richText.to_string(); }
+  void setText(const std::string& txt) { m_richText = Text(txt); }
 
   // Serialization shortcuts
-  std::string getHTML()     { return output("html"); }
-  std::string getRawHTML()  { return output("html_raw"); }
+  std::string getHTML() { return output("html"); }
+  std::string getRawHTML() { return output("html_raw"); }
   std::string getMarkdown() { return output("markdown"); }
-  std::string getRTF()      { return output("rtf"); }
-  std::string getLaTeX()    { return output("latex"); }
+  std::string getRTF() { return output("rtf"); }
+  std::string getLaTeX() { return output("latex"); }
 
   // Single‑arg convenience formatting
-  void applyBold()          { update_format("bold", std::monostate{}); }
-  void applyItalic()        { update_format("italic", std::monostate{}); }
-  void applyUnderline()     { update_format("underline", std::monostate{}); }
-  void applyStrikethrough() { update_format("strikethrough", std::monostate{}); }
+  void applyBold() { update_format("bold", std::monostate{}); }
+  void applyItalic() { update_format("italic", std::monostate{}); }
+  void applyUnderline() { update_format("underline", std::monostate{}); }
+  void applyStrikethrough() {
+    update_format("strikethrough", std::monostate{});
+  }
   void applyColor(const std::string& c) { update_format("color", c); }
-  void applyLink(const std::string& u)  { update_format("link", u); }
-  void applyHeader(int lvl)             { update_format("header", lvl); }
+  void applyLink(const std::string& u) { update_format("link", u); }
+  void applyHeader(int lvl) { update_format("header", lvl); }
 
   // Range‑based overloads (the tests call these with start,end)
   void applyBold(size_t start, size_t end) {
-    m_richText.apply_format(cse::TextFormat("bold", std::monostate()), start, end);
+    m_richText.apply_format(cse::TextFormat("bold", std::monostate()), start,
+                            end);
   }
   void applyItalic(size_t start, size_t end) {
-    m_richText.apply_format(cse::TextFormat("italic", std::monostate()), start, end);
+    m_richText.apply_format(cse::TextFormat("italic", std::monostate()), start,
+                            end);
   }
   void applyUnderline(size_t start, size_t end) {
-    m_richText.apply_format(cse::TextFormat("underline", std::monostate()), start, end);
+    m_richText.apply_format(cse::TextFormat("underline", std::monostate()),
+                            start, end);
   }
   void applyStrikethrough(size_t start, size_t end) {
-    m_richText.apply_format(cse::TextFormat("strikethrough", std::monostate()), start, end);
+    m_richText.apply_format(cse::TextFormat("strikethrough", std::monostate()),
+                            start, end);
   }
   void applyColor(const std::string& c, size_t start, size_t end) {
     m_richText.apply_format(cse::TextFormat("color", c), start, end);
@@ -184,11 +186,11 @@ public:
     m_richText.apply_format(cse::TextFormat("header", lvl), start, end);
   }
 
-private:
+ private:
   Text m_richText{"Hello World!"};
   std::map<cse::TextFormat::FormatID, cse::TextFormat::FormatData> m_formatMap;
   std::map<std::string, std::pair<std::string, Text::Serializer>> m_outputMap;
-  std::pair<size_t,size_t> m_edit{0,0};
+  std::pair<size_t, size_t> m_edit{0, 0};
   std::vector<Text> undoStack, redoStack;
 
   void saveState() {
