@@ -872,9 +872,7 @@ class GraphVisualizer {
     else if (mode == 2) {
       if (!aStarDestVertex.has_value()) {
         EM_ASM({
-          alert(
-              "Please select a destination vertex before starting A* "
-              "traversal.");
+          alert("Please select a destination vertex before starting A* traversal.");
         });
         return;
       }
@@ -972,8 +970,7 @@ class GraphVisualizer {
       if (selectADest && selectStart) {
         EM_ASM({
           alert(
-              "Can't select both starting vertex and Astar destination at the "
-              "same time. Please unselect one.");
+              "Can't select both starting vertex and Astar destination at the same time. Please unselect one.");
         });
         return;
       }
@@ -983,8 +980,7 @@ class GraphVisualizer {
           // Show alert if trying to change start during traversal
           EM_ASM({
             alert(
-                "Traversal already in progress. Clear traversal to change the "
-                "starting vertex.");
+                "Traversal already in progress. Clear traversal to change the starting vertex.");
           });
           return;
         }
@@ -1015,8 +1011,7 @@ class GraphVisualizer {
           // traversal mode
           EM_ASM({
             alert(
-                "You cannot select an Astar destination vertex when not in "
-                "Astar traversal mode.");
+                "You cannot select an Astar destination vertex when not in Astar traversal mode.");
           });
           return;
         }
@@ -1024,8 +1019,7 @@ class GraphVisualizer {
           // Show alert if trying to change Astar destination during traversal
           EM_ASM({
             alert(
-                "Traversal already in progress. Clear traversal to change the "
-                "Astar destination vertex.");
+                "Traversal already in progress. Clear traversal to change the Astar destination vertex.");
           });
           return;
         }
@@ -1089,8 +1083,7 @@ class GraphVisualizer {
     if (!startVertex.has_value()) {
       EM_ASM({
         alert(
-            "Please select a starting vertex with the check box below before "
-            "stepping through the traversal.");
+            "Please select a starting vertex with the check box below before stepping through the traversal.");
       });
       return;
     }
@@ -1107,8 +1100,7 @@ class GraphVisualizer {
       // Show alert if trying to start an Astar traversal without a destination
       EM_ASM({
         alert(
-            "You cannot start an Astar traversal without selecting a "
-            "destination.");
+            "You cannot start an Astar traversal without selecting a destination.");
       });
       return;
     }
