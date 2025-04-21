@@ -1,3 +1,7 @@
+// @file EditElement.js
+//
+// @author Allie Ianello & Mia Bodenhorn
+
 document.addEventListener("DOMContentLoaded", () => {
   // True if formatting menu is open and textbox is editable, false otherwise
   let formattingLocked = false;

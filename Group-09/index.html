@@ -1,3 +1,6 @@
+<!--@file index.html-->
+<!--@author Mia Bodenhorn & Mary Holt-->
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -8,14 +11,12 @@
         integrity="sha512-1sCRPdkRXhBV2PBLUdRb4tMg1w2YPf37qatUFeS7zlBy7jJI8Lf4VHwWfZZfpXtYSLy85pkm9GaYVYMfw5BC1A=="
         crossorigin="anonymous" referrerpolicy="no-referrer">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+
   <style>
     body,
     html {
-      overflow: hidden;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f4f7fa;
+      font-family: 'Figtree', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
     .presentation-zone {
@@ -67,25 +68,39 @@
       display: none;
     }
 
+    /*Button styling from https://codepen.io/t_afif/pen/abKyJNJ*/
     button {
-      background-color: #ffffff;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      padding: 6px 10px;
+      --c: #229091; /* default color */
+      font-family: inherit;
       font-size: 14px;
+      font-weight: bold;
       cursor: pointer;
-      white-space: nowrap;     /* keep button text on one line */
-      transition: all 0.2s ease-in-out;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      white-space: nowrap;
+
+      box-shadow: 0 0 0 .1em inset var(--c);
+      --_g: linear-gradient(var(--c) 0 0) no-repeat;
+      background:
+              var(--_g) calc(var(--_p,0%) - 100%) 0%,
+              var(--_g) calc(200% - var(--_p,0%)) 0%,
+              var(--_g) calc(var(--_p,0%) - 100%) 100%,
+              var(--_g) calc(200% - var(--_p,0%)) 100%;
+      background-size: 50.5% calc(var(--_p,0%)/2 + .5%);
+      outline-offset: .1em;
+      transition: background-size .4s, background-position 0s .4s;
     }
 
     button:hover {
-      background-color: #f0f0f0;
-      transform: scale(1.03);
+      --_p: 100%;
+      transition: background-position .4s, background-size 0s;
     }
 
     button:active {
-      background-color: #ddd;
-      transform: scale(0.98);
+      box-shadow: 0 0 2em inset #0009;
+      background-color: var(--c);
+      color: #fff;
     }
 
     #slideNumberDisplay {
@@ -100,11 +115,112 @@
       font-size: 13px;
     }
 
-    /* Menu taken from: https://getbootstrap.com/docs/4.0/components/dropdowns/ */
-    .dropdown-menu {
-      z-index: 1000;
-      background-color: transparent;
+    /* Dropdown toggle button */
+    #dropdownMenuButton {
+      background-color: #5eb681;
+      color: white;
+      font-weight: bold;
       border: none;
+      border-radius: 6px;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Dropdown menu container */
+    .dropdown-menu {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 10px;
+      min-width: 180px;
+      background-color: white;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      position: absolute;
+      bottom: 50px;
+      right: 0;
+      z-index: 1000;
+      border: 1px solid #ddd;
+    }
+
+    /* Show menu class */
+    .dropdown-menu.show {
+      display: flex !important;
+    }
+
+    /* Buttons inside the dropdown */
+    .dropdown-menu button {
+      width: 100%;
+      text-align: center;
+      padding: 8px 12px;
+      font-size: 14px;
+      font-weight: bold;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+      box-shadow: 0 0 0 0.1em inset var(--c, #ccc);
+      --_g: linear-gradient(to right, var(--c, #ccc), var(--c, #ccc)) no-repeat;
+
+      background:
+              var(--_g) calc(var(--_p, 0%) - 100%) 0%,
+              var(--_g) calc(200% - var(--_p, 0%)) 0%,
+              var(--_g) calc(var(--_p, 0%) - 100%) 100%,
+              var(--_g) calc(200% - var(--_p, 0%)) 100%;
+      background-size: 50.5% calc(var(--_p, 0%)/2 + 0.5%);
+      transition: background-size 0.4s, background-position 0s 0.4s;
+    }
+
+    /* Hover animation */
+    .dropdown-menu button:hover {
+      --_p: 100%;
+      background-color: #f7f7f7;
+      transform: scale(1.02);
+    }
+
+    .dropdown-menu button:active {
+      background-color: var(--c, #999);
+      color: white;
+      box-shadow: 0 0 1em inset #0005;
+    }
+
+    .custom-file-btn {
+      --c: #a29bfe;
+      display: inline-block;
+      font-size: 14px;
+      font-weight: bold;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+
+      box-shadow: 0 0 0 .1em inset var(--c);
+      --_g: linear-gradient(to right, var(--c), var(--c)) no-repeat;
+      background:
+              var(--_g) calc(var(--_p, 0%) - 100%) 0%,
+              var(--_g) calc(200% - var(--_p, 0%)) 0%,
+              var(--_g) calc(var(--_p, 0%) - 100%) 100%,
+              var(--_g) calc(200% - var(--_p, 0%)) 100%;
+      background-size: 50.5% calc(var(--_p, 0%)/2 + .5%);
+      transition: background-size .4s, background-position 0s .4s;
+    }
+
+    .custom-file-btn:hover {
+      --_p: 100%;
+      transition: background-position .4s, background-size 0s;
+    }
+
+    .custom-file-btn:active {
+      box-shadow: 0 0 2em inset #0009;
+      background-color: var(--c);
+      color: white;
     }
 
     #end-slide {
@@ -122,13 +238,6 @@
       font-size: 6.5em;
     }
 
-    /*.divider {*/
-    /*  color: #999;*/
-    /*  margin: 0 6px;*/
-    /*  font-weight: bold;*/
-    /*  user-select: none;*/
-    /*}*/
-    
     #formatting-menu {
       position: absolute;
       z-index: 9999;
@@ -139,7 +248,6 @@
       display: none;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
-
 
     .textbox {
       user-select: none;
@@ -180,7 +288,8 @@
 
 <div style="visibility: visible" id="bottom-nav" class="bottom-nav">
   <div class="nav-left">
-    <input type="file" id="fileInput" accept=".json">
+    <label for="fileInput" class="custom-file-btn">📂 Load Deck</label>
+    <input type="file" id="fileInput" accept=".json" style="display: none;">
   </div>
   <div class="nav-center">
     <button id="saveDeck">Save Deck</button>
@@ -188,17 +297,18 @@
 <!--    <select id="imageSelectDropdown"></select>-->
     <input type="file" id="imageInput" accept="image/*" style="display: none;" />
 
-    <button id="stopButton">Stop</button>
-    <button id="startButton">Start</button>
+    <button id="stopButton" style="--c:#FF5722">Stop</button>
+    <button id="startButton" style="--c:#4CAF50">Start</button>
     <div class="btn-group dropup">
-    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <button class="btn btn-light border dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         +
       </button>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <button id="addImageButton">Add Image</button>
-        <button id="addTextBoxButton">Add TextBox</button>
-        <button id="addNewSlideButton">Add New Slide</button>
-        <button id="addTransition">Add Transition</button>
+        <button id="addTextBoxButton" style="--c:#3F51B5">📝 Add Text</button>
+        <button id="addImageButton" style="--c: #55efc4;">🖼️ Add Image</button>
+        <button id="addNewSlideButton" style="--c: #74b9ff;">📄 New Slide</button>
+        <button id="addTransition" style="--c: #ffeaa7;">🎬 Add Transition</button>
+
       </div>
     </div>
   </div>
@@ -217,7 +327,7 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script src="output.js"></script>
-<script src="WebLayout/EditTextbox.js"></script>
+<script src="WebLayout/EditElement.js"></script>
 
 <script>
   const loadDeck = Module.cwrap('loadSlideDeckFromJson', null, ['string']);
