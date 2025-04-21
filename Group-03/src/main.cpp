@@ -211,17 +211,21 @@ void update()
         }
     }
 
-    // Check win condition
-    double cPercentage1 = cType1 / (cType1 + cType2);
-    double cPercentage2 = cType2 / (cType1 + cType2);
-
-    if (cPercentage1 >= WIN_THRESHOLD) {
-        std::cout << "Winner: Red" << std::endl;
-        isRunning = false;
-    }
-    if (cPercentage2 >= WIN_THRESHOLD) {
-        std::cout << "Winner: Blue" << std::endl;
-        isRunning = false;
+    int numRed = countCircles("red");
+    int numBlue = countCircles("blue");
+    int total = numRed + numBlue;
+    
+    if (total > 0) {
+        double redPercent = static_cast<double>(numRed) / total;
+        double bluePercent = static_cast<double>(numBlue) / total;
+    
+        if (redPercent >= WIN_THRESHOLD) {
+            std::cout << "Winner: Red" << std::endl;
+            isRunning = false;
+        } else if (bluePercent >= WIN_THRESHOLD) {
+            std::cout << "Winner: Blue" << std::endl;
+            isRunning = false;
+        }
     }
 }
 
