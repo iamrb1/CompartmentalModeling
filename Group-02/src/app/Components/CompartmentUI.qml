@@ -1,21 +1,24 @@
 import QtQuick
 import QtQuick.Shapes
+
+import cseg2
 import Utilities
 import Components
 
 Rectangle {
     property Compartment compartment: null
+    property Simulation parentSimulation: null
 
     id: compartmentUI
 
     x: compartment.x || 0
     y: compartment.y || 0
 
-    height: 100
-    width: 150
+    height: Constants.compartmentHeight
+    width: Constants.compartmentWidth
     z: 2
     color: ThemeManager.palette.base
-    border.color: ThemeManager.palette.text
+    border.color: compartmentBorderColor()
     radius: 15
 
     Drag.active: dragArea.drag.active
@@ -26,6 +29,18 @@ Rectangle {
         id: dragArea
         anchors.fill: parent
         drag.target: parent
+
+        onClicked: {
+            if (parentSimulation.connectionMode) {
+                if (parentSimulation.sourceCompartment) {
+                    parentSimulation.targetCompartment = compartment;
+                } else {
+                    parentSimulation.sourceCompartment = compartment;
+                }
+            } else {
+                parentSimulation.sidebarCompartment = compartment;
+            }
+        }
     }
 
     Text {
@@ -33,6 +48,16 @@ Rectangle {
         text: compartment.name + " (" + compartment.symbol + ")"
         font.pixelSize: 20
         color: ThemeManager.palette.text
+    }
+
+    function compartmentBorderColor() {
+        if (parentSimulation.sourceCompartment === compartment){
+            return "blue"
+        } else if (parentSimulation.targetCompartment === compartment) {
+            return "red"
+        } else {
+            return ThemeManager.palette.text
+        }
     }
 
     onXChanged: {

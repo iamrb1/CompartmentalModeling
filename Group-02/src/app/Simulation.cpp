@@ -14,13 +14,14 @@
  * @brief Creates and adds a compartment to the simulation. Also sets the simulation for the compartment.
  */
 void Simulation::add_compartment() {
+  static size_t compartment_number = m_compartments.size();
   // Generate a new compartment with a unique symbol
-  auto symbol = QString(static_cast<char>('A' + m_compartment_number));
+  auto symbol = QString(static_cast<char>('A' + compartment_number));
   auto name = QString("Compartment %1").arg(symbol);
 
   auto compartment = std::make_shared<Compartment>(name, symbol, 0, this);
   m_compartments[symbol] = std::move(compartment);
-  m_compartment_number++;
+  compartment_number++;
 
   // Emit signal to notify that compartments have changed
   emit compartmentsChanged();
@@ -29,8 +30,8 @@ void Simulation::add_compartment() {
 /**
  * @brief Return a list of all compartments in the simulation.
  */
-QVector<QObject*> Simulation::get_compartments_as_qobject() const {
-  QVector<QObject*> compartments;
+QVector<Compartment*> Simulation::get_compartments() const {
+  QVector<Compartment*> compartments;
   for (const auto& compartment : m_compartments | std::views::values) {
     compartments.push_back(compartment.get());
   }
@@ -38,45 +39,57 @@ QVector<QObject*> Simulation::get_compartments_as_qobject() const {
 }
 
 /**
+ * @brief Return a list of all connections in the simulation.
+ */
+QVector<Connection*> Simulation::get_connections() const {
+  QVector<Connection*> connections;
+  for (const auto& connection : m_connections) {
+    connections.push_back(connection.get());
+  }
+
+  return connections;
+}
+
+/**
  * @brief Return a map of all variables in the simulation.
  */
-QVariantMap Simulation::get_variables_as_qobject() const {
-    QVariantMap variables;
-    for (const auto& [name, value] : m_variables) {
-      variables.insert(QString::fromStdString(name), value);
-    }
+QVariantMap Simulation::get_variables() const {
+  QVariantMap variables;
+  for (const auto& [name, value] : m_variables) {
+    variables.insert(QString::fromStdString(name), value);
+  }
 
-//    qDebug() << "Variables in C++:";
-//    for (auto it = variables.constBegin(); it != variables.constEnd(); ++it) {
-//        qDebug() << "Key:" << it.key() << "Value:" << it.value();
-//    }
-
-    return variables;
+  return variables;
 }
 
 void Simulation::add_variable(const QString& name, double value) {
-    if (name.isEmpty()) {
-        QString var_name = QString("k%1").arg(m_variables.size() + 1);
-        m_variables[var_name.toStdString()] = value;
-    } else {
-        m_variables[name.toStdString()] = value;
-    }
+  static size_t variable_number = m_variables.size();
+  if (name.isEmpty()) {
+    std::string var_name = "k" + std::to_string(variable_number + 1);
+    m_variables.emplace(var_name, value);
+    variable_number++;
+  } else {
+    m_variables[name.toStdString()] = value;
+  }
 
-    emit variablesChanged();
+  // qDebug() << "Variables in C++:";
+  // for (const auto& [key, val] : m_variables) {
+  //   qDebug() << QString::fromStdString(key) << value;
+  // }
+
+  emit variablesChanged();
 }
 
 void Simulation::remove_variable(const QString& name) {
-  auto key = name.toStdString();
-  auto it = m_variables.find(key);
-  if (it != m_variables.end()) {
+  const auto key = name.toStdString();
+  if (const auto it = m_variables.find(key); it != m_variables.end()) {
     m_variables.erase(it);
     emit variablesChanged();
   }
 }
 
 void Simulation::update_variable(const QString& name, const QString& new_name, double value) {
-  auto key = name.toStdString();
-  if (m_variables.contains(key)) {
+  if (const auto key = name.toStdString(); m_variables.contains(key)) {
     if (name == new_name) {
       m_variables[key] = value;
     } else {
@@ -88,6 +101,98 @@ void Simulation::update_variable(const QString& name, const QString& new_name, d
 
     emit variablesChanged();
   }
+}
+
+void Simulation::remove_connection(const Connection* connection) {
+  for (auto it = m_connections.begin(); it != m_connections.end(); ++it) {
+    if (it->get() == connection) {
+      m_connections.erase(it);
+      break;
+    }
+  }
+  m_sidebar_connection = nullptr;
+
+  emit connectionsChanged();
+  emit sidebarConnectionChanged();
+}
+
+void Simulation::remove_compartment(const QString& symbol) {
+  if (m_compartments.contains(symbol)) {
+    // Remove connections associated with the compartment
+    bool connection_deleted = false;
+    for (auto it = m_connections.begin(); it != m_connections.end();) {
+      if (const auto connection = *it;
+          connection->get_source()->get_symbol() == symbol || connection->get_target()->get_symbol() == symbol) {
+        it = m_connections.erase(it);
+        connection_deleted = true;
+      } else {
+        ++it;
+      }
+    }
+
+    if (connection_deleted) {
+      emit connectionsChanged();
+    }
+
+    // Remove the compartment
+    m_compartments.erase(symbol);
+    m_sidebar_compartment = nullptr;
+
+    emit compartmentsChanged();
+    emit sidebarCompartmentChanged();
+  }
+}
+
+/**
+ * Set the target component and make the connection
+ * @param target The target compartment
+ */
+void Simulation::set_target_compartment(Compartment* target) {
+  if (!m_source_compartment || !target || !m_connection_mode) {
+    return;
+  }
+  m_target_compartment = target;
+  QString connection_name =
+      QString("Connection %1 %2").arg(m_source_compartment->get_symbol(), m_target_compartment->get_symbol());
+
+  // Check if connection exists
+  bool connection_exists = false;
+  for (const auto& connection : m_connections) {
+    if (connection->get_source() == m_source_compartment && connection->get_target() == m_target_compartment) {
+      connection_exists = true;
+      break;
+    }
+  }
+
+  if (!connection_exists) {
+    // Connection logic
+    auto connection =
+        std::make_shared<Connection>(connection_name, m_source_compartment, m_target_compartment, "0", this);
+    m_connections.push_back(std::move(connection));
+    emit connectionsChanged();
+  }
+
+  m_source_compartment = nullptr;
+  m_target_compartment = nullptr;
+
+  emit sourceCompartmentChanged();
+  emit targetCompartmentChanged();
+}
+
+void Simulation::set_sidebar_connection(Connection* connection) {
+  m_sidebar_connection = connection;
+  m_sidebar_compartment = nullptr;
+
+  emit sidebarConnectionChanged();
+  emit sidebarCompartmentChanged();
+}
+
+void Simulation::set_sidebar_compartment(Compartment* compartment) {
+  m_sidebar_compartment = compartment;
+  m_sidebar_connection = nullptr;
+
+  emit sidebarCompartmentChanged();
+  emit sidebarConnectionChanged();
 }
 
 /**
@@ -110,7 +215,7 @@ void Simulation::load_xml(const QString& filename) {
   // find simulation name
   while (!xml.atEnd() && !xml.hasError()) {
     xml.readNext();
-    if (xml.isStartElement() && xml.name() == QLatin1String("simulation")) {
+    if (xml.isStartElement() && xml.name() == "simulation") {
       m_name = xml.attributes().value("name").toString();
       break;
     }
@@ -139,7 +244,7 @@ void Simulation::load_xml(const QString& filename) {
           m_compartments[symbol] = std::move(compartment);
         }
       }
-    } else if (xml.name() == QLatin1String("variables")) {
+    } else if (xml.name() == "variables") {
       while (!(xml.tokenType() == QXmlStreamReader::EndElement && xml.name() == "variables")) {
         xml.readNext();
         if (xml.isStartElement() && xml.name() == "variable") {
@@ -149,10 +254,10 @@ void Simulation::load_xml(const QString& filename) {
           m_variables[key] = value;
         }
       }
-    } else if (xml.name() == QLatin1String("connections")) {
+    } else if (xml.name() == "connections") {
       while (!(xml.tokenType() == QXmlStreamReader::EndElement && xml.name() == "connections")) {
         xml.readNext();
-        if (xml.isStartElement() && xml.name() == QLatin1String("connection")) {
+        if (xml.isStartElement() && xml.name() == "connection") {
           auto attrs = xml.attributes();
           QString name = attrs.value("name").toString();
           QString from = attrs.value("from").toString();
@@ -167,8 +272,20 @@ void Simulation::load_xml(const QString& filename) {
           auto from_compartment = m_compartments[from];
           auto to_compartment = m_compartments[to];
 
-          auto connection = std::make_shared<Connection>(name, from_compartment, to_compartment, rate, this);
-          m_connections.push_back(std::move(connection));
+          bool connection_exists = false;
+          for (const auto& connection : m_connections) {
+            if (connection->get_source() == from_compartment.get() &&
+                connection->get_target() == to_compartment.get()) {
+              connection_exists = true;
+              break;
+            }
+          }
+
+          if (!connection_exists) {
+            auto connection =
+                std::make_shared<Connection>(name, from_compartment.get(), to_compartment.get(), rate, this);
+            m_connections.push_back(std::move(connection));
+          }
         }
       }
     }
@@ -178,6 +295,8 @@ void Simulation::load_xml(const QString& filename) {
     qWarning() << "XML Error:" << xml.errorString();
   } else {
     emit compartmentsChanged();
+    emit connectionsChanged();
+    emit variablesChanged();
   }
 }
 

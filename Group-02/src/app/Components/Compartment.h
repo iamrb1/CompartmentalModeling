@@ -23,6 +23,7 @@ class Compartment : public QObject {
   /// Expose m_name, m_symbol to QML
   Q_PROPERTY(QString name MEMBER m_name NOTIFY nameChanged)
   Q_PROPERTY(QString symbol MEMBER m_symbol NOTIFY symbolChanged)
+  Q_PROPERTY(double initialAmount MEMBER m_initial_amount NOTIFY initialAmountChnaged)
   Q_PROPERTY(int x MEMBER m_x NOTIFY xChanged)
   Q_PROPERTY(int y MEMBER m_y NOTIFY yChanged)
 
@@ -32,6 +33,7 @@ class Compartment : public QObject {
   void symbolChanged();
   void xChanged();
   void yChanged();
+  void initialAmountChnaged();
 
  private:
   /// The parent simulation
@@ -54,10 +56,10 @@ class Compartment : public QObject {
 
   Compartment(QString name, QString symbol, double initial_amount, Simulation* parent = nullptr);
 
-  [[nodiscard]] const QString& get_name() {
+  [[nodiscard]] const QString& get_name() const {
     return m_name;
   }
-  [[nodiscard]] const QString& get_symbol() {
+  [[nodiscard]] const QString& get_symbol() const {
     return m_symbol;
   }
   [[nodiscard]] double get_initial_amount() const {
@@ -83,6 +85,7 @@ class Compartment : public QObject {
   }
   void set_initial_amount(const double initial_amount) {
     m_initial_amount = initial_amount;
+    emit initialAmountChnaged();
   }
   void set_current_amount(const double current_amount) {
     m_current_amount = current_amount;

@@ -8,6 +8,7 @@ set(
     ThemeManager.qml
     LightTheme.qml
     DarkTheme.qml
+    Constants.qml
 )
 
 set_source_files_properties(

@@ -1,11 +1,16 @@
 import QtQuick
+import cseg2
 import Utilities
 import Components
 
 Item {
     id: connectionUI
-    property CompartmentUI source
-    property CompartmentUI target
+    property Connection connection
+    property Simulation parentSimulation: simulation
+    property Compartment source: connection.source
+    property Compartment target: connection.target
+    property int compartmentWidth: Constants.compartmentWidth
+    property int compartmentHeight: Constants.compartmentHeight
 
     // Line component
     Rectangle {
@@ -23,29 +28,33 @@ Item {
         transformOrigin: Item.TopLeft
 
         transform: Rotation {
+            id: rectRotation
             origin.x: 0
             origin.y: 0
             angle: connectionUI.calculateAngle()
         }
+
+        MouseArea{
+            anchors.fill: parent
+            onClicked: {
+                parentSimulation.sidebarConnection = connection
+            }
+        }
     }
 
     // Keep the connection positioned at source
-    x: source.x + source.width / 2
-    y: source.y + source.height / 2
+    x: source.x + compartmentWidth / 2
+    y: source.y + compartmentHeight / 2
 
     function calculateLength() {
-        var dx = target.x + target.width / 2 - (source.x + source.width / 2);
-        var dy = target.y + target.height / 2 - (source.y + source.height / 2);
+        var dx = target.x - source.x;
+        var dy = target.y - source.y;
         return Math.sqrt(dx * dx + dy * dy);
     }
 
     function calculateAngle() {
-        var dx = target.x + target.width / 2 - (source.x + source.width / 2);
-        var dy = target.y + target.height / 2 - (source.y + source.height / 2);
+        var dx = target.x - source.x;
+        var dy = target.y - source.y;
         return Math.atan2(dy, dx) * 180 / Math.PI;
     }
-
-    // Update the arrow when positions change
-    // onXChanged: arrowCanvas.requestPaint()
-    // onYChanged: arrowCanvas.requestPaint()
 }

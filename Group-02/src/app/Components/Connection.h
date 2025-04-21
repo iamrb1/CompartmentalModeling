@@ -18,26 +18,37 @@ class Connection : public QObject {
   Q_OBJECT
   QML_ELEMENT
 
+  Q_PROPERTY(QString name MEMBER m_name NOTIFY nameChanged FINAL)
+  Q_PROPERTY(Compartment* source MEMBER m_source NOTIFY sourceChanged FINAL)
+  Q_PROPERTY(Compartment* target MEMBER m_target NOTIFY targetChanged FINAL)
+  Q_PROPERTY(QString rateExpression MEMBER m_rate_expression NOTIFY rateExpressionChanged FINAL)
+
+ signals:
+  void nameChanged();
+  void sourceChanged();
+  void targetChanged();
+  void rateExpressionChanged();
+
  private:
   Simulation* m_simulation = nullptr;
   QString m_name;
-  std::shared_ptr<Compartment> m_source;
-  std::shared_ptr<Compartment> m_target;
+  Compartment* m_source = nullptr;
+  Compartment* m_target = nullptr;
   QString m_rate_expression;
 
  public:
   explicit Connection(QObject* parent = nullptr) : QObject(parent) {}
 
-  Connection(QString name, std::shared_ptr<Compartment> source, std::shared_ptr<Compartment> target,
-             QString rate_expression, Simulation* parent = nullptr);
+  Connection(QString name, Compartment* source, Compartment* target, QString rate_expression,
+             Simulation* parent = nullptr);
 
   [[nodiscard]] const QString& get_name() const {
     return m_name;
   }
-  [[nodiscard]] std::shared_ptr<Compartment> get_source() const {
+  [[nodiscard]] Compartment* get_source() const {
     return m_source;
   }
-  [[nodiscard]] std::shared_ptr<Compartment> get_target() const {
+  [[nodiscard]] Compartment* get_target() const {
     return m_target;
   }
   [[nodiscard]] const QString& get_rate_expression() const {
@@ -50,11 +61,11 @@ class Connection : public QObject {
   void set_name(const QString& name) {
     m_name = name;
   }
-  void set_source(std::shared_ptr<Compartment> source) {
-    m_source = std::move(source);
+  void set_source(Compartment* source) {
+    m_source = source;
   }
-  void set_target(std::shared_ptr<Compartment> target) {
-    m_target = std::move(target);
+  void set_target(Compartment* target) {
+    m_target = target;
   }
   void set_rate_expression(const QString& rate_expression) {
     m_rate_expression = rate_expression;

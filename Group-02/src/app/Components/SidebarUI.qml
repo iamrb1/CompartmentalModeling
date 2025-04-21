@@ -11,133 +11,70 @@ import Components
 import cseg2
 
 Rectangle {
-    property Simulation simulation: null
+    property Simulation parentSimulation
+    property Simulation simulation: parentSimulation
 
     id: sidebarUI
 
-    Layout.fillHeight: true
-    width: 200
-    Layout.preferredWidth: 200
     color: ThemeManager.palette.base
     border.color: ThemeManager.palette.shadow
     border.width: 1
 
-    ColumnLayout {
+    SplitView {
+        orientation: Qt.Vertical
         anchors.fill: parent
         spacing: 0
 
-        // Connection section
         Rectangle {
-            id: sidebarTop
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.preferredHeight: parent.height * 0.5
-            color: ThemeManager.palette.base
+            SplitView.fillWidth: true
+            SplitView.minimumHeight: parent.height*0.3
+            SplitView.maximumHeight: parent.height*0.7
 
-            ColumnLayout {
-                anchors.fill: parent
-                anchors.margins: 10
-                spacing: 10
-
-                Text {
-                    text: "Connection"
-                    font.bold: true
-                    font.pixelSize: 14
-                    color: ThemeManager.palette.text
-                    Layout.alignment: Qt.AlignHCenter
-                }
-
-                RowLayout {
-                    Layout.fillWidth: true
-                    Text {
-                        text: "Start"
-                        color: ThemeManager.palette.text
-                        Layout.preferredWidth: 80
-                    }
-                    Rectangle {
-                        Layout.fillWidth: true
-                        height: 30
-                        border.width: 1
-                        border.color: ThemeManager.palette.mid
-                        color: "transparent"
-                        TextInput {
-                            anchors.fill: parent
-                            anchors.margins: 5
-                            verticalAlignment: TextInput.AlignVCenter
-                            text: "A"
-                            color: ThemeManager.palette.text
-                        }
-                    }
-                }
-
-                RowLayout {
-                    Layout.fillWidth: true
-                    Text {
-                        text: "End"
-                        color: ThemeManager.palette.text
-                        Layout.preferredWidth: 80
-                    }
-                    Rectangle {
-                        Layout.fillWidth: true
-                        height: 30
-                        border.width: 1
-                        border.color: ThemeManager.palette.mid
-                        color: "transparent"
-                        TextInput {
-                            anchors.fill: parent
-                            anchors.margins: 5
-                            verticalAlignment: TextInput.AlignVCenter
-                            text: "B"
-                            color: ThemeManager.palette.text
-                        }
-                    }
-                }
-
-                Text {
-                    text: "Rate of Transfer"
-                    color: ThemeManager.palette.text
-                }
-
-                Rectangle {
-                    Layout.fillWidth: true
-                    height: 30
-                    border.width: 0
-                    border.color: ThemeManager.palette.mid
-                    color: "transparent"
-
-                    TextInput {
-                        anchors.fill: parent
-                        text: "k1*A*B"
-                        color: ThemeManager.palette.text
-                        verticalAlignment: TextInput.AlignVCenter
-                    }
-
-                    Rectangle {
-                        width: parent.width
-                        height: 1
-                        color: ThemeManager.palette.mid
-                        anchors.bottom: parent.bottom
-                    }
-                }
-                Item {
-                    Layout.fillHeight: true
-                } // Spacer
+            CompartmentEditUI{
+                parentSimulation: simulation
+                visible: parentSimulation.sidebarCompartment
             }
-        }
 
-        // Divider
-        Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: ThemeManager.palette.shadow
+            ConnectionEditUI{
+                parentSimulation: simulation
+                visible: parentSimulation.sidebarConnection
+            }
+
+            Rectangle {
+                visible: !(parentSimulation.sidebarConnection || parentSimulation.sidebarCompartment)
+                anchors.fill: parent
+                color: ThemeManager.palette.base
+
+                ColumnLayout {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.margins: 10
+                    spacing: 10
+
+                    Text {
+                        text: "Interface"
+                        font.bold: true
+                        font.pixelSize: 14
+                        color: ThemeManager.palette.text
+                        Layout.alignment: Qt.AlignHCenter
+                    }
+                    Text {
+                        text: "Select a compartment/connection to edit"
+                        font.pixelSize: 12
+                        color: ThemeManager.palette.shadow
+                        Layout.alignment: Qt.AlignHCenter
+                        wrapMode: Text.Wrap
+                    }
+                }
+            }
         }
 
         // Variables section
         Rectangle {
             id: sidebarBottom
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.preferredHeight: parent.height * 0.5
+            SplitView.fillWidth: true
+            SplitView.minimumHeight: parent.height*0.3
+            SplitView.maximumHeight: parent.height*0.7
             color: ThemeManager.palette.base
 
             ColumnLayout {
@@ -165,11 +102,6 @@ Rectangle {
                     }
 
 
-                    Item {
-                        Layout.fillWidth: true
-                        height: 30
-                    }
-
                     // Plus button
                     Rectangle {
                         width: 24
@@ -190,7 +122,9 @@ Rectangle {
                             id: plusMouseArea
                             anchors.fill: parent
                             onClicked: {
+                                console.log(Object.keys(simulation.variables))
                                 simulation.add_variable()
+                                console.log(Object.keys(simulation.variables))
                             }
                         }
                     }
@@ -239,29 +173,30 @@ Rectangle {
                             }
 
                             // Pencil button for editing variable name
-                            Rectangle {
-                                width: 24
-                                height: 24
-                                radius: 4
-                                color: editMouseArea.pressed ? ThemeManager.palette.mid : "transparent"
-                                border.width: 1
-                                border.color: ThemeManager.palette.mid
+                            ToolButton {
+                                id: editToolButton
+                                icon.name: "Edit Variable"
+                                icon.source: "qrc:/resources/icons/edit.svg"
+                                icon.color: ThemeManager.palette.text
+                                icon.height: 16
+                                icon.width: 16
+                                padding: 5
 
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: "✎" // Pencil Unicode character
-                                    font.pixelSize: 14
-                                    color: ThemeManager.palette.text
+                                background: Rectangle {
+                                    color: editToolButton.hovered ? ThemeManager.palette.midlight : "transparent"
+                                    border.color: ThemeManager.palette.mid
+                                    border.width: 1
+                                    radius: 5
                                 }
 
-                                MouseArea {
-                                    id: editMouseArea
-                                    anchors.fill: parent
-                                    onClicked: {
-                                        editDialog.oldName = modelData[0]
-                                        editDialog.currentValue = modelData[1]
-                                        editDialog.open()
-                                    }
+                                ToolTip.visible: hovered
+                                ToolTip.delay: 500
+                                ToolTip.text: icon.name
+
+                                onClicked: {
+                                    editDialog.oldName = modelData[0]
+                                    editDialog.currentValue = modelData[1]
+                                    editDialog.open()
                                 }
                             }
                         }

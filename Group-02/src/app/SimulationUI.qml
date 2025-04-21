@@ -122,6 +122,64 @@ ApplicationWindow {
                     icon.height: 20
                     icon.width: 20
 
+                    checkable: true
+
+                    onClicked: {
+                        simulation.connectionMode = !simulation.connectionMode
+                        checked = simulation.connectionMode
+                        if (simulation.connectionMode) {
+                            connectionMessagePopup.open()
+                        }
+                    }
+
+                    Popup {
+                        id: connectionMessagePopup
+                        x: (simulationUI.width - width) / 2
+                        y: 0
+                        width: 500
+                        height: 30
+
+                        contentItem: Rectangle {
+                            anchors.fill: parent
+                            color: ThemeManager.palette.base
+
+                            Text {
+                                anchors.fill: parent
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                                text: "Select source and target components to form a connection"
+                            }
+                        }
+
+                        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
+
+                        // Timer to auto-close the popup
+                        Timer {
+                            id: autoCloseTimer
+                            interval: 2000 // 2 seconds
+                            running: false
+                            repeat: false
+                            onTriggered: connectionMessagePopup.close()
+                        }
+
+                        onVisibleChanged: {
+                            if (visible) {
+                                autoCloseTimer.restart()
+                            }
+                        }
+                    }
+
+                    ToolTip.visible: hovered
+                    ToolTip.delay: 500
+                    ToolTip.text: icon.name
+                }
+                ToolButton {
+                    icon.name: "Show Graphs"
+                    icon.source: "qrc:/resources/icons/graph.svg"
+                    icon.color: ThemeManager.palette.text
+                    icon.height: 20
+                    icon.width: 20
+
                     ToolTip.visible: hovered
                     ToolTip.delay: 500
                     ToolTip.text: icon.name
@@ -183,8 +241,8 @@ ApplicationWindow {
         // }
         SplitView {
             orientation: Qt.Horizontal
-            Layout.fillHeight: parent
-            Layout.fillWidth: parent
+            Layout.fillHeight: true
+            Layout.fillWidth: true
 
             // --- Simulation UI ---
             Rectangle {
@@ -196,30 +254,32 @@ ApplicationWindow {
                 border.color: ThemeManager.palette.shadow
 
                 Item {
-                    id: clipContainer
-                    anchors.fill: parent
+                    id: compartmentContainer
                     clip: true
+                    anchors.fill: parent
+                    scale: 1.0
+                    transformOrigin: Item.Center
+                    anchors.centerIn: parent
 
-                    Item {
-                        id: compartmentContainer
-                        width: parent.width
-                        height: parent.height
-                        scale: 1.0
-                        transformOrigin: Item.Center
-                        anchors.centerIn: parent
+                    Repeater {
+                        model: simulation.compartments
 
-                        Repeater {
-                            model: simulation.compartments
+                        delegate: CompartmentUI {
+                            compartment: modelData
+                            parentSimulation: simulation
 
-                            delegate: CompartmentUI {
-                                id: compartmentUI
-                                x: modelData.x || 100 + (index % 2) * 200
-                                y: modelData.y || 100 + Math.floor(
-                                       index / 2) * 100
-                                color: ThemeManager.palette.base
-                                border.color: ThemeManager.palette.shadow
-                                compartment: modelData
-                            }
+                            x: compartment.x || 100 + (index % 2) * 200
+                            y: compartment.y || 100 + Math.floor(
+                                   index / 2) * 100
+                        }
+                    }
+
+                    Repeater {
+                        model: simulation.connections
+
+                        delegate: ConnectionUI {
+                            connection: modelData
+                            parentSimulation: simulation
                         }
                     }
                 }
@@ -231,8 +291,6 @@ ApplicationWindow {
                     anchors.margins: 5
                     spacing: 5
                     z: 10
-                    visible: simulationUI.width
-                             >= (30 * 2 + 5 + 10) // Buttons disappear when screen is too small
 
                     Button {
                         text: "+"
@@ -258,10 +316,12 @@ ApplicationWindow {
 
             // --- Sidebar ---
             SidebarUI {
-                width: 250
+                id: sidebarUI
+                SplitView.fillHeight: true
+                SplitView.preferredWidth: 250
                 SplitView.minimumWidth: 200
                 SplitView.maximumWidth: 350
-                simulation: simulation
+                parentSimulation: simulation
             }
         }
     }

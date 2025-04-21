@@ -19,14 +19,26 @@
 class Simulation : public QObject {
   Q_OBJECT
   QML_ELEMENT
-  Q_PROPERTY(QVector<QObject*> compartments READ get_compartments_as_qobject NOTIFY compartmentsChanged)
+  Q_PROPERTY(QVector<Compartment*> compartments READ get_compartments NOTIFY compartmentsChanged)
+  Q_PROPERTY(QVector<Connection*> connections READ get_connections NOTIFY connectionsChanged)
   Q_PROPERTY(QString name MEMBER m_name NOTIFY nameChanged)
-  Q_PROPERTY(QVariantMap variables READ get_variables_as_qobject NOTIFY variablesChanged)
+  Q_PROPERTY(QVariantMap variables READ get_variables NOTIFY variablesChanged)
+  Q_PROPERTY(bool connectionMode MEMBER m_connection_mode NOTIFY connectionModeChanged)
+  Q_PROPERTY(Compartment* sourceCompartment MEMBER m_source_compartment NOTIFY sourceCompartmentChanged)
+  Q_PROPERTY(Compartment* targetCompartment MEMBER m_target_compartment WRITE set_target_compartment NOTIFY targetCompartmentChanged)
+  Q_PROPERTY(Compartment* sidebarCompartment MEMBER m_sidebar_compartment WRITE set_sidebar_compartment NOTIFY sidebarCompartmentChanged)
+  Q_PROPERTY(Connection* sidebarConnection MEMBER m_sidebar_connection WRITE set_sidebar_connection NOTIFY sidebarConnectionChanged)
 
  signals:
   void compartmentsChanged();
+  void connectionsChanged();
   void nameChanged();
   void variablesChanged();
+  void sourceCompartmentChanged();
+  void targetCompartmentChanged();
+  void connectionModeChanged();
+  void sidebarCompartmentChanged();
+  void sidebarConnectionChanged();
 
  private:
   /// Simulation name
@@ -41,20 +53,33 @@ class Simulation : public QObject {
   std::unordered_map<QString, std::shared_ptr<Compartment>> m_compartments;
   /// Connections between compartments
   std::vector<std::shared_ptr<Connection>> m_connections;
-  /// Compartment number
-  int m_compartment_number = 0;
 
   /// Variables for the simulation
-  std::unordered_map<std::string, double> m_variables = {{"k1", 0.01f}, {"k2", 0.1f}, {"k3", 0.5f}};
+  std::unordered_map<std::string, double> m_variables = {{"k1", 0.01}, {"k2", 0.1}, {"k3", 0.5}};
+
+  /// UI variables
+
+  /// Connection mode from the toolbar
+  bool m_connection_mode = false;
+  /// Source compartment
+  Compartment* m_source_compartment = nullptr;
+  /// Target Compartment
+  Compartment* m_target_compartment = nullptr;
+
+  /// Sidebar element
+  /// Selected connection
+  Connection* m_sidebar_connection = nullptr;
+  /// Selected compartment
+  Compartment* m_sidebar_compartment = nullptr;
 
  public:
   explicit Simulation(QObject* parent = nullptr) : QObject(parent) {}
 
   Q_INVOKABLE void add_compartment();
+  // Q_INVOKABLE void add_connection(Compartment* source, Compartment* target);
 
   void clear_simulation() {
     m_time = 0.0;
-    m_compartment_number = 0;
     m_save_path.clear();
     m_compartments.clear();
     m_connections.clear();
@@ -71,12 +96,21 @@ class Simulation : public QObject {
   Q_INVOKABLE void load_xml(const QString& filename);
   Q_INVOKABLE void save_xml(const QString& filename);
 
-  [[nodiscard]] QVector<QObject*> get_compartments_as_qobject() const;
-  [[nodiscard]] QVariantMap get_variables_as_qobject() const;
+  [[nodiscard]] QVector<Compartment*> get_compartments() const;
+  [[nodiscard]] QVector<Connection*> get_connections() const;
+  [[nodiscard]] QVariantMap get_variables() const;
+
+  void set_sidebar_compartment(Compartment* compartment);
+  void set_sidebar_connection(Connection* connection);
 
   Q_INVOKABLE void add_variable(const QString& name=QString(), double value = 0.0);
   Q_INVOKABLE void remove_variable(const QString& name);
   Q_INVOKABLE void update_variable(const QString& name, const QString& new_name, double value);
+
+  Q_INVOKABLE void remove_connection(const Connection* connection);
+  Q_INVOKABLE void remove_compartment(const QString& symbol);
+
+  void set_target_compartment(Compartment* target);
 };
 
 #endif  //SIMULATION_H

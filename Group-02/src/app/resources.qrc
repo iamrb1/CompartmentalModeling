@@ -3,5 +3,8 @@
         <file>resources/examples/SIR.sim</file>
         <file>resources/icons/arrow-right.svg</file>
         <file>resources/icons/plus.svg</file>
+        <file>resources/icons/edit.svg</file>
+        <file>resources/icons/graph.svg</file>
+        <file>resources/icons/delete.svg</file>
     </qresource>
 </RCC>

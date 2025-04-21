@@ -19,5 +19,6 @@ QtObject {
         text: "#fff"
         window: "#222"
         windowText: "#fff"
+        property color danger: "#ff1919"
     }
 }

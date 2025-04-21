@@ -10,6 +10,8 @@ set(
     ConnectionUI.qml
     SidebarUI.qml
     TimePlotUI.qml
+    ConnectionEditUI.qml
+    CompartmentEditUI.qml
 )
 
 set(
