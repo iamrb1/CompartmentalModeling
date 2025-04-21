@@ -141,7 +141,7 @@ class String : public std::string {
    * @return Reference to this String after insertion.
    */
   String &insert(auto iter, const auto &str) {
-    dbg_assert(iter < end(), "cse::String insert() iterator out of range");
+    dbg_assert(iter <= end(), "cse::String insert() iterator out of range");
     std::string::insert(iter, str);
     return *this;
   }
