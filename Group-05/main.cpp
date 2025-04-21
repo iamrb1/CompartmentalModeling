@@ -10,6 +10,9 @@
 
 #include "src/Datum.h"
 #include "src/DataGrid.h"
+#include "src/ExpressionParser.cpp"
+#include "src/ExpressionParser.h"
+
 
 #include <iostream>
 #include <limits>
@@ -360,6 +363,8 @@ void ManipulateGridMenu(cse::DataGrid &grid) {
     std::cout << "4. Adding options" << std::endl;
     std::cout << "5. Deleting options" << std::endl;
     std::cout << "6. Resizing options" << std::endl;
+    std::cout << "7. Custom Row" << std::endl;
+    std::cout << "8. Custom Column" << std::endl;
     std::cout << "0. Return to main menu" << std::endl;
     std::cout << "Enter your choice: ";
     std::cin >> choice;
@@ -383,6 +388,7 @@ void ManipulateGridMenu(cse::DataGrid &grid) {
       case 6:
         ResizeSubmenu(grid);
         break;
+        
       case 0:
         break;
       default:
@@ -603,7 +609,7 @@ void AddSubmenu(cse::DataGrid &grid) {
       switch (choice) {
         case 1: {
           std::size_t num_cols = std::get<1>(grid.Shape());
-          std::cout << "Add default row (d) or enter manually (m)? ";
+          std::cout << "Add default row (d), with an equation (e), or enter manually (m)? ";
           std::string method;
           std::cin >> method;
 
@@ -631,15 +637,33 @@ void AddSubmenu(cse::DataGrid &grid) {
             grid.InsertRow(new_row);
             std::cout << "Row added." << std::endl;
 
-          } else {
-            std::cout << "Invalid option. Must be 'd' or 'm'." << std::endl;
+          } else if (method == "e"){
+            std::vector<cse::Datum> new_row;
+            std::cout << "Enter equation. Supported operators +-/*^, indexes in curly braces {}, seperate with a single space: ";
+            std::string equation;
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::getline(std::cin, equation);
+            std::cout<<equation<<std::endl;
+            cse::ExpressionParser<cse::ReferenceVector<Datum>> parser;
+            cse::ReferenceVector<Datum> col;
+            size_t index=0;
+            auto func = parser.MakeFunc(equation, 0, index);
+            for(size_t i=0;i<num_cols;++i){
+              col= grid.GetColumn(i);
+              new_row.push_back(func(col));
+            }
+            grid.InsertRow(new_row);
+            std::cout<<"Row Added" <<std::endl;
+          }
+          else {
+            std::cout << "Invalid option. Must be 'd', 'e', or 'm'.";
           }
           break;
         }
 
         case 2: {
           std::size_t num_rows = std::get<0>(grid.Shape());
-          std::cout << "Add default column (d) or enter manually (m)? ";
+          std::cout << "Add default column (d), column by equation (e), or enter manually (m)? ";
           std::string method;
           std::cin >> method;
 
@@ -667,8 +691,25 @@ void AddSubmenu(cse::DataGrid &grid) {
             grid.InsertColumn(new_column);
             std::cout << "Column added." << std::endl;
 
-          } else {
-            std::cout << "Invalid option. Must be 'd' or 'm'." << std::endl;
+          }else if (method == "e"){
+            std::vector<cse::Datum> new_col;
+            std::cout << "Enter equation. Supported operators +-/*^, indexes in curly braces {}, seperate with a single space: ";
+            std::string equation;
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::getline(std::cin, equation);
+            cse::ExpressionParser<std::vector<cse::Datum>> parser;
+            std::vector<Datum> row;
+            size_t index=0;
+            auto func = parser.MakeFunc(equation, 0, index);
+            for(size_t i=0;i<num_rows;++i){
+              row = grid.GetRow(i);
+              new_col.push_back(func(row));
+            }
+            grid.InsertColumn(new_col);
+            std::cout<<"Col Added" <<std::endl;
+          } 
+          else {
+            std::cout << "Invalid option. Must be 'd', 'e', or 'm'." << std::endl;
           }
           break;
         }
