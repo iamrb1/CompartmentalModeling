@@ -73,6 +73,14 @@ void bind() {
 
 
 		}
+    var deleteSlide = document.getElementById("deleteSlideButton");
+        if (deleteSlide) {
+          deleteSlide.addEventListener(
+              "click",
+              function() {Module._call_deleteSlide(); });
+
+
+        }
 	var startButton = document.getElementById("startButton");
 	if (startButton) {
 			startButton.addEventListener(

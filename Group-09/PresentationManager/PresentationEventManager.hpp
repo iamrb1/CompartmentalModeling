@@ -109,4 +109,33 @@ class PresentationEventManager {
 			_active_queue = _queues[_current_slide]; // Re-copy the active queue
 		}
 
+        /**
+         * Me when I try my best but I don't succeeeeed
+         * void removeSlide(const int slideID) {
+          if (slideID >= _queues.size()) {
+            std::cout << "ERROR: removeSlide() in EventManager out of bounds" << std::endl;
+            return;
+          }
+
+          // Remove slide from queue
+          _queues.erase(_queues.begin() + slideID);
+
+          for (auto it = _id_to_slide.begin(); it != _id_to_slide.end(); ) {
+            if (it->second == slideID) {
+              it = _id_to_slide.erase(it);
+            } else {
+              if (it->second > slideID) {
+                it->second -= 1;
+              } }
+              ++it;
+            }
+
+            if (_current_slide >= _queues.size()) {
+              _current_slide = _queues.size() - 1;
+            }
+
+            // Update active queue
+            _active_queue = _queues[_current_slide];
+
+        } */
 };

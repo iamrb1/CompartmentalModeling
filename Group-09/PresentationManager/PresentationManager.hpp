@@ -138,9 +138,20 @@ class PresentationManager {
 		 */
 		void deleteSlide(const Slide& slide) {
 			slide->deactivateLayout();
-			std::erase(_slide_deck, slide);
-			_event_manager.resize(_slide_deck.size());
-			std::cout << "Added new slide. ID: " << slide->getID() << std::endl;
+
+            // Find index of slide
+            auto it = find(_slide_deck.begin(), _slide_deck.end(), slide);
+            std::cout << "POSITION: " << it - _slide_deck.begin() << std::endl;
+
+            std::erase(_slide_deck, slide);
+            //_event_manager.removeSlide(it - _slide_deck.begin());
+            //_event_manager.resize(_slide_deck.size());
+			std::cout << "Deleted slide. ID: " << slide->getID() << std::endl;
+
+            if(_current_pos != 0) {
+              _current_pos--;
+            }
+
 			onSlideChangedJS();
 		}
 
@@ -222,7 +233,7 @@ class PresentationManager {
 		 * @param slide_num
 		 */
 		void goTo(const int slide_num) {
-			std::cout << "Going to slide " << (slide_num + 1) << std::endl;
+			std::cout << "Going to slide layout-id: " << (slide_num) << std::endl;
 
             // If running presentation and last slide, go to end
             if(_running && slide_num >= _slide_deck.size()) {
@@ -239,15 +250,15 @@ class PresentationManager {
 				return; // Exit early
 			}
 
-			auto currentLayout = _slide_deck.at(_current_pos);
-			if (currentLayout) {
-				currentLayout->deactivateLayout();
-			}
+              auto currentLayout = _slide_deck.at(_current_pos);
+              if (currentLayout) {
+                currentLayout->deactivateLayout();
+              }
 
-			_current_pos = slide_num;
+          _current_pos = slide_num;
 
-			currentLayout = _slide_deck.at(_current_pos);
-			currentLayout->activateLayout();
+          currentLayout = _slide_deck.at(_current_pos);
+          currentLayout->activateLayout();
 			_event_manager.onSlideChanged(_current_pos);
 			onSlideChangedJS();
 		}
@@ -659,6 +670,28 @@ void call_addObjectEvent(const int timing, const int slideNum, const char *id) {
 	PRESENTATION_MANAGER.addObjectEvent(timing, slideNum, id);
 }
 int call_getCurrentPos() { return PRESENTATION_MANAGER.getCurrentPos(); }
+
+void call_deleteSlide() {
+  // Delete only if more than 1 slide
+  if (PRESENTATION_MANAGER.getSlides().empty() ||
+      PRESENTATION_MANAGER.getCurrentPos() >= PRESENTATION_MANAGER.getSlides().size()) {
+    std::cout << "ERROR: call_deleteSlide(): layout index out of range.\n";
+    return;
+  }
+
+  if(PRESENTATION_MANAGER.getNumSlides() <= 1 ) {
+    std::cout << "ERROR: call_deleteSlide(): can't delete only slide.\n";
+    return;
+  }
+
+  auto layout = PRESENTATION_MANAGER.getSlides().at(PRESENTATION_MANAGER.getCurrentPos());
+
+  PRESENTATION_MANAGER.getCurrentPos() == 0 ? PRESENTATION_MANAGER.advance() : PRESENTATION_MANAGER.rewind();
+
+  PRESENTATION_MANAGER.deleteSlide(layout);
+  PRESENTATION_MANAGER.onSlideChangedJS();
+
+}
 }
 
 
