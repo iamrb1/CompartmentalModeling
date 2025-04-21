@@ -22,61 +22,160 @@ ApplicationWindow {
 
     palette: ThemeManager.palette
 
-    menuBar: MenuBar {
-        id: menuBar
-        Layout.preferredWidth: implicitWidth
-        background: Rectangle {
-            color: ThemeManager.palette.base
-        }
+    menuBar: Rectangle {
+        height: 40
+        width: parent.width
+        color: ThemeManager.palette.base
 
-        Menu {
-            title: "File"
-            Action {
-                text: "New Simulation"
-                onTriggered: console.log("New Simulation")
-            }
+        RowLayout {
+            anchors.fill: parent
+            anchors.margins: 5
+            spacing: 10
 
-            Action {
-                text: "Open"
-                onTriggered: openFileDialog.open()
-            }
+            MenuBar {
+                id: menuBar
+                Layout.preferredWidth: implicitWidth
+                background: Rectangle { color: "transparent" }
 
-            Action {
-                text: "Save"
-                onTriggered: saveFileDialog.open()
-            }
+                Menu {
+                    title: "File"
+                    Action {
+                        text: "New Simulation"; onTriggered: console.log("New Simulation")
+                    }
 
-            Action {
-                text: "Save As"
-                onTriggered: saveFileDialog.open()
-            }
+                    Action {
+                        text: "Open"; onTriggered: openFileDialog.open()
+                    }
 
-            MenuSeparator {}
-            Menu {
-                title: "Theme"
-                Repeater {
-                    model: ThemeManager.themeList
-                    MenuItem {
-                        text: modelData.name
-                        checkable: true
-                        checked: modelData.value === ThemeManager.theme
-                        onTriggered: ThemeManager.setTheme(modelData.value)
+                    Action {
+                        text: "Save"; onTriggered: saveFileDialog.open()
+                    }
+
+                    Action {
+                        text: "Save As"; onTriggered: saveFileDialog.open()
+                    }
+
+                    MenuSeparator {}
+                    Menu {
+                        title: "Theme"
+                        Repeater {
+                            model: ThemeManager.themeList
+                            MenuItem {
+                                text: modelData.name
+                                checkable: true
+                                checked: modelData.value === ThemeManager.theme
+                                onTriggered: ThemeManager.setTheme(modelData.value)
+                            }
+                        }
+                    }
+                    MenuSeparator {}
+                    Action {
+                        text: "Exit"; onTriggered: Qt.quit()
+                    }
+                }
+
+                Menu {
+                    title: "Help"
+                    Action {
+                        text: "About"
+                        onTriggered: console.log("About clicked")
                     }
                 }
             }
-            MenuSeparator {}
-            Action {
-                text: "Exit"
-                onTriggered: Qt.quit()
-            }
-        }
 
-        Menu {
-            title: "Help"
-            Action {
-                text: "About"
-                onTriggered: console.log("About clicked")
+            Item {
+                Layout.fillWidth: true
             }
+
+            RowLayout {
+                Layout.fillWidth: false
+
+                Text {
+                    text: "Time Step:"
+                    color: ThemeManager.palette.text
+                    Layout.preferredWidth: 60
+                }
+
+                TextField {
+                    id: valueField
+                    Layout.fillWidth: false
+                    Layout.preferredWidth: 50
+                    text: editDialog.currentValue.toFixed(2)
+                    selectByMouse: true
+                    validator: DoubleValidator {}
+                }
+            }
+
+            // Spacing
+            // Item {
+            //     width: 18
+            //     Layout.preferredWidth: width
+            // }
+
+            ToolButton {
+                id: playButton
+                icon.name: "Play Simulation"
+                icon.source: "qrc:/resources/icons/play_arrow.svg"
+                icon.color: ThemeManager.palette.text
+                icon.height: 20
+                icon.width: 20
+                checkable: true
+
+                ToolTip.visible: hovered
+                ToolTip.delay: 500
+                ToolTip.text: icon.name
+
+                onClicked: {
+                    pauseButton.checked = false
+                    // resetButton.checked = false
+                    //simulation.play()
+                }
+            }
+
+            ToolButton {
+                id: pauseButton
+                icon.name: "Pause Simulation"
+                icon.source: "qrc:/resources/icons/pause.svg"
+                icon.color: ThemeManager.palette.text
+                icon.height: 20
+                icon.width: 20
+                checkable: true
+
+                ToolTip.visible: hovered
+                ToolTip.delay: 500
+                ToolTip.text: icon.name
+
+                onClicked: {
+                    playButton.checked = false
+                    // resetButton.checked = false
+                    // simulation.pause()
+                }
+            }
+
+            ToolButton {
+                id: resetButton
+                icon.name: "Reset Simulation"
+                icon.source: "qrc:/resources/icons/reset.svg"
+                icon.color: ThemeManager.palette.text
+                icon.height: 20
+                icon.width: 20
+                // checkable: true
+
+                ToolTip.visible: hovered
+                ToolTip.delay: 500
+                ToolTip.text: icon.name
+
+                onClicked: {
+                    pauseButton.checked = false
+                    playButton.checked = false
+                    // simulation.clear_simulation()
+                }
+            }
+            // Spacing
+            // Item {
+            //     width: 155
+            //     Layout.preferredWidth: width
+            // }
         }
     }
 

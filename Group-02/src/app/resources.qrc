@@ -6,5 +6,8 @@
         <file>resources/icons/edit.svg</file>
         <file>resources/icons/graph.svg</file>
         <file>resources/icons/delete.svg</file>
+        <file>resources/icons/play_arrow.svg</file>
+        <file>resources/icons/pause.svg</file>
+        <file>resources/icons/reset.svg</file>
     </qresource>
 </RCC>
