@@ -961,3 +961,59 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
     test_function(input, output_result);
   }
 }
+
+TEST_CASE("combine, difference, intersection, copy function wise tests", "[combine,difference,intersection,copy]") {
+    cse::ErrorManager errorManager;
+    cse::WordListManager manager(errorManager);
+
+    REQUIRE(manager.loadList("listA", "FileA.txt"));
+    REQUIRE(manager.loadList("listB", "FileB.txt"));
+
+    SECTION("Combine two existing lists into a new list") {
+        REQUIRE(manager.combine("combinedList", {"listA", "listB"}));
+    }
+
+    SECTION("Combine fails with existing list name") {
+        REQUIRE_FALSE(manager.combine("listA", {"listA", "listB"}));
+    }
+
+    SECTION("Combine fails with non existing list name") {
+        REQUIRE_FALSE(manager.combine("combinedList2", {"listC", "listB"}));
+    }
+
+    SECTION("Difference of two lists") {
+        REQUIRE(manager.difference("differenceList", {"listA", "listB"}));
+    }
+
+    SECTION("Difference fails with existing list name") {
+        REQUIRE_FALSE(manager.difference("listA", {"listA", "listB"}));
+    }
+
+    SECTION("Difference fails with non existing list name") {
+        REQUIRE_FALSE(manager.difference("differenceList2", {"listC", "ListB"}));
+    }
+
+    SECTION("Intersection of two lists") {
+        REQUIRE(manager.intersection("intersectionList", {"listA", "listB"}));
+    }
+
+    SECTION("Intersection fails with already existing list name") {
+        REQUIRE_FALSE(manager.intersection("listA", {"listA", "listB"}));
+    }
+
+    SECTION("Intersection fails with non existing list name") {
+        REQUIRE_FALSE(manager.intersection("IntersectionList2", {"listC", "ListB"}));
+    }
+
+    SECTION("Copy an existing list") {
+        REQUIRE(manager.copy("copyList", "listA"));
+    }
+
+    SECTION("Copy fails with already existing list name") {
+        REQUIRE_FALSE(manager.copy("listA", "listB"));
+    }
+
+    SECTION("Copy fails with non existing list name") {
+        REQUIRE_FALSE(manager.copy("copyList2", "ListC"));
+    }
+}
