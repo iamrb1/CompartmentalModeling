@@ -10,8 +10,8 @@
 
 #include "src/Datum.h"
 #include "src/DataGrid.h"
-#include "src/ExpressionParser.cpp"
 #include "src/ExpressionParser.h"
+#include "src/CSVfile.h"
 
 
 #include <iostream>
@@ -172,10 +172,12 @@ cse::DataGrid CreateGrid() {
  * @return DataGrid
  */
 cse::DataGrid GridMenu() {
+  cse::DataGrid grid;
   while (true) {
     std::cout << "Menu Option:" << std::endl;
-    std::cout << "i: Import a CSV file (TODO)" << std::endl;
-    std::cout << "e: Export to a CSV file (TODO)" << std::endl;
+    std::cout << "i: Import a CSV file" << std::endl;
+    std::cout << "e: Export to a CSV file" << std::endl;
+    std::cout << "b: Go back" << std::endl;
     std::cout << "t: Create a test grid" << std::endl;
     std::cout << "c: Create a new DataGrid" << std::endl;
     std::cout << "Enter an option: ";
@@ -183,9 +185,30 @@ cse::DataGrid GridMenu() {
     std::cin >> option;
 
     if (option == "i") {
-      // TODO: Implement CSV import.
+      std::string filename;
+      std::cout << "Enter CSV filename to import: ";
+      std::cin >> filename;
+      try {
+        grid = cse::CSVFile::LoadCsv(filename);
+        return grid;                      
+      } catch (const std::exception &e) {
+        std::cerr << "Import failed: " << e.what() << "\n";
+      }
     } else if (option == "e") {
-      // TODO: Implement CSV export.
+      std::string filename;
+      std::cout << "Enter CSV filename to export: ";
+      std::cin >> filename;
+      try {
+        if (!cse::CSVFile::ExportCsv(filename, grid)) {
+          std::cerr << "Export failed: unknown error\n";
+        } else {
+          std::cout << "Exported to " << filename << "\n";
+        }
+      } catch (const std::exception &e) {
+        std::cerr << "Export failed: " << e.what() << "\n";
+      }
+    } else if (option == "b") {
+      return grid;
     } else if (option == "t") {
       std::vector<std::vector<cse::Datum>> test_grid(
           5, std::vector<cse::Datum>(3));

@@ -67,7 +67,7 @@ std::string CSVFile::SanitizeCsvField(const std::string &input, char delimiter) 
     std::string result = "\"";
     for (char character : input) {
       // CITE: Used ChatGPT to help develop this logic for escaping double quotes in CSV fields.
-      // REF: According to CSV standard (RFC 4180) and resaerch on it, double quotes in a field should be escaped by doubling them.
+      // REF: According to CSV standard (RFC 4180) and research on it, double quotes in a field should be escaped by doubling them.
       // So using that, this line replaces each " with "" to properly escape quotes in CSV fields. 
       result += (character == '"') ? "\"\"" : std::string(1, character);
     }
