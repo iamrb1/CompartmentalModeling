@@ -174,7 +174,6 @@ cse::DataGrid CreateGrid() {
  * @return DataGrid
  */
 cse::DataGrid GridMenu() {
-  cse::DataGrid grid;
   while (true) {
     std::cout << "Menu Option:" << std::endl;
     std::cout << "i: Import a CSV file" << std::endl;
@@ -189,7 +188,7 @@ cse::DataGrid GridMenu() {
       std::cout << "Enter CSV filename to import: ";
       std::cin >> filename;
       try {
-        grid = cse::CSVFile::LoadCsv(filename);
+        cse::DataGrid grid = cse::CSVFile::LoadCsv(filename);
         return grid;                      
       } catch (const std::exception &e) {
         std::cerr << "Import failed: " << e.what() << "\n";
