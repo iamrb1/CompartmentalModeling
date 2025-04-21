@@ -74,7 +74,16 @@ public:
   explicit DataGrid(const std::vector<std::vector<Datum>> &data) {
     assert(data.empty() || !data[0].empty());
     assert(IsRectangle(data));
+    grid_ = data;
+  }
 
+  /**
+   * Constructor using 2D Vector of Datums
+   * @param data
+   */
+  explicit DataGrid(std::vector<std::vector<Datum>> &data) {
+    assert(data.empty() || !data[0].empty());
+    assert(IsRectangle(data));
     grid_ = data;
   }
 

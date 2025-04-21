@@ -18,15 +18,24 @@
 #include <string>
 #include <map>
 #include <functional>
+#include "Datum.h"
+
+using cse::Datum;
 
 namespace cse {
-
+template<typename SymbolTableType>
+concept HasIndexing = requires(SymbolTableType t, size_t i) {
+  { t[i] } -> std::same_as<typename SymbolTableType::value_type&>;  // Checks if operator[] is valid and returns a reference to value_type
+};
 /**
  * @brief Class to parse string equations
  */
+template <typename SymbolTableType>
 class ExpressionParser {
   private:
 
+  SymbolTableType symbol_table_;
+ 
   /**
    * @brief set char to subtraction operator
    * 
@@ -91,7 +100,7 @@ class ExpressionParser {
    */
   std::string GetParenthContent(const std::string& expression, size_t index);
 
-  std::map<std::string, double> symbol_table_;
+
   /**
    * @brief Parses the next key in the equation, returning that number as a double
    *
@@ -99,7 +108,7 @@ class ExpressionParser {
    * @param index The position of the parser in the string
    * @return Function returning next key
    */
-  std::function<double(std::map<std::string,double> &)> ParseKey(const std::string &expression, size_t &index);
+  std::function<Datum(SymbolTableType &)> ParseKey(const std::string &expression, size_t &index);
 
   /**
    * @brief Creates multiplication function that take a map with values to add
@@ -108,26 +117,7 @@ class ExpressionParser {
    * @param right Lambda which returns the right value
    * @return auto Lambda function to perform operation
    */
-  std::function<double(std::map<std::string,double> &)> MakeDivFun(std::function<double(std::map<std::string,double> &left)>, std::function<double(std::map<std::string,double> &right)>);
-
-
-  /**
-   * @brief Creates multiplication function that take a map with values to add
-   *
-   * @param left Lambda which returns the left value
-   * @param right Lambda which returns the right value
-   * @return auto Lambda function to perform operation
-   */
-  std::function<double(std::map<std::string,double> &)> MakeAddFun(std::function<double(std::map<std::string,double> &left)>, std::function<double(std::map<std::string,double> &right)>);
-
-  /**
-   * @brief Creates multiplication function that take a map with values to add
-   *
-   * @param left Lambda which returns the left value
-   * @param right Lambda which returns the right value
-   * @return auto Lambda function to perform operation
-   */
-  std::function<double(std::map<std::string,double> &)> MakeSubFun(std::function<double(std::map<std::string,double> &)>, std::function<double(std::map<std::string,double> &right)>);
+  std::function<Datum(SymbolTableType &)> MakeDivFun(std::function<Datum(SymbolTableType &left)>, std::function<Datum(SymbolTableType &right)>);
 
 
   /**
@@ -137,7 +127,26 @@ class ExpressionParser {
    * @param right Lambda which returns the right value
    * @return auto Lambda function to perform operation
    */
-  std::function<double(std::map<std::string,double> &)> MakeMulFun(std::function<double(std::map<std::string,double> & left)>, std::function<double(std::map<std::string,double> & right)>);
+  std::function<Datum(SymbolTableType &)> MakeAddFun(std::function<Datum(SymbolTableType &left)>, std::function<Datum(SymbolTableType &right)>);
+
+  /**
+   * @brief Creates multiplication function that take a map with values to add
+   *
+   * @param left Lambda which returns the left value
+   * @param right Lambda which returns the right value
+   * @return auto Lambda function to perform operation
+   */
+  std::function<Datum(SymbolTableType &)> MakeSubFun(std::function<Datum(SymbolTableType &)>, std::function<Datum(SymbolTableType &right)>);
+
+
+  /**
+   * @brief Creates multiplication function that take a map with values to add
+   *
+   * @param left Lambda which returns the left value
+   * @param right Lambda which returns the right value
+   * @return auto Lambda function to perform operation
+   */
+  std::function<Datum(SymbolTableType &)> MakeMulFun(std::function<Datum(SymbolTableType & left)>, std::function<Datum(SymbolTableType & right)>);
 
 
     /**
@@ -146,7 +155,7 @@ class ExpressionParser {
    * @param expression_lambda lambda returning value inside parenthesis
    * @return auto Lambda function to perform operation
    */
-  std::function<double(std::map<std::string,double> &)> MakeCosFun(std::function<double(std::map<std::string,double> &)> expression_lambda);
+  std::function<Datum(SymbolTableType &)> MakeCosFun(std::function<Datum(SymbolTableType &)> expression_lambda);
 
       /**
    * @brief Creates parenthesis function that takes a map with values
@@ -154,7 +163,7 @@ class ExpressionParser {
    * @param expression_lambda lambda returning value inside parenthesis
    * @return auto Lambda function to perform operation
    */
-  std::function<double(std::map<std::string,double> &)> MakeParenthFun(std::function<double(std::map<std::string,double> &)> expression_lambda);
+  std::function<Datum(SymbolTableType &)> MakeParenthFun(std::function<Datum(SymbolTableType &)> expression_lambda);
 
     /**
    * @brief Creates sine function that takes a map with values
@@ -162,7 +171,7 @@ class ExpressionParser {
    * @param expression_lambda lambda returning value inside parenthesis
    * @return auto Lambda function to perform operation
    */
-  std::function<double(std::map<std::string,double> &)> MakeSinFun(std::function<double(std::map<std::string,double> &)> expression_lambda);
+  std::function<Datum(SymbolTableType &)> MakeSinFun(std::function<Datum(SymbolTableType &)> expression_lambda);
 
 
   /**
@@ -172,7 +181,7 @@ class ExpressionParser {
    * @param right Lambda which returns the right value
    * @return auto Lambda function to perform operation
    */
-  std::function<double(std::map<std::string,double> &)> MakeExpoFun(std::function<double(std::map<std::string,double> &left)>, std::function<double(std::map<std::string,double> &right)>);
+  std::function<Datum(SymbolTableType &)> MakeExpoFun(std::function<Datum(SymbolTableType &left)>, std::function<Datum(SymbolTableType &right)>);
 
  public:
   /**
@@ -283,7 +292,8 @@ class ExpressionParser {
     return a == b;
 }
 
-std::function<double(std::map<std::string,double> & symbols)> MakeFunc( const std::string &expression, int precedence, size_t &index);
+
+std::function<Datum(SymbolTableType & symbols)> MakeFunc( const std::string &expression, int precedence, size_t &index);
 
 /**
  * @brief Creates a binary operation function at compile time.
@@ -299,22 +309,11 @@ std::function<double(std::map<std::string,double> & symbols)> MakeFunc( const st
       return [=]() constexpr { return op(left, right); };
 }
 
-  /**
-   * @brief Evaluates equation represented by expression and returns simplified value as a double
-   *
-   * @param number_map Map with value and key that will be regerences in expression
-   * @param expression Representing equation
-   * @return double representing value of equation
-   */
-  double Evaluate(const std::string &expression, int precedence, size_t &index);
+  std::function<cse::Datum(SymbolTableType &)> KeyLambda(const Datum &key);
 
-  auto KeyLambda(std::string key){
-    return [key](std::map<std::string,double> & symbols){ return symbols[key]; 
-    };
-  }
 
   auto NumLambda(double num){
-   return [num](std::map<std::string,double> &){ return num;}; 
+   return [num](SymbolTableType &){ return num;}; 
     };
 
    /**
@@ -322,6 +321,7 @@ std::function<double(std::map<std::string,double> & symbols)> MakeFunc( const st
     * 
     * @return std::map<std::string, double> symbol table
     */
+
    std::map<std::string, double>& GetSymbolTable(){
     return symbol_table_;
    }
@@ -332,12 +332,10 @@ std::function<double(std::map<std::string,double> & symbols)> MakeFunc( const st
     * @param key string key for symbol table
     * @param num double value for symbol table
     */
-    void SetSymbolTable(const std::string &key, const double &num){
-      symbol_table_[key] = num;
-    }
-  };
 
-  /**
+    void SetSymbolTable(const std::string &key, const double &num);
+    
+      /**
    * @brief Set index to the end of the parenthesis
    * 
    * @param index position inside expression
@@ -350,6 +348,9 @@ std::function<double(std::map<std::string,double> & symbols)> MakeFunc( const st
     }
     index++;
 }
+  };
+
+
 }
 
 

@@ -5,6 +5,7 @@
  */
 
 #include "ExpressionParser.h"
+#include "Datum.h"
 
 
 namespace cse {
@@ -16,7 +17,8 @@ namespace cse {
    * @param index position in string
    * @return std::string content inside parenthesis
    */
-  std::string cse::ExpressionParser::GetParenthContent(const std::string& expression, size_t index) {
+  template <typename SymbolTableType>
+  std::string cse::ExpressionParser<SymbolTableType>::GetParenthContent(const std::string& expression, size_t index) {
     // Ensure that the index is within the string length and points to '('
     if (index >= expression.size() || expression[index] != '(') {
         throw std::invalid_argument("Index must point to an opening parenthesis.");
@@ -40,7 +42,16 @@ namespace cse {
  * @param index The position of the parser in the string
  * @return The first key found
  */
-std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::ParseKey(const std::string &expression, size_t &index) {
+template <typename SymbolTableType>
+std::function<cse::Datum(SymbolTableType &)> cse::ExpressionParser<SymbolTableType>::ParseKey(const std::string &expression, size_t &index) {
+  std::vector<std::vector<Datum>> symbol_table(3, std::vector<Datum>(5));
+  symbol_table[0][0] = Datum(5.0);
+  symbol_table[0][1] = Datum(3.5);
+  symbol_table[0][2] = Datum(10);
+  symbol_table[0][3] = Datum(-15);
+  symbol_table[0][4] = Datum(3);
+
+ 
 
   assert(index <= expression.size());
   assert(std::any_of(expression.begin(), expression.end(), ::isdigit));
@@ -53,11 +64,12 @@ std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::Par
   
   if (expression[index]=='(') {
     if(isalpha(expression[index-1])){
+
       index=index-3;
-      return KeyLambda("");
+      return KeyLambda(Datum(""));
     }
     else{
-      return KeyLambda("");
+      return KeyLambda(Datum(""));
     }
 
   }
@@ -85,6 +97,10 @@ std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::Par
       return NumLambda(stoi(num_str));
     }
     else{
+      if(result==""){
+        result=num_str;
+      }
+      auto func= KeyLambda(result);
       return KeyLambda(result);
     }
 
@@ -97,18 +113,15 @@ std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::Par
  * @param key2 Key for second value
  * @return auto
  */
-std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::MakeAddFun(std::function<double(std::map<std::string,double> &)> left, std::function<double(std::map<std::string,double> &)> right) {
-  std::map<std::string, double> symbol_table;
-  symbol_table["val1"] = -2;
-  symbol_table["val2"] = 2;
-  symbol_table["val3"] = -15;
-  symbol_table["val4"] = 15;
-  symbol_table["val5"] = 0;
-  symbol_table["val6"] = 30;
-  symbol_table["val7"] = 1;
+template <typename SymbolTableType>
+std::function<Datum(SymbolTableType &)> cse::ExpressionParser<SymbolTableType>::MakeAddFun(std::function<Datum(SymbolTableType &)> left, std::function<Datum(SymbolTableType &)> right) {
+
   //using map_t = std::map<std::string, double>;
-  return [left, right](std::map<std::string,double> & symbols) {
-    return left(symbols) + right(symbols);
+  return [left, right](SymbolTableType & symbols) {
+    if(left(symbols).IsString() || right(symbols).IsString() || std::isnan(left(symbols).AsDouble()) || std::isnan(right(symbols).AsDouble())){
+      return std::nan("");
+    }
+    return left(symbols).AsDouble() + right(symbols).AsDouble();
   };
 }
 
@@ -119,11 +132,15 @@ std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::Mak
  * @param key2 Key for second value
  * @return auto
  */
-std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::MakeSubFun(std::function<double(std::map<std::string,double> &)> left, std::function<double(std::map<std::string,double> &)> right) {
+template <typename SymbolTableType>
+std::function<Datum(SymbolTableType &)> cse::ExpressionParser<SymbolTableType>::MakeSubFun(std::function<Datum(SymbolTableType &)> left, std::function<Datum(SymbolTableType &)> right) {
 
   //using map_t = std::map<std::string, double>;
-  return [left, right](std::map<std::string,double> & symbols) {
-    return left(symbols) - right(symbols);
+  return [left, right](SymbolTableType & symbols) {
+    if(left(symbols).IsString() || right(symbols).IsString() || std::isnan(left(symbols).AsDouble()) || std::isnan(right(symbols).AsDouble())){
+      return std::nan("");
+    }
+    return left(symbols).AsDouble() - right(symbols).AsDouble();
   };
 }
 
@@ -134,11 +151,15 @@ std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::Mak
  * @param key2 Key for second value
  * @return auto
  */
-std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::MakeMulFun(std::function<double(std::map<std::string,double> &)> left, std::function<double(std::map<std::string,double> &)> right) {
+template <typename SymbolTableType>
+std::function<Datum(SymbolTableType &)> cse::ExpressionParser<SymbolTableType>::MakeMulFun(std::function<Datum(SymbolTableType &)> left, std::function<Datum(SymbolTableType &)> right) {
 
   //using map_t = std::map<std::string, double>;
-  return [left, right](std::map<std::string,double> & symbols) {
-    return left(symbols) * right(symbols);
+  return [left, right](SymbolTableType & symbols) {
+    if(left(symbols).IsString() || right(symbols).IsString() || std::isnan(left(symbols).AsDouble()) || std::isnan(right(symbols).AsDouble())){
+      return std::nan("");
+    }
+    return left(symbols).AsDouble() * right(symbols).AsDouble();
   };
 }
 /**
@@ -147,9 +168,10 @@ std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::Mak
  * @param key Key for first value
  * @return auto
  */
-std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::MakeCosFun(std::function<double(std::map<std::string,double> &)> expression_lambda) {
-  return [expression_lambda](std::map<std::string,double> &symbols) {
-    return cos(expression_lambda(symbols));
+template <typename SymbolTableType>
+std::function<Datum(SymbolTableType &)> cse::ExpressionParser<SymbolTableType>::MakeCosFun(std::function<Datum(SymbolTableType &)> expression_lambda) {
+  return [expression_lambda](SymbolTableType &symbols) {
+    return cos(expression_lambda(symbols).AsDouble());
   };
 }
 
@@ -159,9 +181,10 @@ std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::Mak
  * @param key Key for first value
  * @return auto
  */
-std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::MakeSinFun(std::function<double(std::map<std::string,double> &)> expression_lambda) {
-  return [expression_lambda](std::map<std::string,double> &symbols) {
-    return sin(expression_lambda(symbols));
+template <typename SymbolTableType>
+std::function<Datum(SymbolTableType &)> cse::ExpressionParser<SymbolTableType>::MakeSinFun(std::function<Datum(SymbolTableType &)> expression_lambda) {
+  return [expression_lambda](SymbolTableType &symbols) {
+    return sin(expression_lambda(symbols).AsDouble());
   };
 }
 
@@ -171,9 +194,10 @@ std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::Mak
  * @param key Key for first value
  * @return auto
  */
-std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::MakeParenthFun(std::function<double(std::map<std::string,double> &)> expression_lambda) {
-  return [expression_lambda](std::map<std::string,double> &symbols) {
-    return expression_lambda(symbols);
+template <typename SymbolTableType>
+std::function<Datum(SymbolTableType &)> cse::ExpressionParser<SymbolTableType>::MakeParenthFun(std::function<Datum(SymbolTableType &)> expression_lambda) {
+  return [expression_lambda](SymbolTableType &symbols) {
+    return expression_lambda(symbols).AsDouble();
   };
 }
 
@@ -185,10 +209,15 @@ std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::Mak
    * @param right Lambda which returns the right value
    * @return auto Lambda function to perform operation
    */
-std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::MakeExpoFun(std::function<double(std::map<std::string,double> &)> left, std::function<double(std::map<std::string,double> &)> right) {
+  template <typename SymbolTableType>
+std::function<Datum(SymbolTableType &)> cse::ExpressionParser<SymbolTableType>::MakeExpoFun(std::function<Datum(SymbolTableType &)> left, std::function<Datum(SymbolTableType &)> right) {
   //using map_t = std::map<std::string, double>;
-  return [left, right](std::map<std::string,double> & symbols) {
-    return pow(left(symbols), right(symbols));
+  return [left, right](SymbolTableType & symbols) {
+    if(left(symbols).IsString() || right(symbols).IsString() || std::isnan(left(symbols).AsDouble()) || std::isnan(right(symbols).AsDouble())){
+      return std::nan("");
+    }
+
+    return pow(left(symbols).AsDouble(), right(symbols).AsDouble());
   };
 }
 
@@ -199,11 +228,13 @@ std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::Mak
  * @param key2 Key for second value
  * @return auto
  */
-std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::MakeDivFun(std::function<double(std::map<std::string,double> &)> left, std::function<double(std::map<std::string,double> &)> right) {
-
-  //using map_t = std::map<std::string, double>;
-  return [left, right](std::map<std::string,double> & symbols) {
-    return left(symbols) / right(symbols);
+template <typename SymbolTableType>
+std::function<Datum(SymbolTableType &)> cse::ExpressionParser<SymbolTableType>::MakeDivFun(std::function<Datum(SymbolTableType &)> left, std::function<Datum(SymbolTableType &)> right) {
+  return [left, right](SymbolTableType & symbols) {
+    if(left(symbols).IsString() || right(symbols).IsString() || std::isnan(left(symbols).AsDouble()) || std::isnan(right(symbols).AsDouble())){
+      return std::nan("");
+    }
+    return left(symbols).AsDouble() / right(symbols).AsDouble();
   };
 }
 
@@ -216,16 +247,10 @@ std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::Mak
  * @param expression Representing equation
  * @return double representing value of equation
  */
-std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::MakeFunc( const std::string &expression, int precedence, size_t &index) {
-  std::map<std::string, double> symbol_table;
-  symbol_table["val1"] = -2;
-  symbol_table["val2"] = 2;
-  symbol_table["val3"] = -15;
-  symbol_table["val4"] = 15;
-  symbol_table["val5"] = 0;
-  symbol_table["val6"] = 30;
-  symbol_table["val7"] = 1;
-  std::function<double(std::map<std::string,double> &)> l1 = ParseKey(expression, index);  
+template <typename SymbolTableType>
+std::function<Datum(SymbolTableType &)> cse::ExpressionParser<SymbolTableType>::MakeFunc( const std::string &expression, int precedence, size_t &index) {
+
+  std::function<Datum(SymbolTableType &)> l1 = ParseKey(expression, index);  
   static size_t default_index = 0;
 
   //double result = 0;
@@ -302,8 +327,8 @@ std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::Mak
     return l1;
   }
 
-
-  size_t cse::ExpressionParser::getToken(const std::string& expression, size_t &index) {
+  template <typename SymbolTableType>
+  size_t cse::ExpressionParser<SymbolTableType>::getToken(const std::string& expression, size_t &index) {
     // Iterate over the string and find the next instance of '+', '-', '*', or '/'
     for (; index < expression.size(); index++) {
         char c = expression[index];
@@ -320,8 +345,32 @@ std::function<double(std::map<std::string,double> &)> cse::ExpressionParser::Mak
     return std::string::npos;  // std::string::npos is the largest possible value for size_t
 }
 
+template <typename SymbolTableType>
+std::function<Datum(SymbolTableType &)> cse::ExpressionParser<SymbolTableType>::KeyLambda(const Datum &key) {
+    if constexpr (requires(SymbolTableType &s) { s[int{}]; }) {
+        // Index with a number (e.g., for vector)
+        return [key](SymbolTableType &symbols) {
+            return symbols[key.AsDouble()];
+        };
+    } else {
+        // Index with a string — check if it's supported
+        if constexpr (requires(SymbolTableType &s) { s[std::string{}]; }) {
+            return [key](SymbolTableType &symbols) {
+                return symbols[key.GetString()];
+            };
+        } else {
+            return [key](SymbolTableType &) -> Datum {
+                throw std::runtime_error("SymbolTableType does not support indexing");
+            };
+        }
+    }
+}
 
 
+template <typename SymbolTableType>
+void cse::ExpressionParser<SymbolTableType>::SetSymbolTable(const std::string &key, const double &num){
+  symbol_table_[key] = num;
+}
 
 }
 
