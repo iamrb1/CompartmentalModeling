@@ -109,10 +109,6 @@ window.addEventListener("DOMContentLoaded", () => {
     wrappedInput.style.width = "100%";
     bar.appendChild(wrappedInput);
 
-    // Add some spacing
-    bar.appendChild(document.createElement("br"));
-    bar.appendChild(document.createElement("br"));
-
     // Create formatting buttons
     const formatButtonsContainer = document.createElement("div");
     formatButtonsContainer.className = "format-buttons";
@@ -201,8 +197,6 @@ window.addEventListener("DOMContentLoaded", () => {
     
     // Add spacing after format buttons
     bar.appendChild(formatButtonsContainer);
-    bar.appendChild(document.createElement("br"));
-    bar.appendChild(document.createElement("br"));
     
     // Custom format section
     const customFormatContainer = document.createElement("div");
@@ -361,6 +355,8 @@ window.addEventListener("DOMContentLoaded", () => {
     customFormatContainer.appendChild(formatNameContainer);
     customFormatContainer.appendChild(formatValueContainer);
     customFormatContainer.appendChild(applyFormatButton);
+
+    formatButtonsContainer.appendChild(customFormatContainer);
     
     // Create Undo and Redo buttons
     const undoButton = document.createElement("button");
@@ -370,13 +366,13 @@ window.addEventListener("DOMContentLoaded", () => {
     const redoButton = document.createElement("button");
     redoButton.textContent = "Redo";
     redoButton.className = "toolbar-button";
+
+    const stackHolder = document.createElement("div");
+    stackHolder.appendChild(undoButton);
+    stackHolder.appendChild(redoButton);
     
     // Append all UI elements to the toolbar
-    bar.appendChild(customFormatContainer);
-    bar.appendChild(document.createElement("br"));
-    bar.appendChild(document.createElement("br"));
-    bar.appendChild(undoButton);
-    bar.appendChild(redoButton);
+    bar.appendChild(stackHolder);
     
     // Hook up Undo/Redo handlers
     undoButton.addEventListener("click", () => {

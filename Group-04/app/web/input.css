@@ -349,7 +349,6 @@ div.input-title-wrapper[type=checkbox] > input {
 .bar {
   display: flex;
   align-items: center;  
-  height: 60px;
   padding: 0 15px;
 
   margin: 15px;

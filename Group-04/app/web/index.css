@@ -42,7 +42,6 @@ content > output {
 .format-buttons {
     display: flex;
     gap: 5px;
-    margin: 10px 0;
 }
 
 .format-button {
@@ -100,7 +99,6 @@ content > output {
     padding: 15px;
     background-color: #eee;
     border-radius: 4px;
-    margin: 50px 0 20px 0;
     position: relative;
     max-width: 95%;
 }
@@ -258,16 +256,17 @@ content > output {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    padding-bottom: 30px;
+    padding: 10px;
+
 }
 
 /* Format text input style */
 #toolbar input[type="text"] {
     padding: 10px;
+    margin: 0;
     font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    margin-bottom: 15px;
 }
 
 /* Operation success messages */
