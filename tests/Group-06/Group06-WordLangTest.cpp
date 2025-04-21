@@ -331,6 +331,28 @@ TEST_CASE("Combine lists and print result", "[Combine]") {
     CHECK(output == "[table, computer, blue, yellow]\n");
 }
 
+TEST_CASE("Large input combine lists and print result", "[CombineLarge]") {
+    cse::ErrorManager errorManager;
+    cse::WordListManager manager(errorManager);
+    cse::WordLang wordLang;
+
+    wordLang.parse("LIST d = LOAD \"FileD.txt\"\n");
+    wordLang.parse("LIST e = LOAD \"FileE.txt\"\n");
+    wordLang.parse("LIST c = COMBINED d e\n");
+    wordLang.parse("SET_CURRENT c\n");
+
+    std::ostringstream oss;
+    std::streambuf* oldCoutBuf = std::cout.rdbuf();
+    std::cout.rdbuf(oss.rdbuf());
+
+    wordLang.parse("PRINT ALL\n");
+
+    std::cout.rdbuf(oldCoutBuf);
+    std::string output = oss.str();
+
+    CHECK(output == "[our, can, to, us, with, was, home, in, the, free, you, other, it, for, or, an, search, your, are, page, if, we, this, more, by, a, that, is, at, from, but, i, not, on, as, my, and, has, do, about, new, will, one, have, of, information, time, no, be, they, all]\n");
+}
+
 TEST_CASE("Difference between lists", "[Difference]") {
     cse::ErrorManager errorManager;
     cse::WordListManager manager(errorManager);
@@ -351,6 +373,28 @@ TEST_CASE("Difference between lists", "[Difference]") {
     std::string output = oss.str();
 
     CHECK(output == "[computer, table]\n");
+}
+
+TEST_CASE("Large input Difference between lists", "[DifferenceLarge]") {
+    cse::ErrorManager errorManager;
+    cse::WordListManager manager(errorManager);
+    cse::WordLang wordLang;
+
+    wordLang.parse("LIST d = LOAD \"FileD.txt\"\n");
+    wordLang.parse("LIST e = LOAD \"FileE.txt\"\n");
+    wordLang.parse("LIST diff = DIFFERENCE d e\n");
+    wordLang.parse("SET_CURRENT diff\n");
+
+    std::ostringstream oss;
+    std::streambuf* oldCoutBuf = std::cout.rdbuf();
+    std::cout.rdbuf(oss.rdbuf());
+
+    wordLang.parse("PRINT ALL\n");
+
+    std::cout.rdbuf(oldCoutBuf);
+    std::string output = oss.str();
+
+    CHECK(output == "[they]\n");
 }
 
 TEST_CASE("Intersection of lists", "[Intersection]") {
@@ -375,6 +419,28 @@ TEST_CASE("Intersection of lists", "[Intersection]") {
     CHECK(output == "[table]\n");
 }
 
+TEST_CASE("Large Input Intersection of lists", "[IntersectionLarge]") {
+    cse::ErrorManager errorManager;
+    cse::WordListManager manager(errorManager);
+    cse::WordLang wordLang;
+
+    wordLang.parse("LIST d = LOAD \"FileD.txt\"\n");
+    wordLang.parse("LIST e = LOAD \"FileE.txt\"\n");
+    wordLang.parse("LIST common = INTERSECTION d e\n");
+    wordLang.parse("SET_CURRENT common\n");
+
+    std::ostringstream oss;
+    std::streambuf* oldCoutBuf = std::cout.rdbuf();
+    std::cout.rdbuf(oss.rdbuf());
+
+    wordLang.parse("PRINT ALL\n");
+
+    std::cout.rdbuf(oldCoutBuf);
+    std::string output = oss.str();
+
+    CHECK(output == "[and, my, as, on, not, i, at, is, more, from, but, a, by, that, has, do, about, of, information, time, no, be, new, all, have, one, will, we, if, page, are, your, search, or, for, an, it, other, you, free, the, in, home, was, with, us, to, can, our, this]\n");
+}
+
 TEST_CASE("Copy list", "[Copy]") {
 
     cse::ErrorManager errorManager;
@@ -395,6 +461,28 @@ TEST_CASE("Copy list", "[Copy]") {
     std::string output = oss.str();
 
     CHECK(output == "[table, computer]\n");
+}
+
+TEST_CASE("Large input Copy list", "[CopyLarge]") {
+
+    cse::ErrorManager errorManager;
+    cse::WordListManager manager(errorManager);
+    cse::WordLang wordLang;
+
+    wordLang.parse("LIST d = LOAD \"FileD.txt\"\n");
+    wordLang.parse("LIST b = COPY d\n");
+    wordLang.parse("SET_CURRENT b\n");
+
+    std::ostringstream oss;
+    std::streambuf* oldCoutBuf = std::cout.rdbuf();
+    std::cout.rdbuf(oss.rdbuf());
+
+    wordLang.parse("PRINT ALL\n");
+
+    std::cout.rdbuf(oldCoutBuf);
+    std::string output = oss.str();
+
+    CHECK(output == "[an, new, have, will, one, all, your, are, page, search, be, they, or, for, it, other, you, free, the, in, was, to, with, us, we, if, can, home, our, this, no, time, information, of, about, do, has, that, by, a, but, from, more, is, at, i, not, on, as, my, and]\n");
 }
 
 TEST_CASE("setLengthRestriction Tests", "[WordLang]") {
