@@ -25,7 +25,7 @@ namespace cse
     class FunctionSet
     {
     public:
-        using FunctionType = std::function<R(Args...)>;
+        using FunctionType = std::function<R(Args...)>; //chatgpt
 
         /// Constructor
         FunctionSet();
@@ -79,7 +79,7 @@ namespace cse
          */
         auto CallAll(Args... args)
         {
-            return callAllImpl(std::is_void<R>{}, args...);
+            return callAllImpl(std::is_void<R>{}, args...); //chatgpt
         }
 
     private:
@@ -87,7 +87,7 @@ namespace cse
 
         /// If R is not void, we collect results in std::vector<R>.
         template <typename... CallArgs>
-        std::vector<R> callAllImpl(std::false_type, CallArgs&&... callArgs)
+        std::vector<R> callAllImpl(std::false_type, CallArgs&&... callArgs) //chatgpt
         {
             std::vector<R> results;
             results.reserve(mFunctions.size());

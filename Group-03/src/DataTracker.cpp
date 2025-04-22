@@ -36,10 +36,10 @@ double DataTracker<T>::mean() const {
     if (values.empty()) return 0.0;
 
     //only calculates if the type is numerical
-    if constexpr (std::is_arithmetic_v<T>) {
+    if constexpr (std::is_arithmetic_v<T>) {//chatgpt
         
         //adds the values and divides by the number of elements in the vector
-        return static_cast<double>(std::accumulate(values.begin(), values.end(), static_cast<T>(0))) / values.size();
+        return static_cast<double>(std::accumulate(values.begin(), values.end(), static_cast<T>(0))) / values.size(); //chatgpt
     } else {
 
         //returns zero if non-numeric type
@@ -81,7 +81,7 @@ T DataTracker<T>::mode() const {
     }
 
     return std::max_element(frequency.begin(), frequency.end(),
-        [](const auto& a, const auto& b) { return a.second < b.second; })->first;
+        [](const auto& a, const auto& b) { return a.second < b.second; })->first; //chatgpt
 }
 
 // Calculates and returns the variance
@@ -90,13 +90,13 @@ double DataTracker<T>::variance() const {
     if (values.empty()) return 0.0;
 
     //only calculates if the type is numeric 
-    if constexpr (std::is_arithmetic_v<T>) {
+    if constexpr (std::is_arithmetic_v<T>) { //chatgpt
         double mean_value = mean();
 
         // Use std::accumulate to sum the squared differences from the mean
         double variance_sum = std::accumulate(values.begin(), values.end(), 0.0,
 
-            [mean_value](double acc, const T& val) {
+            [mean_value](double acc, const T& val) { //chatgpt
                 // For each value, compute (val - mean)^2 and add it to the accumulator
                 return acc + ((val - mean_value) * (val - mean_value));
             });
