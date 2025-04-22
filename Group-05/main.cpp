@@ -14,6 +14,6 @@
  */
 int main() {
   FinalApplication final_application;
-  final_application.StartingMenu(std::cout, std::cin);
+  final_application.MainMenu(std::cout, std::cin);
   return 0;
 }
