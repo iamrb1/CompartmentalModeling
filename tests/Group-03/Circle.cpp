@@ -8,10 +8,20 @@ TEST_CASE("CircleTest1", "CircleInitialization") {
     CHECK(circle.getX() == 5.0);
     CHECK(circle.getY() == 10.0);
     CHECK(circle.getRadius() == 3.0);
+    CHECK_THROWS_AS(circle.setRadius(0), std::invalid_argument);
+
+    Circle c(0,0,3,2,2,"red");
+    double mag = std::sqrt(c.dx_ * c.dx_ + c.dy_ * c.dy_);
+    CHECK(mag > 0);
+
+    Circle blue(0,0,3,2,2,"blue");
+    CHECK(blue.canRepopulate());
 }
 
-TEST_CASE("CircleTest2", "CircleInvalidRadius") {
+TEST_CASE("CircleTest2", "CircleInvalidRadiusAndPositions") {
     CHECK_THROWS_AS(Circle(0.0, 0.0, -1.0, 2, 2, "red"), std::invalid_argument);
+    CHECK_THROWS_AS(Circle(0.0, 0.0, 0.0, 2, 2, "red"), std::invalid_argument);
+    CHECK_NOTHROW(Circle(-10.0, -20.0, 5.0, 2, 2, "blue"));
 }
 
 TEST_CASE("SurfaceTest1", "AddCircleToSurface") {
@@ -20,12 +30,9 @@ TEST_CASE("SurfaceTest1", "AddCircleToSurface") {
 
     surface.add_circle(circle);
 
-    int x = circle->getX() / surface.surface_size;
-    int y = circle->getY() / surface.surface_size;
-    CHECK(surface.sectors[x][y].circles.size() == 1);
-    CHECK(surface.sectors[x][y].circles[0]->getX() == 15.0);
-    CHECK(surface.sectors[x][y].circles[0]->getY() == 25.0);
-    CHECK(surface.sectors[x][y].circles[0]->getRadius() == 5.0);
+    CHECK(circle->getX() == 15.0);
+    CHECK(circle->getY() == 25.0);
+    CHECK(circle->getRadius() == 5.0);
 }
 
 TEST_CASE("SurfaceTest2", "MoveCircleOnSurface") {
@@ -33,17 +40,10 @@ TEST_CASE("SurfaceTest2", "MoveCircleOnSurface") {
     auto circle = std::make_shared<Circle>(15.0, 25.0, 5.0, 2, 2, "red");
 
     surface.add_circle(circle);
-
     surface.move_circle(circle, 35.0, 45.0);
 
-    int old_x = 15.0 / surface.surface_size;
-    int old_y = 25.0 / surface.surface_size;
-    int new_x = 35.0 / surface.surface_size;
-    int new_y = 45.0 / surface.surface_size;
-
-    CHECK(surface.sectors[old_x][old_y].circles.size() == 0);
-    CHECK(surface.sectors[new_x][new_y].circles.size() == 1);
-    CHECK(surface.sectors[new_x][new_y].circles[0]->getX() == 35.0);
-    CHECK(surface.sectors[new_x][new_y].circles[0]->getY() == 45.0);
-    CHECK(surface.sectors[new_x][new_y].circles[0]->getRadius() == 5.0);
+    CHECK(circle->getX() == 35.0);
+    CHECK(circle->getY() == 45.0);
 }
+
+

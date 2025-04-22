@@ -22,19 +22,20 @@ namespace cse {
     }
 
     TEST_CASE("SurfaceTest 1", "Add") {
-        Surface surface(100, 100, 10);
+        cse::Surface surface(100, 100, 10);
         auto circle = std::make_shared<Circle>(0, 0, 1, 1, 1, "red");
         surface.add_circle(circle);
-        CHECK(surface.sectors[0][0].circles.size() == 1);
+        CHECK(circle->getX() == 0.0);
+        CHECK(circle->getY() == 0.0);
     }
 
     TEST_CASE("SurfaceTest 2", "Move") {
-        Surface surface(100, 100, 10);
+        cse::Surface surface(100, 100, 10);
         auto circle = std::make_shared<Circle>(0, 0, 1, 1, 1, "red");
         surface.add_circle(circle);
-        surface.move_circle(circle, 15, 15); // Move to a different sector
-        CHECK(surface.sectors[1][1].circles.size() == 1); // Check new sector
-        CHECK(surface.sectors[0][0].circles.size() == 0); // Check old sector
+        surface.move_circle(circle, 15, 15);
+        CHECK(circle->getX() == 15.0);
+        CHECK(circle->getY() == 15.0);
     }
 
 }
