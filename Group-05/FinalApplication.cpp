@@ -2,8 +2,25 @@
  * @file FinalApplication.cpp
  * @brief The CSV Command Line Manipulator.
  *
- * Developed by: Max Krawec, Calen Green, Pedro Mitkiewicz, Shahaab Ali,
- * and Muhammad Asif Masood
+ * @authors Max Krawec, Calen Green, Pedro Mitkiewicz, Shahaab Ali, and Muhammad Asif Masood
+ *
+ *
+ * This application allows users to create and manipulate data within a grid through the command line.
+ * Users can create the grid by using a .csv file, inputting a custom grid, or selecting a pre-made grid.
+ *
+ * Users can manipulate the grid in several ways:
+ * - Edit specific cell values, rows, or columns
+ * - Add default, manual, or custom rows/columns
+ * - Delete specific rows/columns
+ * - Sort the grid
+ * - Resize the grid
+ * - Print the grid
+ * - Calculate the mean, median, standard deviation, mode, min, and max of columns or the entire grid
+ * - Use comparison operations (less than, less than or equal to, greater than, greater than or equal to,
+ *   equal to, and not equal to) to compare a given value against values in a column
+ *
+ * When done, users can export the grid into a .csv file.
+ *
  *
  * Portions of this code are made with the assistance of ChatGPT
  */
@@ -193,8 +210,8 @@ cse::DataGrid FinalApplication::GridMenu(std::ostream &os = std::cout, std::istr
   while (true) {
     os << "Menu Option:" << std::endl;
     os << "i: Import a CSV file" << std::endl;
-    os << "t: Create a test grid" << std::endl;
     os << "c: Create a new DataGrid" << std::endl;
+    os << "t: Use a pre-made DataGrid" << std::endl;
     os << "Enter an option: ";
     std::string option;
     is >> option;
@@ -210,28 +227,27 @@ cse::DataGrid FinalApplication::GridMenu(std::ostream &os = std::cout, std::istr
         std::cerr << "Import failed: " << e.what() << "\n";
       }
     } else if (option == "t") {
-      std::vector<std::vector<cse::Datum>> test_grid(
-          5, std::vector<cse::Datum>(3));
+      std::vector<std::vector<cse::Datum>> premade_grid(5, std::vector<cse::Datum>(3));
 
-      test_grid[0][0] = cse::Datum(5.0);
-      test_grid[1][0] = cse::Datum(3.5);
-      test_grid[2][0] = cse::Datum(1.25);
-      test_grid[3][0] = cse::Datum(-15);
-      test_grid[4][0] = cse::Datum(4.25);
+      premade_grid[0][0] = cse::Datum(5.0);
+      premade_grid[1][0] = cse::Datum(3.5);
+      premade_grid[2][0] = cse::Datum(1.25);
+      premade_grid[3][0] = cse::Datum(-15);
+      premade_grid[4][0] = cse::Datum(4.25);
 
-      test_grid[0][1] = cse::Datum("test1");
-      test_grid[1][1] = cse::Datum("test2");
-      test_grid[2][1] = cse::Datum("test4");
-      test_grid[3][1] = cse::Datum("test5");
-      test_grid[4][1] = cse::Datum("test6");
+      premade_grid[0][1] = cse::Datum("test1");
+      premade_grid[1][1] = cse::Datum("test2");
+      premade_grid[2][1] = cse::Datum("test4");
+      premade_grid[3][1] = cse::Datum("test5");
+      premade_grid[4][1] = cse::Datum("test6");
 
-      test_grid[0][2] = cse::Datum(10.25);
-      test_grid[1][2] = cse::Datum("test3");
-      test_grid[2][2] = cse::Datum(150.50);
-      test_grid[3][2] = cse::Datum(200);
-      test_grid[4][2] = cse::Datum(20.25);
+      premade_grid[0][2] = cse::Datum(10.25);
+      premade_grid[1][2] = cse::Datum("test3");
+      premade_grid[2][2] = cse::Datum(150.50);
+      premade_grid[3][2] = cse::Datum(200);
+      premade_grid[4][2] = cse::Datum(20.25);
 
-      return cse::DataGrid(test_grid);
+      return cse::DataGrid(premade_grid);
     } else if (option == "c") {
       return CreateGridMenu();
     } else {
@@ -447,6 +463,7 @@ void FinalApplication::PrintSubmenu(const cse::DataGrid &grid, std::ostream &os 
 
     try {
       switch (choice) {
+        // Print a cell value
         case 1: {
           std::size_t row = 0, col = 0;
           os << "Enter row index: ";
@@ -461,6 +478,7 @@ void FinalApplication::PrintSubmenu(const cse::DataGrid &grid, std::ostream &os 
           }
           break;
         }
+        // Print a row
         case 2: {
           std::size_t row = 0;
           os << "Enter row index: ";
@@ -477,6 +495,7 @@ void FinalApplication::PrintSubmenu(const cse::DataGrid &grid, std::ostream &os 
           os << std::endl;
           break;
         }
+        // Print a column
         case 3: {
           std::size_t col = 0;
           os << "Enter column index: ";
@@ -493,6 +512,7 @@ void FinalApplication::PrintSubmenu(const cse::DataGrid &grid, std::ostream &os 
           os << std::endl;
           break;
         }
+        // Print the entire DataGrid
         case 4:
           grid.Print(os);
           break;
@@ -527,6 +547,7 @@ void FinalApplication::EditSubmenu(cse::DataGrid &grid, std::ostream &os = std::
 
     try {
       switch (choice) {
+        // Edit a cell value
         case 1: {
           std::size_t row = 0, col = 0;
           os << "Enter row index: ";
@@ -540,6 +561,7 @@ void FinalApplication::EditSubmenu(cse::DataGrid &grid, std::ostream &os = std::
           os << "Cell updated." << std::endl;
           break;
         }
+        // Edits an entire row's value
         case 2: {
           std::size_t row = 0;
           os << "Enter row index to update: ";
@@ -554,6 +576,7 @@ void FinalApplication::EditSubmenu(cse::DataGrid &grid, std::ostream &os = std::
           os << "Row updated." << std::endl;
           break;
         }
+          // Edits an entire column's value
         case 3: {
           std::size_t col = 0;
           os << "Enter column index to update: ";
@@ -598,6 +621,7 @@ void FinalApplication::SortSubmenu(cse::DataGrid &grid, std::ostream &os = std::
 
     try {
       switch (choice) {
+        // Sort grid rows by a specified column
         case 1: {
           std::size_t col = 0;
           os << "Enter column index to sort by: ";
@@ -609,6 +633,7 @@ void FinalApplication::SortSubmenu(cse::DataGrid &grid, std::ostream &os = std::
           os << "Grid rows sorted by column " << col << "." << std::endl;
           break;
         }
+        // Sort entire grid (using left-most columns as keys)
         case 2: {
           int order = 0;
           os << "Enter 1 for ascending, 0 for descending: ";
@@ -648,12 +673,13 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os = std::c
 
     try {
       switch (choice) {
+        // Add row
         case 1: {
           std::size_t num_cols = std::get<1>(grid.Shape());
           os << "Add default row (d), with an equation (e), or enter manually (m)? ";
           std::string method;
           is >> method;
-
+          // Add a default row
           if (method == "d") {
             os << "Enter default value (number or string): ";
             std::string input;
@@ -665,7 +691,7 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os = std::c
               grid.InsertDefaultRow(cse::kNoIndex, input);
             }
             os << "Default row added." << std::endl;
-
+            // Add a row manually
           } else if (method == "m") {
             std::vector<cse::Datum> new_row;
             os << "Enter " << num_cols << " values for the new row: ";
@@ -677,7 +703,7 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os = std::c
             }
             grid.InsertRow(new_row);
             os << "Row added." << std::endl;
-
+            // Add a custom row with an equation
           } else if (method == "e"){
             std::vector<cse::Datum> new_row;
             os << "Enter equation. Supported operators +-/*^, indexes in curly braces {}, seperate with a single space: ";
@@ -701,13 +727,13 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os = std::c
           }
           break;
         }
-
+        // Add column
         case 2: {
           std::size_t num_rows = std::get<0>(grid.Shape());
           os << "Add default column (d), column by equation (e), or enter manually (m)? ";
           std::string method;
           is >> method;
-
+          // Add a default column
           if (method == "d") {
             os << "Enter default value (number or string): ";
             std::string input;
@@ -719,7 +745,7 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os = std::c
               grid.InsertDefaultColumn(cse::kNoIndex, input);
             }
             os << "Default column added." << std::endl;
-
+            // Add a column manually
           } else if (method == "m") {
             std::vector<cse::Datum> new_column;
             os << "Enter " << num_rows << " values for the new column: ";
@@ -731,8 +757,8 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os = std::c
             }
             grid.InsertColumn(new_column);
             os << "Column added." << std::endl;
-
-          }else if (method == "e"){
+          // Add a custom column by an equation
+          } else if (method == "e"){
             std::vector<cse::Datum> new_col;
             os << "Enter equation. Supported operators +-/*^, indexes in curly braces {}, seperate with a single space: ";
             std::string equation;
@@ -742,7 +768,7 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os = std::c
             std::vector<Datum> row;
             size_t index=0;
             auto func = parser.MakeFunc(equation, 0, index);
-            for(size_t i=0;i<num_rows;++i){
+            for(size_t i=0;i<num_rows;++i) {
               row = grid.GetRow(i);
               new_col.push_back(func(row));
             }
@@ -754,7 +780,7 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os = std::c
           }
           break;
         }
-
+        // Merge DataGrids
         case 3: {
           int merge_type = 0;
           os << "Enter merge type (1 for row append, 0 for column append): ";
@@ -815,6 +841,7 @@ void FinalApplication::DeleteSubmenu(cse::DataGrid &grid, std::ostream &os = std
 
     try {
       switch (choice) {
+        // Delete a row
         case 1: {
           std::size_t row = 0;
           os << "Enter row index to delete: ";
@@ -823,6 +850,7 @@ void FinalApplication::DeleteSubmenu(cse::DataGrid &grid, std::ostream &os = std
           os << "Row deleted." << std::endl;
           break;
         }
+        // Delete a column
         case 2: {
           std::size_t col = 0;
           os << "Enter column index to delete: ";
@@ -831,6 +859,7 @@ void FinalApplication::DeleteSubmenu(cse::DataGrid &grid, std::ostream &os = std
           os << "Column deleted." << std::endl;
           break;
         }
+        // Clear the entire grid
         case 3: {
           grid.Clear();
           os << "Grid cleared." << std::endl;
@@ -866,6 +895,7 @@ void FinalApplication::ResizeSubmenu(cse::DataGrid &grid, std::ostream &os = std
 
     try {
       switch (choice) {
+        // Resize the grid (double)
         case 1: {
           std::size_t new_rows = 0, new_cols = 0;
           double default_value = 0;
@@ -879,6 +909,7 @@ void FinalApplication::ResizeSubmenu(cse::DataGrid &grid, std::ostream &os = std
           os << "Grid resized." << std::endl;
           break;
         }
+          // Resize the grid (strings)
         case 2: {
           std::size_t new_rows = 0, new_cols = 0;
           std::string default_value;
