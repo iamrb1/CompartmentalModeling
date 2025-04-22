@@ -1,7 +1,7 @@
 /**
  * @file EventListeners.hpp
  *
- * @author Owen Haiar
+ * @author Owen Haiar, Mary Holt
  */
 
 #pragma once
@@ -14,22 +14,20 @@ void bind() {
 	// Set up the event listener for the button click
 	EM_ASM({
 
-		// Setup advance button
+	// Setup advance button
     var advanceButton = document.getElementById("advanceButton");
     if (advanceButton) {
 			advanceButton.addEventListener(
 				"click",
-				function() {Module._call_advance(); });
-
-
-		}
+				function() {Module._call_advance();} );
+	}
 
     var moveForwardButton = document.getElementById("moveForwardButton");
     if (moveForwardButton) {
           moveForwardButton.addEventListener(
               "click",
               function() {Module._call_moveSlide(true); });
-        }
+    }
 
     var moveBackButton = document.getElementById("moveBackButton");
         if (moveBackButton) {
@@ -73,6 +71,22 @@ void bind() {
 
 
 		}
+
+        var deleteSlide = document.getElementById("deleteSlideButton");
+        if (deleteSlide) {
+          deleteSlide.addEventListener("click", function (e) {
+            e.stopPropagation();
+
+            var doubleConfirmInner = document.querySelector('.double-confirm-inner');
+            if (doubleConfirmInner) {
+              doubleConfirmInner.classList.remove('-translate-x-full');
+            }
+
+            Module._call_deleteSlide();
+
+          });
+        }
+
 	var startButton = document.getElementById("startButton");
 	if (startButton) {
 			startButton.addEventListener(
@@ -115,9 +129,10 @@ void bind() {
           }
         });
 
-        // Ability to hit space to skip to next slide
+        // Ability to hit space to skip to next event
         document.addEventListener("keydown", function(e) {
           if (e.code === "Space") {
+          	e.preventDefault();
             Module.ccall(
                 "call_nextEvent",
                 null,
@@ -152,6 +167,7 @@ void bind() {
 			);
 
 			const input = prompt("Appear after:");
+			if (input === null) return;
 			const value = parseInt(input, 10);
 			Module.ccall("call_addObjectEvent", null,
 						 [ "number", "number", "string" ],
@@ -174,8 +190,12 @@ void bind() {
 			  }
 			});
 
+        var currentSelectedItem = null;
+        var isDragging = false;
 		// Function to make an element draggable
         function makeDraggable(element, event) {
+          currentlySelectedItem = element;
+          isDragging = true;
           //Ensure images aren't default dragging - ChatGPT
           element.ondragstart = () => false;
 
@@ -220,14 +240,30 @@ void bind() {
               // Update element's visual size
               element.style.width = newWidth + "vw";
               element.style.height = newHeight + "vh";
-            }
+              }
 		  };
 
 		  document.onmouseup = function(e) {
 			// Remove event listeners
 			document.onmousemove = null;
 			document.onmouseup = null;
+            isDragging = false;
 		  };
 		}
+
+		document.addEventListener("keydown", function(e) {
+  		  if (e.key === "Backspace" && currentlySelectedItem && isDragging){
+    	    const id = currentlySelectedItem.id; //Get selected item id
+
+    	    const success = Module.ccall("call_deleteItem", "boolean", ["string"], [id]);
+
+    	    if (success) {
+      	      currentlySelectedItem.remove();
+      	      currentlySelectedItem = null;
+      	      isDragging = false;
+    	    }
+          }
+  	    });
+
 	});
 }

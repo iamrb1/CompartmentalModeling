@@ -19,13 +19,13 @@ namespace cse {
 template <typename... Args>
 struct Event {
  private:
-  int id_;   /**< Unique identifier for the event */
+  std::string id_;   /**< Unique identifier for the event */
   int time_; /**< Priority for event execution */
   std::function<void(Args...)> function_; /**< Function to be executed */
   std::tuple<Args...> args_;              /**< Args to pass to function_ */
  public:
-  Event(int id, int time, std::function<void(Args...)> function, Args... args)
-      : id_(id),
+  Event(std::string id, const int time, std::function<void(Args...)> function, Args... args)
+      : id_(std::move(id)),
         time_(time),
         function_(function),
         args_(std::make_tuple(std::forward<Args>(args)...)) {}
@@ -33,7 +33,7 @@ struct Event {
   /**
    * @brief Get the id of the event
    */
-  [[nodiscard]] int getID() const { return id_; }
+  [[nodiscard]] std::string getID() const { return id_; }
 
   /**
    * @brief Get the time of the event
@@ -46,7 +46,7 @@ struct Event {
    * @attention This will not re-heapify an EventQueue, use EventQueue::update()
    * for that
    */
-  void setTime(int time) { time_ = time; }
+  void setTime(const int time) { time_ = time; }
 
   /**
    * @brief Execute the event by calling its function with its arguments
@@ -57,7 +57,6 @@ struct Event {
    * Equality based on id
    */
   bool operator==(const Event &other) const { return id_ == other.id_; }
-  bool operator!=(const Event &other) const { return id_ != other.id_; }
 };
 
 }  // namespace cse

@@ -8,6 +8,8 @@
         integrity="sha512-1sCRPdkRXhBV2PBLUdRb4tMg1w2YPf37qatUFeS7zlBy7jJI8Lf4VHwWfZZfpXtYSLy85pkm9GaYVYMfw5BC1A=="
         crossorigin="anonymous" referrerpolicy="no-referrer">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+
   <style>
     body,
     html {
@@ -190,6 +192,8 @@
 
     <button id="stopButton">Stop</button>
     <button id="startButton">Start</button>
+    <button id="deleteSlideButton">Delete Slide</button>
+
     <div class="btn-group dropup">
     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         +
@@ -220,8 +224,7 @@
 <script src="WebLayout/EditTextbox.js"></script>
 
 <script>
-  const loadDeck = Module.cwrap('loadSlideDeckFromJson', null, ['string']);
-  const saveDeck = Module.cwrap('exportSlideDeckToJson', 'string', []);
+  const saveDeck = Module.cwrap('call_exportSlideDeckToJson', 'string', []);
 
   document.getElementById("fileInput").addEventListener("change", function (e) {
     const file = e.target.files[0];
@@ -239,7 +242,7 @@
       }
       try {
         stringToUTF8(jsonStr, buffer, lengthBytes);
-        Module.ccall("loadSlideDeckFromJson", null, ["number"], [buffer]);
+        Module.ccall("call_loadSlideDeckFromJson", null, ["number"], [buffer]);
       } catch (err) {
         alert("Failed to load deck: " + err);
       } finally {
@@ -298,6 +301,40 @@
     });
 
   });
+/*
+  // BELOW IS CODE FOR DELETE CONFIRMATION
+  let timeout;
+
+  function resetConfirmButton() {
+    doubleConfirmInner.classList.remove('-translate-x-full');
+  }
+
+  // grab buttons for delete slide
+  const doubleConfirm = document.querySelector('.double-confirm');
+  const doubleConfirmInner = document.querySelector('.double-confirm-inner');
+
+  // add button event listener
+  doubleConfirm.addEventListener('click', (e) => {
+    e.stopPropagation(); // From ChatGPT: stops clicks inside group triggering reset
+
+    doubleConfirmInner.classList.add('-translate-x-full');
+
+    // https://www.w3schools.com/jsref/met_win_settimeout.asp
+    if(timeout) clearTimeout(timeout);
+
+    timeout = setTimeout(() => {
+      resetConfirmButton();
+    }, 3000);
+
+  });
+
+  // If click elsewhere, reset confirm button
+  document.addEventListener('click', (e) => {
+    if (doubleConfirmInner.classList.contains('-translate-x-full')) {
+      resetConfirmButton();
+    }
+  });
+*/
 </script>
 
 </body>
