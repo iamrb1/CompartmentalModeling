@@ -78,6 +78,56 @@ auto AStar(Vertex<VERTEX_DATA_T> &destination)
 
 template <typename VERTEX_DATA_T>
 class GraphPosition {
+ public:
+  // Iterator class definition
+  class iterator {
+   private:
+    GraphPosition* position;
+    bool is_end;
+
+   public:
+    using iterator_category = std::input_iterator_tag;
+    using value_type = Vertex<VERTEX_DATA_T>;
+    using difference_type = std::ptrdiff_t;
+    using pointer = const Vertex<VERTEX_DATA_T>*;
+    using reference = const Vertex<VERTEX_DATA_T>&;
+
+    iterator(GraphPosition* pos, bool end = false) 
+        : position(pos), is_end(end) {
+          
+          if (!is_end) (*this)++;
+        }
+
+    reference operator*() const { return position->GetCurrentVertex(); }
+    pointer operator->() const { return &position->GetCurrentVertex(); }
+
+    iterator& operator++() {
+      if (!is_end && !position->AdvanceToNextNeighbor()) {
+        is_end = true;
+      }
+      return *this;
+    }
+
+    iterator operator++(int) {
+      iterator tmp = *this;
+      ++(*this);
+      return tmp;
+    }
+
+    bool operator==(const iterator& other) const {
+      return (is_end && other.is_end) || 
+             (!is_end && !other.is_end && position == other.position);
+    }
+
+    bool operator!=(const iterator& other) const {
+      return !(*this == other);
+    }
+  };
+
+  // Iterator support methods
+  iterator begin() { return iterator(this); }
+  iterator end() { return iterator(this, true); }
+
  private:
   /** Reference to the graph being traversed */
   const Graph<VERTEX_DATA_T> &graph;
@@ -166,7 +216,9 @@ class GraphPosition {
 template <typename VERTEX_DATA_T>
 GraphPosition<VERTEX_DATA_T>::GraphPosition(
     const Graph<VERTEX_DATA_T> &g, Vertex<VERTEX_DATA_T> const &startVertex)
-    : graph(g), currentVertex(&startVertex) {}
+    : graph(g) {
+      SetCurrentVertex(startVertex);
+    }
 
 /**
  * Marks a vertex as visited and adds it to the traversal path
@@ -199,7 +251,13 @@ Vertex<VERTEX_DATA_T> const &GraphPosition<VERTEX_DATA_T>::GetCurrentVertex()
 template <typename VERTEX_DATA_T>
 void GraphPosition<VERTEX_DATA_T>::SetCurrentVertex(
     Vertex<VERTEX_DATA_T> const &vertex) {
-  currentVertex = &vertex;
+  try{
+    auto &existing = graph.GetVertex(vertex.GetId());
+    currentVertex = &existing;
+    return;
+  } catch(cse::vertex_not_found_error){
+  }
+  throw vertex_not_found_error("Can't add vertex that does not exist to graph");
 }
 
 /**

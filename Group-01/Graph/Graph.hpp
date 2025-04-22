@@ -197,6 +197,7 @@ Edge<VERTEX_DATA_T> &Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::AddEdge(
   }
 
   std::string edge_id = v1_id + "-" + v2_id;
+
   auto v1 = vertices[v1_id];
   auto v2 = vertices[v2_id];
   auto edge = std::make_shared<Edge<VERTEX_DATA_T>>(edge_id, v1, v2, weight);

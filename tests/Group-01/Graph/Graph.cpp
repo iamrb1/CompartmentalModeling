@@ -202,6 +202,19 @@ TEST_CASE("Test cse::Graph - From file", "Read from file") {
   CHECK(graph.GetVertex("id2").GetId() == "id2");
   CHECK(!graph.IsConnected("id1", "id2"));
   CHECK(!graph.IsConnected("id2", "id1"));
+
+  // Checks that edges and vertices can still be added
+  graph.AddVertex("id3");
+  graph.AddEdge("id1", "id3", 2);
+  graph.AddEdge("id3", "id1", 2);
+  CHECK(graph.IsConnected("id1", "id3"));
+  CHECK(graph.IsConnected("id3", "id1"));
+  
+  // Check that edges from files can be removed
+  graph.RemoveVertex("id1");
+  CHECK_THROWS_AS(graph.GetVertex("id1"), cse::vertex_not_found_error);
+  graph.RemoveVertex("id2");
+  CHECK_THROWS_AS(graph.GetVertex("id2"), cse::vertex_not_found_error);
 }
 
 TEST_CASE("Test cse::Graph - From advanced file", "Complex graph") {

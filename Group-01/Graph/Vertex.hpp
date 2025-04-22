@@ -4,6 +4,7 @@
 #include <istream>
 #include <map>
 #include <memory>
+#include <utility>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -183,7 +184,7 @@ std::ostream &operator<<(std::ostream &os, const Vertex<VERTEX_DATA_T> &v) {
 template <typename VERTEX_DATA_T>
 bool operator==(const Vertex<VERTEX_DATA_T> &lhs,
                 const Vertex<VERTEX_DATA_T> &rhs) {
-  return lhs.id == rhs.id && lhs.x == rhs.x && lhs.y == rhs.y;
+    return lhs.id == rhs.id && lhs.x == rhs.x && lhs.y == rhs.y && lhs.edges.size() == rhs.edges.size();
 }
 
 }  // namespace cse

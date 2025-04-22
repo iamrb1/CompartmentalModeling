@@ -15,6 +15,14 @@ TEST_CASE("GraphPosition Constructor Tests", "[GraphPosition]") {
     auto &v1 = graph.AddVertex("A", "Vertex A Data");
     REQUIRE_NOTHROW(cse::GraphPosition<std::string>(graph, v1));
   }
+
+  SECTION("Invalid GraphPosition Initialization") {
+    graph.AddVertex("A", "Vertex A Data");
+    cse::Graph<std::string> g2;
+    auto &v2 = g2.AddVertex("B", "Vertex B Data");
+
+    CHECK_THROWS_AS(cse::GraphPosition<std::string>(graph, v2), cse::vertex_not_found_error);
+  }
 }
 
 TEST_CASE("GraphPosition Getters and Setters Tests", "[GraphPosition]") {
@@ -35,7 +43,14 @@ TEST_CASE("GraphPosition Getters and Setters Tests", "[GraphPosition]") {
 
   SECTION("SetCurrentVertex marks the new vertex as visited") {
     pos.SetCurrentVertex(v2);
+    REQUIRE(pos.GetCurrentVertex() == v2);
     REQUIRE(!pos.IsVisited(pos.GetCurrentVertex()));
+  }
+
+  SECTION("SetCurrentVertex marks the new vertex as visited") {
+    cse::Graph<std::string> g2;
+    auto &v3 = g2.AddVertex("C", "Vertex B Data");
+    CHECK_THROWS_AS(pos.SetCurrentVertex(v3), cse::vertex_not_found_error);
   }
 }
 
@@ -78,7 +93,8 @@ TEST_CASE("GraphPosition Depth and Breadth-First Search Traversal Tests",
   auto e2 = graph.AddEdge("A", "C", 2.0);
   auto e3 = graph.AddEdge("B", "D", 1.414);
   cse::GraphPosition<std::string> pos(graph, v1);
-
+  
+  // Default traversal mode is DFS, so no need to manually set it
   SECTION("DFS follows deep traversal first") {
     std::vector<cse::Vertex<std::string> *> order{&v4, &v2, &v3, &v1};
     size_t ind = 0;
@@ -94,7 +110,7 @@ TEST_CASE("GraphPosition Depth and Breadth-First Search Traversal Tests",
     pos.SetTraversalMode(cse::TraversalModes::BFS<std::string>());
     pos.ResetTraversal(v1);
     size_t ind = 0;
-    while ((bool)++pos) {
+    for (auto u : pos) {
       auto &v = *(order.at(ind));
       CHECK(pos.GetCurrentVertex() == v);
       ind++;
@@ -124,7 +140,7 @@ TEST_CASE("GraphPosition Depth and Breadth-First Search Traversal Tests",
     pos.SetTraversalMode(cse::TraversalModes::AStar<std::string>(v1));
 
     size_t ind = 0;
-    while ((bool)++pos) {
+    for (auto u : pos) {
       auto &v = *(expectedOrder.at(ind));
       CHECK(pos.GetCurrentVertex() == v);
       ind++;
