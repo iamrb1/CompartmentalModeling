@@ -53,16 +53,23 @@ template <typename T>
 double DataTracker<T>::median() const {
     if (values.empty()) return 0.0;
 
-    std::vector<T> sorted_values = values;
-    std::sort(sorted_values.begin(), sorted_values.end());
+    if constexpr (std::is_arithmetic_v<T>) {
+        std::vector<T> sorted_values = values;
+        std::sort(sorted_values.begin(), sorted_values.end());
 
-    size_t size = sorted_values.size();
-    if (size % 2 == 0) {
-        return (static_cast<double>(sorted_values[size / 2 - 1]) + static_cast<double>(sorted_values[size / 2])) / 2.0;
+        size_t size = sorted_values.size();
+        if (size % 2 == 0) {
+            return (static_cast<double>(sorted_values[size / 2 - 1]) +
+                    static_cast<double>(sorted_values[size / 2])) / 2.0;
+        } else {
+            return static_cast<double>(sorted_values[size / 2]);
+        }
     } else {
-        return static_cast<double>(sorted_values[size / 2]);
+        // Return 0.0 for non-numeric types
+        return 0.0;
     }
 }
+
     
 
 // Calculates and returns the mode of the values in the vector
@@ -106,27 +113,15 @@ double DataTracker<T>::variance() const {
 template <typename T>
 T DataTracker<T>::min() const {
     if (values.empty()) return T();
-
-    //only calculates if the type is numeric 
-    if constexpr (std::is_arithmetic_v<T>){
-        return *std::min_element(values.begin(), values.end());
-    }
-    else return T();
+    return *std::min_element(values.begin(), values.end());
 }
 
-// Returns the maximum value
 template <typename T>
 T DataTracker<T>::max() const {
     if (values.empty()) return T();
-        
-    //only calculates if the type is numeric 
-    if constexpr (std::is_arithmetic_v<T>){
-        return *std::max_element(values.begin(), values.end());
-    }
-    else{
-        return T();
-    }
+    return *std::max_element(values.begin(), values.end());
 }
+
 
 
 // Determines if there is a winner (if any value surpasses 80% of total)
@@ -149,6 +144,9 @@ std::optional<T> DataTracker<T>::winner() const {
     return std::nullopt;
 }
 
-template class DataTracker<int>;
-template class DataTracker<double>;
+template class cse::DataTracker<int>;
+template class cse::DataTracker<double>;
+template class cse::DataTracker<unsigned int>;
+template class cse::DataTracker<std::string>;
+
 } // namespace cse

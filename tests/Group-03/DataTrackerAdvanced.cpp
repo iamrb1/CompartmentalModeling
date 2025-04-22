@@ -45,11 +45,10 @@ TEST_CASE("Advanced DataTracker Prey-Predator Win Condition", "[DataTracker]") {
     cse::DataTracker<int> tracker;
     for (int i = 0; i < 81; ++i) tracker.add_value(1); // 81% prey
     for (int i = 0; i < 19; ++i) tracker.add_value(2); // 19% predator
-    CHECK(tracker.winner() == 1);
+    CHECK(tracker.winner() == 1); // indicates the winner was the # 1
 
 }
 
 TEST_CASE("Advanced DataTracker Prey-Predator Win Condition (empty)", "[DataTracker]") {
     cse::DataTracker<int> tracker;
-    CHECK(tracker.winner() == 0);
-}
+    CHECK(tracker.winner() == std::nullopt);} // indicates no winner was found

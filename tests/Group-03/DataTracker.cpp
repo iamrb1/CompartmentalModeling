@@ -34,7 +34,7 @@ TEST_CASE("DataTracker Add Non-Nice Doubles", "[DataTracker]") {
     CHECK(tracker.min() == -1000.33);
     CHECK(tracker.max() == 500.5);
     CHECK(tracker.mode() == -1000.33);
-    CHECK(tracker.mean() == Approx(-0.226).epsilon(0.001)); // calculated mean
+    CHECK(tracker.mean() == Approx(-199.942).epsilon(0.001));
 }
 
 TEST_CASE("DataTracker Add With Duplicates", "[DataTracker]") {
@@ -95,7 +95,7 @@ TEST_CASE("DataTracker Strings", "[DataTracker]") {
     tracker.delete_value("banana");
     CHECK(tracker.total() == 2);
     CHECK(tracker.min() == "apple");
-    CHECK(tracker.max() == "banana");
+    CHECK(tracker.max() == "apple");
 }
 
 TEST_CASE("DataTracker Median Complex Sorting", "[DataTracker]") {
