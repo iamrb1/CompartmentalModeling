@@ -591,7 +591,7 @@ class BasicRichText {
           ++reapply_rule_iter;
         }
         if (reapply_rule_iter == trackers.end()) break;
-        if ((*reapply_rule_iter->iter).start > current) break;
+        if ((*reapply_rule_iter->iter).start >= current) break;
         if ((*reapply_rule_iter->iter).end <= current) {
           auto tracker_to_update = trackers.extract(reapply_rule_iter);
           ++tracker_to_update.value().iter;
@@ -601,10 +601,12 @@ class BasicRichText {
         }
         result.output +=
             reapply_rule_iter->rule.StartToken(tracker_iter->format);
-        if (all_deactivated)
+        if (all_deactivated) {
           all_deactivated = false;
-        else
+          tracker_iter = trackers.begin();
+        } else {
           ++tracker_iter;
+        }
       } while (tracker_iter != trackers.end());
     }
 
