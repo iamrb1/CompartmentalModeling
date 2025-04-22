@@ -35,3 +35,6 @@ endif ()
 # Add the subdirectories (libraries and executables)
 add_subdirectory(src/cse)
 add_subdirectory(src/app)
+
+# Add extern lib (expertk)
+add_subdirectory(extern/exprtk)

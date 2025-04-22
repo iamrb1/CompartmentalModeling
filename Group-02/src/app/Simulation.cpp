@@ -7,12 +7,15 @@
 #include "Simulation.h"
 #include <QFile>
 #include <QXmlStreamReader>
+#include <QApplication>
 #include <ranges>
 #include "Components/Compartment.h"
 
 /**
  * @brief Creates and adds a compartment to the simulation. Also sets the simulation for the compartment.
  */
+Simulation::Simulation(QObject *parent) : QObject(parent) {}
+
 void Simulation::add_compartment() {
   static size_t compartment_number = m_compartments.size();
   // Generate a new compartment with a unique symbol (A1,B1..Z1,A2...)
@@ -25,6 +28,81 @@ void Simulation::add_compartment() {
 
   // Emit signal to notify that compartments have changed
   emit compartmentsChanged();
+}
+
+void Simulation::clear() {
+  m_is_running = false;
+
+  // Disconnect timer
+  if(m_timer){
+    m_timer->stop();
+    disconnect(m_timer, nullptr, this, nullptr);
+    delete m_timer;
+    m_timer = nullptr;
+  }
+
+  m_current_time = 0.0;
+  m_save_path.clear();
+  m_compartments.clear();
+  m_connections.clear();
+  m_variables.clear();
+
+  emit isRunningChanged();
+  emit currentTimeChanged();
+  emit compartmentsChanged();
+  emit connectionsChanged();
+  emit variablesChanged();
+}
+
+void Simulation::reset() {
+  qDebug() << "Reset called";
+  m_is_running = false;
+  m_current_time = 0;
+
+  // Disconnect timer
+  if(m_timer){
+    m_timer->stop();
+    disconnect(m_timer, nullptr, this, nullptr);
+    delete m_timer;
+    m_timer = nullptr;
+  }
+
+  m_current_time = 0.0;
+  for (auto& [key, compartment] : m_compartments) {
+    compartment->reset();
+  }
+
+  emit isRunningChanged();
+  emit currentTimeChanged();
+}
+
+void Simulation::start() {
+  m_is_running = true;
+  emit isRunningChanged();
+
+  if (!m_timer) {
+    m_timer = new QTimer(this);
+  }
+  auto connection = connect(m_timer, &QTimer::timeout, this, &Simulation::take_time_step);
+  m_timer->start(100);
+}
+
+void Simulation::take_time_step()
+{
+  if (m_current_time >= m_time_steps && m_timer){
+    disconnect(m_timer, nullptr, this, nullptr);
+    return;
+  }
+
+  qDebug() << "Time Step " << m_current_time++;
+  emit currentTimeChanged();
+}
+
+void Simulation::pause() {
+  m_is_running = false;
+  emit isRunningChanged();
+
+  m_timer->stop();
 }
 
 /**
@@ -56,7 +134,7 @@ QVector<Connection*> Simulation::get_connections() const {
 QVariantMap Simulation::get_variables() const {
   QVariantMap variables;
   for (const auto& [name, value] : m_variables) {
-    variables.insert(QString::fromStdString(name), value);
+    variables.insert(name, value);
   }
 
   return variables;
@@ -69,11 +147,11 @@ QVariantMap Simulation::get_variables() const {
 void Simulation::add_variable(const QString& name, double value) {
   static size_t variable_number = m_variables.size();
   if (name.isEmpty()) {
-    std::string var_name = "k" + std::to_string(variable_number + 1);
+    auto var_name = QString("k%1").arg(variable_number);
     m_variables.emplace(var_name, value);
     variable_number++;
   } else {
-    m_variables[name.toStdString()] = value;
+    m_variables[name] = value;
   }
 
   // qDebug() << "Variables in C++:";
@@ -88,8 +166,7 @@ void Simulation::add_variable(const QString& name, double value) {
  * @param name variable name
  */
 void Simulation::remove_variable(const QString& name) {
-  const auto key = name.toStdString();
-  if (const auto it = m_variables.find(key); it != m_variables.end()) {
+  if (const auto it = m_variables.find(name); it != m_variables.end()) {
     m_variables.erase(it);
     emit variablesChanged();
   }
@@ -101,12 +178,12 @@ void Simulation::remove_variable(const QString& name) {
  * @param value New variable value
  */
 void Simulation::update_variable(const QString& name, const QString& new_name, double value) {
-  if (const auto key = name.toStdString(); m_variables.contains(key)) {
+  if (m_variables.contains(name)) {
     if (name == new_name) {
-      m_variables[key] = value;
+      m_variables[name] = value;
     } else {
-      auto node_handler = m_variables.extract(key);
-      node_handler.key() = new_name.toStdString();
+      auto node_handler = m_variables.extract(name);
+      node_handler.key() = new_name;
       node_handler.mapped() = value;
       m_variables.insert(std::move(node_handler));
     }
@@ -207,6 +284,31 @@ void Simulation::set_sidebar_connection(Connection* connection) {
   emit sidebarConnectionChanged();
   emit sidebarCompartmentChanged();
 }
+
+void Simulation::set_m_connection_mode(bool connection_mode)
+{
+  if (connection_mode == false) {
+    m_source_compartment = nullptr;
+    m_target_compartment = nullptr;
+
+    emit sourceCompartmentChanged();
+    emit targetCompartmentChanged();
+  }
+  m_connection_mode = connection_mode;
+  emit connectionModeChanged();
+}
+
+void Simulation::update_compartment_symbol(const QString &symbol, const QString &new_symbol)
+{
+  if (m_compartments.contains(symbol)) {
+    if (symbol != new_symbol) {
+      auto node_handler = m_compartments.extract(symbol);
+      node_handler.key() = new_symbol;
+      m_compartments.insert(std::move(node_handler));
+    }
+  }
+}
+
 /**
  * @brief Sets compartment for sidebar to present values for
  * @param compartment
@@ -233,7 +335,7 @@ void Simulation::load_xml(const QString& filename) {
   }
 
   QXmlStreamReader xml(&file);
-  clear_simulation();
+  clear();
   m_save_path = filename;
 
   // find simulation name
@@ -273,9 +375,9 @@ void Simulation::load_xml(const QString& filename) {
         xml.readNext();
         if (xml.isStartElement() && xml.name() == "variable") {
           auto attrs = xml.attributes();
-          std::string key = attrs.value("name").toString().toStdString();
+          auto name = attrs.value("name").toString();
           const double value = attrs.value("value").toDouble();
-          m_variables[key] = value;
+          m_variables[name] = value;
         }
       }
     } else if (xml.name() == "connections") {
@@ -283,10 +385,10 @@ void Simulation::load_xml(const QString& filename) {
         xml.readNext();
         if (xml.isStartElement() && xml.name() == "connection") {
           auto attrs = xml.attributes();
-          QString name = attrs.value("name").toString();
-          QString from = attrs.value("from").toString();
-          QString to = attrs.value("to").toString();
-          QString rate = attrs.value("rate").toString();
+          auto name = attrs.value("name").toString();
+          auto from = attrs.value("from").toString();
+          auto to = attrs.value("to").toString();
+          auto rate = attrs.value("rate").toString();
 
           if (!m_compartments.contains(from) || !m_compartments.contains(to)) {
             qWarning() << "Connection references non-existent compartments:" << from << to;
@@ -321,6 +423,15 @@ void Simulation::load_xml(const QString& filename) {
     emit compartmentsChanged();
     emit connectionsChanged();
     emit variablesChanged();
+  }
+}
+
+void Simulation::save()
+{
+  if (!m_save_path.isEmpty()){
+    save_xml(m_save_path);
+  } else {
+    // TODO: Add error
   }
 }
 
@@ -360,7 +471,7 @@ void Simulation::save_xml(const QString& filename) {
   xml.writeStartElement("variables");
   for (auto& [name, value] : m_variables) {
     xml.writeStartElement("variable");
-    xml.writeAttribute("name", QString::fromStdString(name));
+    xml.writeAttribute("name", name);
     xml.writeAttribute("value", QString::number(value));
     xml.writeEndElement();
   }
@@ -380,104 +491,4 @@ void Simulation::save_xml(const QString& filename) {
   xml.writeEndElement();
   xml.writeEndDocument();
   file.close();
-}
-/**
- * @brief Starts the Compartmental Simulation
- */
-void Simulation::startSimulation() {
-    m_current_time = 0.0;
-
-    for (const auto& compartment : m_compartments | std::views::values) {
-        compartment->set_current_amount(compartment->get_initial_amount());
-    }
-}
-/**
- * @brief Progresses the simulation by dt time, and updates compartment values
- * @param dt Time to step by
- */
-void Simulation::stepSimulation(double dt) {
-    m_current_time += dt;
-
-    std::unordered_map<QString, double> delta_amounts;
-
-    for (const auto& [symbol, compartment] : m_compartments) {
-        delta_amounts[symbol] = 0.0;
-    }
-
-    /// Calculate changes based on connections
-    for (const auto& connection : m_connections) {
-        Compartment* source = connection->get_source();
-        Compartment* target = connection->get_target();
-
-        /// Expression parser called for rate? need to see this
-        double rate = evaluateExpression(connection->get_rate_expression());
-
-        /// based on claude -> not sure what is to be graphed i just asked generic compartamental project stuff
-        double transfer_amount = rate * source->get_current_amount() * dt;
-
-        delta_amounts[source->get_symbol()] -= transfer_amount;
-        delta_amounts[target->get_symbol()] += transfer_amount;
-    }
-
-    /// setting amounts after each step
-    QVariantMap values;
-    for (const auto& [symbol, compartment] : m_compartments) {
-        double new_amount = compartment->get_current_amount() + delta_amounts[symbol];
-        compartment->set_current_amount(new_amount);
-        values[symbol] = new_amount;
-    }
-
-    /// emit signal with current time and values
-    emit simulationDataUpdated(m_current_time, values);
-}
-/**
- * @brief Expression parser for rate of transfer equations
- */
-double Simulation::evaluateExpression(const QString& expression) {
-
-    /// This is just some base expression parsing from claude can be changed to whatever u seem fit for
-
-    std::string expr_str = expression.toStdString();
-
-    bool ok;
-    double value = expression.toDouble(&ok);
-    if (ok) {
-        return value;
-    }
-
-    if (m_variables.contains(expr_str)) {
-        return m_variables[expr_str];
-    }
-
-    QStringList parts = expression.split('*');
-    double result = 1.0;
-
-    for (const QString& part : parts) {
-        QString trimmed = part.trimmed();
-
-        /// number check here
-        value = trimmed.toDouble(&ok);
-        if (ok) {
-            result *= value;
-            continue;
-        }
-
-        /// variable check here
-        std::string part_str = trimmed.toStdString();
-        if (m_variables.contains(part_str)) {
-            result *= m_variables[part_str];
-            continue;
-        }
-
-        /// COmpartment name check here
-        if (m_compartments.contains(trimmed)) {
-            result *= m_compartments[trimmed]->get_current_amount();
-            continue;
-        }
-
-        qWarning() << "Unknown term in expression:" << trimmed;
-        return 0.0;
-    }
-
-    return result;
 }

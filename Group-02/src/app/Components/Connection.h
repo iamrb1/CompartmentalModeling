@@ -23,7 +23,7 @@ class Connection : public QObject {
   Q_PROPERTY(QString name MEMBER m_name NOTIFY nameChanged FINAL)
   Q_PROPERTY(Compartment* source MEMBER m_source NOTIFY sourceChanged FINAL)
   Q_PROPERTY(Compartment* target MEMBER m_target NOTIFY targetChanged FINAL)
-  Q_PROPERTY(QString rateExpression MEMBER m_rate_expression NOTIFY rateExpressionChanged FINAL)
+  Q_PROPERTY(QString rateExpression MEMBER m_rate_expression WRITE set_rate_expression NOTIFY rateExpressionChanged FINAL)
 
  signals:
   /// Signals to notify QML of changes
@@ -90,6 +90,7 @@ class Connection : public QObject {
    */
   void set_name(const QString& name) {
     m_name = name;
+    emit nameChanged();
   }
   /**
    * @brief Setter for source compartment
@@ -97,6 +98,7 @@ class Connection : public QObject {
    */
   void set_source(Compartment* source) {
     m_source = source;
+    emit sourceChanged();
   }
   /**
    * @brief Setter for target compartment
@@ -104,6 +106,7 @@ class Connection : public QObject {
    */
   void set_target(Compartment* target) {
     m_target = target;
+    emit targetChanged();
   }
   /**
    * @brief Setter for the rate of transfer expression
@@ -111,6 +114,7 @@ class Connection : public QObject {
    */
   void set_rate_expression(const QString& rate_expression) {
     m_rate_expression = rate_expression;
+    emit rateExpressionChanged();
   }
   /**
    * Setter for the parent simulation

@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Shapes
+import QtQuick.Layouts
 
 import cseg2
 import Utilities
@@ -42,11 +43,26 @@ Rectangle {
         }
     }
 
-    Text {
+    ColumnLayout {
         anchors.centerIn: parent
-        text: compartment.name + " (" + compartment.symbol + ")"
-        font.pixelSize: 20
-        color: ThemeManager.palette.text
+        width: parent.width
+
+        Text {
+            Layout.fillWidth: true
+            text: compartment && compartment.name + " (" + compartment.symbol + ")"
+            font.pixelSize: 14
+            color: ThemeManager.palette.text
+            wrapMode: Text.WordWrap
+            horizontalAlignment: Text.AlignHCenter
+        }
+        Text {
+            Layout.fillWidth: true
+            text: compartment && compartment.currentAmount
+            font.pixelSize: 12
+            color: ThemeManager.palette.text
+            wrapMode: Text.WordWrap
+            horizontalAlignment: Text.AlignHCenter
+        }
     }
 
     function compartmentBorderColor() {
@@ -60,10 +76,14 @@ Rectangle {
     }
 
     onXChanged: {
-        compartment.x = x
+        if (compartment) {
+            compartment.x = x
+        }
     }
 
     onYChanged: {
-        compartment.y = y
+        if (compartment) {
+            compartment.y = y
+        }
     }
 }

@@ -6,8 +6,8 @@ import Components
 Item {
     id: connectionUI
     property Connection connection
-    property Compartment source: connection.source
-    property Compartment target: connection.target
+    property Compartment source: connection ? connection.source : null
+    property Compartment target: connection ? connection.target : null
     property int compartmentWidth: Constants.compartmentWidth
     property int compartmentHeight: Constants.compartmentHeight
 
@@ -42,16 +42,24 @@ Item {
     }
 
     // Keep the connection positioned at source
-    x: source.x + compartmentWidth / 2
-    y: source.y + compartmentHeight / 2
+    x: source ? source.x + compartmentWidth / 2 : 0
+    y: source ? source.y + compartmentHeight / 2 : 0
 
     function calculateLength() {
+        if (!(source && target)) {
+            return 0;
+        }
+
         const dx = target.x - source.x;
         const dy = target.y - source.y;
         return Math.sqrt(dx * dx + dy * dy);
     }
 
     function calculateAngle() {
+        if (!(source && target)) {
+            return 0;
+        }
+
         const dx = target.x - source.x;
         const dy = target.y - source.y;
         return Math.atan2(dy, dx) * 180 / Math.PI;

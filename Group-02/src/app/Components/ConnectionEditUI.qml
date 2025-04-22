@@ -9,7 +9,42 @@ import Components
 Rectangle {
     property Connection selectedConnection: simulation.sidebarConnection
 
-    id: sidebarTop
+    onSelectedConnectionChanged: {
+        setConnectionComboboxes();
+    }
+
+    Connections {
+        target: simulation
+        function onCompartmentsChanged (){
+            setConnectionComboboxes();
+        }
+    }
+
+    function setConnectionComboboxes() {
+        if (!selectedConnection) {
+            return
+        }
+
+        sourceComboBox.isInternal = true;
+        for (var i = 0; i < simulation.compartments.length; i++) {
+            if (simulation.compartments[i].symbol === selectedConnection.source.symbol) {
+                sourceComboBox.currentIndex = i
+                break
+            }
+        }
+        sourceComboBox.isInternal = false;
+
+        targetComboBox.isInternal = true;
+        for (var j = 0; j < simulation.compartments.length; j++) {
+            if (simulation.compartments[j].symbol === selectedConnection.target.symbol) {
+                targetComboBox.currentIndex = j
+                break
+            }
+        }
+        targetComboBox.isInternal = false;
+    }
+
+    id: connectionEditor
     anchors.fill: parent
     color: ThemeManager.palette.base
 
@@ -43,22 +78,16 @@ Rectangle {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
 
-                property bool isInternalChange: false
-                Component.onCompleted: {
-                    if (!selectedConnection) {
-                        return
+                property bool isInternal: false
+
+                onActivated: {
+                    if (currentIndex >= 0 && selectedConnection) {
+                        selectedConnection.source = simulation.compartments[currentIndex]
                     }
-                    isInternalChange = true
-                    for (var i = 0; i < simulation.compartments.length; i++) {
-                        if (simulation.compartments[i].symbol === selectedConnection.source.symbol) {
-                            sourceComboBox.currentIndex = i
-                            break
-                        }
-                    }
-                    isInternalChange = false
                 }
+
                 onCurrentIndexChanged: {
-                    if (currentIndex >= 0 && !isInternalChange && selectedConnection) {
+                    if (isInternal && currentIndex >= 0 && selectedConnection) {
                         selectedConnection.source = simulation.compartments[currentIndex]
                     }
                 }
@@ -81,22 +110,16 @@ Rectangle {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
 
-                property bool isInternalChange: false
-                Component.onCompleted: {
-                    if (!selectedConnection) {
-                        return
+                property bool isInternal: false
+
+                onActivated: {
+                    if (currentIndex >= 0 && selectedConnection) {
+                        selectedConnection.target = simulation.compartments[currentIndex]
                     }
-                    isInternalChange = true
-                    for (var i = 0; i < simulation.compartments.length; i++) {
-                        if (simulation.compartments[i].symbol === selectedConnection.target.symbol) {
-                            targetComboBox.currentIndex = i
-                            break
-                        }
-                    }
-                    isInternalChange = false
                 }
+
                 onCurrentIndexChanged: {
-                    if (currentIndex >= 0 && !isInternalChange && selectedConnection) {
+                    if (isInternal && currentIndex >= 0 && selectedConnection) {
                         selectedConnection.target = simulation.compartments[currentIndex]
                     }
                 }

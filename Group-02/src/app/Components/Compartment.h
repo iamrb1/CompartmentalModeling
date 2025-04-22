@@ -1,6 +1,8 @@
 /**
  * @file Compartment.h
  * @author Nitish Maindoliya
+ *
+ *
  */
 
 #ifndef COMPARTMENT_H
@@ -26,7 +28,9 @@ class Compartment : public QObject {
   /// Expose m_name, m_symbol to QML
   Q_PROPERTY(QString name MEMBER m_name WRITE set_name NOTIFY nameChanged)
   Q_PROPERTY(QString symbol MEMBER m_symbol WRITE set_symbol NOTIFY symbolChanged)
-  Q_PROPERTY(double initialAmount MEMBER m_initial_amount NOTIFY initialAmountChnaged)
+  Q_PROPERTY(double initialAmount MEMBER m_initial_amount WRITE set_initial_amount NOTIFY initialAmountChnaged)
+  Q_PROPERTY(double currentAmount MEMBER m_current_amount NOTIFY currentAmountChanged)
+  Q_PROPERTY(QVector<double> amounts MEMBER m_amounts NOTIFY amountsChanged);
   Q_PROPERTY(int x MEMBER m_x NOTIFY xChanged)
   Q_PROPERTY(int y MEMBER m_y NOTIFY yChanged)
 
@@ -37,6 +41,8 @@ class Compartment : public QObject {
   void xChanged();
   void yChanged();
   void initialAmountChnaged();
+  void currentAmountChanged();
+  void amountsChanged();
 
  private:
   /// The parent simulation
@@ -49,6 +55,8 @@ class Compartment : public QObject {
   double m_initial_amount = 0.0f;
   /// The current amount of the compartment
   double m_current_amount = 0.0f;
+  /// Array of values for the compartment
+  QVector<double> m_amounts;
   /// The x position of the compartment
   int m_x = 100;
   /// The y position of the compartment
@@ -100,44 +108,26 @@ class Compartment : public QObject {
   [[nodiscard]] int get_y() const {
     return m_y;
   }
-  /**
-   * @brief Setter for the Compartment name
-   * @param name
-   */
-  void set_name(const QString& name) {
-    m_name = name;
-    emit nameChanged();
-  }
-  /**
-   * @brief Setter for the Compartment symbol
-   * @param symbol
-   */
-  void set_symbol(const QString& symbol) {
-    if (symbol.isEmpty()) {
-      // TODO: Add error
-      return;
-    } else {
-      
-    }
 
-    m_symbol = symbol;
-    emit symbolChanged();
-  }
-  /**
-   * @brief Setter for Compartment initial amount
-   * @param initial_amount
-   */
-  void set_initial_amount(const double initial_amount) {
-    m_initial_amount = initial_amount;
-    emit initialAmountChnaged();
-  }
+  void set_name(const QString& name);
+
+  void set_symbol(const QString& symbol);
+
+  void reset();
+
+  void add_amount(double amount);
+
+  void set_initial_amount(const double initial_amount);
+
   /**
    * Setter for Compartment current amount
    * @param current_amount
    */
   void set_current_amount(const double current_amount) {
     m_current_amount = current_amount;
+    emit currentAmountChanged();
   }
+
   /**
    * @brief Setter for Compartment X Position
    * @param x

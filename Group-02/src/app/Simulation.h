@@ -12,6 +12,7 @@
 #include <QObject>
 #include <qqml.h>
 #include <QVariant>
+#include <QTimer>
 
 #include "Components/Compartment.h"
 #include "Components/Connection.h"
@@ -23,15 +24,26 @@
 class Simulation : public QObject {
   Q_OBJECT
   QML_ELEMENT
+  Q_PROPERTY(QString name MEMBER m_name NOTIFY nameChanged)
+
+  // Connections/Compartments
   Q_PROPERTY(QVector<Compartment*> compartments READ get_compartments NOTIFY compartmentsChanged)
   Q_PROPERTY(QVector<Connection*> connections READ get_connections NOTIFY connectionsChanged)
-  Q_PROPERTY(QString name MEMBER m_name NOTIFY nameChanged)
   Q_PROPERTY(QVariantMap variables READ get_variables NOTIFY variablesChanged)
-  Q_PROPERTY(bool connectionMode MEMBER m_connection_mode NOTIFY connectionModeChanged)
+
+  // Connection
+  Q_PROPERTY(bool connectionMode MEMBER m_connection_mode WRITE set_m_connection_mode NOTIFY connectionModeChanged)
   Q_PROPERTY(Compartment* sourceCompartment MEMBER m_source_compartment NOTIFY sourceCompartmentChanged)
   Q_PROPERTY(Compartment* targetCompartment MEMBER m_target_compartment WRITE set_target_compartment NOTIFY targetCompartmentChanged)
+
+  // Sidebar
   Q_PROPERTY(Compartment* sidebarCompartment MEMBER m_sidebar_compartment WRITE set_sidebar_compartment NOTIFY sidebarCompartmentChanged)
   Q_PROPERTY(Connection* sidebarConnection MEMBER m_sidebar_connection WRITE set_sidebar_connection NOTIFY sidebarConnectionChanged)
+
+  // Evolution
+  Q_PROPERTY(int currentTime MEMBER m_current_time NOTIFY currentTimeChanged)
+  Q_PROPERTY(int timeSteps MEMBER m_time_steps NOTIFY timeStepsChanged)
+  Q_PROPERTY(bool isRunning MEMBER m_is_running  NOTIFY isRunningChanged)
 
  signals:
   /// Signals to notify QML of changes
@@ -44,7 +56,9 @@ class Simulation : public QObject {
   void connectionModeChanged();
   void sidebarCompartmentChanged();
   void sidebarConnectionChanged();
-  void simulationDataUpdated(double time, const QVariantMap& values);
+  void currentTimeChanged();
+  void timeStepsChanged();
+  void isRunningChanged();
 
  private:
   /// Simulation name
@@ -53,8 +67,10 @@ class Simulation : public QObject {
   QString m_save_path;
 
   /// Simulation time
-
-  double m_current_time = 0.0;
+  QTimer* m_timer = nullptr;
+  int m_current_time = 0.0;
+  int m_time_steps = 100;
+  bool m_is_running = false;
 
   /// Unordered map of compartments with their symbols as keys
   std::unordered_map<QString, std::shared_ptr<Compartment>> m_compartments;
@@ -62,7 +78,7 @@ class Simulation : public QObject {
   std::vector<std::shared_ptr<Connection>> m_connections;
 
   /// Variables for the simulation
-  std::unordered_map<std::string, double> m_variables = {{"k1", 0.01}, {"k2", 0.1}, {"k3", 0.5}};
+  std::unordered_map<QString, double> m_variables = {{"k1", 0.01}, {"k2", 0.1}, {"k3", 0.5}};
 
   /// UI variables
 
@@ -79,35 +95,26 @@ class Simulation : public QObject {
   /// Selected compartment
   Compartment* m_sidebar_compartment = nullptr;
 
-  Q_INVOKABLE double evaluateExpression(const QString& expression);
+  // Q_INVOKABLE double evaluateExpression(const QString& expression);
 
  public:
-  explicit Simulation(QObject* parent = nullptr) : QObject(parent) {}
+  explicit Simulation(QObject* parent = nullptr);
 
   Q_INVOKABLE void add_compartment();
-  // Q_INVOKABLE void add_connection(Compartment* source, Compartment* target);
 
-  Q_INVOKABLE void startSimulation();
-  Q_INVOKABLE void stepSimulation(double dt);
+  // Q_INVOKABLE void startSimulation();
+  // Q_INVOKABLE void stepSimulation(double dt);
   /**
    * @brief Completely resets the simulation and clears all relevant values
    */
-  void clear_simulation() {
-    m_current_time = 0.0;
-    m_save_path.clear();
-    m_compartments.clear();
-    m_connections.clear();
-    m_variables.clear();
-  }
+  Q_INVOKABLE void clear();
 
-  // void reset_simulation() {
-  //   m_time = 0.0;
-  //   for (auto& compartment : m_compartments) {
-  //     compartment->reset();
-  //   }
-  // }
+  Q_INVOKABLE void reset();
+  Q_INVOKABLE void start();
+  Q_INVOKABLE void pause();
 
   Q_INVOKABLE void load_xml(const QString& filename);
+  Q_INVOKABLE void save ();
   Q_INVOKABLE void save_xml(const QString& filename);
 
   [[nodiscard]] QVector<Compartment*> get_compartments() const;
@@ -116,6 +123,9 @@ class Simulation : public QObject {
 
   void set_sidebar_compartment(Compartment* compartment);
   void set_sidebar_connection(Connection* connection);
+  void set_m_connection_mode(bool connection_mode);
+
+  void update_compartment_symbol(const QString& symbol, const QString& new_symbol);
 
   Q_INVOKABLE void add_variable(const QString& name=QString(), double value = 0.0);
   Q_INVOKABLE void remove_variable(const QString& name);
@@ -125,6 +135,9 @@ class Simulation : public QObject {
   Q_INVOKABLE void remove_compartment(const QString& symbol);
 
   void set_target_compartment(Compartment* target);
+
+ public slots:
+  void take_time_step();
 };
 
 #endif  //SIMULATION_H

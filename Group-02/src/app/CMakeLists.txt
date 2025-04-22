@@ -60,12 +60,14 @@ set_target_properties(${EXECUTABLE_NAME} PROPERTIES
 # Link libraries
 target_link_libraries(${EXECUTABLE_NAME} PRIVATE Qt6::Quick Qt6::Widgets Qt6::Charts)
 target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${LIBRARY_NAME})
+target_link_libraries(${EXECUTABLE_NAME} PRIVATE exprtk::exprtk)
 
 # Link plugins
 foreach (MODULE ${QML_MODULES})
     message(STATUS "Adding QML module: ${MODULE}")
     add_subdirectory(${MODULE})
     target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${MODULE}Libplugin)
+
 endforeach ()
 
 include(GNUInstallDirs)

@@ -79,9 +79,9 @@ Rectangle {
                     text: selectedCompartment ? selectedCompartment.symbol : null
                     color: ThemeManager.palette.text
 
-                    // Alpha numeric non empty (max 3 chars)
+                    // Alpha numeric non empty
                     validator: RegularExpressionValidator {
-                        regularExpression: /^[a-zA-Z0-9]{1,3}$/
+                        regularExpression: /^[a-zA-Z0-9]+$/
                     }
 
                     onEditingFinished: {

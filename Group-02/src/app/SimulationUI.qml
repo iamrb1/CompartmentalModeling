@@ -14,14 +14,16 @@ ApplicationWindow {
         id: simulation
     }
 
+
     property var graphWindow: null
 
-    /// component for creating graph window -rahul
+    /// component for creating graph window
     Component {
         id: graphWindowComponent
         GraphWindowUI {
         }
     }
+
 
     id: simulationUI
     width: 800
@@ -44,24 +46,30 @@ ApplicationWindow {
             MenuBar {
                 id: menuBar
                 Layout.preferredWidth: implicitWidth
-                background: Rectangle { color: "transparent" }
+                background: Rectangle {
+                    color: "transparent"
+                }
 
                 Menu {
                     title: "File"
                     Action {
-                        text: "New Simulation"; onTriggered: console.log("New Simulation")
+                        text: "New Simulation"
+                        onTriggered: simulation.clear()
                     }
 
                     Action {
-                        text: "Open"; onTriggered: openFileDialog.open()
+                        text: "Open"
+                        onTriggered: openFileDialog.open()
                     }
 
                     Action {
-                        text: "Save"; onTriggered: saveFileDialog.open()
+                        text: "Save"
+                        onTriggered: simulation.save()
                     }
 
                     Action {
-                        text: "Save As"; onTriggered: saveFileDialog.open()
+                        text: "Save As"
+                        onTriggered: saveFileDialog.open()
                     }
 
                     MenuSeparator {}
@@ -73,13 +81,15 @@ ApplicationWindow {
                                 text: modelData.name
                                 checkable: true
                                 checked: modelData.value === ThemeManager.theme
-                                onTriggered: ThemeManager.setTheme(modelData.value)
+                                onTriggered: ThemeManager.setTheme(
+                                                 modelData.value)
                             }
                         }
                     }
                     MenuSeparator {}
                     Action {
-                        text: "Exit"; onTriggered: Qt.quit()
+                        text: "Exit"
+                        onTriggered: Qt.quit()
                     }
                 }
 
@@ -96,6 +106,15 @@ ApplicationWindow {
                 Layout.fillWidth: true
             }
 
+            Text {
+                text: `Current step: ${simulation.currentTime}/${simulation.timeSteps}`
+                color: ThemeManager.palette.text
+            }
+
+            Item {
+                Layout.fillWidth: true
+            }
+
             RowLayout {
                 Layout.fillWidth: false
 
@@ -105,15 +124,29 @@ ApplicationWindow {
                     Layout.preferredWidth: 60
                 }
 
-                TextField {
-                    id: valueField
-                    Layout.fillWidth: false
-                    Layout.preferredWidth: 50
-                    selectByMouse: true
-                    validator: IntValidator {}
+                Rectangle {
+                    Layout.preferredWidth: 60
+                    height: 25
+                    border.width: 1
+                    border.color: ThemeManager.palette.mid
+                    color: "transparent"
+
+                    TextInput {
+                        anchors.fill: parent
+                        anchors.margins: 5
+                        verticalAlignment: TextInput.AlignVCenter
+                        text: simulation.timeSteps
+                        color: ThemeManager.palette.text
+
+                        validator: IntValidator{}
+
+                        onEditingFinished: {
+                            simulation.timeSteps = text;
+                        }
+                        clip: true
+                    }
                 }
             }
-
 
             ToolButton {
                 id: playButton
@@ -123,14 +156,14 @@ ApplicationWindow {
                 icon.height: 20
                 icon.width: 20
                 checkable: true
+                checked: simulation.isRunning
 
                 ToolTip.visible: hovered
                 ToolTip.delay: 500
                 ToolTip.text: icon.name
 
                 onClicked: {
-                    pauseButton.checked = false
-                    //simulation.play()
+                    simulation.start();
                 }
             }
 
@@ -142,15 +175,14 @@ ApplicationWindow {
                 icon.height: 20
                 icon.width: 20
                 checkable: true
+                checked: !simulation.isRunning
 
                 ToolTip.visible: hovered
                 ToolTip.delay: 500
                 ToolTip.text: icon.name
 
                 onClicked: {
-                    playButton.checked = false
-                    // resetButton.checked = false
-                    // simulation.pause()
+                    simulation.pause();
                 }
             }
 
@@ -161,16 +193,14 @@ ApplicationWindow {
                 icon.color: ThemeManager.palette.text
                 icon.height: 20
                 icon.width: 20
-                // checkable: true
 
+                // checkable: true
                 ToolTip.visible: hovered
                 ToolTip.delay: 500
                 ToolTip.text: icon.name
 
                 onClicked: {
-                    pauseButton.checked = false
-                    playButton.checked = false
-                    // simulation.clear_simulation()
+                    simulation.reset();
                 }
             }
         }
@@ -284,18 +314,17 @@ ApplicationWindow {
 
                     onClicked: {
                         if (!graphWindow || !graphWindow.visible) {
-                            graphWindow = graphWindowComponent.createObject(simulationUI);
-                            graphWindow.simulation = simulation;  // Make sure this line is present
-                            graphWindow.show();
+                            graphWindow = graphWindowComponent.createObject(simulationUI)
+                            graphWindow.simulation = simulation // Make sure this line is present
+                            graphWindow.show()
                         } else {
-                            graphWindow.raise();
-                            graphWindow.requestActivate();
+                            graphWindow.raise()
+                            graphWindow.requestActivate()
                         }
                     }
                 }
             }
         }
-
 
         SplitView {
             orientation: Qt.Horizontal
@@ -308,9 +337,6 @@ ApplicationWindow {
                 SplitView.fillWidth: true
                 SplitView.minimumWidth: 200
                 SplitView.fillHeight: true
-
-                // Connect to your simulation model
-                simulation: simulation
             }
 
             // --- Sidebar ---

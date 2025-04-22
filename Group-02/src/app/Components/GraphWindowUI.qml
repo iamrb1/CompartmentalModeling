@@ -65,83 +65,32 @@ ApplicationWindow {
                 }
             }
         }
-
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.alignment: Qt.AlignHCenter
-            spacing: 10
-
-            Button {
-                text: internalTimer.running ? "Pause" : "Start"
-                Component.onCompleted: {
-                           palette.buttonText = "black"
-                       }
-                onClicked: {
-                    if (!internalTimer.running) {
-                        if (simulation) {
-                            simulation.startSimulation();
-                        }
-                        internalTimer.start();
-                    } else {
-                        internalTimer.stop();
-                    }
-                }
-            }
-
-            Button {
-                text: "Reset"
-                Component.onCompleted: {
-                           palette.buttonText = "black"
-                       }
-                onClicked: {
-                    internalTimer.stop();
-                    timePlot.clearData();
-                    if (simulation) {
-                        simulation.startSimulation();
-                        timePlot.updateSeriesFromSimulation();
-                    }
-                }
-            }
-
-            Button {
-                text: "Step"
-                Component.onCompleted: {
-                           palette.buttonText = "black"
-                       }
-                enabled: !internalTimer.running
-                onClicked: {
-                    if (simulation) {
-                        simulation.stepSimulation(0.1);
-                    }
-                }
-            }
-        }
     }
 
-    /// connect simulation data updates to plot
-    Connections {
-        target: simulation
-        enabled: simulation !== null
+    // /// connect simulation data updates to plot
+    // Connections {
+    //     target: simulation
+    //     enabled: simulation !== null
 
-        function onSimulationDataUpdated(time, values) {
-            let dataArray = [];
+    //     function onSimulationDataUpdated(time, values) {
+    //         let dataArray = [];
 
-            /// claude generated data update
-            for (let series of timePlot.dataSeries) {
-                if (values.hasOwnProperty(series.id)) {
-                    dataArray.push(values[series.id]);
-                } else {
-                    dataArray.push(NaN);
-                }
-            }
+    //         /// claude generated data update
+    //         for (let series of timePlot.dataSeries) {
+    //             if (values.hasOwnProperty(series.id)) {
+    //                 dataArray.push(values[series.id]);
+    //             } else {
+    //                 dataArray.push(NaN);
+    //             }
+    //         }
 
-            timePlot.addDataPoint(time, dataArray);
-        }
+    //         timePlot.addDataPoint(time, dataArray);
+    //     }
 
-        function onCompartmentsChanged() {
-            timePlot.updateSeriesFromSimulation();
-        }
-    }
+    //     function onCompartmentsChanged() {
+    //         timePlot.updateSeriesFromSimulation();
+    //     }
+    // }
 
     onClosing: {
         internalTimer.stop();

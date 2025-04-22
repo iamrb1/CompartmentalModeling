@@ -16,8 +16,6 @@ Rectangle {
     border.color: ThemeManager.palette.shadow
     clip: true
 
-
-    property Simulation simulation: null
     property real expansionRate: 0.2
     property real paddingSize: 75  // Add padding around compartments
 
@@ -170,18 +168,9 @@ Rectangle {
 
     Component.onCompleted:
     {
-        console.log(simulation)
-        updateTargetBoundaries()
-
-    }
-
-    onSimulationChanged: {
-        if (simulation) {
-            // Connect to simulation changes
-            simulation.compartmentsChanged.connect(updateTargetBoundaries)
-        }
         updateTargetBoundaries()
     }
+
 
     // Flickable provides scrolling functionality
     Flickable {
