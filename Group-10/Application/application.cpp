@@ -30,7 +30,6 @@ static constexpr double SPEEDUP_ADJUSTMENT_CONSTANT = 100;
  *  - MeasureTime - used for speed/time checks
  *  - printVector - basic function to handle the printing of a vector to the
  * console
- *  - HelpOutput - common output when the user inputs -h or -help
  *  - PrintTerminal - prints a basic terminal to the screen for user experience
  *  - RedError - Handles the red coloring for all error messages
  *  - EndProgram - Helper function to terminate the application
@@ -86,8 +85,6 @@ void PrintVector(std::vector<T> vector) {
   std::cout << std::endl;
 }
 
-void HelpOutput() { std::cout << messages.optimizerHelpMessage; }
-
 void PrintTerminal() { std::cout << "\033[32m\nBellman-Application> \033[0m"; }
 
 std::string RedError(std::string &&message) {
@@ -128,12 +125,13 @@ void PrintOptimizerResults(std::pair<double, std::vector<cse::Item>> solution) {
 
 void PrintTiming(double timingInMilliseconds) {
   if (timingInMilliseconds >= THRESHOLD_TO_SECONDS) {
-    std::cout << std::setprecision(4)
-              << timingInMilliseconds / MILLISECONDS_IN_SECONDS << " seconds"
+    std::cout << std::setprecision(4) << "Total time to compute: "
+              << timingInMilliseconds / MILLISECONDS_IN_SECONDS << " seconds\n"
               << std::endl;
   } else {
-    std::cout << std::setprecision(4) << timingInMilliseconds << " milliseconds"
-              << std::endl;
+    std::cout << std::setprecision(4)
+              << "Total time to compute: " << timingInMilliseconds
+              << " milliseconds\n" << std::endl;
   }
 }
 
@@ -186,28 +184,23 @@ void CallBruteForceOptimizer() {
   if (!settings.optimized || settings.compare) {
     // Unoptimized brute force
     optimizer.SetOptimizer(false);
+    std::cout << "Computing Unoptimized Search...\n";
     unoptimizedTime = MeasureTime([&]() {
       auto solutionPair = optimizer.FindOptimalSolution();
       PrintOptimizerResults(solutionPair);
     });
+    if (settings.timeSearch || settings.compare) PrintTiming(unoptimizedTime);
   }
 
   if (settings.optimized || settings.compare) {
     // Optimized brute force
     optimizer.SetOptimizer(true);
+    std::cout << "Computing Optimized Search...\n";
     optimizedTime = MeasureTime([&]() {
       auto solutionPair = optimizer.FindOptimalSolution();
       PrintOptimizerResults(solutionPair);
+      if (settings.timeSearch || settings.compare) PrintTiming(optimizedTime);
     });
-  }
-
-  // Print timings
-  if (!settings.compare) {
-    if (!settings.optimized) {
-      PrintTiming(unoptimizedTime);  // Print unoptimized timing
-    } else {
-      PrintTiming(optimizedTime);  // Print optimized timing
-    }
   }
 
   if (settings.compare) {
@@ -229,20 +222,6 @@ void CallBruteForceOptimizer() {
 void AdjustWeights() {
   for (auto &item : settings.itemList) {
     item.weight = 1.0;
-  }
-  PrintVector(settings.itemList);
-}
-
-void AdjustRepeats() {
-  std::vector<cse::Item> initItems = settings.itemList;
-  for (auto item : initItems) {
-    int maxItemAmount = settings.capacity / item.weight;
-    if (maxItemAmount > 0) {
-      // std::cout << maxItemAmount <<std::endl;
-      std::vector<cse::Item> extraItems(--maxItemAmount, item);
-      settings.itemList.insert(settings.itemList.end(), extraItems.begin(),
-                               extraItems.end());
-    }
   }
 }
 
@@ -283,30 +262,44 @@ int application(std::istream &in) {
 
     else if (arguments[0] == "set-capacity") {
       if (arguments.size() == 1) {
-        std::cout << RedError("**Must specify a default capacity");
+        std::cout << RedError(
+            "**Must specify a default capacity\n (use -h flag for more "
+            "information)");
       } else if (arguments.size() > 2) {
-        std::cout << RedError("**Too many arguments provided for set-capacity");
+        std::cout << RedError(
+            "**Too many arguments provided for set-capacity\n (use -h flag for "
+            "more information)");
       } else {
         try {
           if (argMgr.HasArg("-help") || argMgr.HasArg("-h")) {
             // do something to optimize
-            HelpOutput();
+            std::cout << messages.capacityHelp;
             PrintTerminal();
             continue;
           }
           double givenCapacity = std::stod(arguments.at(1));
           settings.defaultCapacity = givenCapacity;
           settings.capacity = givenCapacity;
+          std::cout << settings.defaultCapacity.value()
+                    << " set as default capacity.\n";
         } catch (const std::exception &e) {
           std::cout << RedError("**Invalid value given for the capacity");
         }
       }
     }
 
+    else if (arguments[0] == "show-capacity") {
+      (settings.defaultCapacity.has_value())
+          ? std::cout << "Default value set to: "
+                      << settings.defaultCapacity.value()
+          : std::cout << "No default value set.";
+      std::cout << '\n';
+    }
+
     else if (arguments[0] == "brute-force") {
       if (argMgr.HasArg("-help") || argMgr.HasArg("-h")) {
         // do something to optimize
-        HelpOutput();
+        std::cout << messages.optimizerHelpMessage;
         PrintTerminal();
         continue;
       }
@@ -393,33 +386,3 @@ int application(std::istream &in) {
 
   return 0;
 }
-
-/**
-    Plans:
-    - Add a file name input for item lists
-        - Flags:
-            Optimized
-            Compare - unoptimized vs optimized
-            Weightless - ignore weights
-            Multiple repeats
-            Required Item (?)
-            Cache(?) - Save option
-
-    Ideas:
-    - Add ComboManager as useable command
-        - Works with permutation or combo
-    - Allow user to give a list of names and then choose preset way of
-calculating weight and value
-        - Choose length of name or ASCII value as weight or value
-    - STAAATIC VECTOR
-        - Emphasis on static vector
-    - Return a report text file
-    - Return top x results
-    - Caching file names and resulting values
-        - MemoFunction and or MemoryFactory
-
-    Issues:
-    - Submitting repeat file name with different file contents
-
-    g++ main.cpp -std=c++23 -g -pthread -Wall -Wextra -o main
-**/
