@@ -87,7 +87,7 @@ int FinalApplication::GetColumnIndex(int max_index, std::ostream &os = std::cout
     if (index && index.value() < max_index) {
       return index.value();
     }
-    os << "Invalid option. Try again." << std::endl;
+    os << "Invalid option. Try again. The max index is: " << max_index << std::endl;
   }
 }
 
@@ -351,38 +351,38 @@ void FinalApplication::ComparisonMenu(cse::DataGrid &grid, std::ostream &os = st
     is >> option;
 
     if (option == "clt") {
-      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())));
-      cse::Datum datum = GetDataValue();
+      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+      cse::Datum datum = GetDataValue(os, is);
       os << "Values less than given value:" << std::endl;
       PrintColumn(grid.ColumnLessThan(index, datum));
       return;
     } else if (option == "clte") {
-      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())));
-      cse::Datum datum = GetDataValue();
+      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+      cse::Datum datum = GetDataValue(os, is);
       os << "Values less than or equal to given value:" << std::endl;
       PrintColumn(grid.ColumnLessThanOrEqual(index, datum));
       return;
     } else if (option == "cgt") {
-      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())));
-      cse::Datum datum = GetDataValue();
+      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+      cse::Datum datum = GetDataValue(os, is);
       os << "Values greater than given value:" << std::endl;
       PrintColumn(grid.ColumnGreaterThan(index, datum));
       return;
     } else if (option == "cgte") {
-      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())));
-      cse::Datum datum = GetDataValue();
+      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+      cse::Datum datum = GetDataValue(os, is);
       os << "Values greater than or equal to given value:" << std::endl;
       PrintColumn(grid.ColumnGreaterThanOrEqual(index, datum));
       return;
     } else if (option == "ce") {
-      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())));
-      cse::Datum datum = GetDataValue();
+      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+      cse::Datum datum = GetDataValue(os, is);
       os << "Values equal to given value:" << std::endl;
       PrintColumn(grid.ColumnEqual(index, datum));
       return;
     } else if (option == "cne") {
-      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())));
-      cse::Datum datum = GetDataValue();
+      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+      cse::Datum datum = GetDataValue(os, is);
       os << "Values not equal to given value:" << std::endl;
       PrintColumn(grid.ColumnNotEqual(index, datum));
       return;
@@ -402,7 +402,7 @@ void FinalApplication::ComparisonMenu(cse::DataGrid &grid, std::ostream &os = st
  * @param is istream used for input and testing
  */
 void FinalApplication::ManipulateGridMenu(cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) const {
-  int choice = 0;
+  int choice = -1;
   do {
     os << "\n=== CSV Grid Manipulation Menu ===" << std::endl;
     os << "1. Print options" << std::endl;
@@ -413,31 +413,39 @@ void FinalApplication::ManipulateGridMenu(cse::DataGrid &grid, std::ostream &os 
     os << "6. Resizing options" << std::endl;
     os << "0. Return to main menu" << std::endl;
     os << "Enter your choice: ";
-    is >> choice;
+    std::string input;
+    is >> input;
 
-    switch (choice) {
-      case 1:
-        PrintSubmenu(grid, os, is);
-        break;
-      case 2:
-        EditSubmenu(grid, os, is);
-        break;
-      case 3:
-        SortSubmenu(grid, os, is);
-        break;
-      case 4:
-        AddSubmenu(grid, os, is);
-        break;
-      case 5:
-        DeleteSubmenu(grid, os, is);
-        break;
-      case 6:
-        ResizeSubmenu(grid, os, is);
-        break;
-      case 0:
-        break;
-      default:
-        os << "Invalid choice. Try again." << std::endl;
+    std::optional<int> input_int = IsValidInt(input);
+
+    if (input_int.has_value()) {
+      choice = input_int.value();
+      switch (input_int.value()) {
+        case 1:
+          PrintSubmenu(grid, os, is);
+          break;
+        case 2:
+          EditSubmenu(grid, os, is);
+          break;
+        case 3:
+          SortSubmenu(grid, os, is);
+          break;
+        case 4:
+          AddSubmenu(grid, os, is);
+          break;
+        case 5:
+          DeleteSubmenu(grid, os, is);
+          break;
+        case 6:
+          ResizeSubmenu(grid, os, is);
+          break;
+        case 0:
+          break;
+        default:
+          os << "Invalid choice. Must be between 0-6. Try again." << std::endl;
+      }
+    } else {
+      os << "Invalid choice. Cannot be a string. Try again." << std::endl;
     }
   } while (choice != 0);
 }
