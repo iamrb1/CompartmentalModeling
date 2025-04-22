@@ -183,6 +183,17 @@ class PresentationEventManager {
 		}
 
 		/**
+		 * Delete a slide from the EventManager
+		 */
+		void deleteSlide(const int slide_num) {
+			while (_queues[slide_num].size() > 0) {
+				auto e = _active_queue.pop();
+				_id_to_slide.erase(e.getID());
+			}
+			_queues.erase(_queues.begin() + slide_num);
+		}
+
+		/**
 		 * Change context to current slide
 		 * @param slide_num
 		 */

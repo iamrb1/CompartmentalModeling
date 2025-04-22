@@ -192,23 +192,7 @@
 
     <button id="stopButton">Stop</button>
     <button id="startButton">Start</button>
-    <!--<button id="deleteSlideButton">Delete Slide</button> -->
-
-    <!-- Tutorial from https://www.youtube.com/watch?v=REjbmMwiQ8w&ab_channel=ChrisSev -->
-    <form>
-      <div class="double-confirm overflow-hidden">
-        <div id="double-confirm-inner" class="double-confirm-inner relative transform transition duration-500 ease-in-out">
-        <!-- delete button -->
-          <button type="button">
-          Delete Slide
-        </button>
-          <!-- confirm button -->
-          <button type="button" id="deleteSlideButton" class="absolute bg-red-800 text-red-300">
-          You Sure?
-        </button>
-        </div>
-      </div>
-    </form>
+    <button id="deleteSlideButton">Delete Slide</button>
 
     <div class="btn-group dropup">
     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -240,8 +224,7 @@
 <script src="WebLayout/EditTextbox.js"></script>
 
 <script>
-  const loadDeck = Module.cwrap('loadSlideDeckFromJson', null, ['string']);
-  const saveDeck = Module.cwrap('exportSlideDeckToJson', 'string', []);
+  const saveDeck = Module.cwrap('call_exportSlideDeckToJson', 'string', []);
 
   document.getElementById("fileInput").addEventListener("change", function (e) {
     const file = e.target.files[0];
@@ -259,7 +242,7 @@
       }
       try {
         stringToUTF8(jsonStr, buffer, lengthBytes);
-        Module.ccall("loadSlideDeckFromJson", null, ["number"], [buffer]);
+        Module.ccall("call_loadSlideDeckFromJson", null, ["number"], [buffer]);
       } catch (err) {
         alert("Failed to load deck: " + err);
       } finally {
@@ -318,7 +301,7 @@
     });
 
   });
-
+/*
   // BELOW IS CODE FOR DELETE CONFIRMATION
   let timeout;
 
@@ -351,7 +334,7 @@
       resetConfirmButton();
     }
   });
-
+*/
 </script>
 
 </body>
