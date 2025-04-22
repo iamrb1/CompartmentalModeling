@@ -101,7 +101,6 @@ class RichTextState {
 
   void update_bar(const cse::TextFormat& fmt, bool clear = false) {
     if (!clear) m_format_map[fmt.name] = fmt.metadata;
-    // TODO: reflect toolbar UI
   }
 
   // — UNDO / REDO —

@@ -23,26 +23,26 @@ EMSCRIPTEN_BINDINGS(rich_text_module) {
       .function("edit_start_pos", &RichTextState::edit_start_pos)
       .function("edit_start_range", &RichTextState::edit_start_range)
       .function("edit_change", &RichTextState::edit_change)
-      .function("setText", &RichTextState::setText)
-      .function("getText", &RichTextState::getText)
+      .function("setText", &RichTextState::set_text)
+      .function("getText", &RichTextState::get_text)
 
       // Single‑arg formatting
       .function("applyBold", static_cast<void (RichTextState::*)()>(
-                                 &RichTextState::applyBold))
+                                 &RichTextState::apply_bold))
       .function("applyItalic", static_cast<void (RichTextState::*)()>(
-                                   &RichTextState::applyItalic))
+                                   &RichTextState::apply_italic))
       .function("applyUnderline", static_cast<void (RichTextState::*)()>(
-                                      &RichTextState::applyUnderline))
+                                      &RichTextState::apply_underline))
       .function("applyStrikethrough", static_cast<void (RichTextState::*)()>(
-                                          &RichTextState::applyStrikethrough))
+                                          &RichTextState::apply_strikethrough))
       .function("applyColor",
                 static_cast<void (RichTextState::*)(const std::string&)>(
-                    &RichTextState::applyColor))
+                    &RichTextState::apply_color))
       .function("applyLink",
                 static_cast<void (RichTextState::*)(const std::string&)>(
-                    &RichTextState::applyLink))
+                    &RichTextState::apply_link))
       .function("applyHeader", static_cast<void (RichTextState::*)(int)>(
-                                   &RichTextState::applyHeader))
+                                   &RichTextState::apply_header))
 
       // Generic format function
       .function("update_format",
@@ -53,37 +53,37 @@ EMSCRIPTEN_BINDINGS(rich_text_module) {
       // Range‑based formatting (distinct JS names)
       .function("applyBoldRange",
                 static_cast<void (RichTextState::*)(std::size_t, std::size_t)>(
-                    &RichTextState::applyBold))
+                    &RichTextState::apply_bold))
       .function("applyItalicRange",
                 static_cast<void (RichTextState::*)(std::size_t, std::size_t)>(
-                    &RichTextState::applyItalic))
+                    &RichTextState::apply_italic))
       .function("applyUnderlineRange",
                 static_cast<void (RichTextState::*)(std::size_t, std::size_t)>(
-                    &RichTextState::applyUnderline))
+                    &RichTextState::apply_underline))
       .function("applyStrikeRange",
                 static_cast<void (RichTextState::*)(std::size_t, std::size_t)>(
-                    &RichTextState::applyStrikethrough))
+                    &RichTextState::apply_strikethrough))
       .function("applyColorRange",
                 static_cast<void (RichTextState::*)(const std::string&,
                                                     std::size_t, std::size_t)>(
-                    &RichTextState::applyColor))
+                    &RichTextState::apply_color))
       .function("applyLinkRange",
                 static_cast<void (RichTextState::*)(const std::string&,
                                                     std::size_t, std::size_t)>(
-                    &RichTextState::applyLink))
+                    &RichTextState::apply_link))
       .function(
           "applyHeaderRange",
           static_cast<void (RichTextState::*)(int, std::size_t, std::size_t)>(
-              &RichTextState::applyHeader))
+              &RichTextState::apply_header))
 
       // Output serialization
       .function("output_formats", &RichTextState::output_formats)
       .function("output", &RichTextState::output)
-      .function("getHTML", &RichTextState::getHTML)
-      .function("getRawHTML", &RichTextState::getRawHTML)
-      .function("getMarkdown", &RichTextState::getMarkdown)
-      .function("getRTF", &RichTextState::getRTF)
-      .function("getLaTeX", &RichTextState::getLaTeX)
+      .function("getHTML", &RichTextState::get_html)
+      .function("getRawHTML", &RichTextState::get_raw_html)
+      .function("getMarkdown", &RichTextState::get_markdown)
+      .function("getRTF", &RichTextState::get_rtf)
+      .function("getLaTeX", &RichTextState::get_LaTeX)
 
       // Undo / Redo
       .function("undo", &RichTextState::undo)
