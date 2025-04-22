@@ -809,8 +809,8 @@ TEST_CASE("Serialize External Class/Struct (must be global)", "[Serializer]")
 	P1.height = 177.5;
 	P1.hobbies.push_back("Playing Games");
 	P1.hobbies.push_back("Listening to Music");
-	Saver.Serialize(P1, true);
-	Loader.Serialize(P2, true);
+	Saver.Serialize(P1);
+	Loader.Serialize(P2);
 	REQUIRE(P1.name == P2.name);
 	REQUIRE(P1.age == P2.age);
 	REQUIRE(P1.height == P2.height);

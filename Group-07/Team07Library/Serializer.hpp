@@ -333,10 +333,7 @@ namespace cse
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
 				for (auto &elem : container)
 				{
-					if constexpr (is_custom_type<std::remove_cvref_t<T>>::value)
-						Serialize(elem, true);
-					else
-						Serialize(elem);
+					Serialize(elem);
 				}
 			}
 			else
@@ -352,10 +349,7 @@ namespace cse
 				container.resize(size);
 				for (auto &elem : container)
 				{
-					if constexpr (is_custom_type<std::remove_cvref_t<T>>::value)
-						Serialize(elem, true);
-					else
-						Serialize(elem);
+					Serialize(elem);
 				}
 			}
 		}
@@ -378,10 +372,7 @@ namespace cse
 				// Process each element in the fixed-size array.
 				for (unsigned int i = 0; i < N; i++)
 				{
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(arr[i])>>::value)
-						Serialize(arr[i], true);
-					else
-						Serialize(arr[i]);
+					Serialize(arr[i]);
 				}
 			}
 			else // LOAD mode
@@ -398,10 +389,7 @@ namespace cse
 				// Read each element from the file.
 				for (unsigned int i = 0; i < N; i++)
 				{
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(arr[i])>>::value)
-						Serialize(arr[i], true);
-					else
-						Serialize(arr[i]);
+					Serialize(arr[i]);
 				}
 			}
 		}
@@ -425,10 +413,7 @@ namespace cse
 				for (auto item = set.begin(); item != set.end(); ++item)
 				{
 					T data = *item;
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(data)>>::value)
-						Serialize(data, true);
-					else
-						Serialize(data);
+					Serialize(data);
 				}
 			}
 			else
@@ -445,10 +430,7 @@ namespace cse
 				for (int i = 0; i < size; ++i)
 				{
 					T item;
-					if constexpr (is_custom_type<std::remove_cvref_t<T>>::value)
-						Serialize(item, true);
-					else
-						Serialize(item);
+					Serialize(item);
 					set.insert(item);
 				}
 			}
@@ -476,15 +458,8 @@ namespace cse
 				{
 					K key = item->first;
 					V val = item->second;
-					if constexpr (is_custom_type<std::remove_cvref_t<K>>::value)
-						Serialize(key, true);
-					else
-						Serialize(key);
-
-					if constexpr (is_custom_type<std::remove_cvref_t<V>>::value)
-						Serialize(val, true);
-					else
-						Serialize(val);
+					Serialize(key);
+					Serialize(val);
 				}
 			}
 			else
@@ -502,16 +477,8 @@ namespace cse
 				{
 					K key;
 					V val;
-					if constexpr (is_custom_type<std::remove_cvref_t<K>>::value)
-						Serialize(key, true);
-					else
-						Serialize(key);
-
-					if constexpr (is_custom_type<std::remove_cvref_t<V>>::value)
-						Serialize(val, true);
-					else
-						Serialize(val);
-
+					Serialize(key);
+					Serialize(val);
 					map.insert({key, val});
 				}
 			}
@@ -549,10 +516,7 @@ namespace cse
 				// Serialize each element.
 				for (int i = 0; i < size; i++)
 				{
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
-						Serialize(vec[i], true);
-					else
-						Serialize(vec[i]);
+					Serialize(vec[i]);
 				}
 			}
 			else
@@ -572,10 +536,7 @@ namespace cse
 				std::vector<T> vec(size);
 				for (int i = 0; i < size; i++)
 				{
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
-						Serialize(vec[i], true);
-					else
-						Serialize(vec[i]);
+					Serialize(vec[i]);
 				}
 				// Rebuild the stack by pushing elements in reverse order.
 				stk = std::stack<T>();
@@ -614,10 +575,7 @@ namespace cse
 				// Serialize each element.
 				for (int i = 0; i < size; i++)
 				{
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
-						Serialize(vec[i], true);
-					else
-						Serialize(vec[i]);
+					Serialize(vec[i]);
 				}
 			}
 			else
@@ -637,10 +595,7 @@ namespace cse
 				std::vector<T> vec(size);
 				for (int i = 0; i < size; i++)
 				{
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
-						Serialize(vec[i], true);
-					else
-						Serialize(vec[i]);
+					Serialize(vec[i]);
 				}
 				// Rebuild the queue by pushing each element.
 				q = std::queue<T>();
@@ -679,10 +634,7 @@ namespace cse
 				// Serialize each element.
 				for (int i = 0; i < size; i++)
 				{
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
-						Serialize(vec[i], true);
-					else
-						Serialize(vec[i]);
+					Serialize(vec[i]);
 				}
 			}
 			else
@@ -702,10 +654,7 @@ namespace cse
 				std::vector<T> vec(size);
 				for (int i = 0; i < size; i++)
 				{
-					if constexpr (is_custom_type<std::remove_cvref_t<decltype(vec[i])>>::value)
-						Serialize(vec[i], true);
-					else
-						Serialize(vec[i]);
+					Serialize(vec[i]);
 				}
 				pq = std::priority_queue<T>(vec.begin(), vec.end());
 			}
@@ -720,9 +669,9 @@ namespace cse
 		 * Serialize(Serializer&) method. Ensure that your Serialize method handles file paths or directory management.
 		 */
 		template <typename T>
-		void Serialize(T &obj, bool isCustom)
+			requires is_custom_type<T>::value
+		void Serialize(T &obj)
 		{
-			assert(isCustom == is_custom_type<T>::value);
 			obj.Serialize(*this);
 		}
 	};
