@@ -6,7 +6,6 @@ import Components
 Item {
     id: connectionUI
     property Connection connection
-    property Simulation parentSimulation: simulation
     property Compartment source: connection.source
     property Compartment target: connection.target
     property int compartmentWidth: Constants.compartmentWidth
@@ -37,7 +36,7 @@ Item {
         MouseArea{
             anchors.fill: parent
             onClicked: {
-                parentSimulation.sidebarConnection = connection
+                simulation.sidebarConnection = connection
             }
         }
     }
@@ -47,14 +46,14 @@ Item {
     y: source.y + compartmentHeight / 2
 
     function calculateLength() {
-        var dx = target.x - source.x;
-        var dy = target.y - source.y;
+        const dx = target.x - source.x;
+        const dy = target.y - source.y;
         return Math.sqrt(dx * dx + dy * dy);
     }
 
     function calculateAngle() {
-        var dx = target.x - source.x;
-        var dy = target.y - source.y;
+        const dx = target.x - source.x;
+        const dy = target.y - source.y;
         return Math.atan2(dy, dx) * 180 / Math.PI;
     }
 }

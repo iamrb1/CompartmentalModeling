@@ -222,7 +222,6 @@ Rectangle {
 
                     delegate: CompartmentUI {
                         compartment: modelData
-                        parentSimulation: simulation
 
                         x: modelData.x
                         y: modelData.y
@@ -238,7 +237,6 @@ Rectangle {
 
                     delegate: ConnectionUI {
                         connection: modelData
-                        parentSimulation: simulation
                     }
                 }
             }
@@ -250,6 +248,7 @@ Rectangle {
         anchors.top: parent.top
         anchors.right: parent.right
         anchors.margins: 5
+        anchors.rightMargin: 25
         spacing: 5
         z: 10
 

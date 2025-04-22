@@ -7,7 +7,6 @@ import Components
 
 Rectangle {
     property Compartment compartment: null
-    property Simulation parentSimulation: null
 
     id: compartmentUI
 
@@ -31,14 +30,14 @@ Rectangle {
         drag.target: parent
 
         onClicked: {
-            if (parentSimulation.connectionMode) {
-                if (parentSimulation.sourceCompartment) {
-                    parentSimulation.targetCompartment = compartment;
+            if (simulation.connectionMode) {
+                if (simulation.sourceCompartment) {
+                    simulation.targetCompartment = compartment;
                 } else {
-                    parentSimulation.sourceCompartment = compartment;
+                    simulation.sourceCompartment = compartment;
                 }
             } else {
-                parentSimulation.sidebarCompartment = compartment;
+                simulation.sidebarCompartment = compartment;
             }
         }
     }
@@ -51,9 +50,9 @@ Rectangle {
     }
 
     function compartmentBorderColor() {
-        if (parentSimulation.sourceCompartment === compartment){
+        if (simulation.sourceCompartment === compartment){
             return "blue"
-        } else if (parentSimulation.targetCompartment === compartment) {
+        } else if (simulation.targetCompartment === compartment) {
             return "red"
         } else {
             return ThemeManager.palette.text

@@ -15,8 +15,8 @@
  */
 void Simulation::add_compartment() {
   static size_t compartment_number = m_compartments.size();
-  // Generate a new compartment with a unique symbol
-  auto symbol = QString(static_cast<char>('A' + compartment_number));
+  // Generate a new compartment with a unique symbol (A1,B1..Z1,A2...)
+  QString symbol = QString("%1%2").arg(char('A' + (compartment_number % 26))).arg((compartment_number / 26) + 1);
   auto name = QString("Compartment %1").arg(symbol);
 
   auto compartment = std::make_shared<Compartment>(name, symbol, 0, this);

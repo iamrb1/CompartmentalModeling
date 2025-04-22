@@ -7,8 +7,7 @@ import Components
 
 // Connection section
 Rectangle {
-    property Simulation parentSimulation
-    property Compartment selectedCompartment: parentSimulation.sidebarCompartment
+    property Compartment selectedCompartment: simulation.sidebarCompartment
 
     id: sidebarTop
     anchors.fill: parent
@@ -48,7 +47,12 @@ Rectangle {
                     text: selectedCompartment ? selectedCompartment.name : null
                     color: ThemeManager.palette.text
 
+                    // Alpha numeric non empty with spaces
+                    validator: RegularExpressionValidator{
+                        regularExpression: /^[a-zA-Z0-9 ]+$/
+                    }
                     onEditingFinished: {
+                        console.log(text)
                         selectedCompartment.name = text
                     }
                 }
@@ -74,6 +78,11 @@ Rectangle {
                     verticalAlignment: TextInput.AlignVCenter
                     text: selectedCompartment ? selectedCompartment.symbol : null
                     color: ThemeManager.palette.text
+
+                    // Alpha numeric non empty (max 3 chars)
+                    validator: RegularExpressionValidator {
+                        regularExpression: /^[a-zA-Z0-9]{1,3}$/
+                    }
 
                     onEditingFinished: {
                         selectedCompartment.symbol = text
@@ -102,6 +111,8 @@ Rectangle {
                     text: selectedCompartment ? selectedCompartment.initialAmount : null
                     color: ThemeManager.palette.text
 
+                    validator: DoubleValidator {}
+
                     onEditingFinished: {
                         selectedCompartment.initialAmount = text
                     }
@@ -125,7 +136,7 @@ Rectangle {
             ToolTip.text: icon.name
 
             onClicked: {
-                parentSimulation.remove_compartment(selectedCompartment.symbol)
+                simulation.remove_compartment(selectedCompartment.symbol)
             }
         }
     }

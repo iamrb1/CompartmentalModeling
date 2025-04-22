@@ -7,17 +7,11 @@ import Components
 
 // Connection section
 Rectangle {
-    property Simulation parentSimulation
-    property Connection selectedConnection: parentSimulation.sidebarConnection
+    property Connection selectedConnection: simulation.sidebarConnection
 
     id: sidebarTop
     anchors.fill: parent
     color: ThemeManager.palette.base
-
-    // function comparmentNames() {
-    //     let names =
-
-    // }
 
     ColumnLayout {
         anchors.left: parent.left
@@ -40,27 +34,35 @@ Rectangle {
                 color: ThemeManager.palette.text
                 Layout.preferredWidth: 80
             }
-            Rectangle {
+            ComboBox {
+                id: sourceComboBox
+                model: simulation.compartments.map(
+                           (compartment, index) => compartment.name + " ("
+                           + compartment.symbol + ")")
+
                 Layout.fillWidth: true
-                height: 30
-                border.width: 1
-                border.color: ThemeManager.palette.mid
-                color: "transparent"
-                TextInput {
-                    anchors.fill: parent
-                    anchors.margins: 5
-                    verticalAlignment: TextInput.AlignVCenter
-                    text: selectedConnection ? selectedConnection.source.symbol : null
-                    color: ThemeManager.palette.text
+                Layout.fillHeight: true
+
+                property bool isInternalChange: false
+                Component.onCompleted: {
+                    if (!selectedConnection) {
+                        return
+                    }
+                    isInternalChange = true
+                    for (var i = 0; i < simulation.compartments.length; i++) {
+                        if (simulation.compartments[i].symbol === selectedConnection.source.symbol) {
+                            sourceComboBox.currentIndex = i
+                            break
+                        }
+                    }
+                    isInternalChange = false
+                }
+                onCurrentIndexChanged: {
+                    if (currentIndex >= 0 && !isInternalChange && selectedConnection) {
+                        selectedConnection.source = simulation.compartments[currentIndex]
+                    }
                 }
             }
-            // ComboBox {
-            //     model: parentSimulation.compartments.map((compartment) => compartment.name + " (" + compartment.symbol + ")")
-            //     delegate: ItemDelegate {
-            //         text: index
-            //         highlighted: ListView.isCurrentItem
-            //     }
-            // }
         }
 
         RowLayout {
@@ -70,18 +72,33 @@ Rectangle {
                 color: ThemeManager.palette.text
                 Layout.preferredWidth: 80
             }
-            Rectangle {
+            ComboBox {
+                id: targetComboBox
+                model: simulation.compartments.map(
+                           (compartment, index) => compartment.name + " ("
+                           + compartment.symbol + ")")
+
                 Layout.fillWidth: true
-                height: 30
-                border.width: 1
-                border.color: ThemeManager.palette.mid
-                color: "transparent"
-                TextInput {
-                    anchors.fill: parent
-                    anchors.margins: 5
-                    verticalAlignment: TextInput.AlignVCenter
-                    text: selectedConnection ? selectedConnection.target.symbol : null
-                    color: ThemeManager.palette.text
+                Layout.fillHeight: true
+
+                property bool isInternalChange: false
+                Component.onCompleted: {
+                    if (!selectedConnection) {
+                        return
+                    }
+                    isInternalChange = true
+                    for (var i = 0; i < simulation.compartments.length; i++) {
+                        if (simulation.compartments[i].symbol === selectedConnection.target.symbol) {
+                            targetComboBox.currentIndex = i
+                            break
+                        }
+                    }
+                    isInternalChange = false
+                }
+                onCurrentIndexChanged: {
+                    if (currentIndex >= 0 && !isInternalChange && selectedConnection) {
+                        selectedConnection.target = simulation.compartments[currentIndex]
+                    }
                 }
             }
         }
@@ -129,7 +146,7 @@ Rectangle {
             ToolTip.text: icon.name
 
             onClicked: {
-                parentSimulation.remove_connection(selectedConnection)
+                simulation.remove_connection(selectedConnection)
             }
         }
     }

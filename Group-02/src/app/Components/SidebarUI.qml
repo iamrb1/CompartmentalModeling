@@ -11,9 +11,6 @@ import Components
 import cseg2
 
 Rectangle {
-    property Simulation parentSimulation
-    property Simulation simulation: parentSimulation
-
     id: sidebarUI
 
     color: ThemeManager.palette.base
@@ -31,17 +28,15 @@ Rectangle {
             SplitView.maximumHeight: parent.height*0.7
 
             CompartmentEditUI{
-                parentSimulation: simulation
-                visible: parentSimulation.sidebarCompartment
+                visible: simulation.sidebarCompartment
             }
 
             ConnectionEditUI{
-                parentSimulation: simulation
-                visible: parentSimulation.sidebarConnection
+                visible: simulation.sidebarConnection
             }
 
             Rectangle {
-                visible: !(parentSimulation.sidebarConnection || parentSimulation.sidebarCompartment)
+                visible: !(simulation.sidebarConnection || simulation.sidebarCompartment)
                 anchors.fill: parent
                 color: ThemeManager.palette.base
 
@@ -165,6 +160,9 @@ Rectangle {
                                     verticalAlignment: TextInput.AlignVCenter
                                     text: modelData[1]
                                     color: ThemeManager.palette.text
+
+                                    validator: DoubleValidator{}
+
                                     onEditingFinished: {
                                         simulation.update_variable(modelData[0], modelData[0], parseFloat(text))
                                     }
@@ -274,7 +272,7 @@ Rectangle {
                 TextField {
                     id: valueField
                     Layout.fillWidth: true
-                    text: editDialog.currentValue.toFixed(2)
+                    text: editDialog.currentValue
                     selectByMouse: true
                     validator: DoubleValidator {}
                 }

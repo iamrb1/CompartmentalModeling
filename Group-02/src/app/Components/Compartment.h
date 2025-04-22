@@ -21,8 +21,8 @@ class Compartment : public QObject {
   QML_ELEMENT
 
   /// Expose m_name, m_symbol to QML
-  Q_PROPERTY(QString name MEMBER m_name NOTIFY nameChanged)
-  Q_PROPERTY(QString symbol MEMBER m_symbol NOTIFY symbolChanged)
+  Q_PROPERTY(QString name MEMBER m_name WRITE set_name NOTIFY nameChanged)
+  Q_PROPERTY(QString symbol MEMBER m_symbol WRITE set_symbol NOTIFY symbolChanged)
   Q_PROPERTY(double initialAmount MEMBER m_initial_amount NOTIFY initialAmountChnaged)
   Q_PROPERTY(int x MEMBER m_x NOTIFY xChanged)
   Q_PROPERTY(int y MEMBER m_y NOTIFY yChanged)
@@ -80,6 +80,13 @@ class Compartment : public QObject {
     emit nameChanged();
   }
   void set_symbol(const QString& symbol) {
+    if (symbol.isEmpty()) {
+      // TODO: Add error
+      return;
+    } else {
+      
+    }
+
     m_symbol = symbol;
     emit symbolChanged();
   }
