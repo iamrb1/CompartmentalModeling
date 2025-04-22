@@ -15,7 +15,11 @@
 
 #include "Components/Compartment.h"
 #include "Components/Connection.h"
-
+/**
+ * Simulation Class:
+ * Represents the entire Compartmental Modeling System
+ * Holds all Compartments, Connections, Variables, and other relevant data
+ */
 class Simulation : public QObject {
   Q_OBJECT
   QML_ELEMENT
@@ -30,6 +34,7 @@ class Simulation : public QObject {
   Q_PROPERTY(Connection* sidebarConnection MEMBER m_sidebar_connection WRITE set_sidebar_connection NOTIFY sidebarConnectionChanged)
 
  signals:
+  /// Signals to notify QML of changes
   void compartmentsChanged();
   void connectionsChanged();
   void nameChanged();
@@ -84,7 +89,9 @@ class Simulation : public QObject {
 
   Q_INVOKABLE void startSimulation();
   Q_INVOKABLE void stepSimulation(double dt);
-
+  /**
+   * @brief Completely resets the simulation and clears all relevant values
+   */
   void clear_simulation() {
     m_current_time = 0.0;
     m_save_path.clear();

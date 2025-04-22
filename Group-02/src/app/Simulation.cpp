@@ -61,7 +61,11 @@ QVariantMap Simulation::get_variables() const {
 
   return variables;
 }
-
+/**
+ * @brief Adds a variable to the simulation
+ * @param name variable name
+ * @param value variable value
+ */
 void Simulation::add_variable(const QString& name, double value) {
   static size_t variable_number = m_variables.size();
   if (name.isEmpty()) {
@@ -79,7 +83,10 @@ void Simulation::add_variable(const QString& name, double value) {
 
   emit variablesChanged();
 }
-
+/**
+ * @brief Removes a variable from the simulation
+ * @param name variable name
+ */
 void Simulation::remove_variable(const QString& name) {
   const auto key = name.toStdString();
   if (const auto it = m_variables.find(key); it != m_variables.end()) {
@@ -87,7 +94,12 @@ void Simulation::remove_variable(const QString& name) {
     emit variablesChanged();
   }
 }
-
+/**
+ * @brief Updates variable with new name/value
+ * @param name Current variable name
+ * @param new_name Possible new variable name
+ * @param value New variable value
+ */
 void Simulation::update_variable(const QString& name, const QString& new_name, double value) {
   if (const auto key = name.toStdString(); m_variables.contains(key)) {
     if (name == new_name) {
@@ -102,7 +114,10 @@ void Simulation::update_variable(const QString& name, const QString& new_name, d
     emit variablesChanged();
   }
 }
-
+/**
+ * @brief Removes a connection from the simulation
+ * @param connection Connection to be removed
+ */
 void Simulation::remove_connection(const Connection* connection) {
   for (auto it = m_connections.begin(); it != m_connections.end(); ++it) {
     if (it->get() == connection) {
@@ -115,7 +130,10 @@ void Simulation::remove_connection(const Connection* connection) {
   emit connectionsChanged();
   emit sidebarConnectionChanged();
 }
-
+/**
+ * @brief Removes a compartment from the simulation
+ * @param symbol Compartment symbol
+ */
 void Simulation::remove_compartment(const QString& symbol) {
   if (m_compartments.contains(symbol)) {
     // Remove connections associated with the compartment
@@ -178,7 +196,10 @@ void Simulation::set_target_compartment(Compartment* target) {
   emit sourceCompartmentChanged();
   emit targetCompartmentChanged();
 }
-
+/**
+ * @brief Sets connection for sidebar to present values for
+ * @param connection
+ */
 void Simulation::set_sidebar_connection(Connection* connection) {
   m_sidebar_connection = connection;
   m_sidebar_compartment = nullptr;
@@ -186,7 +207,10 @@ void Simulation::set_sidebar_connection(Connection* connection) {
   emit sidebarConnectionChanged();
   emit sidebarCompartmentChanged();
 }
-
+/**
+ * @brief Sets compartment for sidebar to present values for
+ * @param compartment
+ */
 void Simulation::set_sidebar_compartment(Compartment* compartment) {
   m_sidebar_compartment = compartment;
   m_sidebar_connection = nullptr;
@@ -357,7 +381,9 @@ void Simulation::save_xml(const QString& filename) {
   xml.writeEndDocument();
   file.close();
 }
-
+/**
+ * @brief Starts the Compartmental Simulation
+ */
 void Simulation::startSimulation() {
     m_current_time = 0.0;
 
@@ -365,7 +391,10 @@ void Simulation::startSimulation() {
         compartment->set_current_amount(compartment->get_initial_amount());
     }
 }
-
+/**
+ * @brief Progresses the simulation by dt time, and updates compartment values
+ * @param dt Time to step by
+ */
 void Simulation::stepSimulation(double dt) {
     m_current_time += dt;
 
@@ -401,7 +430,9 @@ void Simulation::stepSimulation(double dt) {
     /// emit signal with current time and values
     emit simulationDataUpdated(m_current_time, values);
 }
-
+/**
+ * @brief Expression parser for rate of transfer equations
+ */
 double Simulation::evaluateExpression(const QString& expression) {
 
     /// This is just some base expression parsing from claude can be changed to whatever u seem fit for

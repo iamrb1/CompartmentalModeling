@@ -1,8 +1,6 @@
 /**
  * @file Compartment.h
  * @author Nitish Maindoliya
- *
- *
  */
 
 #ifndef COMPARTMENT_H
@@ -16,6 +14,11 @@
 class Connection;
 class Simulation;
 
+/**
+ * Compartment Class:
+ * This class represents containers in a Compartmental Modeling system
+ * These hold a value, and can transfer values between other Compartments via Connections
+ */
 class Compartment : public QObject {
   Q_OBJECT
   QML_ELEMENT
@@ -55,30 +58,60 @@ class Compartment : public QObject {
   explicit Compartment(QObject* parent = nullptr) : QObject(parent) {}
 
   Compartment(QString name, QString symbol, double initial_amount, Simulation* parent = nullptr);
-
+  /**
+   * @brief Getter for the name of the compartment
+   * @return Compartment name
+   */
   [[nodiscard]] const QString& get_name() const {
     return m_name;
   }
+  /**
+   * @brief Getter for the symbol of the compartment
+   * @return Compartment symbol
+   */
   [[nodiscard]] const QString& get_symbol() const {
     return m_symbol;
   }
+  /**
+   * @brief Getter for the initial value
+   * @return Compartment initial value
+   */
   [[nodiscard]] double get_initial_amount() const {
     return m_initial_amount;
   }
+  /**
+   * @brief Getter for the current amount
+   * @return Compartment current amount
+   */
   [[nodiscard]] double get_current_amount() const {
     return m_current_amount;
   }
+  /**
+   * @brief Getter for X Position
+   * @return Compartment X position
+   */
   [[nodiscard]] int get_x() const {
     return m_x;
   }
+  /**
+   * @brief Getter for Y Position
+   * @return Compartment Y position
+   */
   [[nodiscard]] int get_y() const {
     return m_y;
   }
-
+  /**
+   * @brief Setter for the Compartment name
+   * @param name
+   */
   void set_name(const QString& name) {
     m_name = name;
     emit nameChanged();
   }
+  /**
+   * @brief Setter for the Compartment symbol
+   * @param symbol
+   */
   void set_symbol(const QString& symbol) {
     if (symbol.isEmpty()) {
       // TODO: Add error
@@ -90,22 +123,41 @@ class Compartment : public QObject {
     m_symbol = symbol;
     emit symbolChanged();
   }
+  /**
+   * @brief Setter for Compartment initial amount
+   * @param initial_amount
+   */
   void set_initial_amount(const double initial_amount) {
     m_initial_amount = initial_amount;
     emit initialAmountChnaged();
   }
+  /**
+   * Setter for Compartment current amount
+   * @param current_amount
+   */
   void set_current_amount(const double current_amount) {
     m_current_amount = current_amount;
   }
+  /**
+   * @brief Setter for Compartment X Position
+   * @param x
+   */
   void set_x(const int x) {
     m_x = x;
     emit xChanged();
   }
+  /**
+   * @brief Setter for Compartment Y Position
+   * @param Y
+   */
   void set_y(const int y) {
     m_y = y;
     emit yChanged();
   }
-
+  /**
+   * Setter for the running Simulation
+   * @param simulation
+   */
   void set_simulation(Simulation* simulation) {
     m_simulation = simulation;
   }
