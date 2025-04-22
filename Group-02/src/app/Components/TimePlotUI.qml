@@ -26,11 +26,25 @@ Item {
     /// these are the toggleable y arrays? we cant get the legend to work properly
     property var dataSeries: []
 
+    //ListView presents ui updates better with a ListModel
+    property ListModel legendModel: ListModel {}
 
     Component.onCompleted: {
         console.log("TimePlotUI initialized");
     }
 
+    function updateLegendModel() {
+        legendModel.clear();
+        for (let i = 0; i < dataSeries.length; i++) {
+            legendModel.append({
+                seriesId: dataSeries[i].id,
+                seriesName: dataSeries[i].name,
+                seriesColor: dataSeries[i].color,
+                seriesVisible: dataSeries[i].visible
+            });
+        }
+        console.log("Legend model updated, count:", legendModel.count);
+    }
 
     function addDataSeries(id, name, color) {
         console.log("Adding data series:", id, name, color);
@@ -42,6 +56,7 @@ Item {
             visible: true
         };
         dataSeries.push(newSeries);
+        updateLegendModel();
         updateSeries();
     }
 
@@ -54,7 +69,6 @@ Item {
 
         timeData.push(time);
         /// add the time here to the array
-
 
         for (let i = 0; i < dataSeries.length; i++) {
             if (dataValues[i] !== undefined && !isNaN(dataValues[i])) {
@@ -93,6 +107,15 @@ Item {
         for (let i = 0; i < dataSeries.length; i++) {
             if (dataSeries[i].id === id) {
                 dataSeries[i].visible = !dataSeries[i].visible;
+
+                // Update the corresponding item in the legendModel
+                for (let j = 0; j < legendModel.count; j++) {
+                    if (legendModel.get(j).seriesId === id) {
+                        legendModel.setProperty(j, "seriesVisible", dataSeries[i].visible);
+                        break;
+                    }
+                }
+
                 break;
             }
         }
@@ -104,7 +127,6 @@ Item {
         console.log("Updating series, count:", chartView.count);
 
         chartView.removeAllSeries();
-
 
         for (let i = 0; i < dataSeries.length; i++) {
             if (dataSeries[i].visible) {
@@ -188,21 +210,21 @@ Item {
             }
         }
 
-        /// Leged
+        /// Legend
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 50
-            Layout.minimumHeight: 50  // Ensure minimum height
-            color: "lightgray"        // Changed to visible color for debugging
-            border.width: 1           // Add border for visibility
+            Layout.minimumHeight: 50
+            color: "lightgray"
+            border.width: 1
             border.color: "gray"
 
-            // Debug text to show current state
+            // Legend label
             Text {
                 anchors.top: parent.top
                 anchors.left: parent.left
                 anchors.margins: 5
-                text: "Legend (" + dataSeries.length + " series)"
+                text: "Legend (" + legendModel.count + " series)"
                 color: "black"
                 font.pixelSize: 10
             }
@@ -211,10 +233,11 @@ Item {
                 id: legendListView
                 anchors.fill: parent
                 anchors.margins: 5
+                anchors.topMargin: 20
                 orientation: ListView.Horizontal
                 spacing: 15
-                model: dataSeries
-                clip: true  // Prevent overflow
+                model: legendModel
+                clip: true
 
                 // Debug output when model changes
                 onCountChanged: {
@@ -223,29 +246,27 @@ Item {
 
                 delegate: Row {
                     spacing: 5
-                    height: parent ? parent.height : 40
+                    height: parent ? parent.height - 20 : 30
 
                     CheckBox {
                         id: visibilityToggle
-                        checked: modelData ? modelData.visible : false
+                        checked: seriesVisible
                         onToggled: {
-                            if (modelData) {
-                                root.toggleSeries(modelData.id);
-                            }
+                            root.toggleSeries(seriesId);
                         }
                     }
 
                     Rectangle {
                         width: 15
                         height: 15
-                        color: modelData ? modelData.color : "gray"
+                        color: seriesColor
                         anchors.verticalCenter: parent.verticalCenter
                     }
 
                     Text {
-                        text: modelData ? modelData.name : ""
+                        text: seriesName
                         anchors.verticalCenter: parent.verticalCenter
-                        color: modelData && modelData.visible ? "black" : "gray"
+                        color: seriesVisible ? "black" : "gray"
                     }
                 }
             }
