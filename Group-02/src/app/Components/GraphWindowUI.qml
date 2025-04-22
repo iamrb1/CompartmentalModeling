@@ -7,6 +7,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import cseg2
 import Components
+import Utilities
 
 ApplicationWindow {
     id: graphWindow
@@ -14,6 +15,7 @@ ApplicationWindow {
     width: 800
     height: 600
     visible: true
+    palette: ThemeManager.palette
 
     property Simulation simulation: null
     property Timer simulationTimer: Timer {
@@ -71,6 +73,9 @@ ApplicationWindow {
 
             Button {
                 text: internalTimer.running ? "Pause" : "Start"
+                Component.onCompleted: {
+                           palette.buttonText = "black"
+                       }
                 onClicked: {
                     if (!internalTimer.running) {
                         if (simulation) {
@@ -85,6 +90,9 @@ ApplicationWindow {
 
             Button {
                 text: "Reset"
+                Component.onCompleted: {
+                           palette.buttonText = "black"
+                       }
                 onClicked: {
                     internalTimer.stop();
                     timePlot.clearData();
@@ -97,6 +105,9 @@ ApplicationWindow {
 
             Button {
                 text: "Step"
+                Component.onCompleted: {
+                           palette.buttonText = "black"
+                       }
                 enabled: !internalTimer.running
                 onClicked: {
                     if (simulation) {
