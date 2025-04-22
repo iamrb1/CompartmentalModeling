@@ -463,6 +463,7 @@ bool cse::WordListManager::Get(const std::string& patternToCheck) {
     return false;
   }
 
+  // Start Position of the pattern
   std::string regexPattern = "^";
   for (size_t i = 0; i < patternToCheck.length(); i++) {
     if (patternToCheck[i] != '_' && patternToCheck[i] != '*') {
@@ -474,6 +475,7 @@ bool cse::WordListManager::Get(const std::string& patternToCheck) {
     }
   }
 
+  // End Position of the pattern
   regexPattern += "$";
 
   cse::StringSet<cse::StaticString<30>> result;

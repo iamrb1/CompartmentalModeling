@@ -660,6 +660,7 @@ TEST_CASE("add: Add to empty, duplicate, and empty string", "[WordLang]") {
 TEST_CASE("Contains ANY tests", "[WordLang]") 
 {
   std::vector<std::string> input = {
+      "CONTAINS_ANY \"lo\"\n",
       "LIST list1 = LOAD\"file2.txt\"\n",
       "CONTAINS_ANY \"lo\"\n",
       "PRINT ALL\n",
@@ -669,12 +670,15 @@ TEST_CASE("Contains ANY tests", "[WordLang]")
       "LIST list3 = LOAD\"file1.txt\"\n",
       "CONTAINS_ANY \"e\"\n",
       "PRINT ALL\n",
+      "CONTAINS_ANY \"h\"\n",
+      "PRINT ALL\n",
       "LIST list4 = LOAD\"file2.txt\"\n",
       "CONTAINS_ANY \"\"\n",
-      "PRINT ALL"
+      "PRINT ALL\n",
   };
 
   std::vector<std::string> output_result = { 
+    "[Info]: Error: No lists exists or set as current list to filter.\n",
     "Loaded \"file2.txt\". Word count in a list: 11\n",
     "Number of words to search: 5\n",
     "[hello, cost, host, toast, boats]\n",
@@ -684,6 +688,8 @@ TEST_CASE("Contains ANY tests", "[WordLang]")
     "Loaded \"file1.txt\". Word count in a list: 11\n",
     "Number of words to search: 4\n",
     "[where, hello, key, Test]\n",
+    "Number of words to search: 2\n",
+    "[hello, where]\n",
     "Loaded \"file2.txt\". Word count in a list: 11\n",
     "[Info]: Incorrect Syntax: no letters given.\n",
     "[hello, cost, host, best, cucumber, dump, kitchen, toast, chain, boats, key]\n"
@@ -695,6 +701,7 @@ TEST_CASE("Contains ANY tests", "[WordLang]")
 TEST_CASE("Contains ALL tests", "[WordLang]") 
 {
   std::vector<std::string> input = {
+      "CONTAINS_ALL \"llo\"\n",
       "LIST list1 = LOAD\"file2.txt\"\n",
       "CONTAINS_ALL \"llo\"\n",
       "PRINT ALL\n",
@@ -705,11 +712,14 @@ TEST_CASE("Contains ALL tests", "[WordLang]")
       "CONTAINS_ALL \"wh\"\n",
       "PRINT ALL\n",
       "LIST list4 = LOAD\"file1.txt\"\n",
-      "CONTAINS_ANY \"\"\n",
+      "CONTAINS_ALL \"\"\n",
+      "PRINT ALL\n",
+      "CONTAINS_ALL \"e\"\n",
       "PRINT ALL"
   };
 
   std::vector<std::string> output_result = { 
+    "[Info]: Error: No lists exists or set as current list to filter.\n",
     "Loaded \"file2.txt\". Word count in a list: 11\n",
     "Number of words to search: 1\n",
     "[hello]\n",
@@ -721,7 +731,10 @@ TEST_CASE("Contains ALL tests", "[WordLang]")
     "[who, where, why]\n",
     "Loaded \"file1.txt\". Word count in a list: 11\n",
     "[Info]: Incorrect Syntax: no letters given.\n",
-    "[books, boost, chain, who, where, why, hello, word, fork, key, Test]\n"
+    "[books, boost, chain, who, where, why, hello, word, fork, key, Test]\n",
+    "Number of words to search: 4\n",
+    "[where, hello, key, Test]\n"
+
   };
 
   test_function(input, output_result);
@@ -729,6 +742,7 @@ TEST_CASE("Contains ALL tests", "[WordLang]")
 TEST_CASE("Not Contains tests", "[WordLang]") 
 {
   std::vector<std::string> input = {
+      "NOT_CONTAINS \"a\"\n",
       "LIST list1 = LOAD\"file1.txt\"\n",
       "NOT_CONTAINS \"a\"\n",
       "PRINT ALL\n",
@@ -738,15 +752,18 @@ TEST_CASE("Not Contains tests", "[WordLang]")
       "LIST list3 = LOAD\"notcontains_file.txt\"\n",
       "NOT_CONTAINS \"zl\"\n",
       "PRINT ALL\n",
+      "NOT_CONTAINS \"i\"\n",
+      "PRINT ALL\n",
       "LIST list4 = LOAD\"notcontains_file.txt\"\n",
       "NOT_CONTAINS \"\"\n",
-      "PRINT ALL",
+      "PRINT ALL\n",
       "LIST list5 = LOAD\"notcontains_file.txt\"\n",
       "NOT_CONTAINS \"aeoy\"\n",
       "PRINT ALL"
   };
 
   std::vector<std::string> output_result = { 
+    "[Info]: Error: No lists exists or set as current list to filter.\n",
     "Loaded \"file1.txt\". Word count in a list: 11\n",
     "Number of words to search: 10\n",
     "[books, boost, who, where, why, hello, word, fork, key, Test]\n",
@@ -756,6 +773,8 @@ TEST_CASE("Not Contains tests", "[WordLang]")
     "Loaded \"notcontains_file.txt\". Word count in a list: 11\n",
     "Number of words to search: 2\n",
     "[back, rabbit]\n",
+    "Number of words to search: 1\n",
+    "[back]\n",
     "Loaded \"notcontains_file.txt\". Word count in a list: 11\n",
     "[Info]: Incorrect Syntax: no letters to check for provided.\n",
     "[unable, slab, able, maple, cable, back, tangible, stable, rabbit, table, fable]\n",
@@ -770,6 +789,7 @@ TEST_CASE("Not Contains tests", "[WordLang]")
 TEST_CASE("Get tests", "[WordLang]") 
 {
   std::vector<std::string> input = {
+      "GET \"tes\"",
       "LIST list1 = LOAD\"file1.txt\"\n",
       "GET \"_oo__\"\n",
       "PRINT ALL\n",
@@ -778,8 +798,12 @@ TEST_CASE("Get tests", "[WordLang]")
       "PRINT ALL",
       "LIST list3 = LOAD\"get_file.txt\"\n",
       "GET \"___m\"\n",
-      //"GET \"__m\"\n", //TODO:  use this for a later test
-      //"GET \"*m\"\n",
+      "PRINT ALL",
+      "LIST list3_b = LOAD\"get_file.txt\"\n",
+      "GET \"__m\"\n", 
+      "PRINT ALL\n",
+      "LIST list3_c = LOAD\"get_file.txt\"\n",
+      "GET \"*m\"\n",
       "PRINT ALL\n",
       "LIST list4 = LOAD\"get_file.txt\"\n",
       "GET \"\"\n",
@@ -792,16 +816,25 @@ TEST_CASE("Get tests", "[WordLang]")
       "PRINT ALL\n",
       "LIST list7 = LOAD\"get_file.txt\"\n",
       "GET \"*a_e*\"\n",
+      "PRINT ALL\n",
+      "GET \"*_late*\"\n",
       "PRINT ALL"
   };
 
   std::vector<std::string> output_result = { 
+    "[Info]: Error: No lists exists or set as current list to filter.\n",
     "Loaded \"file1.txt\". Word count in a list: 11\n",
     "Number of words to search: 2\n",
     "[books, boost]\n",
     "Loaded \"get_file.txt\". Word count in a list: 21\n",
     "Number of words to search: 4\n",
     "[tunnel, texture, underground, pound]\n",
+    "Loaded \"get_file.txt\". Word count in a list: 21\n",
+    "Number of words to search: 2\n",
+    "[worm, team]\n",
+    "Loaded \"get_file.txt\". Word count in a list: 21\n",
+    "Number of words to search: 0\n",
+    "[]\n",
     "Loaded \"get_file.txt\". Word count in a list: 21\n",
     "Number of words to search: 2\n",
     "[worm, team]\n",
@@ -816,7 +849,9 @@ TEST_CASE("Get tests", "[WordLang]")
     "[plate, slate, lable]\n",
     "Loaded \"get_file.txt\". Word count in a list: 21\n",
     "Number of words to search: 4\n",
-    "[make, plate, maze, slate]\n"
+    "[make, plate, maze, slate]\n",
+    "Number of words to search: 2\n",
+    "[slate, plate]\n"
   };
 
   test_function(input, output_result);
