@@ -132,7 +132,6 @@ void bind() {
         // Ability to hit space to skip to next event
         document.addEventListener("keydown", function(e) {
           if (e.code === "Space") {
-          	e.preventDefault();
             Module.ccall(
                 "call_nextEvent",
                 null,
