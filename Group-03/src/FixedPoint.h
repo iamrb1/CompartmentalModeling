@@ -51,7 +51,7 @@ public:
 private:
     StorageType value;
 
-    static constexpr double scale() {
+    static constexpr double scale() { //chatgpt
         return static_cast<double>(Ratio::num) / static_cast<double>(Ratio::den);
     }
 
@@ -60,7 +60,7 @@ private:
 
 // Stream output
 template <typename Ratio>
-std::ostream& operator<<(std::ostream& os, const FixedPoint<Ratio>& fp) {
+std::ostream& operator<<(std::ostream& os, const FixedPoint<Ratio>& fp) { //chatgpt
     return os << static_cast<double>(fp);
 }
 

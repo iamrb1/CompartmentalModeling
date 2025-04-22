@@ -187,7 +187,7 @@ void Circle::updateSpeed() {
 
 // Check if the circle is in proximity to another circle
 // If the distance is less than the proximity radius and the circle types are different, set speed boost to true
-void Circle::checkProximity(const Circle& other) {
+void Circle::checkProximity(const Circle& other) { //chatgpt
     auto calculateDistance = [this](const Circle& other) {
         double dx = x_ - other.x_;
         double dy = y_ - other.y_;

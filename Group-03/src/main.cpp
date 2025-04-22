@@ -40,7 +40,7 @@ static constexpr int CHAR_H       = 5 * FONT_SCALE;
 static constexpr int CHAR_SPACING = FONT_SCALE;
 
 // Digits
-static const uint8_t DIGIT[10][5] = {
+static const uint8_t DIGIT[10][5] = {//chatgpt
  {0b111,0b101,0b101,0b101,0b111},  // 0
  {0b010,0b110,0b010,0b010,0b111},  // 1
  {0b111,0b001,0b111,0b100,0b111},  // 2
@@ -54,7 +54,7 @@ static const uint8_t DIGIT[10][5] = {
 };
 
 // Letters A, D, E, O, P, R, S, T, Y 
-static const uint8_t LETTER[26][5] = {
+static const uint8_t LETTER[26][5] = {//chatgpt
 {0b111,0b101,0b111,0b101,0b101}, // A
 {0}, {0}, {0b110,0b101,0b101,0b101,0b110}, // D
 {0b111,0b100,0b111,0b100,0b111}, // E
@@ -82,7 +82,7 @@ int countCircles(const std::string& type)
 void drawGlyph(const uint8_t rows[5], int x, int y, SDL_Color col)
 {
     SDL_SetRenderDrawColor(gRenderer, col.r, col.g, col.b, 255);
-    for (int r = 0; r < 5; ++r) {
+    for (int r = 0; r < 5; ++r) { //chatgpt
         uint8_t bits = rows[r];
         for (int c = 0; c < 3; ++c) {
             if (bits & (1 << (2 - c))) {
@@ -289,7 +289,7 @@ void draw()
 // Handle events and run main loop
 void mainLoop()
 {
-    SDL_Event e;
+    SDL_Event e; //chatgpt
     while (SDL_PollEvent(&e))
         if (e.type == SDL_QUIT) isRunning = false;
 

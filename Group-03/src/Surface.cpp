@@ -46,7 +46,7 @@ std::pair<std::string, std::shared_ptr<Circle>>
 Surface::check_collision()
 {
     // Intra-sector
-    for (int i = 0; i < sector_width; ++i) {
+    for (int i = 0; i < sector_width; ++i) {//chatgpt
         for (int j = 0; j < sector_height; ++j) {
             auto& vec = sectors[i][j].circles;
             size_t n = vec.size();
@@ -68,7 +68,7 @@ Surface::check_collision()
     }
 
     // Inter-sector (only 5 forward neighbors)
-    static constexpr int OFFSETS[5][2] = {
+    static constexpr int OFFSETS[5][2] = {//chatgpt
         { 0,  1}, { 1, -1}, { 1, 0}, { 1, 1}, { 0, -1}
     };
 

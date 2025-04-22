@@ -33,7 +33,7 @@ void cse::FunctionSet<R, Args...>::AddFunction(const FunctionType& func)
     throw std::invalid_argument("AddFunction: Function target is null.");
 }
 
-    using PointerType = R(*)(Args...);
+    using PointerType = R(*)(Args...); //chatgpt
 
     if (func.target_type() == typeid(PointerType)) {
         const PointerType* fp = func.template target<PointerType>();
