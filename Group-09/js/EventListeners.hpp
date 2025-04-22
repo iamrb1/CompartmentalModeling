@@ -113,9 +113,10 @@ void bind() {
           }
         });
 
-        // Ability to hit space to skip to next slide
+        // Ability to hit space to skip to next event
         document.addEventListener("keydown", function(e) {
           if (e.code === "Space") {
+          	e.preventDefault();
             Module.ccall(
                 "call_nextEvent",
                 null,
@@ -150,6 +151,7 @@ void bind() {
 			);
 
 			const input = prompt("Appear after:");
+			if (input === null) return;
 			const value = parseInt(input, 10);
 			Module.ccall("call_addObjectEvent", null,
 						 [ "number", "number", "string" ],
@@ -234,7 +236,7 @@ void bind() {
 		}
 
 		document.addEventListener("keydown", function(e) {
-  		  if (e.key === "Delete" && currentlySelectedItem && isDragging){
+  		  if (e.key === "Backspace" && currentlySelectedItem && isDragging){
     	    const id = currentlySelectedItem.id; //Get selected item id
 
     	    const success = Module.ccall("call_deleteItem", "boolean", ["string"], [id]);

@@ -16,34 +16,6 @@ using namespace cse;
 using json = nlohmann::json;
 using Slide = std::shared_ptr<WebLayout>;
 
-enum class ObjectType {
-	Image,
-	Textbox
-};
-
-inline ObjectType parseType(const std::string& object_id) {
-	size_t dashpos = object_id.find('-');
-
-	if (dashpos == std::string::npos) {
-		throw std::invalid_argument("Invalid object ID");
-	}
-	const std::string prefix = object_id.substr(0, dashpos);
-	const ObjectType type = prefix == "textbox" ? ObjectType::Textbox : ObjectType::Image;
-	return type;
-}
-
-inline int parseID(const std::string& object_id) {
-	size_t dashpos = object_id.find('-');
-
-	if (dashpos == std::string::npos) {
-		throw std::invalid_argument("Invalid object ID");
-	}
-
-	const std::string id = object_id.substr(dashpos + 1);
-	return stoi(id);
-}
-
-
 /**
  * Main manager for Liskov presentation program
  * Initialized globally, and update() is called in a loop while running
@@ -55,10 +27,6 @@ class PresentationManager {
 		int _current_pos = 0;
 		std::vector<Slide> _slide_deck;
 
-		/// Store events for json output
-		std::map<std::string, int> _object_events; ///< object id -> time
-		std::map<int, std::tuple<int, int>> _transition_events; ///< slideNum -> (time, destination)
-
 	public:
 
 		/**
@@ -69,27 +37,22 @@ class PresentationManager {
 		}
 
 		/**
-		 * Go to the first slide, stop events, and set the eventmanager size
+		 * Set the initial size of the deck
 		 */
-		void initialize() {
-			goTo(0);
-			stop();
-			_event_manager.resize(_slide_deck.size());
-			onSlideChangedJS();
+		void initialize(const size_t size) {
+			_slide_deck.reserve(size);
+			_event_manager.resize(size, true);
 		}
 
 		/**
 		 * Clear the slides and event manager
 		 */
 		void clear() {
-			std::cout << "Clearing layouts" << std::endl;
 			for (auto &layout : _slide_deck) {
 				layout->deactivateLayout(); // Deactivate all layouts
 			}
 			_slide_deck.clear();
 			_event_manager.clear();
-			_object_events.clear();
-			_transition_events.clear();
 			_current_pos = 0;
 			_event_manager.onSlideChanged(_current_pos);
 			onSlideChangedJS();
@@ -154,10 +117,6 @@ class PresentationManager {
 			onSlideChangedJS();
 		}
 
-		[[nodiscard]] auto getObjectEvents() const { return _object_events; }
-
-		[[nodiscard]] auto getTransitionEvents() const { return _transition_events; }
-
 		/**
 		 * Advances to the next slide
 		 */
@@ -167,6 +126,14 @@ class PresentationManager {
 		 * Rewinds to the previous slide
 		 */
 		void rewind() { goTo(_current_pos - 1); }
+
+		/**
+		 * Advances to the next event, or next slide if no events remain
+		 */
+		void next() {
+			if (_event_manager.next()) return;
+			advance();
+		}
 
 		/**
 		 * Add a new text box to the current slide
@@ -302,10 +269,15 @@ class PresentationManager {
                 auto slide = _slide_deck.at(_current_pos);
                 const std::vector<ImageLayout> images = slide->getImages();
                 const auto imageCheck = std::ranges::find_if(images, [id](const ImageLayout& im) { return im.image->getID() == id; });
-                if(imageCheck != images.end())
-                  slide->removeImage(slide->getImageFromID(id));
-                else
-                  slide->removeTextBox(slide->getTextboxFromID(id));
+                if (imageCheck != images.end()) {
+                	_event_manager.removeEvent(id);
+	                slide->removeImage(slide->getImageFromID(id));
+                }
+                else {
+                	_event_manager.removeEvent(id);
+	                slide->removeTextBox(slide->getTextboxFromID(id));
+                }
+				std::cout << "Removed object: " << id << std::endl;
                 return true;
 			}
             return false;
@@ -324,6 +296,12 @@ class PresentationManager {
 		 * @return int current position in the slide vector
 		 */
 		int getCurrentPos() const { return _current_pos; }
+
+		/**
+		 * This handles the edge case where a slide transition occurs while there are remaining object events
+		 * The objects still needs to reappear in the layout
+		 */
+		void resetObjects() { _event_manager.resetObjects(); }
 
 		/**
 		 * @brief Get the Current Position of the manager
@@ -358,8 +336,7 @@ class PresentationManager {
 
 			std::cout << "Added slide transition: Go from slide " << (origin + 1)
 			<< " to slide " << (destination + 1) << " after " << time << " seconds." << std::endl;
-			_event_manager.addEvent(changeSlide, origin, destination, time);
-			_transition_events[origin] = std::tuple{time, destination};
+			_event_manager.addEvent(changeSlide, origin, std::to_string(destination), time);
 		}
 
 		/**
@@ -370,20 +347,13 @@ class PresentationManager {
 		 * @param id
 		 */
 		void addObjectEvent(const int timing, const int slideNum, const std::string& id) {
-			_object_events[id] = timing;
-			if (parseType(id) == ObjectType::Image) { // Image
+			if (parseType(id) == EventType::Image) { // Image
 				std::cout << "Added image event: ID " << id << " appearing after " << timing << " seconds." << std::endl;
-				// This will make it initially disappear in presentation mode
-				_event_manager.addEvent(imageToggle, slideNum, parseID(id), 0);
-				// This will make it reappear after "timing" seconds
-				_event_manager.addEvent(imageToggle, slideNum, parseID(id), timing);
+				_event_manager.addEvent(imageToggle, slideNum, id, timing);
 			}
 			else { // Textbox
 				std::cout << "Added textbox event: ID " << id << " appearing after " << timing << " seconds." << std::endl;
-				// This will make it initially disappear in presentation mode
-				_event_manager.addEvent(textBoxToggle, slideNum, parseID(id), 0);
-				// This will make it reappear after "timing" seconds
-				_event_manager.addEvent(textBoxToggle, slideNum, parseID(id), timing);
+				_event_manager.addEvent(textBoxToggle, slideNum, id, timing);
 			}
 		}
 
@@ -431,6 +401,15 @@ class PresentationManager {
             }, hidden);
         }
 
+		/**
+		 * Return event info on a given slide
+		 * @param slideNum
+		 * @return map of IDs to timings
+		 */
+		std::unordered_map<std::string, int> getSlideEventInfo(const int slideNum) const {
+			return _event_manager.getSlideEventInfo(slideNum);
+		}
+
         bool isRunning() const { return _running; }
 
         void moveSlide(bool const forward) {
@@ -476,14 +455,19 @@ class PresentationManager {
 		/// These are passed to the Events to allow Events to change the layouts
 		////////////////////////////////////////////////////////////////////////////////////////
 		static void changeSlide(PresentationManager *presentation_manager, const int slideNum) {
+			presentation_manager->resetObjects();
 			presentation_manager->goTo(slideNum);
 		}
 
 		static void imageToggle(PresentationManager *presentation_manager, const int id) {
+			const auto str_id = "textbox-" + std::to_string(id);
+			std::cout << "Triggering event: " << str_id << std::endl;
 			presentation_manager->toggleImage("image-" + std::to_string(id));
 		}
 
 		static void textBoxToggle(PresentationManager *presentation_manager, const int id) {
+			const auto str_id = "textbox-" + std::to_string(id);
+			std::cout << "Triggering event: " << str_id << std::endl;
 			presentation_manager->toggleTextbox("textbox-" + std::to_string(id));
 		}
 };
@@ -598,12 +582,11 @@ bool call_isMoveableObject(const char* id) {
 	return PRESENTATION_MANAGER.isMoveableObject(id);
 }
 void loadSlideDeckFromJson(const char *jsonStr) {
-	std::cout << "clearing" << std::endl;
-	PRESENTATION_MANAGER.clear(); // Clear the deck before loading new slides
-	std::cout << "done" << std::endl;
 
-	std::vector<std::tuple<int, int, int>> transitionBuffer; // We dont know how many slides there are until done loading
 	json deck = json::parse(jsonStr);
+	PRESENTATION_MANAGER.clear(); // Clear the deck before loading new slides
+	PRESENTATION_MANAGER.initialize(deck["slides"].size()); // Initialize
+	std::vector<std::tuple<int, int, int>> transitionBuffer; // Buffer so we can add transitions after all slides pushed
 	int slide_num = 0;
 	for (const auto &slide : deck["slides"]) {
 
@@ -651,22 +634,18 @@ void loadSlideDeckFromJson(const char *jsonStr) {
 		auto [time, origin, dest] = t;
 		PRESENTATION_MANAGER.addSlideChangeEvent(time, origin, dest);
 	}
-	PRESENTATION_MANAGER.initialize(); // Show the first slide
+	PRESENTATION_MANAGER.goTo(0); // Show the first slide
 }
 const char *exportSlideDeckToJson() {
 	static std::string exportedJson;
 	json deck;
 	deck["slides"] = json::array();
-	auto transitionEvents = PRESENTATION_MANAGER.getTransitionEvents();
-	auto objectEvents = PRESENTATION_MANAGER.getObjectEvents();
 	int slide_num = 0;
 	for (const auto &layout : PRESENTATION_MANAGER.getSlides()) {
 		json slide;
-
-		if (transitionEvents.contains(slide_num)) {
-			auto [time, dest] = transitionEvents[slide_num];
-			slide["event"]["time"] = time;
-			slide["event"]["dest"] = dest;
+		const auto events = PRESENTATION_MANAGER.getSlideEventInfo(slide_num);
+		if (events.contains(std::to_string(slide_num))) {
+			slide["event"]["time"] = events.at(std::to_string(slide_num));
 		}
 
 		slide["textBoxes"] = json::array();
@@ -682,8 +661,8 @@ const char *exportSlideDeckToJson() {
 				{"x", tb.xPos},
 				{"y", tb.yPos}
 			};
-			if (objectEvents.contains(tb.textBox->getID())) {
-				tbJson["event"]["time"] = objectEvents[tb.textBox->getID()];
+			if (events.contains(tb.textBox->getID())) {
+				tbJson["event"]["time"] = events.at(tb.textBox->getID());
 			}
 			slide["textBoxes"].push_back(tbJson);
 		}
@@ -697,8 +676,8 @@ const char *exportSlideDeckToJson() {
 				{"x", img.xPos},
 				{"y", img.yPos}
 			};
-			if (objectEvents.contains(img.image->getID())) {
-				imgJson["event"]["time"] = objectEvents[img.image->getID()];
+			if (events.contains(img.image->getID())) {
+				imgJson["event"]["time"] = events.at(img.image->getID());
 			}
 			slide["images"].push_back(imgJson);
 		}
@@ -719,14 +698,13 @@ void call_leavePresentation() {
 
   // Ensure end screen is disabled
   PRESENTATION_MANAGER.toggleEndScreen(false);
-  PRESENTATION_MANAGER.goTo(PRESENTATION_MANAGER.getCurrentPos());
-
   PRESENTATION_MANAGER.stop();
+  PRESENTATION_MANAGER.goTo(PRESENTATION_MANAGER.getCurrentPos());
 }
 
 void call_nextEvent() {
-  if(PRESENTATION_MANAGER.isRunning()) {
-     PRESENTATION_MANAGER.advance();
+  if (PRESENTATION_MANAGER.isRunning()) {
+     PRESENTATION_MANAGER.next();
   }
 }
 
