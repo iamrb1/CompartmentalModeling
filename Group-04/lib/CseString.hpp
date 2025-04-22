@@ -136,8 +136,8 @@ class String : public std::string {
    * @brief Insert a string into this String at the specified position, with
    * debug checks.
    *
-   * @param pos The position at which the content should be inserted.
-   * @param str The string to insert.
+   * @param iter The iterator position at which the content should be inserted.
+   * @param str The string or character to insert.
    * @return Reference to this String after insertion.
    */
   String &insert(auto iter, const auto &str) {
