@@ -23,6 +23,9 @@ constexpr int MIN_PERCENT = 0;
  */
 void WebLayout::addImage(const ImageLayout &image) {
   images.push_back(image);
+
+  std::cout << "Adding image " << image.image->getID() << std::endl;
+
   if ((image.image->getHeight() > MIN_PERCENT &&
        image.image->getWidth() > MIN_PERCENT) &&
       (image.xPos >= MIN_PERCENT && image.yPos >= MIN_PERCENT)) {
@@ -50,7 +53,7 @@ void WebLayout::removeImage(const ImageLayout &image) {
 void WebLayout::addTextBox(const TextBoxLayout &textBox) {
   textBoxes.push_back(textBox);
 
-  std::cout << "Adding textbox" << std::endl;
+  std::cout << "Adding textbox " << textBox.textBox->getID() << std::endl;
 
   if ((textBox.textBox->getHeight() > MIN_PERCENT &&
        textBox.textBox->getWidth() > MIN_PERCENT) &&

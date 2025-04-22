@@ -34,6 +34,13 @@ struct EventCompare {
  */
 template <typename... Args>
 class EventQueue {
+  private:
+    std::priority_queue<Event<Args...>, std::vector<Event<Args...>>,
+                        EventCompare<Args...>>
+        heap_;                     ///< Min heap
+    std::unordered_set<std::string> ids_;  ///< Set of all ID currently in use
+    size_t eventCount_ = 0;        ///< Number of events currently in the queue
+
  public:
   EventQueue() = default;
   ~EventQueue() = default;
@@ -60,7 +67,7 @@ class EventQueue {
    * @param id The event to remove
    * @return The removed event, if it was found
    */
-  std::optional<Event<Args...>> remove(const int id) {
+  std::optional<Event<Args...>> remove(const std::string &id) {
     std::priority_queue<Event<Args...>, std::vector<Event<Args...>>,
                         EventCompare<Args...>>
         temp;
@@ -147,13 +154,6 @@ class EventQueue {
   }
 
   [[nodiscard]] size_t size() const { return eventCount_; }
-
- private:
-  std::priority_queue<Event<Args...>, std::vector<Event<Args...>>,
-                      EventCompare<Args...>>
-      heap_;                     // Min heap
-  std::unordered_set<int> ids_;  // Set of all ID currently in use
-  size_t eventCount_ = 0;        // Number of events currently in the queue
 };
 
 }  // namespace cse
