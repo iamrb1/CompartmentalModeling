@@ -10,6 +10,12 @@ import Utilities
 import Components
 import cseg2
 
+
+/*
+ Layout for the SidebarUI qml
+ Comprised of the Interface for Compartments + Connections
+ and the Variable section displayed on the right side of the program
+ */
 Rectangle {
     id: sidebarUI
 
@@ -22,6 +28,7 @@ Rectangle {
         anchors.fill: parent
         spacing: 0
 
+        /// Resizeable layout allowing longer Compartment/Connection interface
         Rectangle {
             SplitView.fillWidth: true
             SplitView.minimumHeight: parent.height*0.3
@@ -34,6 +41,8 @@ Rectangle {
             ConnectionEditUI{
                 visible: simulation.sidebarConnection
             }
+
+            /// Both UIs instantiated yet visible by selection of compartment or connection
 
             Rectangle {
                 visible: !(simulation.sidebarConnection || simulation.sidebarCompartment)
@@ -64,7 +73,9 @@ Rectangle {
             }
         }
 
-        // Variables section
+        /// Variable layout on the bottom of the sidebar
+        /// Displays all variables and allows for editing + deletion of variable
+        /// Adds variables to a QVariant map
         Rectangle {
             id: sidebarBottom
             SplitView.fillWidth: true
@@ -97,7 +108,7 @@ Rectangle {
                     }
 
 
-                    // Plus button
+                    /// Plus button that adds a variable to the simulaton
                     Rectangle {
                         width: 24
                         height: 24
@@ -125,12 +136,13 @@ Rectangle {
                     }
                 }
 
+                /// Variable rows dynamically generated within the UI
+                /// Calls update function for the display
                 ColumnLayout {
                     id: variableGrid
                     Layout.fillWidth: true
                     Layout.fillHeight: true
 
-                    // Example variable rows (these would be dynamically generated)
                     ListView {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
@@ -163,6 +175,7 @@ Rectangle {
 
                                     validator: DoubleValidator{}
 
+                                    /// Editing a variable will update the display
                                     onEditingFinished: {
                                         simulation.update_variable(modelData[0], modelData[0], parseFloat(text))
                                     }
@@ -170,7 +183,7 @@ Rectangle {
                                 }
                             }
 
-                            // Pencil button for editing variable name
+                            /// Pencil button for editing variable name + value assigned to the name
                             ToolButton {
                                 id: editToolButton
                                 icon.name: "Edit Variable"
@@ -204,7 +217,7 @@ Rectangle {
         }
     }
 
-    // Dialog for editing variable name and value
+    /// This is a popup dialog for editing variable name and value
     Dialog {
         id: editDialog
         title: "Edit Variable"
@@ -221,6 +234,10 @@ Rectangle {
         property string oldName: ""
         property double currentValue: 0.0
 
+        /*
+            Updates the variable selected to edit to its new name and new value
+            Calls the Q_INVOKABLE update_variable function
+         */
         function updateVariable(oldName, newName, newValue) {
             if (oldName === newName) {
                 simulation.update_variable(oldName, newName, newValue)
@@ -228,6 +245,8 @@ Rectangle {
             }
 
             const variables = simulation.variables
+            /// check if the new name is already a name of another variable
+            /// if so, then give an error
             for (let name in variables) {
                 if (name === newName) {
                     errorDialog.message = "A variable with name '" + newName + "' already exists."
@@ -252,6 +271,7 @@ Rectangle {
                     Layout.preferredWidth: 60
                 }
 
+                /// Edit the variable name in a textfield instead if preferred
                 TextField {
                     id: newNameField
                     Layout.fillWidth: true
@@ -269,6 +289,7 @@ Rectangle {
                     Layout.preferredWidth: 60
                 }
 
+                /// Edit the variable value in a textfield if preferred
                 TextField {
                     id: valueField
                     Layout.fillWidth: true
@@ -282,6 +303,7 @@ Rectangle {
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignRight
 
+                /// Delete a variable within the dialog box that pops up
                 Button {
                     text: "Delete"
                     DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole
@@ -291,12 +313,14 @@ Rectangle {
                     }
                 }
 
+                /// Cancel button to undo the process initiated
                 Button {
                     text: "Cancel"
                     DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
                     onClicked: editDialog.reject()
                 }
 
+                /// Confirm user choice with the OK button
                 Button {
                     text: "OK"
                     DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
@@ -307,6 +331,7 @@ Rectangle {
                         if (newName !== "" && !isNaN(newValue)) {
                             editDialog.updateVariable(editDialog.oldName, newName, newValue)
                         }
+                        /// Updates the variable as long as there is a new value
 
                         editDialog.accept()
                     }
