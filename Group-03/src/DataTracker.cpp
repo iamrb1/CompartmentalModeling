@@ -53,22 +53,17 @@ template <typename T>
 double DataTracker<T>::median() const {
     if (values.empty()) return 0.0;
 
-//     std::vector<T> sorted_values = values;
-//     std::sort(sorted_values.begin(), sorted_values.end());
+    std::vector<T> sorted_values = values;
+    std::sort(sorted_values.begin(), sorted_values.end());
 
-//     size_t size = sorted_values.size();
-//     if (size % 2 == 0) {
-//         return (static_cast<double>(sorted_values[size / 2 - 1]) + static_cast<double>(sorted_values[size / 2])) / 2.0;
-//     } else {
-//         return static_cast<double>(sorted_values[size / 2]);
-//     }
-
-    std::vector<T> v = values;
-
-    size_t n = v.size() / 2;
-    std::nth_element(v.begin(), v.begin()+n, v.end());
-    return v[n];
+    size_t size = sorted_values.size();
+    if (size % 2 == 0) {
+        return (static_cast<double>(sorted_values[size / 2 - 1]) + static_cast<double>(sorted_values[size / 2])) / 2.0;
+    } else {
+        return static_cast<double>(sorted_values[size / 2]);
+    }
 }
+    
 
 // Calculates and returns the mode of the values in the vector
 template <typename T>
@@ -137,7 +132,7 @@ T DataTracker<T>::max() const {
 // Determines if there is a winner (if any value surpasses 80% of total)
 template <typename T>
 std::optional<T> DataTracker<T>::winner() const {
-    if (values.empty()) return 0;
+    if (values.empty()) return std::nullopt;
 
     std::unordered_map<T, int> frequency;
         
@@ -147,11 +142,11 @@ std::optional<T> DataTracker<T>::winner() const {
     for (const auto& val : values) {
         
         // If the frequency exceeds the 80% threshold, return this value as the winner
-        if (++frequency[val] > static_cast<int>(threshold)) return val;
+        if (++frequency[val] >= static_cast<int>(threshold)) return val;
 
     }
 
-    return 0;
+    return std::nullopt;
 }
 
 template class DataTracker<int>;
