@@ -69,6 +69,7 @@ class SimulationRunner {
          * @param speciesPopulations Reference to a map tracking current populations of each species
          */
         void processInteractions(std::unordered_map<std::string, int>& speciesPopulations) {
+            log.log("Processing interactions...", LogLevel::VERBOSE);
             for (const auto& interaction : state.interactions) {
                 auto predatorOpt = state.FindSpecies(interaction.predator);
                 auto preyOpt = state.FindSpecies(interaction.prey);
@@ -81,11 +82,16 @@ class SimulationRunner {
         
                     int toEat = std::min(prey.population,
                         static_cast<int>(speciesPopulations[predator.name] * interaction.huntRate));
+
+                    log.log(predator.name + " " + std::to_string(speciesPopulations[predator.name]) + " " + std::to_string(interaction.huntRate), LogLevel::VERBOSE);
         
                     toEat = std::min(toEat, static_cast<int>(
                         std::count_if(state.animals.begin(), state.animals.end(),
                             [&prey](const Animal& a) { return a.species == prey.name; })
                     ));
+
+                    // log
+                    log.log(predator.name + " is hunting " + prey.name + " (toEat: " + std::to_string(toEat) + ")", LogLevel::VERBOSE);
         
                     // simulate hunting by using scheduler
                     for (auto _ : std::views::iota(0, toEat)) {
@@ -233,7 +239,7 @@ class SimulationRunner {
             // used to track pop of each species
             std::unordered_map<std::string, int> speciesPopulations;
             for (const auto& species : state.speciesList) {
-                speciesPopulations[species->name] = 0;
+                speciesPopulations[species->name] = species->population;
             }
     
             for (int t = 0; t < state.timeSteps; ++t) {
