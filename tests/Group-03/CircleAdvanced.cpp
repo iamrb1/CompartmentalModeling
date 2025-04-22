@@ -189,7 +189,6 @@ TEST_CASE("Two distinct pointers at identical coordinates coexist or reject as s
 	auto res = surf.check_collision();
 	CHECK(res.first == "add");
 }
-
 /// energy underflow guard
 TEST_CASE("Energy never drops below zero", "[Circle][Edge]") {
     Circle c(0,0,3,2,2,"red");

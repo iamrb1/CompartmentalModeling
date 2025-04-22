@@ -5,7 +5,7 @@ CXXFLAGS = -std=c++2a -g -pthread -Wall -Wextra -I../src -I../../third-party/Cat
 SRC_DIR = ../../Group-03/src
 TEST_DIR = .
 
-# Source and Test Files
+# Source and Test Files but not the main.cpp
 SRC_FILES  := $(filter-out $(SRC_DIR)/main.cpp, \
                        $(wildcard $(SRC_DIR)/*.cpp))
 TEST_FILES = $(wildcard $(TEST_DIR)/*.cpp)
