@@ -213,8 +213,8 @@ Item {
         /// Legend
         Rectangle {
             Layout.fillWidth: true
-            Layout.preferredHeight: 50
-            Layout.minimumHeight: 50
+            Layout.preferredHeight: 70
+            Layout.minimumHeight: 70
             color: "lightgray"
             border.width: 1
             border.color: "gray"
@@ -246,16 +246,24 @@ Item {
 
                 delegate: Row {
                     spacing: 5
-                    height: parent ? parent.height - 20 : 30
+                    height: parent ? parent.height - 5 : 30
 
-                    CheckBox {
-                        id: visibilityToggle
-                        checked: seriesVisible
-                        onToggled: {
-                            root.toggleSeries(seriesId);
+                    // Wrapper item to help with alignment
+                    Item {
+                        width: visibilityToggle.width
+                        height: parent.height
+
+                        CheckBox {
+                            id: visibilityToggle
+                            anchors.verticalCenter: parent.verticalCenter
+                            checked: seriesVisible
+                            onToggled: {
+                                root.toggleSeries(seriesId);
+                            }
                         }
                     }
 
+                    // Color indicator block
                     Rectangle {
                         width: 15
                         height: 15
