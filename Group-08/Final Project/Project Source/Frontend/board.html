@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Board Page</title>
+  <link rel="stylesheet" href="board/board-styling.css">
+  <link rel="stylesheet" href="css/main-style.css">
+  <link rel="stylesheet"  href="css/footer-style.css">
+  <link rel="stylesheet"  href="css/header-style.css">
+
+</head>
+<body>
+ 
+  <article>
+
+ <main>
+  <section class="snap-section" id="login"> 
+    <div class="limiter">
+        <div class="container">
+                <div class="sidebar-left">
+                    <div class="calendar">
+                      <p class="section-title">📅 Today's Date:</p>
+                      <p id="current-date"></p>
+                      <div class="calendar-header">
+                        <button id="prev-month">‹</button>
+                        <span id="month-label"></span>
+                        <button id="next-month">›</button>
+                      </div>
+                      <div id="monthly-calendar"></div>
+                    </div>
+                    <div class="notes">
+                        <p class="section-title">📝 Notes:</p>
+                        <textarea id="notes-area" placeholder="Type your notes here..."></textarea>
+                        <p id="save-status" class="save-status">Last saved: never</p>
+                        <button id="download-notes" class="download-btn">Download Notes as .txt</button>
+                    </div>
+                </div>
+
+            
+            <div class="main">
+                 
+                <div class="top-bar">
+
+                    <div class="search-container">
+                        <div class="search-bar">
+                            <input type="text" class="search-input" placeholder="Search tags...">
+                            <button class="search-button">
+                                <span class="search-button-text">Search</span>
+                            </button>
+                            <div class="search-results"></div>
+                        </div>
+                    </div>
+                   
+                    <div class="panel-card-add">
+                        <div class="input" id="input-stack-add">
+                            <input type="text" class="input-create" maxlength="25" placeholder="Enter Stack title">
+                            <button class="create-button disabled" disabled>Create Stack</button>
+                        </div>
+                        <button class="add-button">
+                            <span class="add-button-text">
+                                <span class="add-icon">+</span>
+                            </span>
+                            Add a Task
+                        </button>
+                    </div>
+
+                    
+                    <div class="panel-card-add">
+                        <div class="input" id="input-stack-remove">
+                            <input type="text" class="input-create" maxlength="25" placeholder="Enter Stack title">
+                            <button class="create-button disabled" disabled>Create Stack</button>
+                        </div>
+                        <button class="add-button">
+                            <span class="add-button-text">
+                                <span class="add-icon">-</span>
+                            </span>
+                            Remove a Task
+                        </button>
+                    </div>
+
+                    <div class="panel-card-save">
+                        <button class="add-button">
+                            Save
+                        </button>
+                    </div>
+                </div>
+
+               
+
+                <div class="board" id="slider">
+                    <!-- {% for i in range(3) %} -->
+                    <div class="todoList panel dropzone">
+                        
+                        <div class="panel-card-footer">
+                            <h2 class="todo-text" contenteditable="true">Card Name</h2>
+                           
+                            <label class="due-label">
+                              <input type="date" class="task-due" />
+                            </label>
+                          </div>
+                        <p class="panel-card-descr" contenteditable="true">Description</p>
+
+                        <div class="panel-cards" onmouseover="this.querySelector('.card-buttons').style.display='flex'" onmouseout="this.querySelector('.card-buttons').style.display='none'">
+                            <div class="card-wrapper draggable" draggable="true">
+                                <div class="panel-card card-id">
+                                    <p class="panel-card-text">Tag Name</p>
+                                    <div class="card-buttons 2">
+                                        <button class="edit-button">
+                                            <img src="./icons/edit.png" alt="Edit" class="card-icon">
+                                        </button>
+                                        <button class="delete-button">
+                                            <img src="./icons/trash.png" alt="Delete" class="card-icon">
+                                        </button>
+                                       
+                                    </div>
+                                </div>
+                                <div class="panel-card input-card">
+                                    <input maxlength="25" class="panel-card-text">
+                                    <div class="edit-buttons">
+                                        <button class="save-button" disabled>Save</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                        
+                        <div class="panel-card-footer status">
+                            <div class="panel-card-add">
+                                <div class="input input-stack">
+                                    <input type="text" class="input-create" maxlength="30" placeholder="Enter Stack title">
+                                    <button class="create-button disabled" disabled>Create Stack</button>
+                                </div>
+                                <button class="add-button dynamic-add">
+                                    <span class="add-button-text">
+                                        <span class="add-icon">+</span>
+                                    </span>
+                                    Add a Tag
+                                </button>
+                            </div>
+                            <label class="status-label">
+                                
+                              <select class="task-status">
+                                <option>Not Started</option>
+                                <option>In Progress</option>
+                                <option>Complete</option>
+                              </select>
+                            </label>
+                            
+                          </div>
+                    </div>
+                    <!-- {% endfor %} -->
+
+                
+                       
+
+
+                    <div class="todoList panel dropzone">
+                        
+                        <div class="panel-card-footer">
+                            <h2 class="todo-text" contenteditable="true">Card Name</h2>
+                           
+                            <label class="due-label">
+                          
+                              <input type="date" class="task-due on-track" />
+                            </label>
+                          </div>
+                        <p class="panel-card-descr" contenteditable="true">Description</p>
+
+                        <div class="panel-cards" onmouseover="this.querySelector('.card-buttons').style.display='flex'" onmouseout="this.querySelector('.card-buttons').style.display='none'">
+                            <div class="card-wrapper draggable" draggable="true">
+                                <div class="panel-card card-id highlighted">
+                                    <p class="panel-card-text highlighted-text">Tag Name</p>
+
+                                    <div class="card-buttons 2">
+                                        <button class="edit-button">
+                                            <img src="./icons/edit.png" alt="Edit" class="card-icon">
+                                        </button>
+                                        <button class="delete-button">
+                                            <img src="./icons/trash.png" alt="Delete" class="card-icon">
+                                        </button>
+                                    
+                                    </div>
+                                </div>
+                                <div class="panel-card input-card">
+                                    <input maxlength="25" class="panel-card-text">
+                                    <div class="edit-buttons">
+                                        <button class="save-button" disabled>Save</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                        
+                        <div class="panel-card-footer status">
+                            <div class="panel-card-add">
+                                <div class="input input-stack">
+                                    <input type="text" class="input-create" maxlength="30" placeholder="Enter Stack title">
+                                    <button class="create-button disabled" disabled>Create Stack</button>
+                                </div>
+                                <button class="add-button dynamic-add">
+                                    <span class="add-button-text">
+                                        <span class="add-icon">+</span>
+                                    </span>
+                                    Add a Tag
+                                </button>
+                            </div>
+                            <label class="status-label">
+                                
+                              <select class="task-status unstarted">
+                                <option>Not Started</option>
+                                <option>In Progress</option>
+                                <option>Complete</option>
+                              </select>
+                            </label>
+                            
+                          </div>
+                    </div>
+                  
+                </div>
+                
+                </div>
+                
+            </div>
+
+             
+        </div>
+    
+    </div>
+</section>
+ </main>
+ </article>
+
+
+  <!-- JS scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdn.socket.io/3.1.1/socket.io.min.js"></script>
+  <script type="module" src="board/board-scripting.js" defer></script>
+  
+</body>
+</html>

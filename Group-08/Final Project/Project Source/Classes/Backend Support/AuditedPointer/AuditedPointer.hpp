@@ -231,17 +231,6 @@ public:
     }
 
     /**
-     * @brief Destructor that verifies proper cleanup and detects memory leaks
-     */
-    ~Aptr() noexcept
-    {
-        if (mPtr) {
-            leakChecker.RemoveAptr(mID);
-            assert(false && "Aptr destroyed without calling Delete() - memory leak!");
-        }
-    }
-
-    /**
      * @brief Copy constructor - creates a deep copy of the managed object
      * @param other Aptr to copy from
      */

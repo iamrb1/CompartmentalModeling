@@ -1,0 +1,38 @@
+/* || VARIABLES */
+:root {
+    --footer-text-color: #434f4b94;
+    --footer-bg-color: #53474737;
+}
+
+/* Footer text styling */
+p.footerFont {
+    color: var(--footer-text-color);
+    text-align: center;
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: Regular;
+    font-size: 3rem;
+}
+
+/* Footer container styling */
+.footer {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Footer element styling */
+footer {
+    min-height: 3.125em;
+    width: 100%;
+    height: 5vh;
+    background-color: var(--footer-bg-color); 
+    opacity: 45%;
+}
+
+/* Responsive styling for smaller screens */
+@media screen and (max-width: 680px) {
+    p.footerFont {
+        font-size: 1.5rem;
+    }
+}
