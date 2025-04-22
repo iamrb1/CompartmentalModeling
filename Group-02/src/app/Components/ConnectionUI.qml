@@ -10,30 +10,43 @@ Item {
     property Compartment target: connection ? connection.target : null
     property int compartmentWidth: Constants.compartmentWidth
     property int compartmentHeight: Constants.compartmentHeight
+    property int arrowSize: 10
 
-    // Line component
-    Rectangle {
+    /// Line with arrow pointing at target component
+    Canvas {
         id: lineRect
-        x: 0
-        y: 0
-
-        // Width is the distance between points
         width: connectionUI.calculateLength()
-        height: 4
-        color: ThemeManager.palette.text
+        height: Math.max(30, arrowSize * 2)
         antialiasing: true
 
-        // Set transform origin to the start point
-        transformOrigin: Item.TopLeft
+        /// Positioning attributes here
+        x: 0
+        y: -height/2
 
-        transform: Rotation {
-            id: rectRotation
-            origin.x: 0
-            origin.y: 0
-            angle: connectionUI.calculateAngle()
+        transformOrigin: Item.Left
+        rotation: connectionUI.calculateAngle()
+
+        onPaint: {
+            const ctx = getContext("2d");
+            ctx.fillStyle = ThemeManager.palette.text;
+            ctx.strokeStyle = ThemeManager.palette.text;
+            ctx.lineWidth = 4;
+
+            ctx.beginPath();
+            ctx.moveTo(0, height/2);
+            ctx.lineTo(width - arrowSize * 2, height/2);
+            ctx.stroke();
+
+            const arrowX = width - arrowSize * 2 - 80; // Offset from end
+            ctx.beginPath();
+            ctx.moveTo(arrowX, height/2 - arrowSize);
+            ctx.lineTo(arrowX + arrowSize * 2, height/2);
+            ctx.lineTo(arrowX, height/2 + arrowSize);
+            ctx.closePath();
+            ctx.fill();
         }
 
-        MouseArea{
+        MouseArea {
             anchors.fill: parent
             onClicked: {
                 simulation.sidebarConnection = connection
