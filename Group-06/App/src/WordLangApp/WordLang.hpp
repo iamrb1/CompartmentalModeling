@@ -204,6 +204,19 @@ class WordLang {
 
   /**
    * @brief Parses CONTAINS_ALL
+   * 
+   * Checks syntax and returns error messages to the terminal if syntax
+   * is wrong.
+   *
+   * Restricts the search to all letters given if exists in the word of
+   * lists
+   *
+   * If syntax is correct, class WordListManager to conduct operations
+   * over the lists.
+   *
+   * Valid Command:
+   *
+   * CONTAINS_ALL "collection of letters"
    *
    */
   void parseContainsAll();
@@ -211,12 +224,42 @@ class WordLang {
   /**
    * @brief Parses NOT_CONTAINS
    *
+   * Checks syntax and returns error messages to the terminal if syntax
+   * is wrong.
+   *
+   * Restricts the search to any letters given if not exists in the word of
+   * lists
+   *
+   * If syntax is correct, class WordListManager to conduct operations
+   * over the lists.
+   *
+   * Valid Command:
+   *
+   * NOT_CONTAINS "collection of letters"
+   * 
    */
   void parseNotContains();
 
   /**
    * @brief Parses GET
    *  This function returns words that match a pattern
+   * 
+   * Checks syntax and returns error messages to the terminal if syntax
+   * is wrong.
+   *
+   * Restricts the search to only words align with given pattern in the word 
+   * lists
+   *
+   * If syntax is correct, class WordListManager to conduct operations
+   * over the lists.
+   * 
+   * For pattern, '_' is used to denote a single any character
+   * '*' is used to denote zero or more any sequence of characters.
+   *
+   * Valid Command:
+   *
+   * GET "pattern"
+   * 
    *
    */
   void parseGet();

@@ -201,8 +201,14 @@ class WordListManager {
   bool Get(const std::string& patternToCheck);
 
   /**
-   * @brief
+   * @brief Resets the lists into original state
    *
+   * Resets the lists to the original state when they are loaded. 
+   * If a specific listname is provided, only resets that list to state where 
+   * it is first loaded from the file.
+   * If no listname is provided, it resets all lists in the current working 
+   * lists.
+   * 
    * @param listName
    */
   void reset(const std::string& listName = "");
