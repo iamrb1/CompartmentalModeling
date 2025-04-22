@@ -1,6 +1,6 @@
 /**
  @file TimePlotUI
- @author Dominik Leisinger, Rahul Baragur
+ @author Rahul Baragur, Dominik Leisinger
  **/
 import QtQuick.Controls
 import QtQuick.Layouts

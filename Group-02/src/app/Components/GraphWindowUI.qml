@@ -1,6 +1,6 @@
 /**
  @file GraphWindowUI.qml
- @author Dominik Leisinger, Rahul Baragur
+ @author Rahul Baragur, Dominik Leisinger
  **/
 import QtQuick
 import QtQuick.Controls
