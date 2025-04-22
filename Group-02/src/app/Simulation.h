@@ -102,8 +102,6 @@ class Simulation : public QObject {
 
   Q_INVOKABLE void add_compartment();
 
-  // Q_INVOKABLE void startSimulation();
-  // Q_INVOKABLE void stepSimulation(double dt);
   /**
    * @brief Completely resets the simulation and clears all relevant values
    */

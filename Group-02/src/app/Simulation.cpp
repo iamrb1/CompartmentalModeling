@@ -55,7 +55,6 @@ void Simulation::clear() {
 }
 
 void Simulation::reset() {
-  qDebug() << "Reset called";
   m_is_running = false;
   m_current_time = 0;
 
@@ -94,7 +93,32 @@ void Simulation::take_time_step()
     return;
   }
 
-  qDebug() << "Time Step " << m_current_time++;
+  std::unordered_map<QString, double> delta_amounts;
+
+  /// Calculate changes based on connections
+  for (const auto& connection : m_connections) {
+    Compartment* source = connection->get_source();
+    Compartment* target = connection->get_target();
+    std::string rate = connection->get_rate_expression().toStdString();
+
+    double transfer_amount = std::stod(rate) * source->get_current_amount();
+
+    delta_amounts[source->get_symbol()] -= transfer_amount;
+    delta_amounts[target->get_symbol()] += transfer_amount;
+  }
+
+  for (const auto& [symbol, delta] : delta_amounts) {
+    if (m_compartments.contains(symbol)) {
+      auto compartment = m_compartments.at(symbol);
+      double new_amount = compartment->get_current_amount() + delta_amounts[symbol];
+      compartment->set_current_amount(new_amount);
+    }
+  }
+
+  /// emit signal with current time and values
+  // emit simulationDataUpdated(m_current_time, values);
+
+  m_current_time++;
   emit currentTimeChanged();
 }
 
