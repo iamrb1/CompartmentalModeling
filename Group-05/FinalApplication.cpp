@@ -8,7 +8,6 @@
  * Portions of this code are made with the assistance of ChatGPT
  */
 
-
 #include "FinalApplication.h"
 #include "src/Datum.h"
 #include "src/DataGrid.h"
@@ -23,13 +22,12 @@
 #include <string>
 #include <vector>
 
-
 /**
  * Checks if a string can be converted into a double
  * @param test_string The string to check
  * @return an optional double if the string can be converted, empty optional if not
  */
-std::optional<double> FinalApplication::IsValidDouble(const std::string &test_string) {
+std::optional<double> FinalApplication::IsValidDouble(const std::string &test_string) const {
   try {
     std::size_t pos;
     double value = std::stod(test_string, &pos);
@@ -45,7 +43,7 @@ std::optional<double> FinalApplication::IsValidDouble(const std::string &test_st
  * @param test_string The string to check
  * @return an optional int if the string can be converted, empty optional if not
  */
-std::optional<int> FinalApplication::IsValidInt(const std::string &test_string) {
+std::optional<int> FinalApplication::IsValidInt(const std::string &test_string) const {
   try {
     std::size_t pos;
     int value = std::stoi(test_string, &pos);
@@ -63,7 +61,7 @@ std::optional<int> FinalApplication::IsValidInt(const std::string &test_string) 
  * @param is istream used for input and testing
  * @return A valid column index for the grid
  */
-int FinalApplication::GetColumnIndex(int max_index, std::ostream &os = std::cout, std::istream &is = std::cin) {
+int FinalApplication::GetColumnIndex(int max_index, std::ostream &os = std::cout, std::istream &is = std::cin) const {
   while (true) {
     os << "Please enter column index: ";
     std::string index_str;
@@ -82,7 +80,7 @@ int FinalApplication::GetColumnIndex(int max_index, std::ostream &os = std::cout
  * @param is istream used for input and testing
  * @return A datum value
  */
-cse::Datum FinalApplication::GetDataValue(std::ostream &os = std::cout, std::istream &is = std::cin) {
+cse::Datum FinalApplication::GetDataValue(std::ostream &os = std::cout, std::istream &is = std::cin) const {
   os << "Please enter the value to compare: ";
   std::string value_str;
   is >> value_str;
@@ -97,7 +95,7 @@ cse::Datum FinalApplication::GetDataValue(std::ostream &os = std::cout, std::ist
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  */
-void FinalApplication::PrintColumn(const cse::ReferenceVector<cse::Datum> &column, std::ostream &os = std::cout) {
+void FinalApplication::PrintColumn(const cse::ReferenceVector<cse::Datum> &column, std::ostream &os = std::cout) const {
   for (const auto &datum : column) {
     if (datum.IsDouble()) {
       os << datum.GetDouble() << " ";
@@ -114,7 +112,7 @@ void FinalApplication::PrintColumn(const cse::ReferenceVector<cse::Datum> &colum
  * @param is istream used for input and testing
  * @return The custom DataGrid
  */
-cse::DataGrid FinalApplication::CreateGridMenu(std::ostream &os = std::cout, std::istream &is = std::cin) {
+cse::DataGrid FinalApplication::CreateGridMenu(std::ostream &os = std::cout, std::istream &is = std::cin) const {
   std::size_t num_rows = 0, num_columns = 0;
   std::string type_choice;
 
@@ -191,7 +189,7 @@ cse::DataGrid FinalApplication::CreateGridMenu(std::ostream &os = std::cout, std
  * @param is istream used for input and testing
  * @return A DataGrid to use
  */
-cse::DataGrid FinalApplication::GridMenu(std::ostream &os = std::cout, std::istream &is = std::cin) {
+cse::DataGrid FinalApplication::GridMenu(std::ostream &os = std::cout, std::istream &is = std::cin) const {
   while (true) {
     os << "Menu Option:" << std::endl;
     os << "i: Import a CSV file" << std::endl;
@@ -249,7 +247,7 @@ cse::DataGrid FinalApplication::GridMenu(std::ostream &os = std::cout, std::istr
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  */
-void FinalApplication::MathMenu(const cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) {
+void FinalApplication::MathMenu(const cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) const {
   while (true) {
     os << "\nMath Menu:" << std::endl;
     os << "cmean: Calculate the mean of a column" << std::endl;
@@ -322,7 +320,7 @@ void FinalApplication::MathMenu(const cse::DataGrid &grid, std::ostream &os = st
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  */
-void FinalApplication::ComparisonMenu(cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) {
+void FinalApplication::ComparisonMenu(cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) const {
   while (true) {
     os << "\nComparison Menu:" << std::endl;
     os << "clt: Find values less than a given value for a column" << std::endl;
@@ -387,7 +385,7 @@ void FinalApplication::ComparisonMenu(cse::DataGrid &grid, std::ostream &os = st
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  */
-void FinalApplication::ManipulateGridMenu(cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) {
+void FinalApplication::ManipulateGridMenu(cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) const {
   int choice = 0;
   do {
     os << "\n=== CSV Grid Manipulation Menu ===" << std::endl;
@@ -435,7 +433,7 @@ void FinalApplication::ManipulateGridMenu(cse::DataGrid &grid, std::ostream &os 
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  */
-void FinalApplication::PrintSubmenu(cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) {
+void FinalApplication::PrintSubmenu(const cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) const {
   int choice = 0;
   do {
     os << "\n--- Print Options ---" << std::endl;
@@ -516,7 +514,7 @@ void FinalApplication::PrintSubmenu(cse::DataGrid &grid, std::ostream &os = std:
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  */
-void FinalApplication::EditSubmenu(cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) {
+void FinalApplication::EditSubmenu(cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) const {
   int choice = 0;
   do {
     os << "\n--- Edit Options ---" << std::endl;
@@ -588,7 +586,7 @@ void FinalApplication::EditSubmenu(cse::DataGrid &grid, std::ostream &os = std::
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  */
-void FinalApplication::SortSubmenu(cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) {
+void FinalApplication::SortSubmenu(cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) const {
   int choice = 0;
   do {
     os << "\n--- Sort Options ---" << std::endl;
@@ -637,7 +635,7 @@ void FinalApplication::SortSubmenu(cse::DataGrid &grid, std::ostream &os = std::
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  */
-void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) {
+void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) const {
   int choice = 0;
   do {
     os << "\n--- Adding Options ---" << std::endl;
@@ -804,7 +802,7 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os = std::c
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  */
-void FinalApplication::DeleteSubmenu(cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) {
+void FinalApplication::DeleteSubmenu(cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) const {
   int choice = 0;
   do {
     os << "\n--- Deleting Options ---" << std::endl;
@@ -856,7 +854,7 @@ void FinalApplication::DeleteSubmenu(cse::DataGrid &grid, std::ostream &os = std
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  */
-void FinalApplication::ResizeSubmenu(cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) {
+void FinalApplication::ResizeSubmenu(cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) const {
   int choice = 0;
   do {
     os << "\n--- Resizing Options ---" << std::endl;
@@ -911,7 +909,7 @@ void FinalApplication::ResizeSubmenu(cse::DataGrid &grid, std::ostream &os = std
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  */
-void FinalApplication::MainMenu(std::ostream &os = std::cout, std::istream &is = std::cin) {
+void FinalApplication::MainMenu(std::ostream &os = std::cout, std::istream &is = std::cin) const {
   os << "Welcome to CSV Command Line Manipulator" << std::endl;
   os << "Developed by: Max Krawec, Calen Green, Pedro Mitkiewicz, "
                "Shahaab Ali, and Muhammad Asif Masood"

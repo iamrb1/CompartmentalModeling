@@ -10,28 +10,28 @@
 
 class FinalApplication {
  private:
-  std::optional<double> IsValidDouble(const std::string &input);
-  std::optional<int> IsValidInt(const std::string &input);
+  [[nodiscard]] std::optional<double> IsValidDouble(const std::string &input) const;
+  [[nodiscard]] std::optional<int> IsValidInt(const std::string &input) const;
 
-  int GetColumnIndex(int grid_size, std::ostream &os, std::istream &is);
-  cse::Datum GetDataValue(std::ostream &os, std::istream &is);
+  int GetColumnIndex(int grid_size, std::ostream &os, std::istream &is) const;
+  cse::Datum GetDataValue(std::ostream &os, std::istream &is) const;
 
-  void PrintColumn(const cse::ReferenceVector<cse::Datum> &column, std::ostream &os);
+  void PrintColumn(const cse::ReferenceVector<cse::Datum> &column, std::ostream &os) const;
  public:
-  void MainMenu(std::ostream &os, std::istream &is);
+  void MainMenu(std::ostream &os, std::istream &is) const;
 
-  cse::DataGrid GridMenu(std::ostream &os, std::istream &is);
-  cse::DataGrid CreateGridMenu(std::ostream &os, std::istream &is);
+  cse::DataGrid GridMenu(std::ostream &os, std::istream &is) const;
+  cse::DataGrid CreateGridMenu(std::ostream &os, std::istream &is) const;
 
-  void ManipulateGridMenu(cse::DataGrid &grid, std::ostream &os, std::istream &is);
-  void MathMenu(const cse::DataGrid &grid, std::ostream &os, std::istream &is);
-  void ComparisonMenu(cse::DataGrid &grid, std::ostream &os, std::istream &is);
+  void ManipulateGridMenu(cse::DataGrid &grid, std::ostream &os, std::istream &is) const;
+  void MathMenu(const cse::DataGrid &grid, std::ostream &os, std::istream &is) const;
+  void ComparisonMenu(cse::DataGrid &grid, std::ostream &os, std::istream &is) const;
 
-  void PrintSubmenu(cse::DataGrid &grid, std::ostream &os, std::istream &is);
-  void EditSubmenu(cse::DataGrid &grid, std::ostream &os, std::istream &is);
-  void SortSubmenu(cse::DataGrid &grid, std::ostream &os, std::istream &is);
-  void AddSubmenu(cse::DataGrid &grid, std::ostream &os, std::istream &is);
-  void DeleteSubmenu(cse::DataGrid &grid, std::ostream &os, std::istream &is);
-  void ResizeSubmenu(cse::DataGrid &grid, std::ostream &os, std::istream &is);
+  void PrintSubmenu(const cse::DataGrid &grid, std::ostream &os, std::istream &is) const;
+  void EditSubmenu(cse::DataGrid &grid, std::ostream &os, std::istream &is) const;
+  void SortSubmenu(cse::DataGrid &grid, std::ostream &os, std::istream &is) const;
+  void AddSubmenu(cse::DataGrid &grid, std::ostream &os, std::istream &is) const;
+  void DeleteSubmenu(cse::DataGrid &grid, std::ostream &os, std::istream &is) const;
+  void ResizeSubmenu(cse::DataGrid &grid, std::ostream &os, std::istream &is) const;
 };
 
