@@ -6,7 +6,8 @@ SRC_DIR = ../../Group-03/src
 TEST_DIR = .
 
 # Source and Test Files
-SRC_FILES = $(wildcard $(SRC_DIR)/*.cpp)
+SRC_FILES  := $(filter-out $(SRC_DIR)/main.cpp, \
+                       $(wildcard $(SRC_DIR)/*.cpp))
 TEST_FILES = $(wildcard $(TEST_DIR)/*.cpp)
 
 # Object files
