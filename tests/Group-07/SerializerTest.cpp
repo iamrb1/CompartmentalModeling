@@ -15,72 +15,103 @@ const std::string filename = "result.bin";
 std::random_device rd;
 std::mt19937_64 gen(rd());
 
+// This test is testing constructor
 TEST_CASE("Serializer Construction", "[Serializer]")
 {
-	cse::Serializer Neutral;
+	cse::Serializer Neutral(filename);
 	REQUIRE(Neutral.GetMode() == cse::Mode::SAVE);
-	cse::Serializer Saver(cse::Mode::SAVE);
+	cse::Serializer Saver(filename, cse::Mode::SAVE);
 	REQUIRE(Saver.IsSave());
-	cse::Serializer Loader(cse::Mode::LOAD);
+	cse::Serializer Loader(filename, cse::Mode::LOAD);
 	REQUIRE(Loader.IsLoad());
+	std::filesystem::remove(filename);
 }
 
+// This test is testing destructor
 TEST_CASE("Serializer Destruction", "[Serialzer]")
 {
 	static bool called = false;
 	class TestSerializer : public cse::Serializer
 	{
 	public:
-		~TestSerializer() { called = true; }
+		TestSerializer() : cse::Serializer("result.bin") {} // Need to use literal here since filename is private
+		~TestSerializer()
+		{
+			called = true;
+		}
 	};
 	called = false;
 	{
 		TestSerializer test;
 	}
 	REQUIRE(called);
+	std::filesystem::remove(filename);
 }
 
+// This test is testing swapping mode
 TEST_CASE("Serializer Swap Mode", "[Serializer]")
 {
-	cse::Serializer Neutral;
+	cse::Serializer Neutral(filename);
 	REQUIRE((Neutral.IsSave() && !Neutral.IsLoad()));
 	Neutral.SetMode(cse::Mode::LOAD);
 	REQUIRE((Neutral.IsLoad() && !Neutral.IsSave()));
 	Neutral.SetMode(cse::Mode::SAVE);
 	REQUIRE((Neutral.IsSave() && !Neutral.IsLoad()));
+	std::filesystem::remove(filename);
 }
 
+// This test is testing basic save load
 TEST_CASE("Serializer Save Load Basic", "[Serializer]")
 {
-	cse::Serializer Saver(cse::Mode::SAVE);
-	cse::Serializer Loader(cse::Mode::LOAD);
+	cse::Serializer Saver(filename, cse::Mode::SAVE);
+	cse::Serializer Loader(filename, cse::Mode::LOAD);
 	int number = 22;
 	int result = -1;
-	Saver.Serialize(number, filename);
+	Saver.Serialize(number);
 	REQUIRE(result == -1);
-	Loader.Serialize(result, filename);
+	Loader.Serialize(result);
 	REQUIRE(result == 22);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
 }
 
+TEST_CASE("Serializer Change Name", "[Serializer]")
+{
+	cse::Serializer Saver(filename, cse::Mode::SAVE);
+	cse::Serializer Loader(filename, cse::Mode::LOAD);
+	std::string newname = "result2.bin";
+	int one = 1, two = 2, num = -1;
+	Saver.Serialize(one);
+	Saver.ChangeName(newname);
+	Saver.Serialize(two);
+	Loader.Serialize(num);
+	REQUIRE(num == one);
+	Loader.ChangeName(newname);
+	Loader.Serialize(num);
+	REQUIRE(num == two);
+	std::filesystem::remove(filename);
+	std::filesystem::remove(newname);
+}
+
+// This test is testing the case Saver/Loader works seperately
 TEST_CASE("Basic Save Load In Different Processes", "[Serializer]")
 {
-	cse::Serializer Saver(cse::Mode::SAVE);
-	cse::Serializer Loader(cse::Mode::LOAD);
 	int number = 4000;
 	int other = 1000;
-	// Below line need to run first, while Loader line need to run the next time after that.
-	// Saver.Serialize(number, "4000.dat");
-	Loader.Serialize(other, "4000.dat");
+	// Anything with Saver need to run first, then comment ALL of it, then uncomment Loader for Load, since Saver will delete the file once open.
+	// cse::Serializer Saver("4000.dat", cse::Mode::SAVE);
+	// Saver.Serialize(number);
+	cse::Serializer Loader("4000.dat", cse::Mode::LOAD);
+	Loader.Serialize(other);
 	REQUIRE(other == number);
 }
 
+// This test is testing all fundamental types
 TEST_CASE("Serializer Save Load Fundamental Types", "[Serializer]")
 {
-	cse::Serializer Saver(cse::Mode::SAVE);
-	cse::Serializer Loader(cse::Mode::LOAD);
+	cse::Serializer Saver(filename, cse::Mode::SAVE);
+	cse::Serializer Loader(filename, cse::Mode::LOAD);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
@@ -91,8 +122,8 @@ TEST_CASE("Serializer Save Load Fundamental Types", "[Serializer]")
 	{
 		Integer = ranInt(gen);
 		int Result;
-		Saver.Serialize(Integer, filename);
-		Loader.Serialize(Result, filename);
+		Saver.Serialize(Integer);
+		Loader.Serialize(Result);
 		REQUIRE(Integer == Result);
 		std::filesystem::remove(filename);
 		Saver.ResetFileStream();
@@ -106,8 +137,8 @@ TEST_CASE("Serializer Save Load Fundamental Types", "[Serializer]")
 	{
 		Character = static_cast<char>(ranChar(gen));
 		char Result;
-		Saver.Serialize(Character, filename);
-		Loader.Serialize(Result, filename);
+		Saver.Serialize(Character);
+		Loader.Serialize(Result);
 		REQUIRE(Character == Result);
 		std::filesystem::remove(filename);
 		Saver.ResetFileStream();
@@ -120,8 +151,8 @@ TEST_CASE("Serializer Save Load Fundamental Types", "[Serializer]")
 	{
 		LL = ranLL(gen);
 		long long Result;
-		Saver.Serialize(LL, filename);
-		Loader.Serialize(Result, filename);
+		Saver.Serialize(LL);
+		Loader.Serialize(Result);
 		REQUIRE(LL == Result);
 		std::filesystem::remove(filename);
 		Saver.ResetFileStream();
@@ -134,19 +165,21 @@ TEST_CASE("Serializer Save Load Fundamental Types", "[Serializer]")
 	{
 		Double = ranDBL(gen);
 		double Result;
-		Saver.Serialize(Double, filename);
-		Loader.Serialize(Result, filename);
+		Saver.Serialize(Double);
+		Loader.Serialize(Result);
 		REQUIRE(Double == Result);
 		std::filesystem::remove(filename);
 		Saver.ResetFileStream();
 		Loader.ResetFileStream();
 	}
+	std::filesystem::remove(filename);
 }
 
+// This test is testing string
 TEST_CASE("Serializer Save Load String", "[Serializer]")
 {
-	cse::Serializer Saver(cse::Mode::SAVE);
-	cse::Serializer Loader(cse::Mode::LOAD);
+	cse::Serializer Saver(filename, cse::Mode::SAVE);
+	cse::Serializer Loader(filename, cse::Mode::LOAD);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
@@ -163,19 +196,21 @@ TEST_CASE("Serializer Save Load String", "[Serializer]")
 			String = String + Character;
 		}
 		std::string Result;
-		Saver.Serialize(String, filename);
-		Loader.Serialize(Result, filename);
+		Saver.Serialize(String);
+		Loader.Serialize(Result);
 		REQUIRE(String == Result);
 		std::filesystem::remove(filename);
 		Saver.ResetFileStream();
 		Loader.ResetFileStream();
 	}
+	std::filesystem::remove(filename);
 }
 
+// This test is testing vector
 TEST_CASE("Serializer Save Load Vector", "[Serializer]")
 {
-	cse::Serializer Saver(cse::Mode::SAVE);
-	cse::Serializer Loader(cse::Mode::LOAD);
+	cse::Serializer Saver(filename, cse::Mode::SAVE);
+	cse::Serializer Loader(filename, cse::Mode::LOAD);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
@@ -191,8 +226,8 @@ TEST_CASE("Serializer Save Load Vector", "[Serializer]")
 			vec.push_back(value);
 		}
 		std::vector<int> Result;
-		Saver.Serialize(vec, filename);
-		Loader.Serialize(Result, filename);
+		Saver.Serialize(vec);
+		Loader.Serialize(Result);
 		for (int l = 0; l < Length; l++)
 		{
 			REQUIRE(vec[l] == Result[l]);
@@ -201,12 +236,14 @@ TEST_CASE("Serializer Save Load Vector", "[Serializer]")
 		Saver.ResetFileStream();
 		Loader.ResetFileStream();
 	}
+	std::filesystem::remove(filename);
 }
 
+// This test is testing array
 TEST_CASE("Serializer Save Load Array", "[Serializer]")
 {
-	cse::Serializer Saver(cse::Mode::SAVE);
-	cse::Serializer Loader(cse::Mode::LOAD);
+	cse::Serializer Saver(filename, cse::Mode::SAVE);
+	cse::Serializer Loader(filename, cse::Mode::LOAD);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
@@ -221,8 +258,8 @@ TEST_CASE("Serializer Save Load Array", "[Serializer]")
 			arr[l] = value;
 		}
 		std::array<int, size> Result;
-		Saver.Serialize(arr, filename);
-		Loader.Serialize(Result, filename);
+		Saver.Serialize(arr);
+		Loader.Serialize(Result);
 		REQUIRE(Result.size() == size);
 		for (int l = 0; l < size; l++)
 		{
@@ -232,12 +269,13 @@ TEST_CASE("Serializer Save Load Array", "[Serializer]")
 		Saver.ResetFileStream();
 		Loader.ResetFileStream();
 	}
+	std::filesystem::remove(filename);
 }
 
 TEST_CASE("Serializer Save Load Set", "[Serializer]")
 {
-	cse::Serializer Saver(cse::Mode::SAVE);
-	cse::Serializer Loader(cse::Mode::LOAD);
+	cse::Serializer Saver(filename, cse::Mode::SAVE);
+	cse::Serializer Loader(filename, cse::Mode::LOAD);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
@@ -252,8 +290,8 @@ TEST_CASE("Serializer Save Load Set", "[Serializer]")
 			int value = ranInt(gen);
 			s.insert(value);
 		}
-		Saver.Serialize(s, filename);
-		Loader.Serialize(res, filename);
+		Saver.Serialize(s);
+		Loader.Serialize(res);
 		REQUIRE(res.size() == s.size());
 		auto is = s.begin();
 		auto ir = res.begin();
@@ -266,12 +304,13 @@ TEST_CASE("Serializer Save Load Set", "[Serializer]")
 		Saver.ResetFileStream();
 		Loader.ResetFileStream();
 	}
+	std::filesystem::remove(filename);
 }
 
 TEST_CASE("Serializer Save Load Unordered Set", "[Serializer]")
 {
-	cse::Serializer Saver(cse::Mode::SAVE);
-	cse::Serializer Loader(cse::Mode::LOAD);
+	cse::Serializer Saver(filename, cse::Mode::SAVE);
+	cse::Serializer Loader(filename, cse::Mode::LOAD);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
@@ -286,8 +325,8 @@ TEST_CASE("Serializer Save Load Unordered Set", "[Serializer]")
 			int value = ranInt(gen);
 			s.insert(value);
 		}
-		Saver.Serialize(s, filename);
-		Loader.Serialize(res, filename);
+		Saver.Serialize(s);
+		Loader.Serialize(res);
 		REQUIRE(res.size() == s.size());
 		int len = static_cast<int>(s.size());
 		auto is = s.begin();
@@ -301,12 +340,13 @@ TEST_CASE("Serializer Save Load Unordered Set", "[Serializer]")
 		Saver.ResetFileStream();
 		Loader.ResetFileStream();
 	}
+	std::filesystem::remove(filename);
 }
 
 TEST_CASE("Serializer Save Load Multiset", "[Serializer]")
 {
-	cse::Serializer Saver(cse::Mode::SAVE);
-	cse::Serializer Loader(cse::Mode::LOAD);
+	cse::Serializer Saver(filename, cse::Mode::SAVE);
+	cse::Serializer Loader(filename, cse::Mode::LOAD);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
@@ -321,8 +361,8 @@ TEST_CASE("Serializer Save Load Multiset", "[Serializer]")
 			int value = ranInt(gen);
 			s.insert(value);
 		}
-		Saver.Serialize(s, filename);
-		Loader.Serialize(res, filename);
+		Saver.Serialize(s);
+		Loader.Serialize(res);
 		REQUIRE(res.size() == s.size());
 		auto is = s.begin();
 		auto ir = res.begin();
@@ -335,12 +375,13 @@ TEST_CASE("Serializer Save Load Multiset", "[Serializer]")
 		Saver.ResetFileStream();
 		Loader.ResetFileStream();
 	}
+	std::filesystem::remove(filename);
 }
 
 TEST_CASE("Serializer Save Load Unordered Multiset", "[Serializer]")
 {
-	cse::Serializer Saver(cse::Mode::SAVE);
-	cse::Serializer Loader(cse::Mode::LOAD);
+	cse::Serializer Saver(filename, cse::Mode::SAVE);
+	cse::Serializer Loader(filename, cse::Mode::LOAD);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
@@ -355,8 +396,8 @@ TEST_CASE("Serializer Save Load Unordered Multiset", "[Serializer]")
 			int value = ranInt(gen);
 			s.insert(value);
 		}
-		Saver.Serialize(s, filename);
-		Loader.Serialize(res, filename);
+		Saver.Serialize(s);
+		Loader.Serialize(res);
 		REQUIRE(res.size() == s.size());
 		std::unordered_map<int, int> cs, cr;
 		for (const auto &v : s)
@@ -368,12 +409,13 @@ TEST_CASE("Serializer Save Load Unordered Multiset", "[Serializer]")
 		Saver.ResetFileStream();
 		Loader.ResetFileStream();
 	}
+	std::filesystem::remove(filename);
 }
 
 TEST_CASE("Serializer Save Load Map", "[Serializer]")
 {
-	cse::Serializer Saver(cse::Mode::SAVE);
-	cse::Serializer Loader(cse::Mode::LOAD);
+	cse::Serializer Saver(filename, cse::Mode::SAVE);
+	cse::Serializer Loader(filename, cse::Mode::LOAD);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
@@ -386,8 +428,8 @@ TEST_CASE("Serializer Save Load Map", "[Serializer]")
 			int value = ranInt(gen);
 			m[l] = value;
 		}
-		Saver.Serialize(m, filename);
-		Loader.Serialize(res, filename);
+		Saver.Serialize(m);
+		Loader.Serialize(res);
 		for (int l = 0; l < MAX_SIZE; l++)
 		{
 			REQUIRE(res.find(l) != res.end());
@@ -397,12 +439,13 @@ TEST_CASE("Serializer Save Load Map", "[Serializer]")
 		Saver.ResetFileStream();
 		Loader.ResetFileStream();
 	}
+	std::filesystem::remove(filename);
 }
 
 TEST_CASE("Serializer Save Load Unordered Map", "[Serializer]")
 {
-	cse::Serializer Saver(cse::Mode::SAVE);
-	cse::Serializer Loader(cse::Mode::LOAD);
+	cse::Serializer Saver(filename, cse::Mode::SAVE);
+	cse::Serializer Loader(filename, cse::Mode::LOAD);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
@@ -415,8 +458,8 @@ TEST_CASE("Serializer Save Load Unordered Map", "[Serializer]")
 			int value = ranInt(gen);
 			m[l] = value;
 		}
-		Saver.Serialize(m, filename);
-		Loader.Serialize(res, filename);
+		Saver.Serialize(m);
+		Loader.Serialize(res);
 		for (int l = 0; l < MAX_SIZE; l++)
 		{
 			REQUIRE(res.find(l) != res.end());
@@ -426,12 +469,13 @@ TEST_CASE("Serializer Save Load Unordered Map", "[Serializer]")
 		Saver.ResetFileStream();
 		Loader.ResetFileStream();
 	}
+	std::filesystem::remove(filename);
 }
 
 TEST_CASE("Serializer Save Load Multi Map", "[Serializer]")
 {
-	cse::Serializer Saver(cse::Mode::SAVE);
-	cse::Serializer Loader(cse::Mode::LOAD);
+	cse::Serializer Saver(filename, cse::Mode::SAVE);
+	cse::Serializer Loader(filename, cse::Mode::LOAD);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
@@ -446,19 +490,20 @@ TEST_CASE("Serializer Save Load Multi Map", "[Serializer]")
 			int value = ranInt(gen);
 			m.insert({key, value});
 		}
-		Saver.Serialize(m, filename);
-		Loader.Serialize(res, filename);
+		Saver.Serialize(m);
+		Loader.Serialize(res);
 		REQUIRE(m == res);
 		std::filesystem::remove(filename);
 		Saver.ResetFileStream();
 		Loader.ResetFileStream();
 	}
+	std::filesystem::remove(filename);
 }
 
 TEST_CASE("Serializer Save Load Unordered Multi Map", "[Serializer]")
 {
-	cse::Serializer Saver(cse::Mode::SAVE);
-	cse::Serializer Loader(cse::Mode::LOAD);
+	cse::Serializer Saver(filename, cse::Mode::SAVE);
+	cse::Serializer Loader(filename, cse::Mode::LOAD);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
@@ -473,19 +518,20 @@ TEST_CASE("Serializer Save Load Unordered Multi Map", "[Serializer]")
 			int value = ranInt(gen);
 			m.insert({key, value});
 		}
-		Saver.Serialize(m, filename);
-		Loader.Serialize(res, filename);
+		Saver.Serialize(m);
+		Loader.Serialize(res);
 		REQUIRE(m == res);
 		std::filesystem::remove(filename);
 		Saver.ResetFileStream();
 		Loader.ResetFileStream();
 	}
+	std::filesystem::remove(filename);
 }
 
 TEST_CASE("Serializer Save Load Stack", "[Serializer]")
 {
-	cse::Serializer Saver(cse::Mode::SAVE);
-	cse::Serializer Loader(cse::Mode::LOAD);
+	cse::Serializer Saver(filename, cse::Mode::SAVE);
+	cse::Serializer Loader(filename, cse::Mode::LOAD);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
@@ -500,8 +546,8 @@ TEST_CASE("Serializer Save Load Stack", "[Serializer]")
 			int value = ranInt(gen);
 			s.push(value);
 		}
-		Saver.Serialize(s, filename);
-		Loader.Serialize(res, filename);
+		Saver.Serialize(s);
+		Loader.Serialize(res);
 		REQUIRE(s.size() == res.size());
 		while (!s.empty())
 		{
@@ -518,12 +564,13 @@ TEST_CASE("Serializer Save Load Stack", "[Serializer]")
 		Saver.ResetFileStream();
 		Loader.ResetFileStream();
 	}
+	std::filesystem::remove(filename);
 }
 
 TEST_CASE("Serializer Save Load Queue", "[Serializer]")
 {
-	cse::Serializer Saver(cse::Mode::SAVE);
-	cse::Serializer Loader(cse::Mode::LOAD);
+	cse::Serializer Saver(filename, cse::Mode::SAVE);
+	cse::Serializer Loader(filename, cse::Mode::LOAD);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
@@ -538,8 +585,8 @@ TEST_CASE("Serializer Save Load Queue", "[Serializer]")
 			int value = ranInt(gen);
 			q.push(value);
 		}
-		Saver.Serialize(q, filename);
-		Loader.Serialize(res, filename);
+		Saver.Serialize(q);
+		Loader.Serialize(res);
 		REQUIRE(q.size() == res.size());
 		while (!q.empty())
 		{
@@ -556,12 +603,13 @@ TEST_CASE("Serializer Save Load Queue", "[Serializer]")
 		Saver.ResetFileStream();
 		Loader.ResetFileStream();
 	}
+	std::filesystem::remove(filename);
 }
 
 TEST_CASE("Serializer Save Load Priority Queue", "[Serializer]")
 {
-	cse::Serializer Saver(cse::Mode::SAVE);
-	cse::Serializer Loader(cse::Mode::LOAD);
+	cse::Serializer Saver(filename, cse::Mode::SAVE);
+	cse::Serializer Loader(filename, cse::Mode::LOAD);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
@@ -576,8 +624,8 @@ TEST_CASE("Serializer Save Load Priority Queue", "[Serializer]")
 			int value = ranInt(gen);
 			pq.push(value);
 		}
-		Saver.Serialize(pq, filename);
-		Loader.Serialize(res, filename);
+		Saver.Serialize(pq);
+		Loader.Serialize(res);
 		REQUIRE(pq.size() == res.size());
 		while (!pq.empty())
 		{
@@ -594,12 +642,13 @@ TEST_CASE("Serializer Save Load Priority Queue", "[Serializer]")
 		Saver.ResetFileStream();
 		Loader.ResetFileStream();
 	}
+	std::filesystem::remove(filename);
 }
 
 TEST_CASE("Serializer Save Load Deque", "[Serializer]")
 {
-	cse::Serializer Saver(cse::Mode::SAVE);
-	cse::Serializer Loader(cse::Mode::LOAD);
+	cse::Serializer Saver(filename, cse::Mode::SAVE);
+	cse::Serializer Loader(filename, cse::Mode::LOAD);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
@@ -614,8 +663,8 @@ TEST_CASE("Serializer Save Load Deque", "[Serializer]")
 			int value = ranInt(gen);
 			d.push_back(value);
 		}
-		Saver.Serialize(d, filename);
-		Loader.Serialize(res, filename);
+		Saver.Serialize(d);
+		Loader.Serialize(res);
 		REQUIRE(d.size() == res.size());
 		for (size_t i = 0; i < d.size(); i++)
 		{
@@ -627,30 +676,34 @@ TEST_CASE("Serializer Save Load Deque", "[Serializer]")
 		Saver.ResetFileStream();
 		Loader.ResetFileStream();
 	}
+	std::filesystem::remove(filename);
 }
 
+// This test is testing empty file and empty containers
 TEST_CASE("Serializer Empty File or Empty Containers", "[Serializer]")
 {
-	cse::Serializer Saver(cse::Mode::SAVE);
-	cse::Serializer Loader(cse::Mode::LOAD);
+	cse::Serializer Saver(filename, cse::Mode::SAVE);
+	cse::Serializer Loader(filename, cse::Mode::LOAD);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
 	std::vector<int> vec, res; // Keep vec empty
-	Saver.Serialize(vec, filename);
-	Loader.Serialize(res, filename);
+	Saver.Serialize(vec);
+	Loader.Serialize(res);
 	REQUIRE(res.size() == 0);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
-	REQUIRE_THROWS_AS(Loader.Serialize(res, filename), cse::SerializationError);
+	REQUIRE_THROWS_AS(Loader.Serialize(res), cse::SerializationError);
+	std::filesystem::remove(filename);
 }
 
+// This test is verifying which is serializable
 TEST_CASE("Implemented Verifier", "[Serializer]")
 {
-	cse::Serializer Saver;
+	cse::Serializer Saver(filename);
 
-	// 	// Verifying implemented IsSerializable cases
+	// Verifying implemented IsSerializable cases
 	REQUIRE(Saver.IsSerializable<int>() == true);
 	REQUIRE(Saver.IsSerializable<double>() == true);
 	REQUIRE(Saver.IsSerializable<char>() == true);
@@ -673,12 +726,14 @@ TEST_CASE("Implemented Verifier", "[Serializer]")
 	REQUIRE(Saver.IsSerializable<std::priority_queue<int>>() == true);
 	REQUIRE(Saver.IsSerializable<std::deque<std::string>>() == true);
 	REQUIRE(Saver.IsSerializable<std::pair<int, int>>() == false);
+	std::filesystem::remove(filename);
 }
 
+// This test is testing nested containers
 TEST_CASE("Serializer Nested Containers and Similars", "[Serializer]")
 {
-	cse::Serializer Saver(cse::Mode::SAVE);
-	cse::Serializer Loader(cse::Mode::LOAD);
+	cse::Serializer Saver(filename, cse::Mode::SAVE);
+	cse::Serializer Loader(filename, cse::Mode::LOAD);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
@@ -701,8 +756,8 @@ TEST_CASE("Serializer Nested Containers and Similars", "[Serializer]")
 			vvec.push_back(vec);
 		}
 		std::vector<std::vector<int>> Result;
-		Saver.Serialize(vvec, filename);
-		Loader.Serialize(Result, filename);
+		Saver.Serialize(vvec);
+		Loader.Serialize(Result);
 		REQUIRE(vvec.size() == Result.size());
 		int length = vvec.size();
 		for (int l = 0; l < length; l++)
@@ -718,40 +773,44 @@ TEST_CASE("Serializer Nested Containers and Similars", "[Serializer]")
 		Saver.ResetFileStream();
 		Loader.ResetFileStream();
 	}
+	std::filesystem::remove(filename);
 }
 
+// Struct Person
 struct Person
 {
 	std::string name;
 	int age;
 	double height;
 	std::vector<std::string> hobbies;
-	void Serialize(cse::Serializer &Ser, const std::string &filename)
+	void Serialize(cse::Serializer &Ser)
 	{
-		Ser.Serialize(name, filename);
-		Ser.Serialize(age, filename);
-		Ser.Serialize(height, filename);
-		Ser.Serialize(hobbies, filename);
+		Ser.Serialize(name);
+		Ser.Serialize(age);
+		Ser.Serialize(height);
+		Ser.Serialize(hobbies);
 	}
 };
 
+// Assign that Person is a custom type
 template <>
 struct is_custom_type<Person> : std::true_type
 {
 };
 
+// This test is testing External Class/Struct
 TEST_CASE("Serialize External Class/Struct (must be global)", "[Serializer]")
 {
-	cse::Serializer Saver(cse::Mode::SAVE);
-	cse::Serializer Loader(cse::Mode::LOAD);
+	cse::Serializer Saver(filename, cse::Mode::SAVE);
+	cse::Serializer Loader(filename, cse::Mode::LOAD);
 	Person P1, P2;
 	P1.name = "John Doe";
 	P1.age = 40;
 	P1.height = 177.5;
 	P1.hobbies.push_back("Playing Games");
 	P1.hobbies.push_back("Listening to Music");
-	Saver.Serialize(P1, filename, true);
-	Loader.Serialize(P2, filename, true);
+	Saver.Serialize(P1);
+	Loader.Serialize(P2);
 	REQUIRE(P1.name == P2.name);
 	REQUIRE(P1.age == P2.age);
 	REQUIRE(P1.height == P2.height);
@@ -763,78 +822,82 @@ TEST_CASE("Serialize External Class/Struct (must be global)", "[Serializer]")
 	std::filesystem::remove(filename);
 }
 
+// This test is testing if the types are incompatible
 TEST_CASE("Incompatible Types Serialization", "[Serializer]")
 {
-	cse::Serializer Saver(cse::Mode::SAVE);
-	cse::Serializer Loader(cse::Mode::LOAD);
+	cse::Serializer Saver(filename, cse::Mode::SAVE);
+	cse::Serializer Loader(filename, cse::Mode::LOAD);
 	int num = 22;
 	double dbl = 3.14;
-	Saver.Serialize(num, filename);
-	REQUIRE_THROWS_AS(Loader.Serialize(dbl, filename), cse::SerializationError);
+	Saver.Serialize(num);
+	REQUIRE_THROWS_AS(Loader.Serialize(dbl), cse::SerializationError);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
-	Saver.Serialize(dbl, filename);
-	REQUIRE_THROWS_AS(Loader.Serialize(num, filename), cse::SerializationError);
+	Saver.Serialize(dbl);
+	REQUIRE_THROWS_AS(Loader.Serialize(num), cse::SerializationError);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
 	std::string str = "Hello World!";
-	Saver.Serialize(str, filename);
-	REQUIRE_THROWS_AS(Loader.Serialize(num, filename), cse::SerializationError);
+	Saver.Serialize(str);
+	REQUIRE_THROWS_AS(Loader.Serialize(num), cse::SerializationError);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
-	Saver.Serialize(num, filename);
-	REQUIRE_THROWS_AS(Loader.Serialize(str, filename), cse::SerializationError);
+	Saver.Serialize(num);
+	REQUIRE_THROWS_AS(Loader.Serialize(str), cse::SerializationError);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
 	std::vector<int> v{1, 2, 3, 4};
 	std::vector<std::string> vs;
-	Saver.Serialize(v, filename);
-	REQUIRE_THROWS_AS(Loader.Serialize(vs, filename), cse::SerializationError);
+	Saver.Serialize(v);
+	REQUIRE_THROWS_AS(Loader.Serialize(vs), cse::SerializationError);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
 	vs = {"1", "2", "3", "4"};
-	Saver.Serialize(vs, filename);
-	REQUIRE_THROWS_AS(Loader.Serialize(v, filename), cse::SerializationError);
+	Saver.Serialize(vs);
+	REQUIRE_THROWS_AS(Loader.Serialize(v), cse::SerializationError);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
 	std::vector<std::vector<int>> vv{{1}, {2, 22}, {3, 33, 333}, {4, 44, 444, 4444}};
-	Saver.Serialize(v, filename);
-	REQUIRE_THROWS_AS(Loader.Serialize(vv, filename), cse::SerializationError);
+	Saver.Serialize(v);
+	REQUIRE_THROWS_AS(Loader.Serialize(vv), cse::SerializationError);
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
-	Saver.Serialize(vv, filename);
-	REQUIRE_THROWS_AS(Loader.Serialize(v, filename), cse::SerializationError);
+	Saver.Serialize(vv);
+	REQUIRE_THROWS_AS(Loader.Serialize(v), cse::SerializationError);
 	std::filesystem::remove(filename);
 }
 
+// Class Student
 class Student
 {
 public:
 	std::string name;
 	int id;
-	void Serialize(cse::Serializer &Ser, const std::string &filename)
+	void Serialize(cse::Serializer &Ser)
 	{
-		Ser.Serialize(name, filename);
-		Ser.Serialize(id, filename);
+		Ser.Serialize(name);
+		Ser.Serialize(id);
 	}
 };
 
+// Assigning Student as custom type
 template <>
 struct is_custom_type<Student> : std::true_type
 {
 };
 
+// Test Vector of Struct/Class
 TEST_CASE("Serialize Vector of Struct/Class", "[Serializer]")
 {
-	cse::Serializer Saver(cse::Mode::SAVE);
-	cse::Serializer Loader(cse::Mode::LOAD);
+	cse::Serializer Saver(filename, cse::Mode::SAVE);
+	cse::Serializer Loader(filename, cse::Mode::LOAD);
 	std::vector<Student> vecs, vect;
 	Student S1, S2;
 	S1.name = "Student 1";
@@ -843,8 +906,8 @@ TEST_CASE("Serialize Vector of Struct/Class", "[Serializer]")
 	S2.id = 2;
 	vecs.push_back(S1);
 	vecs.push_back(S2);
-	Saver.Serialize(vecs, filename);
-	Loader.Serialize(vect, filename);
+	Saver.Serialize(vecs);
+	Loader.Serialize(vect);
 	REQUIRE(vect.size() == vecs.size());
 	int length = vecs.size();
 	REQUIRE(is_custom_type<std::remove_cvref_t<decltype(vecs[0])>>::value);
@@ -856,15 +919,16 @@ TEST_CASE("Serialize Vector of Struct/Class", "[Serializer]")
 	std::filesystem::remove(filename);
 }
 
+// Inner class and Outer struct, also set them as custom type
 class Inner
 {
 public:
 	int intIn;
 	std::string strIn;
-	void Serialize(cse::Serializer &Ser, const std::string &filename)
+	void Serialize(cse::Serializer &Ser)
 	{
-		Ser.Serialize(intIn, filename);
-		Ser.Serialize(strIn, filename);
+		Ser.Serialize(intIn);
+		Ser.Serialize(strIn);
 	}
 };
 
@@ -872,10 +936,10 @@ struct Outer
 {
 	char chrOut;
 	std::vector<Inner> vecOut;
-	void Serialize(cse::Serializer &Ser, const std::string &filename)
+	void Serialize(cse::Serializer &Ser)
 	{
-		Ser.Serialize(chrOut, filename);
-		Ser.Serialize(vecOut, filename);
+		Ser.Serialize(chrOut);
+		Ser.Serialize(vecOut);
 	}
 };
 
@@ -889,10 +953,11 @@ struct is_custom_type<Outer> : std::true_type
 {
 };
 
+// Test Nested Struct/Class with Another implemented types
 TEST_CASE("Ultimate Test: Nested Struct/Class and STLs", "[Serializer]")
 {
-	cse::Serializer Saver(cse::Mode::SAVE);
-	cse::Serializer Loader(cse::Mode::LOAD);
+	cse::Serializer Saver(filename, cse::Mode::SAVE);
+	cse::Serializer Loader(filename, cse::Mode::LOAD);
 	std::vector<Outer> vec, res;
 	Outer O1, O2;
 	O1.chrOut = '1';
@@ -912,8 +977,8 @@ TEST_CASE("Ultimate Test: Nested Struct/Class and STLs", "[Serializer]")
 	O2.vecOut.push_back(I22);
 	vec.push_back(O1);
 	vec.push_back(O2);
-	Saver.Serialize(vec, filename);
-	Loader.Serialize(res, filename);
+	Saver.Serialize(vec);
+	Loader.Serialize(res);
 	REQUIRE(vec.size() == res.size());
 	int s = vec.size();
 	for (int i = 0; i < s; i++)
