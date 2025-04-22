@@ -347,23 +347,22 @@ std::function<Datum(SymbolTableType &)> cse::ExpressionParser<SymbolTableType>::
 
 template <typename SymbolTableType>
 std::function<Datum(SymbolTableType &)> cse::ExpressionParser<SymbolTableType>::KeyLambda(const Datum &key) {
-    if constexpr (requires(SymbolTableType &s) { s[int{}]; }) {
-        // Index with a number (e.g., for vector)
-        return [key](SymbolTableType &symbols) {
-            return symbols[key.AsDouble()];
-        };
-    } else {
-        // Index with a string — check if it's supported
-        if constexpr (requires(SymbolTableType &s) { s[std::string{}]; }) {
-            return [key](SymbolTableType &symbols) {
-                return symbols[key.GetString()];
-            };
-        } else {
-            return [key](SymbolTableType &) -> Datum {
-                throw std::runtime_error("SymbolTableType does not support indexing");
-            };
-        }
-    }
+  // Used ChatGPT to help fix a bug. Had to reorder the if/else clause.
+  if constexpr (requires(SymbolTableType &s) { s[std::string{}]; }) {
+    // Index with a string — check if it's supported
+    return [key](SymbolTableType &symbols) {
+      return symbols[key.GetString()];
+    };
+  } else if constexpr (requires(SymbolTableType &s) { s[int{}]; }) {
+    // Index with a number (e.g., for vector)
+    return [key](SymbolTableType &symbols) {
+      return symbols[key.AsDouble()];
+    };
+  } else {
+    return [key](SymbolTableType &) -> Datum {
+      throw std::runtime_error("SymbolTableType does not support indexing");
+    };
+  }
 }
 
 
