@@ -258,6 +258,10 @@ Rectangle {
             width: 30
             height: 30
             onClicked: root.zoomIn()
+
+            Component.onCompleted: {
+                       palette.buttonText = "black"
+                   }
         }
 
         Button {
@@ -265,6 +269,9 @@ Rectangle {
             width: 30
             height: 30
             onClicked: root.zoomOut()
+            Component.onCompleted: {
+                       palette.buttonText = "black"
+                   }
         }
 
         Button {
@@ -272,6 +279,9 @@ Rectangle {
             width: 30
             height: 30
             onClicked: root.resetView()
+            Component.onCompleted: {
+                       palette.buttonText = "black"
+                   }
         }
     }
 }
