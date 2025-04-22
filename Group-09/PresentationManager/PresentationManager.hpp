@@ -644,8 +644,9 @@ const char *exportSlideDeckToJson() {
 	for (const auto &layout : PRESENTATION_MANAGER.getSlides()) {
 		json slide;
 		const auto events = PRESENTATION_MANAGER.getSlideEventInfo(slide_num);
-		if (events.contains(std::to_string(slide_num))) {
-			slide["event"]["time"] = events.at(std::to_string(slide_num));
+		if (events.contains(std::to_string(slide_num + 1))) {
+			slide["event"]["time"] = events.at(std::to_string(slide_num + 1));
+			slide["event"]["dest"] = slide_num + 1;
 		}
 
 		slide["textBoxes"] = json::array();
