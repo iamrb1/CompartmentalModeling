@@ -48,7 +48,6 @@ Rectangle {
                     color: ThemeManager.palette.text
                     enabled: !simulation.isRunning
 
-                    enabled: !simulation.isRunning
                     // Alpha numeric non empty with spaces
                     validator: RegularExpressionValidator{
                         regularExpression: /^[a-zA-Z0-9 ]+$/
@@ -81,7 +80,6 @@ Rectangle {
                     color: ThemeManager.palette.text
                     enabled: !simulation.isRunning
 
-                    enabled: !simulation.isRunning
                     // Alpha numeric non empty
                     validator: RegularExpressionValidator {
                         regularExpression: /^[a-zA-Z0-9]+$/
@@ -115,7 +113,6 @@ Rectangle {
                     color: ThemeManager.palette.text
                     enabled: !simulation.isRunning
 
-                    enabled: !simulation.isRunning
                     validator: DoubleValidator {}
 
                     onEditingFinished: {

@@ -120,9 +120,6 @@ void Simulation::take_time_step()
 
   emit addGraphingValues(m_current_time, new_compartment_amounts);
 
-  /// emit signal with current time and values
-  // emit simulationDataUpdated(m_current_time, values);
-
   m_current_time++;
   emit currentTimeChanged();
 }

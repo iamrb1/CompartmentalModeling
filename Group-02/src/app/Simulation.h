@@ -63,6 +63,7 @@ class Simulation : public QObject {
   void currentTimeChanged();
   void timeStepsChanged();
   void isRunningChanged();
+  void addGraphingValues(double time, QVariant new_compartment_amounts);
   void errorModuleShow(const QString &message);
 
  private:
