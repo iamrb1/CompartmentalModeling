@@ -107,13 +107,18 @@ void Simulation::take_time_step()
     delta_amounts[target->get_symbol()] += transfer_amount;
   }
 
-  for (const auto& [symbol, delta] : delta_amounts) {
-    if (m_compartments.contains(symbol)) {
-      auto compartment = m_compartments.at(symbol);
-      double new_amount = compartment->get_current_amount() + delta_amounts[symbol];
-      compartment->set_current_amount(new_amount);
+  QVariantMap new_compartment_amounts;
+  for (const auto& [symbol, compartment] : m_compartments) {
+    if (!delta_amounts.contains(symbol)) {
+      continue;
     }
+
+    double new_amount = compartment->get_current_amount() + delta_amounts[symbol];
+    compartment->set_current_amount(new_amount);
+    new_compartment_amounts[compartment->get_symbol()] = new_amount;
   }
+
+  emit addGraphingValues(m_current_time, new_compartment_amounts);
 
   /// emit signal with current time and values
   // emit simulationDataUpdated(m_current_time, values);

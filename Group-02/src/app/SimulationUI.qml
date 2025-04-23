@@ -314,8 +314,7 @@ ApplicationWindow {
 
                     onClicked: {
                         if (!graphWindow || !graphWindow.visible) {
-                            graphWindow = graphWindowComponent.createObject(simulationUI)
-                            graphWindow.simulation = simulation // Make sure this line is present
+                            graphWindow = graphWindowComponent.createObject()
                             graphWindow.show()
                         } else {
                             graphWindow.raise()

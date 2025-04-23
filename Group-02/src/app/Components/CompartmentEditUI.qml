@@ -47,12 +47,12 @@ Rectangle {
                     text: selectedCompartment ? selectedCompartment.name : null
                     color: ThemeManager.palette.text
 
+                    enabled: !simulation.isRunning
                     // Alpha numeric non empty with spaces
                     validator: RegularExpressionValidator{
                         regularExpression: /^[a-zA-Z0-9 ]+$/
                     }
                     onEditingFinished: {
-                        console.log(text)
                         selectedCompartment.name = text
                     }
                 }
@@ -79,6 +79,7 @@ Rectangle {
                     text: selectedCompartment ? selectedCompartment.symbol : null
                     color: ThemeManager.palette.text
 
+                    enabled: !simulation.isRunning
                     // Alpha numeric non empty
                     validator: RegularExpressionValidator {
                         regularExpression: /^[a-zA-Z0-9]+$/
@@ -111,6 +112,7 @@ Rectangle {
                     text: selectedCompartment ? selectedCompartment.initialAmount : null
                     color: ThemeManager.palette.text
 
+                    enabled: !simulation.isRunning
                     validator: DoubleValidator {}
 
                     onEditingFinished: {

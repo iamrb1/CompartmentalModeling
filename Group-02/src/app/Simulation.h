@@ -59,6 +59,7 @@ class Simulation : public QObject {
   void currentTimeChanged();
   void timeStepsChanged();
   void isRunningChanged();
+  void addGraphingValues(int time, QVariantMap series);
 
  private:
   /// Simulation name
@@ -78,7 +79,7 @@ class Simulation : public QObject {
   std::vector<std::shared_ptr<Connection>> m_connections;
 
   /// Variables for the simulation
-  std::unordered_map<QString, double> m_variables = {{"k1", 0.01}, {"k2", 0.1}, {"k3", 0.5}};
+  std::unordered_map<QString, double> m_variables;
 
   /// UI variables
 
