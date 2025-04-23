@@ -5,16 +5,16 @@
 
 // #include "pch.h"
 #include "Simulation.h"
+#include <QApplication>
 #include <QFile>
 #include <QXmlStreamReader>
-#include <QApplication>
 #include <ranges>
 #include "Components/Compartment.h"
 
 /**
  * @brief Creates and adds a compartment to the simulation. Also sets the simulation for the compartment.
  */
-Simulation::Simulation(QObject *parent) : QObject(parent) {}
+Simulation::Simulation(QObject* parent) : QObject(parent) {}
 
 void Simulation::add_compartment() {
   static size_t compartment_number = m_compartments.size();
@@ -34,7 +34,7 @@ void Simulation::clear() {
   m_is_running = false;
 
   // Disconnect timer
-  if(m_timer){
+  if (m_timer) {
     m_timer->stop();
     disconnect(m_timer, nullptr, this, nullptr);
     delete m_timer;
@@ -59,7 +59,7 @@ void Simulation::reset() {
   m_current_time = 0;
 
   // Disconnect timer
-  if(m_timer){
+  if (m_timer) {
     m_timer->stop();
     disconnect(m_timer, nullptr, this, nullptr);
     delete m_timer;
@@ -86,9 +86,8 @@ void Simulation::start() {
   m_timer->start(100);
 }
 
-void Simulation::take_time_step()
-{
-  if (m_current_time >= m_time_steps && m_timer){
+void Simulation::take_time_step() {
+  if (m_current_time >= m_time_steps && m_timer) {
     disconnect(m_timer, nullptr, this, nullptr);
     return;
   }
@@ -204,9 +203,9 @@ void Simulation::remove_variable(const QString& name) {
  * @brief Shows error message when called on mid screen
  * @param message error message
  */
-void Simulation::throw_error(const QString &message) {
-    m_error_message = "test throw_error";
-    emit errorModuleShow(message);
+void Simulation::throw_error(const QString& message) {
+  m_error_message = "test throw_error";
+  emit errorModuleShow(message);
 }
 
 /**
@@ -304,7 +303,6 @@ void Simulation::set_target_compartment(Compartment* target) {
     m_connections.push_back(std::move(connection));
     emit connectionsChanged();
   }
-
   m_source_compartment = nullptr;
   m_target_compartment = nullptr;
 
@@ -323,8 +321,7 @@ void Simulation::set_sidebar_connection(Connection* connection) {
   emit sidebarCompartmentChanged();
 }
 
-void Simulation::set_m_connection_mode(bool connection_mode)
-{
+void Simulation::set_m_connection_mode(bool connection_mode) {
   if (connection_mode == false) {
     m_source_compartment = nullptr;
     m_target_compartment = nullptr;
@@ -336,8 +333,7 @@ void Simulation::set_m_connection_mode(bool connection_mode)
   emit connectionModeChanged();
 }
 
-void Simulation::update_compartment_symbol(const QString &symbol, const QString &new_symbol)
-{
+void Simulation::update_compartment_symbol(const QString& symbol, const QString& new_symbol) {
   if (m_compartments.contains(symbol)) {
     if (symbol != new_symbol) {
       auto node_handler = m_compartments.extract(symbol);
@@ -464,9 +460,8 @@ void Simulation::load_xml(const QString& filename) {
   }
 }
 
-void Simulation::save()
-{
-  if (!m_save_path.isEmpty()){
+void Simulation::save() {
+  if (!m_save_path.isEmpty()) {
     save_xml(m_save_path);
   } else {
     // TODO: Add error

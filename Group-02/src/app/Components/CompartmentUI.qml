@@ -66,13 +66,13 @@ Rectangle {
     }
 
     function compartmentBorderColor() {
-        if (simulation.sourceCompartment === compartment) {
-            return "blue"
-        } else if (simulation.targetCompartment === compartment) {
-            return "red"
-        } else {
-
+        var color = ThemeManager.palette.text
+        if (simulation.sourceCompartment && simulation.sourceCompartment === compartment) {
+            color = "blue"
+        } else if (simulation.targetCompartment && simulation.targetCompartment === compartment) {
+            color = "red"
         }
+        return color;
     }
 
     onXChanged: {
