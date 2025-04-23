@@ -128,7 +128,9 @@ void Simulation::pause() {
   m_is_running = false;
   emit isRunningChanged();
 
-  m_timer->stop();
+  if (m_timer) {
+    m_timer->stop();
+  }
 }
 
 /**

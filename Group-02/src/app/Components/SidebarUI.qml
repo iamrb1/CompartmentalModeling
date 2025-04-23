@@ -31,7 +31,7 @@ Rectangle {
         /// Resizeable layout allowing longer Compartment/Connection interface
         Rectangle {
             SplitView.fillWidth: true
-            SplitView.minimumHeight: parent.height*0.3
+            SplitView.minimumHeight: parent.height*0.4
             SplitView.maximumHeight: parent.height*0.7
 
             CompartmentEditUI{
@@ -53,7 +53,13 @@ Rectangle {
                     anchors.left: parent.left
                     anchors.right: parent.right
                     anchors.margins: 10
-                    spacing: 10
+                    spacing: 15
+                    anchors.topMargin: 30
+
+                    Rectangle {
+                        Layout.fillWidth: true
+                        color: "transparent"
+                    }
 
                     Text {
                         text: "Interface"
@@ -92,6 +98,10 @@ Rectangle {
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: 10
+
+                    Item {
+                        Layout.preferredWidth: 24
+                    }
 
 
                     Item {
@@ -317,7 +327,8 @@ Rectangle {
 
             DialogButtonBox {
                 Layout.fillWidth: true
-                Layout.alignment: Qt.AlignRight
+                Layout.alignment: Qt.AlignLeft
+                leftPadding: -11
 
                 /// Delete a variable within the dialog box that pops up
                 Button {
@@ -339,6 +350,7 @@ Rectangle {
                 /// Confirm user choice with the OK button
                 Button {
                     text: "OK"
+                    implicitWidth: 96
                     DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
                     onClicked: {
                         const newName = newNameField.text.trim()
@@ -353,7 +365,7 @@ Rectangle {
                     }
                 }
 
-                alignment: Qt.AlignRight
+                alignment: Qt.AlignLeft
             }
         }
     }

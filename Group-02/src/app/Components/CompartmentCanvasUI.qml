@@ -236,8 +236,8 @@ Rectangle {
     Row {
         anchors.top: parent.top
         anchors.right: parent.right
-        anchors.margins: 5
-        anchors.rightMargin: 25
+        anchors.margins: 10
+        anchors.rightMargin: 10
         spacing: 5
         z: 10
 

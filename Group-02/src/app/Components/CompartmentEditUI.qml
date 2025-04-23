@@ -19,6 +19,10 @@ Rectangle {
         anchors.margins: 10
         spacing: 10
 
+        Item {
+            Layout.preferredHeight: 10
+        }
+
         Text {
             text: "Compartment"
             font.bold: true

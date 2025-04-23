@@ -26,7 +26,7 @@ Rectangle {
         }
 
         sourceComboBox.isInternal = true;
-        for (var i = 0; i < simulation.compartments.length; i++) {
+        for (let i = 0; i < simulation.compartments.length; i++) {
             if (simulation.compartments[i].symbol === selectedConnection.source.symbol) {
                 sourceComboBox.currentIndex = i
                 break
@@ -35,7 +35,7 @@ Rectangle {
         sourceComboBox.isInternal = false;
 
         targetComboBox.isInternal = true;
-        for (var j = 0; j < simulation.compartments.length; j++) {
+        for (let j = 0; j < simulation.compartments.length; j++) {
             if (simulation.compartments[j].symbol === selectedConnection.target.symbol) {
                 targetComboBox.currentIndex = j
                 break
@@ -54,6 +54,10 @@ Rectangle {
         anchors.margins: 10
         spacing: 10
 
+        Item {
+            Layout.preferredHeight: 10
+        }
+
         Text {
             text: "Connection"
             font.bold: true
@@ -67,7 +71,7 @@ Rectangle {
             Text {
                 text: "Start"
                 color: ThemeManager.palette.text
-                Layout.preferredWidth: 80
+                Layout.preferredWidth: 40
             }
             ComboBox {
                 id: sourceComboBox
@@ -100,7 +104,7 @@ Rectangle {
             Text {
                 text: "End"
                 color: ThemeManager.palette.text
-                Layout.preferredWidth: 80
+                Layout.preferredWidth: 40
             }
             ComboBox {
                 id: targetComboBox

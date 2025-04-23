@@ -1,3 +1,7 @@
+/**
+ @file TimePlotUI
+ @author Nitish Maindoliya, Rahul Baragur
+ **/
 import QtQuick
 import cseg2
 import Utilities
