@@ -140,8 +140,7 @@ class SimulationRunner {
     
             birthCount = static_cast<int>(currentPop * species->birthRate);
             deathCount = static_cast<int>(currentPop * species->deathRate);
-    
-            AddAnimals(birthCount, state, scheduler, id, species->name, species->foodSource);
+
             // Randomly select animals to remove
             std::shuffle(state.animals.begin(), state.animals.end(), gen);
             std::vector<int> indicesToRemove;
@@ -156,6 +155,9 @@ class SimulationRunner {
             std::ranges::sort(indicesToRemove, std::greater<>{});
             for (int index : indicesToRemove) {
                 state.animals.erase(state.animals.begin() + index);
+            }
+            if (birthCount - deathCount > 0){
+                AddAnimals(birthCount -deathCount, state, scheduler, id, species->name, species->foodSource);
             }
             // update pop for species
             species->population = std::count_if(state.animals.begin(), state.animals.end(),
