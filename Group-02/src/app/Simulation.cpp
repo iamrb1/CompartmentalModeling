@@ -200,6 +200,16 @@ void Simulation::remove_variable(const QString& name) {
     emit variablesChanged();
   }
 }
+
+/**
+ * @brief Shows error message when called on mid screen
+ * @param message error message
+ */
+void Simulation::throw_error(const QString &message) {
+    m_error_message = "test throw_error";
+    emit errorModuleShow(message);
+}
+
 /**
  * @brief Updates variable with new name/value
  * @param name Current variable name

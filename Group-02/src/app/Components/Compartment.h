@@ -30,7 +30,7 @@ class Compartment : public QObject {
   Q_PROPERTY(QString symbol MEMBER m_symbol WRITE set_symbol NOTIFY symbolChanged)
   Q_PROPERTY(double initialAmount MEMBER m_initial_amount WRITE set_initial_amount NOTIFY initialAmountChnaged)
   Q_PROPERTY(double currentAmount MEMBER m_current_amount NOTIFY currentAmountChanged)
-  Q_PROPERTY(QVector<double> amounts MEMBER m_amounts NOTIFY amountsChanged);
+  Q_PROPERTY(QVector<double> amounts MEMBER m_amounts NOTIFY amountsChanged)
   Q_PROPERTY(int x MEMBER m_x NOTIFY xChanged)
   Q_PROPERTY(int y MEMBER m_y NOTIFY yChanged)
 

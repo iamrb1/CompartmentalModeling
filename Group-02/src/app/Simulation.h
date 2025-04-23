@@ -26,7 +26,11 @@ class Simulation : public QObject {
   QML_ELEMENT
   Q_PROPERTY(QString name MEMBER m_name NOTIFY nameChanged)
 
-  // Connections/Compartments
+  // Error module
+  Q_PROPERTY(QString error_name MEMBER m_error_message NOTIFY errorModuleShow)
+
+
+    // Connections/Compartments
   Q_PROPERTY(QVector<Compartment*> compartments READ get_compartments NOTIFY compartmentsChanged)
   Q_PROPERTY(QVector<Connection*> connections READ get_connections NOTIFY connectionsChanged)
   Q_PROPERTY(QVariantMap variables READ get_variables NOTIFY variablesChanged)
@@ -59,7 +63,7 @@ class Simulation : public QObject {
   void currentTimeChanged();
   void timeStepsChanged();
   void isRunningChanged();
-  void addGraphingValues(int time, QVariantMap series);
+  void errorModuleShow(const QString &message);
 
  private:
   /// Simulation name
@@ -73,7 +77,11 @@ class Simulation : public QObject {
   int m_time_steps = 100;
   bool m_is_running = false;
 
-  /// Unordered map of compartments with their symbols as keys
+  /// error message
+  QString m_error_message;
+
+
+    /// Unordered map of compartments with their symbols as keys
   std::unordered_map<QString, std::shared_ptr<Compartment>> m_compartments;
   /// Connections between compartments
   std::vector<std::shared_ptr<Connection>> m_connections;
@@ -129,6 +137,8 @@ class Simulation : public QObject {
   Q_INVOKABLE void add_variable(const QString& name=QString(), double value = 0.0);
   Q_INVOKABLE void remove_variable(const QString& name);
   Q_INVOKABLE void update_variable(const QString& name, const QString& new_name, double value);
+  Q_INVOKABLE void throw_error(const QString &message);
+
 
   Q_INVOKABLE void remove_connection(const Connection* connection);
   Q_INVOKABLE void remove_compartment(const QString& symbol);
