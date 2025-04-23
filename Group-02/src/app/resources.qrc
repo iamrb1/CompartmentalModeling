@@ -9,5 +9,6 @@
         <file>resources/icons/play_arrow.svg</file>
         <file>resources/icons/pause.svg</file>
         <file>resources/icons/reset.svg</file>
+        <file>resources/icons/warning.svg</file>
     </qresource>
 </RCC>
