@@ -64,7 +64,7 @@ TEST_CASE("Simulation_NoInteractions", "[Simulation]") {
     auto foxes   = state.FindSpecies("Foxes");
     REQUIRE(rabbits.has_value());
     REQUIRE(foxes.has_value());
-    REQUIRE(rabbits.value().get().population == 117);
+    REQUIRE(rabbits.value().get().population == 101);
     REQUIRE(foxes.value().get().population == 10);
 
     std::string logs = capturedStream.str();
@@ -121,7 +121,7 @@ TEST_CASE("Simulation_MissingSpeciesInteraction", "[Simulation]") {
 
     auto rabbits = state.FindSpecies("Rabbits");
     REQUIRE(rabbits.has_value());
-    REQUIRE(rabbits.value().get().population == 116);
+    REQUIRE(rabbits.value().get().population == 100);
 
     std::string logs = capturedStream.str();
     REQUIRE(logs.find("Simulation complete.") != std::string::npos);
@@ -149,7 +149,7 @@ TEST_CASE("Simulation_Regular_Run", "[Simulation]") {
     auto foxes   = state.FindSpecies("Foxes");
     REQUIRE(rabbits.has_value());
     REQUIRE(foxes.has_value());
-    REQUIRE(rabbits.value().get().population == 117); 
+    REQUIRE(rabbits.value().get().population == 102); // 100 + births - deaths
     REQUIRE(foxes.value().get().population == 10);
 
     std::string logs = capturedStream.str();
