@@ -65,12 +65,12 @@ bool cse::WordListManager::print(int number, bool isAll) {
   std::cout << "[";
 
   for (const auto& word : mCurrentSet) {
-    if (!isAll && count > number) break;
+    if (!isAll && count >= number) break;
 
     std::cout << word;
     ++count;
 
-    if (count <= limit) {
+    if (count < limit) {
       std::cout << ", ";
     }
   }
