@@ -241,35 +241,73 @@ Rectangle {
         spacing: 5
         z: 10
 
-        Button {
-            text: "+"
+        Rectangle {
+            id: zoomInRect
             width: 30
             height: 30
-            onClicked: root.zoomIn()
+            radius: 4
+            color: zoomInArea.pressed ? ThemeManager.palette.mid : "transparent"
+            border.width: 1
+            border.color: ThemeManager.palette.mid
 
-            Component.onCompleted: {
-                       palette.buttonText = "black"
-                   }
+            Text {
+                anchors.centerIn: parent
+                text: "+"
+                font.pixelSize: 14
+                color: ThemeManager.palette.text
+            }
+
+            MouseArea {
+                id: zoomInArea
+                anchors.fill: parent
+                onClicked: root.zoomIn()
+            }
         }
 
-        Button {
-            text: "-"
+        Rectangle {
+            id: zoomOutRect
             width: 30
             height: 30
-            onClicked: root.zoomOut()
-            Component.onCompleted: {
-                       palette.buttonText = "black"
-                   }
+            radius: 4
+            color: zoomOutArea.pressed ? ThemeManager.palette.mid : "transparent"
+            border.width: 1
+            border.color: ThemeManager.palette.mid
+
+            Text {
+                anchors.centerIn: parent
+                text: "–"
+                font.pixelSize: 14
+                color: ThemeManager.palette.text
+            }
+
+            MouseArea {
+                id: zoomOutArea
+                anchors.fill: parent
+                onClicked: root.zoomOut()
+            }
         }
 
-        Button {
-            text: "⟲"
+        Rectangle {
+            id: resetRect
             width: 30
             height: 30
-            onClicked: root.resetView()
-            Component.onCompleted: {
-                       palette.buttonText = "black"
-                   }
+            radius: 4
+            color: resetArea.pressed ? ThemeManager.palette.mid : "transparent"
+            border.width: 1
+            border.color: ThemeManager.palette.mid
+
+            Text {
+                anchors.centerIn: parent
+                text: "\u27F2"
+                font.pixelSize: 14
+                color: ThemeManager.palette.text
+            }
+
+            MouseArea {
+                id: resetArea
+                anchors.fill: parent
+                onClicked: root.resetView()
+            }
         }
     }
 }
