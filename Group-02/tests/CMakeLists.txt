@@ -35,6 +35,9 @@ set(
 #    ${PROJECT_SOURCE_DIR}/src/app/Components/TimePlotUI.qml
 #)
 
+set(CSEG2_LIB_PATH "${CMAKE_BINARY_DIR}/src/app/libcseg2Lib.a")
+set(CSEG2_PLUGIN_PATH "${CMAKE_BINARY_DIR}/src/app/libcseg2Libplugin.a")
+
 qt_policy(SET QTP0001 NEW)
 qt_add_executable(tests ${TEST_FILES})
 qt_add_resources(
