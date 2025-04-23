@@ -46,6 +46,7 @@ Rectangle {
                     verticalAlignment: TextInput.AlignVCenter
                     text: selectedCompartment ? selectedCompartment.name : null
                     color: ThemeManager.palette.text
+                    enabled: !simulation.isRunning
 
                     // Alpha numeric non empty with spaces
                     validator: RegularExpressionValidator{
@@ -78,6 +79,7 @@ Rectangle {
                     verticalAlignment: TextInput.AlignVCenter
                     text: selectedCompartment ? selectedCompartment.symbol : null
                     color: ThemeManager.palette.text
+                    enabled: !simulation.isRunning
 
                     // Alpha numeric non empty
                     validator: RegularExpressionValidator {
@@ -110,6 +112,7 @@ Rectangle {
                     verticalAlignment: TextInput.AlignVCenter
                     text: selectedCompartment ? selectedCompartment.initialAmount : null
                     color: ThemeManager.palette.text
+                    enabled: !simulation.isRunning
 
                     validator: DoubleValidator {}
 
@@ -122,10 +125,11 @@ Rectangle {
 
         Button {
             Layout.fillWidth: true
+            enabled: !simulation.isRunning
 
             icon.name: "Delete compartment"
             icon.source: "qrc:/resources/icons/delete.svg"
-            icon.color: ThemeManager.palette.danger
+            icon.color: enabled ? ThemeManager.palette.danger : ThemeManager.palette.mid
             icon.height: 20
             icon.width: 20
 

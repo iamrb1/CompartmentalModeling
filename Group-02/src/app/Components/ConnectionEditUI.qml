@@ -77,6 +77,7 @@ Rectangle {
 
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+                enabled: !simulation.isRunning
 
                 property bool isInternal: false
 
@@ -109,6 +110,7 @@ Rectangle {
 
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+                enabled: !simulation.isRunning
 
                 property bool isInternal: false
 
@@ -145,6 +147,7 @@ Rectangle {
                     verticalAlignment: TextInput.AlignVCenter
                     text: selectedConnection ? selectedConnection.rateExpression : null
                     color: ThemeManager.palette.text
+                    enabled: !simulation.isRunning
 
                     onEditingFinished: {
                         selectedConnection.rateExpression = text
@@ -155,10 +158,11 @@ Rectangle {
 
         Button {
             Layout.fillWidth: true
+            enabled: !simulation.isRunning
 
             icon.name: "Delete connection"
             icon.source: "qrc:/resources/icons/delete.svg"
-            icon.color: ThemeManager.palette.danger
+            icon.color: enabled ? ThemeManager.palette.danger : ThemeManager.palette.mid
             icon.height: 20
             icon.width: 20
 

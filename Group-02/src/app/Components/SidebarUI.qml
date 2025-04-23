@@ -116,6 +116,7 @@ Rectangle {
                         color: plusMouseArea.pressed ? ThemeManager.palette.mid : "transparent"
                         border.width: 1
                         border.color: ThemeManager.palette.mid
+                        opacity: simulation.isRunning ? 0.5 : 1
 
                         Text {
                             anchors.centerIn: parent
@@ -127,6 +128,7 @@ Rectangle {
                         MouseArea {
                             id: plusMouseArea
                             anchors.fill: parent
+                            enabled: !simulation.isRunning
                             onClicked: {
                                 console.log(Object.keys(simulation.variables))
                                 simulation.add_variable()
@@ -172,6 +174,7 @@ Rectangle {
                                     verticalAlignment: TextInput.AlignVCenter
                                     text: modelData[1]
                                     color: ThemeManager.palette.text
+                                    enabled: !simulation.isRunning
 
                                     validator: DoubleValidator{}
 
@@ -188,16 +191,18 @@ Rectangle {
                                 id: editToolButton
                                 icon.name: "Edit Variable"
                                 icon.source: "qrc:/resources/icons/edit.svg"
-                                icon.color: ThemeManager.palette.text
+                                icon.color: enabled ? ThemeManager.palette.text : ThemeManager.palette.mid
                                 icon.height: 16
                                 icon.width: 16
                                 padding: 5
+                                enabled: !simulation.isRunning
 
                                 background: Rectangle {
                                     color: editToolButton.hovered ? ThemeManager.palette.midlight : "transparent"
                                     border.color: ThemeManager.palette.mid
                                     border.width: 1
                                     radius: 5
+                                    opacity: simulation.isRunning ? 0.5 : 1
                                 }
 
                                 ToolTip.visible: hovered
@@ -205,9 +210,11 @@ Rectangle {
                                 ToolTip.text: icon.name
 
                                 onClicked: {
-                                    editDialog.oldName = modelData[0]
-                                    editDialog.currentValue = modelData[1]
-                                    editDialog.open()
+                                    if (!simulation.isRunning) {
+                                        editDialog.oldName = modelData[0]
+                                        editDialog.currentValue = modelData[1]
+                                        editDialog.open()
+                                    }
                                 }
                             }
                         }
@@ -221,6 +228,15 @@ Rectangle {
     Dialog {
         id: editDialog
         title: "Edit Variable"
+
+        property bool canOpen: !simulation.isRunning
+
+        // Override the open function to check if we can open
+        function open() {
+            if (canOpen) {
+                visible = true;
+            }
+        }
 
         standardButtons: Dialog.NoButton
         modal: true

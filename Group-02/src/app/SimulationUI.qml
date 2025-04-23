@@ -140,7 +140,9 @@ ApplicationWindow {
                     height: 25
                     border.width: 1
                     border.color: ThemeManager.palette.mid
-                    color: "transparent"
+                    // color: "transparent"
+                    color: simulation.isRunning ? Qt.rgba(ThemeManager.palette.mid.r, ThemeManager.palette.mid.g, ThemeManager.palette.mid.b, 0.3) : "transparent"
+
 
                     TextInput {
                         anchors.fill: parent
@@ -148,7 +150,7 @@ ApplicationWindow {
                         verticalAlignment: TextInput.AlignVCenter
                         text: simulation.timeSteps
                         color: ThemeManager.palette.text
-
+                        enabled: !simulation.isRunning
                         validator: IntValidator{}
 
                         onEditingFinished: {
@@ -248,7 +250,7 @@ ApplicationWindow {
                     ToolTip.delay: 500
                     ToolTip.text: icon.name
 
-                    enabled: !simulation.connectionMode
+                    enabled: !simulation.connectionMode && !simulation.isRunning
 
                     onClicked: {
                         simulation.add_compartment()
@@ -257,7 +259,7 @@ ApplicationWindow {
                 ToolButton {
                     icon.name: "Add connection"
                     icon.source: "qrc:/resources/icons/arrow-right.svg"
-                    icon.color: ThemeManager.palette.text
+                    icon.color: enabled ? ThemeManager.palette.text : ThemeManager.palette.mid
                     icon.height: 20
                     icon.width: 20
 
