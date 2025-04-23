@@ -1,6 +1,6 @@
 /**
  * @file TestConnection.cpp
- * @author Nitish Maindoliya
+ * @author Nitish Maindoliya, Dominik Leisinger, Bram Hogg
  */
  
 #include "TestConnection.h"
