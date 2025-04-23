@@ -146,9 +146,14 @@ ApplicationWindow {
                         color: ThemeManager.palette.text
                         enabled: !simulation.isRunning
                         validator: IntValidator {
+                            bottom: 0
                         }
 
                         onEditingFinished: {
+                            if (parseInt(text) < simulation.timeSteps)
+                            {
+                                simulation.reset();
+                            }
                             simulation.timeSteps = text;
                         }
                         clip: true

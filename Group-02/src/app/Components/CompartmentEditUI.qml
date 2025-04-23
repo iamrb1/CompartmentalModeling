@@ -43,7 +43,8 @@ Rectangle {
                 height: 30
                 border.width: 1
                 border.color: ThemeManager.palette.mid
-                color: "transparent"
+                // color: "transparent"
+                color: simulation.isRunning ? Qt.rgba(ThemeManager.palette.mid.r, ThemeManager.palette.mid.g, ThemeManager.palette.mid.b, 0.3) : "transparent"
                 TextInput {
                     anchors.fill: parent
                     anchors.margins: 5
@@ -75,7 +76,8 @@ Rectangle {
                 height: 30
                 border.width: 1
                 border.color: ThemeManager.palette.mid
-                color: "transparent"
+                // color: "transparent"
+                color: simulation.isRunning ? Qt.rgba(ThemeManager.palette.mid.r, ThemeManager.palette.mid.g, ThemeManager.palette.mid.b, 0.3) : "transparent"
                 TextInput {
                     anchors.fill: parent
                     anchors.margins: 5
@@ -108,7 +110,8 @@ Rectangle {
                 height: 30
                 border.width: 1
                 border.color: ThemeManager.palette.mid
-                color: "transparent"
+                // color: "transparent"
+                color: simulation.isRunning ? Qt.rgba(ThemeManager.palette.mid.r, ThemeManager.palette.mid.g, ThemeManager.palette.mid.b, 0.3) : "transparent"
                 TextInput {
                     anchors.fill: parent
                     anchors.margins: 5
