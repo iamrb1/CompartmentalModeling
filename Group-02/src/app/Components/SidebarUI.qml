@@ -140,9 +140,9 @@ Rectangle {
                             anchors.fill: parent
                             enabled: !simulation.isRunning
                             onClicked: {
-                                console.log(Object.keys(simulation.variables))
+                                // console.log(Object.keys(simulation.variables))
                                 simulation.add_variable()
-                                console.log(Object.keys(simulation.variables))
+                                // console.log(Object.keys(simulation.variables))
                             }
                         }
                     }
