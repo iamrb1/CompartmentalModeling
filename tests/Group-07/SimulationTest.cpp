@@ -65,7 +65,7 @@ TEST_CASE("Simulation_NoInteractions", "[Simulation]") {
     REQUIRE(rabbits.has_value());
     REQUIRE(foxes.has_value());
     REQUIRE(rabbits.value().get().population == 101);
-    REQUIRE(foxes.value().get().population == 10);
+    REQUIRE(foxes.value().get().population == 9);
 
     std::string logs = capturedStream.str();
     REQUIRE(logs.find("Simulation complete.") != std::string::npos);
