@@ -402,6 +402,12 @@ class BasicRichText {
    * @param end End (exclusive) of range to apply format to
    */
   void apply_format(const TextFormat& format, const IndexSet& indices) {
+    // Need to clear the formatting with the same name but different value for
+    // this index set
+    for (auto& [fmt, iset] : m_formatting) {
+      if (format.name == fmt.name) iset -= indices;
+    }
+
     auto [item, inserted] = m_formatting.insert({format, indices});
     if (!inserted) {
       item->second |= indices;
@@ -456,6 +462,93 @@ class BasicRichText {
     if (result != m_formatting.end()) {
       m_formatting.erase(result);
     }
+  }
+
+  /**
+   * @brief Clear all formatting of a specific name
+   * @param format_id Format ID to clear
+   */
+  void clear_format(const TextFormat::FormatID& format_id) {
+    std::vector<TextFormat> to_clear;
+
+    for (auto& [format, idx] : m_formatting) {
+      if (format.name == format_id) to_clear.push_back(format);
+    }
+
+    for (const auto& i : to_clear) m_formatting.erase(i);
+  }
+
+  /**
+   * @brief Clear all formatting of a specific name (in a specific set of
+   * indices)
+   * @param format_id Format ID to clear
+   */
+  void clear_format(const TextFormat::FormatID& format_id,
+                    const IndexSet& indices) {
+    std::vector<TextFormat> to_clear;
+
+    for (auto& [format, idx] : m_formatting) {
+      if (format.name == format_id) {
+        idx -= indices;
+        if (idx.size() == 0) to_clear.push_back(format);
+      }
+    }
+
+    for (const auto& i : to_clear) m_formatting.erase(i);
+  }
+
+  /**
+   * @brief Clear all formatting of a specific name (in a specific range)
+   * @param format_id Format ID to clear
+   */
+  void clear_format(const TextFormat::FormatID& format_id, size_t start,
+                    size_t end) {
+    dbg_assert(end > start);
+    clear_format(format_id, {{start, end}});
+  }
+
+  /**
+   * @brief Gets all distinct formats in the range [start, end)
+   * @param begin Beginning of range to pull formats from
+   * @param end End (exclusive) of range to pull formats from
+   */
+  std::vector<TextFormat> formats_in_range(size_t begin, size_t end) {
+    dbg_assert(end > begin);
+
+    // The result
+    std::vector<TextFormat> out;
+    // Tracking which formats come first so we only output the formats applied
+    // earliest if they have the same name
+    std::map<TextFormat::FormatID, std::pair<size_t, size_t>> start_map;
+
+    // Const range of our check
+    const IndexSet range{{begin, end}};
+
+    for (const auto& [format, indices] : m_formatting) {
+      // The intersection of our range and the format
+      auto isec = (indices & range);
+      // If the format is in the intersection, conditionally add it to the
+      // output
+      if (isec.size() != 0) {
+        // We know that min_index has a value because we have seen that the size
+        // is > 0
+        if (!start_map.contains(format.name) ||
+            isec.min_index().value() < start_map[format.name].first) {
+          // If we already saw a format with this id, replace it with this one
+          // otherwise add it to both the result vector and the map.
+          if (start_map.contains(format.name)) {
+            out[start_map[format.name].second] = format;
+            start_map[format.name].first = isec.min_index().value();
+          } else {
+            start_map[format.name] =
+                std::pair(isec.min_index().value(), out.size());
+            out.push_back(format);
+          }
+        }
+      }
+    }
+
+    return out;
   }
 
   /**

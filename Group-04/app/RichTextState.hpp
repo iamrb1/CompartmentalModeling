@@ -49,12 +49,16 @@ class RichTextState {
   std::string edit_start_pos(size_t idx) {
     if (m_text.size() == 0) {
       m_edit = {0, 0};
+      m_format_map.clear();
+      for (auto& fmt : m_text.formats_at(idx))
+        m_format_map[fmt.name] = fmt.metadata;
       return "";
     }
     if (idx >= m_text.size()) idx = m_text.size() - 1;
 
-    reset_format();
-    for (auto& fmt : m_text.formats_at(idx)) update_bar(fmt);
+    m_format_map.clear();
+    for (auto& fmt : m_text.formats_at(idx))
+      m_format_map[fmt.name] = fmt.metadata;
 
     auto seg = m_text.segment_at(idx);
     m_edit = {seg.start, seg.end};
@@ -62,6 +66,10 @@ class RichTextState {
   }
 
   std::string edit_start_range(size_t start, size_t count) {
+    m_format_map.clear();
+    for (auto& fmt : m_text.formats_in_range(start, count + start))
+      m_format_map[fmt.name] = fmt.metadata;
+
     if (start >= m_text.size() || start + count > m_text.size()) return "";
     m_edit = {start, start + count};
     return m_text.to_string().substr(start, count);
@@ -82,25 +90,68 @@ class RichTextState {
   }
 
   // — FORMAT OPERATIONS —
-  void update_format(cse::TextFormat::FormatID id,
-                     cse::TextFormat::FormatData data) {
+  void set_format(cse::TextFormat::FormatID id,
+                  cse::TextFormat::FormatData data) {
     // Save current state before making changes
     save_state();
 
     cse::TextFormat fmt{id, data};
     if (m_edit.second > m_edit.first)
       m_text.apply_format(fmt, m_edit.first, m_edit.second);
-    update_bar(fmt);
+    m_format_map[id] = data;
   }
 
-  void reset_format() {
-    for (auto& [name, _] : m_format_map)
-      update_bar(cse::TextFormat(name, std::monostate()), true);
-    m_format_map.clear();
+  void set_monostate(cse::TextFormat::FormatID id) {
+    set_format(id, std::monostate());
   }
 
-  void update_bar(const cse::TextFormat& fmt, bool clear = false) {
-    if (!clear) m_format_map[fmt.name] = fmt.metadata;
+  void set_string(cse::TextFormat::FormatID id, std::string value) {
+    set_format(id, value);
+  }
+
+  void unset_format(cse::TextFormat::FormatID id) {
+    if (m_format_map.contains(id)) {
+      save_state();
+      m_format_map.erase(id);
+      m_text.clear_format(id, {{m_edit.first, m_edit.second}});
+    }
+  }
+
+  void clear_all_formats() {
+    if (!m_format_map.empty()) {
+      save_state();
+      for (const auto& [id, data] : m_format_map) {
+        m_text.clear_format(id, {{m_edit.first, m_edit.second}});
+      }
+      m_format_map.clear();
+    }
+  }
+
+  std::vector<std::string> format_ids() const {
+    std::vector<std::string> out;
+
+    for (const auto& [id, _] : m_format_map) {
+      out.push_back(id);
+    }
+
+    return out;
+  }
+
+  std::string format_data(cse::TextFormat::FormatID id) const {
+    if (m_format_map.contains(id)) {
+      auto data = m_format_map.at(id);
+      if (std::holds_alternative<std::monostate>(data))
+        return "1";
+      else if (std::holds_alternative<int32_t>(data))
+        return std::to_string(std::get<int32_t>(data));
+      else if (std::holds_alternative<std::string>(data))
+        return std::get<std::string>(data);
+    }
+    return "";
+  }
+
+  bool has_format(cse::TextFormat::FormatID id) const {
+    return m_format_map.contains(id);
   }
 
   // — UNDO / REDO —
@@ -150,15 +201,13 @@ class RichTextState {
   std::string get_LaTeX() { return output("latex"); }
 
   // Single‑arg convenience formatting
-  void apply_bold() { update_format("bold", std::monostate{}); }
-  void apply_italic() { update_format("italic", std::monostate{}); }
-  void apply_underline() { update_format("underline", std::monostate{}); }
-  void apply_strikethrough() {
-    update_format("strikethrough", std::monostate{});
-  }
-  void apply_color(const std::string& c) { update_format("color", c); }
-  void apply_link(const std::string& u) { update_format("link", u); }
-  void apply_header(int lvl) { update_format("header", lvl); }
+  void apply_bold() { set_format("bold", std::monostate{}); }
+  void apply_italic() { set_format("italic", std::monostate{}); }
+  void apply_underline() { set_format("underline", std::monostate{}); }
+  void apply_strikethrough() { set_format("strikethrough", std::monostate{}); }
+  void apply_color(const std::string& c) { set_format("color", c); }
+  void apply_link(const std::string& u) { set_format("link", u); }
+  void apply_header(int lvl) { set_format("header", lvl); }
 
   // Range‑based overloads (the tests call these with start,end)
   void apply_bold(size_t start, size_t end) {

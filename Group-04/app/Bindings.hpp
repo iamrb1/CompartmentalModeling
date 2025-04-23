@@ -44,11 +44,24 @@ EMSCRIPTEN_BINDINGS(rich_text_module) {
       .function("applyHeader", static_cast<void (RichTextState::*)(int)>(
                                    &RichTextState::apply_header))
 
-      // Generic format function
-      .function("update_format",
-                static_cast<void (RichTextState::*)(
-                    cse::TextFormat::FormatID, cse::TextFormat::FormatData)>(
-                    &RichTextState::update_format))
+      // Generic format functions
+      .function("set_monostate",
+                static_cast<void (RichTextState::*)(cse::TextFormat::FormatID)>(
+                    &RichTextState::set_monostate))
+
+      .function("set_string", static_cast<void (RichTextState::*)(
+                                  cse::TextFormat::FormatID, std::string)>(
+                                  &RichTextState::set_string))
+
+      // Clear formats
+      .function("unset_format", &RichTextState::unset_format)
+
+      .function("clear_all_formats", &RichTextState::clear_all_formats)
+
+      // Get format data (for display on top bar)
+      .function("format_ids", &RichTextState::format_ids)
+      .function("format_data", &RichTextState::format_data)
+      .function("has_format", &RichTextState::has_format)
 
       // Range‑based formatting (distinct JS names)
       .function("applyBoldRange",

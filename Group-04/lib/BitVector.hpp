@@ -21,10 +21,10 @@ concept BoolGenerator = (std::invocable<T, size_t> &&
 // BitVectors of varying sizes.
 class BitVector {
  private:
-  // Element type
+  // Element type (must be unsigned and integral)
   using bv_type = uint64_t;
   // A std::byte filled with ones
-  static constexpr bv_type ALL_ONE = bv_type(0) - bv_type(1);
+  static constexpr bv_type ALL_ONE = std::numeric_limits<bv_type>::max();
   // A std::byte filled with zeros
   static constexpr bv_type ALL_ZERO = 0;
   // One
@@ -32,19 +32,19 @@ class BitVector {
   // Number of bits per element in the underlying vector
   static constexpr size_t BITS_PER_EL = sizeof(bv_type) * 8;
 
-  // The m_underlying bytes of the vector
+  // The m_underlying elements of the vector
   std::vector<bv_type> m_underlying = {};
   // The number of bits the vector is currently holding
   size_t m_num_bits = 0;
   // The number of set bits in the BitVector
   size_t m_num_set = 0;
 
-  // Keep the bottom "keep" bits of the given byte, discarding the rest and
+  // Keep the bottom "keep" bits of the given element, discarding the rest and
   // updating the m_num_set
-  void truncate_element(size_t byte, size_t keep);
+  void truncate_element(size_t el, size_t keep);
 
   // Manages the case in pattern set where
-  // only one byte needs changing
+  // only one element needs changing
   BitVector& pattern_set_one(size_t start, size_t count, bv_type pattern);
 
   // Convert a number of bits
