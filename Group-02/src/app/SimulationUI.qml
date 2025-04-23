@@ -12,6 +12,17 @@ import Components
 ApplicationWindow {
     Simulation {
         id: simulation
+        onErrorModuleShow: ErrorModule.showError("errorMessage", true)
+    }
+
+    ///CALL THIS LINE TO GO TO ERROR MODULE. TRUE FOR MODAL FALSE FOR POPUP
+    //simulation.throw_error("Something broke", false)
+
+    Connections {
+        target: simulation
+        // function onErrorModuleShow(errorMessage) {
+        //     ErrorModule.showError(errorMessage, false) // or true for modal
+        // }
     }
 
 
