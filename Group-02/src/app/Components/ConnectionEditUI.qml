@@ -129,9 +129,9 @@ Rectangle {
         RowLayout {
             Layout.fillWidth: true
             Text {
-                text: "Rate of transfer"
+                text: "Rate of Transfer"
                 color: ThemeManager.palette.text
-                Layout.preferredWidth: 80
+                Layout.preferredWidth: 100
             }
             Rectangle {
                 Layout.fillWidth: true

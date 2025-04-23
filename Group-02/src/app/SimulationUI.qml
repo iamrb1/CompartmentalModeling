@@ -132,7 +132,7 @@ ApplicationWindow {
                 Text {
                     text: "Time Steps:"
                     color: ThemeManager.palette.text
-                    Layout.preferredWidth: 60
+                    Layout.preferredWidth: 70
                 }
 
                 Rectangle {
