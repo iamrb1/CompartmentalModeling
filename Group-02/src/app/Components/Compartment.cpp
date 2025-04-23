@@ -55,7 +55,7 @@ void Compartment::reset() {
 
 /**
    * @brief Setter for Compartment initial amount
-   * @param initial_amount
+   * @param initial_amount The amount in the container initially
    */
 void Compartment::set_initial_amount(const double initial_amount) {
   m_initial_amount = initial_amount;

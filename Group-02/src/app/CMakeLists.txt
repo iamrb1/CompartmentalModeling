@@ -39,7 +39,7 @@ qt_add_qml_module(
 )
 # Link libraries
 target_link_libraries(${EXECUTABLE_NAME} PRIVATE Qt6::Quick Qt6::Charts)
-target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${LIBRARY_NAME})
+#target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${LIBRARY_NAME})
 target_link_libraries(${EXECUTABLE_NAME} PRIVATE exprtk::exprtk)
 
 # Set the C++ standard to C++20
@@ -77,6 +77,8 @@ install(
 # Create an application library for testing
 if (BUILD_TESTS)
   qt_add_library(${EXECUTABLE_NAME}Lib STATIC ${SOURCE_FILES})
+  set_target_properties(${EXECUTABLE_NAME}Lib PROPERTIES AUTOMOC ON)
+  target_link_libraries(${EXECUTABLE_NAME}Lib PUBLIC Qt6::Test Qt6::Quick Qt6::Charts)
   qt_add_qml_module(
       ${EXECUTABLE_NAME}Lib
       URI ${EXECUTABLE_NAME}Lib

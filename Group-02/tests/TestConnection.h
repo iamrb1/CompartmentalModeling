@@ -11,11 +11,19 @@
 #include <QTest>
 #include <app/Components/Compartment.h>
 #include <app/Components/Connection.h>
+#include <app/Simulation.h>
 
 class TestConnection : public QObject {
   Q_OBJECT
 
  private slots:
+  void test_constructors();
+
+  void test_getter_setters();
+
+  void test_add_conneciton();
+
+  void test_update_connection();
 };
 
 #endif  //TESTCONNECTION_H

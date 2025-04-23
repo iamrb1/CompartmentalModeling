@@ -25,9 +25,8 @@ if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
   # Set Wall, Wextra and Wpedantic flags for GCC/Clang and /W4 for MSVC
   if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
-  elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    string(REGEX REPLACE "/W3" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-dev")
+    MESSAGE("Adding ${CMAKE_CXX_FLAGS}")
   endif ()
 
 endif ()

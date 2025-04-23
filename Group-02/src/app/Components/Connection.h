@@ -86,7 +86,7 @@ class Connection : public QObject {
   }
   /**
    * @brief Setter for the name of connection
-   * @param name
+   * @param name The name of the connection
    */
   void set_name(const QString& name) {
     m_name = name;
@@ -94,7 +94,7 @@ class Connection : public QObject {
   }
   /**
    * @brief Setter for source compartment
-   * @param source
+   * @param source The source compartment
    */
   void set_source(Compartment* source) {
     m_source = source;
@@ -102,7 +102,7 @@ class Connection : public QObject {
   }
   /**
    * @brief Setter for target compartment
-   * @param target
+   * @param target The target compartment
    */
   void set_target(Compartment* target) {
     m_target = target;
@@ -110,7 +110,7 @@ class Connection : public QObject {
   }
   /**
    * @brief Setter for the rate of transfer expression
-   * @param rate_expression
+   * @param rate_expression The rate of transfer
    */
   void set_rate_expression(const QString& rate_expression) {
     m_rate_expression = rate_expression;
@@ -118,7 +118,7 @@ class Connection : public QObject {
   }
   /**
    * Setter for the parent simulation
-   * @param simulation
+   * @param simulation The simulation instance
    */
   void set_simulation(Simulation* simulation) {
     m_simulation = simulation;

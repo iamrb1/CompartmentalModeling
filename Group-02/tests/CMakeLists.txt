@@ -35,7 +35,7 @@ set(
 #    ${PROJECT_SOURCE_DIR}/src/app/Components/TimePlotUI.qml
 #)
 
-
+qt_policy(SET QTP0001 NEW)
 qt_add_executable(tests ${TEST_FILES})
 qt_add_resources(
     SOURCE_FILES
@@ -45,8 +45,6 @@ qt_add_qml_module(tests
     URI tests
     SOURCES ${SOURCE_FILES}
 )
-
-target_link_libraries(cseg2Lib PRIVATE Qt6::Test Qt6::Quick Qt6::Charts)
 
 target_link_libraries(
     tests

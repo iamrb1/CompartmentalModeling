@@ -52,9 +52,9 @@ class Compartment : public QObject {
   /// The symbol of the compartment (used for variable names)
   QString m_symbol = "X";
   /// The initial amount of the compartment
-  double m_initial_amount = 0.0f;
+  double m_initial_amount = 0.0;
   /// The current amount of the compartment
-  double m_current_amount = 0.0f;
+  double m_current_amount = 0.0;
   /// Array of values for the compartment
   QVector<double> m_amounts;
   /// The x position of the compartment
@@ -121,7 +121,7 @@ class Compartment : public QObject {
 
   /**
    * Setter for Compartment current amount
-   * @param current_amount
+   * @param current_amount The current amount in the compartment
    */
   void set_current_amount(const double current_amount) {
     m_current_amount = current_amount;
@@ -130,7 +130,7 @@ class Compartment : public QObject {
 
   /**
    * @brief Setter for Compartment X Position
-   * @param x
+   * @param x The x position
    */
   void set_x(const int x) {
     m_x = x;
@@ -138,7 +138,7 @@ class Compartment : public QObject {
   }
   /**
    * @brief Setter for Compartment Y Position
-   * @param Y
+   * @param y The y position
    */
   void set_y(const int y) {
     m_y = y;
@@ -146,7 +146,7 @@ class Compartment : public QObject {
   }
   /**
    * Setter for the running Simulation
-   * @param simulation
+   * @param simulation The simulation instance
    */
   void set_simulation(Simulation* simulation) {
     m_simulation = simulation;
