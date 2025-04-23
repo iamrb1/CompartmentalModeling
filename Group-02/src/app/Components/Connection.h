@@ -8,6 +8,7 @@
 
 #include <QObject>
 #include <qqml.h>
+#include <QRegularExpression>
 
 class Simulation;
 class Compartment;
@@ -20,7 +21,7 @@ class Connection : public QObject {
   Q_OBJECT
   QML_ELEMENT
 
-  Q_PROPERTY(QString name MEMBER m_name NOTIFY nameChanged FINAL)
+  Q_PROPERTY(QString name MEMBER m_name WRITE set_name NOTIFY nameChanged FINAL)
   Q_PROPERTY(Compartment* source MEMBER m_source NOTIFY sourceChanged FINAL)
   Q_PROPERTY(Compartment* target MEMBER m_target NOTIFY targetChanged FINAL)
   Q_PROPERTY(QString rateExpression MEMBER m_rate_expression WRITE set_rate_expression NOTIFY rateExpressionChanged FINAL)
@@ -36,13 +37,13 @@ class Connection : public QObject {
   ///The parent simulation
   Simulation* m_simulation = nullptr;
   ///Name of connection
-  QString m_name;
+  QString m_name = "Test";
   ///Source compartment
   Compartment* m_source = nullptr;
   ///Target compartment
   Compartment* m_target = nullptr;
   ///Rate of transfer expression
-  QString m_rate_expression;
+  QString m_rate_expression = "0";
 
  public:
   explicit Connection(QObject* parent = nullptr) : QObject(parent) {}
@@ -89,8 +90,12 @@ class Connection : public QObject {
    * @param name The name of the connection
    */
   void set_name(const QString& name) {
-    m_name = name;
-    emit nameChanged();
+      static QRegularExpression regex("^[a-zA-Z0-9 ]+$");
+      if (!name.isEmpty() && regex.match(name).hasMatch())
+      {
+          m_name = name;
+          emit nameChanged();
+      }
   }
   /**
    * @brief Setter for source compartment
@@ -120,9 +125,9 @@ class Connection : public QObject {
    * Setter for the parent simulation
    * @param simulation The simulation instance
    */
-  void set_simulation(Simulation* simulation) {
-    m_simulation = simulation;
-  }
+//  void set_simulation(Simulation* simulation) {
+//    m_simulation = simulation;
+//  }
 };
 
 #endif  //CONNECTION_H
