@@ -433,10 +433,12 @@ class PresentationManager {
               var images = document.getElementsByClassName("image");
               for(var i = 0; i < images.length; i++) {
                 images[i].style.border = $0 ? "none" : "1px solid black";
+                images[i].style.resize = $0 ? "none" : "both";
               }
               var textboxes = document.getElementsByClassName("textbox");
               for(var i = 0; i < textboxes.length; i++) {
                 textboxes[i].style.border = $0 ? "none" : "1px solid black";
+                textboxes[i].style.resize = $0 ? "none" : "both";
               }
               }, hidden);
         }
