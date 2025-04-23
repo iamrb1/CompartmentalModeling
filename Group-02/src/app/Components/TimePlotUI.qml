@@ -70,9 +70,9 @@ Item {
             // timeAxis.min = time - 60;
         }
 
-        function onCompartmentsUpdated() {
-            loadSeries();
-        }
+        // function onCompartmentsUpdated() {
+        //     loadSeries();
+        // }
     }
 
     ColumnLayout {
