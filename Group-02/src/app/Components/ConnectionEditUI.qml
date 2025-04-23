@@ -149,6 +149,14 @@ Rectangle {
                     color: ThemeManager.palette.text
                     enabled: !simulation.isRunning
 
+                    validator: DoubleValidator {
+                        bottom: 0.0
+                        top: 1000000.0
+                        decimals: 6
+                        locale: "en_US"
+                        notation: DoubleValidator.StandardNotation
+                    }
+
                     onEditingFinished: {
                         selectedConnection.rateExpression = text
                     }
