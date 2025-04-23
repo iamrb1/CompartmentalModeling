@@ -331,6 +331,7 @@ namespace cse
 					PrintType(container);
 				int size = container.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
+				outFile.flush();
 				for (auto &elem : container)
 				{
 					Serialize(elem);
@@ -410,6 +411,7 @@ namespace cse
 					PrintType(set);
 				int size = set.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
+				outFile.flush();
 				for (auto item = set.begin(); item != set.end(); ++item)
 				{
 					T data = *item;
@@ -454,6 +456,7 @@ namespace cse
 					PrintType(map);
 				int size = map.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
+				outFile.flush();
 				for (auto item = map.begin(); item != map.end(); ++item)
 				{
 					K key = item->first;
@@ -513,6 +516,7 @@ namespace cse
 				// Write the number of elements.
 				int size = vec.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
+				outFile.flush();
 				// Serialize each element.
 				for (int i = 0; i < size; i++)
 				{
@@ -572,6 +576,7 @@ namespace cse
 				// Write the size of the queue.
 				int size = vec.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
+				outFile.flush();
 				// Serialize each element.
 				for (int i = 0; i < size; i++)
 				{
@@ -631,6 +636,7 @@ namespace cse
 				// Write the number of elements.
 				int size = vec.size();
 				outFile.write(reinterpret_cast<const char *>(&size), sizeof(int));
+				outFile.flush();
 				// Serialize each element.
 				for (int i = 0; i < size; i++)
 				{
