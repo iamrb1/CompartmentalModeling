@@ -67,6 +67,7 @@ class PresentationManager {
 			std::cout << "Starting Events" << std::endl;
             // Toggle bottom bar
             toggleBottomNav(true);
+            toggleBorders(true);
 		}
 
 		/**
@@ -422,6 +423,26 @@ class PresentationManager {
             }, hidden);
         }
 
+        /**
+         * Toggles borders of textboxes/images during presentations
+         * @param hidden
+         */
+        void toggleBorders(bool hidden) {
+          // Hide bottom edit bar
+          EM_ASM({
+              var images = document.getElementsByClassName("image");
+              for(var i = 0; i < images.length; i++) {
+                images[i].style.border = $0 ? "none" : "1px solid black";
+                images[i].style.resize = $0 ? "none" : "both";
+              }
+              var textboxes = document.getElementsByClassName("textbox");
+              for(var i = 0; i < textboxes.length; i++) {
+                textboxes[i].style.border = $0 ? "none" : "1px solid black";
+                textboxes[i].style.resize = $0 ? "none" : "both";
+              }
+              }, hidden);
+        }
+
 		/**
 		 * Return event info on a given slide
 		 * @param slideNum
@@ -725,6 +746,7 @@ void call_updateImageSize(const char* id, int width, int height) { std::string c
 
 void call_leavePresentation() {
   PRESENTATION_MANAGER.toggleBottomNav(false);
+  PRESENTATION_MANAGER.toggleBorders(false);
 
   // Ensure end screen is disabled
   PRESENTATION_MANAGER.toggleEndScreen(false);
