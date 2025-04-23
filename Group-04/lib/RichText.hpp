@@ -693,7 +693,7 @@ class BasicRichText {
           continue;
         }
         result.output +=
-            reapply_rule_iter->rule.StartToken(tracker_iter->format);
+            reapply_rule_iter->rule.StartToken(reapply_rule_iter->format);
         if (all_deactivated) {
           all_deactivated = false;
           tracker_iter = trackers.begin();

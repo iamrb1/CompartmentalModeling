@@ -1,4 +1,4 @@
-TEST_NAMES = Assert BitVector RichText RichTextAdvanced RichTextSerialize RTFSerializeTest CseString IndexSet
+TEST_NAMES = Assert RichText RichTextAdvanced RichTextSerialize RTFSerializeTest CseString IndexSet BitVector
 
 CATCH = ../../third-party/Catch/single_include/catch2
 GROUP4 = ../../Group-04/lib

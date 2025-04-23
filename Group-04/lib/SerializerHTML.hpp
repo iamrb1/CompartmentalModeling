@@ -36,6 +36,9 @@ auto SerializerHTML() {
   out.AddRule("underline", str_to_underlying<CharT, Underlying>("<u>"),
               str_to_underlying<CharT, Underlying>("</u>"));
 
+  out.AddRule("strikethrough", str_to_underlying<CharT, Underlying>("<s>"),
+              str_to_underlying<CharT, Underlying>("</s>"));
+
   out.AddRule(
       "color",
       [](const TextFormat& f) -> Underlying {
