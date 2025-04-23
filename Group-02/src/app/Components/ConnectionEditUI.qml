@@ -15,7 +15,8 @@ Rectangle {
 
     Connections {
         target: simulation
-        function onCompartmentsChanged (){
+
+        function onCompartmentsChanged() {
             setConnectionComboboxes();
         }
     }
@@ -76,8 +77,8 @@ Rectangle {
             ComboBox {
                 id: sourceComboBox
                 model: simulation.compartments.map(
-                           (compartment, index) => compartment.name + " ("
-                           + compartment.symbol + ")")
+                        (compartment, index) => compartment.name + " ("
+                        + compartment.symbol + ")")
 
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -109,8 +110,8 @@ Rectangle {
             ComboBox {
                 id: targetComboBox
                 model: simulation.compartments.map(
-                           (compartment, index) => compartment.name + " ("
-                           + compartment.symbol + ")")
+                        (compartment, index) => compartment.name + " ("
+                        + compartment.symbol + ")")
 
                 Layout.fillWidth: true
                 Layout.fillHeight: true

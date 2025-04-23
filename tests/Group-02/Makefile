@@ -1,17 +1,40 @@
+APPLICATION_TEST_FOLDER = Application
+
+# Test names
 TEST_NAMES = AuditedVectorDebugTest AuditedVectorReleaseTest DataMapTest StateGridTest StateGridPositionTest ActionMapTest AdvDataMapTest AdvStateGridTest
 
+# Directories and sources
 GROUP02 = ../../Group-02
-SRC_DIR = $(GROUP02)/src/cse
-SRC_FILES = $(wildcard $(SRC_DIR)/*.cpp)
-LIB_INCLUDE = $(GROUP02)/include/
-CATCH2_INCLUDE = ../../third-party/Catch/single_include/
+LIB_INCLUDE = -I$(GROUP02)/include/
+LIB_DIR = $(GROUP02)/src/cse
+APP_DIR = $(GROUP02)/src/app
+SRC_FILES = $(wildcard $(LIB_DIR)/*.cpp) \
+            $(APP_DIR)/Simulation.cpp \
+            $(APP_DIR)/Components/Compartment.cpp \
+            $(APP_DIR)/Components/Connection.cpp
+CATCH2_INCLUDE = -I../../third-party/Catch/single_include/
 
-FLAGS = -std=c++20 -g -pthread -Wall -Wextra -I../../ -I$(LIB_INCLUDE) -I$(CATCH2_INCLUDE) -DCATCH_CONFIG_MAIN $(SRC_FILES)
+# Qt settings
+QT_DIR = /mnt/c/Qt/6.8.3/msvc2022_64
+QT_INCLUDE = -I$(QT_DIR)/include \
+             -I$(QT_DIR)/include/QtQuick \
+             -I$(QT_DIR)/include/QtCharts \
+             -I$(QT_DIR)/include/QtCore \
+             -I$(QT_DIR)/include/QtQml \
+             -I$(QT_DIR)/include/QtWidgets
+
+QT_LIBS = -L$(QT_DIR)/lib -lQt6Core -lQt6Quick -lQt6Charts -lQt6Qml -lQt6Widgets
+
+# Compiler flags
+FLAGS = -std=c++20 -g -pthread -Wall -Wextra -I../../ $(LIB_INCLUDE) $(CATCH2_INCLUDE) $(QT_INCLUDE) -DCATCH_CONFIG_MAIN
+
+# Linking for Qt libraries
+LINK_FLAGS = $(QT_LIBS) -Wl,-rpath,$(QT_DIR)/lib
 
 default: test
 
 cov-%: %.cpp ../../third-party/Catch/single_include/catch2/catch.hpp
-	$(CXX) $(FLAGS) $< -o $@.out
+	$(CXX) $(FLAGS) $(SRC_FILES) $< -o $@.out $(LINK_FLAGS)
 	#echo "running $@.out"
 	# execute test
 	./$@.out
@@ -23,7 +46,7 @@ test-prep:
 	mkdir -p temp
 
 test-%: %.cpp ../../third-party/Catch/single_include/catch2/catch.hpp
-	$(CXX) $(FLAGS) $< -o $@.out
+	$(CXX) $(FLAGS) $(SRC_FILES) $< -o $@ $(LINK_FLAGS)
 	./$@.out
 
 # Test in debug mode without pointer tracker

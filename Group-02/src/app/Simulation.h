@@ -10,17 +10,19 @@
 
 #include <QList>
 #include <QObject>
-#include <qqml.h>
-#include <QVariant>
 #include <QTimer>
+#include <QVariant>
+#include <qqml.h>
 
 #include "Components/Compartment.h"
 #include "Components/Connection.h"
+
 /**
  * Simulation Class:
  * Represents the entire Compartmental Modeling System
  * Holds all Compartments, Connections, Variables, and other relevant data
  */
+
 class Simulation : public QObject {
   Q_OBJECT
   QML_ELEMENT
@@ -29,8 +31,7 @@ class Simulation : public QObject {
   // Error module
   Q_PROPERTY(QString error_name MEMBER m_error_message NOTIFY errorModuleShow)
 
-
-    // Connections/Compartments
+  // Connections/Compartments
   Q_PROPERTY(QVector<Compartment*> compartments READ get_compartments NOTIFY compartmentsChanged)
   Q_PROPERTY(QVector<Connection*> connections READ get_connections NOTIFY connectionsChanged)
   Q_PROPERTY(QVariantMap variables READ get_variables NOTIFY variablesChanged)
@@ -38,16 +39,19 @@ class Simulation : public QObject {
   // Connection
   Q_PROPERTY(bool connectionMode MEMBER m_connection_mode WRITE set_m_connection_mode NOTIFY connectionModeChanged)
   Q_PROPERTY(Compartment* sourceCompartment MEMBER m_source_compartment NOTIFY sourceCompartmentChanged)
-  Q_PROPERTY(Compartment* targetCompartment MEMBER m_target_compartment WRITE set_target_compartment NOTIFY targetCompartmentChanged)
+  Q_PROPERTY(Compartment* targetCompartment MEMBER m_target_compartment WRITE set_target_compartment NOTIFY
+                 targetCompartmentChanged)
 
   // Sidebar
-  Q_PROPERTY(Compartment* sidebarCompartment MEMBER m_sidebar_compartment WRITE set_sidebar_compartment NOTIFY sidebarCompartmentChanged)
-  Q_PROPERTY(Connection* sidebarConnection MEMBER m_sidebar_connection WRITE set_sidebar_connection NOTIFY sidebarConnectionChanged)
+  Q_PROPERTY(Compartment* sidebarCompartment MEMBER m_sidebar_compartment WRITE set_sidebar_compartment NOTIFY
+                 sidebarCompartmentChanged)
+  Q_PROPERTY(Connection* sidebarConnection MEMBER m_sidebar_connection WRITE set_sidebar_connection NOTIFY
+                 sidebarConnectionChanged)
 
   // Evolution
   Q_PROPERTY(int currentTime MEMBER m_current_time NOTIFY currentTimeChanged)
   Q_PROPERTY(int timeSteps MEMBER m_time_steps NOTIFY timeStepsChanged)
-  Q_PROPERTY(bool isRunning MEMBER m_is_running  NOTIFY isRunningChanged)
+  Q_PROPERTY(bool isRunning MEMBER m_is_running NOTIFY isRunningChanged)
 
  signals:
   /// Signals to notify QML of changes
@@ -64,7 +68,7 @@ class Simulation : public QObject {
   void timeStepsChanged();
   void isRunningChanged();
   void addGraphingValues(double time, QVariant new_compartment_amounts);
-  void errorModuleShow(const QString &message);
+  void errorModuleShow(const QString& message);
 
  private:
   /// Simulation name
@@ -81,8 +85,7 @@ class Simulation : public QObject {
   /// error message
   QString m_error_message;
 
-
-    /// Unordered map of compartments with their symbols as keys
+  /// Unordered map of compartments with their symbols as keys
   std::unordered_map<QString, std::shared_ptr<Compartment>> m_compartments;
   /// Connections between compartments
   std::vector<std::shared_ptr<Connection>> m_connections;
@@ -122,7 +125,7 @@ class Simulation : public QObject {
   Q_INVOKABLE void pause();
 
   Q_INVOKABLE void load_xml(const QString& filename);
-  Q_INVOKABLE void save ();
+  Q_INVOKABLE void save();
   Q_INVOKABLE void save_xml(const QString& filename);
 
   [[nodiscard]] QVector<Compartment*> get_compartments() const;
@@ -135,11 +138,10 @@ class Simulation : public QObject {
 
   void update_compartment_symbol(const QString& symbol, const QString& new_symbol);
 
-  Q_INVOKABLE void add_variable(const QString& name=QString(), double value = 0.0);
+  Q_INVOKABLE void add_variable(const QString& name = QString(), double value = 0.0);
   Q_INVOKABLE void remove_variable(const QString& name);
   Q_INVOKABLE void update_variable(const QString& name, const QString& new_name, double value);
-  Q_INVOKABLE void throw_error(const QString &message);
-
+  Q_INVOKABLE void throw_error(const QString& message);
 
   Q_INVOKABLE void remove_connection(const Connection* connection);
   Q_INVOKABLE void remove_compartment(const QString& symbol);

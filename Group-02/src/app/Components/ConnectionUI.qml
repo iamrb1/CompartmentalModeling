@@ -37,7 +37,7 @@ Item {
 
         /// Positioning attributes here
         x: 0 + connectionOffset
-        y: -height/2 + connectionOffset
+        y: -height / 2 + connectionOffset
 
         transformOrigin: Item.Left
         rotation: connectionUI.calculateAngle()
@@ -49,15 +49,15 @@ Item {
             ctx.lineWidth = 4;
 
             ctx.beginPath();
-            ctx.moveTo(0, height/2);
-            ctx.lineTo(width - arrowSize * 2, height/2);
+            ctx.moveTo(0, height / 2);
+            ctx.lineTo(width - arrowSize * 2, height / 2);
             ctx.stroke();
 
             const arrowX = width - arrowSize * 2 - 80; // Offset from end
             ctx.beginPath();
-            ctx.moveTo(arrowX, height/2 - arrowSize);
-            ctx.lineTo(arrowX + arrowSize * 2, height/2);
-            ctx.lineTo(arrowX, height/2 + arrowSize);
+            ctx.moveTo(arrowX, height / 2 - arrowSize);
+            ctx.lineTo(arrowX + arrowSize * 2, height / 2);
+            ctx.lineTo(arrowX, height / 2 + arrowSize);
             ctx.closePath();
             ctx.fill();
         }
@@ -78,8 +78,8 @@ Item {
         visible: isSelfLoop
 
 
-        x: -width/2
-        y: -height/2
+        x: -width / 2
+        y: -height / 2
 
         /// self loop structure
         onPaint: {
@@ -88,8 +88,8 @@ Item {
             ctx.strokeStyle = ThemeManager.palette.text;
             ctx.lineWidth = 4;
 
-            const loopWidth = width/2;
-            const loopHeight = height/2;
+            const loopWidth = width / 2;
+            const loopHeight = height / 2;
             const startX = 10;
             const startY = 10;
             const cornerRadius = 15;

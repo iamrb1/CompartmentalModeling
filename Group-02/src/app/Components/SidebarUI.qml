@@ -31,14 +31,14 @@ Rectangle {
         /// Resizeable layout allowing longer Compartment/Connection interface
         Rectangle {
             SplitView.fillWidth: true
-            SplitView.minimumHeight: parent.height*0.4
-            SplitView.maximumHeight: parent.height*0.7
+            SplitView.minimumHeight: parent.height * 0.4
+            SplitView.maximumHeight: parent.height * 0.7
 
-            CompartmentEditUI{
+            CompartmentEditUI {
                 visible: simulation.sidebarCompartment
             }
 
-            ConnectionEditUI{
+            ConnectionEditUI {
                 visible: simulation.sidebarConnection
             }
 
@@ -85,8 +85,8 @@ Rectangle {
         Rectangle {
             id: sidebarBottom
             SplitView.fillWidth: true
-            SplitView.minimumHeight: parent.height*0.3
-            SplitView.maximumHeight: parent.height*0.7
+            SplitView.minimumHeight: parent.height * 0.3
+            SplitView.maximumHeight: parent.height * 0.7
             color: ThemeManager.palette.base
 
             ColumnLayout {
@@ -186,7 +186,8 @@ Rectangle {
                                     color: ThemeManager.palette.text
                                     enabled: !simulation.isRunning
 
-                                    validator: DoubleValidator{}
+                                    validator: DoubleValidator {
+                                    }
 
                                     /// Editing a variable will update the display
                                     onEditingFinished: {
@@ -321,7 +322,8 @@ Rectangle {
                     Layout.fillWidth: true
                     text: editDialog.currentValue
                     selectByMouse: true
-                    validator: DoubleValidator {}
+                    validator: DoubleValidator {
+                    }
                 }
             }
 

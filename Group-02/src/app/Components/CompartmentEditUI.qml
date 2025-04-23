@@ -53,7 +53,7 @@ Rectangle {
                     enabled: !simulation.isRunning
 
                     // Alpha numeric non empty with spaces
-                    validator: RegularExpressionValidator{
+                    validator: RegularExpressionValidator {
                         regularExpression: /^[a-zA-Z0-9 ]+$/
                     }
                     onEditingFinished: {
@@ -117,7 +117,8 @@ Rectangle {
                     color: ThemeManager.palette.text
                     enabled: !simulation.isRunning
 
-                    validator: DoubleValidator {}
+                    validator: DoubleValidator {
+                    }
 
                     onEditingFinished: {
                         selectedCompartment.initialAmount = text

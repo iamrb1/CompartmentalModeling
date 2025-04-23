@@ -66,12 +66,12 @@ Rectangle {
     }
 
     function compartmentBorderColor() {
-        if (simulation.sourceCompartment === compartment){
+        if (simulation.sourceCompartment === compartment) {
             return "blue"
         } else if (simulation.targetCompartment === compartment) {
             return "red"
         } else {
-            return ThemeManager.palette.text
+
         }
     }
 

@@ -1,8 +1,8 @@
 /**
-    @file CompartmentCanvasUI.qml
-    @author Dominik Leisinger
-    @brief represents the content area of the program, where compartments and connections reside
-    @comment used ClaudeAI to learn about Flickable and its properties, as well as the need for boundary expansion animation logic
+ @file CompartmentCanvasUI.qml
+ @author Dominik Leisinger
+ @brief represents the content area of the program, where compartments and connections reside
+ @comment used ClaudeAI to learn about Flickable and its properties, as well as the need for boundary expansion animation logic
  **/
 import QtQuick
 import QtQuick.Controls
@@ -41,21 +41,21 @@ Rectangle {
         let maxY = height
 
         // Check all compartments to adjust content area boundaries
-        for(let i = 0; i < simulation.compartments.length; i++) {
-                    const comp = simulation.compartments[i]
+        for (let i = 0; i < simulation.compartments.length; i++) {
+            const comp = simulation.compartments[i]
 
-                    // Get the compartment width and height if available
-                    const compWidth = comp.width || 100  // Default width if not specified
-                    const compHeight = comp.height || 100  // Default height if not specified
+            // Get the compartment width and height if available
+            const compWidth = comp.width || 100  // Default width if not specified
+            const compHeight = comp.height || 100  // Default height if not specified
 
-                    // Check top-left corner for minimum boundaries
-                    if(comp.x < minX) minX = comp.x
-                    if(comp.y < minY) minY = comp.y
+            // Check top-left corner for minimum boundaries
+            if (comp.x < minX) minX = comp.x
+            if (comp.y < minY) minY = comp.y
 
-                    // Check bottom-right corner for maximum boundaries
-                    if(comp.x + compWidth > maxX) maxX = comp.x + compWidth
-                    if(comp.y + compHeight > maxY) maxY = comp.y + compHeight
-                }
+            // Check bottom-right corner for maximum boundaries
+            if (comp.x + compWidth > maxX) maxX = comp.x + compWidth
+            if (comp.y + compHeight > maxY) maxY = comp.y + compHeight
+        }
 
         targetMinX = minX - paddingSize
         targetMinY = minY - paddingSize
@@ -166,8 +166,7 @@ Rectangle {
     }
 
 
-    Component.onCompleted:
-    {
+    Component.onCompleted: {
         updateTargetBoundaries()
     }
 

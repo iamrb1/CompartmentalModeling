@@ -1,4 +1,3 @@
-
 /**
  @file TimePlotUI
  @author Rahul Baragur, Dominik Leisinger
@@ -50,6 +49,7 @@ Item {
 
     Connections {
         target: simulation
+
         function onAddGraphingValues(time, series) {
             // Update each series if visible
             for (let key in series) {
@@ -57,7 +57,7 @@ Item {
                     let data = series[key]
                     seriesData[key].append(time, data)
 
-                    if (data > maxY){
+                    if (data > maxY) {
                         maxY = data + 10;
                     } else if (data < minY) {
                         minY = data - 10;

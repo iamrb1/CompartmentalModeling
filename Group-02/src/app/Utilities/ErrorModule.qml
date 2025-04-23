@@ -164,5 +164,6 @@ Item {
             popupDialog.open()
         }
     }
+
     //modal error dialog blocks interaction until user presses OK
 }

@@ -32,9 +32,20 @@ if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
 endif ()
 
+# Qt setup
+find_package(Qt6 REQUIRED COMPONENTS Quick Charts Test Widgets)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOMOC ON)
+
 # Add the subdirectories (libraries and executables)
 add_subdirectory(src/cse)
 add_subdirectory(src/app)
 
 # Add extern lib (expertk)
 add_subdirectory(extern/exprtk)
+
+# Optional: Make tests optional with a CMake option
+option(BUILD_TESTS "Build the tests" ON)
+if(BUILD_TESTS)
+  add_subdirectory(tests)
+endif()

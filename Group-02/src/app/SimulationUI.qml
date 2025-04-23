@@ -16,15 +16,7 @@ ApplicationWindow {
     }
 
     ///CALL THIS LINE TO GO TO ERROR MODULE. TRUE FOR MODAL FALSE FOR POPUP
-    //simulation.throw_error("Something broke", false)
-
-    Connections {
-        target: simulation
-        // function onErrorModuleShow(errorMessage) {
-        //     ErrorModule.showError(errorMessage, false) // or true for modal
-        // }
-    }
-
+    // simulation.throw_error("Something broke", false)
 
     property var graphWindow: null
 
@@ -45,7 +37,7 @@ ApplicationWindow {
     palette: ThemeManager.palette
 
     menuBar: Rectangle {
-        height: 40
+        height: 50
         width: parent.width
         color: ThemeManager.palette.base
 
@@ -83,7 +75,8 @@ ApplicationWindow {
                         onTriggered: saveFileDialog.open()
                     }
 
-                    MenuSeparator {}
+                    MenuSeparator {
+                    }
                     Menu {
                         title: "Theme"
                         Repeater {
@@ -93,11 +86,12 @@ ApplicationWindow {
                                 checkable: true
                                 checked: modelData.value === ThemeManager.theme
                                 onTriggered: ThemeManager.setTheme(
-                                                 modelData.value)
+                                    modelData.value)
                             }
                         }
                     }
-                    MenuSeparator {}
+                    MenuSeparator {
+                    }
                     Action {
                         text: "Exit"
                         onTriggered: Qt.quit()
@@ -151,7 +145,8 @@ ApplicationWindow {
                         text: simulation.timeSteps
                         color: ThemeManager.palette.text
                         enabled: !simulation.isRunning
-                        validator: IntValidator{}
+                        validator: IntValidator {
+                        }
 
                         onEditingFinished: {
                             simulation.timeSteps = text;
