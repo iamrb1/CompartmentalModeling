@@ -18,6 +18,7 @@
 #include <set>
 #include <queue>
 #include <functional>
+#include <iostream>
 
 namespace cse{
   template <typename ProcessID = int, int numWeights = 1>
@@ -48,15 +49,16 @@ namespace cse{
       const std::unordered_map<ProcessID, Process> *processMap;
       bool operator()(const ProcessID &a, const ProcessID &b) const
       {
-        if ((*processMap).find(a) == (*processMap).end())
+        auto aMapPos = (*processMap).find(a), bMapPos = (*processMap).find(b);
+        if (aMapPos == (*processMap).end())
         {
           return false;
         }
-        else if ((*processMap).find(b) == (*processMap).end())
+        else if (bMapPos == (*processMap).end())
         {
           return true;
         }
-        return (*processMap).at(a).priorityWeight < (*processMap).at(b).priorityWeight;
+        return aMapPos->second.priorityWeight < bMapPos->second.priorityWeight;
       }
     };
 
@@ -143,6 +145,7 @@ namespace cse{
     {
       if (!processMap.emplace(id, Process(id, calculatePriority(weights), weights)).second)
       {
+        std::cout<<"Cannot add process with duplicate ID"<<std::endl;
         return false;
       }
 
@@ -179,7 +182,7 @@ namespace cse{
      * and removes it from the scheduler
      * @return ID of the highest priority process
      */
-    std::optional<ProcessID> PopNextProcess()
+    [[nodiscard]] std::optional<ProcessID> PopNextProcess()
     {
       if (empty())
       { // Make sure the Scheduler isn't empty before popping a process from it
@@ -223,6 +226,7 @@ namespace cse{
         overrideQueue.push_back(id);
         return true;
       }
+      std::cout<<"Process cannot be overridden, is already overridden or is not in the Scheduler"<<std::endl;
       return false;
     }
 
@@ -251,6 +255,7 @@ namespace cse{
         }
         return true;
       }
+      std::cout<<"Priority could not be updated, process ID is not in the Scheduler"<<std::endl;
       return false;
     }
 
@@ -280,7 +285,7 @@ namespace cse{
      * @param id ID of the process we are getting the priority for
      * @return Priority value for the given process if it is in the Scheduler, returns std::nullopt otherwise
      */
-    const std::optional<double> GetProcessPriority(const ProcessID &id)
+    [[nodiscard]] const std::optional<double> GetProcessPriority(const ProcessID &id)
     {
       if (processMap.find(id) != processMap.end())
       {
@@ -295,7 +300,7 @@ namespace cse{
      * @param id ID of the process we are getting the weights set for
      * @return Weights set for the given process if it is in the Scheduler, returns std::nullopt otherwise
      */
-    const std::optional<std::array<double, numWeights>> GetProcessWeights(const ProcessID &id)
+    [[nodiscard]] const std::optional<std::array<double, numWeights>> GetProcessWeights(const ProcessID &id)
     {
       if (processMap.find(id) != processMap.end())
       {
@@ -309,13 +314,13 @@ namespace cse{
      * Check if the scheduler is empty
      * @return True if scheduler is empty, false otherwise
      */
-    constexpr bool empty() { return GetCurrProcesses() == 0; }
+    [[nodiscard]] constexpr bool empty() { return GetCurrProcesses() == 0; }
 
     /**
      * Get the number of processes currently in the scheduler
      * @return Number of processes currently in the scheduler
      */
-    constexpr int GetCurrProcesses() { return currIds.size() + overrideQueue.size() - deletedIDs.size(); }
+    [[nodiscard]] constexpr int GetCurrProcesses() { return currIds.size() + overrideQueue.size() - deletedIDs.size(); }
   };
 } // namespace cse
 #endif // PROJECT_CSE498_SPRING2025_GROUP_07_TEAM07LIBRARY_SCHEDULER_H
