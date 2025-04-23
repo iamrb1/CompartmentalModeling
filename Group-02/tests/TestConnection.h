@@ -21,7 +21,7 @@ class TestConnection : public QObject {
 
   void test_getter_setters();
 
-  void test_add_conneciton();
+  void test_add_connection();
 
   void test_update_connection();
 };
