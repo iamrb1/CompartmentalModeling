@@ -153,17 +153,12 @@ cse::ArgManager CreateArgManager(std::vector<std::string> &args) {
   return mgr;
 }
 
-std::vector<cse::Item> ConstructItems(std::string filename) {
+std::vector<cse::Item> ConstructItems(std::ifstream &textFile) {
   std::vector<cse::Item> Items{};
 
-  assert((filename.contains(".txt") || filename.contains(".csv")) &&
-         "This file is not one of the supported types (.txt or .csv)");
-  std::ifstream TextFile(filename);
   std::string line;
-  std::getline(
-      TextFile,
-      line);  // TODO: Check column headers and adjust where the values are
-  while (std::getline(TextFile, line)) {
+  std::getline(textFile, line);
+  while (std::getline(textFile, line)) {
     std::vector<std::string> itemData = split(line, ',');
     cse::Item item(itemData[0], std::stod(itemData[1]), std::stod(itemData[2]));
     Items.push_back(item);
@@ -199,14 +194,12 @@ void CallBruteForceOptimizer() {
     optimizedTime = MeasureTime([&]() {
       auto solutionPair = optimizer.FindOptimalSolution();
       PrintOptimizerResults(solutionPair);
-      if (settings.timeSearch || settings.compare) PrintTiming(optimizedTime);
     });
+    if (settings.timeSearch || settings.compare) PrintTiming(optimizedTime);
   }
 
   if (settings.compare) {
     // Print comparison results
-    PrintTiming(unoptimizedTime);
-    PrintTiming(optimizedTime);
     std::cout << "Speedup: "
               << ((unoptimizedTime / optimizedTime) *
                   SPEEDUP_ADJUSTMENT_CONSTANT) -
@@ -319,8 +312,14 @@ int application(std::istream &in) {
         PrintTerminal();
         continue;
       }
-
-      settings.itemList = ConstructItems(settings.filename);
+      std::ifstream textFile(settings.filename);
+      if (textFile.is_open()) {
+        settings.itemList = ConstructItems(textFile);
+      } else {
+        std::cout << RedError("** \""+settings.filename+"\" is not a valid file path");
+        PrintTerminal();
+        continue;
+      }
       std::string valString;
       std::string toFind = "-capacity=";
       auto capacityArg = std::find_if(

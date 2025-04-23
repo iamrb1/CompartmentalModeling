@@ -1,1 +1,1 @@
-brute-force ../../Group-10/Application/example2.txt -capacity=10.0 -w
+brute-force ../../Group-10/Application/data_points.txt -capacity=10.0 -w
