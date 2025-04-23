@@ -37,7 +37,7 @@ Item {
     }
 
     function addSeriesToChart(id, name) {
-        var series = chart.createSeries(ChartView.SeriesTypeLine, name, timeAxis, valueAxis)
+        let series = chart.createSeries(ChartView.SeriesTypeLine, name, timeAxis, valueAxis);
 
         seriesData[id] = series
 
@@ -52,7 +52,7 @@ Item {
         target: simulation
         function onAddGraphingValues(time, series) {
             // Update each series if visible
-            for (var key in series) {
+            for (let key in series) {
                 if (key in seriesData) {
                     let data = series[key]
                     seriesData[key].append(time, data)
@@ -138,7 +138,7 @@ Item {
         //                 height : parent ? parent.height - 5 : 30
 
         //                 property string seriesId: modelData
-        //                 property var seriesData: seriesProperties[seriesId]
+        //                 property let seriesData: seriesProperties[seriesId]
 
         //                 Component.onCompleted: {
         //                     console.log(seriesId, seriesData)
