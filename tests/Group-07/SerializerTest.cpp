@@ -690,7 +690,7 @@ TEST_CASE("Serializer Empty File or Empty Containers", "[Serializer]")
 	std::vector<int> vec{}, res{}; // Keep vec empty
 	Saver.Serialize(vec);
 	Loader.Serialize(res);
-	REQUIRE(res.size() == 0);
+	REQUIRE(res.size() == vec.size());
 	std::filesystem::remove(filename);
 	Saver.ResetFileStream();
 	Loader.ResetFileStream();
