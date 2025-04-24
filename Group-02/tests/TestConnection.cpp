@@ -177,6 +177,14 @@ void TestConnection::test_update_connection() {
     QCOMPARE(connection_name_D2, "Connection G4 D2");
     QCOMPARE(connection->get_rate_expression(), "2.3");
 
+    simulation.set_target_compartment(source);
+    target->set_symbol("G3");
+    simulation.set_m_source_compartment(target);
+    QString name3 = QString("Connection %1 %2").arg(source->get_symbol(), target->get_symbol());
+    connection->set_name(name3);
+    QString new_connection_name_D2 = connection->get_name();
+    QCOMPARE(new_connection_name_D2, "Connection G4 G3");
+    QCOMPARE(connection->get_rate_expression(), "2.3");
 
 }
 
