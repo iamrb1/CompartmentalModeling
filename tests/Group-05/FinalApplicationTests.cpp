@@ -12,6 +12,7 @@
 
 //
 // Test CreateGridMenu invalid inputs
+// Developed with ChatGPT as a guide
 //
 TEST_CASE("CreateGridMenu: invalid inputs", "[CreateGridMenu]") {
   FinalApplication app;
@@ -55,6 +56,7 @@ TEST_CASE("CreateGridMenu: invalid inputs", "[CreateGridMenu]") {
 
 //
 // Test CreateGridMenu invalid inputs + string default
+// Developed with ChatGPT as a guide
 //
 TEST_CASE("CreateGridMenu: invalid inputs + string default",
           "[CreateGridMenu]") {
@@ -84,6 +86,7 @@ TEST_CASE("CreateGridMenu: invalid inputs + string default",
 
 //
 // Test GridMenu invalid menu options and test grid
+// Developed with ChatGPT as a guide
 //
 TEST_CASE("GridMenu: invalid menu options and test grid", "[GridMenu]") {
   FinalApplication app;
@@ -109,6 +112,7 @@ TEST_CASE("GridMenu: invalid menu options and test grid", "[GridMenu]") {
 
 //
 // Test GridMenu CSV import
+// Developed with ChatGPT as a guide
 //
 TEST_CASE("GridMenu imports CSV correctly when file exists", "[GridMenu]") {
   // Create a temporary CSV file
@@ -143,6 +147,7 @@ TEST_CASE("GridMenu imports CSV correctly when file exists", "[GridMenu]") {
 
 //
 // Test GridMenu import CSV failure then use test grid
+// Developed with ChatGPT as a guide
 //
 TEST_CASE("GridMenu handles import failure and retries menu", "[GridMenu]") {
   FinalApplication app;

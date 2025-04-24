@@ -142,15 +142,16 @@ void FinalApplication::PrintColumn(
 /**
  * Displays the create grid menu that prompts the user to create a custom
  * DataGrid
+ * Cite: Made with the help of ChatGPT
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  * @return The custom DataGrid
  */
 cse::DataGrid FinalApplication::CreateGridMenu(std::ostream &os = std::cout,
                                                std::istream &is = std::cin) {
-  static constexpr std::size_t MAX_ROWS = 1000;
-  static constexpr std::size_t MAX_COLS = 1000;
-  static constexpr std::size_t MAX_DEFAULT_STR_LEN = 100;
+  static constexpr int MAX_ROWS = 1000;
+  static constexpr int MAX_COLS = 1000;
+  static constexpr int MAX_DEFAULT_STR_LEN = 100;
   static constexpr double MAX_DEFAULT_VALUE = 1e20;
 
   auto trim = [&](const std::string &s) {
@@ -283,6 +284,7 @@ cse::DataGrid FinalApplication::CreateGridMenu(std::ostream &os = std::cout,
  * Displays the grid menu and prompts the user for a DataGrid.
  * The DataGrid can be made by using a csv file, custom creation, or pre-made
  * example
+ * Cite: Made with the help of ChatGPT
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  * @return A DataGrid to use
