@@ -7,9 +7,7 @@
  */
 
 #include "../../Group-05/src/Datum.cpp"
-
 #include "../../Group-05/src/ReferenceVector.h"
-
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
 
 TEST_CASE("PushBack() functionality", "[push_back]") {
@@ -92,7 +90,6 @@ TEST_CASE("Element access functionality", "[access]") {
 }
 
 TEST_CASE("Erase() functionality", "[erase]") {
-
   SECTION("Single index erase") {
     cse::Datum d1(123.123);
     cse::Datum d2("test");
@@ -126,7 +123,7 @@ TEST_CASE("Erase() functionality", "[erase]") {
     }
 
     SECTION("Remove a few indices") {
-      reference_vector.EraseIndices(0,2);
+      reference_vector.EraseIndices(0, 2);
       CHECK(reference_vector.Size() == 1);
     }
   }
@@ -134,7 +131,7 @@ TEST_CASE("Erase() functionality", "[erase]") {
   SECTION("Invalid Erases") {
     cse::ReferenceVector<cse::Datum> empty;
     CHECK_THROWS(empty.Erase(1));
-    CHECK_THROWS(empty.EraseIndices(2,7));
+    CHECK_THROWS(empty.EraseIndices(2, 7));
 
     cse::Datum d1(123.123);
     cse::Datum d2("test");
@@ -142,7 +139,7 @@ TEST_CASE("Erase() functionality", "[erase]") {
 
     values.PushBack(d1);
     values.PushBack(d2);
-    CHECK_THROWS(empty.EraseIndices(1,0));
+    CHECK_THROWS(empty.EraseIndices(1, 0));
   }
 }
 
@@ -244,7 +241,7 @@ TEST_CASE("Iterator functionality", "[iterator]") {
 
   SECTION("Reverse iterator traversal") {
     auto it = reference_vector.end();
-    
+
     --it;
     CHECK((*it).GetDouble() == 987);
 

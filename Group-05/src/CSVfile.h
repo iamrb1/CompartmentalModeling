@@ -9,8 +9,9 @@
 
 #pragma once
 
-#include "DataGrid.h"
 #include <string>
+
+#include "DataGrid.h"
 
 namespace cse {
 
@@ -23,17 +24,16 @@ namespace cse {
  * of data types and error cases.
  */
 class CSVFile {
-public:
+ public:
   static DataGrid LoadCsv(const std::string &file_name, char delimiter = ',');
   static bool ExportCsv(const std::string &file_name, const DataGrid &grid,
                         char delimiter = ',');
 
-private:
-// These are helper functions for internal use in CSV class
+ private:
+  // These are helper functions for internal use in CSV class
   static std::string TrimWhitespaces(const std::string &s);
   static bool IsNumeric(const std::string &s);
   static std::string SanitizeCsvField(const std::string &s, char delimiter);
-
 };
 
-} // namespace cse
+}  // namespace cse

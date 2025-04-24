@@ -2,11 +2,13 @@
  * @file FinalApplication.cpp
  * @brief The CSV Command Line Manipulator.
  *
- * @authors Max Krawec, Calen Green, Pedro Mitkiewicz, Shahaab Ali, and Muhammad Asif Masood
+ * @authors Max Krawec, Calen Green, Pedro Mitkiewicz, Shahaab Ali, and Muhammad
+ * Asif Masood
  *
  *
- * This application allows users to create and manipulate data within a grid through the command line.
- * Users can create the grid by using a .csv file, inputting a custom grid, or selecting a pre-made grid.
+ * This application allows users to create and manipulate data within a grid
+ * through the command line. Users can create the grid by using a .csv file,
+ * inputting a custom grid, or selecting a pre-made grid.
  *
  * Users can manipulate the grid in several ways:
  * - Edit specific cell values, rows, or columns
@@ -15,9 +17,11 @@
  * - Sort the grid
  * - Resize the grid
  * - Print the grid
- * - Calculate the mean, median, standard deviation, mode, min, and max of columns or the entire grid
- * - Use comparison operations (less than, less than or equal to, greater than, greater than or equal to,
- *   equal to, and not equal to) to compare a given value against values in a column
+ * - Calculate the mean, median, standard deviation, mode, min, and max of
+ * columns or the entire grid
+ * - Use comparison operations (less than, less than or equal to, greater than,
+ * greater than or equal to, equal to, and not equal to) to compare a given
+ * value against values in a column
  *
  * When done, users can export the grid into a .csv file.
  *
@@ -26,11 +30,6 @@
  */
 
 #include "FinalApplication.h"
-#include "src/Datum.h"
-#include "src/DataGrid.h"
-#include "src/ExpressionParser.cpp"
-#include "src/ExpressionParser.h"
-#include "src/CSVfile.h"
 
 #include <iostream>
 #include <limits>
@@ -39,19 +38,28 @@
 #include <string>
 #include <vector>
 
+#include "src/CSVfile.h"
+#include "src/DataGrid.h"
+#include "src/Datum.h"
+#include "src/ExpressionParser.cpp"
+#include "src/ExpressionParser.h"
+
 /**
  * Checks if a string can be converted into a double
  * @param test_string The string to check
- * @return an optional double if the string can be converted, empty optional if not
+ * @return an optional double if the string can be converted, empty optional if
+ * not
  */
-std::optional<double> FinalApplication::IsValidDouble(const std::string &test_string) const {
+std::optional<double> FinalApplication::IsValidDouble(
+    const std::string &test_string) {
   try {
     std::size_t pos;
     double value = std::stod(test_string, &pos);
     if (pos == test_string.length()) {
       return value;
     }
-  } catch (std::invalid_argument &) {}
+  } catch (std::invalid_argument &) {
+  }
   return std::nullopt;
 }
 
@@ -60,14 +68,16 @@ std::optional<double> FinalApplication::IsValidDouble(const std::string &test_st
  * @param test_string The string to check
  * @return an optional int if the string can be converted, empty optional if not
  */
-std::optional<int> FinalApplication::IsValidInt(const std::string &test_string) const {
+std::optional<int> FinalApplication::IsValidInt(
+    const std::string &test_string) {
   try {
     std::size_t pos;
     int value = std::stoi(test_string, &pos);
     if (pos == test_string.length()) {
       return value;
     }
-  } catch (std::invalid_argument &) {}
+  } catch (std::invalid_argument &) {
+  }
   return std::nullopt;
 }
 
@@ -78,7 +88,9 @@ std::optional<int> FinalApplication::IsValidInt(const std::string &test_string) 
  * @param is istream used for input and testing
  * @return A valid column index for the grid
  */
-int FinalApplication::GetColumnIndex(int max_index, std::ostream &os = std::cout, std::istream &is = std::cin) const {
+int FinalApplication::GetColumnIndex(int max_index,
+                                     std::ostream &os = std::cout,
+                                     std::istream &is = std::cin) {
   while (true) {
     os << "Please enter column index: ";
     std::string index_str;
@@ -87,7 +99,8 @@ int FinalApplication::GetColumnIndex(int max_index, std::ostream &os = std::cout
     if (index && index.value() < max_index) {
       return index.value();
     }
-    os << "Invalid option. Try again. The max index is: " << max_index << std::endl;
+    os << "Invalid option. Try again. The max index is: " << max_index
+       << std::endl;
   }
 }
 
@@ -97,7 +110,8 @@ int FinalApplication::GetColumnIndex(int max_index, std::ostream &os = std::cout
  * @param is istream used for input and testing
  * @return A datum value
  */
-cse::Datum FinalApplication::GetDataValue(std::ostream &os = std::cout, std::istream &is = std::cin) const {
+cse::Datum FinalApplication::GetDataValue(std::ostream &os = std::cout,
+                                          std::istream &is = std::cin) {
   os << "Please enter the value to compare: ";
   std::string value_str;
   is >> value_str;
@@ -109,10 +123,12 @@ cse::Datum FinalApplication::GetDataValue(std::ostream &os = std::cout, std::ist
 
 /**
  * Prints the column
+ * @param column a column vector for printing
  * @param os ostream used for output and testing
- * @param is istream used for input and testing
  */
-void FinalApplication::PrintColumn(const cse::ReferenceVector<cse::Datum> &column, std::ostream &os = std::cout) const {
+void FinalApplication::PrintColumn(
+    const cse::ReferenceVector<cse::Datum> &column,
+    std::ostream &os = std::cout) {
   for (const auto &datum : column) {
     if (datum.IsDouble()) {
       os << datum.GetDouble() << " ";
@@ -124,131 +140,213 @@ void FinalApplication::PrintColumn(const cse::ReferenceVector<cse::Datum> &colum
 }
 
 /**
- * Displays the create grid menu that prompts the user to create a custom DataGrid
+ * Displays the create grid menu that prompts the user to create a custom
+ * DataGrid
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  * @return The custom DataGrid
  */
-cse::DataGrid FinalApplication::CreateGridMenu(std::ostream &os = std::cout, std::istream &is = std::cin) const {
+cse::DataGrid FinalApplication::CreateGridMenu(std::ostream &os = std::cout,
+                                               std::istream &is = std::cin) {
+  static constexpr std::size_t MAX_ROWS = 1000;
+  static constexpr std::size_t MAX_COLS = 1000;
+  static constexpr std::size_t MAX_DEFAULT_STR_LEN = 100;
+  static constexpr double MAX_DEFAULT_VALUE = 1e20;
+
+  auto trim = [&](const std::string &s) {
+    const auto ws = " \t\r\n";
+    auto first = s.find_first_not_of(ws);
+    if (first == std::string::npos) return std::string{};
+    auto last = s.find_last_not_of(ws);
+    return s.substr(first, last - first + 1);
+  };
+
   std::size_t num_rows = 0, num_columns = 0;
-  std::string type_choice;
+  std::string line, token, type_choice;
 
+  // Read number of rows
   while (true) {
-    os << "Enter number of rows for your DataGrid: ";
-    is >> num_rows;
-    if (is.fail() || num_rows == 0) {
-
-      // Clears error flags and input buffer
+    os << "Enter number of rows for your DataGrid [1–" << MAX_ROWS << "]: ";
+    if (!std::getline(is, line)) {
       is.clear();
-      is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
+      continue;
+    }
+    token = trim(line);
+    // must be all digits
+    if (token.empty() || !std::ranges::all_of(token, ::isdigit)) {
       os << "Invalid input. Please enter a positive integer." << std::endl;
-    } else {
-      // Clears input buffer
-      is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+      continue;
+    }
+    try {
+      auto v = std::stoi(token);
+      if (v == 0 || v > MAX_ROWS) {
+        os << "Invalid input. Please enter an integer between 1 and "
+           << MAX_ROWS << "." << std::endl;
+        continue;
+      }
+      num_rows = v;
       break;
+    } catch (...) {
+      os << "Invalid input. Please enter a positive integer." << std::endl;
     }
   }
 
+  // Read number of columns
   while (true) {
-    os << "Enter number of columns for your DataGrid: ";
-    is >> num_columns;
-    if (is.fail() || num_columns == 0) {
-
-      // Clears error flags and input buffer
+    os << "Enter number of columns for your DataGrid [1–" << MAX_COLS << "]: ";
+    if (!std::getline(is, line)) {
       is.clear();
-      is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
+      continue;
+    }
+    token = trim(line);
+    if (token.empty() || !std::ranges::all_of(token, ::isdigit)) {
       os << "Invalid input. Please enter a positive integer." << std::endl;
-    } else {
-      // Clears input buffer
-      is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+      continue;
+    }
+    try {
+      auto v = std::stoi(token);
+      if (v == 0 || v > MAX_COLS) {
+        os << "Invalid input. Please enter an integer between 1 and "
+           << MAX_COLS << "." << std::endl;
+        continue;
+      }
+      num_columns = v;
       break;
+    } catch (...) {
+      os << "Invalid input. Please enter a positive integer." << std::endl;
     }
   }
 
+  // Choose default value type
   while (true) {
-    os << "Would you like your default values to be numerical or strings? [n/s]: ";
-    std::getline(is >> std::ws, type_choice);
+    os << "Would you like your default values to be numerical or strings? "
+          "[n/s]: ";
+    if (!std::getline(is, line)) {
+      is.clear();
+      continue;
+    }
+    type_choice = trim(line);
     if (type_choice == "n") {
-      double default_value;
+      // numeric default
       while (true) {
         os << "Enter a numeric default value for the DataGrid: ";
-        is >> default_value;
-        if (is.fail()) {
-
-          // Clears error flags and input buffer
+        if (!std::getline(is, line)) {
           is.clear();
-          is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-          os << "Invalid input. Please enter a valid number." << std::endl;
-        } else {
-          // Clears input buffer
-          is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-          return cse::DataGrid(num_rows, num_columns, default_value);
+          continue;
         }
+        token = trim(line);
+
+        std::istringstream ss(token);
+        double d;
+        if (!(ss >> d) || !(ss >> std::ws).eof()) {
+          os << "Invalid input. Please enter a valid number." << "\n";
+          continue;
+        }
+
+        if (std::fabs(d) > MAX_DEFAULT_VALUE) {
+          os << "Invalid input. Please enter a number between "
+             << -MAX_DEFAULT_VALUE << " and " << MAX_DEFAULT_VALUE << ".\n";
+          continue;
+        }
+
+        return cse::DataGrid(num_rows, num_columns, d);
       }
     } else if (type_choice == "s") {
-      std::string default_value;
-      os << "Enter a string default value for the DataGrid: ";
-      std::getline(is >> std::ws, default_value);
-      return {num_rows, num_columns, default_value};
+      // string default
+      while (true) {
+        os << "Enter a string default value for the DataGrid (1–"
+           << MAX_DEFAULT_STR_LEN << " chars): ";
+        if (!std::getline(is, line)) {
+          is.clear();
+          continue;
+        }
+        token = trim(line);
+        if (token.empty()) {
+          os << "Invalid input. Please enter a non-empty string." << std::endl;
+          continue;
+        }
+        if (token.size() > MAX_DEFAULT_STR_LEN) {
+          os << "Invalid input. String too long (max " << MAX_DEFAULT_STR_LEN
+             << " characters)." << std::endl;
+          continue;
+        }
+        return {num_rows, num_columns, token};
+      }
     } else {
-      os << "Invalid selection. Type 'n' for numeric or 's' for string." << std::endl;
+      os << "Invalid selection. Type 'n' for numeric or 's' for string."
+         << std::endl;
     }
   }
 }
 
 /**
  * Displays the grid menu and prompts the user for a DataGrid.
- * The DataGrid can be made by using a csv file, custom creation, or pre-made example
+ * The DataGrid can be made by using a csv file, custom creation, or pre-made
+ * example
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  * @return A DataGrid to use
  */
-cse::DataGrid FinalApplication::GridMenu(std::ostream &os = std::cout, std::istream &is = std::cin) const {
+cse::DataGrid FinalApplication::GridMenu(std::ostream &os = std::cout,
+                                         std::istream &is = std::cin) {
+  // Helper to trim whitespace
+  auto trim = [&](const std::string &s) {
+    const auto ws = " \t\r\n";
+    auto first = s.find_first_not_of(ws);
+    if (first == std::string::npos) return std::string{};
+    auto last = s.find_last_not_of(ws);
+    return s.substr(first, last - first + 1);
+  };
+
+  std::string line;
   while (true) {
-    os << "Menu Option:" << std::endl;
-    os << "i: Import a CSV file" << std::endl;
-    os << "c: Create a new DataGrid" << std::endl;
-    os << "t: Use a pre-made DataGrid" << std::endl;
-    os << "Enter an option: ";
-    std::string option;
-    is >> option;
+    os << "Menu Option:\n"
+       << "i: Import a CSV file\n"
+       << "c: Create a new DataGrid\n"
+       << "t: Use a pre-made DataGrid\n"
+       << "Enter an option: ";
+    if (!std::getline(is, line)) {
+      is.clear();
+      continue;
+    }
+    std::string choice = trim(line);
 
-    if (option == "i") {
-      std::string filename;
+    if (choice == "i") {
+      // Import CSV path
       os << "Enter CSV filename to import: ";
-      is >> filename;
-      try {
-        cse::DataGrid grid = cse::CSVFile::LoadCsv(filename);
-        return grid;
-      } catch (const std::exception &e) {
-        std::cerr << "Import failed: " << e.what() << "\n";
+      if (!std::getline(is, line)) {
+        is.clear();
+        continue;
       }
-    } else if (option == "t") {
-      std::vector<std::vector<cse::Datum>> premade_grid(5, std::vector<cse::Datum>(3));
-
-      premade_grid[0][0] = cse::Datum(5.0);
-      premade_grid[1][0] = cse::Datum(3.5);
-      premade_grid[2][0] = cse::Datum(1.25);
-      premade_grid[3][0] = cse::Datum(-15);
-      premade_grid[4][0] = cse::Datum(4.25);
-
-      premade_grid[0][1] = cse::Datum("test1");
-      premade_grid[1][1] = cse::Datum("test2");
-      premade_grid[2][1] = cse::Datum("test4");
-      premade_grid[3][1] = cse::Datum("test5");
-      premade_grid[4][1] = cse::Datum("test6");
-
-      premade_grid[0][2] = cse::Datum(10.25);
-      premade_grid[1][2] = cse::Datum("test3");
-      premade_grid[2][2] = cse::Datum(150.50);
-      premade_grid[3][2] = cse::Datum(200);
-      premade_grid[4][2] = cse::Datum(20.25);
-
-      return cse::DataGrid(premade_grid);
-    } else if (option == "c") {
+      const auto filename = trim(line);
+      try {
+        return cse::CSVFile::LoadCsv(filename);
+      } catch (const std::exception &e) {
+        os << "Import failed: " << e.what() << std::endl;
+        // loop back to menu
+      }
+    } else if (choice == "t") {
+      // Pre-made 5×3 grid
+      std::vector<std::vector<cse::Datum>> premade(5,
+                                                   std::vector<cse::Datum>(3));
+      premade[0][0] = 5.0;
+      premade[1][0] = 3.5;
+      premade[2][0] = 1.25;
+      premade[3][0] = -15;
+      premade[4][0] = 4.25;
+      premade[0][1] = "test1";
+      premade[1][1] = "test2";
+      premade[2][1] = "test4";
+      premade[3][1] = "test5";
+      premade[4][1] = "test6";
+      premade[0][2] = 10.25;
+      premade[1][2] = "test3";
+      premade[2][2] = 150.50;
+      premade[3][2] = 200;
+      premade[4][2] = 20.25;
+      return cse::DataGrid(premade);
+    } else if (choice == "c") {
+      // Delegate to the robust CreateGridMenu
       return CreateGridMenu();
     } else {
       os << "Invalid option. Try again." << std::endl;
@@ -257,13 +355,16 @@ cse::DataGrid FinalApplication::GridMenu(std::ostream &os = std::cout, std::istr
 }
 
 /**
- * Displays the math menu and outputs the results from the mathematical operation based on the user input.
- * Supported operations: Mean, Median, Mode, Standard Deviation, Min, Max, and Summary of the grid
+ * Displays the math menu and outputs the results from the mathematical
+ * operation based on the user input. Supported operations: Mean, Median, Mode,
+ * Standard Deviation, Min, Max, and Summary of the grid
  * @param grid The DataGrid used for the calculations
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  */
-void FinalApplication::MathMenu(const cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) const {
+void FinalApplication::MathMenu(const cse::DataGrid &grid,
+                                std::ostream &os = std::cout,
+                                std::istream &is = std::cin) {
   while (true) {
     os << "\nMath Menu:" << std::endl;
     os << "cmean: Calculate the mean of a column" << std::endl;
@@ -279,28 +380,38 @@ void FinalApplication::MathMenu(const cse::DataGrid &grid, std::ostream &os = st
     is >> option;
 
     if (option == "cmean") {
-      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-      os << "Mean at column " << index << ": " << grid.ColumnMean(index) << std::endl;
+      int index =
+          GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+      os << "Mean at column " << index << ": " << grid.ColumnMean(index)
+         << std::endl;
       return;
     } else if (option == "cmed") {
-      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-      os << "Median at column " << index << ": " << grid.ColumnMedian(index) << std::endl;
+      int index =
+          GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+      os << "Median at column " << index << ": " << grid.ColumnMedian(index)
+         << std::endl;
       return;
     } else if (option == "csd") {
-      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+      int index =
+          GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
       os << "Standard deviation at column " << index << ": "
-                << grid.ColumnStandardDeviation(index) << std::endl;
+         << grid.ColumnStandardDeviation(index) << std::endl;
       return;
     } else if (option == "cmin") {
-      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-      os << "Min at column " << index << ": " << grid.ColumnMin(index) << std::endl;
+      int index =
+          GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+      os << "Min at column " << index << ": " << grid.ColumnMin(index)
+         << std::endl;
       return;
     } else if (option == "cmax") {
-      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-      os << "Max at column " << index << ": " << grid.ColumnMax(index) << std::endl;
+      int index =
+          GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+      os << "Max at column " << index << ": " << grid.ColumnMax(index)
+         << std::endl;
       return;
     } else if (option == "cmode") {
-      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+      int index =
+          GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
       os << "Mode(s) at column " << index << ": ";
       for (const double &mode_val : grid.ColumnMode(index)) {
         os << mode_val << " ";
@@ -330,58 +441,72 @@ void FinalApplication::MathMenu(const cse::DataGrid &grid, std::ostream &os = st
 }
 
 /**
- * Displays the comparison menu and outputs the results from the comparison based on the user input.
- * Supported comparisons: Less than, Less than or equal, Greater than, Greater than or equal, equal, not equal
+ * Displays the comparison menu and outputs the results from the comparison
+ * based on the user input. Supported comparisons: Less than, Less than or
+ * equal, Greater than, Greater than or equal, equal, not equal
  * @param grid The DataGrid used for the calculations
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  */
-void FinalApplication::ComparisonMenu(cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) const {
+void FinalApplication::ComparisonMenu(cse::DataGrid &grid,
+                                      std::ostream &os = std::cout,
+                                      std::istream &is = std::cin) {
   while (true) {
     os << "\nComparison Menu:" << std::endl;
     os << "clt: Find values less than a given value for a column" << std::endl;
-    os << "clte: Find values less than or equal to a given value for a column" << std::endl;
-    os << "cgt: Find values greater than a given value for a column" << std::endl;
-    os << "cgte: Find values greater than or equal to a given value for a column" << std::endl;
+    os << "clte: Find values less than or equal to a given value for a column"
+       << std::endl;
+    os << "cgt: Find values greater than a given value for a column"
+       << std::endl;
+    os << "cgte: Find values greater than or equal to a given value for a "
+          "column"
+       << std::endl;
     os << "ce: Find values equal to a value for a column" << std::endl;
-    os << "cne: Find values not equal to a given value for a column" << std::endl;
+    os << "cne: Find values not equal to a given value for a column"
+       << std::endl;
     os << "b: Go back" << std::endl;
     os << "Enter option: ";
     std::string option;
     is >> option;
 
     if (option == "clt") {
-      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+      int index =
+          GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
       cse::Datum datum = GetDataValue(os, is);
       os << "Values less than given value:" << std::endl;
       PrintColumn(grid.ColumnLessThan(index, datum));
       return;
     } else if (option == "clte") {
-      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+      int index =
+          GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
       cse::Datum datum = GetDataValue(os, is);
       os << "Values less than or equal to given value:" << std::endl;
       PrintColumn(grid.ColumnLessThanOrEqual(index, datum));
       return;
     } else if (option == "cgt") {
-      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+      int index =
+          GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
       cse::Datum datum = GetDataValue(os, is);
       os << "Values greater than given value:" << std::endl;
       PrintColumn(grid.ColumnGreaterThan(index, datum));
       return;
     } else if (option == "cgte") {
-      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+      int index =
+          GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
       cse::Datum datum = GetDataValue(os, is);
       os << "Values greater than or equal to given value:" << std::endl;
       PrintColumn(grid.ColumnGreaterThanOrEqual(index, datum));
       return;
     } else if (option == "ce") {
-      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+      int index =
+          GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
       cse::Datum datum = GetDataValue(os, is);
       os << "Values equal to given value:" << std::endl;
       PrintColumn(grid.ColumnEqual(index, datum));
       return;
     } else if (option == "cne") {
-      int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+      int index =
+          GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
       cse::Datum datum = GetDataValue(os, is);
       os << "Values not equal to given value:" << std::endl;
       PrintColumn(grid.ColumnNotEqual(index, datum));
@@ -395,13 +520,16 @@ void FinalApplication::ComparisonMenu(cse::DataGrid &grid, std::ostream &os = st
 }
 
 /**
- * Displays the manipulate grid menu and performs the changes on the DataGrid based on the user input.
- * Supported options: Print, Edit, Sort, Add, Delete, and Resize
+ * Displays the manipulate grid menu and performs the changes on the DataGrid
+ * based on the user input. Supported options: Print, Edit, Sort, Add, Delete,
+ * and Resize
  * @param grid The DataGrid that gets manipulated
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  */
-void FinalApplication::ManipulateGridMenu(cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) const {
+void FinalApplication::ManipulateGridMenu(cse::DataGrid &grid,
+                                          std::ostream &os = std::cout,
+                                          std::istream &is = std::cin) {
   int choice = -1;
   do {
     os << "\n=== CSV Grid Manipulation Menu ===" << std::endl;
@@ -451,13 +579,15 @@ void FinalApplication::ManipulateGridMenu(cse::DataGrid &grid, std::ostream &os 
 }
 
 /**
- * Displays the print menu and outputs the results from the print based on the user input.
- * Supported options: Print cell value, row, column, or entire grid
+ * Displays the print menu and outputs the results from the print based on the
+ * user input. Supported options: Print cell value, row, column, or entire grid
  * @param grid The DataGrid to print
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  */
-void FinalApplication::PrintSubmenu(const cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) const {
+void FinalApplication::PrintSubmenu(const cse::DataGrid &grid,
+                                    std::ostream &os = std::cout,
+                                    std::istream &is = std::cin) {
   int choice = 0;
   do {
     os << "\n--- Print Options ---" << std::endl;
@@ -478,11 +608,13 @@ void FinalApplication::PrintSubmenu(const cse::DataGrid &grid, std::ostream &os 
           is >> row;
           os << "Enter column index: ";
           is >> col;
-          const cse::Datum& value = grid.GetValue(row, col);
+          const cse::Datum &value = grid.GetValue(row, col);
           if (value.IsDouble()) {
-            os << "Cell (" << row << ", " << col << "): " << value.GetDouble() << std::endl;
+            os << "Cell (" << row << ", " << col << "): " << value.GetDouble()
+               << std::endl;
           } else if (value.IsString()) {
-            os << "Cell (" << row << ", " << col << "): " << value.GetString() << std::endl;
+            os << "Cell (" << row << ", " << col << "): " << value.GetString()
+               << std::endl;
           }
           break;
         }
@@ -542,7 +674,9 @@ void FinalApplication::PrintSubmenu(const cse::DataGrid &grid, std::ostream &os 
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  */
-void FinalApplication::EditSubmenu(cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) const {
+void FinalApplication::EditSubmenu(cse::DataGrid &grid,
+                                   std::ostream &os = std::cout,
+                                   std::istream &is = std::cin) {
   int choice = 0;
   do {
     os << "\n--- Edit Options ---" << std::endl;
@@ -617,7 +751,9 @@ void FinalApplication::EditSubmenu(cse::DataGrid &grid, std::ostream &os = std::
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  */
-void FinalApplication::SortSubmenu(cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) const {
+void FinalApplication::SortSubmenu(cse::DataGrid &grid,
+                                   std::ostream &os = std::cout,
+                                   std::istream &is = std::cin) {
   int choice = 0;
   do {
     os << "\n--- Sort Options ---" << std::endl;
@@ -668,7 +804,9 @@ void FinalApplication::SortSubmenu(cse::DataGrid &grid, std::ostream &os = std::
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  */
-void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) const {
+void FinalApplication::AddSubmenu(cse::DataGrid &grid,
+                                  std::ostream &os = std::cout,
+                                  std::istream &is = std::cin) {
   int choice = 0;
   do {
     os << "\n--- Adding Options ---" << std::endl;
@@ -684,7 +822,8 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os = std::c
         // Add row
         case 1: {
           std::size_t num_cols = std::get<1>(grid.Shape());
-          os << "Add default row (d), with an equation (e), or enter manually (m)? ";
+          os << "Add default row (d), with an equation (e), or enter manually "
+                "(m)? ";
           std::string method;
           is >> method;
           // Add a default row
@@ -707,30 +846,31 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os = std::c
               std::string val;
               is >> val;
               auto num = IsValidDouble(val);
-              new_row.emplace_back(num.has_value() ? cse::Datum(num.value()) : cse::Datum(val));
+              new_row.emplace_back(num.has_value() ? cse::Datum(num.value())
+                                                   : cse::Datum(val));
             }
             grid.InsertRow(new_row);
             os << "Row added." << std::endl;
             // Add a custom row with an equation
-          } else if (method == "e"){
+          } else if (method == "e") {
             std::vector<cse::Datum> new_row;
-            os << "Enter equation. Supported operators +-/*^, indexes in curly braces {}, seperate with a single space: ";
+            os << "Enter equation. Supported operators +-/*^, indexes in curly "
+                  "braces {}, seperate with a single space: ";
             std::string equation;
             is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             std::getline(is, equation);
-            os<<equation<<std::endl;
+            os << equation << std::endl;
             cse::ExpressionParser<cse::ReferenceVector<Datum>> parser;
             cse::ReferenceVector<Datum> col;
-            size_t index=0;
+            size_t index = 0;
             auto func = parser.MakeFunc(equation, 0, index);
-            for(size_t i=0;i<num_cols;++i){
-              col= grid.GetColumn(i);
+            for (size_t i = 0; i < num_cols; ++i) {
+              col = grid.GetColumn(i);
               new_row.push_back(func(col));
             }
             grid.InsertRow(new_row);
-            os<<"Row Added" <<std::endl;
-          }
-          else {
+            os << "Row Added" << std::endl;
+          } else {
             os << "Invalid option. Must be 'd', 'e', or 'm'.";
           }
           break;
@@ -738,7 +878,8 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os = std::c
         // Add column
         case 2: {
           std::size_t num_rows = std::get<0>(grid.Shape());
-          os << "Add default column (d), column by equation (e), or enter manually (m)? ";
+          os << "Add default column (d), column by equation (e), or enter "
+                "manually (m)? ";
           std::string method;
           is >> method;
           // Add a default column
@@ -761,29 +902,30 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os = std::c
               std::string val;
               is >> val;
               auto num = IsValidDouble(val);
-              new_column.emplace_back(num.has_value() ? cse::Datum(num.value()) : cse::Datum(val));
+              new_column.emplace_back(num.has_value() ? cse::Datum(num.value())
+                                                      : cse::Datum(val));
             }
             grid.InsertColumn(new_column);
             os << "Column added." << std::endl;
-          // Add a custom column by an equation
-          } else if (method == "e"){
+            // Add a custom column by an equation
+          } else if (method == "e") {
             std::vector<cse::Datum> new_col;
-            os << "Enter equation. Supported operators +-/*^, indexes in curly braces {}, seperate with a single space: ";
+            os << "Enter equation. Supported operators +-/*^, indexes in curly "
+                  "braces {}, seperate with a single space: ";
             std::string equation;
             is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             std::getline(is, equation);
             cse::ExpressionParser<std::vector<cse::Datum>> parser;
             std::vector<Datum> row;
-            size_t index=0;
+            size_t index = 0;
             auto func = parser.MakeFunc(equation, 0, index);
-            for(size_t i=0;i<num_rows;++i) {
+            for (size_t i = 0; i < num_rows; ++i) {
               row = grid.GetRow(i);
               new_col.push_back(func(row));
             }
             grid.InsertColumn(new_col);
-            os<<"Col Added" <<std::endl;
-          }
-          else {
+            os << "Col Added" << std::endl;
+          } else {
             os << "Invalid option. Must be 'd', 'e', or 'm'." << std::endl;
           }
           break;
@@ -799,15 +941,16 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os = std::c
           os << "Enter number of columns for merging grid: ";
           is >> merge_cols;
 
-          std::vector<std::vector<cse::Datum>> merge_data(merge_rows,
-                                                          std::vector<cse::Datum>(merge_cols));
+          std::vector<std::vector<cse::Datum>> merge_data(
+              merge_rows, std::vector<cse::Datum>(merge_cols));
           os << "Enter values for the merging grid:" << std::endl;
           for (std::size_t i = 0; i < merge_rows; ++i) {
             for (std::size_t j = 0; j < merge_cols; ++j) {
               std::string val;
               is >> val;
               auto num = IsValidDouble(val);
-              merge_data[i][j] = num.has_value() ? cse::Datum(num.value()) : cse::Datum(val);
+              merge_data[i][j] =
+                  num.has_value() ? cse::Datum(num.value()) : cse::Datum(val);
             }
           }
 
@@ -830,13 +973,15 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os = std::c
 }
 
 /**
- * Displays the delete menu and deletes parts of the DataGrid based on the user input.
- * Supported options: Delete a row, column, or entire DataGrid
+ * Displays the delete menu and deletes parts of the DataGrid based on the user
+ * input. Supported options: Delete a row, column, or entire DataGrid
  * @param grid The DataGrid to delete from
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  */
-void FinalApplication::DeleteSubmenu(cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) const {
+void FinalApplication::DeleteSubmenu(cse::DataGrid &grid,
+                                     std::ostream &os = std::cout,
+                                     std::istream &is = std::cin) {
   int choice = 0;
   do {
     os << "\n--- Deleting Options ---" << std::endl;
@@ -891,7 +1036,9 @@ void FinalApplication::DeleteSubmenu(cse::DataGrid &grid, std::ostream &os = std
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  */
-void FinalApplication::ResizeSubmenu(cse::DataGrid &grid, std::ostream &os = std::cout, std::istream &is = std::cin) const {
+void FinalApplication::ResizeSubmenu(cse::DataGrid &grid,
+                                     std::ostream &os = std::cout,
+                                     std::istream &is = std::cin) {
   int choice = 0;
   do {
     os << "\n--- Resizing Options ---" << std::endl;
@@ -948,11 +1095,15 @@ void FinalApplication::ResizeSubmenu(cse::DataGrid &grid, std::ostream &os = std
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  */
-void FinalApplication::MainMenu(std::ostream &os = std::cout, std::istream &is = std::cin) const {
+void FinalApplication::MainMenu(std::ostream &os = std::cout,
+                                std::istream &is = std::cin) {
   os << "Welcome to CSV Command Line Manipulator" << std::endl;
+  os << "This is a command line application that allows users to create, load, "
+        "manipulate, analyze and save CSV file data"
+     << std::endl;
   os << "Developed by: Max Krawec, Calen Green, Pedro Mitkiewicz, "
-               "Shahaab Ali, and Muhammad Asif Masood"
-            << std::endl;
+        "Shahaab Ali, and Muhammad Asif Masood"
+     << std::endl;
   os << std::endl;
 
   cse::DataGrid grid = GridMenu();
@@ -981,8 +1132,7 @@ void FinalApplication::MainMenu(std::ostream &os = std::cout, std::istream &is =
       } catch (const std::exception &e) {
         std::cerr << "Export failed: " << e.what() << "\n";
       }
-    }
-    else if (option == "e") {
+    } else if (option == "e") {
       ManipulateGridMenu(grid);
     } else if (option == "m") {
       MathMenu(grid);

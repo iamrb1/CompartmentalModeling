@@ -1,20 +1,170 @@
 /**
  * @file FinalApplicationTests.cpp
  *
- * @author Max Krawec
+ * @author Max Krawec, Shahaab Ali
  */
 
-#include "../../third-party/Catch/single_include/catch2/catch.hpp"
-
 #include "../../Group-05/FinalApplication.cpp"
-
+#include "../../Group-05/src/CSVfile.cpp"
 #include "../../Group-05/src/DataGrid.cpp"
 #include "../../Group-05/src/Datum.cpp"
-#include "../../Group-05/src/CSVfile.cpp"
+#include "../../third-party/Catch/single_include/catch2/catch.hpp"
+
+//
+// Test CreateGridMenu invalid inputs
+//
+TEST_CASE("CreateGridMenu: invalid inputs", "[CreateGridMenu]") {
+  FinalApplication app;
+  std::istringstream is(
+      "\n\n"                    // blank lines before first prompt
+      "abc\n"                   // non-numeric for rows
+      "99.99.99\n"              // irregular numeric for rows
+      "2.5\n"                   // decimal for integer rows
+      "-1\n"                    // negative for rows
+      "1001\n"                  // too large for rows
+      "5\n"                     // valid rows
+      "def\n"                   // non-numeric for columns
+      "1.1.1\n"                 // irregular numeric for columns
+      "3.14\n"                  // decimal for integer columns
+      "-2\n"                    // negative for columns
+      "1001\n"                  // too large for columns
+      "4\n"                     // valid columns
+      "n\n"                     // choose numeric default
+      "foo\n"                   // non-numeric default
+      "88..88\n"                // irregular numeric default
+      "1e21\n"                  // too large number, invalid
+      "12345678901234567890\n"  // very large number, valid
+  );
+  std::ostringstream os;
+  auto grid = app.CreateGridMenu(os, is);
+
+  // Should return a 5×4 grid with default value 1.2345678901234568e+19
+  CHECK(grid.Shape() == std::make_tuple(std::size_t(5), std::size_t(4)));
+  CHECK(grid.GetValue(2, 3).AsDouble() == Approx(1.2345678901234568e+19));
+
+  const auto out = os.str();
+  CHECK(out.find("Invalid input. Please enter a positive integer.") !=
+        std::string::npos);
+  CHECK(
+      out.find("Invalid input. Please enter an integer between 1 and 1000.") !=
+      std::string::npos);
+  CHECK(out.find("Invalid input. Please enter a valid number.") !=
+        std::string::npos);
+  CHECK(out.find("Please enter a number between") != std::string::npos);
+}
+
+//
+// Test CreateGridMenu invalid inputs + string default
+//
+TEST_CASE("CreateGridMenu: invalid inputs + string default",
+          "[CreateGridMenu]") {
+  FinalApplication app;
+  // prepare a string of 101 characters
+  std::string long_str(101, 'x');
+  std::istringstream is(
+      "1\n"  // valid rows
+      "1\n"  // valid columns
+      "s\n"  // choose string default
+      "\n"   // empty string
+      + long_str +
+      "\n"       // too-long string
+      "hello\n"  // valid default
+  );
+  std::ostringstream os;
+  auto grid = app.CreateGridMenu(os, is);
+
+  // Should return a 1×1 grid with default string "hello"
+  CHECK(grid.Shape() == std::make_tuple(std::size_t(1), std::size_t(1)));
+  CHECK(grid.GetValue(0, 0).AsString() == "hello");
+
+  const auto out = os.str();
+  CHECK(out.find("Please enter a non-empty string.") != std::string::npos);
+  CHECK(out.find("Invalid input. String too long") != std::string::npos);
+}
+
+//
+// Test GridMenu invalid menu options and test grid
+//
+TEST_CASE("GridMenu: invalid menu options and test grid", "[GridMenu]") {
+  FinalApplication app;
+  std::ostringstream os;
+  std::istringstream is(
+      "\n"     // blank line before first prompt
+      "123\n"  // invalid (numeric)
+      "?\n"    // invalid (punctuation)
+      "abc\n"  // invalid (word)
+      "t\n"    // valid: premade
+  );
+  auto grid = app.GridMenu(os, is);
+
+  // Check if test grid was returned (5×3 premade grid)
+  auto [r, c] = grid.Shape();
+  CHECK(r == 5);
+  CHECK(c == 3);
+  CHECK(grid.GetValue(0, 0).AsDouble() == Approx(5.0));
+  CHECK(grid.GetValue(1, 1).AsString() == "test2");
+
+  REQUIRE(os.str().find("Invalid option. Try again.") != std::string::npos);
+}
+
+//
+// Test GridMenu CSV import
+//
+TEST_CASE("GridMenu imports CSV correctly when file exists", "[GridMenu]") {
+  // Create a temporary CSV file
+  const char* fname = "temp_test.csv";
+  {
+    std::ofstream fout(fname);
+    fout << "10,hello\n20,world\n";  // csv file values
+  }
+
+  FinalApplication app;
+  std::ostringstream os;
+  std::istringstream is(
+      "i\n"              // choose import
+      "temp_test.csv\n"  // file name
+  );
+  auto grid = app.GridMenu(os, is);
+
+  // Remove temp file
+  std::remove(fname);
+
+  // CSV has 2 rows, 2 columns
+  auto [r, c] = grid.Shape();
+  CHECK(r == 2);
+  CHECK(c == 2);
+
+  // Check parsed values
+  CHECK(grid.GetValue(0, 0).AsDouble() == Approx(10.0));
+  CHECK(grid.GetValue(0, 1).AsString() == "hello");
+  CHECK(grid.GetValue(1, 0).AsDouble() == Approx(20.0));
+  CHECK(grid.GetValue(1, 1).AsString() == "world");
+}
+
+//
+// Test GridMenu import CSV failure then use test grid
+//
+TEST_CASE("GridMenu handles import failure and retries menu", "[GridMenu]") {
+  FinalApplication app;
+  std::ostringstream os;
+  std::istringstream is(
+      "i\n"                // attempt import
+      "nonexistent.csv\n"  // bad filename
+      "t\n"                // fallback to premade
+  );
+  auto grid = app.GridMenu(os, is);
+
+  // Should fall back to premade 5×3
+  auto [r, c] = grid.Shape();
+  CHECK(r == 5);
+  CHECK(c == 3);
+
+  // Ensure the failure message was printed
+  REQUIRE(os.str().find("Import failed:") != std::string::npos);
+}
 
 TEST_CASE("MathMenu()", "[math_menu]") {
-  std::vector<std::vector<cse::Datum>> test_grid(
-      5, std::vector<cse::Datum>(1));
+  std::vector<std::vector<cse::Datum>> test_grid(5, std::vector<cse::Datum>(1));
 
   test_grid[0][0] = cse::Datum(10.25);
   test_grid[1][0] = cse::Datum("test1");
@@ -25,11 +175,11 @@ TEST_CASE("MathMenu()", "[math_menu]") {
   cse::DataGrid grid(test_grid);
   FinalApplication final_application;
 
-
   // ** Mean **
 
   // Valid input
-  // CITE: Used ChatGPT to learn how to write the os and is code. The test cases were manually written
+  // CITE: Used ChatGPT to learn how to write the os and is code. The test cases
+  // were manually written
   std::istringstream is("cmean\n0\nb\n");
   std::ostringstream os;
   final_application.MathMenu(grid, os, is);
@@ -52,7 +202,6 @@ TEST_CASE("MathMenu()", "[math_menu]") {
   os.clear();
   final_application.MathMenu(grid, os, is);
   CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
-
 
   // ** Median **
 
@@ -80,7 +229,6 @@ TEST_CASE("MathMenu()", "[math_menu]") {
   final_application.MathMenu(grid, os, is);
   CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
 
-
   // ** Standard Deviation **
 
   // Valid input
@@ -106,7 +254,6 @@ TEST_CASE("MathMenu()", "[math_menu]") {
   os.clear();
   final_application.MathMenu(grid, os, is);
   CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
-
 
   // ** Minimum **
 
@@ -134,7 +281,6 @@ TEST_CASE("MathMenu()", "[math_menu]") {
   final_application.MathMenu(grid, os, is);
   CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
 
-
   // ** Maximum **
 
   // Valid input
@@ -160,7 +306,6 @@ TEST_CASE("MathMenu()", "[math_menu]") {
   os.clear();
   final_application.MathMenu(grid, os, is);
   CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
-
 
   // ** Mode **
 
@@ -188,7 +333,6 @@ TEST_CASE("MathMenu()", "[math_menu]") {
   final_application.MathMenu(grid, os, is);
   CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
 
-
   // ** Summary **
 
   // Valid input
@@ -215,7 +359,6 @@ TEST_CASE("MathMenu()", "[math_menu]") {
   final_application.MathMenu(grid, os, is);
   CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
 
-
   // Extra tests
 
   // Invalid option (text)
@@ -232,8 +375,7 @@ TEST_CASE("MathMenu()", "[math_menu]") {
 }
 
 TEST_CASE("ComparisonMenu()", "[comparison_menu]") {
-  std::vector<std::vector<cse::Datum>> test_grid(
-      5, std::vector<cse::Datum>(1));
+  std::vector<std::vector<cse::Datum>> test_grid(5, std::vector<cse::Datum>(1));
 
   test_grid[0][0] = cse::Datum(10.25);
   test_grid[1][0] = cse::Datum("test1");
@@ -243,7 +385,6 @@ TEST_CASE("ComparisonMenu()", "[comparison_menu]") {
 
   cse::DataGrid grid(test_grid);
   FinalApplication final_application;
-
 
   // ** Less Than **
 
@@ -277,7 +418,6 @@ TEST_CASE("ComparisonMenu()", "[comparison_menu]") {
   final_application.ComparisonMenu(grid, os, is);
   CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
 
-
   // ** Less Than Or Equal **
 
   // Valid input (number)
@@ -309,7 +449,6 @@ TEST_CASE("ComparisonMenu()", "[comparison_menu]") {
   os.clear();
   final_application.ComparisonMenu(grid, os, is);
   CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
-
 
   // ** Greater Than **
 
@@ -343,7 +482,6 @@ TEST_CASE("ComparisonMenu()", "[comparison_menu]") {
   final_application.ComparisonMenu(grid, os, is);
   CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
 
-
   // ** Greater Than Or Equal **
 
   // Valid input (number)
@@ -375,7 +513,6 @@ TEST_CASE("ComparisonMenu()", "[comparison_menu]") {
   os.clear();
   final_application.ComparisonMenu(grid, os, is);
   CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
-
 
   // ** Equal **
 
@@ -409,7 +546,6 @@ TEST_CASE("ComparisonMenu()", "[comparison_menu]") {
   final_application.ComparisonMenu(grid, os, is);
   CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
 
-
   // ** Not Equal **
 
   // Valid input (number)
@@ -442,7 +578,6 @@ TEST_CASE("ComparisonMenu()", "[comparison_menu]") {
   final_application.ComparisonMenu(grid, os, is);
   CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
 
-
   // Extra tests
 
   // Invalid option (text)
@@ -465,8 +600,7 @@ TEST_CASE("ComparisonMenu()", "[comparison_menu]") {
 }
 
 TEST_CASE("ManipulateGridMenu()", "[Manipulate_grid_menu]") {
-  std::vector<std::vector<cse::Datum>> test_grid(
-      5, std::vector<cse::Datum>(1));
+  std::vector<std::vector<cse::Datum>> test_grid(5, std::vector<cse::Datum>(1));
 
   test_grid[0][0] = cse::Datum(10.25);
   test_grid[1][0] = cse::Datum("test1");
@@ -513,24 +647,26 @@ TEST_CASE("ManipulateGridMenu()", "[Manipulate_grid_menu]") {
   final_application.ManipulateGridMenu(grid, os, is);
   CHECK(os.str().find("Resizing Options") != std::string::npos);
 
-
   // Extra
 
   // Invalid input (number - int)
   is.str("99\n0\n0\n");
   os.clear();
   final_application.ManipulateGridMenu(grid, os, is);
-  CHECK(os.str().find("Invalid choice. Must be between 0-6. Try again.") != std::string::npos);
+  CHECK(os.str().find("Invalid choice. Must be between 0-6. Try again.") !=
+        std::string::npos);
 
   // Invalid input (number - double)
   is.str("1.1\n0\n0\n");
   os.clear();
   final_application.ManipulateGridMenu(grid, os, is);
-  CHECK(os.str().find("Invalid choice. Must be between 0-6. Try again.") != std::string::npos);
+  CHECK(os.str().find("Invalid choice. Must be between 0-6. Try again.") !=
+        std::string::npos);
 
   // Invalid string
   is.str("test\n0\n0\n");
   os.clear();
   final_application.ManipulateGridMenu(grid, os, is);
-  CHECK(os.str().find("Invalid choice. Cannot be a string. Try again.") != std::string::npos);
+  CHECK(os.str().find("Invalid choice. Cannot be a string. Try again.") !=
+        std::string::npos);
 }

@@ -4,19 +4,20 @@
  */
 
 #include "CSVfile.h"
-#include "DataGrid.h"
-#include "Datum.h"
 
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <fstream>
+#include <iomanip>
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
 #include <tuple>
 #include <vector>
-#include <iostream>
-#include <algorithm>
-#include <iomanip>
+
+#include "DataGrid.h"
+#include "Datum.h"
 
 namespace cse {
 
@@ -36,7 +37,8 @@ std::string CSVFile::TrimWhitespaces(const std::string &input) {
   auto end = std::find_if(input.rbegin(), input.rend(), [&](char character) {
     return WHITESPACE.find(character) == std::string::npos;
   });
-  // If no non-whitespace character is found, return an empty string; otherwise, return the trimmed substring.
+  // If no non-whitespace character is found, return an empty string; otherwise,
+  // return the trimmed substring.
   return (start == input.end()) ? "" : std::string(start, end.base());
 }
 
@@ -56,20 +58,24 @@ bool CSVFile::IsNumeric(const std::string &input) {
 }
 
 /**
- * @brief Prepares a string for CSV format, escaping quotes and handling delimiters.
+ * @brief Prepares a string for CSV format, escaping quotes and handling
+ * delimiters.
  *
  * @param input The string to sanitize.
  * @param delimiter The delimiter character used in the CSV.
  * @return The sanitized string.
  */
-std::string CSVFile::SanitizeCsvField(const std::string &input, char delimiter) {
+std::string CSVFile::SanitizeCsvField(const std::string &input,
+                                      char delimiter) {
   if (input.find(delimiter) != std::string::npos ||
       input.find('"') != std::string::npos) {
     std::string result = "\"";
     for (char character : input) {
-      // CITE: Used ChatGPT to help develop this logic for escaping double quotes in CSV fields.
-      // REF: According to CSV standard (RFC 4180) and research on it, double quotes in a field should be escaped by doubling them.
-      // So using that, this line replaces each " with "" to properly escape quotes in CSV fields. 
+      // CITE: Used ChatGPT to help develop this logic for escaping double
+      // quotes in CSV fields. REF: According to CSV standard (RFC 4180) and
+      // research on it, double quotes in a field should be escaped by doubling
+      // them. So using that, this line replaces each " with "" to properly
+      // escape quotes in CSV fields.
       result += (character == '"') ? "\"\"" : std::string(1, character);
     }
     result += "\"";
@@ -100,22 +106,26 @@ DataGrid CSVFile::LoadCsv(const std::string &file_name, char delimiter) {
   std::vector<std::vector<cse::Datum>> data;
   std::string line;
 
-  // CITE: Used ChatGPT to help design this block to split each CSV line into tokens using the delimiter.
+  // CITE: Used ChatGPT to help design this block to split each CSV line into
+  // tokens using the delimiter.
   while (std::getline(file, line)) {
     std::istringstream line_stream(line);
     std::string token;
     std::vector<Datum> row;
 
-    // CITE: Used https://www.cse.msu.edu/~cse450/Emplex.html to learn how to tokenize each CSV line and trim whitespace effectively.
+    // CITE: Used https://www.cse.msu.edu/~cse450/Emplex.html to learn how to
+    // tokenize each CSV line and trim whitespace effectively.
     while (std::getline(line_stream, token, delimiter)) {
       // Trim any leading/trailing whitespace from the token.
       token = TrimWhitespaces(token);
-      // If the token starts with a quote but doesn't end with one, it likely contains the delimiter as part of the field.
-      // Continue reading and appending tokens until we find the closing quote.
+      // If the token starts with a quote but doesn't end with one, it likely
+      // contains the delimiter as part of the field. Continue reading and
+      // appending tokens until we find the closing quote.
       if (!token.empty() && token.front() == '"' && token.back() != '"') {
         std::string next_token;
         while (std::getline(line_stream, next_token, delimiter)) {
-          // Append the delimiter and the next part without extra trimming to preserve any spaces inside the quoted field.
+          // Append the delimiter and the next part without extra trimming to
+          // preserve any spaces inside the quoted field.
           token += delimiter + next_token;
           // Once the token ends with a quote, we've captured the entire field.
           if (!token.empty() && token.back() == '"') {
@@ -134,7 +144,7 @@ DataGrid CSVFile::LoadCsv(const std::string &file_name, char delimiter) {
           assert(!std::isnan(value) &&
                  "Converted numeric value should not be NaN.");
           row.emplace_back(value);
-        //This will make the error handling more clearer to understand
+          // This will make the error handling more clearer to understand
         } catch (const std::invalid_argument &conversion_error) {
           row.emplace_back(token);
         }
@@ -145,14 +155,14 @@ DataGrid CSVFile::LoadCsv(const std::string &file_name, char delimiter) {
 
     data.push_back(row);
   }
-// If no data was read from the CSV, return an empty DataGrid.
+  // If no data was read from the CSV, return an empty DataGrid.
   file.close();
 
-if (data.empty()) {
-  return DataGrid();
-}
+  if (data.empty()) {
+    return DataGrid();
+  }
 
-  //Initializing a Datagrid directly from the parsed 2D vector
+  // Initializing a Datagrid directly from the parsed 2D vector
   cse::DataGrid grid(data);
   return grid;
 }
@@ -173,29 +183,31 @@ bool CSVFile::ExportCsv(const std::string &file_name, const DataGrid &grid,
                         char delimiter) {
   std::ofstream out_file(file_name);
 
-  // Checks proper error handling in the release builds                        
+  // Checks proper error handling in the release builds
   if (!out_file.is_open()) {
     throw std::runtime_error("Cannot write to file: " + file_name);
   }
 
-  //CITE: Used GPT to think through and extract grid's dimensions (rows and columns) for further processing
+  // CITE: Used GPT to think through and extract grid's dimensions (rows and
+  // columns) for further processing
   std::tuple<const std::size_t, const std::size_t> shape = grid.Shape();
   std::size_t num_rows = std::get<0>(shape);
   std::size_t num_cols = std::get<1>(shape);
 
-  //It loops over each row in the grid and gets a reference to the current row.
+  // It loops over each row in the grid and gets a reference to the current row.
   for (std::size_t i = 0; i < num_rows; ++i) {
     const std::vector<Datum> &row = grid.GetRow(i);
     // Assert that each row has the expected number of columns.
     assert(row.size() == num_cols &&
            "Row does not have the expected number of columns.");
     for (std::size_t j = 0; j < num_cols; ++j) {
-
-      //CITE: Used GPT to help with this if/else statement to convert each datum into a string.
+      // CITE: Used GPT to help with this if/else statement to convert each
+      // datum into a string.
       std::string out_value;
       if (row[j].IsDouble()) {
         double val = row[j].GetDouble();
-        // Convert the numeric value to a string—this ensures that even 0.0 is properly represented. Otherwise, use the string stored in the cell.
+        // Convert the numeric value to a string—this ensures that even 0.0 is
+        // properly represented. Otherwise, use the string stored in the cell.
         std::ostringstream oss;
         oss << std::defaultfloat << val;
         out_value = oss.str();
@@ -203,7 +215,8 @@ bool CSVFile::ExportCsv(const std::string &file_name, const DataGrid &grid,
         out_value = row[j].GetString();
       }
 
-      //This writes the sanitized cell value and if this isn't the last column, it will append the delimiter.
+      // This writes the sanitized cell value and if this isn't the last column,
+      // it will append the delimiter.
       out_file << SanitizeCsvField(out_value, delimiter);
       if (j < num_cols - 1) {
         out_file << delimiter;
@@ -215,4 +228,4 @@ bool CSVFile::ExportCsv(const std::string &file_name, const DataGrid &grid,
   return true;
 }
 
-} // namespace cse
+}  // namespace cse

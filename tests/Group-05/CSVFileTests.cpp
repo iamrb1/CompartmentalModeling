@@ -6,6 +6,13 @@
  * Tests for the CSV class.
  */
 
+#include <cstdio>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <tuple>
+#include <vector>
+
 #include "../../Group-05/src/CSVfile.cpp"
 #include "../../Group-05/src/CSVfile.h"
 #include "../../Group-05/src/DataGrid.cpp"
@@ -14,13 +21,6 @@
 #include "../../Group-05/src/Datum.h"
 #include "../../Group-05/src/ReferenceVector.h"
 #include "../../third-party/Catch/single_include/catch2/catch.hpp"
-
-#include <iostream>
-#include <cstdio>
-#include <fstream>
-#include <string>
-#include <tuple>
-#include <vector>
 
 using cse::DataGrid;
 using cse::Datum;
@@ -136,7 +136,6 @@ TEST_CASE("CSVFile LoadCsv - File Not Found", "[CSVFile]") {
   // Attempt to load a non-existent CSV file and expect an exception
   std::string non_existent_file = "non_existent_file.csv";
   CHECK_THROWS_AS(cse::CSVFile::LoadCsv(non_existent_file), std::runtime_error);
-  
 }
 
 TEST_CASE("CSVFile LoadCsv - Empty CSV", "[CSVFile][edge]") {
@@ -187,8 +186,9 @@ TEST_CASE("CSVFile LoadCsv - Special Characters", "[CSVFile][edge]") {
     REQUIRE(out_file.is_open());
     out_file << "\"Name\",\"Age\",\"Comment\"\n";
     out_file << "\"Alice\",\"30\",\"Hello, world!\"\n";
-    // Here, newlines inside a field might not be fully supported by our parser as of now.
-    //This might need some adjustment in near-future updates.
+    // Here, newlines inside a field might not be fully supported by our parser
+    // as of now.
+    // This might need some adjustment in near-future updates.
     out_file << "\"Bob\",\"25\",\"Line1\\nLine2\"\n";
     out_file.close();
   }
@@ -199,7 +199,7 @@ TEST_CASE("CSVFile LoadCsv - Special Characters", "[CSVFile][edge]") {
   // Expect 3 rows, 3 columns.
   REQUIRE(std::get<0>(shape) == 3);
   REQUIRE(std::get<1>(shape) == 3);
-  
+
   // Check that special characters are preserved or handled as intended.
   std::vector<cse::Datum> row1 = grid.GetRow(1);
   CHECK(row1[2].GetString() == "Hello, world!");

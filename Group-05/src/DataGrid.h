@@ -25,8 +25,8 @@ static constexpr std::size_t kNoIndex = std::numeric_limits<std::size_t>::max();
  * @brief A 2D data table providing a simple and efficient tabular interface.
  */
 class DataGrid {
-private:
-  using row_t = std::vector<Datum>; // row_t is an alias for a vector of Datums
+ private:
+  using row_t = std::vector<Datum>;  // row_t is an alias for a vector of Datums
 
   /// A 2D vector holding datums
   std::vector<row_t> grid_;
@@ -41,22 +41,26 @@ private:
     NOT_EQUAL
   };
 
-  [[nodiscard]] static std::vector<double>
-  GetDoubleValues(const ReferenceVector<const Datum> &reference_vector);
+  [[nodiscard]] static std::vector<double> GetDoubleValues(
+      const ReferenceVector<const Datum> &reference_vector);
 
   [[nodiscard]] ReferenceVector<Datum> DetermineColumnComparisons(
-      std::size_t column_index,
-      const Datum &value,
-      operations operation);
+      std::size_t column_index, const Datum &value, operations operation);
 
-  [[nodiscard]] static constexpr double CalculateMean(const std::vector<double>& double_values);
-  [[nodiscard]] static double CalculateMedian(std::vector<double> double_values);
-  [[nodiscard]] static std::vector<double> CalculateMode(const std::vector<double>& double_values);
-  [[nodiscard]] static constexpr double CalculateStandardDeviation(const std::vector<double>& double_values);
-  [[nodiscard]] static constexpr double CalculateMin(const std::vector<double>& double_values);
-  [[nodiscard]] static constexpr double CalculateMax(const std::vector<double>& double_values);
+  [[nodiscard]] static constexpr double CalculateMean(
+      const std::vector<double> &double_values);
+  [[nodiscard]] static double CalculateMedian(
+      std::vector<double> double_values);
+  [[nodiscard]] static std::vector<double> CalculateMode(
+      const std::vector<double> &double_values);
+  [[nodiscard]] static constexpr double CalculateStandardDeviation(
+      const std::vector<double> &double_values);
+  [[nodiscard]] static constexpr double CalculateMin(
+      const std::vector<double> &double_values);
+  [[nodiscard]] static constexpr double CalculateMax(
+      const std::vector<double> &double_values);
 
-public:
+ public:
   /// Struct for the DataGrid mathematical summary
   struct DataGridMathSummary {
     double mean;
@@ -92,10 +96,9 @@ public:
    * @param data
    * @return bool
    */
-  [[nodiscard]] static bool
-  IsRectangle(const std::vector<std::vector<Datum>> &data) {
-    if (data.empty())
-      return true;
+  [[nodiscard]] static bool IsRectangle(
+      const std::vector<std::vector<Datum>> &data) {
+    if (data.empty()) return true;
 
     // Used ChatGPT to replace my range based loop with range method recommended
     // by clang
@@ -115,7 +118,9 @@ public:
    */
   explicit DataGrid(const std::size_t num_rows_ = 0,
                     const std::size_t num_columns_ = 0,
-                    const double default_value_ = 0) : grid_(num_rows_, std::vector<Datum>(num_columns_, Datum(default_value_))) {}
+                    const double default_value_ = 0)
+      : grid_(num_rows_,
+              std::vector<Datum>(num_columns_, Datum(default_value_))) {}
 
   /**
    * @brief Create rectangular datagrid of desired size with default value
@@ -181,8 +186,10 @@ public:
 
   [[nodiscard]] row_t &GetRow(const std::size_t row_index_);
   [[nodiscard]] const row_t &GetRow(const std::size_t row_index_) const;
-  [[nodiscard]] ReferenceVector<Datum> GetColumn(const std::size_t column_index_);
-  [[nodiscard]] ReferenceVector<const Datum> GetColumn(const std::size_t column_index_) const;
+  [[nodiscard]] ReferenceVector<Datum> GetColumn(
+      const std::size_t column_index_);
+  [[nodiscard]] ReferenceVector<const Datum> GetColumn(
+      const std::size_t column_index_) const;
   [[nodiscard]] Datum &GetValue(const std::size_t row_index_,
                                 const std::size_t column_index_);
   [[nodiscard]] const Datum &GetValue(const std::size_t row_index_,
@@ -191,26 +198,20 @@ public:
 
   [[nodiscard]] std::tuple<std::size_t, std::size_t> Shape() const;
 
-  void InsertDefaultRow(
-      std::size_t row_index_ = kNoIndex,
-      double default_value_ = 0);
-  void InsertDefaultRow(
-      std::size_t row_index_ = kNoIndex,
-      std::string default_value_ = "");
+  void InsertDefaultRow(std::size_t row_index_ = kNoIndex,
+                        double default_value_ = 0);
+  void InsertDefaultRow(std::size_t row_index_ = kNoIndex,
+                        std::string default_value_ = "");
 
-  void InsertDefaultColumn(
-      std::size_t column_index_ = kNoIndex,
-      double default_value_ = 0);
-  void InsertDefaultColumn(
-      std::size_t column_index_ = kNoIndex,
-      const std::string &default_value_ = "");
+  void InsertDefaultColumn(std::size_t column_index_ = kNoIndex,
+                           double default_value_ = 0);
+  void InsertDefaultColumn(std::size_t column_index_ = kNoIndex,
+                           const std::string &default_value_ = "");
 
-  void InsertRow(
-      const std::vector<Datum>& row_,
-      std::size_t row_index_ = kNoIndex);
-  void InsertColumn(
-      const std::vector<Datum>& column_,
-      std::size_t column_index_ = kNoIndex);
+  void InsertRow(const std::vector<Datum> &row_,
+                 std::size_t row_index_ = kNoIndex);
+  void InsertColumn(const std::vector<Datum> &column_,
+                    std::size_t column_index_ = kNoIndex);
 
   void DeleteRow(const std::size_t row_index_);
   void DeleteColumn(const std::size_t column_index_);
@@ -241,24 +242,18 @@ public:
   [[nodiscard]] double ColumnMax(std::size_t column_index) const;
   [[nodiscard]] DataGridMathSummary CalculateDataGridMathSummary() const;
 
-  [[nodiscard]] ReferenceVector<Datum> ColumnLessThan(
-      std::size_t column_index,
-      const Datum &value);
+  [[nodiscard]] ReferenceVector<Datum> ColumnLessThan(std::size_t column_index,
+                                                      const Datum &value);
   [[nodiscard]] ReferenceVector<Datum> ColumnLessThanOrEqual(
-      std::size_t column_index,
-      const Datum &value);
-  [[nodiscard]] ReferenceVector<Datum> ColumnGreaterThan(
-      size_t column_index,
-      const Datum &value);
+      std::size_t column_index, const Datum &value);
+  [[nodiscard]] ReferenceVector<Datum> ColumnGreaterThan(size_t column_index,
+                                                         const Datum &value);
   [[nodiscard]] ReferenceVector<Datum> ColumnGreaterThanOrEqual(
-      size_t column_index,
-      const Datum &value);
-  [[nodiscard]] ReferenceVector<Datum> ColumnNotEqual(
-      size_t column_index,
-      const Datum &value);
-  [[nodiscard]] ReferenceVector<Datum> ColumnEqual(
-      size_t column_index,
-      const Datum &value);
+      size_t column_index, const Datum &value);
+  [[nodiscard]] ReferenceVector<Datum> ColumnNotEqual(size_t column_index,
+                                                      const Datum &value);
+  [[nodiscard]] ReferenceVector<Datum> ColumnEqual(size_t column_index,
+                                                   const Datum &value);
 
   std::ostream &Print(std::ostream &os_) const;
 };
@@ -273,4 +268,4 @@ inline std::ostream &operator<<(std::ostream &os, const DataGrid &grid) {
   return grid.Print(os);
 }
 
-} // namespace cse
+}  // namespace cse

@@ -4,13 +4,13 @@
  * @author Max Krawec
  */
 
+#include "Datum.h"
+
 #include <cassert>
 #include <cmath>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
-
-#include "Datum.h"
 
 namespace cse {
 
@@ -45,12 +45,16 @@ std::string Datum::DoubleToStringConversion() const {
       assert(!std::isnan(GetDouble()));
       std::string string_numeric_value = std::to_string(GetDouble());
 
-      // CITE: https://stackoverflow.com/questions/13686482/c11-stdto-stringdouble-no-trailing-zeros.
-      // Used the above link to help remove trailing 0s and . when a double converts into a string.
-      string_numeric_value.erase(string_numeric_value.find_last_not_of(kTrailingZero) + 1,
-                                 std::string::npos);
-      string_numeric_value.erase(string_numeric_value.find_last_not_of(kDecimalPoint) + 1,
-                                 std::string::npos);
+      // CITE:
+      // https://stackoverflow.com/questions/13686482/c11-stdto-stringdouble-no-trailing-zeros.
+      // Used the above link to help remove trailing 0s and . when a double
+      // converts into a string.
+      string_numeric_value.erase(
+          string_numeric_value.find_last_not_of(kTrailingZero) + 1,
+          std::string::npos);
+      string_numeric_value.erase(
+          string_numeric_value.find_last_not_of(kDecimalPoint) + 1,
+          std::string::npos);
       final_string = string_numeric_value;
     } else {
       assert(std::isnan(GetDouble()));
@@ -80,15 +84,17 @@ double Datum::StringToDoubleConversion() const {
     assert(IsString());
     double final_double = std::numeric_limits<double>::quiet_NaN();
     try {
-      // CITE: Used ChatGPT to write this code. Fixed a bug where strings starting with
-      // numbers (e.g., "123Hello") were partially converted instead of setting to NaN.
+      // CITE: Used ChatGPT to write this code. Fixed a bug where strings
+      // starting with numbers (e.g., "123Hello") were partially converted
+      // instead of setting to NaN.
       std::size_t pos;
       double double_value = std::stod(GetString(), &pos);
       if (pos == GetString().length()) {
         assert(pos == GetString().length());
         final_double = double_value;
       }
-    } catch (std::invalid_argument &e) {}
+    } catch (std::invalid_argument &e) {
+    }
     return final_double;
   }
   return GetDouble();
@@ -99,7 +105,8 @@ double Datum::StringToDoubleConversion() const {
 /**
  * Sums two Datums if they both contain doubles.
  * @param datum The other Datum.
- * @return If the Datums are doubles, returns the sum between them in a new Datum.
+ * @return If the Datums are doubles, returns the sum between them in a new
+ * Datum.
  */
 Datum Datum::operator+(const Datum &datum) const {
   if ((IsString() && datum.IsDouble()) || (IsDouble() && datum.IsString())) {
@@ -117,7 +124,8 @@ Datum Datum::operator+(const Datum &datum) const {
 /**
  * Subtracts two Datums if they both contain doubles.
  * @param datum The other Datum
- * @return If the Datums are doubles, returns the difference between them in a new Datum.
+ * @return If the Datums are doubles, returns the difference between them in a
+ * new Datum.
  */
 Datum Datum::operator-(const Datum &datum) const {
   if (IsString() || datum.IsString()) {
@@ -131,7 +139,8 @@ Datum Datum::operator-(const Datum &datum) const {
 /**
  * Multiplies two Datums if they both contain doubles.
  * @param datum The other Datum.
- * @return If the Datums are doubles, returns the product between them in a new Datum.
+ * @return If the Datums are doubles, returns the product between them in a new
+ * Datum.
  */
 Datum Datum::operator*(const Datum &datum) const {
   if (IsString() || datum.IsString()) {
@@ -145,7 +154,8 @@ Datum Datum::operator*(const Datum &datum) const {
 /**
  * Divides two Datums if they both contain doubles.
  * @param datum The other Datum.
- * @return If the Datums are doubles, returns the quotient between them in a new Datum.
+ * @return If the Datums are doubles, returns the quotient between them in a new
+ * Datum.
  */
 Datum Datum::operator/(const Datum &datum) const {
   if (IsString() || datum.IsString()) {
@@ -164,7 +174,8 @@ Datum Datum::operator/(const Datum &datum) const {
  * Checks if two double or string Datums are equal.
  * Otherwise, returns false if one Datum is a string and the other is a double.
  * @param datum The other Datum.
- * @return True if the Datums are the same type and equal each other. Otherwise false.
+ * @return True if the Datums are the same type and equal each other. Otherwise
+ * false.
  */
 bool Datum::operator==(const Datum &datum) const {
   if (IsDouble() && datum.IsDouble()) {
@@ -211,4 +222,4 @@ Datum &Datum::operator=(const std::string &string_value) {
   SetVariant(string_value);
   return *this;
 }
-} // namespace cse
+}  // namespace cse

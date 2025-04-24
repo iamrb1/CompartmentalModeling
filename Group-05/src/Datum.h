@@ -20,14 +20,14 @@ namespace cse {
  * A data class that can be either a string or double.
  */
 class Datum {
-private:
+ private:
   /// Stores the string or double value.
   std::variant<std::string, double> value_;
 
   [[nodiscard]] std::string DoubleToStringConversion() const;
   [[nodiscard]] double StringToDoubleConversion() const;
 
-public:
+ public:
   /**
    * Constructor for a string value.
    * @param value The string value
@@ -70,13 +70,17 @@ public:
    * Checks if the current type of the Datum is a string.
    * @return true if the type is a string, false otherwise.
    */
-  [[nodiscard]] bool IsString() const { return std::holds_alternative<std::string>(value_); }
+  [[nodiscard]] bool IsString() const {
+    return std::holds_alternative<std::string>(value_);
+  }
 
   /**
    * Checks if the current type of the Datum is a double.
    * @return true if the type is a double, false otherwise.
    */
-  [[nodiscard]] bool IsDouble() const { return std::holds_alternative<double>(value_); }
+  [[nodiscard]] bool IsDouble() const {
+    return std::holds_alternative<double>(value_);
+  }
 
   /**
    * Returns the Datum as a string.
@@ -98,7 +102,9 @@ public:
    * Returns the Datum as a variant.
    * @return the variant value.
    */
-  [[nodiscard]] std::variant<std::string, double> GetVariant() const { return value_; };
+  [[nodiscard]] std::variant<std::string, double> GetVariant() const {
+    return value_;
+  };
 
   /**
    * Returns the string value of the Datum.
@@ -154,9 +160,10 @@ public:
    * Checks if two double or string Datums are not equal.
    * Otherwise, returns true if one Datum is a string and the other is a double.
    * @param datum The other Datum.
-   * @return True if the Datums are the same type and not equal each other. Otherwise false.
+   * @return True if the Datums are the same type and not equal each other.
+   * Otherwise false.
    */
   bool operator!=(const Datum &datum) const { return !(*this == datum); }
 };
 
-} // namespace cse
+}  // namespace cse

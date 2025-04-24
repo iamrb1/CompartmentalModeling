@@ -9,20 +9,20 @@
 
 #pragma once
 
-#include "Datum.h"
-
 #include <cassert>
 #include <memory>
 #include <stdexcept>
 #include <vector>
 
+#include "Datum.h"
+
 namespace cse {
 
-template<typename template_type>
+template <typename template_type>
 class ReferenceVector {
  private:
   /// Stores pointers to a type of objects.
-  std::vector<template_type*> references_;
+  std::vector<template_type *> references_;
 
  public:
   /**
@@ -52,13 +52,17 @@ class ReferenceVector {
    * Returns the number of elements in the vector.
    * @return size_t The size of the vector.
    */
-  [[maybe_unused]] [[nodiscard]] size_t Size() const { return references_.size(); }
+  [[maybe_unused]] [[nodiscard]] size_t Size() const {
+    return references_.size();
+  }
 
   /**
    * Checks if the vector is empty.
    * @return bool True if empty, otherwise false.
    */
-  [[maybe_unused]] [[nodiscard]] bool Empty() const { return references_.empty(); }
+  [[maybe_unused]] [[nodiscard]] bool Empty() const {
+    return references_.empty();
+  }
 
   /**
    * Clears all elements from the vector.
@@ -66,9 +70,9 @@ class ReferenceVector {
   [[maybe_unused]] void Clear() { references_.clear(); }
 
   /**
-  * Returns a reference to the first object in the vector.
-  * @return template_type& Reference to the first template_type.
-  */
+   * Returns a reference to the first object in the vector.
+   * @return template_type& Reference to the first template_type.
+   */
   [[maybe_unused]] template_type &Front() const {
     if (references_.empty()) {
       throw std::runtime_error("Cannot Front() on an empty vector.");
@@ -140,10 +144,10 @@ class ReferenceVector {
   }
 
   /**
-  * Accesses an object reference at the given index.
-  * @param index The position of the element.
-  * @return template_type& Reference to the object at the index.
-  */
+   * Accesses an object reference at the given index.
+   * @param index The position of the element.
+   * @return template_type& Reference to the object at the index.
+   */
   template_type &operator[](size_t index) {
     if (index >= references_.size()) {
       throw std::out_of_range("Index out of range.");
@@ -194,7 +198,8 @@ class ReferenceVector {
     typename std::vector<template_type *>::iterator it_;
 
    public:
-    explicit iterator(typename std::vector<template_type *>::iterator it) : it_(it) {}
+    explicit iterator(typename std::vector<template_type *>::iterator it)
+        : it_(it) {}
 
     template_type &operator*() const { return **it_; }
 
@@ -226,13 +231,16 @@ class ReferenceVector {
     bool operator!=(const iterator &other) const { return it_ != other.it_; }
   };
 
-  // Cite: Used ChatGPT to create a const iterator. Very similar to the regular iterator
+  // Cite: Used ChatGPT to create a const iterator. Very similar to the regular
+  // iterator
   class const_iterator {
    private:
     typename std::vector<template_type *>::const_iterator it_;
 
    public:
-    explicit const_iterator(typename std::vector<template_type *>::const_iterator it) : it_(it) {}
+    explicit const_iterator(
+        typename std::vector<template_type *>::const_iterator it)
+        : it_(it) {}
 
     const template_type &operator*() const { return **it_; }
 
@@ -260,25 +268,29 @@ class ReferenceVector {
       return temp;
     }
 
-    bool operator==(const const_iterator &other) const { return it_ == other.it_; }
-    bool operator!=(const const_iterator &other) const { return it_ != other.it_; }
+    bool operator==(const const_iterator &other) const {
+      return it_ == other.it_;
+    }
+    bool operator!=(const const_iterator &other) const {
+      return it_ != other.it_;
+    }
   };
 
   /**
    * Returns an iterator to the beginning of the reference vector.
-   * @return std::vector<template_type*>::iterator An iterator pointing to the first
-   * element.
+   * @return std::vector<template_type*>::iterator An iterator pointing to the
+   * first element.
    */
   iterator begin() { return iterator(references_.begin()); }
   const_iterator begin() const { return const_iterator(references_.cbegin()); }
 
   /**
    * Returns an iterator to the end of the reference vector.
-   * @return std::vector<template_type*>::iterator An iterator pointing past the last
-   * element.
+   * @return std::vector<template_type*>::iterator An iterator pointing past the
+   * last element.
    */
   iterator end() { return iterator(references_.end()); }
   const_iterator end() const { return const_iterator(references_.cend()); }
 };
 
-} // namespace cse
+}  // namespace cse
