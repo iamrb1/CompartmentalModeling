@@ -21,6 +21,11 @@ class Card : public AnnotatedWrapper<std::string> {
     
     public:
     Card() = default;
+
+    ~Card() {
+        mContent.Delete();
+    }
+    
     Card(int id, const std::string& content)
         : mId(id), mContent(new DynamicString()) {
         mContent->Append(content); // Initial content added to dynamic string
