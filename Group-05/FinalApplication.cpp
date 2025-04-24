@@ -148,9 +148,9 @@ void FinalApplication::PrintColumn(
  */
 cse::DataGrid FinalApplication::CreateGridMenu(std::ostream &os = std::cout,
                                                std::istream &is = std::cin) {
-  static constexpr std::size_t MAX_ROWS = 1000;
-  static constexpr std::size_t MAX_COLS = 1000;
-  static constexpr std::size_t MAX_DEFAULT_STR_LEN = 100;
+  static constexpr int MAX_ROWS = 1000;
+  static constexpr int MAX_COLS = 1000;
+  static constexpr int MAX_DEFAULT_STR_LEN = 100;
   static constexpr double MAX_DEFAULT_VALUE = 1e20;
 
   auto trim = [&](const std::string &s) {
