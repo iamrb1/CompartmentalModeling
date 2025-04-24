@@ -1046,20 +1046,55 @@ void FinalApplication::ResizeSubmenu(cse::DataGrid &grid,
     os << "2. Resize grid (default type: string)" << std::endl;
     os << "0. Return to previous menu" << std::endl;
     os << "Enter your choice: ";
-    is >> choice;
+    std::string input;
+    is >> input;
+    // is >> choice;
+    std::optional<int> input_int = IsValidInt(input);
 
-    try {
+
+    if (input_int.has_value()) {
+      choice = input_int.value();
       switch (choice) {
         // Resize the grid (double)
         case 1: {
           std::size_t new_rows = 0, new_cols = 0;
           double default_value = 0;
-          os << "Enter new number of rows: ";
-          is >> new_rows;
-          os << "Enter new number of columns: ";
-          is >> new_cols;
-          os << "Enter default value (number): ";
-          is >> default_value;
+          while (true) {
+            os << "Enter new number of rows (1-1000): ";
+            is >> new_rows;
+        
+            if (is.fail() || new_rows < 1 || new_rows > 1000) {
+                os << "Invalid input. Please enter a number between 1 and 1000.\n";
+                is.clear();                  // clear error flags
+                is.ignore(10000, '\n');      // discard invalid input
+            } else {
+                break; // valid input
+            }
+          }
+          while (true) {
+            os << "Enter new number of columns (1-1000): ";
+            is >> new_cols;
+        
+            if (is.fail() || new_cols < 1 || new_cols > 1000) {
+                os << "Invalid input. Please enter a number between 1 and 1000.\n";
+                is.clear();                  // clear error flags
+                is.ignore(10000, '\n');      // discard invalid input
+            } else {
+                break; // valid input
+            }
+          }
+          while (true) {
+            os << "Enter default value (number): ";
+            is >> default_value;
+        
+            if (is.fail()) {
+                os << "Invalid input. Please enter a number \n";
+                is.clear();                  // clear error flags
+                is.ignore(10000, '\n');      // discard invalid input
+            } else {
+                break; // valid input
+            }
+          }
           grid.Resize(new_rows, new_cols, default_value);
           os << "Grid resized." << std::endl;
           break;
@@ -1068,10 +1103,30 @@ void FinalApplication::ResizeSubmenu(cse::DataGrid &grid,
         case 2: {
           std::size_t new_rows = 0, new_cols = 0;
           std::string default_value;
-          os << "Enter new number of rows: ";
-          is >> new_rows;
-          os << "Enter new number of columns: ";
-          is >> new_cols;
+          while (true) {
+            os << "Enter new number of rows (1-1000): ";
+            is >> new_rows;
+        
+            if (is.fail() || new_rows < 1 || new_rows > 1000) {
+                os << "Invalid input. Please enter a number between 1 and 1000.\n";
+                is.clear();                  // clear error flags
+                is.ignore(10000, '\n');      // discard invalid input
+            } else {
+                break; // valid input
+            }
+          }
+          while (true) {
+            os << "Enter new number of columns (1-1000): ";
+            is >> new_cols;
+        
+            if (is.fail() || new_cols < 1 || new_cols > 1000) {
+                os << "Invalid input. Please enter a number between 1 and 1000.\n";
+                is.clear();                  // clear error flags
+                is.ignore(10000, '\n');      // discard invalid input
+            } else {
+                break; // valid input
+            }
+          }
           os << "Enter default value (string): ";
           is >> default_value;
           grid.Resize(new_rows, new_cols, default_value);
@@ -1081,10 +1136,10 @@ void FinalApplication::ResizeSubmenu(cse::DataGrid &grid,
         case 0:
           break;
         default:
-          os << "Invalid choice. Try again." << std::endl;
+          os << "Invalid resize option. Must be between 0-2. Try again." << std::endl;
       }
-    } catch (const std::exception &e) {
-      std::cerr << "Error: " << e.what() << std::endl;
+    } else {
+      os << "Invalid resize option. Cannot be a string. Try again." << std::endl;
     }
   } while (choice != 0);
 }
