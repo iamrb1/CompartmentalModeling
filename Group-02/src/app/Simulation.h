@@ -135,6 +135,7 @@ class Simulation : public QObject {
   void set_sidebar_compartment(Compartment* compartment);
   void set_sidebar_connection(Connection* connection);
   void set_m_connection_mode(bool connection_mode);
+  void set_m_source_compartment(Compartment *compartment) { m_source_compartment = compartment; }
 
   void update_compartment_symbol(const QString& symbol, const QString& new_symbol);
 
