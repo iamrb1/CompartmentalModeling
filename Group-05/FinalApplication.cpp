@@ -96,10 +96,10 @@ int FinalApplication::GetColumnIndex(int max_index,
     std::string index_str;
     is >> index_str;
     auto index = IsValidInt(index_str);
-    if (index && index.value() < max_index) {
+    if (index && index.value() < max_index && index.value() >= 0) {
       return index.value();
     }
-    os << "Invalid option. Try again. The max index is: " << max_index
+    os << "Invalid option. Try again. The max index is: " << (max_index - 1)
        << std::endl;
   }
 }
@@ -351,7 +351,7 @@ cse::DataGrid FinalApplication::GridMenu(std::ostream &os = std::cout,
       // Delegate to the robust CreateGridMenu
       return CreateGridMenu();
     } else {
-      os << "Invalid option. Try again." << std::endl;
+      os << "Invalid option. Try again.\n" << std::endl;
     }
   }
 }
@@ -550,7 +550,7 @@ void FinalApplication::ManipulateGridMenu(cse::DataGrid &grid,
 
     if (input_int.has_value()) {
       choice = input_int.value();
-      switch (input_int.value()) {
+      switch (choice) {
         case 1:
           PrintSubmenu(grid, os, is);
           break;
@@ -756,45 +756,68 @@ void FinalApplication::EditSubmenu(cse::DataGrid &grid,
 void FinalApplication::SortSubmenu(cse::DataGrid &grid,
                                    std::ostream &os = std::cout,
                                    std::istream &is = std::cin) {
-  int choice = 0;
+  int choice = -1;
   do {
     os << "\n--- Sort Options ---" << std::endl;
     os << "1. Sort grid rows by a specified column" << std::endl;
     os << "2. Sort entire grid (using left-most columns as keys)" << std::endl;
     os << "0. Return to previous menu" << std::endl;
     os << "Enter your choice: ";
-    is >> choice;
+    std::string input;
+    is >> input;
 
-    try {
+    std::optional<int> input_int = IsValidInt(input);
+
+    if (input_int.has_value()) {
+      choice = input_int.value();
       switch (choice) {
         // Sort grid rows by a specified column
         case 1: {
-          std::size_t col = 0;
-          os << "Enter column index to sort by: ";
-          is >> col;
-          int order = 0;
-          os << "Enter 1 for ascending, 0 for descending: ";
-          is >> order;
-          grid.SortColumn(col, order == 1);
-          os << "Grid rows sorted by column " << col << "." << std::endl;
+          std::size_t col = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+          std::string order;
+          while (true) {
+            os << "Enter 1 for ascending, 0 for descending: ";
+            is >> order;
+            std::optional<int> ordering_input = IsValidInt(order);
+            if (ordering_input && (ordering_input.value() == 0 || ordering_input.value() == 1)) {
+              grid.SortColumn(col, ordering_input.value());
+              os << "Grid rows sorted by column " << col << ".\n" << std::endl;
+              os << "The Grid is now:" << std::endl;
+              grid.Print(os);
+              break;
+            } else {
+              os << "Invalid input. The input must be 0 or 1" << std::endl;
+            }
+          }
           break;
         }
         // Sort entire grid (using left-most columns as keys)
         case 2: {
-          int order = 0;
-          os << "Enter 1 for ascending, 0 for descending: ";
-          is >> order;
-          grid.Sort(order == 1);
-          os << "Entire grid sorted." << std::endl;
+          std::string order;
+          while (true) {
+            os << "Enter 1 for ascending, 0 for descending: ";
+            is >> order;
+            std::optional<int> ordering_input = IsValidInt(order);
+            if (ordering_input && (ordering_input.value() == 0 || ordering_input.value() == 1)) {
+              grid.Sort(ordering_input.value());
+              os << "Entire grid sorted.\n" << std::endl;
+              os << "The Grid is now:" << std::endl;
+              grid.Print(os);
+              break;
+            } else {
+              os << "Invalid input. The input must be 0 or 1" << std::endl;
+            }
+          }
           break;
         }
         case 0:
           break;
         default:
-          os << "Invalid choice. Try again." << std::endl;
+          os << "Invalid choice. Input must be between 0-2.\n" << std::endl;
       }
-    } catch (const std::exception &e) {
-      std::cerr << "Error: " << e.what() << std::endl;
+    }
+    else {
+      os << "Invalid choice. Cannot be a string. Try again.\n";
     }
   } while (choice != 0);
 }
@@ -1163,7 +1186,7 @@ void FinalApplication::MainMenu(std::ostream &os = std::cout,
      << std::endl;
   os << std::endl;
 
-  cse::DataGrid grid = GridMenu();
+  cse::DataGrid grid = GridMenu(os, is);
 
   while (true) {
     os << "\nMenu Option:" << std::endl;
@@ -1178,8 +1201,15 @@ void FinalApplication::MainMenu(std::ostream &os = std::cout,
 
     if (option == "x") {
       std::string filename;
-      os << "Enter CSV filename to export: ";
-      is >> filename;
+      while (true) {
+        os << "Enter CSV filename to export: ";
+        is >> filename;
+        if (filename.ends_with(".csv")) {
+          break;
+        } else {
+          os << "Invalid filename. The file must end with .csv" << "\n";
+        }
+      }
       try {
         if (!cse::CSVFile::ExportCsv(filename, grid)) {
           std::cerr << "Export failed: unknown error\n";
@@ -1190,15 +1220,15 @@ void FinalApplication::MainMenu(std::ostream &os = std::cout,
         std::cerr << "Export failed: " << e.what() << "\n";
       }
     } else if (option == "e") {
-      ManipulateGridMenu(grid);
+      ManipulateGridMenu(grid, os, is);
     } else if (option == "m") {
-      MathMenu(grid);
+      MathMenu(grid, os, is);
     } else if (option == "c") {
-      ComparisonMenu(grid);
+      ComparisonMenu(grid, os, is);
     } else if (option == "q") {
       break;
     } else {
-      os << "Invalid option. Try again." << std::endl;
+      os << "\nInvalid option. Try again." << std::endl;
     }
   }
 
