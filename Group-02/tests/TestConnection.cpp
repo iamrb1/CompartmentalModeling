@@ -77,19 +77,19 @@ void TestConnection::test_getter_setters() {
     QCOMPARE(defaultconn.get_target(), &SourceComp);
 
     // more set/get targets and sources
-    Compartment* compartment1;
-    Compartment* compartment2;
+    Compartment compartment1;
+    Compartment compartment2;
 
-    connection.set_source(compartment1);
-    connection.set_target(compartment2);
-    QCOMPARE(connection.get_source(), compartment1);
-    QCOMPARE(connection.get_target(), compartment2);
+    connection.set_source(&compartment1);
+    connection.set_target(&compartment2);
+    QCOMPARE(connection.get_source(), &compartment1);
+    QCOMPARE(connection.get_target(), &compartment2);
 
-    Compartment* compartment3;
-    connection.set_source(compartment3);
-    connection.set_target(compartment1);
-    QCOMPARE(connection.get_source(), compartment3);
-    QCOMPARE(connection.get_target(), compartment1);
+    Compartment compartment3;
+    connection.set_source(&compartment3);
+    connection.set_target(&compartment1);
+    QCOMPARE(connection.get_source(), &compartment3);
+    QCOMPARE(connection.get_target(), &compartment1);
 
     //Rate expression section
     QCOMPARE(defaultconn.get_rate_expression(), "0");
@@ -128,7 +128,49 @@ void TestConnection::test_getter_setters() {
 //    QCOMPARE(connection.get_simulation(), simulation2);
 
 }
-void TestConnection::test_add_connection() {}
+void TestConnection::test_add_connection() {
+    Simulation sim;
+
+    sim.add_compartment();
+    sim.add_compartment();
+
+    QVector<Compartment*> compartments = sim.get_compartments();
+    QCOMPARE(compartments.size(), 2);
+
+    int initialConnCount = sim.get_connections().count();
+
+    sim.set_m_connection_mode(true);
+
+    Compartment* source = compartments[0];
+    Compartment* target = compartments[1];
+
+    sim.set_m_source_compartment(source);
+    sim.set_target_compartment(target);
+
+    ///Test if new connection created
+    QCOMPARE(sim.get_connections().count(), initialConnCount + 1);
+
+    QVector<Connection*> connections = sim.get_connections();
+    QVERIFY(!connections.empty());
+    Connection* connection = connections[0];
+
+    QCOMPARE(connection->get_source(), source);
+    QCOMPARE(connection->get_target(), target);
+
+    ///Test Connection name + base values
+    QString expectedName = QString("Connection %1 %2").arg(source->get_symbol(), target->get_symbol());
+    QCOMPARE(connection->get_name(), expectedName);
+    QCOMPARE(connection->get_rate_expression(), QString("0"));
+
+    ///Test cannot make duplicate connections
+    sim.set_m_source_compartment(source);
+    sim.set_target_compartment(target);
+    QCOMPARE(sim.get_connections().count(), initialConnCount + 1);
+    ///Test can make a reverse connection
+    sim.set_m_source_compartment(target);
+    sim.set_target_compartment(source);
+    QCOMPARE(sim.get_connections().count(), initialConnCount + 2);
+}
 void TestConnection::test_update_connection() {
 
     Simulation simulation;
