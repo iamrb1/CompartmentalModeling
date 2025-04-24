@@ -191,6 +191,12 @@ TEST_CASE("MathMenu()", "[math_menu]") {
   final_application.MathMenu(grid, os, is);
   CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
 
+  // Invalid grid index - int (negative)
+  is.str("cmean\n-99\n0\nb\n");
+  os.clear();
+  final_application.MathMenu(grid, os, is);
+  CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
+
   // Invalid grid index - double
   is.str("cmean\n99.99\n0\nb\n");
   os.clear();
@@ -213,6 +219,12 @@ TEST_CASE("MathMenu()", "[math_menu]") {
 
   // Invalid grid index - int
   is.str("cmed\n99\n0\nb\n");
+  os.clear();
+  final_application.MathMenu(grid, os, is);
+  CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
+
+  // Invalid grid index - int (negative)
+  is.str("cmed\n-99\n0\nb\n");
   os.clear();
   final_application.MathMenu(grid, os, is);
   CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
@@ -243,6 +255,12 @@ TEST_CASE("MathMenu()", "[math_menu]") {
   final_application.MathMenu(grid, os, is);
   CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
 
+  // Invalid grid index - int (negative)
+  is.str("csd\n-99\n0\nb\n");
+  os.clear();
+  final_application.MathMenu(grid, os, is);
+  CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
+
   // Invalid grid index - double
   is.str("csd\n99.99\n0\nb\n");
   os.clear();
@@ -265,6 +283,12 @@ TEST_CASE("MathMenu()", "[math_menu]") {
 
   // Invalid grid index - int
   is.str("cmin\n99\n0\nb\n");
+  os.clear();
+  final_application.MathMenu(grid, os, is);
+  CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
+
+  // Invalid grid index - int (negative)
+  is.str("cmin\n-99\n0\nb\n");
   os.clear();
   final_application.MathMenu(grid, os, is);
   CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
@@ -295,6 +319,12 @@ TEST_CASE("MathMenu()", "[math_menu]") {
   final_application.MathMenu(grid, os, is);
   CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
 
+  // Invalid grid index - int (negative)
+  is.str("cmax\n-99\n0\nb\n");
+  os.clear();
+  final_application.MathMenu(grid, os, is);
+  CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
+
   // Invalid grid index - double
   is.str("cmax\n99.99\n0\nb\n");
   os.clear();
@@ -321,6 +351,12 @@ TEST_CASE("MathMenu()", "[math_menu]") {
   final_application.MathMenu(grid, os, is);
   CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
 
+  // Invalid grid index - int (negative)
+  is.str("cmax\n-99\n0\nb\n");
+  os.clear();
+  final_application.MathMenu(grid, os, is);
+  CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
+
   // Invalid grid index - double
   is.str("cmode\n99.99\n0\nb\n");
   os.clear();
@@ -343,6 +379,12 @@ TEST_CASE("MathMenu()", "[math_menu]") {
 
   // Invalid grid index - int
   is.str("sum\n99\n0\nb\n");
+  os.clear();
+  final_application.MathMenu(grid, os, is);
+  CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
+
+  // Invalid grid index - int (negative)
+  is.str("sum\n-99\n0\nb\n");
   os.clear();
   final_application.MathMenu(grid, os, is);
   CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
@@ -406,6 +448,12 @@ TEST_CASE("ComparisonMenu()", "[comparison_menu]") {
   final_application.ComparisonMenu(grid, os, is);
   CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
 
+  // Invalid column (number - negative int )
+  is.str("clt\n-99\n0\n50.50\n");
+  os.clear();
+  final_application.ComparisonMenu(grid, os, is);
+  CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
+
   // Invalid column (number - double)
   is.str("clt\n99.99\n0\n50.50\n");
   os.clear();
@@ -434,6 +482,12 @@ TEST_CASE("ComparisonMenu()", "[comparison_menu]") {
 
   // Invalid column (number - int)
   is.str("clte\n99\n0\n50.50\n");
+  os.clear();
+  final_application.ComparisonMenu(grid, os, is);
+  CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
+
+  // Invalid column (number - negative int )
+  is.str("clte\n-99\n0\n50.50\n");
   os.clear();
   final_application.ComparisonMenu(grid, os, is);
   CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
@@ -470,6 +524,12 @@ TEST_CASE("ComparisonMenu()", "[comparison_menu]") {
   final_application.ComparisonMenu(grid, os, is);
   CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
 
+  // Invalid column (number - negative int )
+  is.str("cgt\n-99\n0\n50.50\n");
+  os.clear();
+  final_application.ComparisonMenu(grid, os, is);
+  CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
+
   // Invalid column (number - double)
   is.str("cgt\n99.99\n0\n50.50\n");
   os.clear();
@@ -498,6 +558,12 @@ TEST_CASE("ComparisonMenu()", "[comparison_menu]") {
 
   // Invalid column (number - int)
   is.str("cgte\n99\n0\n50.50\n");
+  os.clear();
+  final_application.ComparisonMenu(grid, os, is);
+  CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
+
+  // Invalid column (number - negative int )
+  is.str("cgte\n-99\n0\n50.50\n");
   os.clear();
   final_application.ComparisonMenu(grid, os, is);
   CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
@@ -534,6 +600,12 @@ TEST_CASE("ComparisonMenu()", "[comparison_menu]") {
   final_application.ComparisonMenu(grid, os, is);
   CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
 
+  // Invalid column (number - negative int )
+  is.str("ce\n-99\n0\n50.50\n");
+  os.clear();
+  final_application.ComparisonMenu(grid, os, is);
+  CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
+
   // Invalid column (number - double)
   is.str("ce\n99.99\n0\n50.50\n");
   os.clear();
@@ -562,6 +634,12 @@ TEST_CASE("ComparisonMenu()", "[comparison_menu]") {
 
   // Invalid column (number - int)
   is.str("cne\n99\n0\n50.50\n");
+  os.clear();
+  final_application.ComparisonMenu(grid, os, is);
+  CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
+
+  // Invalid column (number - negative int )
+  is.str("cne\n-99\n0\n50.50\n");
   os.clear();
   final_application.ComparisonMenu(grid, os, is);
   CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
@@ -669,4 +747,206 @@ TEST_CASE("ManipulateGridMenu()", "[Manipulate_grid_menu]") {
   final_application.ManipulateGridMenu(grid, os, is);
   CHECK(os.str().find("Invalid choice. Cannot be a string. Try again.") !=
         std::string::npos);
+}
+
+TEST_CASE("SortSubmenu()", "[sort_submenu]") {
+  std::vector<std::vector<cse::Datum>> test_grid(5, std::vector<cse::Datum>(1));
+
+  test_grid[0][0] = cse::Datum(10.25);
+  test_grid[1][0] = cse::Datum("test1");
+  test_grid[2][0] = cse::Datum(150.50);
+  test_grid[3][0] = cse::Datum("test2");
+  test_grid[4][0] = cse::Datum(20.25);
+
+  cse::DataGrid grid(test_grid);
+  FinalApplication final_application;
+
+
+  // ** Sort Grid by Column **
+
+  // Print Option
+  // Valid input (descending)
+  std::istringstream is("1\n0\n0\n0\n");
+  std::ostringstream os;
+  final_application.SortSubmenu(grid, os, is);
+  CHECK(os.str().find("Grid rows sorted by column") != std::string::npos);
+
+  // Valid input (ascending)
+  is.str("1\n0\n1\n0\n");
+  os.clear();
+  final_application.SortSubmenu(grid, os, is);
+  CHECK(os.str().find("Grid rows sorted by column") != std::string::npos);
+
+  // Invalid column input - out of range
+  is.str("1\n99\n0\n0\n0\n");
+  os.clear();
+  final_application.SortSubmenu(grid, os, is);
+  CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
+
+  // Invalid column input - double
+  is.str("1\n99.99\n0\n0\n0\n");
+  os.clear();
+  final_application.SortSubmenu(grid, os, is);
+  CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
+
+  // Invalid column input - negative
+  is.str("1\n-1\n0\n0\n0\n");
+  os.clear();
+  final_application.SortSubmenu(grid, os, is);
+  CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
+
+  // Invalid column input - string
+  is.str("1\nHello\n0\n0\n0\n");
+  os.clear();
+  final_application.SortSubmenu(grid, os, is);
+  CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
+
+  // Invalid input ascending/descending - out of bounds
+  is.str("1\n0\n99\n1\n0\n");
+  os.clear();
+  final_application.SortSubmenu(grid, os, is);
+  CHECK(os.str().find("Invalid input. The input must be 0 or 1") != std::string::npos);
+
+  // Invalid input ascending/descending - negative
+  is.str("1\n0\n-99\n1\n0\n");
+  os.clear();
+  final_application.SortSubmenu(grid, os, is);
+  CHECK(os.str().find("Invalid input. The input must be 0 or 1") != std::string::npos);
+
+  // Invalid input ascending/descending - string
+  is.str("1\n0\ntester\n1\n0\n");
+  os.clear();
+  final_application.SortSubmenu(grid, os, is);
+  CHECK(os.str().find("Invalid input. The input must be 0 or 1") != std::string::npos);
+
+
+  // ** Sort entire grid **
+
+  // Valid input (descending)
+  is.str("2\n0\n0\n");
+  os.clear();
+  final_application.SortSubmenu(grid, os, is);
+  CHECK(os.str().find("Entire grid sorted.") != std::string::npos);
+
+  // Valid input (ascending)
+  is.str("2\n1\n0\n");
+  os.clear();
+  final_application.SortSubmenu(grid, os, is);
+  CHECK(os.str().find("Entire grid sorted.") != std::string::npos);
+
+  // Invalid input ascending/descending - out of bounds
+  is.str("2\n1\n99\n0\n");
+  os.clear();
+  final_application.SortSubmenu(grid, os, is);
+  CHECK(os.str().find("Invalid input. The input must be 0 or 1") != std::string::npos);
+
+  // Invalid input ascending/descending - negative
+  is.str("2\n1\n-99\n0\n");
+  os.clear();
+  final_application.SortSubmenu(grid, os, is);
+  CHECK(os.str().find("Invalid input. The input must be 0 or 1") != std::string::npos);
+
+  // Invalid input ascending/descending - string
+  is.str("2\n1\nHello\n0\n");
+  os.clear();
+  final_application.SortSubmenu(grid, os, is);
+  CHECK(os.str().find("Invalid input. The input must be 0 or 1") != std::string::npos);
+
+
+  // Extra
+
+  // Invalid input (number - int)
+  is.str("99\n1\n0\n0\n0\n");
+  os.clear();
+  final_application.SortSubmenu(grid, os, is);
+  CHECK(os.str().find("Invalid choice. Input must be between 0-2.") !=
+      std::string::npos);
+
+  // Invalid input (number - negative)
+  is.str("-99\n1\n0\n0\n0\n");
+  os.clear();
+  final_application.SortSubmenu(grid, os, is);
+  CHECK(os.str().find("Invalid choice. Input must be between 0-2.") !=
+      std::string::npos);
+
+  // Invalid input (number - double)
+  is.str("123.123\n1\n0\n0\n0\n");
+  os.clear();
+  final_application.SortSubmenu(grid, os, is);
+  CHECK(os.str().find("Invalid choice. Input must be between 0-2.") !=
+      std::string::npos);
+
+  // Invalid string
+  is.str("Hello!\n1\n0\n0\n0\n");
+  os.clear();
+  final_application.SortSubmenu(grid, os, is);
+  CHECK(os.str().find("Invalid choice. Cannot be a string. Try again.") !=
+      std::string::npos);
+}
+
+TEST_CASE("MainMenu()", "[main_menu]") {
+  // ** Main Menu **
+  // Valid Input
+
+  // Valid input (export)
+  FinalApplication final_application;
+  std::istringstream is("t\nx\ntest.csv\nq\n");
+  std::ostringstream os;
+  final_application.MainMenu(os, is);
+  CHECK(os.str().find("Exported to") != std::string::npos);
+
+  // Invalid input (export)
+  is.str("t\nx\ntest\ntest.csv\nq\n");
+  os.clear();
+  final_application.MainMenu(os, is);
+  CHECK(os.str().find("Invalid filename. The file must end with .csv") != std::string::npos);
+
+  // Valid input (Edit/Manipulation)
+  is.str("t\ne\n0\nq\n");
+  os.clear();
+  final_application.MainMenu(os, is);
+  CHECK(os.str().find("CSV Grid Manipulation Menu") != std::string::npos);
+
+  // Valid input (Math)
+  is.str("t\nm\nb\nq\n");
+  os.clear();
+  final_application.MainMenu(os, is);
+  CHECK(os.str().find("Math Menu") != std::string::npos);
+
+  // Valid input (Comparisons)
+  is.str("t\nc\nb\nq\n");
+  os.clear();
+  final_application.MainMenu(os, is);
+  CHECK(os.str().find("Comparison Menu") != std::string::npos);
+
+
+  // Extra
+
+  // Invalid input (number - int)
+  is.str("t\n99\nq\n");
+  os.clear();
+  final_application.MainMenu(os, is);
+  CHECK(os.str().find("Invalid option. Try again") !=
+      std::string::npos);
+
+  // Invalid input (number - negative)
+  is.str("t\n-99\nq\n");
+  os.clear();
+  final_application.MainMenu(os, is);
+  CHECK(os.str().find("Invalid option. Try again") !=
+      std::string::npos);
+
+  // Invalid input (number - double)
+  is.str("t\n99.123\nq\n");
+  os.clear();
+  final_application.MainMenu(os, is);
+  CHECK(os.str().find("Invalid option. Try again") !=
+      std::string::npos);
+
+  // Invalid string
+  is.str("t\nHello!\nq\n");
+  os.clear();
+  final_application.MainMenu(os, is);
+  CHECK(os.str().find("Invalid option. Try again.") !=
+      std::string::npos);
 }
