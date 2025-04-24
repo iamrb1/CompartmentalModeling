@@ -142,6 +142,7 @@ void FinalApplication::PrintColumn(
 /**
  * Displays the create grid menu that prompts the user to create a custom
  * DataGrid
+ * Cite: Made with the help of ChatGPT
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  * @return The custom DataGrid
@@ -283,6 +284,7 @@ cse::DataGrid FinalApplication::CreateGridMenu(std::ostream &os = std::cout,
  * Displays the grid menu and prompts the user for a DataGrid.
  * The DataGrid can be made by using a csv file, custom creation, or pre-made
  * example
+ * Cite: Made with the help of ChatGPT
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  * @return A DataGrid to use
