@@ -70,11 +70,11 @@ static const uint8_t LETTER[26][5] = {//chatgpt
 };
 
 // Count circles of a given type
-int countCircles(const std::string& type)
+int countCircles(CircleType type)
 {
     return std::count_if(gCircles.begin(), gCircles.end(),
-                         [&](const auto& c){
-                             return c && c->getCircleType() == type;
+                         [=](const auto& c){
+                             return c && c->getType() == type;
                          });
 }
 
@@ -149,9 +149,10 @@ void createDemoCircles()
         double y = rand() % WINDOW_HEIGHT;
         double r = 15.0;
         double s = 3.0;
-        std::string type = (i % 2 == 0) ? "red" : "blue";
-
-        auto c = std::make_shared<Circle>(x, y, r, s, s, type);
+        CircleType type = (i % 2 == 0)
+            ? CircleType::Predator
+            : CircleType::Prey;
+        auto c = std::make_shared<Circle>(x, y, r, s, type);
         gCircles.push_back(c);
         gSurface->add_circle(c);
     }
@@ -166,18 +167,16 @@ void update()
     for (auto& circle : gCircles) {
         if (!circle) continue;
 
-        if (circle->getCircleType() == "red") {
-            if (circle->isResting()) {
-                circle->regenEnergy(10);
-                if (circle->getEnergy() >= 1000)
-                    circle->setResting(false);
+        if (circle->getType() == CircleType::Predator) {
+            // if regenerating, let it tick up and skip movement/energy drain
+            if (circle->isRegenerating()) {
+                circle->regenerateEnergy(10);
                 continue;
             }
+            // otherwise drain
             circle->decreaseEnergy(5);
-            if (circle->getEnergy() <= 0) {
-                circle->setResting(true);
-                continue;
-            }
+            // note: once energy<=0, decreaseEnergy() automatically
+            // puts you into regenerating state, so no manual setResting needed
         }
 
         // Random movement
@@ -190,8 +189,8 @@ void update()
         gSurface->move_circle(circle, newX, newY);
 
         // Count types
-        if (circle->getCircleType() == "red")  cType1 += 1;
-        if (circle->getCircleType() == "blue") cType2 += 1;
+        if (circle->getType() == CircleType::Predator) cType1 += 1;
+        if (circle->getType() == CircleType::Prey)    cType2 += 1;
     }
 
     gSurface->update();
@@ -201,7 +200,8 @@ void update()
     if (act == "delete" && vic) {
         gCircles.erase(std::remove(gCircles.begin(), gCircles.end(), vic), gCircles.end());
         gSurface->remove_circle(vic);
-    } else if (act == "add" && vic && vic->getCircleType() == "blue") {
+    } else if (act == "add" &&
+        vic && vic->getType() == CircleType::Prey) {
         static Uint32 last = 0;
         if (SDL_GetTicks() - last >= 1000) {
             auto b = std::make_shared<Circle>(*vic);
@@ -211,8 +211,8 @@ void update()
         }
     }
 
-    int numRed = countCircles("red");
-    int numBlue = countCircles("blue");
+    int numRed  = countCircles(CircleType::Predator);
+    int numBlue = countCircles(CircleType::Prey);
     int total = numRed + numBlue;
     
     if (total > 0) {
@@ -239,10 +239,10 @@ void draw()
     for (auto& c : gCircles) {
         if (!c) continue;
         SDL_SetRenderDrawColor(gRenderer,
-            c->getCircleType() == "red" ? 255 : 0,
-            0,
-            c->getCircleType() == "blue" ? 255 : 0,
-            255);
+                               c->getType() == CircleType::Predator ? 255 : 0,
+                               0,
+                               c->getType() == CircleType::Prey    ? 255 : 0,
+                               255);
         int cx = (int)c->getX(), cy = (int)c->getY(), r = (int)c->getRadius();
         for (int dx = -r; dx <= r; ++dx)
             for (int dy = -r; dy <= r; ++dy)
@@ -251,8 +251,8 @@ void draw()
     }
 
     // Draw labels and counts
-    int preds = countCircles("red");
-    int prey  = countCircles("blue");
+    int preds = countCircles(CircleType::Predator);
+    int prey  = countCircles(CircleType::Prey);
 
     SDL_Color white = {255,255,255,255};
     SDL_Color red   = {255,0,0,255};

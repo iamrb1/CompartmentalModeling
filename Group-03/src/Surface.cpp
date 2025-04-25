@@ -45,8 +45,20 @@ void Surface::move_circle(std::shared_ptr<Circle> circle,
 std::pair<std::string, std::shared_ptr<Circle>>
 Surface::check_collision()
 {
-    // Intra-sector
-    for (int i = 0; i < sector_width; ++i) {//chatgpt
+    auto handle_pair = [&](const std::shared_ptr<Circle>& c1,
+                           const std::shared_ptr<Circle>& c2) {
+        if (c1->getType() == c2->getType()) {
+            return std::make_pair(std::string("add"), c1);
+        }
+        // Prey eaten when colliding with predator
+        if (c1->getType() == CircleType::Prey)
+            return std::make_pair(std::string("delete"), c1);
+        else
+            return std::make_pair(std::string("delete"), c2);
+    };
+
+    // Intra-sector collisions
+    for (int i = 0; i < sector_width; ++i) {
         for (int j = 0; j < sector_height; ++j) {
             auto& vec = sectors[i][j].circles;
             size_t n = vec.size();
@@ -56,19 +68,15 @@ Surface::check_collision()
                 for (size_t b = a + 1; b < n; ++b) {
                     auto c1 = vec[a], c2 = vec[b];
                     if (c1->overlaps(*c2)) {
-                        if (c1->getCircleType() == c2->getCircleType())
-                            return { "add",    c1 };
-                        if (c1->getCircleType() == "blue")
-                            return { "delete", c1 };
-                        return { "delete", c2 };
+                        return handle_pair(c1, c2);
                     }
                 }
             }
         }
     }
 
-    // Inter-sector (only 5 forward neighbors)
-    static constexpr int OFFSETS[5][2] = {//chatgpt
+    // Inter-sector (5 forward neighbors)
+    static constexpr int OFFSETS[5][2] = {
         { 0,  1}, { 1, -1}, { 1, 0}, { 1, 1}, { 0, -1}
     };
 
@@ -88,11 +96,7 @@ Surface::check_collision()
                 for (auto& c1 : vec) {
                     for (auto& c2 : neigh) {
                         if (c1->overlaps(*c2)) {
-                            if (c1->getCircleType() == c2->getCircleType())
-                                return { "add",    c1 };
-                            if (c1->getCircleType() == "blue")
-                                return { "delete", c1 };
-                            return { "delete", c2 };
+                            return handle_pair(c1, c2);
                         }
                     }
                 }

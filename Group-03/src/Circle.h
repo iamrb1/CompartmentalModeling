@@ -1,81 +1,90 @@
 // Circle.h : interface of the Circle class
+// Circle.h
 #pragma once
-
-#include <cmath>
 #include <stdexcept>
-#include <string>
+#include <cmath>
+
+// Represents the two possible roles of a circle in the simulation
+enum class CircleType { Predator, Prey };
+
 class Circle {
 public:
-    // Constructor
-    Circle(double x, double y, double radius, double baseSpeed, double speed, const std::string& circleType);
+    // Default constants to avoid magic numbers
+    static constexpr int kDefaultInitialEnergy     = 1000;
+    static constexpr int kDefaultReproduceThreshold = 5;
 
-    // Destructor
-    ~Circle();
+    // Constructs a circle at (x, y) with given radius, speed, and type.
+    // Optionally specify initial energy and reproduce threshold.
+    Circle(double x,
+           double y,
+           double radius,
+           double baseSpeed,
+           CircleType type,
+           int initialEnergy       = kDefaultInitialEnergy,
+           int reproduceThreshold  = kDefaultReproduceThreshold);
+    ~Circle() = default;
 
-    // Getters
-    bool isResting() const {return resting;}
-    void setResting(bool r) {resting = r;}
-    double getX() const;
-    double getY() const;
-    double getRadius() const;
-    double getSpeed() const;
-    double getBaseSpeed() const;
-    int getEnergy() const;
-    std::string getCircleType() const;
-    bool getRegen() const;
-    bool getSpeedBoost() const;
+    // Accessors
+    double       getX() const noexcept;
+    double       getY() const noexcept;
+    double       getRadius() const noexcept;
+    double       getSpeed() const noexcept;
+    int          getEnergy() const noexcept;
+    CircleType   getType() const noexcept;
+    bool         isRegenerating() const noexcept;
+    bool         hasSpeedBoost() const noexcept;
+    bool         canRepopulate() const noexcept;
 
-    // Inital energy for the circle
-    int initialEnergy = 1000;
-
-    // Circle Reproduce number
-    int reproduceNumber = 5;
-
-    int speedBoost = 2;
-
-    double dx_;
-    double dy_;
-
-    // Setters
-    void setPosition(double x, double y);
+    // Mutators
+    void setPosition(double x, double y) noexcept;
     void setRadius(double radius);
-    void setSpeed(int speed);
-    void setCircleType(const std::string& circleType);
-    void setEaten(int eaten);
+    void setType(CircleType type) noexcept;
+
+    // Simulation behaviors
     void move(double width, double height);
-
-    // Check if this circle overlaps with another circle
-    bool overlaps(const Circle& other) const;
-
-    // Miscellaneous characteristics
-    void setCharacteristic(const std::string& characteristic);
-    std::string getCharacteristic() const;
-
-    //Energy methods
-    void decreaseEnergy(double energy);
-    void regenEnergy(int energy);
-    void updateSpeed();
-
+    void decreaseEnergy(int amount);
+    void regenerateEnergy(int amount);
     void checkProximity(const Circle& other);
-    bool ActiveSpeedBoost() const;
+    void eatPrey(const Circle& prey);
 
-    // Repopulation methods and check
-    bool canRepopulate() const;
-    void eatPreyCircle();
+    // Static utility to test overlap without computing a sqrt
+    static bool overlaps(const Circle& a, const Circle& b) noexcept;
+    // Instance overload for ease of use in client code
+    bool overlaps(const Circle& other) const noexcept { return overlaps(*this, other); }
 
 private:
+    // Position and geometry
     double x_;
     double y_;
     double radius_;
-    std::string characteristic_;
+
+    // Movement direction unit vector
+    double dx_;
+    double dy_;
+
+    // Movement speeds
     double baseSpeed_;
     double speed_;
-    int energy_;
-    std::string circleType_;
-    bool regen_;
     double proximityRadius_;
+
+    // Role and state
+    CircleType type_;
+    int        energy_;
+    int        initialEnergy_;
+    bool       regenerating_;
+
+    // Predation
     bool speedBoost_;
-    bool repopulate_;
-    int eatingCounter_;
-    bool resting = false;
+    int  eatingCounter_;
+    int  reproduceThreshold_;
+
+    // Helper: squared distance
+    static double SquaredDistance(double x1, double y1, double x2, double y2) noexcept {
+        double dx = x1 - x2;
+        double dy = y1 - y2;
+        return dx*dx + dy*dy;
+    }
+
+    // Recomputes speed based on current energy and boost state
+    void updateSpeed() noexcept;
 };
