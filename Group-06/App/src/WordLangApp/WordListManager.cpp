@@ -55,7 +55,7 @@ bool cse::WordListManager::print(int number, bool isAll) {
   }
 
   int count = 0;
-  int limit = isAll ? static_cast<int>(mCurrentSet.size() - 1) : number;
+  int limit = isAll ? static_cast<int>(mCurrentSet.size() - 1) : number - 1;
 
   // Eliminate trailing comma at the end
   if (!isAll && static_cast<int>(mCurrentSet.size()) <= number) {
@@ -65,12 +65,12 @@ bool cse::WordListManager::print(int number, bool isAll) {
   std::cout << "[";
 
   for (const auto& word : mCurrentSet) {
-    if (!isAll && count >= number) break;
+    if (!isAll && count > limit) break;
 
     std::cout << word;
     ++count;
 
-    if (count < limit) {
+    if (count <= limit) {
       std::cout << ", ";
     }
   }

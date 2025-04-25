@@ -206,8 +206,8 @@ TEST_CASE("WordLang Tests 4", "[WordLang]") {
     "Loaded \"top_5000.txt\". Word count in a list: 5000\n",
     "Number of words to search: 5248\n",
     "Words before filter: 5248, after filter: 1000\n",
-    "[smile, porno, north, shoot, rapid, pizza, boxes, storm, blend, sides, pulse, quote, rough, adult, swiss, shelf, omaha, carry, worst, aside, discs]\n",
-    "[total, final, rural, vocal, lamps, atlas, laura, malta, valid, larry, lands]\n",
+    "[smile, porno, north, shoot, rapid, pizza, boxes, storm, blend, sides, pulse, quote, rough, adult, swiss, shelf, omaha, carry, worst, aside]\n",
+    "[total, final, rural, vocal, lamps, atlas, laura, malta, valid, larry]\n",
     "[moral, coral, royal]\n"
   };
 
@@ -301,7 +301,7 @@ TEST_CASE("LOAD and PRINT tests", "[WordLang]") {
       "[hello, cost, host, best, cucumber, dump, kitchen, toast, chain, boats, key]\n",
       "",
       "[Test, key, fork, word, hello, why, where, who, chain, boost, books]\n",
-      "[Test, key, fork, word, hello, why]\n"
+      "[Test, key, fork, word, hello]\n"
     };
 
     test_function(input, output_result);
