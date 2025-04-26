@@ -394,45 +394,72 @@ void FinalApplication::MathMenu(const cse::DataGrid &grid,
     if (option == "cmean") {
       int index =
           GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-      os << "Mean at column " << index << ": " << grid.ColumnMean(index)
+
+      os << "\nBelow is the grid: \n";
+      grid.Print(os);
+
+      os << "\nMean at column " << index << ": " << grid.ColumnMean(index)
          << std::endl;
       return;
     } else if (option == "cmed") {
       int index =
           GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-      os << "Median at column " << index << ": " << grid.ColumnMedian(index)
+
+      os << "\nBelow is the grid: \n";
+      grid.Print(os);
+
+      os << "\nMedian at column " << index << ": " << grid.ColumnMedian(index)
          << std::endl;
       return;
     } else if (option == "csd") {
       int index =
           GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-      os << "Standard deviation at column " << index << ": "
+
+      os << "\nBelow is the grid: \n";
+      grid.Print(os);
+
+      os << "\nStandard deviation at column " << index << ": "
          << grid.ColumnStandardDeviation(index) << std::endl;
       return;
     } else if (option == "cmin") {
       int index =
           GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-      os << "Min at column " << index << ": " << grid.ColumnMin(index)
+
+      os << "\nBelow is the grid: \n";
+      grid.Print(os);
+
+      os << "\nMin at column " << index << ": " << grid.ColumnMin(index)
          << std::endl;
       return;
     } else if (option == "cmax") {
       int index =
           GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-      os << "Max at column " << index << ": " << grid.ColumnMax(index)
+
+      os << "\nBelow is the grid: \n";
+      grid.Print(os);
+
+      os << "\nMax at column " << index << ": " << grid.ColumnMax(index)
          << std::endl;
       return;
     } else if (option == "cmode") {
       int index =
           GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-      os << "Mode(s) at column " << index << ": ";
+
+      os << "\nBelow is the grid: \n";
+      grid.Print(os);
+
+      os << "\nMode(s) at column " << index << ": ";
       for (const double &mode_val : grid.ColumnMode(index)) {
         os << mode_val << " ";
       }
       os << std::endl;
       return;
     } else if (option == "sum") {
+      os << "\nBelow is the grid: \n";
+      grid.Print(os);
+
       auto summary = grid.CalculateDataGridMathSummary();
-      os << "Grid Summary:" << std::endl;
+      os << "\nGrid Summary:" << std::endl;
       os << "Mean: " << summary.mean << std::endl;
       os << "Median: " << summary.median << std::endl;
       os << "Standard Deviation: " << summary.standardDeviation << std::endl;
@@ -485,42 +512,72 @@ void FinalApplication::ComparisonMenu(cse::DataGrid &grid,
       int index =
           GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
       cse::Datum datum = GetDataValue(os, is);
-      os << "Values less than given value:" << std::endl;
+
+      os << "\nThe column values: \n";
+      PrintColumn((grid.GetColumn(index)));
+      os << "\n";
+
+      os << "Values less than the given value:" << std::endl;
       PrintColumn(grid.ColumnLessThan(index, datum));
       return;
     } else if (option == "clte") {
       int index =
           GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
       cse::Datum datum = GetDataValue(os, is);
-      os << "Values less than or equal to given value:" << std::endl;
+
+      os << "\nThe column values: \n";
+      PrintColumn((grid.GetColumn(index)));
+      os << "\n";
+
+      os << "Values less than or equal to the given value:" << std::endl;
       PrintColumn(grid.ColumnLessThanOrEqual(index, datum));
       return;
     } else if (option == "cgt") {
       int index =
           GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
       cse::Datum datum = GetDataValue(os, is);
-      os << "Values greater than given value:" << std::endl;
+
+      os << "\nThe column values: \n";
+      PrintColumn((grid.GetColumn(index)));
+      os << "\n";
+
+      os << "Values greater than the given value:" << std::endl;
       PrintColumn(grid.ColumnGreaterThan(index, datum));
       return;
     } else if (option == "cgte") {
       int index =
           GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
       cse::Datum datum = GetDataValue(os, is);
-      os << "Values greater than or equal to given value:" << std::endl;
+
+      os << "\nThe column values: \n";
+      PrintColumn((grid.GetColumn(index)));
+      os << "\n";
+
+      os << "Values greater than or equal to the given value:" << std::endl;
       PrintColumn(grid.ColumnGreaterThanOrEqual(index, datum));
       return;
     } else if (option == "ce") {
       int index =
           GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
       cse::Datum datum = GetDataValue(os, is);
-      os << "Values equal to given value:" << std::endl;
+
+      os << "\nThe column values: \n";
+      PrintColumn((grid.GetColumn(index)));
+      os << "\n";
+
+      os << "Values equal to the given value:" << std::endl;
       PrintColumn(grid.ColumnEqual(index, datum));
       return;
     } else if (option == "cne") {
       int index =
           GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
       cse::Datum datum = GetDataValue(os, is);
-      os << "Values not equal to given value:" << std::endl;
+
+      os << "\nThe column values: \n";
+      PrintColumn((grid.GetColumn(index)));
+      os << "\n";
+
+      os << "Values not equal to the given value:" << std::endl;
       PrintColumn(grid.ColumnNotEqual(index, datum));
       return;
     } else if (option == "b") {
@@ -621,10 +678,10 @@ void FinalApplication::PrintSubmenu(const cse::DataGrid &grid,
           is >> col;
           const cse::Datum &value = grid.GetValue(row, col);
           if (value.IsDouble()) {
-            os << "Cell (" << row << ", " << col << "): " << value.GetDouble()
+            os << "\nCell (" << row << ", " << col << "): " << value.GetDouble()
                << std::endl;
           } else if (value.IsString()) {
-            os << "Cell (" << row << ", " << col << "): " << value.GetString()
+            os << "\nCell (" << row << ", " << col << "): " << value.GetString()
                << std::endl;
           }
           break;
@@ -635,7 +692,7 @@ void FinalApplication::PrintSubmenu(const cse::DataGrid &grid,
           os << "Enter row index: ";
           is >> row;
           auto row_data = grid.GetRow(row);
-          os << "Row " << row << ": ";
+          os << "\nRow " << row << ": ";
           for (const auto &datum : row_data) {
             if (datum.IsDouble()) {
               os << datum.GetDouble() << " ";
@@ -652,7 +709,7 @@ void FinalApplication::PrintSubmenu(const cse::DataGrid &grid,
           os << "Enter column index: ";
           is >> col;
           auto col_data = grid.GetColumn(col);
-          os << "Column " << col << ": ";
+          os << "\nColumn " << col << ": ";
           for (const auto &datum : col_data) {
             if (datum.IsDouble()) {
               os << datum.GetDouble() << " ";
@@ -665,6 +722,7 @@ void FinalApplication::PrintSubmenu(const cse::DataGrid &grid,
         }
         // Print the entire DataGrid
         case 4:
+          os << "\n" << std::endl;
           grid.Print(os);
           break;
         case 0:
@@ -719,7 +777,11 @@ void FinalApplication::EditSubmenu(cse::DataGrid &grid,
             new_val = d.value();
           }
           grid.At(row, col) = cse::Datum(new_val);
-          os << "Cell updated." << std::endl;
+          os << "\nCell updated." << std::endl;
+
+          os << "\nThe new grid is:" << std::endl;
+          grid.Print(os);
+          os << "\n";
           break;
         }
         // Edits an entire row's value
@@ -735,6 +797,10 @@ void FinalApplication::EditSubmenu(cse::DataGrid &grid,
             datum = cse::Datum(val);
           }
           os << "Row updated." << std::endl;
+
+          os << "\nThe new grid is:" << std::endl;
+          grid.Print(os);
+          os << "\n";
           break;
         }
           // Edits an entire column's value
@@ -750,6 +816,10 @@ void FinalApplication::EditSubmenu(cse::DataGrid &grid,
             grid.At(i, col) = cse::Datum(val);
           }
           os << "Column updated." << std::endl;
+
+          os << "\nThe new grid is:" << std::endl;
+          grid.Print(os);
+          os << "\n";
           break;
         }
         case 0:
@@ -880,6 +950,9 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid,
               grid.InsertDefaultRow(cse::kNoIndex, input);
             }
             os << "Default row added." << std::endl;
+
+            os << "\nBelow is the new grid: \n";
+            grid.Print(os);
             // Add a row manually
           } else if (method == "m") {
             std::vector<cse::Datum> new_row;
@@ -893,7 +966,10 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid,
             }
             grid.InsertRow(new_row);
             os << "Row added." << std::endl;
-            // Add a custom row with an equation
+
+            os << "\nBelow is the new grid: \n";
+            grid.Print(os);
+          // Add a custom row with an equation
           } else if (method == "e") {
             std::vector<cse::Datum> new_row;
             os << "Enter equation. Supported operators +-/*^, indexes in curly "
@@ -912,6 +988,9 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid,
             }
             grid.InsertRow(new_row);
             os << "Row Added" << std::endl;
+
+            os << "\nBelow is the new grid: \n";
+            grid.Print(os);
           } else {
             os << "Invalid option. Must be 'd', 'e', or 'm'.";
           }
@@ -936,6 +1015,9 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid,
               grid.InsertDefaultColumn(cse::kNoIndex, input);
             }
             os << "Default column added." << std::endl;
+
+            os << "\nBelow is the new grid: \n";
+            grid.Print(os);
             // Add a column manually
           } else if (method == "m") {
             std::vector<cse::Datum> new_column;
@@ -949,6 +1031,9 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid,
             }
             grid.InsertColumn(new_column);
             os << "Column added." << std::endl;
+
+            os << "\nBelow is the new grid: \n";
+            grid.Print(os);
             // Add a custom column by an equation
           } else if (method == "e") {
             std::vector<cse::Datum> new_col;
@@ -966,7 +1051,10 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid,
               new_col.push_back(func(row));
             }
             grid.InsertColumn(new_col);
-            os << "Col Added" << std::endl;
+            os << "Column Added." << std::endl;
+
+            os << "\nBelow is the new grid: \n";
+            grid.Print(os);
           } else {
             os << "Invalid option. Must be 'd', 'e', or 'm'." << std::endl;
           }
@@ -999,6 +1087,9 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid,
           cse::DataGrid other_grid(merge_data);
           grid = grid.Merge(other_grid, merge_type == 1);
           os << "Grids merged." << std::endl;
+
+          os << "\nBelow is the new grid: \n";
+          grid.Print(os);
           break;
         }
 
@@ -1043,6 +1134,9 @@ void FinalApplication::DeleteSubmenu(cse::DataGrid &grid,
           is >> row;
           grid.DeleteRow(row);
           os << "Row deleted." << std::endl;
+
+          os << "\nBelow is the new grid: \n";
+          grid.Print(os);
           break;
         }
         // Delete a column
@@ -1052,12 +1146,18 @@ void FinalApplication::DeleteSubmenu(cse::DataGrid &grid,
           is >> col;
           grid.DeleteColumn(col);
           os << "Column deleted." << std::endl;
+
+          os << "\nBelow is the new grid: \n";
+          grid.Print(os);
           break;
         }
         // Clear the entire grid
         case 3: {
           grid.Clear();
           os << "Grid cleared." << std::endl;
+
+          os << "\nBelow is the new grid: \n";
+          grid.Print(os);
           break;
         }
         case 0:
@@ -1139,6 +1239,9 @@ void FinalApplication::ResizeSubmenu(cse::DataGrid &grid,
           }
           grid.Resize(new_rows, new_cols, default_value);
           os << "Grid resized." << std::endl;
+
+          os << "\nBelow is the new grid: \n";
+          grid.Print(os);
           break;
         }
           // Resize the grid (strings)
@@ -1173,6 +1276,9 @@ void FinalApplication::ResizeSubmenu(cse::DataGrid &grid,
           is >> default_value;
           grid.Resize(new_rows, new_cols, default_value);
           os << "Grid resized." << std::endl;
+
+          os << "\nBelow is the new grid: \n";
+          grid.Print(os);
           break;
         }
         case 0:
@@ -1231,7 +1337,7 @@ void FinalApplication::MainMenu(std::ostream &os = std::cout,
         if (!cse::CSVFile::ExportCsv(filename, grid)) {
           std::cerr << "Export failed: unknown error\n";
         } else {
-          os << "Exported to " << filename << "\n";
+          os << "\nExported to " << filename << "\n";
         }
       } catch (const std::exception &e) {
         std::cerr << "Export failed: " << e.what() << "\n";
