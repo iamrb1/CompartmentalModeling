@@ -1,57 +1,71 @@
-TEST_NAMES = AuditedPointerAdvancedTest AnnotatedWrapperAdvancedTest
+# Compiler and flags
+CXX := g++
+CXXFLAGS := -std=c++20 -g -pthread -Wall -Wextra
+INCLUDES := -I../ -I../third-party/Catch/single_include/ -I../third-party/cereal/include/
+DEFINES := -DCATCH_CONFIG_MAIN
+LDFLAGS := -static-libgcc -static-libstdc++
 
-# -O3	  -Wl,--stack,8388608 -ftrack-macro-expansion=0
-FLAGS = -std=c++2a -g -pthread -Wall -Wextra -I../ -DCATCH_CONFIG_MAIN -static-libgcc -static-libstdc++
+# Targets
+TEST_NAMES := AuditedPointerAdvancedTest AnnotatedWrapperAdvancedTest
+TEST_SRCS := $(addsuffix .cpp, $(TEST_NAMES))
+TEST_EXES := $(addsuffix .out, $(TEST_NAMES))
 
-default: test
+# Default build flags
+BUILD_FLAGS := $(CXXFLAGS) $(INCLUDES) $(DEFINES) $(LDFLAGS)
 
-cov-%: %.cpp ../third-party/Catch/single_include/catch2/catch.hpp
-	$(CXX) $(FLAGS) $< -o $@.out
-	#echo "running $@.out"
-	# execute test
-	./$@.out
-	llvm-profdata merge default.profraw -o default.profdata
-	llvm-cov show ./$@.out -instr-profile=default.profdata > coverage_$@.txt
-	python ../third-party/force-cover/fix_coverage.py coverage_$@.txt
+# Special builds
+COV_FLAGS := -fprofile-instr-generate -fcoverage-mapping -fno-inline -fno-elide-constructors -O0
+OPT_FLAGS := -DNDEBUG -O3
+FULLDEBUG_FLAGS := -DEMP_TRACK_MEM -Wnon-virtual-dtor -Wcast-align -Woverloaded-virtual -pedantic
+CRANKY_FLAGS := $(FULLDEBUG_FLAGS) -Wconversion -Weffc++
 
+.PHONY: all test coverage opt fulldebug cranky clean test-prep
+
+all: test
+
+# Preparation
 test-prep:
-	mkdir -p temp
+	@mkdir -p temp
 
-test-%: %.cpp ../third-party/Catch/single_include/catch2/catch.hpp
-	$(CXX) $(FLAGS) $< -o $@.out
-	./$@.out
+# Default test build
+test: test-prep $(TEST_EXES)
+	@for test in $(TEST_EXES); do \
+		./$$test; \
+	done
 
-# Test in debug mode without pointer tracker
-test: test-prep $(addprefix test-, $(TEST_NAMES))
-	rm -rf test*.out
+# Pattern rule for test builds with verbose output
+%.out: %.cpp
+	@$(CXX) $(BUILD_FLAGS) $< -o $@
 
-coverage: FLAGS := -std=c++20 -pthread -g -Wall -Wno-unused-function -I../coverage_source/ -I../ -I../third-party/cereal/include/ -DEMP_TRACK_MEM -Wnon-virtual-dtor -Wcast-align -Woverloaded-virtual -ftemplate-backtrace-limit=0 -fprofile-instr-generate -fcoverage-mapping -fno-inline -fno-elide-constructors -O0 -DCATCH_CONFIG_MAIN
-coverage: test-prep $(addprefix cov-, $(TEST_NAMES))
+# Coverage build
+coverage: BUILD_FLAGS += $(COV_FLAGS)
+coverage: test-prep $(TEST_EXES)
+	@echo "Running tests with coverage..."
+	@for test in $(TEST_EXES); do \
+		LLVM_PROFILE_FILE="$$test.profraw" ./$$test; \
+		llvm-profdata merge -sparse "$$test.profraw" -o "$$test.profdata"; \
+		llvm-cov show ./$$test -instr-profile="$$test.profdata"; \
+	done
 
-# Test optimized version without debug features
-opt: FLAGS := -std=c++20 -pthread -DNDEBUG -O3 -Wno-unused-function -I../include/ -I../third-party/cereal/include/ -I../ -DCATCH_CONFIG_MAIN
-opt: test-prep $(addprefix test-, $(TEST_NAMES))
-	rm -rf test*.out
+# Optimized build
+opt: BUILD_FLAGS += $(OPT_FLAGS)
+opt: test
 
-# Test in debug mode with pointer tracking
-fulldebug: FLAGS := -std=c++20 -pthread -g -Wall -Wno-unused-function -I../include/ -I../third-party/cereal/include/ -I../ -pedantic -DEMP_TRACK_MEM -Wnon-virtual-dtor -Wcast-align -Woverloaded-virtual -ftemplate-backtrace-limit=0 -DCATCH_CONFIG_MAIN # -Wmisleading-indentation
-fulldebug: test-prep $(addprefix test-, $(TEST_NAMES))
-	rm -rf test*.out
+# Full debug build
+fulldebug: BUILD_FLAGS += $(FULLDEBUG_FLAGS)
+fulldebug: test
 
-cranky: FLAGS := -std=c++20 -pthread -g -Wall -Wno-unused-function -I../include/ -I../third-party/cereal/include/ -I../ -pedantic -DEMP_TRACK_MEM -Wnon-virtual-dtor -Wcast-align -Woverloaded-virtual -Wconversion -Weffc++ -DCATCH_CONFIG_MAIN
-cranky: test-prep $(addprefix test-, $(TEST_NAMES))
-	rm -rf test*.out
+# Cranky (extra warnings) build
+cranky: BUILD_FLAGS += $(CRANKY_FLAGS)
+cranky: test
 
+# Clean up
+	@rm -f *.out *.o *.gcda *.gcno *.info *.gcov *.profraw *.profdata
+	@rm -rf ./Coverage* ./temp
+
+# Ensure catch.hpp is available
 ../third-party/Catch/single_include/catch2/catch.hpp:
-	git submodule init
-	git submodule update
+	@git submodule update --init
 
-clean:
-	rm -f *.out
-	rm -f *.o
-	rm -f *.gcda
-	rm -f *.gcno
-	rm -f *.info
-	rm -f *.gcov
-	rm -f ./Coverage*
-	rm -rf ./temp
+# Dependencies
+$(TEST_EXES): ../third-party/Catch/single_include/catch2/catch.hpp
