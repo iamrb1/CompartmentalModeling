@@ -439,13 +439,13 @@ TEST_CASE("ComparisonMenu()", "[comparison_menu]") {
   std::istringstream is("clt\n0\n50.50\n");
   std::ostringstream os;
   final_application.ComparisonMenu(grid, os, is);
-  CHECK(os.str().find("Values less than given value") != std::string::npos);
+  CHECK(os.str().find("Values less than the given value") != std::string::npos);
 
   // Valid input (string)
   is.str("clt\n0\ntest2\n");
   os.clear();
   final_application.ComparisonMenu(grid, os, is);
-  CHECK(os.str().find("Values less than given value") != std::string::npos);
+  CHECK(os.str().find("Values less than the given value") != std::string::npos);
 
   // Invalid column (number - int)
   is.str("clt\n99\n0\n50.50\n");
@@ -477,13 +477,13 @@ TEST_CASE("ComparisonMenu()", "[comparison_menu]") {
   is.str("clte\n0\n50.50\n");
   os.clear();
   final_application.ComparisonMenu(grid, os, is);
-  CHECK(os.str().find("Values less than given value") != std::string::npos);
+  CHECK(os.str().find("Values less than the given value") != std::string::npos);
 
   // Valid input (string)
   is.str("clte\n0\ntest2\n");
   os.clear();
   final_application.ComparisonMenu(grid, os, is);
-  CHECK(os.str().find("Values less than given value") != std::string::npos);
+  CHECK(os.str().find("Values less than the given value") != std::string::npos);
 
   // Invalid column (number - int)
   is.str("clte\n99\n0\n50.50\n");
@@ -515,13 +515,13 @@ TEST_CASE("ComparisonMenu()", "[comparison_menu]") {
   is.str("cgt\n0\n50.50\n");
   os.clear();
   final_application.ComparisonMenu(grid, os, is);
-  CHECK(os.str().find("Values less than given value") != std::string::npos);
+  CHECK(os.str().find("Values less than the given value") != std::string::npos);
 
   // Valid input (string)
   is.str("cgt\n0\ntest2\n");
   os.clear();
   final_application.ComparisonMenu(grid, os, is);
-  CHECK(os.str().find("Values less than given value") != std::string::npos);
+  CHECK(os.str().find("Values less than the given value") != std::string::npos);
 
   // Invalid column (number - int)
   is.str("cgt\n99\n0\n50.50\n");
@@ -553,13 +553,13 @@ TEST_CASE("ComparisonMenu()", "[comparison_menu]") {
   is.str("cgte\n0\n50.50\n");
   os.clear();
   final_application.ComparisonMenu(grid, os, is);
-  CHECK(os.str().find("Values less than given value") != std::string::npos);
+  CHECK(os.str().find("Values less than the given value") != std::string::npos);
 
   // Valid input (string)
   is.str("cgte\n0\ntest2\n");
   os.clear();
   final_application.ComparisonMenu(grid, os, is);
-  CHECK(os.str().find("Values less than given value") != std::string::npos);
+  CHECK(os.str().find("Values less than the given value") != std::string::npos);
 
   // Invalid column (number - int)
   is.str("cgte\n99\n0\n50.50\n");
@@ -591,13 +591,13 @@ TEST_CASE("ComparisonMenu()", "[comparison_menu]") {
   is.str("ce\n0\n50.50\n");
   os.clear();
   final_application.ComparisonMenu(grid, os, is);
-  CHECK(os.str().find("Values less than given value") != std::string::npos);
+  CHECK(os.str().find("Values less than the given value") != std::string::npos);
 
   // Valid input (string)
   is.str("ce\n0\ntest2\n");
   os.clear();
   final_application.ComparisonMenu(grid, os, is);
-  CHECK(os.str().find("Values less than given value") != std::string::npos);
+  CHECK(os.str().find("Values less than the given value") != std::string::npos);
 
   // Invalid column (number - int)
   is.str("ce\n99\n0\n50.50\n");
@@ -629,13 +629,13 @@ TEST_CASE("ComparisonMenu()", "[comparison_menu]") {
   is.str("cne\n0\n50.50\n");
   os.clear();
   final_application.ComparisonMenu(grid, os, is);
-  CHECK(os.str().find("Values less than given value") != std::string::npos);
+  CHECK(os.str().find("Values less than the given value") != std::string::npos);
 
   // Valid input (string)
   is.str("cne\n0\ntest2\n");
   os.clear();
   final_application.ComparisonMenu(grid, os, is);
-  CHECK(os.str().find("Values less than given value") != std::string::npos);
+  CHECK(os.str().find("Values less than the given value") != std::string::npos);
 
   // Invalid column (number - int)
   is.str("cne\n99\n0\n50.50\n");
