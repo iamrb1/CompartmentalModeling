@@ -17,11 +17,19 @@
 
 cmake_minimum_required(VERSION 3.15)
 
+project(
+    ExprTk
+    LANGUAGES CXX
+    VERSION 0.0.1
+    DESCRIPTION  "C++ Mathematical Expression Toolkit Library (ExprTk)"
+    HOMEPAGE_URL "https://www.partow.net/programming/exprtk/index.html"
+)
+
 # define ExprTk header-only library
 add_library(
     exprtk
     INTERFACE
-    include/exprtk.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/exprtk.hpp
 )
 
 add_library(exprtk::exprtk ALIAS exprtk)
@@ -29,7 +37,8 @@ add_library(exprtk::exprtk ALIAS exprtk)
 target_include_directories(
     exprtk
     INTERFACE
-    ./include
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 target_compile_features(exprtk INTERFACE cxx_std_11)

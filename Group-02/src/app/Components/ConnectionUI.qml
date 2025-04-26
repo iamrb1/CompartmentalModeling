@@ -3,7 +3,8 @@
  @author Nitish Maindoliya, Rahul Baragur
  **/
 import QtQuick
-import cseg2
+
+import Application
 import Utilities
 import Components
 
@@ -30,7 +31,7 @@ Item {
     /// Line with arrow pointing at target component
     Canvas {
         id: lineRect
-        width: connectionUI.calculateLength()
+        width: calculateLength()
         height: Math.max(30, arrowSize * 2)
         antialiasing: true
         visible: !isSelfLoop
@@ -40,7 +41,7 @@ Item {
         y: -height / 2 + connectionOffset
 
         transformOrigin: Item.Left
-        rotation: connectionUI.calculateAngle()
+        rotation: calculateAngle()
 
         onPaint: {
             const ctx = getContext("2d");

@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
 
   QQmlApplicationEngine engine;
 
-  engine.loadFromModule("cseg2", "SimulationUI");
+  engine.loadFromModule("Application", "SimulationUI");
 
   if (engine.rootObjects().isEmpty())
     return -1;

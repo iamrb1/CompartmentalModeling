@@ -6,9 +6,10 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+
+import Application
 import Utilities
 import Components
-import cseg2
 
 
 /*

@@ -26,8 +26,11 @@ if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   # Set Wall, Wextra and Wpedantic flags for GCC/Clang and /W4 for MSVC
   if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-dev")
-    MESSAGE("Adding ${CMAKE_CXX_FLAGS}")
-  endif ()
+    message("Adding ${CMAKE_CXX_FLAGS}")
+  elseif (MSVC)
+    add_compile_options(/bigobj)
+    message("Enabled /bigobj for MSVC")
+  endif()
 
 endif ()
 
@@ -35,13 +38,15 @@ endif ()
 find_package(Qt6 REQUIRED COMPONENTS Quick Charts Test Widgets)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
+# Add extern lib (expertk)
+add_subdirectory(extern/exprtk)
 
 # Add the subdirectories (libraries and executables)
 add_subdirectory(src/cse)
 add_subdirectory(src/app)
-
-# Add extern lib (expertk)
-add_subdirectory(extern/exprtk)
 
 # Optional: Make tests optional with a CMake option
 option(BUILD_TESTS "Build the tests" ON)

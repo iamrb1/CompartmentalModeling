@@ -1,7 +1,8 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
-import cseg2
+
+import Application
 import Utilities
 import Components
 

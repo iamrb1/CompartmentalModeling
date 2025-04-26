@@ -5,9 +5,10 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import cseg2
-import Components
+
+import Application
 import Utilities
+import Components
 
 ApplicationWindow {
     id: graphWindow

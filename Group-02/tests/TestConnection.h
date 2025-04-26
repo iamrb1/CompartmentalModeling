@@ -9,9 +9,9 @@
 #define TESTCONNECTION_H
 
 #include <QTest>
-#include <app/Components/Compartment.h>
-#include <app/Components/Connection.h>
-#include <app/Simulation.h>
+#include <Application/Simulation.h>
+#include <Components/Compartment.h>
+#include <Components/Connection.h>
 
 class TestConnection : public QObject {
   Q_OBJECT

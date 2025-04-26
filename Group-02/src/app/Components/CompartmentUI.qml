@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Shapes
 import QtQuick.Layouts
 
-import cseg2
+import Application
 import Utilities
 import Components
 
@@ -34,6 +34,7 @@ Rectangle {
             if (simulation.connectionMode) {
                 if (simulation.sourceCompartment) {
                     simulation.targetCompartment = compartment;
+                    simulation.add_connection();
                 } else {
                     simulation.sourceCompartment = compartment;
                 }

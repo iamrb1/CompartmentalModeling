@@ -4,9 +4,10 @@ import QtQuick.Layouts
 import QtQuick.Window
 import QtQuick.Dialogs
 import QtQuick.Shapes
+import Qt.labs.folderlistmodel 2.9
 
-import cseg2
 import Utilities
+import Application
 import Components
 
 ApplicationWindow {
@@ -17,7 +18,6 @@ ApplicationWindow {
 
     ///CALL THIS LINE TO GO TO ERROR MODULE. TRUE FOR MODAL FALSE FOR POPUP
     // simulation.throw_error("Something broke", false)
-
     property var graphWindow: null
 
     /// component for creating graph window
@@ -26,7 +26,6 @@ ApplicationWindow {
         GraphWindowUI {
         }
     }
-
 
     id: simulationUI
     width: 800
@@ -135,8 +134,11 @@ ApplicationWindow {
                     border.width: 1
                     border.color: ThemeManager.palette.mid
                     // color: "transparent"
-                    color: simulation.isRunning ? Qt.rgba(ThemeManager.palette.mid.r, ThemeManager.palette.mid.g, ThemeManager.palette.mid.b, 0.3) : "transparent"
-
+                    color: simulation.isRunning ? Qt.rgba(
+                        ThemeManager.palette.mid.r,
+                        ThemeManager.palette.mid.g,
+                        ThemeManager.palette.mid.b,
+                        0.3) : "transparent"
 
                     TextInput {
                         anchors.fill: parent
@@ -150,11 +152,10 @@ ApplicationWindow {
                         }
 
                         onEditingFinished: {
-                            if (parseInt(text) < simulation.timeSteps)
-                            {
-                                simulation.reset();
+                            if (parseInt(text) < simulation.timeSteps) {
+                                simulation.reset()
                             }
-                            simulation.timeSteps = text;
+                            simulation.timeSteps = text
                         }
                         clip: true
                     }
@@ -176,7 +177,7 @@ ApplicationWindow {
                 ToolTip.text: icon.name
 
                 onClicked: {
-                    simulation.start();
+                    simulation.start()
                 }
             }
 
@@ -195,7 +196,7 @@ ApplicationWindow {
                 ToolTip.text: icon.name
 
                 onClicked: {
-                    simulation.pause();
+                    simulation.pause()
                 }
             }
 
@@ -213,7 +214,7 @@ ApplicationWindow {
                 ToolTip.text: icon.name
 
                 onClicked: {
-                    simulation.reset();
+                    simulation.reset()
                 }
             }
         }

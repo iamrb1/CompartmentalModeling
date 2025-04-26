@@ -7,8 +7,10 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import cseg2
+
+import Application
 import Utilities
+import Components
 
 Rectangle {
     id: root

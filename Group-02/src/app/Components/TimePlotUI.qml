@@ -6,7 +6,10 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import QtCharts
 import QtQuick
+
+import Application
 import Utilities
+import Components
 
 Item {
     Layout.fillHeight: true

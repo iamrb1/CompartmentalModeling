@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/resources/">
+        <file>examples/SIR.sim</file>
+        <file>icons/arrow-right.svg</file>
+        <file>icons/plus.svg</file>
+        <file>icons/edit.svg</file>
+        <file>icons/graph.svg</file>
+        <file>icons/delete.svg</file>
+        <file>icons/play_arrow.svg</file>
+        <file>icons/pause.svg</file>
+        <file>icons/reset.svg</file>
+        <file>icons/warning.svg</file>
+    </qresource>
+</RCC>

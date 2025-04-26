@@ -7,8 +7,8 @@
 #define CONNECTION_H
 
 #include <QObject>
-#include <qqml.h>
 #include <QRegularExpression>
+#include <qqml.h>
 
 class Simulation;
 class Compartment;
@@ -21,10 +21,10 @@ class Connection : public QObject {
   Q_OBJECT
   QML_ELEMENT
 
-  Q_PROPERTY(QString name MEMBER m_name WRITE set_name NOTIFY nameChanged FINAL)
-  Q_PROPERTY(Compartment* source MEMBER m_source NOTIFY sourceChanged FINAL)
-  Q_PROPERTY(Compartment* target MEMBER m_target NOTIFY targetChanged FINAL)
-  Q_PROPERTY(QString rateExpression MEMBER m_rate_expression WRITE set_rate_expression NOTIFY rateExpressionChanged FINAL)
+  Q_PROPERTY(QString name READ get_name WRITE set_name NOTIFY nameChanged FINAL)
+  Q_PROPERTY(Compartment* source READ get_source WRITE set_source NOTIFY sourceChanged FINAL)
+  Q_PROPERTY(Compartment* target READ get_target WRITE set_target NOTIFY targetChanged FINAL)
+  Q_PROPERTY(QString rateExpression READ get_rate_expression WRITE set_rate_expression NOTIFY rateExpressionChanged FINAL)
 
  signals:
   /// Signals to notify QML of changes
@@ -50,84 +50,17 @@ class Connection : public QObject {
 
   Connection(QString name, Compartment* source, Compartment* target, QString rate_expression,
              Simulation* parent = nullptr);
-  /**
-   * @brief Getter for the name of the connection
-   * @return Compartment name
-   */
-  [[nodiscard]] const QString& get_name() const {
-    return m_name;
-  }
-  /**
-   * @brief Getter for the source compartment
-   * @return Source compartment
-   */
-  [[nodiscard]] Compartment* get_source() const {
-    return m_source;
-  }
-  /**
-   * @brief Getter for the target compartment
-   * @return Target compartment
-   */
-  [[nodiscard]] Compartment* get_target() const {
-    return m_target;
-  }
-  /**
-   * @brief Getter for the rate of transfer
-   * @return Rate of transfer expression
-   */
-  [[nodiscard]] const QString& get_rate_expression() const {
-    return m_rate_expression;
-  }
-  /**
-   * @brief Getter for the parent simulation
-   * @return Parent simulation
-   */
-  [[nodiscard]] Simulation* get_simulation() const {
-    return m_simulation;
-  }
-  /**
-   * @brief Setter for the name of connection
-   * @param name The name of the connection
-   */
-  void set_name(const QString& name) {
-      static QRegularExpression regex("^[a-zA-Z0-9 ]+$");
-      if (!name.isEmpty() && regex.match(name).hasMatch())
-      {
-          m_name = name;
-          emit nameChanged();
-      }
-  }
-  /**
-   * @brief Setter for source compartment
-   * @param source The source compartment
-   */
-  void set_source(Compartment* source) {
-    m_source = source;
-    emit sourceChanged();
-  }
-  /**
-   * @brief Setter for target compartment
-   * @param target The target compartment
-   */
-  void set_target(Compartment* target) {
-    m_target = target;
-    emit targetChanged();
-  }
-  /**
-   * @brief Setter for the rate of transfer expression
-   * @param rate_expression The rate of transfer
-   */
-  void set_rate_expression(const QString& rate_expression) {
-    m_rate_expression = rate_expression;
-    emit rateExpressionChanged();
-  }
-  /**
-   * Setter for the parent simulation
-   * @param simulation The simulation instance
-   */
-//  void set_simulation(Simulation* simulation) {
-//    m_simulation = simulation;
-//  }
+
+  [[nodiscard]] const QString& get_name() const;
+  [[nodiscard]] Compartment* get_source() const;
+  [[nodiscard]] Compartment* get_target() const;
+  [[nodiscard]] const QString& get_rate_expression() const;
+  [[nodiscard]] Simulation* get_simulation() const;
+
+  void set_name(const QString& name);
+  void set_source(Compartment* source);
+  void set_target(Compartment* target);
+  void set_rate_expression(const QString& rate_expression);
 };
 
 #endif  //CONNECTION_H

@@ -1,7 +1,8 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
-import cseg2
+
+import Application
 import Utilities
 import Components
 
@@ -154,13 +155,13 @@ Rectangle {
                     color: ThemeManager.palette.text
                     enabled: !simulation.isRunning
 
-                    validator: DoubleValidator {
-                        bottom: 0.0
-                        top: 1000000.0
-                        decimals: 6
-                        locale: "en_US"
-                        notation: DoubleValidator.StandardNotation
-                    }
+                    // validator: DoubleValidator {
+                    //     bottom: 0.0
+                    //     top: 1000000.0
+                    //     decimals: 6
+                    //     locale: "en_US"
+                    //     notation: DoubleValidator.StandardNotation
+                    // }
 
                     onEditingFinished: {
                         selectedConnection.rateExpression = text

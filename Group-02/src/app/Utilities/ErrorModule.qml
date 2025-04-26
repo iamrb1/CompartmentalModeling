@@ -4,7 +4,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Window
 import Components
-import cseg2
+import Application
 
 
 Item {
