@@ -12,6 +12,7 @@
 #include "../Components/Compartment.h"
 #include <QDirIterator>
 
+
 Simulation::Simulation(QObject* parent) : QObject(parent) {
   QDirIterator it(":", QDirIterator::Subdirectories);
   while (it.hasNext()) {
@@ -72,8 +73,8 @@ void Simulation::start() {
   if (!m_timer) {
     m_timer = new QTimer(this);
   }
-  auto connection = connect(m_timer, &QTimer::timeout, this, &Simulation::take_time_step);
-  m_timer->start(100);
+  auto connection = connect(m_timer, &QTimer::timeout, [this]() {take_time_step();});
+  m_timer->start(DEFAULT_TIME_STEP_MS);
 }
 
 void Simulation::pause() {
@@ -273,7 +274,7 @@ QVector<Compartment*> Simulation::get_compartments() const {
  */
 void Simulation::add_compartment() {
   static size_t compartment_number = m_compartments.size();
-  // Generate a new compartment with a unique symbol (A1,B1..Z1,A2...)
+  /// Generate a new compartment with a unique symbol
   QString symbol =
       QString("%1%2").arg(static_cast<char>('A' + (compartment_number % 26))).arg((compartment_number / 26) + 1);
   auto name = QString("Compartment %1").arg(symbol);
@@ -282,10 +283,10 @@ void Simulation::add_compartment() {
   m_compartments[symbol] = std::move(compartment);
   compartment_number++;
 
-  // Register the compartment value in the symbol table
+  /// Register the compartment value in the symbol table
   bind_variable(symbol, m_compartments[symbol]->get_current_amount());
 
-  // Emit signal to notify that compartments have changed
+  /// Emit signal to notify that compartments have changed
   emit compartmentsChanged();
 }
 
@@ -359,7 +360,7 @@ QVector<Connection*> Simulation::get_connections() const {
 }
 
 void Simulation::set_connection_mode(const bool connection_mode) {
-  if (connection_mode == false) {
+  if (!connection_mode) {
     set_source_compartment(nullptr);
     set_target_compartment(nullptr);
   }
@@ -437,11 +438,10 @@ void Simulation::set_sidebar_connection(Connection* connection) {
  * @param connection Connection to be removed
  */
 void Simulation::remove_connection(const Connection* connection) {
-  for (auto it = m_connections.begin(); it != m_connections.end(); ++it) {
-    if (it->get() == connection) {
+  if (auto it = std::find_if(m_connections.begin(), m_connections.end(),
+                             [connection](const auto& conn) { return conn.get() == connection; });
+    it != m_connections.end()) {
       m_connections.erase(it);
-      break;
-    }
   }
   m_sidebar_connection = nullptr;
 

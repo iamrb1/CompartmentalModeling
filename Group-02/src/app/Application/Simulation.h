@@ -73,6 +73,8 @@ class Simulation : public QObject {
   void errorModuleShow(const QString& message);
 
  private:
+  static constexpr int DEFAULT_TIME_STEP_MS = 100;
+
   /// Simulation name
   QString m_name = "New Simulation";
   /// Save path
