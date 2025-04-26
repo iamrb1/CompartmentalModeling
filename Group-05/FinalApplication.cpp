@@ -545,7 +545,6 @@ void FinalApplication::ManipulateGridMenu(cse::DataGrid &grid,
     os << "Enter your choice: ";
     std::string input;
     is >> input;
-
     std::optional<int> input_int = IsValidInt(input);
 
     if (input_int.has_value()) {
@@ -699,8 +698,16 @@ void FinalApplication::EditSubmenu(cse::DataGrid &grid,
           os << "Enter column index: ";
           is >> col;
           os << "Enter new value (number): ";
+          std::string val_str;
+          is >> val_str;
+
+          //read into string + IsValidDouble() instead of streaming directly to double 
+          // so that bad inputs (e.g “foo”) don’t put cin into a failed state or loop forever
+
           double new_val = 0;
-          is >> new_val;
+          if (auto d = IsValidDouble(val_str)) {
+            new_val = d.value();
+          }
           grid.At(row, col) = cse::Datum(new_val);
           os << "Cell updated." << std::endl;
           break;

@@ -955,3 +955,95 @@ TEST_CASE("MainMenu()", "[main_menu]") {
   CHECK(os.str().find("Invalid option. Try again.") !=
       std::string::npos);
 }
+
+TEST_CASE("PrintSubmenu handles bad then good input", "[PrintSubmenu]") {
+  // reusing the 2×2 zero grid
+  cse::DataGrid grid(2, 2, 0.0);
+
+  SECTION("bad menu choice then exit") {
+    std::istringstream is("9\n0\n");
+    std::ostringstream os;
+    FinalApplication::PrintSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid choice") != std::string::npos);
+  }
+
+  SECTION("print whole grid then exit") {
+    std::istringstream is("4\n0\n");
+    std::ostringstream os;
+    FinalApplication::PrintSubmenu(grid, os, is);
+    // at least one "0 " in the printed grid
+    REQUIRE(os.str().find("0 ") != std::string::npos);
+  }
+
+  SECTION("print single cell") {
+    // 1 = print cell; row=0, col=1; then exit
+    std::istringstream is("1\n0\n1\n0\n");
+    std::ostringstream os;
+    FinalApplication::PrintSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Cell (0, 1): 0") != std::string::npos);
+  }
+  
+  SECTION("print row") {
+    std::istringstream is("2\n1\n0\n");
+    std::ostringstream os;
+    FinalApplication::PrintSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Row 1: 0 0") != std::string::npos);
+  }
+  
+  SECTION("print column") {
+    std::istringstream is("3\n1\n0\n");
+    std::ostringstream os;
+    FinalApplication::PrintSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Column 1: 0 0") != std::string::npos);
+  }
+}
+
+TEST_CASE("EditSubmenu handles bad then all three edit modes", "[EditSubmenu]") {
+  cse::DataGrid grid(2, 2, 0.0);
+
+  SECTION("invalid menu choice then exit") {
+    std::istringstream is("7\n0\n");
+    std::ostringstream os;
+    FinalApplication::EditSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid choice") != std::string::npos);
+  }
+
+  SECTION("edit single cell") {
+    // 1 = edit cell, row=1,col=1,newVal=3.14, then 0 to quit
+    std::istringstream is("1\n1\n1\n3.14\n0\n");
+    std::ostringstream os;
+    FinalApplication::EditSubmenu(grid, os, is);
+    CHECK(grid.GetValue(1,1).AsDouble() == Approx(3.14));
+    REQUIRE(os.str().find("Cell updated") != std::string::npos);
+  }
+
+  SECTION("edit entire row") {
+    // 2 = row, row=0, values "7 8", then 0
+    std::istringstream is("2\n0\n7 8\n0\n");
+    std::ostringstream os;
+    FinalApplication::EditSubmenu(grid, os, is);
+    CHECK(grid.GetValue(0,0).AsDouble() == Approx(7.0));
+    CHECK(grid.GetValue(0,1).AsDouble() == Approx(8.0));
+    REQUIRE(os.str().find("Row updated") != std::string::npos);
+  }
+
+  SECTION("edit entire column") {
+    // 3 = column, col=1, values "9 10", then 0
+    std::istringstream is("3\n1\n9 10\n0\n");
+    std::ostringstream os;
+    FinalApplication::EditSubmenu(grid, os, is);
+    CHECK(grid.GetValue(0,1).AsDouble() == Approx(9.0));
+    CHECK(grid.GetValue(1,1).AsDouble() == Approx(10.0));
+    REQUIRE(os.str().find("Column updated") != std::string::npos);
+  }
+
+  SECTION("edit single cell with non-numeric value") {
+    // 1 = cell edit; row=0,col=0; bad value, leaves default 0.0; and then it will exit
+    std::istringstream is("1\n0\n0\nfoo\n0\n");
+    std::ostringstream os;
+    FinalApplication::EditSubmenu(grid, os, is);
+    // still 0.0, but with no crash
+    CHECK(grid.GetValue(0,0).AsDouble() == Approx(0.0));
+    REQUIRE(os.str().find("Cell updated") != std::string::npos);
+  }
+}
