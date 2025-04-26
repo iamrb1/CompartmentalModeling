@@ -15,6 +15,8 @@
 
 #include "WordListManager.hpp"
 
+#include "../../../StaticString/StaticString.hpp"
+#include "../../../StringSet/StringSet.hpp"
 #include "FileSource.hpp"
 
 cse::WordListManager::WordListManager(cse::ErrorManager& errorManager)
@@ -511,15 +513,14 @@ bool cse::WordListManager::wordle(const std::string& word,
     return false;
   }
 
-  std::unordered_set<char>
-      lettersToNotContainsSet;  // Letters marked 'b' in the result.
-  std::unordered_set<char>
-      lettersToContainSet;  // Letters marked 'g' or 'y' means those letters
-                            // must be in the word.
-  std::string patternOfGreen = "";  // Letters marked 'g' where that letter
-                                    // exactly must be in that place.
-  std::unordered_map<char, size_t>
-      lettersIndexes;  // Holds the character marked yellow and its index.
+  // Letters marked 'g' where that letter exactly must be in that place.
+  std::string patternOfGreen = "";  
+  // Holds the character marked yellow and its index.
+  std::unordered_map<char, size_t> lettersIndexes;  
+  // Letters marked 'b' in the result.
+  cse::StringSet<char> lettersToNotContainsSet;
+  // Letters marked 'g' or 'y' means those letters must be in the word.
+  cse::StringSet<char> lettersToContainSet;
 
   // Construct each restrictions to apply
   for (size_t i = 0; i < result.length(); i++) {
@@ -542,6 +543,9 @@ bool cse::WordListManager::wordle(const std::string& word,
 
   // Disable user notficiation prints for temporarily.
   mPrintNumberOfWords = false;
+
+  // Eliminate any multiple occurance of words that marked 'b'
+  lettersToNotContainsSet = lettersToNotContainsSet.difference(lettersToContainSet);
 
   std::string lettersToNotContains(lettersToNotContainsSet.begin(),
                                    lettersToNotContainsSet.end());
