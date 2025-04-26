@@ -116,7 +116,7 @@ void TestCompartment::test_update_connection() {
   auto compartments = sim.get_compartments();
   QCOMPARE(compartments.size(), 2);
 
-  sim.set_m_connection_mode(true);
+  sim.set_connection_mode(true);
 
   auto sourceComp = compartments[0];
   auto targetComp = compartments[1];
