@@ -167,7 +167,7 @@ cse::DataGrid FinalApplication::CreateGridMenu(std::ostream &os = std::cout,
 
   // Read number of rows
   while (true) {
-    os << "Enter number of rows for your DataGrid [1–" << MAX_ROWS << "]: ";
+    os << "Enter number of rows for your DataGrid [1-" << MAX_ROWS << "]: ";
     if (!std::getline(is, line)) {
       is.clear();
       continue;
@@ -194,7 +194,7 @@ cse::DataGrid FinalApplication::CreateGridMenu(std::ostream &os = std::cout,
 
   // Read number of columns
   while (true) {
-    os << "Enter number of columns for your DataGrid [1–" << MAX_COLS << "]: ";
+    os << "Enter number of columns for your DataGrid [1-" << MAX_COLS << "]: ";
     if (!std::getline(is, line)) {
       is.clear();
       continue;
@@ -255,7 +255,7 @@ cse::DataGrid FinalApplication::CreateGridMenu(std::ostream &os = std::cout,
     } else if (type_choice == "s") {
       // string default
       while (true) {
-        os << "Enter a string default value for the DataGrid (1–"
+        os << "Enter a string default value for the DataGrid (1-"
            << MAX_DEFAULT_STR_LEN << " chars): ";
         if (!std::getline(is, line)) {
           is.clear();
@@ -322,9 +322,12 @@ cse::DataGrid FinalApplication::GridMenu(std::ostream &os = std::cout,
       }
       const auto filename = trim(line);
       try {
-        return cse::CSVFile::LoadCsv(filename);
+        cse::DataGrid data_grid = cse::CSVFile::LoadCsv(filename);
+        os << "\nBelow is the grid you imported: \n";
+        data_grid.Print(os);
+        return data_grid;
       } catch (const std::exception &e) {
-        os << "Import failed: " << e.what() << std::endl;
+        os << "Import failed: " << e.what() << "\n" << std::endl;
         // loop back to menu
       }
     } else if (choice == "t") {
@@ -346,10 +349,17 @@ cse::DataGrid FinalApplication::GridMenu(std::ostream &os = std::cout,
       premade[2][2] = 150.50;
       premade[3][2] = 200;
       premade[4][2] = 20.25;
-      return cse::DataGrid(premade);
+
+      cse::DataGrid data_grid = cse::DataGrid(premade);
+      os << "\nBelow is the pre-made grid: \n";
+      data_grid.Print(os);
+      return data_grid;
     } else if (choice == "c") {
       // Delegate to the robust CreateGridMenu
-      return CreateGridMenu();
+      cse::DataGrid data_grid = CreateGridMenu(os, is);
+      os << "\nBelow is the grid you made: \n";
+      data_grid.Print(os);
+      return data_grid;
     } else {
       os << "Invalid option. Try again.\n" << std::endl;
     }
@@ -1184,9 +1194,9 @@ void FinalApplication::ResizeSubmenu(cse::DataGrid &grid,
  */
 void FinalApplication::MainMenu(std::ostream &os = std::cout,
                                 std::istream &is = std::cin) {
-  os << "Welcome to CSV Command Line Manipulator" << std::endl;
+  os << "\nWelcome to CSV Command Line Manipulator!" << std::endl;
   os << "This is a command line application that allows users to create, load, "
-        "manipulate, analyze and save CSV file data"
+        "manipulate, analyze and save CSV file data\n"
      << std::endl;
   os << "Developed by: Max Krawec, Calen Green, Pedro Mitkiewicz, "
         "Shahaab Ali, and Muhammad Asif Masood"
