@@ -1,6 +1,6 @@
 /**
  @file CompartmentUI
- @author Nitish Maindoliya
+ @author Nitish Maindoliya, Rahul Baragur
  **/
 import QtQuick
 import QtQuick.Shapes
@@ -19,8 +19,12 @@ Rectangle {
     id: compartmentUI
 
     /// Positioning
-    x: compartment.x || 0
-    y: compartment.y || 0
+    Component.onCompleted: {
+        if (compartment) {
+            x = compartment.x || 0
+            y = compartment.y || 0
+        }
+    }
 
     height: Constants.compartmentHeight
     width: Constants.compartmentWidth
@@ -49,6 +53,16 @@ Rectangle {
                 }
             } else {
                 simulation.sidebarCompartment = compartment;
+            }
+        }
+
+        onPositionChanged: {
+            if (compartment) {
+                // Only update the model when dragging to avoid redundant updates
+                if (drag.active) {
+                    compartment.x = compartmentUI.x
+                    compartment.y = compartmentUI.y
+                }
             }
         }
     }
@@ -89,15 +103,17 @@ Rectangle {
         return color;
     }
 
-    onXChanged: {
-        if (compartment) {
-            compartment.x = x
+    Connections {
+        target: compartment
+        function onXChanged() {
+            if (compartmentUI.x !== compartment.x) {
+                compartmentUI.x = compartment.x
+            }
         }
-    }
-
-    onYChanged: {
-        if (compartment) {
-            compartment.y = y
+        function onYChanged() {
+            if (compartmentUI.y !== compartment.y) {
+                compartmentUI.y = compartment.y
+            }
         }
     }
 }

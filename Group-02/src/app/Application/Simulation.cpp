@@ -390,8 +390,6 @@ void Simulation::set_target_compartment(Compartment* target) {
 }
 
 void Simulation::add_connection() {
-  qDebug() << "Add connction: ";
-
   if (!m_connection_mode || !m_source_compartment || !m_target_compartment) {
     set_source_compartment(nullptr);
     set_target_compartment(nullptr);
@@ -543,14 +541,14 @@ double Simulation::evaluate_expression(const QString& expression_string) {
   std::vector<std::string> variable_list;
   m_symbol_table.get_variable_list(variable_list);
 
-  qDebug() << "Symbol Table Variables:\n";
+//  qDebug() << "Symbol Table Variables:\n";
   for (const auto& name : variable_list) {
     const double value = m_symbol_table.get_variable(name)->value();
-    qDebug() << "  " << name << " = " << value << '\n';
+//    qDebug() << "  " << name << " = " << value << '\n';
   }
 
   if (parser_t parser; !parser.compile(expression_string.toStdString(), expression)) {
-    qDebug() << "Parser error: " << expression_string;
+//    qDebug() << "Parser error: " << expression_string;
     return 0;
   }
 
