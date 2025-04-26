@@ -1,3 +1,7 @@
+/**
+ @file CompartmentUI
+ @author Nitish Maindoliya
+ **/
 import QtQuick
 import QtQuick.Shapes
 import QtQuick.Layouts
@@ -6,11 +10,15 @@ import Application
 import Utilities
 import Components
 
+/**
+ * UI component for the compartment itself
+ */
 Rectangle {
     property Compartment compartment: null
 
     id: compartmentUI
 
+    /// Positioning
     x: compartment.x || 0
     y: compartment.y || 0
 
@@ -31,6 +39,7 @@ Rectangle {
         drag.target: parent
 
         onClicked: {
+            /// set source or target and perform action accordingly
             if (simulation.connectionMode) {
                 if (simulation.sourceCompartment) {
                     simulation.targetCompartment = compartment;
@@ -44,6 +53,7 @@ Rectangle {
         }
     }
 
+    /// Actual layout for text within compartment
     ColumnLayout {
         anchors.centerIn: parent
         width: parent.width
@@ -66,6 +76,9 @@ Rectangle {
         }
     }
 
+    /**
+     * Change the border color for a compartment based on target or source
+     */
     function compartmentBorderColor() {
         var color = ThemeManager.palette.text
         if (simulation.sourceCompartment && simulation.sourceCompartment === compartment) {

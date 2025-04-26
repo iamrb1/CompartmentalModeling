@@ -1,6 +1,6 @@
 /**
  * @file Simulation.h
- * @author Nitish Maindoliya Rahul Baragur
+ * @author Nitish Maindoliya, Rahul Baragur
  *
  *
  */

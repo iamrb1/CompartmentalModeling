@@ -25,7 +25,7 @@ if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
   # Set Wall, Wextra and Wpedantic flags for GCC/Clang and /W4 for MSVC
   if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-dev")
+    set(CMAKE_CXX_FLAGS "-Wall -Wextra")
     message("Adding ${CMAKE_CXX_FLAGS}")
   elseif (MSVC)
     add_compile_options(/bigobj)

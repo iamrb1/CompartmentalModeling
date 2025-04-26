@@ -1,3 +1,7 @@
+/**
+ @file ConnectionEditUI
+ @author Nitish Maindoliya, Rahul Baragur
+ **/
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
@@ -6,7 +10,9 @@ import Application
 import Utilities
 import Components
 
-// Connection section
+/**
+ * Sidebar interface will change to this UI when a connection is selected
+ */
 Rectangle {
     property Connection selectedConnection: simulation.sidebarConnection
 
@@ -17,11 +23,17 @@ Rectangle {
     Connections {
         target: simulation
 
+        /**
+         * Updates the UI combo boxes when the selected connection is changed
+         */
         function onCompartmentsChanged() {
             setConnectionComboboxes();
         }
     }
 
+    /**
+     * Updates source and target combo box for the selected connection for display on UI
+     */
     function setConnectionComboboxes() {
         if (!selectedConnection) {
             return
@@ -50,6 +62,7 @@ Rectangle {
     anchors.fill: parent
     color: ThemeManager.palette.base
 
+    /// Layout for the Connection Edit Interface with combo boxes
     ColumnLayout {
         anchors.left: parent.left
         anchors.right: parent.right
@@ -170,6 +183,7 @@ Rectangle {
             }
         }
 
+        /// Button to delete the connection calls remove_connection on click
         Button {
             Layout.fillWidth: true
             enabled: !simulation.isRunning

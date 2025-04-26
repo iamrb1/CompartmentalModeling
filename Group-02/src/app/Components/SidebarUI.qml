@@ -12,7 +12,7 @@ import Utilities
 import Components
 
 
-/*
+/**
  Layout for the SidebarUI qml
  Comprised of the Interface for Compartments + Connections
  and the Variable section displayed on the right side of the program

@@ -1,3 +1,7 @@
+/**
+ @file CompartmentEditUI
+ @author Nitish Maindoliya
+ **/
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
@@ -6,7 +10,9 @@ import Application
 import Utilities
 import Components
 
-// Connection section
+/**
+ * Actual layout for sidebar compartment properties UI
+ */
 Rectangle {
     property Compartment selectedCompartment: simulation.sidebarCompartment
 
@@ -14,6 +20,7 @@ Rectangle {
     anchors.fill: parent
     color: ThemeManager.palette.base
 
+    /// Layout within the sidebar interface area
     ColumnLayout {
         anchors.left: parent.left
         anchors.right: parent.right
@@ -39,6 +46,7 @@ Rectangle {
                 color: ThemeManager.palette.text
                 Layout.preferredWidth: 80
             }
+            /// Edit box for name
             Rectangle {
                 Layout.fillWidth: true
                 height: 30
@@ -72,6 +80,7 @@ Rectangle {
                 color: ThemeManager.palette.text
                 Layout.preferredWidth: 80
             }
+            /// Edit box for symbol
             Rectangle {
                 Layout.fillWidth: true
                 height: 30
@@ -106,6 +115,7 @@ Rectangle {
                 color: ThemeManager.palette.text
                 Layout.preferredWidth: 80
             }
+            /// Edit box for Initial Amount
             Rectangle {
                 Layout.fillWidth: true
                 height: 30
@@ -131,6 +141,7 @@ Rectangle {
             }
         }
 
+        /// Delete button for compartment, calls remove_compartment c++ function
         Button {
             Layout.fillWidth: true
             enabled: !simulation.isRunning

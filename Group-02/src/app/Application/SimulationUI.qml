@@ -1,3 +1,7 @@
+/**
+ @file SimulationUI
+ @author Nitish Maindoliya
+ **/
 import QtQuick
 import QtQuick.Controls.Basic
 import QtQuick.Layouts
@@ -10,6 +14,7 @@ import Utilities
 import Application
 import Components
 
+/// Main window for the entire application, contains every single other UI component and holds logic
 ApplicationWindow {
     Simulation {
         id: simulation
@@ -35,6 +40,8 @@ ApplicationWindow {
 
     palette: ThemeManager.palette
 
+    /// Menu bar for loading and saving xml, creating a new simulation, and exiting
+    /// Can change theme from light to dark
     menuBar: Rectangle {
         height: 50
         width: parent.width
@@ -119,6 +126,7 @@ ApplicationWindow {
                 Layout.fillWidth: true
             }
 
+            /// Layout on top right for steps, play, pause and reset buttons
             RowLayout {
                 Layout.fillWidth: false
 
@@ -220,12 +228,12 @@ ApplicationWindow {
         }
     }
 
-    // === Layout ===
+    /// Layout for the left sidebar
     RowLayout {
         anchors.fill: parent
         spacing: 0
 
-        // --- Toolbar ---
+        /// Left sidebar can add compartment, connection, or show the graph
         ToolBar {
             id: toolBar
             Layout.fillHeight: true
@@ -295,7 +303,7 @@ ApplicationWindow {
 
                         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
 
-                        // Timer to auto-close the popup
+                        /// Timer to auto-close the popup
                         Timer {
                             id: autoCloseTimer
                             interval: 2000 // 2 seconds
@@ -315,6 +323,7 @@ ApplicationWindow {
                     ToolTip.delay: 500
                     ToolTip.text: icon.name
                 }
+                /// Graph button to open graphwindowUI
                 ToolButton {
                     icon.name: "Show Graphs"
                     icon.source: "qrc:/resources/icons/graph.svg"
@@ -339,12 +348,13 @@ ApplicationWindow {
             }
         }
 
+        /// Holds the Canvas to add compartments
         SplitView {
             orientation: Qt.Horizontal
             Layout.fillHeight: true
             Layout.fillWidth: true
 
-            // --- Simulation UI ---
+            // Canvas
             CompartmentCanvasUI {
                 id: simulationCanvas
                 SplitView.fillWidth: true
@@ -352,7 +362,7 @@ ApplicationWindow {
                 SplitView.fillHeight: true
             }
 
-            // --- Sidebar ---
+            // Right sidebar
             SidebarUI {
                 id: sidebarUI
                 SplitView.fillHeight: true

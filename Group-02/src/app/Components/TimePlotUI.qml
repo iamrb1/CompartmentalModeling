@@ -11,15 +11,19 @@ import Application
 import Utilities
 import Components
 
+/**
+ * Layout for the Graph UI component which is stored within the GraphWindowUI
+ * Graphs the series data dynamically with each time step
+ */
 Item {
     Layout.fillHeight: true
     Layout.fillWidth: true
 
 
-    // Reference to all series
+    /// Reference to all series
     property var seriesData: ({})
 
-    // Properties
+    /// Properties of the series
     property var seriesProperties: ({})
 
     property int minY: 100000000;
@@ -30,6 +34,9 @@ Item {
         loadSeries();
     }
 
+    /**
+     * Load the series from the simulation
+     */
     function loadSeries() {
         seriesData = {}
         seriesProperties = {}
@@ -38,6 +45,11 @@ Item {
         });
     }
 
+    /**
+     * Take series data and add it to chart created
+     * @param id
+     * @param name
+     */
     function addSeriesToChart(id, name) {
         let series = chart.createSeries(ChartView.SeriesTypeLine, name, timeAxis, valueAxis);
 
@@ -53,8 +65,13 @@ Item {
     Connections {
         target: simulation
 
+        /**
+         * Iterate through series and append values to seriesData
+         * @param time
+         * @param series
+         */
         function onAddGraphingValues(time, series) {
-            // Update each series if visible
+            /// Update each series if visible
             for (let key in series) {
                 if (key in seriesData) {
                     let data = series[key]
@@ -82,6 +99,7 @@ Item {
         anchors.fill: parent
         spacing: 0
 
+        /// the chart itself with Time as the x axis and the values as the y axis
         ChartView {
             id: chart
             Layout.fillHeight: true
