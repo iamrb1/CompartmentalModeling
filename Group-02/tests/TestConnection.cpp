@@ -139,7 +139,7 @@ void TestConnection::test_add_connection() {
   Compartment* source = compartments[0];
   Compartment* target = compartments[1];
 
-  sim.set_connection_mode(source);
+  sim.set_source_compartment(source);
   sim.set_target_compartment(target);
   sim.add_connection();
 
@@ -165,7 +165,7 @@ void TestConnection::test_add_connection() {
   QCOMPARE(sim.get_connections().count(), initialConnCount + 1);
 
   ///Test can make a reverse connection
-  sim.set_connection_mode(target);
+  sim.set_source_compartment(target);
   sim.set_target_compartment(source);
   sim.add_connection();
   QCOMPARE(sim.get_connections().count(), initialConnCount + 2);
@@ -183,31 +183,31 @@ void TestConnection::test_update_connection() {
 
   Compartment* source = compartments[0];
   Compartment* target = compartments[1];
-  simulation.set_connection_mode(source);
+  simulation.set_source_compartment(source);
 
   QString connection_name = QString("Connection %1 %2").arg(source->get_symbol(), target->get_symbol());
-  Connection* connection = new Connection(connection_name, source, target, "0.1", &simulation);
+  Connection connection = Connection(connection_name, source, target, "0.1", &simulation);
 
   //test properties of the connection
-  QCOMPARE(connection->get_source(), source);
-  QCOMPARE(connection->get_target(), target);
-  QCOMPARE(connection->get_rate_expression(), QString("0.1"));
+  QCOMPARE(connection.get_source(), source);
+  QCOMPARE(connection.get_target(), target);
+  QCOMPARE(connection.get_rate_expression(), QString("0.1"));
 
   //symbol updates
   simulation.set_target_compartment(target);
   simulation.add_connection();
-  QString new_connection_name = connection->get_name();
+  QString new_connection_name = connection.get_name();
   QCOMPARE(new_connection_name, "Connection F1 E1");
 
   source->set_symbol("G4");
   target->set_symbol("D9");
   QString news_name = QString("Connection %1 %2").arg(source->get_symbol(), target->get_symbol());
-  connection->set_name(news_name);
-  QString connection_name_G4 = connection->get_name();
+  connection.set_name(news_name);
+  QString connection_name_G4 = connection.get_name();
   QCOMPARE(connection_name_G4, "Connection G4 D9");
 
   //add new target after set rate expression
-  connection->set_rate_expression("2.3");
+  connection.set_rate_expression("2.3");
   simulation.add_compartment();
   compartments = simulation.get_compartments();
   Compartment* new_target = compartments[2];
@@ -216,10 +216,10 @@ void TestConnection::test_update_connection() {
 
   target->set_symbol("D2");
   QString another_name = QString("Connection %1 %2").arg(source->get_symbol(), target->get_symbol());
-  connection->set_name(another_name);
-  QString connection_name_D2 = connection->get_name();
+  connection.set_name(another_name);
+  QString connection_name_D2 = connection.get_name();
   QCOMPARE(connection_name_D2, "Connection G4 D2");
-  QCOMPARE(connection->get_rate_expression(), "2.3");
+  QCOMPARE(connection.get_rate_expression(), "2.3");
 
   simulation.set_target_compartment(source);
   simulation.add_connection();
@@ -227,10 +227,10 @@ void TestConnection::test_update_connection() {
   target->set_symbol("G3");
   simulation.set_source_compartment(target);
   QString name3 = QString("Connection %1 %2").arg(source->get_symbol(), target->get_symbol());
-  connection->set_name(name3);
-  QString new_connection_name_D2 = connection->get_name();
+  connection.set_name(name3);
+  QString new_connection_name_D2 = connection.get_name();
   QCOMPARE(new_connection_name_D2, "Connection G4 G3");
-  QCOMPARE(connection->get_rate_expression(), "2.3");
+  QCOMPARE(connection.get_rate_expression(), "2.3");
 }
 
 #include "TestConnection.moc"

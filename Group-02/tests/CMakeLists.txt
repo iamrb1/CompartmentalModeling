@@ -12,15 +12,8 @@ set(
     TestSimulation.h
 )
 
-set(CSEG2_LIB_PATH "${CMAKE_BINARY_DIR}/src/app/libcseg2Lib.a")
-set(CSEG2_PLUGIN_PATH "${CMAKE_BINARY_DIR}/src/app/libcseg2Libplugin.a")
-
 qt_policy(SET QTP0001 NEW)
 qt_add_executable(tests ${TEST_FILES})
-qt_add_resources(
-    SOURCE_FILES
-   # ${PROJECT_SOURCE_DIR}/src/app/resources.qrc
-)
 qt_add_qml_module(tests
     URI tests
     SOURCES ${SOURCE_FILES}
