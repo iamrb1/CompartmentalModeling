@@ -29,6 +29,18 @@ double RunOneOutputTest(std::ifstream& inputFile, std::string& line, std::ostrin
   return totalValueFromApp;
 }
 
+std::istringstream GetText(std::ifstream& inputFile, std::ostringstream& capturedOutput) {
+  if (inputFile.is_open()) {
+    application(inputFile);
+  } else {
+    std::cout << "FILE NOT FOUND" << std::endl;
+  }
+  std::string output = capturedOutput.str();
+  std::istringstream stream(output);
+
+  return stream;
+}
+
 
 
 TEST_CASE("Basic", "[FinalApp]") {
@@ -256,4 +268,42 @@ TEST_CASE("Compare has the same values for both optimized and unoptimized, as we
   for (auto path : filePaths) {
     TestCompare(path);
   }
+}
+
+TEST_CASE("Check user input for a bad file / non-existent", "[FinalApp][BadFile]") {
+  std::string fileRead = "BadFileScripts/BadName.txt";
+  std::string line;
+  std::ifstream input(fileRead);
+  std::ostringstream capturedOutput;
+
+  // Redirect std::cout
+  auto* originalBuf = std::cout.rdbuf();
+  std::cout.rdbuf(capturedOutput.rdbuf());
+  
+  auto outputStream = GetText(input, capturedOutput);
+  std::cout.rdbuf(originalBuf);
+
+  // Since we have multiple commands in BadName.txt, we're gonna check the output for multiple liens
+  // this first one is the DNE.txt - should be invalid path error
+  std::string wrongFileName = "DNE.txt";
+  bool foundRequiredLine = false;
+  while (std::getline(outputStream, line)) {
+    if (line.find("** \""+wrongFileName+"\" is not a valid file path") != std::string::npos) {
+      foundRequiredLine = true;
+    }
+  }
+
+  REQUIRE(foundRequiredLine == true);
+
+  outputStream.clear();
+  outputStream.seekg(std::ios::beg);
+  
+  // next test is bad file name - this corresponds to the second command in BadName.txt
+  foundRequiredLine = false;
+  while (std::getline(outputStream, line)) {
+    if (line.find("**The file must be of a valid type (.txt or .csv)") != std::string::npos) {
+      foundRequiredLine = true;
+    }
+  }
+  REQUIRE(foundRequiredLine == true);
 }
