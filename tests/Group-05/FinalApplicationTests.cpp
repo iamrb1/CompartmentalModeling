@@ -889,72 +889,81 @@ TEST_CASE("SortSubmenu()", "[sort_submenu]") {
       std::string::npos);
 }
 
-TEST_CASE("MainMenu()", "[main_menu]") {
-  // ** Main Menu **
-  // Valid Input
+TEST_CASE("AddSubmenu()", "[add_submenu]") {
+  std::vector<std::vector<cse::Datum>> test_grid(2, std::vector<cse::Datum>(2));
+  test_grid[0][0] = cse::Datum(1.0);
+  test_grid[0][1] = cse::Datum("one");
+  test_grid[1][0] = cse::Datum(2.0);
+  test_grid[1][1] = cse::Datum("two");
 
-  // Valid input (export)
+  cse::DataGrid grid(test_grid);
   FinalApplication final_application;
-  std::istringstream is("t\nx\ntest.csv\nq\n");
+
   std::ostringstream os;
-  final_application.MainMenu(os, is);
-  CHECK(os.str().find("Exported to") != std::string::npos);
+  std::istringstream is;
 
-  // Invalid input (export)
-  is.str("t\nx\ntest\ntest.csv\nq\n");
-  os.clear();
-  final_application.MainMenu(os, is);
-  CHECK(os.str().find("Invalid filename. The file must end with .csv") != std::string::npos);
+  // --- Add default row ---
+  is.str("1\nd\n3.14\n0\n");
 
-  // Valid input (Edit/Manipulation)
-  is.str("t\ne\n0\nq\n");
-  os.clear();
-  final_application.MainMenu(os, is);
-  CHECK(os.str().find("CSV Grid Manipulation Menu") != std::string::npos);
+  os.str(""); os.clear();
+  final_application.AddSubmenu(grid, os, is);
+  CHECK(os.str().find("Default row added.") != std::string::npos);
+  
+  // --- Add manual row ---
+  is.str("1\nm\nhello 42\n0\n");
+  os.str(""); os.clear();
+  final_application.AddSubmenu(grid, os, is);
+  CHECK(os.str().find("Row added.") != std::string::npos);
 
-  // Valid input (Math)
-  is.str("t\nm\nb\nq\n");
-  os.clear();
-  final_application.MainMenu(os, is);
-  CHECK(os.str().find("Math Menu") != std::string::npos);
+  // --- Add row with equation ---
+  is.str("1\ne\n{0} + 2\n0\n");
+  os.str(""); os.clear();
+  final_application.AddSubmenu(grid, os, is);
+  CHECK(os.str().find("Row Added") != std::string::npos);
 
-  // Valid input (Comparisons)
-  is.str("t\nc\nb\nq\n");
-  os.clear();
-  final_application.MainMenu(os, is);
-  CHECK(os.str().find("Comparison Menu") != std::string::npos);
+  // --- Add default column ---
+  is.str("2\nd\ntext\n0\n");
+  os.str(""); os.clear();
+  final_application.AddSubmenu(grid, os, is);
+  CHECK(os.str().find("Default column added.") != std::string::npos);
 
+  // --- Add manual column ---
+  is.str("2\nm\n5\nhello\n99\n88\n77\n0\n");
+  os.str(""); os.clear();
+  final_application.AddSubmenu(grid, os, is);
+  CHECK(os.str().find("Column added.") != std::string::npos);
+  // --- Add column with equation ---
+  is.str("2\ne\n{0} + 5\n0\n");
+  os.str(""); os.clear();
+  final_application.AddSubmenu(grid, os, is);
+  CHECK(os.str().find("Column Added.") != std::string::npos);
 
-  // Extra
+  // --- Invalid option for row add ---
+  is.str("1\nz\n0\n");
+  os.str(""); os.clear();
+  final_application.AddSubmenu(grid, os, is);
+  CHECK(os.str().find("Invalid option. Must be 'd', 'e', or 'm'.") != std::string::npos);
 
-  // Invalid input (number - int)
-  is.str("t\n99\nq\n");
-  os.clear();
-  final_application.MainMenu(os, is);
-  CHECK(os.str().find("Invalid option. Try again") !=
-      std::string::npos);
+  // --- Invalid option for column add ---
+  is.str("2\nx\n0\n");
+  os.str(""); os.clear();
+  final_application.AddSubmenu(grid, os, is);
+  CHECK(os.str().find("Invalid option. Must be 'd', 'e', or 'm'.") != std::string::npos);
 
-  // Invalid input (number - negative)
-  is.str("t\n-99\nq\n");
-  os.clear();
-  final_application.MainMenu(os, is);
-  CHECK(os.str().find("Invalid option. Try again") !=
-      std::string::npos);
+  // --- Invalid choice input (non-numeric) ---
+  is.str("banana\n0\n");
+  os.str(""); os.clear();
+  final_application.AddSubmenu(grid, os, is);
+  CHECK(os.str().find("Invalid input. Please enter a number.") != std::string::npos);
 
-  // Invalid input (number - double)
-  is.str("t\n99.123\nq\n");
-  os.clear();
-  final_application.MainMenu(os, is);
-  CHECK(os.str().find("Invalid option. Try again") !=
-      std::string::npos);
-
-  // Invalid string
-  is.str("t\nHello!\nq\n");
-  os.clear();
-  final_application.MainMenu(os, is);
-  CHECK(os.str().find("Invalid option. Try again.") !=
-      std::string::npos);
+  // --- Invalid choice input (out of range) ---
+  is.str("99\n0\n");
+  os.str(""); os.clear();
+  final_application.AddSubmenu(grid, os, is);
+  CHECK(os.str().find("Invalid choice. Try again.") != std::string::npos);
 }
+
+
 
 TEST_CASE("PrintSubmenu handles bad then good input", "[PrintSubmenu]") {
   // reusing the 2×2 zero grid

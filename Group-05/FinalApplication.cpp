@@ -927,7 +927,12 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid,
     os << "3. Merge another grid" << std::endl;
     os << "0. Return to previous menu" << std::endl;
     os << "Enter your choice: ";
-    is >> choice;
+    if (!(is >> choice)) {
+      os << "Invalid input. Please enter a number." << std::endl;
+      is.clear(); // Clear the error flags
+      is.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Discard bad input
+      continue; // Restart the loop
+    }
 
     try {
       switch (choice) {
@@ -1030,10 +1035,12 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid,
                                                       : cse::Datum(val));
             }
             grid.InsertColumn(new_column);
+
             os << "Column added." << std::endl;
 
             os << "\nBelow is the new grid: \n";
             grid.Print(os);
+
             // Add a custom column by an equation
           } else if (method == "e") {
             std::vector<cse::Datum> new_col;
