@@ -57,6 +57,15 @@ auto SerializerHTML() {
       },
       str_to_underlying<CharT, Underlying>("</a>"));
 
+  out.AddRule(
+      "image",
+      [](const TextFormat& f) -> Underlying {
+        cse_assert(std::holds_alternative<std::string>(f.metadata));
+        return str_to_underlying<CharT, Underlying>(std::format(
+            "<img src=\"{}\" alt=\"", std::get<std::string>(f.metadata)));
+      },
+      str_to_underlying<CharT, Underlying>("\"></img>"));
+
   return out;
 }
 };  // namespace cse
