@@ -24,7 +24,7 @@ class PresentationManager {
 	private:
 		PresentationEventManager _event_manager;
 		bool _running = false;
-		int _current_pos = 0;
+		int _current_pos = 0; ///< Current position in slide deck
 		std::vector<Slide> _slide_deck;
 
 	public:
@@ -110,23 +110,6 @@ class PresentationManager {
 			deck["slides"].erase(deck["slides"].begin() + slide_num);
 			loadSlideDeckFromJson(deck.dump(2).c_str(), this);
 			goTo(new_pos);
-
-			/*
-			slide->deactivateLayout();
-
-			// Find index of slide
-			const auto it = std::ranges::find(_slide_deck, slide);
-			std::cout << "POSITION: " << it - _slide_deck.begin() << std::endl;
-
-			std::erase(_slide_deck, slide);
-			std::cout << "Deleted slide. ID: " << slide->getID() << std::endl;
-
-			if(_current_pos != 0) {
-				_current_pos--;
-			}
-			_event_manager.onSlideChanged(_current_pos);
-			onSlideChangedJS();
-			*/
 		}
 
 		/**
@@ -241,7 +224,11 @@ class PresentationManager {
 			onSlideChangedJS();
 		}
 
-        void toggleEndScreen(bool visible) {
+		/**
+		 * Show the end of presentation slide
+		 * @param visible
+		 */
+		void toggleEndScreen(bool visible) {
 
           std::string visibility = "hidden";
 
@@ -399,8 +386,13 @@ class PresentationManager {
 			slide->toggleTextBox(textBoxLayout);
 		}
 
-
-        void updateImageSize(const std::string& id, int newWidth, int newHeight) {
+		/**
+		 * Update the size of an image
+		 * @param id
+		 * @param newWidth
+		 * @param newHeight
+		 */
+		void updateImageSize(const std::string& id, int newWidth, int newHeight) {
 		  if (_slide_deck.empty() || _current_pos >= _slide_deck.size()) return;
 		  auto& layout = _slide_deck.at(_current_pos);
 
@@ -412,7 +404,11 @@ class PresentationManager {
 		  }
 		}
 
-        void toggleBottomNav(bool hidden) {
+		/**
+		 * Toggle the bottom nav bar (hidden in presentation mode)
+		 * @param hidden
+		 */
+		void toggleBottomNav(bool hidden) {
             // Hide bottom edit bar
             EM_ASM({
                 var bottomNav = document.getElementById("bottom-nav");
@@ -452,9 +448,17 @@ class PresentationManager {
 			return _event_manager.getSlideEventInfo(slideNum);
 		}
 
-        bool isRunning() const { return _running; }
+		/**
+		 * Getter for running
+		 * @return True if running, false otherwise
+		 */
+		bool isRunning() const { return _running; }
 
-        void moveSlide(bool const forward) {
+		/**
+		 * Change the position of a slide in the deck
+		 * @param forward
+		 */
+		void moveSlide(bool const forward) {
 
           // Check if any slides exist
           if(getNumSlides() == 0) {
@@ -516,7 +520,6 @@ class PresentationManager {
 		/// JSON
 		////////////////////
 		static void loadSlideDeckFromJson(const char *jsonStr, PresentationManager *presentation_manager) {
-
 			json deck = json::parse(jsonStr);
 			presentation_manager->clear(); // Clear the deck before loading new slides
 			presentation_manager->initialize(deck["slides"].size()); // Initialize
@@ -629,7 +632,6 @@ class PresentationManager {
 };
 
 PresentationManager PRESENTATION_MANAGER; ///< Global presentation manager
-
 
 ////////////////////////////////////////////////////////////////////////////////////////
 /// Exported Emscripten functions
