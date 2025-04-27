@@ -654,10 +654,11 @@ void FinalApplication::ManipulateGridMenu(cse::DataGrid &grid,
  * @param is istream used for input and testing
  */
 void FinalApplication::PrintSubmenu(const cse::DataGrid &grid,
-                                    std::ostream &os = std::cout,
-                                    std::istream &is = std::cin) {
-  int choice = 0;
-  do {
+                                    std::ostream &os,
+                                    std::istream &is) {
+
+  const auto [maxRows, maxCols] = grid.Shape();
+  while (true) {
     os << "\n--- Print Options ---" << std::endl;
     os << "1. Print a cell value" << std::endl;
     os << "2. Print a row" << std::endl;
@@ -665,75 +666,101 @@ void FinalApplication::PrintSubmenu(const cse::DataGrid &grid,
     os << "4. Print entire grid" << std::endl;
     os << "0. Return to previous menu" << std::endl;
     os << "Enter your choice: ";
-    is >> choice;
+    
+    std::string raw;
+    if (!(is >> raw)) return;               // no more inputs for this
+    auto mi = IsValidInt(raw);
+    if (!mi) {
+      os << "Invalid choice. Try again." << std::endl;
+      continue;
+    }
+    int choice = *mi;
 
-    try {
       switch (choice) {
         // Print a cell value
         case 1: {
-          std::size_t row = 0, col = 0;
           os << "Enter row index: ";
-          is >> row;
+          std::string rraw;
+          if (!(is >> rraw)) return;
+          auto ri = IsValidInt(rraw);
+          if (!ri || *ri < 0 || static_cast<std::size_t>(*ri) >= maxRows) {
+            os << "Invalid choice. Try again." << std::endl;
+            continue;
+          }
+          std::size_t row = static_cast<std::size_t>(*ri);
+
           os << "Enter column index: ";
-          is >> col;
+          std::string craw;
+          if (!(is >> craw)) return;
+          auto ci = IsValidInt(craw);
+          if (!ci || *ci < 0 || static_cast<std::size_t>(*ci) >= maxCols) {
+            os << "Invalid choice. Try again." << std::endl;
+            continue;
+          }
+          std::size_t col = static_cast<std::size_t>(*ci);
+
           const cse::Datum &value = grid.GetValue(row, col);
           if (value.IsDouble()) {
-            os << "\nCell (" << row << ", " << col << "): " << value.GetDouble()
-               << std::endl;
-          } else if (value.IsString()) {
-            os << "\nCell (" << row << ", " << col << "): " << value.GetString()
-               << std::endl;
+            os << "Cell (" << row << ", " << col << "): "
+              << value.GetDouble() << std::endl;
+          } else {
+            os << "Cell (" << row << ", " << col << "): "
+              << value.GetString() << std::endl;
           }
           break;
         }
         // Print a row
         case 2: {
-          std::size_t row = 0;
           os << "Enter row index: ";
-          is >> row;
+          std::string rraw;
+          if (!(is >> rraw)) return;
+          auto ri = IsValidInt(rraw);
+          if (!ri || *ri < 0 || static_cast<std::size_t>(*ri) >= maxRows) {
+            os << "Invalid choice. Try again." << std::endl;
+            continue;
+          }
+          std::size_t row = static_cast<std::size_t>(*ri);
+
           auto row_data = grid.GetRow(row);
-          os << "\nRow " << row << ": ";
-          for (const auto &datum : row_data) {
-            if (datum.IsDouble()) {
-              os << datum.GetDouble() << " ";
-            } else if (datum.IsString()) {
-              os << datum.GetString() << " ";
-            }
+          os << "Row " << row << ": ";
+          for (const auto &d : row_data) {
+            if (d.IsDouble()) os << d.GetDouble() << " ";
+            else               os << d.GetString() << " ";
           }
           os << std::endl;
           break;
         }
         // Print a column
         case 3: {
-          std::size_t col = 0;
           os << "Enter column index: ";
-          is >> col;
+          std::string craw;
+          if (!(is >> craw)) return;
+          auto ci = IsValidInt(craw);
+          if (!ci || *ci < 0 || static_cast<std::size_t>(*ci) >= maxCols) {
+            os << "Invalid choice. Try again." << std::endl;
+            continue;
+          }
+          std::size_t col = static_cast<std::size_t>(*ci);
+
           auto col_data = grid.GetColumn(col);
-          os << "\nColumn " << col << ": ";
-          for (const auto &datum : col_data) {
-            if (datum.IsDouble()) {
-              os << datum.GetDouble() << " ";
-            } else if (datum.IsString()) {
-              os << datum.GetString() << " ";
-            }
+          os << "Column " << col << ": ";
+          for (const auto &d : col_data) {
+            if (d.IsDouble()) os << d.GetDouble() << " ";
+            else               os << d.GetString() << " ";
           }
           os << std::endl;
           break;
         }
         // Print the entire DataGrid
         case 4:
-          os << "\n" << std::endl;
           grid.Print(os);
           break;
-        case 0:
-          break;
-        default:
-          os << "Invalid choice. Try again." << std::endl;
-      }
-    } catch (const std::exception &e) {
-      std::cerr << "Error: " << e.what() << std::endl;
+      case 0:
+        return;
+      default:
+        os << "Invalid choice. Try again." << std::endl;
     }
-  } while (choice != 0);
+  }
 }
 
 /**
@@ -744,93 +771,121 @@ void FinalApplication::PrintSubmenu(const cse::DataGrid &grid,
  * @param is istream used for input and testing
  */
 void FinalApplication::EditSubmenu(cse::DataGrid &grid,
-                                   std::ostream &os = std::cout,
-                                   std::istream &is = std::cin) {
-  int choice = 0;
-  do {
+                                   std::ostream &os,
+                                   std::istream &is) {
+  const auto [maxRows, maxCols] = grid.Shape();
+  while (true) {
     os << "\n--- Edit Options ---" << std::endl;
     os << "1. Edit a cell value" << std::endl;
     os << "2. Edit an entire row's values" << std::endl;
     os << "3. Edit an entire column's values" << std::endl;
     os << "0. Return to previous menu" << std::endl;
     os << "Enter your choice: ";
-    is >> choice;
 
-    try {
+    // read and validate menu choice
+    std::string rawChoice;
+    if (!(is >> rawChoice)) return;
+    auto mi = IsValidInt(rawChoice);
+    if (!mi || *mi < 0) {
+      os << "Invalid choice. Try again." << std::endl;
+      continue;
+    }
+    int choice = *mi;
+
       switch (choice) {
         // Edit a cell value
         case 1: {
-          std::size_t row = 0, col = 0;
           os << "Enter row index: ";
-          is >> row;
-          os << "Enter column index: ";
-          is >> col;
-          os << "Enter new value (number): ";
-          std::string val_str;
-          is >> val_str;
-
-          //read into string + IsValidDouble() instead of streaming directly to double 
-          // so that bad inputs (e.g “foo”) don’t put cin into a failed state or loop forever
-
-          double new_val = 0;
-          if (auto d = IsValidDouble(val_str)) {
-            new_val = d.value();
+          std::string rraw;
+          if (!(is >> rraw)) return;
+          auto ri = IsValidInt(rraw);
+          if (!ri || *ri < 0 || static_cast<std::size_t>(*ri) >= maxRows) {
+            os << "Invalid choice. Try again." << std::endl;
+            continue;
           }
-          grid.At(row, col) = cse::Datum(new_val);
-          os << "\nCell updated." << std::endl;
+          std::size_t row = *ri;
 
-          os << "\nThe new grid is:" << std::endl;
-          grid.Print(os);
-          os << "\n";
+          // column index
+          os << "Enter column index: ";
+          std::string craw;
+          if (!(is >> craw)) return;
+          auto ci = IsValidInt(craw);
+          if (!ci || *ci < 0 || static_cast<std::size_t>(*ci) >= maxCols) {
+            os << "Invalid choice. Try again." << std::endl;
+            continue;
+          }
+          std::size_t col = *ci;
+
+          // new value (string or double)
+          os << "Enter new value: ";
+          std::string valstr;
+          if (!(is >> valstr)) return;
+          if (auto d = IsValidDouble(valstr)) {
+            grid.At(row, col) = cse::Datum(d.value());
+          } else {
+            grid.At(row, col) = cse::Datum(valstr);
+          }
+          os << "Cell updated." << std::endl;
           break;
         }
         // Edits an entire row's value
         case 2: {
-          std::size_t row = 0;
           os << "Enter row index to update: ";
-          is >> row;
-          auto &row_data = grid.GetRow(row);
-          os << "Enter " << row_data.size() << " new values (numbers): ";
-          for (auto &datum : row_data) {
-            double val = 0;
-            is >> val;
-            datum = cse::Datum(val);
+          std::string rraw;
+          if (!(is >> rraw)) return;
+          auto ri = IsValidInt(rraw);
+          if (!ri || *ri < 0 || static_cast<std::size_t>(*ri) >= maxRows) {
+            os << "Invalid choice. Try again." << std::endl;
+            continue;
+          }
+          std::size_t row = *ri;
+
+          auto &rowData = grid.GetRow(row);
+          os << "Enter " << rowData.size() << " new values: ";
+          for (std::size_t i = 0; i < rowData.size(); ++i) {
+            std::string v;
+            if (!(is >> v)) return;
+            if (auto d = IsValidDouble(v)) {
+              rowData[i] = cse::Datum(d.value());
+            } else {
+              rowData[i] = cse::Datum(v);
+            }
           }
           os << "Row updated." << std::endl;
-
-          os << "\nThe new grid is:" << std::endl;
-          grid.Print(os);
-          os << "\n";
           break;
         }
           // Edits an entire column's value
         case 3: {
-          std::size_t col = 0;
           os << "Enter column index to update: ";
-          is >> col;
-          std::size_t num_rows = std::get<0>(grid.Shape());
-          os << "Enter " << num_rows << " new values (numbers): ";
-          for (std::size_t i = 0; i < num_rows; ++i) {
-            double val = 0;
-            is >> val;
-            grid.At(i, col) = cse::Datum(val);
+          std::string craw;
+          if (!(is >> craw)) return;
+          auto ci = IsValidInt(craw);
+          if (!ci || *ci < 0 || static_cast<std::size_t>(*ci) >= maxCols) {
+            os << "Invalid choice. Try again." << std::endl;
+            continue;
+          }
+          std::size_t col = *ci;
+
+          std::size_t nrows = maxRows;
+          os << "Enter " << nrows << " new values: ";
+          for (std::size_t i = 0; i < nrows; ++i) {
+            std::string v;
+            if (!(is >> v)) return;
+            if (auto d = IsValidDouble(v)) {
+              grid.At(i, col) = cse::Datum(d.value());
+            } else {
+              grid.At(i, col) = cse::Datum(v);
+            }
           }
           os << "Column updated." << std::endl;
-
-          os << "\nThe new grid is:" << std::endl;
-          grid.Print(os);
-          os << "\n";
           break;
         }
         case 0:
-          break;
+          return;
         default:
           os << "Invalid choice. Try again." << std::endl;
       }
-    } catch (const std::exception &e) {
-      std::cerr << "Error: " << e.what() << std::endl;
-    }
-  } while (choice != 0);
+  }  
 }
 
 /**
