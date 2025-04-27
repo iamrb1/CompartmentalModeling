@@ -1,6 +1,6 @@
 /**
  @file TimePlotUI
- @author Rahul Baragur, Dominik Leisinger
+ @author Nitish Maindoliya, Rahul Baragur, Dominik Leisinger
  **/
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -11,6 +11,7 @@ import Application
 import Utilities
 import Components
 
+
 /**
  * Layout for the Graph UI component which is stored within the GraphWindowUI
  * Graphs the series data dynamically with each time step
@@ -19,31 +20,33 @@ Item {
     Layout.fillHeight: true
     Layout.fillWidth: true
 
-
     /// Reference to all series
     property var seriesData: ({})
 
-    /// Properties of the series
-    property var seriesProperties: ({})
-
-    property int minY: 100000000;
-    property int maxY: -100000000;
-
+    property int minY: 100000000
+    property int maxY: -100000000
 
     Component.onCompleted: {
-        loadSeries();
+        loadSeries()
     }
+
 
     /**
      * Load the series from the simulation
      */
     function loadSeries() {
+        // Clear previous series data
+        chart.removeAllSeries()
         seriesData = {}
-        seriesProperties = {}
-        simulation.compartments.forEach((compartment) => {
-            addSeriesToChart(compartment.symbol, compartment.name)
-        });
+        simulation.compartments.forEach(compartment => {
+            addSeriesToChart(
+                compartment.symbol,
+                compartment.name)
+        })
+        legendRepeater.model = Object.keys(seriesData)
+        console.log("Series Properties: ", legendRepeater.model)
     }
+
 
     /**
      * Take series data and add it to chart created
@@ -51,19 +54,19 @@ Item {
      * @param name
      */
     function addSeriesToChart(id, name) {
-        let series = chart.createSeries(ChartView.SeriesTypeLine, name, timeAxis, valueAxis);
+        let series = chart.createSeries(ChartView.SeriesTypeLine, name,
+            timeAxis, valueAxis)
 
-        seriesData[id] = series
-
-        seriesProperties[id] = {
-            name: name,
-            color: series.color,
-            visibility: true,
+        seriesData[id] = {
+            "series": series,
+            "name": name,
+            "color": series.color
         }
     }
 
     Connections {
         target: simulation
+
 
         /**
          * Iterate through series and append values to seriesData
@@ -75,24 +78,24 @@ Item {
             for (let key in series) {
                 if (key in seriesData) {
                     let data = series[key]
-                    seriesData[key].append(time, data)
+                    seriesData[key].series.append(time, data)
 
                     if (data > maxY) {
-                        maxY = data + 10;
+                        maxY = data + 10
                     } else if (data < minY) {
-                        minY = data - 10;
+                        minY = data - 10
                     }
                 }
             }
 
             // Update axes
-            timeAxis.max = time;
+            timeAxis.max = time
             // timeAxis.min = time - 60;
         }
 
-        // function onCompartmentsUpdated() {
-        //     loadSeries();
-        // }
+        function onCompartmentsChanged() {
+            loadSeries()
+        }
     }
 
     ColumnLayout {
@@ -105,8 +108,6 @@ Item {
             Layout.fillHeight: true
             Layout.fillWidth: true
             antialiasing: true
-            legend.visible: true
-            legend.alignment: Qt.AlignBottom
 
             title: "Data"
 
@@ -124,72 +125,68 @@ Item {
             }
         }
 
-        // Rectangle {
-        //     Layout.fillWidth: true
-        //     Layout.preferredHeight: 80
-        //     Layout.minimumHeight: 70
-        //     color: ThemeManager.palette.base
-        //     border.width: 1
-        //     border.color: ThemeManager.palette.mid
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 80
+            Layout.minimumHeight: 70
+            color: ThemeManager.palette.base
+            border.width: 1
+            border.color: ThemeManager.palette.mid
 
-        //     Text {
-        //         anchors.top: parent.top
-        //         anchors.left: parent.left
-        //         anchors.margins: 5
-        //         text: "Legend"
-        //         color: "black"
-        //         font.pixelSize: 10
-        //     }
+            ColumnLayout {
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.margins: 5
 
-        //     RowLayout {
-        //         spacing: 15
-        //         clip: true
+                Text {
+                    Layout.alignment: Qt.AlignLeft
+                    text: "Legend"
+                    color: "black"
+                    font.pixelSize: 10
+                }
 
-        //         Repeater {
-        //             Layout.fillWidth: true
-        //             model: Object.keys(seriesProperties)
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 15
+                    clip: true
 
-        //             Component.onCompleted: {
-        //                 console.log("Model: ", model)
-        //                 console.log("Augh: ", Object.keys(seriesProperties))
-        //             }
+                    Repeater {
+                        id: legendRepeater
+                        Layout.fillWidth: true
+                        model: Object.keys(seriesData)
 
-        //             Row {
-        //                 spacing: 5
-        //                 height : parent ? parent.height - 5 : 30
+                        Row {
+                            spacing: 5
+                            height: parent ? parent.height - 5 : 30
 
-        //                 property string seriesId: modelData
-        //                 property let seriesData: seriesProperties[seriesId]
+                            property string seriesId: modelData
 
-        //                 Component.onCompleted: {
-        //                     console.log(seriesId, seriesData)
-        //                 }
+                            CheckBox {
+                                id: visibilityToggle
+                                anchors.verticalCenter: parent.verticalCenter
+                                checked: seriesData[seriesId].series.visible
+                                onToggled: {
+                                    seriesData[seriesId].series.visible = checked
+                                }
+                            }
 
-        //                 CheckBox {
-        //                     id: visibilityToggle
-        //                     anchors.verticalCenter: parent.verticalCenter
-        //                     checked: seriesData.visibility
-        //                     onToggled: {
-        //                         seriesProperties[seriesId].visibility = checked
-        //                     }
-        //                 }
+                            Rectangle {
+                                width: 15
+                                height: 15
+                                color: seriesData[seriesId].color
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
 
-        //                 Rectangle {
-        //                     width: 15
-        //                     height: 15
-        //                     color: seriesData.color
-        //                     anchors.verticalCenter: parent.verticalCenter
-        //                 }
-
-        //                 Text {
-        //                     text: seriesData.name
-        //                     anchors.verticalCenter: parent.verticalCenter
-        //                     color: seriesVisible ? "black" : "gray"
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
-
+                            Text {
+                                text: seriesData[seriesId].name
+                                anchors.verticalCenter: parent.verticalCenter
+                                color: seriesData[seriesId].visibility ? "black" : "gray"
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

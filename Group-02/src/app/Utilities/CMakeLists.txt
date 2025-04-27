@@ -9,7 +9,7 @@ set(
     LightTheme.qml
     DarkTheme.qml
     Constants.qml
-    ErrorModule.qml
+    MessageModule.qml
 )
 
 set_source_files_properties(

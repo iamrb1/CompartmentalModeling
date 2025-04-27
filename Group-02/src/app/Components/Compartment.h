@@ -1,8 +1,6 @@
 /**
  * @file Compartment.h
  * @author Nitish Maindoliya
- *
- *
  */
 
 #ifndef COMPARTMENT_H

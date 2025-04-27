@@ -10,6 +10,7 @@ import Application
 import Utilities
 import Components
 
+
 /**
  * Sidebar interface will change to this UI when a connection is selected
  */
@@ -17,19 +18,21 @@ Rectangle {
     property Connection selectedConnection: simulation.sidebarConnection
 
     onSelectedConnectionChanged: {
-        setConnectionComboboxes();
+        setConnectionComboboxes()
     }
 
     Connections {
         target: simulation
 
+
         /**
          * Updates the UI combo boxes when the selected connection is changed
          */
         function onCompartmentsChanged() {
-            setConnectionComboboxes();
+            setConnectionComboboxes()
         }
     }
+
 
     /**
      * Updates source and target combo box for the selected connection for display on UI
@@ -39,23 +42,23 @@ Rectangle {
             return
         }
 
-        sourceComboBox.isInternal = true;
-        for (let i = 0; i < simulation.compartments.length; i++) {
+        sourceComboBox.isInternal = true
+        for (var i = 0; i < simulation.compartments.length; i++) {
             if (simulation.compartments[i].symbol === selectedConnection.source.symbol) {
                 sourceComboBox.currentIndex = i
                 break
             }
         }
-        sourceComboBox.isInternal = false;
+        sourceComboBox.isInternal = false
 
-        targetComboBox.isInternal = true;
-        for (let j = 0; j < simulation.compartments.length; j++) {
+        targetComboBox.isInternal = true
+        for (var j = 0; j < simulation.compartments.length; j++) {
             if (simulation.compartments[j].symbol === selectedConnection.target.symbol) {
                 targetComboBox.currentIndex = j
                 break
             }
         }
-        targetComboBox.isInternal = false;
+        targetComboBox.isInternal = false
     }
 
     id: connectionEditor
@@ -167,14 +170,6 @@ Rectangle {
                     text: selectedConnection ? selectedConnection.rateExpression : null
                     color: ThemeManager.palette.text
                     enabled: !simulation.isRunning
-
-                    // validator: DoubleValidator {
-                    //     bottom: 0.0
-                    //     top: 1000000.0
-                    //     decimals: 6
-                    //     locale: "en_US"
-                    //     notation: DoubleValidator.StandardNotation
-                    // }
 
                     onEditingFinished: {
                         selectedConnection.rateExpression = text

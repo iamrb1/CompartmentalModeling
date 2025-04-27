@@ -10,6 +10,7 @@ import Application
 import Utilities
 import Components
 
+
 /**
  * Layout for the window that holds the Graph
  * Stores a TimePlotUI (the graph) within

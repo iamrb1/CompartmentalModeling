@@ -1,8 +1,7 @@
 /**
  * @file SidebarUI.qml
- * @author Rahul Baragur
+ * @author Rahul Baragur, Nitish Maindoliya
  */
-
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -44,9 +43,9 @@ Rectangle {
             }
 
             /// Both UIs instantiated yet visible by selection of compartment or connection
-
             Rectangle {
-                visible: !(simulation.sidebarConnection || simulation.sidebarCompartment)
+                visible: !(simulation.sidebarConnection
+                    || simulation.sidebarCompartment)
                 anchors.fill: parent
                 color: ThemeManager.palette.base
 
@@ -95,7 +94,6 @@ Rectangle {
                 anchors.margins: 10
                 spacing: 10
 
-
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: 10
@@ -103,7 +101,6 @@ Rectangle {
                     Item {
                         Layout.preferredWidth: 24
                     }
-
 
                     Item {
                         Layout.fillWidth: true
@@ -117,7 +114,6 @@ Rectangle {
                             color: ThemeManager.palette.text
                         }
                     }
-
 
                     /// Plus button that adds a variable to the simulaton
                     Rectangle {
@@ -160,7 +156,8 @@ Rectangle {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         clip: true
-                        model: simulation ? Object.entries(simulation.variables) : []
+                        model: simulation ? Object.entries(
+                            simulation.variables) : []
 
                         delegate: RowLayout {
                             width: variableGrid.width
@@ -192,7 +189,9 @@ Rectangle {
 
                                     /// Editing a variable will update the display
                                     onEditingFinished: {
-                                        simulation.update_variable(modelData[0], modelData[0], parseFloat(text))
+                                        simulation.update_variable(
+                                            modelData[0], modelData[0],
+                                            parseFloat(text))
                                     }
                                     clip: true
                                 }
@@ -246,7 +245,7 @@ Rectangle {
         // Override the open function to check if we can open
         function open() {
             if (canOpen) {
-                visible = true;
+                visible = true
             }
         }
 
@@ -262,6 +261,7 @@ Rectangle {
         property string oldName: ""
         property double currentValue: 0.0
 
+
         /*
             Updates the variable selected to edit to its new name and new value
             Calls the Q_INVOKABLE update_variable function
@@ -269,7 +269,7 @@ Rectangle {
         function updateVariable(oldName, newName, newValue) {
             if (oldName === newName) {
                 simulation.update_variable(oldName, newName, newValue)
-                return;
+                return
             }
 
             const variables = simulation.variables
@@ -360,10 +360,11 @@ Rectangle {
                         const newValue = parseFloat(valueField.text)
 
                         if (newName !== "" && !isNaN(newValue)) {
-                            editDialog.updateVariable(editDialog.oldName, newName, newValue)
+                            editDialog.updateVariable(editDialog.oldName,
+                                newName, newValue)
                         }
-                        /// Updates the variable as long as there is a new value
 
+                        /// Updates the variable as long as there is a new value
                         editDialog.accept()
                     }
                 }

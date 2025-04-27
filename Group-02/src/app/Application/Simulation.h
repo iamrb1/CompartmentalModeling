@@ -1,8 +1,6 @@
 /**
  * @file Simulation.h
  * @author Nitish Maindoliya, Rahul Baragur
- *
- *
  */
 
 #ifndef SIMULATION_H
@@ -29,9 +27,6 @@ class Simulation : public QObject {
   QML_ELEMENT
   Q_PROPERTY(QString name MEMBER m_name NOTIFY nameChanged FINAL)
 
-  // Error module
-  Q_PROPERTY(QString error_name MEMBER m_error_message NOTIFY errorModuleShow FINAL)
-
   // Connections/Compartments
   Q_PROPERTY(QVector<Compartment*> compartments READ get_compartments NOTIFY compartmentsChanged FINAL)
   Q_PROPERTY(QVector<Connection*> connections READ get_connections NOTIFY connectionsChanged FINAL)
@@ -55,6 +50,21 @@ class Simulation : public QObject {
   Q_PROPERTY(int timeSteps MEMBER m_time_steps NOTIFY timeStepsChanged FINAL)
   Q_PROPERTY(bool isRunning MEMBER m_is_running NOTIFY isRunningChanged FINAL)
 
+ public:
+  enum PromptMode {
+    TOAST,
+    MODAL,
+    LOG_ONLY,
+  };
+  Q_ENUM(PromptMode);
+
+  enum PromptType {
+    INFO,
+    WARNING,
+    ERR,
+  };
+  Q_ENUM(PromptType);
+
  signals:
   /// Signals to notify QML of changes
   void nameChanged();
@@ -70,7 +80,7 @@ class Simulation : public QObject {
   void timeStepsChanged();
   void isRunningChanged();
   void addGraphingValues(double time, QVariant new_compartment_amounts);
-  void errorModuleShow(const QString& message);
+  void promptMessage(PromptType type, const QString& message, PromptMode mode = TOAST);
 
  private:
   static constexpr int DEFAULT_TIME_STEP_MS = 100;
@@ -85,9 +95,6 @@ class Simulation : public QObject {
   int m_current_time = 0.0;
   int m_time_steps = 100;
   bool m_is_running = false;
-
-  /// error message
-  QString m_error_message;
 
   /// Unordered map of compartments with their symbols as keys
   std::unordered_map<QString, std::shared_ptr<Compartment>> m_compartments;
@@ -156,9 +163,6 @@ class Simulation : public QObject {
   Q_INVOKABLE void add_variable(const QString& name = QString(), double value = 0.0);
   Q_INVOKABLE void update_variable(const QString& name, const QString& new_name, double value);
   Q_INVOKABLE void remove_variable(const QString& name);
-
-  // Error module
-  Q_INVOKABLE void throw_error(const QString& message);
 
  public slots:
   void take_time_step();

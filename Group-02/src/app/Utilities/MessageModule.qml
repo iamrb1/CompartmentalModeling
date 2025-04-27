@@ -1,4 +1,5 @@
 pragma Singleton
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -6,15 +7,11 @@ import QtQuick.Window
 import Components
 import Application
 
-
 Item {
-    // property Simulation parentSimulation
-    // property Simulation simulation: parentSimulation
-
     id: errorModule
-
     // Properties for the error windows
-    property bool isModalOpen: false
+    property real promptModule
+    property real promptMessage
     property string errorMessage: ""
 
     Dialog {
@@ -164,6 +161,4 @@ Item {
             popupDialog.open()
         }
     }
-
-    //modal error dialog blocks interaction until user presses OK
 }

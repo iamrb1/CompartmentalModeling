@@ -18,11 +18,14 @@ import Components
 ApplicationWindow {
     Simulation {
         id: simulation
-        onErrorModuleShow: ErrorModule.showError("errorMessage", true)
     }
 
     ///CALL THIS LINE TO GO TO ERROR MODULE. TRUE FOR MODAL FALSE FOR POPUP
-    // simulation.throw_error("Something broke", false)
+    Component.onCompleted: {
+        simulation.promptMessage(simulation.INFO, "Simulation loaded",
+            simulation.TOAST)
+    }
+
     property var graphWindow: null
 
     /// component for creating graph window
@@ -273,6 +276,9 @@ ApplicationWindow {
                     icon.width: 20
 
                     checkable: true
+
+                    checked: !simulation.isRunning && simulation.connectionMode
+                    enabled: !simulation.isRunning
 
                     onClicked: {
                         simulation.connectionMode = !simulation.connectionMode

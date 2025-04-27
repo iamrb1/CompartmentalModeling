@@ -387,6 +387,7 @@ void Simulation::add_connection() {
   if (!m_connection_mode || !m_source_compartment || !m_target_compartment) {
     set_source_compartment(nullptr);
     set_target_compartment(nullptr);
+    return;
   }
 
   QString connection_name =
@@ -507,15 +508,6 @@ void Simulation::remove_variable(const QString& name) {
   }
 }
 
-/**
- * @brief Shows error message when called on mid screen
- * @param message error message
- */
-void Simulation::throw_error(const QString& message) {
-  m_error_message = "test throw_error";
-  emit errorModuleShow(message);
-}
-
 void Simulation::unbind_variable(const QString& key) {
   if (const auto std_key = key.toStdString(); m_symbol_table.symbol_exists(std_key)) {
     m_symbol_table.remove_variable(std_key);
@@ -536,15 +528,15 @@ double Simulation::evaluate_expression(const QString& expression_string) {
   m_symbol_table.get_variable_list(variable_list);
 
   //  qDebug() << "Symbol Table Variables:\n";
-  for (const auto& name : variable_list) {
-    const double value = m_symbol_table.get_variable(name)->value();
-    //    qDebug() << "  " << name << " = " << value << '\n';
-  }
+  // for (const auto& name : variable_list) {
+  //   const double value = m_symbol_table.get_variable(name)->value();
+  //      qDebug() << "  " << name << " = " << value << '\n';
+  // }
 
-  if (parser_t parser; !parser.compile(expression_string.toStdString(), expression)) {
-    //    qDebug() << "Parser error: " << expression_string;
-    return 0;
-  }
+  // if (parser_t parser; !parser.compile(expression_string.toStdString(), expression)) {
+  //      qDebug() << "Parser error: " << expression_string;
+  //   return 0;
+  // }
 
   return expression.value();
 }
@@ -564,8 +556,8 @@ void Simulation::take_time_step() {
     const Compartment* target = connection->get_target();
     const QString& rate = connection->get_rate_expression();
 
-    qDebug() << "Evaluated expression from " << source->get_symbol() << " -> " << target->get_symbol() << " : "
-             << evaluate_expression(rate);
+    // qDebug() << "Evaluated expression from " << source->get_symbol() << " -> " << target->get_symbol() << " : "
+             // << evaluate_expression(rate);
 
     const double transfer_amount = evaluate_expression(rate) * source->get_current_amount();
 

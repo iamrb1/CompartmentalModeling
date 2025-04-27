@@ -10,6 +10,7 @@ import Application
 import Utilities
 import Components
 
+
 /**
  * UI component for the compartment itself
  */
@@ -46,13 +47,13 @@ Rectangle {
             /// set source or target and perform action accordingly
             if (simulation.connectionMode) {
                 if (simulation.sourceCompartment) {
-                    simulation.targetCompartment = compartment;
-                    simulation.add_connection();
+                    simulation.targetCompartment = compartment
+                    simulation.add_connection()
                 } else {
-                    simulation.sourceCompartment = compartment;
+                    simulation.sourceCompartment = compartment
                 }
             } else {
-                simulation.sidebarCompartment = compartment;
+                simulation.sidebarCompartment = compartment
             }
         }
 
@@ -74,7 +75,8 @@ Rectangle {
 
         Text {
             Layout.fillWidth: true
-            text: compartment && compartment.name + " (" + compartment.symbol + ")"
+            text: compartment
+                && compartment.name + " (" + compartment.symbol + ")"
             font.pixelSize: 14
             color: ThemeManager.palette.text
             wrapMode: Text.WordWrap
@@ -90,26 +92,31 @@ Rectangle {
         }
     }
 
+
     /**
      * Change the border color for a compartment based on target or source
      */
     function compartmentBorderColor() {
         var color = ThemeManager.palette.text
-        if (simulation.sourceCompartment && simulation.sourceCompartment === compartment) {
+        if (simulation.sourceCompartment
+            && simulation.sourceCompartment === compartment) {
             color = "blue"
-        } else if (simulation.targetCompartment && simulation.targetCompartment === compartment) {
+        } else if (simulation.targetCompartment
+            && simulation.targetCompartment === compartment) {
             color = "red"
         }
-        return color;
+
     }
 
     Connections {
         target: compartment
+
         function onXChanged() {
             if (compartmentUI.x !== compartment.x) {
                 compartmentUI.x = compartment.x
             }
         }
+
         function onYChanged() {
             if (compartmentUI.y !== compartment.y) {
                 compartmentUI.y = compartment.y

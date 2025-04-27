@@ -12,6 +12,7 @@ import Application
 import Utilities
 import Components
 
+
 /**
  * The layout for the play area of adding compartments, connections etc
  */
@@ -36,11 +37,13 @@ Rectangle {
     property real targetMaxX: width
     property real targetMaxY: height
 
+
     /**
      * Update target boundaries around compartment postions
      */
     function updateTargetBoundaries() {
-        if (!simulation) return
+        if (!simulation)
+            return
 
         let minX = 0
         let minY = 0
@@ -48,20 +51,26 @@ Rectangle {
         let maxY = height
 
         /// Check all compartments to adjust content area boundaries
-        for (let i = 0; i < simulation.compartments.length; i++) {
+        for (var i = 0; i < simulation.compartments.length; i++) {
             const comp = simulation.compartments[i]
 
             /// Get the compartment width and height if available
-            const compWidth = comp.width || 100  // Default width if not specified
-            const compHeight = comp.height || 100  // Default height if not specified
+            const compWidth = comp.width
+                || 100 // Default width if not specified
+            const compHeight = comp.height
+                || 100 // Default height if not specified
 
             /// Check top-left corner for minimum boundaries
-            if (comp.x < minX) minX = comp.x
-            if (comp.y < minY) minY = comp.y
+            if (comp.x < minX)
+                minX = comp.x
+            if (comp.y < minY)
+                minY = comp.y
 
             /// Check bottom-right corner for maximum boundaries
-            if (comp.x + compWidth > maxX) maxX = comp.x + compWidth
-            if (comp.y + compHeight > maxY) maxY = comp.y + compHeight
+            if (comp.x + compWidth > maxX)
+                maxX = comp.x + compWidth
+            if (comp.y + compHeight > maxY)
+                maxY = comp.y + compHeight
         }
 
         targetMinX = minX - paddingSize
@@ -78,7 +87,7 @@ Rectangle {
     /// Timer to gradually animate boundary changes (Expansion is too erratic without)
     Timer {
         id: boundaryAnimation
-        interval: 16  // ~60fps
+        interval: 16 // ~60fps
         repeat: true
         running: false
 
@@ -93,7 +102,6 @@ Rectangle {
                 minContentX = targetMinX
             }
 
-
             if (Math.abs(minContentY - targetMinY) > 0.5) {
                 minContentY += (targetMinY - minContentY) * expansionRate
                 changed = true
@@ -101,14 +109,12 @@ Rectangle {
                 minContentY = targetMinY
             }
 
-
             if (Math.abs(maxContentX - targetMaxX) > 0.5) {
                 maxContentX += (targetMaxX - maxContentX) * expansionRate
                 changed = true
             } else {
                 maxContentX = targetMaxX
             }
-
 
             if (Math.abs(maxContentY - targetMaxY) > 0.5) {
                 maxContentY += (targetMaxY - maxContentY) * expansionRate
@@ -126,9 +132,10 @@ Rectangle {
         }
     }
 
+
     /**
      * Update the flickable(scroll) content area based on adjusted boundaries
-      */
+     */
     function updateFlickableContent() {
         const contentWidth = maxContentX - minContentX
         const contentHeight = maxContentY - minContentY
@@ -141,9 +148,10 @@ Rectangle {
         contentItem.y = -minContentY
     }
 
+
     /**
      * Reset view to initial scale
-      */
+     */
     function resetView() {
         compartmentContainer.scale = 1.0
 
@@ -164,27 +172,29 @@ Rectangle {
         updateTargetBoundaries()
     }
 
+
     /**
      * Zoom into the canvas area
      */
     function zoomIn() {
-        compartmentContainer.scale = Math.min(compartmentContainer.scale + 0.1, 2.0)
+        compartmentContainer.scale = Math.min(compartmentContainer.scale + 0.1,
+            2.0)
         updateTargetBoundaries()
     }
+
 
     /**
      * Zoom out the canvas area
      */
     function zoomOut() {
-        compartmentContainer.scale = Math.max(compartmentContainer.scale - 0.1, 0.5)
+        compartmentContainer.scale = Math.max(compartmentContainer.scale - 0.1,
+            0.5)
         updateTargetBoundaries()
     }
-
 
     Component.onCompleted: {
         updateTargetBoundaries()
     }
-
 
     /// Flickable provides scrolling functionality
     Flickable {
