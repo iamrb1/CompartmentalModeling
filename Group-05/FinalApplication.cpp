@@ -34,6 +34,7 @@
 #include <iostream>
 #include <limits>
 #include <optional>
+#include <regex>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -94,12 +95,12 @@ int FinalApplication::GetColumnIndex(int max_index,
   while (true) {
     os << "Please enter column index: ";
     std::string index_str;
-    is >> index_str;
+    std::getline(is, index_str);
     auto index = IsValidInt(index_str);
-    if (index && index.value() < max_index) {
+    if (index && index.value() < max_index && index.value() >= 0) {
       return index.value();
     }
-    os << "Invalid option. Try again. The max index is: " << max_index
+    os << "Invalid option. Try again. The max index is: " << (max_index - 1)
        << std::endl;
   }
 }
@@ -114,7 +115,7 @@ cse::Datum FinalApplication::GetDataValue(std::ostream &os = std::cout,
                                           std::istream &is = std::cin) {
   os << "Please enter the value to compare: ";
   std::string value_str;
-  is >> value_str;
+  std::getline(is, value_str);
   if (auto d = IsValidDouble(value_str)) {
     return {d.value()};
   }
@@ -137,6 +138,54 @@ void FinalApplication::PrintColumn(
     }
   }
   os << std::endl;
+}
+
+// CITE: Used claude.ai to generate this function (comments are my own) - Max Krawec
+/**
+ * Checks if a string is a valid custom equation. The requirements are:
+ *  1) The numbers within the string must be surrounded by {}
+ *  2) The numbers within the {} must be less than a certain value.
+ *  3) The values outside the {} can only be +, -, *, /, and ^
+ *  4) There can't be any other words/values
+ * @param input The custom equation string
+ * @param max_number_value The maximum value for a column or row
+ * @return True if it is a valid custom string, false otherwise.
+ */
+bool FinalApplication::IsValidCustomEquation(const std::string& input, int max_number_value) {
+  // I asked claude.ai to check if a string meets these conditions:
+    // 1) The numbers within the string must be surrounded by {}
+    // 2) The numbers within the {} must be less than a certain value.
+    // 3) The values outside the {} can only be +, -, *, /, and ^
+    // 4) There can't be any other words/values
+  // It generated the regex pattern below, which checks for these requirements
+  std::regex pattern(R"(^(\{(\d+)\}[\s]*([\+\-\*/\^])[\s]*)*\{(\d+)\}$)");
+
+  // If the regex pattern doesn't match, return false
+  if (!std::regex_match(input, pattern)) {
+    return false;
+  }
+
+  // This section of the code performs the 2nd requirement:
+  //   The numbers within the {} must be less than a certain value.
+
+  // This retrieves all the numbers from the {}s
+  std::regex number_pattern(R"(\{(\d+)\})");
+  auto numbers_begin = std::sregex_iterator(input.begin(), input.end(), number_pattern);
+  auto numbers_end = std::sregex_iterator();
+
+  // This section of the code iterates through the numbers and checks if it's less than the max number value
+  for (std::sregex_iterator i = numbers_begin; i != numbers_end; ++i) {
+    const std::smatch& match = *i;
+    std::string number_str = match[1].str();
+    int number = std::stoi(number_str);
+
+    // There is a value that is too large
+    if (number >= max_number_value) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 /**
@@ -167,7 +216,7 @@ cse::DataGrid FinalApplication::CreateGridMenu(std::ostream &os = std::cout,
 
   // Read number of rows
   while (true) {
-    os << "Enter number of rows for your DataGrid [1–" << MAX_ROWS << "]: ";
+    os << "Enter number of rows for your DataGrid [1-" << MAX_ROWS << "]: ";
     if (!std::getline(is, line)) {
       is.clear();
       continue;
@@ -194,7 +243,7 @@ cse::DataGrid FinalApplication::CreateGridMenu(std::ostream &os = std::cout,
 
   // Read number of columns
   while (true) {
-    os << "Enter number of columns for your DataGrid [1–" << MAX_COLS << "]: ";
+    os << "Enter number of columns for your DataGrid [1-" << MAX_COLS << "]: ";
     if (!std::getline(is, line)) {
       is.clear();
       continue;
@@ -255,7 +304,7 @@ cse::DataGrid FinalApplication::CreateGridMenu(std::ostream &os = std::cout,
     } else if (type_choice == "s") {
       // string default
       while (true) {
-        os << "Enter a string default value for the DataGrid (1–"
+        os << "Enter a string default value for the DataGrid (1-"
            << MAX_DEFAULT_STR_LEN << " chars): ";
         if (!std::getline(is, line)) {
           is.clear();
@@ -322,9 +371,12 @@ cse::DataGrid FinalApplication::GridMenu(std::ostream &os = std::cout,
       }
       const auto filename = trim(line);
       try {
-        return cse::CSVFile::LoadCsv(filename);
+        cse::DataGrid data_grid = cse::CSVFile::LoadCsv(filename);
+        os << "\nBelow is the grid you imported: \n";
+        data_grid.Print(os);
+        return data_grid;
       } catch (const std::exception &e) {
-        os << "Import failed: " << e.what() << std::endl;
+        os << "Import failed: " << e.what() << "\n" << std::endl;
         // loop back to menu
       }
     } else if (choice == "t") {
@@ -346,12 +398,19 @@ cse::DataGrid FinalApplication::GridMenu(std::ostream &os = std::cout,
       premade[2][2] = 150.50;
       premade[3][2] = 200;
       premade[4][2] = 20.25;
-      return cse::DataGrid(premade);
+
+      cse::DataGrid data_grid = cse::DataGrid(premade);
+      os << "\nBelow is the pre-made grid: \n";
+      data_grid.Print(os);
+      return data_grid;
     } else if (choice == "c") {
       // Delegate to the robust CreateGridMenu
-      return CreateGridMenu();
+      cse::DataGrid data_grid = CreateGridMenu(os, is);
+      os << "\nBelow is the grid you made: \n";
+      data_grid.Print(os);
+      return data_grid;
     } else {
-      os << "Invalid option. Try again." << std::endl;
+      os << "Invalid option. Try again.\n" << std::endl;
     }
   }
 }
@@ -379,50 +438,77 @@ void FinalApplication::MathMenu(const cse::DataGrid &grid,
     os << "b: Go back" << std::endl;
     os << "Enter option: ";
     std::string option;
-    is >> option;
+    std::getline(is, option);
 
     if (option == "cmean") {
       int index =
           GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-      os << "Mean at column " << index << ": " << grid.ColumnMean(index)
+
+      os << "\nBelow is the grid: \n";
+      grid.Print(os);
+
+      os << "\nMean at column " << index << ": " << grid.ColumnMean(index)
          << std::endl;
       return;
     } else if (option == "cmed") {
       int index =
           GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-      os << "Median at column " << index << ": " << grid.ColumnMedian(index)
+
+      os << "\nBelow is the grid: \n";
+      grid.Print(os);
+
+      os << "\nMedian at column " << index << ": " << grid.ColumnMedian(index)
          << std::endl;
       return;
     } else if (option == "csd") {
       int index =
           GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-      os << "Standard deviation at column " << index << ": "
+
+      os << "\nBelow is the grid: \n";
+      grid.Print(os);
+
+      os << "\nStandard deviation at column " << index << ": "
          << grid.ColumnStandardDeviation(index) << std::endl;
       return;
     } else if (option == "cmin") {
       int index =
           GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-      os << "Min at column " << index << ": " << grid.ColumnMin(index)
+
+      os << "\nBelow is the grid: \n";
+      grid.Print(os);
+
+      os << "\nMin at column " << index << ": " << grid.ColumnMin(index)
          << std::endl;
       return;
     } else if (option == "cmax") {
       int index =
           GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-      os << "Max at column " << index << ": " << grid.ColumnMax(index)
+
+      os << "\nBelow is the grid: \n";
+      grid.Print(os);
+
+      os << "\nMax at column " << index << ": " << grid.ColumnMax(index)
          << std::endl;
       return;
     } else if (option == "cmode") {
       int index =
           GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-      os << "Mode(s) at column " << index << ": ";
+
+      os << "\nBelow is the grid: \n";
+      grid.Print(os);
+
+      os << "\nMode(s) at column " << index << ": ";
       for (const double &mode_val : grid.ColumnMode(index)) {
         os << mode_val << " ";
       }
       os << std::endl;
       return;
     } else if (option == "sum") {
+      os << "\nBelow is the grid: \n";
+      grid.Print(os);
+
       auto summary = grid.CalculateDataGridMathSummary();
-      os << "Grid Summary:" << std::endl;
+      os << "\nGrid Summary:" << std::endl;
       os << "Mean: " << summary.mean << std::endl;
       os << "Median: " << summary.median << std::endl;
       os << "Standard Deviation: " << summary.standardDeviation << std::endl;
@@ -469,48 +555,78 @@ void FinalApplication::ComparisonMenu(cse::DataGrid &grid,
     os << "b: Go back" << std::endl;
     os << "Enter option: ";
     std::string option;
-    is >> option;
+    std::getline(is, option);
 
     if (option == "clt") {
       int index =
           GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
       cse::Datum datum = GetDataValue(os, is);
-      os << "Values less than given value:" << std::endl;
+
+      os << "\nThe column values: \n";
+      PrintColumn((grid.GetColumn(index)));
+      os << "\n";
+
+      os << "Values less than the given value:" << std::endl;
       PrintColumn(grid.ColumnLessThan(index, datum));
       return;
     } else if (option == "clte") {
       int index =
           GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
       cse::Datum datum = GetDataValue(os, is);
-      os << "Values less than or equal to given value:" << std::endl;
+
+      os << "\nThe column values: \n";
+      PrintColumn((grid.GetColumn(index)));
+      os << "\n";
+
+      os << "Values less than or equal to the given value:" << std::endl;
       PrintColumn(grid.ColumnLessThanOrEqual(index, datum));
       return;
     } else if (option == "cgt") {
       int index =
           GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
       cse::Datum datum = GetDataValue(os, is);
-      os << "Values greater than given value:" << std::endl;
+
+      os << "\nThe column values: \n";
+      PrintColumn((grid.GetColumn(index)));
+      os << "\n";
+
+      os << "Values greater than the given value:" << std::endl;
       PrintColumn(grid.ColumnGreaterThan(index, datum));
       return;
     } else if (option == "cgte") {
       int index =
           GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
       cse::Datum datum = GetDataValue(os, is);
-      os << "Values greater than or equal to given value:" << std::endl;
+
+      os << "\nThe column values: \n";
+      PrintColumn((grid.GetColumn(index)));
+      os << "\n";
+
+      os << "Values greater than or equal to the given value:" << std::endl;
       PrintColumn(grid.ColumnGreaterThanOrEqual(index, datum));
       return;
     } else if (option == "ce") {
       int index =
           GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
       cse::Datum datum = GetDataValue(os, is);
-      os << "Values equal to given value:" << std::endl;
+
+      os << "\nThe column values: \n";
+      PrintColumn((grid.GetColumn(index)));
+      os << "\n";
+
+      os << "Values equal to the given value:" << std::endl;
       PrintColumn(grid.ColumnEqual(index, datum));
       return;
     } else if (option == "cne") {
       int index =
           GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
       cse::Datum datum = GetDataValue(os, is);
-      os << "Values not equal to given value:" << std::endl;
+
+      os << "\nThe column values: \n";
+      PrintColumn((grid.GetColumn(index)));
+      os << "\n";
+
+      os << "Values not equal to the given value:" << std::endl;
       PrintColumn(grid.ColumnNotEqual(index, datum));
       return;
     } else if (option == "b") {
@@ -544,13 +660,12 @@ void FinalApplication::ManipulateGridMenu(cse::DataGrid &grid,
     os << "0. Return to main menu" << std::endl;
     os << "Enter your choice: ";
     std::string input;
-    is >> input;
-
+    std::getline(is, input);
     std::optional<int> input_int = IsValidInt(input);
 
     if (input_int.has_value()) {
       choice = input_int.value();
-      switch (input_int.value()) {
+      switch (choice) {
         case 1:
           PrintSubmenu(grid, os, is);
           break;
@@ -588,10 +703,11 @@ void FinalApplication::ManipulateGridMenu(cse::DataGrid &grid,
  * @param is istream used for input and testing
  */
 void FinalApplication::PrintSubmenu(const cse::DataGrid &grid,
-                                    std::ostream &os = std::cout,
-                                    std::istream &is = std::cin) {
-  int choice = 0;
-  do {
+                                    std::ostream &os,
+                                    std::istream &is) {
+
+  const auto [maxRows, maxCols] = grid.Shape();
+  while (true) {
     os << "\n--- Print Options ---" << std::endl;
     os << "1. Print a cell value" << std::endl;
     os << "2. Print a row" << std::endl;
@@ -599,57 +715,87 @@ void FinalApplication::PrintSubmenu(const cse::DataGrid &grid,
     os << "4. Print entire grid" << std::endl;
     os << "0. Return to previous menu" << std::endl;
     os << "Enter your choice: ";
-    is >> choice;
+    
+    std::string raw;
+    if (!(std::getline(is, raw))) return;               // no more inputs for this
+    auto mi = IsValidInt(raw);
+    if (!mi) {
+      os << "Invalid choice. Input must be an int. Try again." << std::endl;
+      continue;
+    }
+    int choice = *mi;
 
-    try {
       switch (choice) {
         // Print a cell value
         case 1: {
-          std::size_t row = 0, col = 0;
           os << "Enter row index: ";
-          is >> row;
+          std::string rraw;
+          if (!(std::getline(is, rraw))) return;
+          auto ri = IsValidInt(rraw);
+          if (!ri || *ri < 0 || static_cast<std::size_t>(*ri) >= maxRows) {
+            os << "Invalid row. " << "The max row is: " << maxRows - 1 << ". Try again." << std::endl;
+            continue;
+          }
+          std::size_t row = static_cast<std::size_t>(*ri);
+
           os << "Enter column index: ";
-          is >> col;
+          std::string craw;
+          if (!(std::getline(is, craw))) return;
+          auto ci = IsValidInt(craw);
+          if (!ci || *ci < 0 || static_cast<std::size_t>(*ci) >= maxCols) {
+            os << "Invalid column. " << "The max column is: " << maxCols - 1 << ". Try again." << std::endl;
+            continue;
+          }
+          std::size_t col = static_cast<std::size_t>(*ci);
+
           const cse::Datum &value = grid.GetValue(row, col);
           if (value.IsDouble()) {
-            os << "Cell (" << row << ", " << col << "): " << value.GetDouble()
-               << std::endl;
-          } else if (value.IsString()) {
-            os << "Cell (" << row << ", " << col << "): " << value.GetString()
-               << std::endl;
+            os << "\nCell (" << row << ", " << col << "): "
+              << value.GetDouble() << std::endl;
+          } else {
+            os << "\nCell (" << row << ", " << col << "): "
+              << value.GetString() << std::endl;
           }
           break;
         }
         // Print a row
         case 2: {
-          std::size_t row = 0;
           os << "Enter row index: ";
-          is >> row;
+          std::string rraw;
+          if (!(std::getline(is, rraw))) return;
+          auto ri = IsValidInt(rraw);
+          if (!ri || *ri < 0 || static_cast<std::size_t>(*ri) >= maxRows) {
+            os << "Invalid row. " << "The max row is: " << maxRows - 1 << ". Try again." << std::endl;
+            continue;
+          }
+          std::size_t row = static_cast<std::size_t>(*ri);
+
           auto row_data = grid.GetRow(row);
-          os << "Row " << row << ": ";
-          for (const auto &datum : row_data) {
-            if (datum.IsDouble()) {
-              os << datum.GetDouble() << " ";
-            } else if (datum.IsString()) {
-              os << datum.GetString() << " ";
-            }
+          os << "\nRow " << row << ": ";
+          for (const auto &d : row_data) {
+            if (d.IsDouble()) os << d.GetDouble() << " ";
+            else               os << d.GetString() << " ";
           }
           os << std::endl;
           break;
         }
         // Print a column
         case 3: {
-          std::size_t col = 0;
           os << "Enter column index: ";
-          is >> col;
+          std::string craw;
+          if (!(std::getline(is, craw))) return;
+          auto ci = IsValidInt(craw);
+          if (!ci || *ci < 0 || static_cast<std::size_t>(*ci) >= maxCols) {
+            os << "Invalid column. " << "The max column is: " << maxCols - 1 << ". Try again." << std::endl;
+            continue;
+          }
+          std::size_t col = static_cast<std::size_t>(*ci);
+
           auto col_data = grid.GetColumn(col);
-          os << "Column " << col << ": ";
-          for (const auto &datum : col_data) {
-            if (datum.IsDouble()) {
-              os << datum.GetDouble() << " ";
-            } else if (datum.IsString()) {
-              os << datum.GetString() << " ";
-            }
+          os << "\nColumn " << col << ": ";
+          for (const auto &d : col_data) {
+            if (d.IsDouble()) os << d.GetDouble() << " ";
+            else               os << d.GetString() << " ";
           }
           os << std::endl;
           break;
@@ -658,15 +804,12 @@ void FinalApplication::PrintSubmenu(const cse::DataGrid &grid,
         case 4:
           grid.Print(os);
           break;
-        case 0:
-          break;
-        default:
-          os << "Invalid choice. Try again." << std::endl;
-      }
-    } catch (const std::exception &e) {
-      std::cerr << "Error: " << e.what() << std::endl;
+      case 0:
+        return;
+      default:
+        os << "Invalid choice. Input must be between 0-4. Try again." << std::endl;
     }
-  } while (choice != 0);
+  }
 }
 
 /**
@@ -677,73 +820,132 @@ void FinalApplication::PrintSubmenu(const cse::DataGrid &grid,
  * @param is istream used for input and testing
  */
 void FinalApplication::EditSubmenu(cse::DataGrid &grid,
-                                   std::ostream &os = std::cout,
-                                   std::istream &is = std::cin) {
-  int choice = 0;
-  do {
+                                   std::ostream &os,
+                                   std::istream &is) {
+  const auto [maxRows, maxCols] = grid.Shape();
+  while (true) {
     os << "\n--- Edit Options ---" << std::endl;
     os << "1. Edit a cell value" << std::endl;
     os << "2. Edit an entire row's values" << std::endl;
     os << "3. Edit an entire column's values" << std::endl;
     os << "0. Return to previous menu" << std::endl;
     os << "Enter your choice: ";
-    is >> choice;
 
-    try {
+    // read and validate menu choice
+    std::string raw_choice;
+    if (!(std::getline(is, raw_choice))) return;
+    auto mi = IsValidInt(raw_choice);
+    if (!mi || *mi < 0) {
+      os << "Invalid choice. Input must be an int. Try again." << std::endl;
+      continue;
+    }
+    int choice = *mi;
+
       switch (choice) {
         // Edit a cell value
         case 1: {
-          std::size_t row = 0, col = 0;
           os << "Enter row index: ";
-          is >> row;
+          std::string rraw;
+          if (!(std::getline(is,rraw))) return;
+          auto ri = IsValidInt(rraw);
+          if (!ri || *ri < 0 || static_cast<std::size_t>(*ri) >= maxRows) {
+            os << "Invalid row. " << "The max row is: " << maxRows - 1 << ". Try again." << std::endl;
+            continue;
+          }
+          std::size_t row = *ri;
+
+          // column index
           os << "Enter column index: ";
-          is >> col;
-          os << "Enter new value (number): ";
-          double new_val = 0;
-          is >> new_val;
-          grid.At(row, col) = cse::Datum(new_val);
-          os << "Cell updated." << std::endl;
+          std::string craw;
+          if (!(std::getline(is,craw))) return;
+          auto ci = IsValidInt(craw);
+          if (!ci || *ci < 0 || static_cast<std::size_t>(*ci) >= maxCols) {
+            os << "Invalid column. " << "The max column is: " << maxCols - 1 << ". Try again." << std::endl;
+            continue;
+          }
+          std::size_t col = *ci;
+
+          // new value (string or double)
+          os << "Enter new value: ";
+          std::string valstr;
+          if (!(std::getline(is, valstr))) return;
+          if (auto d = IsValidDouble(valstr)) {
+            grid.At(row, col) = cse::Datum(d.value());
+          } else {
+            grid.At(row, col) = cse::Datum(valstr);
+          }
+          os << "\nCell updated." << std::endl;
+
+          os << "\nThe Grid is now:" << std::endl;
+          grid.Print(os);
           break;
         }
         // Edits an entire row's value
         case 2: {
-          std::size_t row = 0;
           os << "Enter row index to update: ";
-          is >> row;
-          auto &row_data = grid.GetRow(row);
-          os << "Enter " << row_data.size() << " new values (numbers): ";
-          for (auto &datum : row_data) {
-            double val = 0;
-            is >> val;
-            datum = cse::Datum(val);
+          std::string rraw;
+          if (!(std::getline(is, rraw))) return;
+          auto ri = IsValidInt(rraw);
+          if (!ri || *ri < 0 || static_cast<std::size_t>(*ri) >= maxRows) {
+            os << "Invalid row. " << "The max row is: " << maxRows - 1 << ". Try again." << std::endl;
+            continue;
           }
-          os << "Row updated." << std::endl;
+          std::size_t row = *ri;
+
+          auto &rowData = grid.GetRow(row);
+          os << "Enter " << rowData.size() << " new values one at a time: \n";
+          for (std::size_t i = 0; i < rowData.size(); ++i) {
+            os << "Value " << i + 1 << ":" << std::endl;
+            std::string v;
+            if (!(std::getline(is, v))) return;
+            if (auto d = IsValidDouble(v)) {
+              rowData[i] = cse::Datum(d.value());
+            } else {
+              rowData[i] = cse::Datum(v);
+            }
+          }
+          os << "\nRow updated." << std::endl;
+
+          os << "\nThe Grid is now:" << std::endl;
+          grid.Print(os);
           break;
         }
           // Edits an entire column's value
         case 3: {
-          std::size_t col = 0;
           os << "Enter column index to update: ";
-          is >> col;
-          std::size_t num_rows = std::get<0>(grid.Shape());
-          os << "Enter " << num_rows << " new values (numbers): ";
-          for (std::size_t i = 0; i < num_rows; ++i) {
-            double val = 0;
-            is >> val;
-            grid.At(i, col) = cse::Datum(val);
+          std::string craw;
+          if (!(std::getline(is, craw))) return;
+          auto ci = IsValidInt(craw);
+          if (!ci || *ci < 0 || static_cast<std::size_t>(*ci) >= maxCols) {
+            os << "Invalid column. " << "The max column is: " << maxCols - 1 << ". Try again." << std::endl;
+            continue;
           }
-          os << "Column updated." << std::endl;
+          std::size_t col = *ci;
+
+          std::size_t nrows = maxRows;
+          os << "Enter " << nrows << " new values one at a time: \n";
+          for (std::size_t i = 0; i < nrows; ++i) {
+            os << "Value " << i + 1 << ":" << std::endl;
+            std::string v;
+            if (!(std::getline(is, v))) return;
+            if (auto d = IsValidDouble(v)) {
+              grid.At(i, col) = cse::Datum(d.value());
+            } else {
+              grid.At(i, col) = cse::Datum(v);
+            }
+          }
+          os << "\nColumn updated." << std::endl;
+
+          os << "\nThe Grid is now:" << std::endl;
+          grid.Print(os);
           break;
         }
         case 0:
-          break;
+          return;
         default:
-          os << "Invalid choice. Try again." << std::endl;
+          os << "Invalid choice. Input must be between 0-3. Try again." << std::endl;
       }
-    } catch (const std::exception &e) {
-      std::cerr << "Error: " << e.what() << std::endl;
-    }
-  } while (choice != 0);
+  }  
 }
 
 /**
@@ -756,45 +958,68 @@ void FinalApplication::EditSubmenu(cse::DataGrid &grid,
 void FinalApplication::SortSubmenu(cse::DataGrid &grid,
                                    std::ostream &os = std::cout,
                                    std::istream &is = std::cin) {
-  int choice = 0;
+  int choice = -1;
   do {
     os << "\n--- Sort Options ---" << std::endl;
     os << "1. Sort grid rows by a specified column" << std::endl;
     os << "2. Sort entire grid (using left-most columns as keys)" << std::endl;
     os << "0. Return to previous menu" << std::endl;
     os << "Enter your choice: ";
-    is >> choice;
+    std::string input;
+    std::getline(is, input);
 
-    try {
+    std::optional<int> input_int = IsValidInt(input);
+
+    if (input_int.has_value()) {
+      choice = input_int.value();
       switch (choice) {
         // Sort grid rows by a specified column
         case 1: {
-          std::size_t col = 0;
-          os << "Enter column index to sort by: ";
-          is >> col;
-          int order = 0;
-          os << "Enter 1 for ascending, 0 for descending: ";
-          is >> order;
-          grid.SortColumn(col, order == 1);
-          os << "Grid rows sorted by column " << col << "." << std::endl;
+          std::size_t col = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+          std::string order;
+          while (true) {
+            os << "Enter 1 for ascending, 0 for descending: ";
+            std::getline(is, order);
+            std::optional<int> ordering_input = IsValidInt(order);
+            if (ordering_input && (ordering_input.value() == 0 || ordering_input.value() == 1)) {
+              grid.SortColumn(col, ordering_input.value());
+              os << "Grid rows sorted by column " << col << ".\n" << std::endl;
+              os << "The Grid is now:" << std::endl;
+              grid.Print(os);
+              break;
+            } else {
+              os << "Invalid input. The input must be 0 or 1" << std::endl;
+            }
+          }
           break;
         }
         // Sort entire grid (using left-most columns as keys)
         case 2: {
-          int order = 0;
-          os << "Enter 1 for ascending, 0 for descending: ";
-          is >> order;
-          grid.Sort(order == 1);
-          os << "Entire grid sorted." << std::endl;
+          std::string order;
+          while (true) {
+            os << "Enter 1 for ascending, 0 for descending: ";
+            std::getline(is, order);
+            std::optional<int> ordering_input = IsValidInt(order);
+            if (ordering_input && (ordering_input.value() == 0 || ordering_input.value() == 1)) {
+              grid.Sort(ordering_input.value());
+              os << "Entire grid sorted.\n" << std::endl;
+              os << "The Grid is now:" << std::endl;
+              grid.Print(os);
+              break;
+            } else {
+              os << "Invalid input. The input must be 0 or 1" << std::endl;
+            }
+          }
           break;
         }
         case 0:
           break;
         default:
-          os << "Invalid choice. Try again." << std::endl;
+          os << "Invalid choice. Input must be between 0-2.\n" << std::endl;
       }
-    } catch (const std::exception &e) {
-      std::cerr << "Error: " << e.what() << std::endl;
+    }
+    else {
+      os << "Invalid choice. Cannot be a string. Try again.\n";
     }
   } while (choice != 0);
 }
@@ -809,7 +1034,7 @@ void FinalApplication::SortSubmenu(cse::DataGrid &grid,
 void FinalApplication::AddSubmenu(cse::DataGrid &grid,
                                   std::ostream &os = std::cout,
                                   std::istream &is = std::cin) {
-  int choice = 0;
+  int choice = -1;
   do {
     os << "\n--- Adding Options ---" << std::endl;
     os << "1. Add row" << std::endl;
@@ -817,159 +1042,270 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid,
     os << "3. Merge another grid" << std::endl;
     os << "0. Return to previous menu" << std::endl;
     os << "Enter your choice: ";
-    is >> choice;
+    std::string main_input;
+    std::getline(is, main_input);
 
-    try {
-      switch (choice) {
-        // Add row
-        case 1: {
-          std::size_t num_cols = std::get<1>(grid.Shape());
-          os << "Add default row (d), with an equation (e), or enter manually "
-                "(m)? ";
-          std::string method;
-          is >> method;
-          // Add a default row
-          if (method == "d") {
-            os << "Enter default value (number or string): ";
-            std::string input;
-            is >> input;
-            auto num = IsValidDouble(input);
-            if (num.has_value()) {
-              grid.InsertDefaultRow(cse::kNoIndex, num.value());
+    std::optional<int> input_int = IsValidInt(main_input);
+
+    if (input_int.has_value()) {
+      choice = input_int.value();
+      try {
+        switch (choice) {
+          // Add row
+          case 1: {
+            std::size_t num_cols = std::get<1>(grid.Shape());
+
+            std::string method;
+            while(true) {
+              os << "Add default row (d), with an equation (e), or enter manually (m)? ";
+              std::getline(is, method);
+              if (method == "d" || method == "e" || method == "m") {
+                break;
+              } else {
+                os << "Invalid option. Must be 'd', 'e', or 'm'.\n" << std::endl;
+              }
+            }
+
+            if (method == "d") {
+              os << "\nEnter default value (number or string): ";
+              std::string input;
+              std::getline(is, input);
+              auto num = IsValidDouble(input);
+              if (num.has_value()) {
+                grid.InsertDefaultRow(cse::kNoIndex, num.value());
+              } else {
+                grid.InsertDefaultRow(cse::kNoIndex, input);
+              }
+              os << "Default row added." << std::endl;
+
+              os << "\nBelow is the new grid: \n";
+              grid.Print(os);
+
+              // Add a row manually
+            } else if (method == "m") {
+              std::vector<cse::Datum> new_row;
+              os << "\nEnter " << num_cols << " values for the new row one at a time: \n";
+              for (std::size_t i = 0; i < num_cols; ++i) {
+                os << "Value " << i + 1 << ":" << std::endl;
+                std::string val;
+                std::getline(is, val);
+                auto num = IsValidDouble(val);
+                new_row.emplace_back(num.has_value() ? cse::Datum(num.value())
+                                         : cse::Datum(val));
+              }
+              grid.InsertRow(new_row);
+              os << "Row added." << std::endl;
+
+              os << "\nBelow is the new grid: \n";
+              grid.Print(os);
+              // Add a custom row with an equation
+            } else if (method == "e") {
+              std::vector<cse::Datum> new_row;
+
+              std::string equation;
+              while (true) {
+                os << "\nEnter equation:" << std::endl;
+                os << "Supported operators: +, -, /, *, and ^" << std::endl;
+                os << "Insert row indexes in the curly braces {}. For example, {0}" << std::endl;
+                os << "Separate each action with a single space" << std::endl;
+                os << "Examples: \n1) {0} + {1}  \n2) {0} * {0} / {1} \n3) {0} ^ {0} - {1} \n";
+                std::getline(is, equation);
+                bool is_valid_equation = IsValidCustomEquation(equation, static_cast<int>(std::get<0>(grid.Shape())));
+                if (is_valid_equation) {
+                  break;
+                } else {
+                  os << "Invalid equation. Try again. \n";
+                }
+              }
+
+              cse::ExpressionParser<cse::ReferenceVector<Datum>> parser;
+              cse::ReferenceVector<Datum> col;
+              size_t index = 0;
+              auto func = parser.MakeFunc(equation, 0, index);
+              for (size_t i = 0; i < num_cols; ++i) {
+                col = grid.GetColumn(i);
+                new_row.push_back(func(col));
+              }
+              grid.InsertRow(new_row);
+              os << "Row Added" << std::endl;
+
+              os << "\nBelow is the new grid: \n";
+              grid.Print(os);
             } else {
-              grid.InsertDefaultRow(cse::kNoIndex, input);
+              os << "Invalid option. Must be 'd', 'e', or 'm'.";
             }
-            os << "Default row added." << std::endl;
-            // Add a row manually
-          } else if (method == "m") {
-            std::vector<cse::Datum> new_row;
-            os << "Enter " << num_cols << " values for the new row: ";
-            for (std::size_t i = 0; i < num_cols; ++i) {
-              std::string val;
-              is >> val;
-              auto num = IsValidDouble(val);
-              new_row.emplace_back(num.has_value() ? cse::Datum(num.value())
-                                                   : cse::Datum(val));
-            }
-            grid.InsertRow(new_row);
-            os << "Row added." << std::endl;
-            // Add a custom row with an equation
-          } else if (method == "e") {
-            std::vector<cse::Datum> new_row;
-            os << "Enter equation. Supported operators +-/*^, indexes in curly "
-                  "braces {}, seperate with a single space: ";
-            std::string equation;
-            is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::getline(is, equation);
-            os << equation << std::endl;
-            cse::ExpressionParser<cse::ReferenceVector<Datum>> parser;
-            cse::ReferenceVector<Datum> col;
-            size_t index = 0;
-            auto func = parser.MakeFunc(equation, 0, index);
-            for (size_t i = 0; i < num_cols; ++i) {
-              col = grid.GetColumn(i);
-              new_row.push_back(func(col));
-            }
-            grid.InsertRow(new_row);
-            os << "Row Added" << std::endl;
-          } else {
-            os << "Invalid option. Must be 'd', 'e', or 'm'.";
+            break;
           }
-          break;
-        }
-        // Add column
-        case 2: {
-          std::size_t num_rows = std::get<0>(grid.Shape());
-          os << "Add default column (d), column by equation (e), or enter "
-                "manually (m)? ";
-          std::string method;
-          is >> method;
-          // Add a default column
-          if (method == "d") {
-            os << "Enter default value (number or string): ";
-            std::string input;
-            is >> input;
-            auto num = IsValidDouble(input);
-            if (num.has_value()) {
-              grid.InsertDefaultColumn(cse::kNoIndex, num.value());
+            // Add column
+          case 2: {
+            std::size_t num_rows = std::get<0>(grid.Shape());
+
+            std::string method;
+            while(true) {
+              os << "Add default row (d), with an equation (e), or enter manually (m)? ";
+              std::getline(is, method);
+              if (method == "d" || method == "e" || method == "m") {
+                break;
+              } else {
+                os << "Invalid option. Must be 'd', 'e', or 'm'.\n" << std::endl;
+              }
+            }
+
+            // Add a default column
+            if (method == "d") {
+              os << "\nEnter default value (number or string): ";
+              std::string input;
+              std::getline(is, input);
+              auto num = IsValidDouble(input);
+              if (num.has_value()) {
+                grid.InsertDefaultColumn(cse::kNoIndex, num.value());
+              } else {
+                grid.InsertDefaultColumn(cse::kNoIndex, input);
+              }
+              os << "Default column added." << std::endl;
+
+              os << "\nBelow is the new grid: \n";
+              grid.Print(os);
+              // Add a column manually
+            } else if (method == "m") {
+              std::vector<cse::Datum> new_column;
+              os << "\nEnter " << num_rows << " values for the new column one at a time: \n";
+              for (std::size_t i = 0; i < num_rows; ++i) {
+                os << "Value " << i + 1 << ":" << std::endl;
+                std::string val;
+                std::getline(is, val);
+                auto num = IsValidDouble(val);
+                new_column.emplace_back(num.has_value() ? cse::Datum(num.value())
+                                            : cse::Datum(val));
+              }
+              grid.InsertColumn(new_column);
+
+              os << "Column added." << std::endl;
+
+              os << "\nBelow is the new grid: \n";
+              grid.Print(os);
+
+              // Add a custom column by an equation
+            } else if (method == "e") {
+              std::vector<cse::Datum> new_col;
+
+              std::string equation;
+              while (true) {
+                os << "\nEnter equation:" << std::endl;
+                os << "Supported operators: +, -, /, *, and ^" << std::endl;
+                os << "Insert column indexes in the curly braces {}. For example, {0}" << std::endl;
+                os << "Separate each action with a single space" << std::endl;
+                os << "Examples: \n1) {0} + {1}  \n2) {0} * {0} / {1} \n3) {0} ^ {0} - {1} \n";
+                std::getline(is, equation);
+                bool is_valid_equation = IsValidCustomEquation(equation, static_cast<int>(std::get<1>(grid.Shape())));
+                if (is_valid_equation) {
+                  break;
+                } else {
+                  os << "Invalid equation. Try again. \n";
+                }
+              }
+
+              cse::ExpressionParser<std::vector<cse::Datum>> parser;
+              std::vector<Datum> row;
+              size_t index = 0;
+              auto func = parser.MakeFunc(equation, 0, index);
+              for (size_t i = 0; i < num_rows; ++i) {
+                row = grid.GetRow(i);
+                new_col.push_back(func(row));
+              }
+              grid.InsertColumn(new_col);
+              os << "Column Added." << std::endl;
+
+              os << "\nBelow is the new grid: \n";
+              grid.Print(os);
             } else {
-              grid.InsertDefaultColumn(cse::kNoIndex, input);
+              os << "Invalid option. Must be 'd', 'e', or 'm'." << std::endl;
             }
-            os << "Default column added." << std::endl;
-            // Add a column manually
-          } else if (method == "m") {
-            std::vector<cse::Datum> new_column;
-            os << "Enter " << num_rows << " values for the new column: ";
-            for (std::size_t i = 0; i < num_rows; ++i) {
-              std::string val;
-              is >> val;
-              auto num = IsValidDouble(val);
-              new_column.emplace_back(num.has_value() ? cse::Datum(num.value())
-                                                      : cse::Datum(val));
-            }
-            grid.InsertColumn(new_column);
-            os << "Column added." << std::endl;
-            // Add a custom column by an equation
-          } else if (method == "e") {
-            std::vector<cse::Datum> new_col;
-            os << "Enter equation. Supported operators +-/*^, indexes in curly "
-                  "braces {}, seperate with a single space: ";
-            std::string equation;
-            is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::getline(is, equation);
-            cse::ExpressionParser<std::vector<cse::Datum>> parser;
-            std::vector<Datum> row;
-            size_t index = 0;
-            auto func = parser.MakeFunc(equation, 0, index);
-            for (size_t i = 0; i < num_rows; ++i) {
-              row = grid.GetRow(i);
-              new_col.push_back(func(row));
-            }
-            grid.InsertColumn(new_col);
-            os << "Col Added" << std::endl;
-          } else {
-            os << "Invalid option. Must be 'd', 'e', or 'm'." << std::endl;
+            break;
           }
-          break;
-        }
-        // Merge DataGrids
-        case 3: {
-          int merge_type = 0;
-          os << "Enter merge type (1 for row append, 0 for column append): ";
-          is >> merge_type;
-          std::size_t merge_rows = 0, merge_cols = 0;
-          os << "Enter number of rows for merging grid: ";
-          is >> merge_rows;
-          os << "Enter number of columns for merging grid: ";
-          is >> merge_cols;
-
-          std::vector<std::vector<cse::Datum>> merge_data(
-              merge_rows, std::vector<cse::Datum>(merge_cols));
-          os << "Enter values for the merging grid:" << std::endl;
-          for (std::size_t i = 0; i < merge_rows; ++i) {
-            for (std::size_t j = 0; j < merge_cols; ++j) {
-              std::string val;
-              is >> val;
-              auto num = IsValidDouble(val);
-              merge_data[i][j] =
-                  num.has_value() ? cse::Datum(num.value()) : cse::Datum(val);
+            // Merge DataGrids
+          case 3: {
+            std::string merge_type;
+            while (true) {
+              os << "Enter merge type (1 for row append, 0 for column append): ";
+              std::getline(is, merge_type);
+              if (merge_type == "1" || merge_type == "0") {
+                break;
+              } else {
+                os << "Invalid input. Must be 0 or 1 \n" << std::endl;
+              }
             }
+            int merge_type_int = std::stoi(merge_type);
+
+            std::string merge_rows;
+            while (true) {
+              os << "Enter number of rows for merging grid: ";
+              std::getline(is, merge_rows);
+              std::optional<int> rows_int = IsValidInt(merge_rows);
+              if (rows_int.has_value()) {
+                if (merge_type == "1" || rows_int.value() == static_cast<int>(std::get<0>(grid.Shape()))) {
+                  break;
+                } else {
+                  os << "Invalid row size. The row must equal your current grid's row size:" << std::get<0>(grid.Shape()) << "\n" << std::endl;
+                }
+              } else {
+                os << "Invalid input. Must be an int \n" << std::endl;
+              }
+            }
+            int merge_rows_int = std::stoi(merge_rows);
+
+            std::string merge_cols;
+            while (true) {
+              os << "Enter number of columns for merging grid: ";
+              std::getline(is, merge_cols);
+              std::optional<int> col_int = IsValidInt(merge_cols);
+              if (col_int.has_value()) {
+                if (merge_type == "0" || col_int.value() == static_cast<int>(std::get<1>(grid.Shape()))) {
+                  break;
+                } else {
+                  os << "Invalid col size. The row must equal the current grid's column size:" << std::get<1>(grid.Shape()) << "\n" << std::endl;
+                }
+              } else {
+                os << "Invalid input. Must be an int \n" << std::endl;
+              }
+            }
+            int merge_col_int = std::stoi(merge_cols);
+
+            std::vector<std::vector<cse::Datum>> merge_data(merge_rows_int, std::vector<cse::Datum>(merge_col_int));
+            os << "Enter " << merge_rows_int * merge_col_int << " values for the merging grid:" << std::endl;
+            int counter = 1;
+            for (int i = 0; i < merge_rows_int; ++i) {
+              for (int j = 0; j < merge_col_int; ++j) {
+                os << "Value (" << counter << "/" << merge_rows_int * merge_col_int << "):" << std::endl;
+                std::string val;
+                std::getline(is, val);
+                auto num = IsValidDouble(val);
+                merge_data[i][j] = num.has_value() ? cse::Datum(num.value()) : cse::Datum(val);
+                counter += 1;
+              }
+            }
+
+            cse::DataGrid other_grid(merge_data);
+            grid = grid.Merge(other_grid, merge_type_int == 1);
+            os << "Grids merged." << std::endl;
+
+            os << "\nBelow is the new grid: \n";
+            grid.Print(os);
+            break;
           }
 
-          cse::DataGrid other_grid(merge_data);
-          grid = grid.Merge(other_grid, merge_type == 1);
-          os << "Grids merged." << std::endl;
-          break;
+          case 0:
+            break;
+
+          default:
+            os << "Invalid choice. Try again." << std::endl;
         }
-
-        case 0:
-          break;
-
-        default:
-          os << "Invalid choice. Try again." << std::endl;
+      } catch (const std::exception &e) {
+        std::cerr << "Error: " << e.what() << std::endl;
       }
-    } catch (const std::exception &e) {
-      std::cerr << "Error: " << e.what() << std::endl;
+    }
+    else {
+      os << "Invalid choice. Cannot be a string. Try again.\n";
     }
   } while (choice != 0);
 }
@@ -984,7 +1320,7 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid,
 void FinalApplication::DeleteSubmenu(cse::DataGrid &grid,
                                      std::ostream &os = std::cout,
                                      std::istream &is = std::cin) {
-  int choice = 0;
+  int choice = -1;
   do {
     os << "\n--- Deleting Options ---" << std::endl;
     os << "1. Delete a row" << std::endl;
@@ -992,47 +1328,54 @@ void FinalApplication::DeleteSubmenu(cse::DataGrid &grid,
     os << "3. Clear the entire grid" << std::endl;
     os << "0. Return to previous menu" << std::endl;
     os << "Enter your choice: ";
-    is >> choice;
+    std::string input;
+    std::getline(is, input);
 
-    try {
-      switch (choice) {
-        // Delete a row
-        case 1: {
-          std::size_t row = 0;
-          os << "Enter row index to delete (1001 to cancel): ";
-          is >> row;
-          if (row == 1001) {
+    std::optional<int> input_int = IsValidInt(input);
+
+    if (input_int.has_value()) {
+      choice = input_int.value();
+      try {
+        switch (choice) {
+          // Delete a row
+          case 1: {
+            // TODO - says column when it should say row
+            grid.DeleteRow(GetColumnIndex(static_cast<int>(std::get<0>(grid.Shape())), os, is));
+            os << "Row deleted." << std::endl;
+
+            os << "\nBelow is the new grid: \n";
+            grid.Print(os);
             break;
           }
-          grid.DeleteRow(row);
-          os << "Row deleted." << std::endl;
-          break;
-        }
-        // Delete a column
-        case 2: {
-          std::size_t col = 0;
-          os << "Enter column index to delete (1001 to cancel): ";
-          is >> col;
-          if (col == 1001) {
+            // Delete a column
+          case 2: {
+            grid.DeleteColumn(GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is));
+            os << "Column deleted." << std::endl;
+
+            os << "\nBelow is the new grid: \n";
+            grid.Print(os);
             break;
           }
-          grid.DeleteColumn(col);
-          os << "Column deleted." << std::endl;
-          break;
+            // Clear the entire grid
+          case 3: {
+            grid.Clear();
+            os << "Grid cleared." << std::endl;
+
+            os << "\nBelow is the new grid: \n";
+            grid.Print(os);
+            break;
+          }
+          case 0:
+            break;
+          default:
+            os << "Invalid choice. The value must be between 0-3." << std::endl;
         }
-        // Clear the entire grid
-        case 3: {
-          grid.Clear();
-          os << "Grid cleared." << std::endl;
-          break;
-        }
-        case 0:
-          break;
-        default:
-          os << "Invalid choice. Try again." << std::endl;
+      } catch (const std::exception &e) {
+        std::cerr << "Error: " << e.what() << std::endl;
       }
-    } catch (const std::exception &e) {
-      std::cerr << "Error: " << e.what() << std::endl;
+    }
+    else {
+      os << "Invalid choice. Cannot be a string. Try again.\n";
     }
   } while (choice != 0);
 }
@@ -1047,98 +1390,59 @@ void FinalApplication::DeleteSubmenu(cse::DataGrid &grid,
 void FinalApplication::ResizeSubmenu(cse::DataGrid &grid,
                                      std::ostream &os = std::cout,
                                      std::istream &is = std::cin) {
-  int choice = 0;
+  int choice = -1;
   do {
     os << "\n--- Resizing Options ---" << std::endl;
-    os << "1. Resize grid (default type: double)" << std::endl;
-    os << "2. Resize grid (default type: string)" << std::endl;
+    os << "1. Resize grid" << std::endl;
     os << "0. Return to previous menu" << std::endl;
     os << "Enter your choice: ";
     std::string input;
-    is >> input;
-    // is >> choice;
-    std::optional<int> input_int = IsValidInt(input);
+    std::getline(is, input);
 
+    std::optional<int> input_int = IsValidInt(input);
 
     if (input_int.has_value()) {
       choice = input_int.value();
       switch (choice) {
         // Resize the grid (double)
         case 1: {
-          std::size_t new_rows = 0, new_cols = 0;
-          double default_value = 0;
-          while (true) {
-            os << "Enter new number of rows (1-1000): ";
-            is >> new_rows;
-        
-            if (is.fail() || new_rows < 1 || new_rows > 1000) {
-                os << "Invalid input. Please enter a number between 1 and 1000.\n";
-                is.clear();                  // clear error flags
-                is.ignore(10000, '\n');      // discard invalid input
-            } else {
-                break; // valid input
-            }
-          }
-          while (true) {
-            os << "Enter new number of columns (1-1000): ";
-            is >> new_cols;
-        
-            if (is.fail() || new_cols < 1 || new_cols > 1000) {
-                os << "Invalid input. Please enter a number between 1 and 1000.\n";
-                is.clear();                  // clear error flags
-                is.ignore(10000, '\n');      // discard invalid input
-            } else {
-                break; // valid input
-            }
-          }
-          while (true) {
-            os << "Enter default value (number): ";
-            is >> default_value;
-        
-            if (is.fail()) {
-                os << "Invalid input. Please enter a number \n";
-                is.clear();                  // clear error flags
-                is.ignore(10000, '\n');      // discard invalid input
-            } else {
-                break; // valid input
-            }
-          }
-          grid.Resize(new_rows, new_cols, default_value);
-          os << "Grid resized." << std::endl;
-          break;
-        }
-          // Resize the grid (strings)
-        case 2: {
-          std::size_t new_rows = 0, new_cols = 0;
+          std::string new_rows;
+          std::string new_cols;
           std::string default_value;
+
           while (true) {
             os << "Enter new number of rows (1-1000): ";
-            is >> new_rows;
-        
-            if (is.fail() || new_rows < 1 || new_rows > 1000) {
-                os << "Invalid input. Please enter a number between 1 and 1000.\n";
-                is.clear();                  // clear error flags
-                is.ignore(10000, '\n');      // discard invalid input
+            std::getline(is, new_rows);
+
+            std::optional new_rows_int = IsValidInt(new_rows);
+            if (new_rows_int.has_value() && new_rows_int.value() >= 1 && new_rows_int.value() <= 1000) {
+              break;
             } else {
-                break; // valid input
+              os << "Invalid input. Please enter a number between 1 and 1000.\n";
             }
           }
           while (true) {
             os << "Enter new number of columns (1-1000): ";
-            is >> new_cols;
-        
-            if (is.fail() || new_cols < 1 || new_cols > 1000) {
-                os << "Invalid input. Please enter a number between 1 and 1000.\n";
-                is.clear();                  // clear error flags
-                is.ignore(10000, '\n');      // discard invalid input
+            std::getline(is, new_cols);
+
+            std::optional new_cols_int = IsValidInt(new_cols);
+            if (new_cols_int.has_value() && new_cols_int.value() >= 1 && new_cols_int.value() <= 1000) {
+              break;
             } else {
-                break; // valid input
+              os << "Invalid input. Please enter a number between 1 and 1000.\n";
             }
           }
-          os << "Enter default value (string): ";
-          is >> default_value;
-          grid.Resize(new_rows, new_cols, default_value);
+          os << "Enter default value: ";
+          std::getline(is, default_value);
+          if (IsValidDouble(default_value)) {
+            grid.Resize(std::stoi(new_rows), std::stoi(new_cols), std::stod(default_value));
+          } else {
+            grid.Resize(std::stoi(new_rows), std::stoi(new_cols), default_value);
+          }
           os << "Grid resized." << std::endl;
+
+          os << "\nBelow is the new grid: \n";
+          grid.Print(os);
           break;
         }
         case 0:
@@ -1147,7 +1451,7 @@ void FinalApplication::ResizeSubmenu(cse::DataGrid &grid,
           os << "Invalid resize option. Must be between 0-2. Try again." << std::endl;
       }
     } else {
-      os << "Invalid resize option. Cannot be a string. Try again." << std::endl;
+      os << "Invalid choice. Cannot be a string. Try again.\n";
     }
   } while (choice != 0);
 }
@@ -1160,16 +1464,16 @@ void FinalApplication::ResizeSubmenu(cse::DataGrid &grid,
  */
 void FinalApplication::MainMenu(std::ostream &os = std::cout,
                                 std::istream &is = std::cin) {
-  os << "Welcome to CSV Command Line Manipulator" << std::endl;
+  os << "\nWelcome to CSV Command Line Manipulator!" << std::endl;
   os << "This is a command line application that allows users to create, load, "
-        "manipulate, analyze and save CSV file data"
+        "manipulate, analyze and save CSV file data\n"
      << std::endl;
   os << "Developed by: Max Krawec, Calen Green, Pedro Mitkiewicz, "
         "Shahaab Ali, and Muhammad Asif Masood"
      << std::endl;
   os << std::endl;
 
-  cse::DataGrid grid = GridMenu();
+  cse::DataGrid grid = GridMenu(os, is);
 
   while (true) {
     os << "\nMenu Option:" << std::endl;
@@ -1180,31 +1484,38 @@ void FinalApplication::MainMenu(std::ostream &os = std::cout,
     os << "q: Quit" << std::endl;
     os << "\nPlease enter an option from the list above: ";
     std::string option;
-    is >> option;
+    std::getline(is, option);
 
     if (option == "x") {
       std::string filename;
-      os << "Enter CSV filename to export: ";
-      is >> filename;
+      while (true) {
+        os << "Enter CSV filename to export: ";
+        std::getline(is, filename);
+        if (filename.ends_with(".csv")) {
+          break;
+        } else {
+          os << "Invalid filename. The file must end with .csv" << "\n";
+        }
+      }
       try {
         if (!cse::CSVFile::ExportCsv(filename, grid)) {
           std::cerr << "Export failed: unknown error\n";
         } else {
-          os << "Exported to " << filename << "\n";
+          os << "\nExported to " << filename << "\n";
         }
       } catch (const std::exception &e) {
         std::cerr << "Export failed: " << e.what() << "\n";
       }
     } else if (option == "e") {
-      ManipulateGridMenu(grid);
+      ManipulateGridMenu(grid, os, is);
     } else if (option == "m") {
-      MathMenu(grid);
+      MathMenu(grid, os, is);
     } else if (option == "c") {
-      ComparisonMenu(grid);
+      ComparisonMenu(grid, os, is);
     } else if (option == "q") {
       break;
     } else {
-      os << "Invalid option. Try again." << std::endl;
+      os << "\nInvalid option. Try again." << std::endl;
     }
   }
 
