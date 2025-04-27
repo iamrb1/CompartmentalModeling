@@ -71,13 +71,14 @@ std::optional<double> FinalApplication::IsValidDouble(
  */
 std::optional<int> FinalApplication::IsValidInt(
     const std::string &test_string) {
-  try {
-    std::size_t pos;
-    int value = std::stoi(test_string, &pos);
-    if (pos == test_string.length()) {
-      return value;
-    }
-  } catch (std::invalid_argument &) {
+  if (test_string.size() <= 9) {
+    try {
+      std::size_t pos;
+      int value = std::stoi(test_string, &pos);
+      if (pos == test_string.length()) {
+        return value;
+      }
+    } catch (std::invalid_argument & ) {}
   }
   return std::nullopt;
 }
