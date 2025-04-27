@@ -960,41 +960,132 @@ TEST_CASE("PrintSubmenu handles bad then good input", "[PrintSubmenu]") {
   // reusing the 2×2 zero grid
   cse::DataGrid grid(2, 2, 0.0);
 
-  SECTION("bad menu choice then exit") {
+  SECTION("bad menu choice then exit") {           // invalid menu
     std::istringstream is("9\n0\n");
     std::ostringstream os;
     FinalApplication::PrintSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid choice") != std::string::npos);
   }
 
-  SECTION("print whole grid then exit") {
+  SECTION("print whole grid then exit") {          // full grid
     std::istringstream is("4\n0\n");
     std::ostringstream os;
     FinalApplication::PrintSubmenu(grid, os, is);
-    // at least one "0 " in the printed grid
     REQUIRE(os.str().find("0 ") != std::string::npos);
   }
 
-  SECTION("print single cell") {
-    // 1 = print cell; row=0, col=1; then exit
+  SECTION("print single cell") {                   // one cell
     std::istringstream is("1\n0\n1\n0\n");
     std::ostringstream os;
     FinalApplication::PrintSubmenu(grid, os, is);
     REQUIRE(os.str().find("Cell (0, 1): 0") != std::string::npos);
   }
   
-  SECTION("print row") {
+  SECTION("print row") {                           // single row
     std::istringstream is("2\n1\n0\n");
     std::ostringstream os;
     FinalApplication::PrintSubmenu(grid, os, is);
     REQUIRE(os.str().find("Row 1: 0 0") != std::string::npos);
   }
   
-  SECTION("print column") {
+  SECTION("print column") {                        // single col
     std::istringstream is("3\n1\n0\n");
     std::ostringstream os;
     FinalApplication::PrintSubmenu(grid, os, is);
     REQUIRE(os.str().find("Column 1: 0 0") != std::string::npos);
+  }
+}
+
+TEST_CASE("PrintSubmenu rejects invalid choice formats", "[PrintSubmenu]") {
+  cse::DataGrid grid(2,2,0.0);
+  std::ostringstream os;
+
+  SECTION("non-numeric menu choice") {             // text input
+    std::istringstream is("foo\n0\n");
+    FinalApplication::PrintSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid choice") != std::string::npos);
+  }
+  SECTION("decimal menu choice") {                 // decimal input
+    std::istringstream is("1.5\n0\n");
+    os.str(""); os.clear();
+    FinalApplication::PrintSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid choice") != std::string::npos);
+  }
+  SECTION("negative menu choice") {                // negative input
+    std::istringstream is("-1\n0\n");
+    os.str(""); os.clear();
+    FinalApplication::PrintSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid choice") != std::string::npos);
+  }
+}
+
+TEST_CASE("PrintSubmenu rejects out-of-bounds indices", "[PrintSubmenu]") {
+  cse::DataGrid grid(2,2,0.0);
+  std::ostringstream os;
+
+  SECTION("print cell with negative row") {        // row < 0
+    std::istringstream is("1\n-1\n0\n0\n");
+    FinalApplication::PrintSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid") != std::string::npos);
+  }
+  SECTION("print cell with too-large col") {       // col ≥ size
+    std::istringstream is("1\n0\n99\n0\n");
+    os.str(""); os.clear();
+    FinalApplication::PrintSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid") != std::string::npos);
+  }
+  SECTION("print row with negative index") {       // row < 0
+    std::istringstream is("2\n-1\n");
+    os.str(""); os.clear();
+    FinalApplication::PrintSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid") != std::string::npos);
+  }
+  SECTION("print row with too-large index") {      // row ≥ size
+    std::istringstream is("2\n5\n");
+    os.str(""); os.clear();
+    FinalApplication::PrintSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid") != std::string::npos);
+  }
+  SECTION("print column with negative index") {    // col < 0
+    std::istringstream is("3\n-1\n");
+    os.str(""); os.clear();
+    FinalApplication::PrintSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid") != std::string::npos);
+  }
+  SECTION("print column with too-large index") {   // col ≥ size
+    std::istringstream is("3\n3\n");
+    os.str(""); os.clear();
+    FinalApplication::PrintSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid") != std::string::npos);
+  }
+}
+
+TEST_CASE("PrintSubmenu rejects invalid row/column formats", "[PrintSubmenu]") {
+  cse::DataGrid grid(2, 2, 0.0);
+  std::ostringstream os;
+
+  SECTION("print cell rejects string row index") { // text row
+    std::istringstream is("1\nfoo\n0\n0\n0\n");
+    FinalApplication::PrintSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid choice") != std::string::npos);
+  }
+  SECTION("print cell rejects decimal column index") { // decimal col
+    std::istringstream is("1\n0\n1.5\n0\n0\n");
+    os.str(""); os.clear();
+    FinalApplication::PrintSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid choice") != std::string::npos);
+  }
+  SECTION("print row rejects non-numeric index") { // text row index
+    std::istringstream is("2\nfoo\n0\n");
+    os.str(""); os.clear();
+    FinalApplication::PrintSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid choice") != std::string::npos);
+  }
+  SECTION("print column rejects too-large index") { // col ≥ size
+    std::istringstream is("3\n99\n0\n");
+    os.str(""); os.clear();
+    FinalApplication::PrintSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid choice") != std::string::npos);
   }
 }
 
@@ -1043,7 +1134,126 @@ TEST_CASE("EditSubmenu handles bad then all three edit modes", "[EditSubmenu]") 
     std::ostringstream os;
     FinalApplication::EditSubmenu(grid, os, is);
     // still 0.0, but with no crash
-    CHECK(grid.GetValue(0,0).AsDouble() == Approx(0.0));
+    CHECK(grid.GetValue(0,0).AsString() == "foo");
     REQUIRE(os.str().find("Cell updated") != std::string::npos);
+  }
+}
+
+TEST_CASE("EditSubmenu rejects invalid menu choices", "[EditSubmenu]") {
+  cse::DataGrid grid(2, 2, 0.0);
+  std::ostringstream os;
+
+  SECTION("non-numeric choice") {                // text choice
+    std::istringstream is("foo\n0\n");
+    FinalApplication::EditSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid choice") != std::string::npos);
+  }
+  SECTION("decimal choice") {                    // decimal choice
+    std::istringstream is("1.5\n0\n");
+    os.str(""); os.clear();
+    FinalApplication::EditSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid choice") != std::string::npos);
+  }
+  SECTION("negative choice") {                   // negative choice
+    std::istringstream is("-1\n0\n");
+    os.str(""); os.clear();
+    FinalApplication::EditSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid choice") != std::string::npos);
+  }
+}
+
+TEST_CASE("EditSubmenu rejects out-of-bounds indices", "[EditSubmenu]") {
+  cse::DataGrid grid(2, 2, 0.0);
+  std::ostringstream os;
+
+  SECTION("cell edit negative row") {            // row < 0
+    std::istringstream is("1\n-1\n0\n3.14\n0\n");
+    FinalApplication::EditSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid choice") != std::string::npos);
+  }
+  SECTION("cell edit too-large col") {           // col ≥ size
+    std::istringstream is("1\n0\n99\n3.14\n0\n");
+    os.str(""); os.clear();
+    FinalApplication::EditSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid choice") != std::string::npos);
+  }
+  SECTION("row edit negative index") {           // row < 0
+    std::istringstream is("2\n-1\n0 0\n0\n");
+    os.str(""); os.clear();
+    FinalApplication::EditSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid choice") != std::string::npos);
+  }
+  SECTION("row edit too-large index") {          // row ≥ size
+    std::istringstream is("2\n5\n7 8\n0\n");
+    os.str(""); os.clear();
+    FinalApplication::EditSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid choice") != std::string::npos);
+  }
+  SECTION("column edit negative index") {        // col < 0
+    std::istringstream is("3\n-1\n1 2\n0\n");
+    os.str(""); os.clear();
+    FinalApplication::EditSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid choice") != std::string::npos);
+  }
+  SECTION("column edit too-large index") {       // col ≥ size
+    std::istringstream is("3\n3\n1 2\n0\n");
+    os.str(""); os.clear();
+    FinalApplication::EditSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid choice") != std::string::npos);
+  }
+}
+
+TEST_CASE("EditSubmenu rejects invalid index formats", "[EditSubmenu]") {
+  cse::DataGrid grid(2, 2, 0.0);
+  std::ostringstream os;
+
+  SECTION("cell edit rejects string row") {      // text row
+    std::istringstream is("1\nfoo\n0\n3.14\n0\n");
+    FinalApplication::EditSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid choice") != std::string::npos);
+  }
+  SECTION("cell edit rejects decimal col") {     // decimal col
+    std::istringstream is("1\n0\n1.5\n3.14\n0\n");
+    os.str(""); os.clear();
+    FinalApplication::EditSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid choice") != std::string::npos);
+  }
+  SECTION("row edit rejects non-numeric") {      // text row index
+    std::istringstream is("2\nfoo\n7 8\n0\n");
+    os.str(""); os.clear();
+    FinalApplication::EditSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid choice") != std::string::npos);
+  }
+  SECTION("column edit rejects non-numeric") {   // text col index
+    std::istringstream is("3\nfoo\n1 2\n0\n");
+    os.str(""); os.clear();
+    FinalApplication::EditSubmenu(grid, os, is);
+    REQUIRE(os.str().find("Invalid choice") != std::string::npos);
+  }
+}
+
+TEST_CASE("EditSubmenu accepts string values", "[EditSubmenu]") {
+  cse::DataGrid grid(2, 2, 0.0);
+  std::ostringstream os;
+
+  SECTION("edit cell to string") {               // string cell
+    std::istringstream is("1\n0\n1\nhello\n0\n");
+    FinalApplication::EditSubmenu(grid, os, is);
+    CHECK(grid.GetValue(0,1).AsString() == "hello");
+    REQUIRE(os.str().find("Cell updated") != std::string::npos);
+  }
+  SECTION("edit row to strings") {               // string row
+    std::istringstream is("2\n1\nfoo bar\n0\n");
+    FinalApplication::EditSubmenu(grid, os, is);
+    CHECK(grid.GetValue(1,0).AsString() == "foo");
+    CHECK(grid.GetValue(1,1).AsString() == "bar");
+    REQUIRE(os.str().find("Row updated") != std::string::npos);
+  }
+  SECTION("edit column to strings") {            // string col
+    std::istringstream is("3\n0\none two\n0\n");
+    FinalApplication::EditSubmenu(grid, os, is);
+    CHECK(grid.GetValue(0,0).AsString() == "one");
+    CHECK(grid.GetValue(1,0).AsString() == "two");
+    REQUIRE(os.str().find("Column updated") != std::string::npos);
   }
 }
