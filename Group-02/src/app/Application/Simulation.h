@@ -80,7 +80,7 @@ class Simulation : public QObject {
   void timeStepsChanged();
   void isRunningChanged();
   void addGraphingValues(double time, QVariant new_compartment_amounts);
-  void promptMessage(PromptType type, const QString& message, PromptMode mode = TOAST);
+  void promptMessage(Simulation::PromptType type, const QString& message, Simulation::PromptMode mode = TOAST);
 
  private:
   static constexpr int DEFAULT_TIME_STEP_MS = 100;

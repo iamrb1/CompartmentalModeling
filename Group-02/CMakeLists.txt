@@ -24,17 +24,18 @@ if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   set(CMAKE_CXX_EXTENSIONS OFF)
 
   # Set build-type-specific optimization flags
-  set(CMAKE_CXX_FLAGS_DEBUG "")
-  set(CMAKE_CXX_FLAGS_RELEASE "")
-
   if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     add_compile_options(-Wall -Wextra)
-    set(CMAKE_CXX_FLAGS_DEBUG   "-g -O0")
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -DNDEBUG")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG")
   elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    set(CMAKE_CXX_FLAGS_DEBUG   "/Od /Zi")
-    set(CMAKE_CXX_FLAGS_RELEASE "/O2 /DNDEBUG")
-  endif()
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Od /Zi")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2 /DNDEBUG")
+  endif ()
+
+  message(STATUS "CMake build type: ${CMAKE_BUILD_TYPE}")
+  message(STATUS "CMake compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
+  message(STATUS "CMake compiler flags: ${CMAKE_CXX_FLAGS}")
 
 endif ()
 
@@ -54,6 +55,6 @@ add_subdirectory(src/app)
 
 # Optional: Make tests optional with a CMake option
 option(BUILD_TESTS "Build the tests" ON)
-if(BUILD_TESTS)
+if (BUILD_TESTS)
   add_subdirectory(tests)
-endif()
+endif ()

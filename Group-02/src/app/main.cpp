@@ -18,8 +18,9 @@ int main(int argc, char* argv[]) {
 
   engine.loadFromModule("Application", "SimulationUI");
 
-  if (engine.rootObjects().isEmpty())
+  if (engine.rootObjects().isEmpty()) {
     return -1;
+  }
 
   const auto& root = engine.rootObjects();
 

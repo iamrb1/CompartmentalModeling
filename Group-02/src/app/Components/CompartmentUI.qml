@@ -97,15 +97,15 @@ Rectangle {
      * Change the border color for a compartment based on target or source
      */
     function compartmentBorderColor() {
-        var color = ThemeManager.palette.text
+        var color = ThemeManager.palette.text;
         if (simulation.sourceCompartment
             && simulation.sourceCompartment === compartment) {
-            color = "blue"
+            color = "blue";
         } else if (simulation.targetCompartment
             && simulation.targetCompartment === compartment) {
-            color = "red"
+            color = "red";
         }
-
+        return color;
     }
 
     Connections {
