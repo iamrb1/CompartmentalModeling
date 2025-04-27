@@ -34,6 +34,7 @@
 #include <iostream>
 #include <limits>
 #include <optional>
+#include <regex>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -137,6 +138,54 @@ void FinalApplication::PrintColumn(
     }
   }
   os << std::endl;
+}
+
+// CITE: Used claude.ai to generate this function (comments are my own) - Max Krawec
+/**
+ * Checks if a string is a valid custom equation. The requirements are:
+ *  1) The numbers within the string must be surrounded by {}
+ *  2) The numbers within the {} must be less than a certain value.
+ *  3) The values outside the {} can only be +, -, *, /, and ^
+ *  4) There can't be any other words/values
+ * @param input The custom equation string
+ * @param max_number_value The maximum value for a column or row
+ * @return True if it is a valid custom string, false otherwise.
+ */
+bool FinalApplication::IsValidCustomEquation(const std::string& input, int max_number_value) {
+  // I asked claude.ai to check if a string meets these conditions:
+    // 1) The numbers within the string must be surrounded by {}
+    // 2) The numbers within the {} must be less than a certain value.
+    // 3) The values outside the {} can only be +, -, *, /, and ^
+    // 4) There can't be any other words/values
+  // It generated the regex pattern below, which checks for these requirements
+  std::regex pattern(R"(^(\{(\d+)\}[\s]*([\+\-\*/\^])[\s]*)*\{(\d+)\}$)");
+
+  // If the regex pattern doesn't match, return false
+  if (!std::regex_match(input, pattern)) {
+    return false;
+  }
+
+  // This section of the code performs the 2nd requirement:
+  //   The numbers within the {} must be less than a certain value.
+
+  // This retrieves all the numbers from the {}s
+  std::regex number_pattern(R"(\{(\d+)\})");
+  auto numbers_begin = std::sregex_iterator(input.begin(), input.end(), number_pattern);
+  auto numbers_end = std::sregex_iterator();
+
+  // This section of the code iterates through the numbers and checks if it's less than the max number value
+  for (std::sregex_iterator i = numbers_begin; i != numbers_end; ++i) {
+    const std::smatch& match = *i;
+    std::string number_str = match[1].str();
+    int number = std::stoi(number_str);
+
+    // There is a value that is too large
+    if (number >= max_number_value) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 /**
@@ -1052,11 +1101,23 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid,
               // Add a custom row with an equation
             } else if (method == "e") {
               std::vector<cse::Datum> new_row;
-              os << "Enter equation. Supported operators +-/*^, indexes in curly "
-                    "braces {}, seperate with a single space: ";
 
               std::string equation;
-              std::getline(is, equation);
+              while (true) {
+                os << "\nEnter equation:" << std::endl;
+                os << "Supported operators: +, -, /, *, and ^" << std::endl;
+                os << "Insert row indexes in the curly braces {}. For example, {0}" << std::endl;
+                os << "Separate each action with a single space" << std::endl;
+                os << "Examples: \n1) {0} + {1}  \n2) {0} * {0} / {1} \n3) {0} ^ {0} - {1} \n";
+                std::getline(is, equation);
+                bool is_valid_equation = IsValidCustomEquation(equation, static_cast<int>(std::get<0>(grid.Shape())));
+                if (is_valid_equation) {
+                  break;
+                } else {
+                  os << "Invalid equation. Try again. \n";
+                }
+              }
+
               cse::ExpressionParser<cse::ReferenceVector<Datum>> parser;
               cse::ReferenceVector<Datum> col;
               size_t index = 0;
@@ -1126,13 +1187,24 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid,
 
               // Add a custom column by an equation
             } else if (method == "e") {
-              // TODO
-
               std::vector<cse::Datum> new_col;
-              os << "Enter equation. Supported operators +-/*^, indexes in curly "
-                    "braces {}, seperate with a single space: ";
+
               std::string equation;
-              std::getline(is, equation);
+              while (true) {
+                os << "\nEnter equation:" << std::endl;
+                os << "Supported operators: +, -, /, *, and ^" << std::endl;
+                os << "Insert column indexes in the curly braces {}. For example, {0}" << std::endl;
+                os << "Separate each action with a single space" << std::endl;
+                os << "Examples: \n1) {0} + {1}  \n2) {0} * {0} / {1} \n3) {0} ^ {0} - {1} \n";
+                std::getline(is, equation);
+                bool is_valid_equation = IsValidCustomEquation(equation, static_cast<int>(std::get<1>(grid.Shape())));
+                if (is_valid_equation) {
+                  break;
+                } else {
+                  os << "Invalid equation. Try again. \n";
+                }
+              }
+
               cse::ExpressionParser<std::vector<cse::Datum>> parser;
               std::vector<Datum> row;
               size_t index = 0;
