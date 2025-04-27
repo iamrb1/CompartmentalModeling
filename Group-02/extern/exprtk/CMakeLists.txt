@@ -43,6 +43,13 @@ target_include_directories(
 
 target_compile_features(exprtk INTERFACE cxx_std_11)
 
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+#  target_compile_options(
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  target_compile_options(exprtk INTERFACE /bigobj)
+endif()
+
+
 include(CMakePackageConfigHelpers)
 
 write_basic_package_version_file(

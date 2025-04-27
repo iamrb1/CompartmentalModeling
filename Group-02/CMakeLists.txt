@@ -23,13 +23,17 @@ if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   # -std=c++xx instead of -std=g++xx
   set(CMAKE_CXX_EXTENSIONS OFF)
 
-  # Set Wall, Wextra and Wpedantic flags for GCC/Clang and /W4 for MSVC
+  # Set build-type-specific optimization flags
+  set(CMAKE_CXX_FLAGS_DEBUG "")
+  set(CMAKE_CXX_FLAGS_RELEASE "")
+
   if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    set(CMAKE_CXX_FLAGS "-Wall -Wextra")
-    message("Adding ${CMAKE_CXX_FLAGS}")
-  elseif (MSVC)
-    add_compile_options(/bigobj)
-    message("Enabled /bigobj for MSVC")
+    add_compile_options(-Wall -Wextra)
+    set(CMAKE_CXX_FLAGS_DEBUG   "-g -O0")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -DNDEBUG")
+  elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set(CMAKE_CXX_FLAGS_DEBUG   "/Od /Zi")
+    set(CMAKE_CXX_FLAGS_RELEASE "/O2 /DNDEBUG")
   endif()
 
 endif ()
