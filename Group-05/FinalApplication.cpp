@@ -999,8 +999,11 @@ void FinalApplication::DeleteSubmenu(cse::DataGrid &grid,
         // Delete a row
         case 1: {
           std::size_t row = 0;
-          os << "Enter row index to delete: ";
+          os << "Enter row index to delete (1001 to cancel): ";
           is >> row;
+          if (row == 1001) {
+            break;
+          }
           grid.DeleteRow(row);
           os << "Row deleted." << std::endl;
           break;
@@ -1008,8 +1011,11 @@ void FinalApplication::DeleteSubmenu(cse::DataGrid &grid,
         // Delete a column
         case 2: {
           std::size_t col = 0;
-          os << "Enter column index to delete: ";
+          os << "Enter column index to delete (1001 to cancel): ";
           is >> col;
+          if (col == 1001) {
+            break;
+          }
           grid.DeleteColumn(col);
           os << "Column deleted." << std::endl;
           break;
