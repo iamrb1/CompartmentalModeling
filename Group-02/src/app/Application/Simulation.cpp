@@ -533,10 +533,10 @@ double Simulation::evaluate_expression(const QString& expression_string) {
   //      qDebug() << "  " << name << " = " << value << '\n';
   // }
 
-  // if (parser_t parser; !parser.compile(expression_string.toStdString(), expression)) {
-  //      qDebug() << "Parser error: " << expression_string;
-  //   return 0;
-  // }
+  if (parser_t parser; !parser.compile(expression_string.toStdString(), expression)) {
+       qDebug() << "Parser error: " << expression_string;
+    return 0;
+  }
 
   return expression.value();
 }
