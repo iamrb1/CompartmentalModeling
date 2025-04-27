@@ -1,0 +1,2 @@
+brute-force DNE.txt -capacity=8.8
+brute-force DNE -capacity=8.8
