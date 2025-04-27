@@ -141,6 +141,7 @@ void TestConnection::test_add_connection() {
 
   sim.set_connection_mode(source);
   sim.set_target_compartment(target);
+  sim.add_connection();
 
   ///Test if new connection created
   QCOMPARE(sim.get_connections().count(), initialConnCount + 1);
@@ -160,10 +161,13 @@ void TestConnection::test_add_connection() {
   ///Test cannot make duplicate connections
   sim.set_connection_mode(source);
   sim.set_target_compartment(target);
+  sim.add_connection();
   QCOMPARE(sim.get_connections().count(), initialConnCount + 1);
+
   ///Test can make a reverse connection
   sim.set_connection_mode(target);
   sim.set_target_compartment(source);
+  sim.add_connection();
   QCOMPARE(sim.get_connections().count(), initialConnCount + 2);
 }
 void TestConnection::test_update_connection() {
@@ -191,6 +195,7 @@ void TestConnection::test_update_connection() {
 
   //symbol updates
   simulation.set_target_compartment(target);
+  simulation.add_connection();
   QString new_connection_name = connection->get_name();
   QCOMPARE(new_connection_name, "Connection F1 E1");
 
@@ -207,6 +212,7 @@ void TestConnection::test_update_connection() {
   compartments = simulation.get_compartments();
   Compartment* new_target = compartments[2];
   simulation.set_target_compartment(new_target);
+  simulation.add_connection();
 
   target->set_symbol("D2");
   QString another_name = QString("Connection %1 %2").arg(source->get_symbol(), target->get_symbol());
@@ -216,6 +222,8 @@ void TestConnection::test_update_connection() {
   QCOMPARE(connection->get_rate_expression(), "2.3");
 
   simulation.set_target_compartment(source);
+  simulation.add_connection();
+
   target->set_symbol("G3");
   simulation.set_source_compartment(target);
   QString name3 = QString("Connection %1 %2").arg(source->get_symbol(), target->get_symbol());

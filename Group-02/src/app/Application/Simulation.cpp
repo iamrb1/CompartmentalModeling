@@ -6,19 +6,13 @@
 // #include "pch.h"
 #include "Simulation.h"
 #include <QApplication>
+#include <QDirIterator>
 #include <QFile>
 #include <QXmlStreamReader>
 #include <ranges>
 #include "../Components/Compartment.h"
-#include <QDirIterator>
 
-
-Simulation::Simulation(QObject* parent) : QObject(parent) {
-  QDirIterator it(":", QDirIterator::Subdirectories);
-  while (it.hasNext()) {
-    qDebug() << it.next();
-  }
-}
+Simulation::Simulation(QObject* parent) : QObject(parent) {}
 
 void Simulation::clear() {
   m_is_running = false;
@@ -73,7 +67,7 @@ void Simulation::start() {
   if (!m_timer) {
     m_timer = new QTimer(this);
   }
-  auto connection = connect(m_timer, &QTimer::timeout, [this]() {take_time_step();});
+  auto connection = connect(m_timer, &QTimer::timeout, [this]() { take_time_step(); });
   m_timer->start(DEFAULT_TIME_STEP_MS);
 }
 
@@ -208,7 +202,7 @@ void Simulation::load_xml(const QString& filename) {
         if (xml.isStartElement() && xml.name() == "variable") {
           auto attrs = xml.attributes();
           auto name = attrs.value("name").toString();
-          const double value = attrs.value("value").toDouble();\
+          const double value = attrs.value("value").toDouble();
           add_variable(name, value);
         }
       }
@@ -438,8 +432,8 @@ void Simulation::set_sidebar_connection(Connection* connection) {
 void Simulation::remove_connection(const Connection* connection) {
   if (auto it = std::find_if(m_connections.begin(), m_connections.end(),
                              [connection](const auto& conn) { return conn.get() == connection; });
-    it != m_connections.end()) {
-      m_connections.erase(it);
+      it != m_connections.end()) {
+    m_connections.erase(it);
   }
   m_sidebar_connection = nullptr;
 
@@ -541,14 +535,14 @@ double Simulation::evaluate_expression(const QString& expression_string) {
   std::vector<std::string> variable_list;
   m_symbol_table.get_variable_list(variable_list);
 
-//  qDebug() << "Symbol Table Variables:\n";
+  //  qDebug() << "Symbol Table Variables:\n";
   for (const auto& name : variable_list) {
     const double value = m_symbol_table.get_variable(name)->value();
-//    qDebug() << "  " << name << " = " << value << '\n';
+    //    qDebug() << "  " << name << " = " << value << '\n';
   }
 
   if (parser_t parser; !parser.compile(expression_string.toStdString(), expression)) {
-//    qDebug() << "Parser error: " << expression_string;
+    //    qDebug() << "Parser error: " << expression_string;
     return 0;
   }
 
@@ -558,6 +552,7 @@ double Simulation::evaluate_expression(const QString& expression_string) {
 void Simulation::take_time_step() {
   if (m_current_time >= m_time_steps && m_timer) {
     disconnect(m_timer, nullptr, this, nullptr);
+    pause();
     return;
   }
 
@@ -584,7 +579,7 @@ void Simulation::take_time_step() {
       continue;
     }
 
-    double new_amount = compartment->get_current_amount() + delta_amounts[symbol];
+    const double new_amount = compartment->get_current_amount() + delta_amounts[symbol];
     compartment->set_current_amount(new_amount);
     new_compartment_amounts[compartment->get_symbol()] = new_amount;
   }
