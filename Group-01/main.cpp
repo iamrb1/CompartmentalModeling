@@ -122,7 +122,7 @@ private:
   void DrawGraph() {
     // Draw edges
     auto edges = g.GetEdges();
-    for (auto edge : edges) {
+    for (const auto &edge : edges) {
       auto &from = edge->GetFrom();
       auto &to = edge->GetTo();
       int x1 = from.GetX();
