@@ -157,6 +157,7 @@ class Simulation : public QObject {
   Q_INVOKABLE void add_connection();
   void set_sidebar_connection(Connection* connection);
   Q_INVOKABLE void remove_connection(const Connection* connection);
+  void clear_connections() { m_connections.clear(); };
 
   // Variable stuff
   [[nodiscard]] QVariantMap get_variables() const;

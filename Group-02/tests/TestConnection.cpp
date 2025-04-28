@@ -197,7 +197,7 @@ void TestConnection::test_update_connection() {
   simulation.set_target_compartment(target);
   simulation.add_connection();
   QString new_connection_name = connection.get_name();
-  QCOMPARE(new_connection_name, "Connection F1 E1");
+  QCOMPARE(new_connection_name, "Connection G1 H1");
 
   source->set_symbol("G4");
   target->set_symbol("D9");
@@ -231,6 +231,8 @@ void TestConnection::test_update_connection() {
   QString new_connection_name_D2 = connection.get_name();
   QCOMPARE(new_connection_name_D2, "Connection G4 G3");
   QCOMPARE(connection.get_rate_expression(), "2.3");
+
+  simulation.clear_connections();
 }
 
 #include "TestConnection.moc"

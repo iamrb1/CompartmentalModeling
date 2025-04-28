@@ -192,6 +192,8 @@ void Simulation::load_xml(const QString& filename) {
           auto compartment = std::make_shared<Compartment>(name, symbol, initial, this);
           compartment->set_x(x);
           compartment->set_y(y);
+          compartment->set_initial_amount(initial);
+          compartment->set_current_amount(initial);
           m_compartments[symbol] = std::move(compartment);
           bind_variable(symbol, m_compartments[symbol]->get_current_amount());
         }
