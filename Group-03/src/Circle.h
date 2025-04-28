@@ -4,6 +4,9 @@
 #include <stdexcept>
 #include <cmath>
 
+
+namespace cse {
+
 // Represents the two possible roles of a circle in the simulation
 enum class CircleType { Predator, Prey };
 
@@ -86,3 +89,4 @@ private:
     // Update speed based on current energy and boost state
     void updateSpeed() noexcept;
 };
+}

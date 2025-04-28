@@ -3,6 +3,8 @@
 #include <vector>
 #include <memory> 
 #include "Circle.h"
+#include <optional>
+
 
 namespace cse{
 class Sector {
@@ -16,6 +18,6 @@ class Sector {
 
         // New accessor methods
         int get_circle_count() const;
-        std::shared_ptr<Circle> get_circle_at(size_t index) const;
+        std::optional<std::shared_ptr<Circle>> get_circle_at(size_t index) const;
 };
 }

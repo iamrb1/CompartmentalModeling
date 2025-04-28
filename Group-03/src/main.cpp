@@ -20,6 +20,8 @@
 #include "Circle.h"
 #include "Surface.h"
 
+namespace cse {
+
 // Globals
 static constexpr int WINDOW_WIDTH  = 800;
 static constexpr int WINDOW_HEIGHT = 600;
@@ -161,8 +163,6 @@ void createDemoCircles()
 // Update all circles and game state
 void update()
 {
-    double cType1 = 0.0;
-    double cType2 = 0.0;
 
     for (auto& circle : gCircles) {
         if (!circle) continue;
@@ -304,7 +304,7 @@ void mainLoop()
 }
 
 // Entry point
-int main(int argc, char* argv[])
+int main()
 {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cerr << "SDL init failed: " << SDL_GetError() << '\n';
@@ -343,4 +343,6 @@ int main(int argc, char* argv[])
     SDL_DestroyWindow(gWindow);
     SDL_Quit();
     return 0;
+}
+
 }

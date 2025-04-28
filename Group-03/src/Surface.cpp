@@ -12,6 +12,12 @@ Surface::Surface(int width, int height, int sector_size)
       sector_width(width  / sector_size),
       sector_height(height / sector_size)
 {
+
+    if (sector_size <= 0) {
+        throw std::invalid_argument("Surface: sector_size must be > 0");
+        // or: assert(sector_size > 0 && "sector_size must be > 0");
+    }
+    
     sectors.resize(sector_width,
                    std::vector<Sector>(sector_height, Sector(0,0)));
     for (int i = 0; i < sector_width; ++i) {

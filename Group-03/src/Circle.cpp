@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include <ctime>
 
+namespace cse {
+    
 Circle::Circle(double x, double y, double radius,
                double baseSpeed, CircleType type,
                int initialEnergy, int reproduceThreshold)
@@ -13,6 +15,8 @@ Circle::Circle(double x, double y, double radius,
       type_(type), energy_(initialEnergy), initialEnergy_(initialEnergy),
       regenerating_(false), speedBoost_(false),
       eatingCounter_(0), reproduceThreshold_(reproduceThreshold) { //chatgpt
+
+    int pi = 3.141592;
     if (radius <= 0) {
         throw std::invalid_argument("Circle radius must be positive");
     }
@@ -23,7 +27,7 @@ Circle::Circle(double x, double y, double radius,
         seeded = true;
     }
     // Initialize random direction unit vector
-    double angle = (std::rand() / static_cast<double>(RAND_MAX)) * 2 * M_PI;
+    double angle = (std::rand() / static_cast<double>(RAND_MAX)) * 2 * pi;
     dx_ = std::cos(angle);
     dy_ = std::sin(angle);
 }
@@ -107,4 +111,5 @@ void Circle::eatPrey(const Circle& prey) {
             // Flag for repopulation; simulation logic can handle spawning
         }
     }
+}
 }

@@ -107,3 +107,107 @@ TEST_CASE("DataTracker Median Complex Sorting", "[DataTracker]") {
     tracker.add_value(2.1);
     CHECK(tracker.median() == Approx(3.5));
 }
+
+TEST_CASE("Advanced DataTracker Mode", "[DataTracker]") {
+    cse::DataTracker<int> tracker;
+
+    CHECK(tracker.mode() == 0);
+
+    tracker.add_value(1);
+    tracker.add_value(2);
+    tracker.add_value(2);
+    tracker.add_value(3);
+    CHECK(tracker.mode() == 2);
+
+    tracker.add_value(3);
+    CHECK((tracker.mode() == 2 || tracker.mode() == 3)); // Handle multiple modes
+
+    tracker.add_value(-4);
+    tracker.add_value(-4);
+    tracker.add_value(-4);
+
+    CHECK(tracker.mode() == -4);
+
+}
+
+TEST_CASE("Advanced DataTracker Variance", "[DataTracker]") {
+    cse::DataTracker<double> tracker;
+    tracker.add_value(2.0);
+    tracker.add_value(4.0);
+    tracker.add_value(4.0);
+    tracker.add_value(4.0);
+    tracker.add_value(5.0);
+    tracker.add_value(5.0);
+    tracker.add_value(7.0);
+    tracker.add_value(9.0);
+    CHECK(tracker.variance() == Approx(4.0));
+}
+
+
+TEST_CASE("Variance with negatives", "[DataTracker]") {
+    cse::DataTracker<double> tracker;
+    tracker.add_value(-3.0);
+    tracker.add_value(-2.0);
+    tracker.add_value(-1.0);
+    tracker.add_value(0.0);
+    tracker.add_value(1.0);
+    tracker.add_value(2.0);
+    tracker.add_value(3.0);
+    CHECK(tracker.variance() == Approx(4.0));
+}
+
+TEST_CASE("Variance on empty DataTracker", "[DataTracker]") {
+    cse::DataTracker<double> tracker;
+    CHECK(tracker.variance() == Approx(0.0));
+}
+
+TEST_CASE("Variance with single input", "[DataTracker]") {
+    cse::DataTracker<double> tracker;
+    tracker.add_value(42.0);
+    CHECK(tracker.variance() == Approx(0.0));
+}
+
+
+
+TEST_CASE("Advanced DataTracker Prey-Predator Win Condition", "[DataTracker]") {
+    cse::DataTracker<int> tracker;
+    for (int i = 0; i < 81; ++i) tracker.add_value(1); // 81% prey
+    for (int i = 0; i < 19; ++i) tracker.add_value(2); // 19% predator
+    CHECK(tracker.winner() == 1); // indicates the winner was the # 1
+
+}
+
+TEST_CASE("Advanced DataTracker Prey-Predator Win Condition (empty)", "[DataTracker]") {
+    cse::DataTracker<int> tracker;
+    CHECK(tracker.winner() == std::nullopt);} // indicates no winner was found
+
+    TEST_CASE("DataTracker has function", "[DataTracker]") {
+        cse::DataTracker<int> intTracker;
+        intTracker.add_value(10);
+        intTracker.add_value(20);
+        intTracker.add_value(30);
+    
+        CHECK(intTracker.has(10));
+        CHECK(intTracker.has(20));
+        CHECK(intTracker.has(30));
+        CHECK_FALSE(intTracker.has(40));  
+    
+        cse::DataTracker<double> dTracker;
+        dTracker.add_value(3.14);
+        dTracker.add_value(2.718);
+    
+        CHECK(dTracker.has(3.14));
+        CHECK_FALSE(dTracker.has(1.618));  
+    
+        cse::DataTracker<std::string> sTracker;
+        sTracker.add_value("apple");
+        sTracker.add_value("banana");
+    
+        CHECK(sTracker.has("apple"));
+        CHECK(sTracker.has("banana"));
+        CHECK_FALSE(sTracker.has("cherry"));  
+    
+        cse::DataTracker<int> emptyTracker;
+        CHECK_FALSE(emptyTracker.has(0));
+    }
+    

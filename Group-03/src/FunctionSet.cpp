@@ -9,6 +9,8 @@
 #include <string>
 #include <cassert>
 
+namespace cse {
+
 /**
  * Constructor
  */
@@ -55,7 +57,7 @@ int cse::FunctionSet<R, Args...>::FindFunctionIndex(const FunctionType& func) co
 {
         if (func == nullptr)
 {
-    throw std::invalid_argument("AddFunction: Function target is null.");
+    throw std::invalid_argument("FindFunctionIndex: Function target is null.");
 }
     using PointerType = R(*)(Args...);
 
@@ -89,7 +91,7 @@ bool cse::FunctionSet<R, Args...>::RemoveFunction( const FunctionType& func)
 {
         if (func == nullptr)
 {
-    throw std::invalid_argument("AddFunction: Function target is null.");
+    throw std::invalid_argument("RemoveFunction: Function target is null.");
 }
     int index = FindFunctionIndex(func);
     if (index >= 0)
@@ -102,3 +104,5 @@ bool cse::FunctionSet<R, Args...>::RemoveFunction( const FunctionType& func)
 template class cse::FunctionSet<int, int>;
 template class cse::FunctionSet<double, double>;
 template class cse::FunctionSet<void, const std::string&>;
+
+}

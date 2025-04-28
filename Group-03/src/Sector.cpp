@@ -17,10 +17,10 @@ int Sector::get_circle_count() const {
     return circles.size();
 }
 
-std::shared_ptr<Circle> Sector::get_circle_at(size_t index) const {
+std::optional<std::shared_ptr<Circle>> Sector::get_circle_at(size_t index) const {
     if (index < circles.size()) {
         return circles[index];
     }
-    return nullptr;
+    return std::nullopt;
 }
 }

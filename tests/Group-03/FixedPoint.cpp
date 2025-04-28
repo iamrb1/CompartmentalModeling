@@ -4,7 +4,6 @@
 #include "../../Group-03/src/FixedPoint.h"
 #include <vector>
 #include <sstream>
-#define CATCH_CONFIG_MAIN
 using Ratio1 = std::ratio<100>;
 using Fixed1 = cse::FixedPoint<Ratio1>;
 
@@ -137,3 +136,118 @@ TEST_CASE("FixedPoint Stream Output", "[FixedPoint]") {
    os << a;
    CHECK(os.str() == "2.5");
 }
+
+TEST_CASE("FixedPoint Negative Int Constructor", "[FixedPoint]") {
+   Fixed1 fp(static_cast<int64_t>(-5));
+   CHECK(static_cast<double>(fp) == -5.0);
+}
+
+TEST_CASE("FixedPoint Negative Double Constructor", "[FixedPoint]") {
+   Fixed1 fp(-3.14);
+   CHECK(static_cast<double>(fp) == Approx(-3.14).epsilon(1e-6));
+}
+
+TEST_CASE("FixedPoint Negative Conversion to Double", "[FixedPoint]") {
+   Fixed1 fp(-7.5);
+   CHECK(static_cast<double>(fp) == Approx(-7.5).epsilon(1e-6));
+}
+
+TEST_CASE("FixedPoint Negative Conversion to Int", "[FixedPoint]") {
+   Fixed1 fp(-4.9);
+   CHECK(static_cast<int>(fp) == -4);
+}
+
+TEST_CASE("FixedPoint Negative Conversion to Float", "[FixedPoint]") {
+   Fixed1 fp(-2.75);
+   CHECK(static_cast<float>(fp) == Approx(-2.75f).epsilon(1e-6));
+}
+
+TEST_CASE("FixedPoint Addition with Negatives", "[FixedPoint]") {
+   Fixed1 a(-1.5), b(-2.5);
+   Fixed1 result = a + b;
+   CHECK(static_cast<double>(result) == Approx(-4.0).epsilon(1e-6));
+}
+
+TEST_CASE("FixedPoint Subtraction with Negatives", "[FixedPoint]") {
+   Fixed1 a(-5.5), b(-3.0);
+   Fixed1 result = a - b;
+   CHECK(static_cast<double>(result) == Approx(-2.5).epsilon(1e-6));
+}
+
+TEST_CASE("FixedPoint Multiplication with Negatives", "[FixedPoint]") {
+   Fixed1 a(-2.0), b(3.0);
+   Fixed1 result = a * b;
+   CHECK(static_cast<double>(result) == Approx(-6.0).epsilon(1e-6));
+}
+
+TEST_CASE("FixedPoint Division with Negatives", "[FixedPoint]") {
+   Fixed1 a(-9.0), b(3.0);
+   Fixed1 result = a / b;
+   CHECK(static_cast<double>(result) == Approx(-3.0).epsilon(1e-6));
+}
+
+TEST_CASE("FixedPoint Pre-Increment Negative", "[FixedPoint]") {
+   Fixed1 a(-4.0);
+   ++a;
+   CHECK(static_cast<double>(a) == Approx(-3.0).epsilon(1e-6));
+}
+
+TEST_CASE("FixedPoint Post-Increment Negative", "[FixedPoint]") {
+   Fixed1 a(-4.0);
+   Fixed1 b = a++;
+   CHECK(static_cast<double>(b) == Approx(-4.0).epsilon(1e-6));
+   CHECK(static_cast<double>(a) == Approx(-3.0).epsilon(1e-6));
+}
+
+TEST_CASE("FixedPoint Pre-Decrement Negative", "[FixedPoint]") {
+   Fixed1 a(-4.0);
+   --a;
+   CHECK(static_cast<double>(a) == Approx(-5.0).epsilon(1e-6));
+}
+
+TEST_CASE("FixedPoint Post-Decrement Negative", "[FixedPoint]") {
+   Fixed1 a(-4.0);
+   Fixed1 b = a--;
+   CHECK(static_cast<double>(b) == Approx(-4.0).epsilon(1e-6));
+   CHECK(static_cast<double>(a) == Approx(-5.0).epsilon(1e-6));
+}
+
+TEST_CASE("FixedPoint Equality Negative", "[FixedPoint]") {
+   Fixed1 a(-3.0), b(-3.0);
+   CHECK(a == b);
+}
+
+TEST_CASE("FixedPoint Inequality Negative", "[FixedPoint]") {
+   Fixed1 a(-3.0), b(-4.0);
+   CHECK(a != b);
+}
+
+TEST_CASE("FixedPoint Less Than Negative", "[FixedPoint]") {
+   Fixed1 a(-5.0), b(-3.0);
+   CHECK(a < b);
+}
+
+TEST_CASE("FixedPoint Greater Than Negative", "[FixedPoint]") {
+   Fixed1 a(-2.0), b(-3.0);
+   CHECK(a > b);
+}
+
+TEST_CASE("FixedPoint Less Than or Equal Negative", "[FixedPoint]") {
+   Fixed1 a(-3.0), b(-3.0);
+   CHECK(a <= b);
+   CHECK(Fixed1(-4.0) <= b);
+}
+
+TEST_CASE("FixedPoint Greater Than or Equal Negative", "[FixedPoint]") {
+   Fixed1 a(-3.0), b(-3.0);
+   CHECK(a >= b);
+   CHECK(Fixed1(-2.0) >= b);
+}
+
+TEST_CASE("FixedPoint Stream Output Negative", "[FixedPoint]") {
+   Fixed1 a(-2.5);
+   std::ostringstream os;
+   os << a;
+   CHECK(os.str() == "-2.5");
+}
+
