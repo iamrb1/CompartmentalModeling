@@ -35,7 +35,7 @@ class FinalApplication {
   [[nodiscard]] static std::optional<int> IsValidInt(const std::string &input);
   [[nodiscard]] static bool IsValidCustomEquation(const std::string& input, int max_number_value);
 
-  [[nodiscard]] static int GetColumnIndex(int grid_size, std::ostream &os, std::istream &is);
+  [[nodiscard]] static int GetColumnIndex(int grid_size, std::ostream &os, std::istream &is, const std::string &label = "column");
   [[nodiscard]] static cse::Datum GetDataValue(std::ostream &os, std::istream &is);
 
   static void PrintColumn(const cse::ReferenceVector<cse::Datum> &column,

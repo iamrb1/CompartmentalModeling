@@ -87,13 +87,16 @@ std::optional<int> FinalApplication::IsValidInt(
  * @param max_index The maximum index for the grid
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
- * @return A valid column index for the grid
+ * @param label optional label for row or column, defaults to column
+ * @return A valid column (or row) index for the grid
  */
 int FinalApplication::GetColumnIndex(int max_index,
                                      std::ostream &os = std::cout,
-                                     std::istream &is = std::cin) {
+                                     std::istream &is = std::cin,
+                                     const std::string &label) {
   while (true) {
-    os << "Please enter column index: ";
+    // Outputs "row index" if necessary
+    os << "Please enter " << label << " index: ";
     std::string index_str;
     std::getline(is, index_str);
     auto index = IsValidInt(index_str);
@@ -1339,8 +1342,7 @@ void FinalApplication::DeleteSubmenu(cse::DataGrid &grid,
         switch (choice) {
           // Delete a row
           case 1: {
-            // TODO - says column when it should say row
-            grid.DeleteRow(GetColumnIndex(static_cast<int>(std::get<0>(grid.Shape())), os, is));
+            grid.DeleteRow(GetColumnIndex(static_cast<int>(std::get<0>(grid.Shape())), os, is, "row"));
             os << "Row deleted." << std::endl;
 
             os << "\nBelow is the new grid: \n";
