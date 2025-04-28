@@ -56,7 +56,8 @@ auto SerializerHTML() {
             std::format("<a href=\"{}\">", std::get<std::string>(f.metadata)));
       },
       str_to_underlying<CharT, Underlying>("</a>"));
-
+  
+  /*
   out.AddRule(
       "image",
       [](const TextFormat& f) -> Underlying {
@@ -65,6 +66,7 @@ auto SerializerHTML() {
             "<img src=\"{}\" alt=\"", std::get<std::string>(f.metadata)));
       },
       str_to_underlying<CharT, Underlying>("\"></img>"));
+  */
 
   return out;
 }
