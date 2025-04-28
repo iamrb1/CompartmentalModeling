@@ -16,12 +16,12 @@
 const int VERTEX_RADIUS = 25;
 const int CANVAS_WIDTH = 2000;
 const int CANVAS_HEIGHT = 2000;
-const double ARROW_SIZE = 25;    // Size of arrow head
-const double ARROW_ANGLE = 0.5;  // Angle in radians (roughly 30 degrees)
+const double ARROW_SIZE = 25;   // Size of arrow head
+const double ARROW_ANGLE = 0.5; // Angle in radians (roughly 30 degrees)
 const double ARROW_DELTA = 0.92;
 
 class Shape {
- private:
+private:
   static void drawArrowHead(int x1, int y1, int x2, int y2, const char *color) {
     EM_ASM_(
         {
@@ -40,21 +40,17 @@ class Shape {
 
           // Calculate arrow points
           ctx.beginPath();
-          ctx.moveTo(startX, startY);  // Tip of the arrow
-          ctx.lineTo(startX - $5 * Math.cos(angle - $6),
-                     startY - $5 * Math.sin(angle - $6));
-          ctx.lineTo(startX - $5 * Math.cos(angle + $6),
-                     startY - $5 * Math.sin(angle + $6));
+          ctx.moveTo(startX, startY); // Tip of the arrow
+          ctx.lineTo(startX - $5 * Math.cos(angle - $6), startY - $5 * Math.sin(angle - $6));
+          ctx.lineTo(startX - $5 * Math.cos(angle + $6), startY - $5 * Math.sin(angle + $6));
           ctx.closePath();
           ctx.fill();
         },
-        x1, y1, x2, y2, color, ARROW_SIZE, ARROW_ANGLE, ARROW_DELTA,
-        VERTEX_RADIUS);
+        x1, y1, x2, y2, color, ARROW_SIZE, ARROW_ANGLE, ARROW_DELTA, VERTEX_RADIUS);
   }
 
- public:
-  static void drawLine(int x1, int y1, int x2, int y2, const char *color,
-                       int thickness = 2) {
+public:
+  static void drawLine(int x1, int y1, int x2, int y2, const char *color, int thickness = 2) {
     // Draw the main line
     EM_ASM_(
         {
@@ -87,20 +83,18 @@ class Shape {
 };
 
 class GraphVisualizer {
- private:
+private:
   cse::Random r{0};
   std::optional<cse::Vertex<std::string>> selectedVertex;
   cse::Graph<std::string> g;
   std::optional<cse::GraphPosition<std::string>> traversal;
   cse::GraphJson<std::string> graphJson{g};
+  std::optional<std::reference_wrapper<const cse::Vertex<std::string>>> startVertex; // Traversal start vertex
   std::optional<std::reference_wrapper<const cse::Vertex<std::string>>>
-      startVertex;  // Traversal start vertex
-  std::optional<std::reference_wrapper<const cse::Vertex<std::string>>>
-      aStarDestVertex;  // Astar traversal destination vertex
+      aStarDestVertex; // Astar traversal destination vertex
   bool currentlyTraversing = false;
 
-  static bool IsPointInRange(double x1, double y1, double x2, double y2,
-                             double range) {
+  static bool IsPointInRange(double x1, double y1, double x2, double y2, double range) {
     double dx = x1 - x2;
     double dy = y1 - y2;
     return std::sqrt(dx * dx + dy * dy) <= range;
@@ -108,16 +102,14 @@ class GraphVisualizer {
 
   void ClearVertexSelection() {
     EM_ASM({
-      document.getElementById("selectedVertexTitle").innerHTML =
-          "No Selected Vertex";
+      document.getElementById("selectedVertexTitle").innerHTML = "No Selected Vertex";
       document.getElementById("selectedVertexId").innerHTML = "";
       document.getElementById("selectedVertexX").innerHTML = "";
       document.getElementById("selectedVertexY").innerHTML = "";
     });
   }
 
-  std::optional<std::reference_wrapper<const cse::Vertex<std::string>>>
-  FindVertexAtPosition(double x, double y) {
+  std::optional<std::reference_wrapper<const cse::Vertex<std::string>>> FindVertexAtPosition(double x, double y) {
     auto vertices = g.GetVertices();
     for (auto v : vertices) {
       if (IsPointInRange(v->GetX(), v->GetY(), x, y, VERTEX_RADIUS)) {
@@ -160,8 +152,9 @@ class GraphVisualizer {
 
     // Draw vertices as circles
     auto vertices = g.GetVertices();
+    std::string color; // default
     for (auto v : vertices) {
-      std::string color = "gray";  // default
+      color = "gray";
       if (traversal) {
         if (&traversal->GetCurrentVertex() == v)
           color = "red";
@@ -189,10 +182,8 @@ class GraphVisualizer {
   void HandleSelectedVertex(cse::Vertex<std::string> v) {
     EM_ASM_(
         {
-          document.getElementById("selectedVertexTitle").innerHTML =
-              "Selected Vertex";
-          document.getElementById("selectedVertexId").innerHTML =
-              "ID: " + UTF8ToString($0);
+          document.getElementById("selectedVertexTitle").innerHTML = "Selected Vertex";
+          document.getElementById("selectedVertexId").innerHTML = "ID: " + UTF8ToString($0);
           document.getElementById("selectedVertexX").innerHTML = "X: " + $1;
           document.getElementById("selectedVertexY").innerHTML = "Y: " + $2;
         },
@@ -374,19 +365,16 @@ class GraphVisualizer {
       var stepButton = document.createElement('button');
       stepButton.id = "stepTraversalButton";
       stepButton.textContent = "Next Step";
-      stepButton.addEventListener(
-          'click', function() { Module._stepTraversal(); });
+      stepButton.addEventListener('click', function() { Module._stepTraversal(); });
 
       var fullButton = document.createElement('button');
       fullButton.id = "startTraversalButton";
       fullButton.textContent = "Traverse All";
-      fullButton.addEventListener(
-          'click', function() { Module._fullTraversal(); });
+      fullButton.addEventListener('click', function() { Module._fullTraversal(); });
 
       var clearButton = document.createElement('button');
       clearButton.textContent = "Clear Traversal";
-      clearButton.addEventListener(
-          'click', function() { Module._clearTraversal(); });
+      clearButton.addEventListener('click', function() { Module._clearTraversal(); });
 
       controlGroup.appendChild(stepButton);
       controlGroup.appendChild(fullButton);
@@ -500,11 +488,9 @@ class GraphVisualizer {
           "click", function() {
             var id1 = document.getElementById("vertexId1Input").value;
             var id2 = document.getElementById("vertexId2Input").value;
-            var weight =
-                parseInt(document.getElementById("edgeWeightInput").value);
+            var weight = parseInt(document.getElementById("edgeWeightInput").value);
             if (id1 && id2 && !isNaN(weight)) {
-              Module._toggleEdge(stringToNewUTF8(id1), stringToNewUTF8(id2),
-                                 weight);
+              Module._toggleEdge(stringToNewUTF8(id1), stringToNewUTF8(id2), weight);
             } else {
               alert("Please fill out both vertex IDs and the weight.");
             }
@@ -586,12 +572,9 @@ class GraphVisualizer {
       showEdgeWeightsContainer.appendChild(showEdgeWeightsCheckbox);
 
       // IDS and Weights Toggle click handler
-      showVertexIdsCheckbox.addEventListener(
-          'change', function() { Module._toggleShowVertexIds(this.checked); });
+      showVertexIdsCheckbox.addEventListener('change', function() { Module._toggleShowVertexIds(this.checked); });
 
-      showEdgeWeightsCheckbox.addEventListener(
-          'change',
-          function() { Module._toggleShowEdgeWeights(this.checked); });
+      showEdgeWeightsCheckbox.addEventListener('change', function() { Module._toggleShowEdgeWeights(this.checked); });
 
       displayGroup.appendChild(showVertexIdsContainer);
       displayGroup.appendChild(showEdgeWeightsContainer);
@@ -687,8 +670,7 @@ class GraphVisualizer {
 
       var clearButton = document.createElement('button');
       clearButton.textContent = "Clear Graph";
-      clearButton.addEventListener(
-          'click', function() { Module._clearCanvas(); });
+      clearButton.addEventListener('click', function() { Module._clearCanvas(); });
 
       var vertexLabel = document.createElement('label');
       vertexLabel.setAttribute("for", "vertexCount");
@@ -712,8 +694,7 @@ class GraphVisualizer {
       randomGraphButton.textContent = "Random Graph";
       randomGraphButton.addEventListener(
           'click', function() {
-            var vertices =
-                parseInt(document.getElementById("vertexCount").value);
+            var vertices = parseInt(document.getElementById("vertexCount").value);
             var edges = parseInt(document.getElementById("edgeCount").value);
             Module._randomGraph(vertices, edges);
           });
@@ -742,7 +723,8 @@ class GraphVisualizer {
             fileInput.addEventListener(
                 'change', function(e) {
                   var file = e.target.files[0];
-                  if (!file) return;
+                  if (!file)
+                    return;
 
                   var reader = new FileReader();
                   reader.onload = function(e) {
@@ -762,8 +744,7 @@ class GraphVisualizer {
           'click', function() {
             var jsonStr = UTF8ToString(Module._exportGraph());
             console.log(jsonStr);
-            var dataStr =
-                "data:text/json;charset=utf-8," + encodeURIComponent(jsonStr);
+            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(jsonStr);
             var downloadAnchorNode = document.createElement('a');
             downloadAnchorNode.setAttribute("href", dataStr);
             downloadAnchorNode.setAttribute("download", "graph.json");
@@ -802,7 +783,7 @@ class GraphVisualizer {
     });
   }
 
- public:
+public:
   GraphVisualizer() {
     // Initialize UI components
     CreateSelectedVertexSection();
@@ -859,9 +840,12 @@ class GraphVisualizer {
 
     int mode = EM_ASM_INT({
       var mode = document.getElementById("traversalMode").value;
-      if (mode == "DFS") return 0;
-      if (mode == "BFS") return 1;
-      if (mode == "A*") return 2;
+      if (mode == "DFS")
+        return 0;
+      if (mode == "BFS")
+        return 1;
+      if (mode == "A*")
+        return 2;
       return 0;
     });
 
@@ -871,13 +855,10 @@ class GraphVisualizer {
       pos.SetTraversalMode(cse::TraversalModes::BFS<std::string>());
     else if (mode == 2) {
       if (!aStarDestVertex.has_value()) {
-        EM_ASM({
-          alert("Please select a destination vertex before starting A* traversal.");
-        });
+        EM_ASM({ alert("Please select a destination vertex before starting A* traversal."); });
         return;
       }
-      auto &dest =
-          const_cast<cse::Vertex<std::string> &>(aStarDestVertex->get());
+      auto &dest = const_cast<cse::Vertex<std::string> &>(aStarDestVertex->get());
       pos.SetTraversalMode(cse::TraversalModes::AStar<std::string>(dest));
     }
     traversal.emplace(std::move(pos));
@@ -913,7 +894,7 @@ class GraphVisualizer {
     int y = r.GetInt(0, CANVAS_HEIGHT);
 
     g.AddVertex(std::to_string(++id), "gray", x, y);
-    ClearTraversal();  // Resets traversal when graph is modified
+    ClearTraversal(); // Resets traversal when graph is modified
   }
 
   // Allows the user to delete a vertex of their choosing
@@ -958,19 +939,16 @@ class GraphVisualizer {
     auto vertex = FindVertexAtPosition(x, y);
     if (vertex.has_value()) {
       // Check if the select start toggle is on
-      bool selectStart = EM_ASM_INT(
-          { return document.getElementById("selectStartToggle").checked; });
+      bool selectStart = EM_ASM_INT({ return document.getElementById("selectStartToggle").checked; });
 
       // Check if the select Astar destination toggle is on
-      bool selectADest = EM_ASM_INT(
-          { return document.getElementById("selectADestToggle").checked; });
+      bool selectADest = EM_ASM_INT({ return document.getElementById("selectADestToggle").checked; });
 
       // Show alert and don't allow if trying to select both starting vertex and
       // Astar destination vertex.
       if (selectADest && selectStart) {
         EM_ASM({
-          alert(
-              "Can't select both starting vertex and Astar destination at the same time. Please unselect one.");
+          alert("Can't select both starting vertex and Astar destination at the same time. Please unselect one.");
         });
         return;
       }
@@ -978,14 +956,11 @@ class GraphVisualizer {
       if (selectStart) {
         if (currentlyTraversing) {
           // Show alert if trying to change start during traversal
-          EM_ASM({
-            alert(
-                "Traversal already in progress. Clear traversal to change the starting vertex.");
-          });
+          EM_ASM({ alert("Traversal already in progress. Clear traversal to change the starting vertex."); });
           return;
         }
 
-        startVertex = vertex.value();  // Store selected vertex
+        startVertex = vertex.value(); // Store selected vertex
         // Update UI to reflect selected start vertex
         EM_ASM_(
             {
@@ -993,38 +968,34 @@ class GraphVisualizer {
               var fullBtn = document.getElementById("startTraversalButton");
               stepBtn.style.backgroundColor = "#4361ee";
               fullBtn.style.backgroundColor = "#4361ee";
-              document.getElementById("startVertexId").innerHTML =
-                  "ID: " + UTF8ToString($0);
+              document.getElementById("startVertexId").innerHTML = "ID: " + UTF8ToString($0);
             },
             vertex->get().GetId().c_str());
       } else if (selectADest) {
         // Get the traversal type to make sure it's Astar
         int mode = EM_ASM_INT({
           var mode = document.getElementById("traversalMode").value;
-          if (mode == "DFS") return 0;
-          if (mode == "BFS") return 1;
-          if (mode == "A*") return 2;
+          if (mode == "DFS")
+            return 0;
+          if (mode == "BFS")
+            return 1;
+          if (mode == "A*")
+            return 2;
           return 0;
         });
         if (mode != 2) {
           // Show alert if trying to change Astar destination and not in an A*
           // traversal mode
-          EM_ASM({
-            alert(
-                "You cannot select an Astar destination vertex when not in Astar traversal mode.");
-          });
+          EM_ASM({ alert("You cannot select an Astar destination vertex when not in Astar traversal mode."); });
           return;
         }
         if (currentlyTraversing) {
           // Show alert if trying to change Astar destination during traversal
-          EM_ASM({
-            alert(
-                "Traversal already in progress. Clear traversal to change the Astar destination vertex.");
-          });
+          EM_ASM({ alert("Traversal already in progress. Clear traversal to change the Astar destination vertex."); });
           return;
         }
 
-        aStarDestVertex = vertex.value();  // Store Astar destination vertex
+        aStarDestVertex = vertex.value(); // Store Astar destination vertex
 
         // Update UI to reflect selected Astar destination vertex
         EM_ASM_(
@@ -1033,12 +1004,11 @@ class GraphVisualizer {
               var fullBtn = document.getElementById("startTraversalButton");
               stepBtn.style.backgroundColor = "#4361ee";
               fullBtn.style.backgroundColor = "#4361ee";
-              document.getElementById("aStarDestVertexId").innerHTML =
-                  "ID: " + UTF8ToString($0);
+              document.getElementById("aStarDestVertexId").innerHTML = "ID: " + UTF8ToString($0);
             },
             vertex->get().GetId().c_str());
       } else {
-        HandleSelectedVertex(vertex->get());  // Just show info
+        HandleSelectedVertex(vertex->get()); // Just show info
       }
     } else {
       ClearVertexSelection();
@@ -1046,11 +1016,10 @@ class GraphVisualizer {
   }
 
   void StartTraversal() {
-    if (g.GetVertices().empty()) return;
+    if (g.GetVertices().empty())
+      return;
     auto &start =
-        startVertex.has_value()
-            ? const_cast<cse::Vertex<std::string> &>(startVertex->get())
-            : g.GetVertex("ID1");
+        startVertex.has_value() ? const_cast<cse::Vertex<std::string> &>(startVertex->get()) : g.GetVertex("ID1");
     UpdateTraversalMode(start);
     currentlyTraversing = true;
   }
@@ -1069,9 +1038,8 @@ class GraphVisualizer {
     } else {
       self->RedrawCanvas();
       EM_ASM({
-        setTimeout(
-            function() { alert("Traversal Finished!"); },
-            150);  // wait 150ms to let canvas update
+        setTimeout(function() { alert("Traversal Finished!"); },
+                   150); // wait 150ms to let canvas update
       });
     }
   }
@@ -1082,8 +1050,7 @@ class GraphVisualizer {
   void StepTraversal() {
     if (!startVertex.has_value()) {
       EM_ASM({
-        alert(
-            "Please select a starting vertex with the check box below before stepping through the traversal.");
+        alert("Please select a starting vertex with the check box below before stepping through the traversal.");
       });
       return;
     }
@@ -1091,17 +1058,17 @@ class GraphVisualizer {
     // make sure Astar conditions satisfied first
     int mode = EM_ASM_INT({
       var mode = document.getElementById("traversalMode").value;
-      if (mode == "DFS") return 0;
-      if (mode == "BFS") return 1;
-      if (mode == "A*") return 2;
+      if (mode == "DFS")
+        return 0;
+      if (mode == "BFS")
+        return 1;
+      if (mode == "A*")
+        return 2;
       return 0;
     });
     if (mode == 2 && !aStarDestVertex.has_value()) {
       // Show alert if trying to start an Astar traversal without a destination
-      EM_ASM({
-        alert(
-            "You cannot start an Astar traversal without selecting a destination.");
-      });
+      EM_ASM({ alert("You cannot start an Astar traversal without selecting a destination."); });
       return;
     }
 
@@ -1121,9 +1088,8 @@ class GraphVisualizer {
     } else {
       RedrawCanvas();
       EM_ASM({
-        setTimeout(
-            function() { alert("Traversal Finished!"); },
-            150);  // wait 150ms to let canvas update
+        setTimeout(function() { alert("Traversal Finished!"); },
+                   150); // wait 150ms to let canvas update
       });
     }
   }
@@ -1133,17 +1099,16 @@ class GraphVisualizer {
    */
   void FullTraversal() {
     if (!startVertex.has_value()) {
-      EM_ASM({
-        alert("Please select a starting vertex before starting the traversal.");
-      });
+      EM_ASM({ alert("Please select a starting vertex before starting the traversal."); });
       return;
     }
 
-    if (!traversal.has_value()) StartTraversal();
+    if (!traversal.has_value())
+      StartTraversal();
 
     // Kick off the async step loop
     emscripten_async_call(StepTraversalAsync, this,
-                          0);  // 0ms to start immediately
+                          0); // 0ms to start immediately
   }
 
   // Export the graph to JSON
@@ -1189,13 +1154,21 @@ GraphVisualizer init{};
  * like when a buttone is clicked must have an interface here
  */
 extern "C" {
-void clearCanvas() { init.ClearGraph(); }
+void clearCanvas() {
+  init.ClearGraph();
+}
 
-void addVertex() { init.AddVertex(); }
+void addVertex() {
+  init.AddVertex();
+}
 
-void startTraversal() { init.StartTraversal(); }
+void startTraversal() {
+  init.StartTraversal();
+}
 
-void stepTraversal() { init.StepTraversal(); }
+void stepTraversal() {
+  init.StepTraversal();
+}
 
 void toggleEdge(const char *id1, const char *id2, int weight) {
   init.ToggleEdge(id1, id2, weight);
@@ -1205,23 +1178,41 @@ void addVertexWithParams(const char *id, int x, int y) {
   init.AddVertexWithParams(id, x, y);
 }
 
-void deleteVertex(const char *id) { init.DeleteVertex(id); }
+void deleteVertex(const char *id) {
+  init.DeleteVertex(id);
+}
 
-void fullTraversal() { init.FullTraversal(); }
+void fullTraversal() {
+  init.FullTraversal();
+}
 
-void randomGraph(int vertices, int edges) { init.RandomGraph(vertices, edges); }
+void randomGraph(int vertices, int edges) {
+  init.RandomGraph(vertices, edges);
+}
 
-void clearTraversal() { init.ClearTraversal(); }
+void clearTraversal() {
+  init.ClearTraversal();
+}
 
-void handleCanvasClick(double x, double y) { init.HandleCanvasClick(x, y); }
+void handleCanvasClick(double x, double y) {
+  init.HandleCanvasClick(x, y);
+}
 
-char *exportGraph() { return init.ExportGraph(); }
+char *exportGraph() {
+  return init.ExportGraph();
+}
 
-bool importGraph(const char *jsonStr) { return init.ImportGraph(jsonStr); }
+bool importGraph(const char *jsonStr) {
+  return init.ImportGraph(jsonStr);
+}
 
-void toggleShowVertexIds(bool show) { init.ToggleShowVertexIds(show); }
+void toggleShowVertexIds(bool show) {
+  init.ToggleShowVertexIds(show);
+}
 
-void toggleShowEdgeWeights(bool show) { init.ToggleShowEdgeWeights(show); }
+void toggleShowEdgeWeights(bool show) {
+  init.ToggleShowEdgeWeights(show);
+}
 
 void chooseSampleGraph(int type) {
   switch (type) {
@@ -1247,4 +1238,6 @@ void chooseSampleGraph(int type) {
 }
 }
 
-int main() { return 0; }
+int main() {
+  return 0;
+}
