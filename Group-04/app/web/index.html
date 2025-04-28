@@ -5,15 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Text Editor</title>
 
-  <!-- Existing stylesheet links -->
-  <link rel="stylesheet" type="text/css" href="index.css" />
-  <link rel="stylesheet" type="text/css" href="input.css" />
-  <!-- Use output-styles.css for output styling -->
-  <link rel="stylesheet" type="text/css" href="output-styles.css" />
+  <!-- fixes caching issue by adding timestamp -->
+  <link rel="stylesheet" type="text/css" href="index.css?v=1682734567" />
+  <link rel="stylesheet" type="text/css" href="input.css?v=1682734567" />
+  <!-- New enhanced output styling -->
+  <link rel="stylesheet" type="text/css" href="output-styles.css?v=1682734567" />
   <!-- Use google fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Mono&display=swap" rel="stylesheet">
+  <!-- Force reload styles -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Force CSS refresh
+      const links = document.getElementsByTagName('link');
+      for (let i = 0; i < links.length; i++) {
+        if (links[i].rel === 'stylesheet') {
+          const href = links[i].href;
+          links[i].href = href + (href.indexOf('?') >= 0 ? '&' : '?') + 'forceReload=' + Date.now();
+        }
+      }
+    });
+  </script>
 </head>
 <body>
   <content>
@@ -28,7 +41,7 @@
       <div id="tab-buttons">
       </div>
 
-      <!-- Tab contents -->
+      <!-- Tab contents will be inserted here by JavaScript -->
     </o>
   </content>
 
