@@ -84,11 +84,11 @@ public:
 
 class GraphVisualizer {
 private:
-  cse::Random r{0};
+  cse::Random randomGenerator{0};
   std::optional<cse::Vertex<std::string>> selectedVertex;
-  cse::Graph<std::string> g;
+  cse::Graph<std::string> currentGraph;
   std::optional<cse::GraphPosition<std::string>> traversal;
-  cse::GraphJson<std::string> graphJson{g};
+  cse::GraphJson<std::string> graphJson{currentGraph};
   std::optional<std::reference_wrapper<const cse::Vertex<std::string>>> startVertex; // Traversal start vertex
   std::optional<std::reference_wrapper<const cse::Vertex<std::string>>>
       aStarDestVertex; // Astar traversal destination vertex
@@ -110,7 +110,7 @@ private:
   }
 
   std::optional<std::reference_wrapper<const cse::Vertex<std::string>>> FindVertexAtPosition(double x, double y) {
-    auto vertices = g.GetVertices();
+    auto vertices = currentGraph.GetVertices();
     for (auto v : vertices) {
       if (IsPointInRange(v->GetX(), v->GetY(), x, y, VERTEX_RADIUS)) {
         return std::cref(*v);
@@ -121,7 +121,7 @@ private:
 
   void DrawGraph() {
     // Draw edges
-    auto edges = g.GetEdges();
+    auto edges = currentGraph.GetEdges();
     for (const auto &edge : edges) {
       auto &from = edge->GetFrom();
       auto &to = edge->GetTo();
@@ -151,7 +151,7 @@ private:
     }
 
     // Draw vertices as circles
-    auto vertices = g.GetVertices();
+    auto vertices = currentGraph.GetVertices();
     std::string color; // default
     for (auto v : vertices) {
       color = "gray";
@@ -799,7 +799,7 @@ public:
   }
 
   void ChooseSampleGraph(auto func) {
-    g = func();
+    currentGraph = func();
     traversal.reset();
     ClearVertexSelection();
     ClearTraversal();
@@ -807,25 +807,25 @@ public:
   }
 
   void RandomGraph(int vertices, int edges) {
-    g.ClearGraph();
+    currentGraph.ClearGraph();
     for (int i = 0; i < vertices; i++) {
-      int x = r.GetInt(0, CANVAS_WIDTH);
-      int y = r.GetInt(0, CANVAS_HEIGHT);
-      g.AddVertex(std::to_string(i), "blue", x, y);
+      int x = randomGenerator.GetInt(0, CANVAS_WIDTH);
+      int y = randomGenerator.GetInt(0, CANVAS_HEIGHT);
+      currentGraph.AddVertex(std::to_string(i), "blue", x, y);
     }
 
     for (int i = 0; i < edges; i++) {
-      int index1 = r.GetInt(0, vertices - 1);
-      int index2 = r.GetInt(0, vertices - 1);
+      int index1 = randomGenerator.GetInt(0, vertices - 1);
+      int index2 = randomGenerator.GetInt(0, vertices - 1);
       if (index1 != index2) {
-        g.AddEdge(std::to_string(index1), std::to_string(index2), 2);
+        currentGraph.AddEdge(std::to_string(index1), std::to_string(index2), 2);
       }
     }
     RedrawCanvas();
   }
 
   void ClearGraph() {
-    g.ClearGraph();
+    currentGraph.ClearGraph();
     ClearTraversal();
     traversal.reset();
     ClearVertexSelection();
@@ -836,7 +836,7 @@ public:
    * Updates the traversal with the correct mode
    */
   void UpdateTraversalMode(cse::Vertex<std::string> &start) {
-    cse::GraphPosition<std::string> pos(g, start);
+    cse::GraphPosition<std::string> pos(currentGraph, start);
 
     int mode = EM_ASM_INT({
       var mode = document.getElementById("traversalMode").value;
@@ -889,22 +889,22 @@ public:
 
   // Helper function that adds a vertex to the graph and paints it
   void AddVertex() {
-    int id = g.GetVertices().size();
-    int x = r.GetInt(0, CANVAS_WIDTH);
-    int y = r.GetInt(0, CANVAS_HEIGHT);
+    int id = currentGraph.GetVertices().size();
+    int x = randomGenerator.GetInt(0, CANVAS_WIDTH);
+    int y = randomGenerator.GetInt(0, CANVAS_HEIGHT);
 
-    g.AddVertex(std::to_string(++id), "gray", x, y);
+    currentGraph.AddVertex(std::to_string(++id), "gray", x, y);
     ClearTraversal(); // Resets traversal when graph is modified
   }
 
   // Allows the user to delete a vertex of their choosing
   void DeleteVertex(const char *id) {
     std::string idCpp(id);
-    if (!g.HasVertex(idCpp)) {
+    if (!currentGraph.HasVertex(idCpp)) {
       EM_ASM({ alert("Error: Vertex with this ID does not exist!"); });
       return;
     }
-    g.RemoveVertex(idCpp);
+    currentGraph.RemoveVertex(idCpp);
     RedrawCanvas();
   }
 
@@ -913,12 +913,12 @@ public:
     std::string idCpp1(id1);
     std::string idCpp2(id2);
     const std::string edgeId = idCpp1 + "-" + idCpp2;
-    if (g.HasEdge(edgeId)) {
-      g.RemoveEdge(edgeId);
-    } else if (!g.HasVertex(idCpp1) || !g.HasVertex(idCpp2)) {
+    if (currentGraph.HasEdge(edgeId)) {
+      currentGraph.RemoveEdge(edgeId);
+    } else if (!currentGraph.HasVertex(idCpp1) || !currentGraph.HasVertex(idCpp2)) {
       EM_ASM({ alert("Error: Entered vertices must exist!"); });
     } else {
-      g.AddEdge(idCpp1, idCpp2, weight);
+      currentGraph.AddEdge(idCpp1, idCpp2, weight);
     }
     RedrawCanvas();
   }
@@ -926,11 +926,11 @@ public:
   // Allows the user to add a vertex where they chose
   void AddVertexWithParams(const char *id, int x, int y) {
     std::string idCpp(id);
-    if (g.HasVertex(idCpp)) {
+    if (currentGraph.HasVertex(idCpp)) {
       EM_ASM({ alert("Error: Vertex with this ID already exists!"); });
       return;
     }
-    g.AddVertex(idCpp, "blue", x, y);
+    currentGraph.AddVertex(idCpp, "blue", x, y);
     RedrawCanvas();
   }
 
@@ -1016,10 +1016,10 @@ public:
   }
 
   void StartTraversal() {
-    if (g.GetVertices().empty())
+    if (currentGraph.GetVertices().empty())
       return;
-    auto &start =
-        startVertex.has_value() ? const_cast<cse::Vertex<std::string> &>(startVertex->get()) : g.GetVertex("ID1");
+    auto &start = startVertex.has_value() ? const_cast<cse::Vertex<std::string> &>(startVertex->get())
+                                          : currentGraph.GetVertex("ID1");
     UpdateTraversalMode(start);
     currentlyTraversing = true;
   }
@@ -1072,7 +1072,7 @@ public:
       return;
     }
 
-    if (g.HasCycle()) {
+    if (currentGraph.HasCycle()) {
       EM_ASM({ alert("Can't traverse a Graph with a cycle"); });
       return;
     }
@@ -1130,7 +1130,7 @@ public:
 
   // Toggle vertex IDs
   void ToggleShowVertexIds(bool show) {
-    auto vertices = g.GetVertices();
+    auto vertices = currentGraph.GetVertices();
     for (auto v : vertices) {
       const_cast<cse::Vertex<std::string> &>(*v).SetShowId(show);
     }
@@ -1139,7 +1139,7 @@ public:
 
   // Toggle edge weights
   void ToggleShowEdgeWeights(bool show) {
-    auto edges = g.GetEdges();
+    auto edges = currentGraph.GetEdges();
     for (auto e : edges) {
       const_cast<cse::Edge<std::string> &>(*e).SetShowWeight(show);
     }
