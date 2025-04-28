@@ -92,8 +92,8 @@ std::optional<int> FinalApplication::IsValidInt(
  * @return A valid column (or row) index for the grid
  */
 int FinalApplication::GetColumnIndex(int max_index,
-                                     std::ostream &os = std::cout,
-                                     std::istream &is = std::cin,
+                                     std::ostream &os,
+                                     std::istream &is,
                                      const std::string &label) {
   while (true) {
     // Outputs "row index" if necessary
@@ -115,8 +115,8 @@ int FinalApplication::GetColumnIndex(int max_index,
  * @param is istream used for input and testing
  * @return A datum value
  */
-cse::Datum FinalApplication::GetDataValue(std::ostream &os = std::cout,
-                                          std::istream &is = std::cin) {
+cse::Datum FinalApplication::GetDataValue(std::ostream &os,
+                                          std::istream &is) {
   os << "Please enter the value to compare: ";
   std::string value_str;
   std::getline(is, value_str);
@@ -200,8 +200,8 @@ bool FinalApplication::IsValidCustomEquation(const std::string& input, int max_n
  * @param is istream used for input and testing
  * @return The custom DataGrid
  */
-cse::DataGrid FinalApplication::CreateGridMenu(std::ostream &os = std::cout,
-                                               std::istream &is = std::cin) {
+cse::DataGrid FinalApplication::CreateGridMenu(std::ostream &os,
+                                               std::istream &is) {
   static constexpr int MAX_ROWS = 1000;
   static constexpr int MAX_COLS = 1000;
   static constexpr int MAX_DEFAULT_STR_LEN = 100;
@@ -342,8 +342,8 @@ cse::DataGrid FinalApplication::CreateGridMenu(std::ostream &os = std::cout,
  * @param is istream used for input and testing
  * @return A DataGrid to use
  */
-cse::DataGrid FinalApplication::GridMenu(std::ostream &os = std::cout,
-                                         std::istream &is = std::cin) {
+cse::DataGrid FinalApplication::GridMenu(std::ostream &os,
+                                         std::istream &is) {
   // Helper to trim whitespace
   auto trim = [&](const std::string &s) {
     const auto ws = " \t\r\n";
@@ -419,6 +419,8 @@ cse::DataGrid FinalApplication::GridMenu(std::ostream &os = std::cout,
   }
 }
 
+// ** MathMenu Functions **
+
 /**
  * Displays the math menu and outputs the results from the mathematical
  * operation based on the user input. Supported operations: Mean, Median, Mode,
@@ -428,8 +430,8 @@ cse::DataGrid FinalApplication::GridMenu(std::ostream &os = std::cout,
  * @param is istream used for input and testing
  */
 void FinalApplication::MathMenu(const cse::DataGrid &grid,
-                                std::ostream &os = std::cout,
-                                std::istream &is = std::cin) {
+                                std::ostream &os,
+                                std::istream &is) {
   while (true) {
     os << "\nMath Menu:" << std::endl;
     os << "cmean: Calculate the mean of a column" << std::endl;
@@ -445,84 +447,25 @@ void FinalApplication::MathMenu(const cse::DataGrid &grid,
     std::getline(is, option);
 
     if (option == "cmean") {
-      int index =
-          GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-
-      os << "\nBelow is the grid: \n";
-      grid.Print(os);
-
-      os << "\nMean at column " << index << ": " << grid.ColumnMean(index)
-         << std::endl;
+      MathMenuMean(grid, os, is);
       return;
     } else if (option == "cmed") {
-      int index =
-          GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-
-      os << "\nBelow is the grid: \n";
-      grid.Print(os);
-
-      os << "\nMedian at column " << index << ": " << grid.ColumnMedian(index)
-         << std::endl;
+      MathMenuMedian(grid, os, is);
       return;
     } else if (option == "csd") {
-      int index =
-          GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-
-      os << "\nBelow is the grid: \n";
-      grid.Print(os);
-
-      os << "\nStandard deviation at column " << index << ": "
-         << grid.ColumnStandardDeviation(index) << std::endl;
+      MathMenuStandardDeviation(grid, os, is);
       return;
     } else if (option == "cmin") {
-      int index =
-          GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-
-      os << "\nBelow is the grid: \n";
-      grid.Print(os);
-
-      os << "\nMin at column " << index << ": " << grid.ColumnMin(index)
-         << std::endl;
+      MathMenuMin(grid, os, is);
       return;
     } else if (option == "cmax") {
-      int index =
-          GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-
-      os << "\nBelow is the grid: \n";
-      grid.Print(os);
-
-      os << "\nMax at column " << index << ": " << grid.ColumnMax(index)
-         << std::endl;
+      MathMenuMax(grid, os, is);
       return;
     } else if (option == "cmode") {
-      int index =
-          GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-
-      os << "\nBelow is the grid: \n";
-      grid.Print(os);
-
-      os << "\nMode(s) at column " << index << ": ";
-      for (const double &mode_val : grid.ColumnMode(index)) {
-        os << mode_val << " ";
-      }
-      os << std::endl;
+      MathMenuMode(grid, os, is);
       return;
     } else if (option == "sum") {
-      os << "\nBelow is the grid: \n";
-      grid.Print(os);
-
-      auto summary = grid.CalculateDataGridMathSummary();
-      os << "\nGrid Summary:" << std::endl;
-      os << "Mean: " << summary.mean << std::endl;
-      os << "Median: " << summary.median << std::endl;
-      os << "Standard Deviation: " << summary.standardDeviation << std::endl;
-      os << "Min: " << summary.min << std::endl;
-      os << "Max: " << summary.max << std::endl;
-      os << "Mode(s): ";
-      for (const double &mode_val : summary.mode) {
-        os << mode_val << " ";
-      }
-      os << std::endl;
+      MathMenuSummary(grid, os);
       return;
     } else if (option == "b") {
       return;
@@ -533,105 +476,176 @@ void FinalApplication::MathMenu(const cse::DataGrid &grid,
 }
 
 /**
- * Displays the comparison menu and outputs the results from the comparison
- * based on the user input. Supported comparisons: Less than, Less than or
- * equal, Greater than, Greater than or equal, equal, not equal
+ * Calculates and displays the mean of a specified column
+ * @param grid The DataGrid used for the mean calculation
+ * @param os ostream used for output and testing
+ * @param is istream used for input and testing
+ */
+void FinalApplication::MathMenuMean(const cse::DataGrid &grid,
+                                    std::ostream &os,
+                                    std::istream &is) {
+  int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+
+  os << "\nBelow is the grid: \n";
+  grid.Print(os);
+  os << "\nMean at column " << index << ": " << grid.ColumnMean(index) << std::endl;
+}
+
+/**
+ * Calculates and displays the median of a specified column
+ * @param grid The DataGrid used for the median calculation
+ * @param os ostream used for output and testing
+ * @param is istream used for input and testing
+ */
+void FinalApplication::MathMenuMedian(const cse::DataGrid &grid,
+                                    std::ostream &os,
+                                    std::istream &is) {
+  int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+
+  os << "\nBelow is the grid: \n";
+  grid.Print(os);
+  os << "\nMedian at column " << index << ": " << grid.ColumnMedian(index) << std::endl;
+}
+
+/**
+ * Calculates and displays the standard deviation of a specified column
+ * @param grid The DataGrid used for the standard deviation calculation
+ * @param os ostream used for output and testing
+ * @param is istream used for input and testing
+ */
+void FinalApplication::MathMenuStandardDeviation(const cse::DataGrid &grid,
+                                    std::ostream &os,
+                                    std::istream &is) {
+  int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+
+  os << "\nBelow is the grid: \n";
+  grid.Print(os);
+  os << "\nStandard deviation at column " << index << ": "
+     << grid.ColumnStandardDeviation(index) << std::endl;
+}
+
+/**
+ * Calculates and displays the min of a specified column
+ * @param grid The DataGrid used for the min calculation
+ * @param os ostream used for output and testing
+ * @param is istream used for input and testing
+ */
+void FinalApplication::MathMenuMin(const cse::DataGrid &grid,
+                                   std::ostream &os,
+                                   std::istream &is) {
+  int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+
+  os << "\nBelow is the grid: \n";
+  grid.Print(os);
+  os << "\nMin at column " << index << ": " << grid.ColumnMin(index) << std::endl;
+}
+
+/**
+ * Calculates and displays the max of a specified column
+ * @param grid The DataGrid used for the max calculation
+ * @param os ostream used for output and testing
+ * @param is istream used for input and testing
+ */
+void FinalApplication::MathMenuMax(const cse::DataGrid &grid,
+                                   std::ostream &os,
+                                   std::istream &is) {
+  int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+
+  os << "\nBelow is the grid: \n";
+  grid.Print(os);
+  os << "\nMax at column " << index << ": " << grid.ColumnMax(index) << std::endl;
+}
+
+/**
+ * Calculates and displays the mode of a specified column
+ * @param grid The DataGrid used for the mode calculation
+ * @param os ostream used for output and testing
+ * @param is istream used for input and testing
+ */
+void FinalApplication::MathMenuMode(const cse::DataGrid &grid,
+                                   std::ostream &os,
+                                   std::istream &is) {
+  int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+
+  os << "\nBelow is the grid: \n";
+  grid.Print(os);
+
+  os << "\nMode(s) at column " << index << ": ";
+  for (const double &mode_val : grid.ColumnMode(index)) {
+    os << mode_val << " ";
+  }
+  os << std::endl;
+}
+
+/**
+ * Calculates and displays the mean, median, standard deviation, mode, min, and max of the entire grid
  * @param grid The DataGrid used for the calculations
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  */
+void FinalApplication::MathMenuSummary(const cse::DataGrid &grid,
+                                    std::ostream &os) {
+  os << "\nBelow is the grid: \n";
+  grid.Print(os);
+
+  auto summary = grid.CalculateDataGridMathSummary();
+  os << "\nGrid Summary:" << std::endl;
+  os << "Mean: " << summary.mean << std::endl;
+  os << "Median: " << summary.median << std::endl;
+  os << "Standard Deviation: " << summary.standardDeviation << std::endl;
+  os << "Min: " << summary.min << std::endl;
+  os << "Max: " << summary.max << std::endl;
+  os << "Mode(s): ";
+  for (const double &mode_val : summary.mode) {
+    os << mode_val << " ";
+  }
+  os << std::endl;
+}
+
+
+// ** ComparisonMenu Functions **
+
+/**
+ * Displays the comparison menu and outputs the results from the comparison
+ * based on the user input. Supported comparisons: Less than, Less than or
+ * equal, Greater than, Greater than or equal, equal, not equal
+ * @param grid The DataGrid used for comparisons
+ * @param os ostream used for output and testing
+ * @param is istream used for input and testing
+ */
 void FinalApplication::ComparisonMenu(cse::DataGrid &grid,
-                                      std::ostream &os = std::cout,
-                                      std::istream &is = std::cin) {
+                                      std::ostream &os,
+                                      std::istream &is) {
   while (true) {
     os << "\nComparison Menu:" << std::endl;
     os << "clt: Find values less than a given value for a column" << std::endl;
-    os << "clte: Find values less than or equal to a given value for a column"
-       << std::endl;
-    os << "cgt: Find values greater than a given value for a column"
-       << std::endl;
-    os << "cgte: Find values greater than or equal to a given value for a "
-          "column"
-       << std::endl;
+    os << "clte: Find values less than or equal to a given value for a column" << std::endl;
+    os << "cgt: Find values greater than a given value for a column" << std::endl;
+    os << "cgte: Find values greater than or equal to a given value for a column" << std::endl;
     os << "ce: Find values equal to a value for a column" << std::endl;
-    os << "cne: Find values not equal to a given value for a column"
-       << std::endl;
+    os << "cne: Find values not equal to a given value for a column" << std::endl;
     os << "b: Go back" << std::endl;
     os << "Enter option: ";
     std::string option;
     std::getline(is, option);
 
     if (option == "clt") {
-      int index =
-          GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-      cse::Datum datum = GetDataValue(os, is);
-
-      os << "\nThe column values: \n";
-      PrintColumn((grid.GetColumn(index)));
-      os << "\n";
-
-      os << "Values less than the given value:" << std::endl;
-      PrintColumn(grid.ColumnLessThan(index, datum));
+      ComparisonMenuLessThan(grid, os, is);
       return;
     } else if (option == "clte") {
-      int index =
-          GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-      cse::Datum datum = GetDataValue(os, is);
-
-      os << "\nThe column values: \n";
-      PrintColumn((grid.GetColumn(index)));
-      os << "\n";
-
-      os << "Values less than or equal to the given value:" << std::endl;
-      PrintColumn(grid.ColumnLessThanOrEqual(index, datum));
+      ComparisonMenuLessThanEqual(grid, os, is);
       return;
     } else if (option == "cgt") {
-      int index =
-          GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-      cse::Datum datum = GetDataValue(os, is);
-
-      os << "\nThe column values: \n";
-      PrintColumn((grid.GetColumn(index)));
-      os << "\n";
-
-      os << "Values greater than the given value:" << std::endl;
-      PrintColumn(grid.ColumnGreaterThan(index, datum));
+      ComparisonMenuGreaterThan(grid, os, is);
       return;
     } else if (option == "cgte") {
-      int index =
-          GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-      cse::Datum datum = GetDataValue(os, is);
-
-      os << "\nThe column values: \n";
-      PrintColumn((grid.GetColumn(index)));
-      os << "\n";
-
-      os << "Values greater than or equal to the given value:" << std::endl;
-      PrintColumn(grid.ColumnGreaterThanOrEqual(index, datum));
+      ComparisonMenuGreaterThanEqual(grid, os, is);
       return;
     } else if (option == "ce") {
-      int index =
-          GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-      cse::Datum datum = GetDataValue(os, is);
-
-      os << "\nThe column values: \n";
-      PrintColumn((grid.GetColumn(index)));
-      os << "\n";
-
-      os << "Values equal to the given value:" << std::endl;
-      PrintColumn(grid.ColumnEqual(index, datum));
+      ComparisonMenuEqual(grid, os, is);
       return;
     } else if (option == "cne") {
-      int index =
-          GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
-      cse::Datum datum = GetDataValue(os, is);
-
-      os << "\nThe column values: \n";
-      PrintColumn((grid.GetColumn(index)));
-      os << "\n";
-
-      os << "Values not equal to the given value:" << std::endl;
-      PrintColumn(grid.ColumnNotEqual(index, datum));
+      ComparisonMenuNotEqual(grid, os, is);
       return;
     } else if (option == "b") {
       return;
@@ -640,6 +654,122 @@ void FinalApplication::ComparisonMenu(cse::DataGrid &grid,
     }
   }
 }
+
+/**
+ * Displays the  results from the less than comparison of a specified column
+ * @param grid The DataGrid used for less than comparisons
+ * @param os ostream used for output and testing
+ * @param is istream used for input and testing
+ */
+void FinalApplication::ComparisonMenuLessThan(cse::DataGrid &grid,
+                                              std::ostream &os,
+                                              std::istream &is) {
+  int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+  cse::Datum datum = GetDataValue(os, is);
+
+  os << "\nThe column values: \n";
+  PrintColumn((grid.GetColumn(index)));
+
+  os << "\nValues less than the given value:" << std::endl;
+  PrintColumn(grid.ColumnLessThan(index, datum));
+}
+
+/**
+ * Displays the  results from the less than or equal comparison of a specified column
+ * @param grid The DataGrid used for less than or equal comparisons
+ * @param os ostream used for output and testing
+ * @param is istream used for input and testing
+ */
+void FinalApplication::ComparisonMenuLessThanEqual(cse::DataGrid &grid,
+                                              std::ostream &os,
+                                              std::istream &is) {
+  int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+  cse::Datum datum = GetDataValue(os, is);
+
+  os << "\nThe column values: \n";
+  PrintColumn((grid.GetColumn(index)));
+
+  os << "\nValues less than or equal to the given value:" << std::endl;
+  PrintColumn(grid.ColumnLessThanOrEqual(index, datum));
+}
+
+/**
+ * Displays the  results from the greater than comparison of a specified column
+ * @param grid The DataGrid used for greater than comparisons
+ * @param os ostream used for output and testing
+ * @param is istream used for input and testing
+ */
+void FinalApplication::ComparisonMenuGreaterThan(cse::DataGrid &grid,
+                                                   std::ostream &os,
+                                                   std::istream &is) {
+  int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+  cse::Datum datum = GetDataValue(os, is);
+
+  os << "\nThe column values: \n";
+  PrintColumn((grid.GetColumn(index)));
+
+  os << "\nValues greater than the given value:" << std::endl;
+  PrintColumn(grid.ColumnGreaterThan(index, datum));
+}
+
+/**
+ * Displays the  results from the greater than or equal comparison of a specified column
+ * @param grid The DataGrid used for greater than or equal comparisons
+ * @param os ostream used for output and testing
+ * @param is istream used for input and testing
+ */
+void FinalApplication::ComparisonMenuGreaterThanEqual(cse::DataGrid &grid,
+                                                 std::ostream &os,
+                                                 std::istream &is) {
+  int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+  cse::Datum datum = GetDataValue(os, is);
+
+  os << "\nThe column values: \n";
+  PrintColumn((grid.GetColumn(index)));
+
+  os << "\nValues greater than or equal to the given value:" << std::endl;
+  PrintColumn(grid.ColumnGreaterThanOrEqual(index, datum));
+}
+
+/**
+ * Displays the  results from the equal comparison of a specified column
+ * @param grid The DataGrid used for equal comparisons
+ * @param os ostream used for output and testing
+ * @param is istream used for input and testing
+ */
+void FinalApplication::ComparisonMenuEqual(cse::DataGrid &grid,
+                                                 std::ostream &os,
+                                                 std::istream &is) {
+  int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+  cse::Datum datum = GetDataValue(os, is);
+
+  os << "\nThe column values: \n";
+  PrintColumn((grid.GetColumn(index)));
+
+  os << "\nValues equal to the given value:" << std::endl;
+  PrintColumn(grid.ColumnEqual(index, datum));
+}
+
+/**
+ * Displays the  results from the not equal comparison of a specified column
+ * @param grid The DataGrid used for not equal comparisons
+ * @param os ostream used for output and testing
+ * @param is istream used for input and testing
+ */
+void FinalApplication::ComparisonMenuNotEqual(cse::DataGrid &grid,
+                                                 std::ostream &os,
+                                                 std::istream &is) {
+  int index = GetColumnIndex(static_cast<int>(std::get<1>(grid.Shape())), os, is);
+  cse::Datum datum = GetDataValue(os, is);
+
+  os << "\nThe column values: \n";
+  PrintColumn((grid.GetColumn(index)));
+
+  os << "\nValues not equal to the given value:" << std::endl;
+  PrintColumn(grid.ColumnNotEqual(index, datum));
+}
+
+
 
 /**
  * Displays the manipulate grid menu and performs the changes on the DataGrid
@@ -650,8 +780,8 @@ void FinalApplication::ComparisonMenu(cse::DataGrid &grid,
  * @param is istream used for input and testing
  */
 void FinalApplication::ManipulateGridMenu(cse::DataGrid &grid,
-                                          std::ostream &os = std::cout,
-                                          std::istream &is = std::cin) {
+                                          std::ostream &os,
+                                          std::istream &is) {
   int choice = -1;
   do {
     os << "\n=== CSV Grid Manipulation Menu ===" << std::endl;
@@ -709,8 +839,6 @@ void FinalApplication::ManipulateGridMenu(cse::DataGrid &grid,
 void FinalApplication::PrintSubmenu(const cse::DataGrid &grid,
                                     std::ostream &os,
                                     std::istream &is) {
-
-  const auto [maxRows, maxCols] = grid.Shape();
   while (true) {
     os << "\n--- Print Options ---" << std::endl;
     os << "1. Print a cell value" << std::endl;
@@ -727,81 +855,22 @@ void FinalApplication::PrintSubmenu(const cse::DataGrid &grid,
       os << "Invalid choice. Input must be an int. Try again." << std::endl;
       continue;
     }
-    int choice = *mi;
+    int choice = mi.value();
 
       switch (choice) {
         // Print a cell value
         case 1: {
-          os << "Enter row index: ";
-          std::string rraw;
-          if (!(std::getline(is, rraw))) return;
-          auto ri = IsValidInt(rraw);
-          if (!ri || *ri < 0 || static_cast<std::size_t>(*ri) >= maxRows) {
-            os << "Invalid row. " << "The max row is: " << maxRows - 1 << ". Try again." << std::endl;
-            continue;
-          }
-          std::size_t row = static_cast<std::size_t>(*ri);
-
-          os << "Enter column index: ";
-          std::string craw;
-          if (!(std::getline(is, craw))) return;
-          auto ci = IsValidInt(craw);
-          if (!ci || *ci < 0 || static_cast<std::size_t>(*ci) >= maxCols) {
-            os << "Invalid column. " << "The max column is: " << maxCols - 1 << ". Try again." << std::endl;
-            continue;
-          }
-          std::size_t col = static_cast<std::size_t>(*ci);
-
-          const cse::Datum &value = grid.GetValue(row, col);
-          if (value.IsDouble()) {
-            os << "\nCell (" << row << ", " << col << "): "
-              << value.GetDouble() << std::endl;
-          } else {
-            os << "\nCell (" << row << ", " << col << "): "
-              << value.GetString() << std::endl;
-          }
+          PrintSubmenuCell(grid, os, is);
           break;
         }
         // Print a row
         case 2: {
-          os << "Enter row index: ";
-          std::string rraw;
-          if (!(std::getline(is, rraw))) return;
-          auto ri = IsValidInt(rraw);
-          if (!ri || *ri < 0 || static_cast<std::size_t>(*ri) >= maxRows) {
-            os << "Invalid row. " << "The max row is: " << maxRows - 1 << ". Try again." << std::endl;
-            continue;
-          }
-          std::size_t row = static_cast<std::size_t>(*ri);
-
-          auto row_data = grid.GetRow(row);
-          os << "\nRow " << row << ": ";
-          for (const auto &d : row_data) {
-            if (d.IsDouble()) os << d.GetDouble() << " ";
-            else               os << d.GetString() << " ";
-          }
-          os << std::endl;
+          PrintSubmenuRow(grid, os, is);
           break;
         }
         // Print a column
         case 3: {
-          os << "Enter column index: ";
-          std::string craw;
-          if (!(std::getline(is, craw))) return;
-          auto ci = IsValidInt(craw);
-          if (!ci || *ci < 0 || static_cast<std::size_t>(*ci) >= maxCols) {
-            os << "Invalid column. " << "The max column is: " << maxCols - 1 << ". Try again." << std::endl;
-            continue;
-          }
-          std::size_t col = static_cast<std::size_t>(*ci);
-
-          auto col_data = grid.GetColumn(col);
-          os << "\nColumn " << col << ": ";
-          for (const auto &d : col_data) {
-            if (d.IsDouble()) os << d.GetDouble() << " ";
-            else               os << d.GetString() << " ";
-          }
-          os << std::endl;
+          PrintSubmenuColumn(grid, os, is);
           break;
         }
         // Print the entire DataGrid
@@ -814,6 +883,122 @@ void FinalApplication::PrintSubmenu(const cse::DataGrid &grid,
         os << "Invalid choice. Input must be between 0-4. Try again." << std::endl;
     }
   }
+}
+
+/**
+ * Prints the specified cell value
+ * @param grid The DataGrid to print from
+ * @param os ostream used for output and testing
+ * @param is istream used for input and testing
+ */
+void FinalApplication::PrintSubmenuCell(const cse::DataGrid &grid,
+                                        std::ostream &os,
+                                        std::istream &is) {
+  std::optional<int> row = PrintSubmenuGetRow(
+      static_cast<int>(std::get<0>(grid.Shape())), os, is);
+  if (!row) return;
+
+  std::optional<int> column = PrintSubmenuGetColumn(
+      static_cast<int>(std::get<1>(grid.Shape())), os, is);
+  if (!column) return;
+
+  const cse::Datum &value = grid.GetValue(row.value(), column.value());
+  if (value.IsDouble()) {
+    os << "\nCell (" << row.value() << ", " << column.value() << "): "
+       << value.GetDouble() << std::endl;
+  } else {
+    os << "\nCell (" << row.value() << ", " << column.value() << "): "
+       << value.GetString() << std::endl;
+  }
+}
+
+/**
+ * Prints the specified row
+ * @param grid The DataGrid to print from
+ * @param os ostream used for output and testing
+ * @param is istream used for input and testing
+ */
+void FinalApplication::PrintSubmenuRow(const cse::DataGrid &grid,
+                                       std::ostream &os,
+                                       std::istream &is) {
+  std::optional<int> row = PrintSubmenuGetRow(
+      static_cast<int>(std::get<0>(grid.Shape())), os, is);
+  if (!row) return;
+
+  auto row_data = grid.GetRow(row.value());
+  os << "\nRow " << row.value() << ": ";
+  for (const auto &d : row_data) {
+    if (d.IsDouble()) os << d.GetDouble() << " ";
+    else os << d.GetString() << " ";
+  }
+  os << std::endl;
+}
+
+/**
+ * Prints the specified column
+ * @param grid The DataGrid to print from
+ * @param os ostream used for output and testing
+ * @param is istream used for input and testing
+ */
+void FinalApplication::PrintSubmenuColumn(const cse::DataGrid &grid,
+                                          std::ostream &os,
+                                          std::istream &is) {
+  std::optional<int> column = PrintSubmenuGetColumn(
+      static_cast<int>(std::get<1>(grid.Shape())), os, is);
+  if (!column) return;
+
+  auto col_data = grid.GetColumn(column.value());
+  os << "\nColumn " << column.value() << ": ";
+  for (const auto &d : col_data) {
+    if (d.IsDouble()) os << d.GetDouble() << " ";
+    else os << d.GetString() << " ";
+  }
+  os << std::endl;
+}
+
+/**
+ * Gets the row value from the user.
+ * @param max_row The maximum row value
+ * @param os ostream used for output and testing
+ * @param is istream used for input and testing
+ * @return Optional int if it's a valid row value, empty optional if not
+ */
+std::optional<int> FinalApplication::PrintSubmenuGetRow(const int max_row,
+                                                        std::ostream &os,
+                                                        std::istream &is) {
+  os << "Enter row index: ";
+  std::string row_string;
+  if (!(std::getline(is, row_string))) return {};
+
+  std::optional<int> is_valid_int = IsValidInt(row_string);
+  if (!is_valid_int || is_valid_int.value() < 0 || is_valid_int.value() >= max_row) {
+    os << "Invalid row. " << "The max row is: " << max_row - 1 << ". Try again." << std::endl;
+    return {};
+  }
+
+  return is_valid_int.value();
+}
+/**
+ * Gets the column value from the user.
+ * @param max_col The maximum row value
+ * @param os ostream used for output and testing
+ * @param is istream used for input and testing
+ * @return Optional int if it's a valid column value, empty optional if not
+ */
+std::optional<int> FinalApplication::PrintSubmenuGetColumn(const int max_col,
+                                                           std::ostream &os,
+                                                           std::istream &is) {
+  os << "Enter column index: ";
+  std::string column_string;
+  if (!(std::getline(is, column_string))) return {};
+
+  std::optional<int> is_valid_int = IsValidInt(column_string);
+  if (!is_valid_int || is_valid_int.value() < 0 || is_valid_int.value() >= max_col) {
+    os << "Invalid column. " << "The max column is: " << max_col - 1 << ". Try again." << std::endl;
+    return {};
+  }
+
+  return is_valid_int.value();
 }
 
 /**
@@ -960,8 +1145,8 @@ void FinalApplication::EditSubmenu(cse::DataGrid &grid,
  * @param is istream used for input and testing
  */
 void FinalApplication::SortSubmenu(cse::DataGrid &grid,
-                                   std::ostream &os = std::cout,
-                                   std::istream &is = std::cin) {
+                                   std::ostream &os,
+                                   std::istream &is) {
   int choice = -1;
   do {
     os << "\n--- Sort Options ---" << std::endl;
@@ -1036,8 +1221,8 @@ void FinalApplication::SortSubmenu(cse::DataGrid &grid,
  * @param is istream used for input and testing
  */
 void FinalApplication::AddSubmenu(cse::DataGrid &grid,
-                                  std::ostream &os = std::cout,
-                                  std::istream &is = std::cin) {
+                                  std::ostream &os,
+                                  std::istream &is) {
   int choice = -1;
   do {
     os << "\n--- Adding Options ---" << std::endl;
@@ -1322,8 +1507,8 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid,
  * @param is istream used for input and testing
  */
 void FinalApplication::DeleteSubmenu(cse::DataGrid &grid,
-                                     std::ostream &os = std::cout,
-                                     std::istream &is = std::cin) {
+                                     std::ostream &os,
+                                     std::istream &is) {
   int choice = -1;
   do {
     os << "\n--- Deleting Options ---" << std::endl;
@@ -1391,8 +1576,8 @@ void FinalApplication::DeleteSubmenu(cse::DataGrid &grid,
  * @param is istream used for input and testing
  */
 void FinalApplication::ResizeSubmenu(cse::DataGrid &grid,
-                                     std::ostream &os = std::cout,
-                                     std::istream &is = std::cin) {
+                                     std::ostream &os,
+                                     std::istream &is) {
   int choice = -1;
   do {
     os << "\n--- Resizing Options ---" << std::endl;
@@ -1465,8 +1650,8 @@ void FinalApplication::ResizeSubmenu(cse::DataGrid &grid,
  * @param os ostream used for output and testing
  * @param is istream used for input and testing
  */
-void FinalApplication::MainMenu(std::ostream &os = std::cout,
-                                std::istream &is = std::cin) {
+void FinalApplication::MainMenu(std::ostream &os,
+                                std::istream &is) {
   os << "\nWelcome to CSV Command Line Manipulator!" << std::endl;
   os << "This is a command line application that allows users to create, load, "
         "manipulate, analyze and save CSV file data\n"
