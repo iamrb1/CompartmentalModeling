@@ -12,7 +12,7 @@ Circle::Circle(double x, double y, double radius,
       proximityRadius_(radius * 2),
       type_(type), energy_(initialEnergy), initialEnergy_(initialEnergy),
       regenerating_(false), speedBoost_(false),
-      eatingCounter_(0), reproduceThreshold_(reproduceThreshold) {
+      eatingCounter_(0), reproduceThreshold_(reproduceThreshold) { //chatgpt
     if (radius <= 0) {
         throw std::invalid_argument("Circle radius must be positive");
     }

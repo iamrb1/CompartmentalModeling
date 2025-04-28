@@ -9,7 +9,6 @@ enum class CircleType { Predator, Prey };
 
 class Circle {
 public:
-    // Default constants to avoid magic numbers
     static constexpr int kDefaultInitialEnergy     = 1000;
     static constexpr int kDefaultReproduceThreshold = 5;
 
@@ -47,9 +46,8 @@ public:
     void checkProximity(const Circle& other);
     void eatPrey(const Circle& prey);
 
-    // Static utility to test overlap without computing a sqrt
     static bool overlaps(const Circle& a, const Circle& b) noexcept;
-    // Instance overload for ease of use in client code
+
     bool overlaps(const Circle& other) const noexcept { return overlaps(*this, other); }
 
 private:
@@ -78,13 +76,13 @@ private:
     int  eatingCounter_;
     int  reproduceThreshold_;
 
-    // Helper: squared distance
+    // Squared distance
     static double SquaredDistance(double x1, double y1, double x2, double y2) noexcept {
         double dx = x1 - x2;
         double dy = y1 - y2;
         return dx*dx + dy*dy;
     }
 
-    // Recomputes speed based on current energy and boost state
+    // Update speed based on current energy and boost state
     void updateSpeed() noexcept;
 };
