@@ -47,37 +47,6 @@ void cse::FunctionSet<R, Args...>::AddFunction(const FunctionType& func)
     mFunctions.push_back(func);
 }
 
-
-
-
-///**
-// * clearAll
-// */
-//template <typename R, typename... Args>
-//void cse::FunctionSet<R, Args...>::ClearAll()
-//{
-//
-//    mFunctions.clear();
-//}
-
-/**
- * isEmpty
- */
-//template <typename R, typename... Args>
-//bool cse::FunctionSet<R, Args...>::IsEmpty() const
-//{
-//    return mFunctions.empty();
-//}
-
-/**
- * countFunSet
- */
-//template <typename R, typename... Args>
-//std::size_t cse::FunctionSet<R, Args...>::CountFun() const
-//{
-//    return mFunctions.size();
-//}
-
 /**
  * Find the index of the function
  */
