@@ -1,4 +1,3 @@
-
 /**
  @file SimulationUI
  @author Nitish Maindoliya
@@ -33,7 +32,8 @@ ApplicationWindow {
     /// component for creating graph window
     Component {
         id: graphWindowComponent
-        GraphWindowUI {}
+        GraphWindowUI {
+        }
     }
 
     width: 800
@@ -84,7 +84,8 @@ ApplicationWindow {
                         onTriggered: saveFileDialog.open()
                     }
 
-                    MenuSeparator {}
+                    MenuSeparator {
+                    }
                     Menu {
                         title: "Theme"
                         Repeater {
@@ -94,11 +95,12 @@ ApplicationWindow {
                                 checkable: true
                                 checked: modelData.value === ThemeManager.theme
                                 onTriggered: ThemeManager.setTheme(
-                                                 modelData.value)
+                                    modelData.value)
                             }
                         }
                     }
-                    MenuSeparator {}
+                    MenuSeparator {
+                    }
                     Action {
                         text: "Exit"
                         onTriggered: Qt.quit()
@@ -131,6 +133,42 @@ ApplicationWindow {
                 Layout.fillWidth: false
 
                 Text {
+                    text: "Step time(ms):"
+                    color: ThemeManager.palette.text
+                    Layout.preferredWidth: 80
+                }
+
+                Rectangle {
+                    Layout.preferredWidth: 60
+                    height: 25
+                    border.width: 1
+                    border.color: ThemeManager.palette.mid
+                    // color: "transparent"
+                    color: simulation.isRunning ? Qt.rgba(
+                        ThemeManager.palette.mid.r,
+                        ThemeManager.palette.mid.g,
+                        ThemeManager.palette.mid.b,
+                        0.3) : "transparent"
+
+                    TextInput {
+                        anchors.fill: parent
+                        anchors.margins: 5
+                        verticalAlignment: TextInput.AlignVCenter
+                        text: simulation.stepTime
+                        color: ThemeManager.palette.text
+                        enabled: !simulation.isRunning
+                        validator: IntValidator {
+                            bottom: 0
+                        }
+
+                        onEditingFinished: {
+                            simulation.stepTime = parseInt(text)
+                        }
+                        clip: true
+                    }
+                }
+
+                Text {
                     text: "Time Steps:"
                     color: ThemeManager.palette.text
                     Layout.preferredWidth: 70
@@ -143,10 +181,10 @@ ApplicationWindow {
                     border.color: ThemeManager.palette.mid
                     // color: "transparent"
                     color: simulation.isRunning ? Qt.rgba(
-                                                      ThemeManager.palette.mid.r,
-                                                      ThemeManager.palette.mid.g,
-                                                      ThemeManager.palette.mid.b,
-                                                      0.3) : "transparent"
+                        ThemeManager.palette.mid.r,
+                        ThemeManager.palette.mid.g,
+                        ThemeManager.palette.mid.b,
+                        0.3) : "transparent"
 
                     TextInput {
                         anchors.fill: parent

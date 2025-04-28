@@ -47,6 +47,7 @@ class Simulation : public QObject {
 
   // Evolution
   Q_PROPERTY(int currentTime MEMBER m_current_time NOTIFY currentTimeChanged FINAL)
+  Q_PROPERTY(int stepTime MEMBER m_step_time NOTIFY currentTimeChanged FINAL)
   Q_PROPERTY(int timeSteps MEMBER m_time_steps NOTIFY timeStepsChanged FINAL)
   Q_PROPERTY(bool isRunning MEMBER m_is_running NOTIFY isRunningChanged FINAL)
 
@@ -83,8 +84,6 @@ class Simulation : public QObject {
   void promptMessage(const QString& message, Simulation::PromptType type, Simulation::PromptMode mode);
 
  private:
-  static constexpr int DEFAULT_TIME_STEP_MS = 100;
-
   /// Simulation name
   QString m_name = "New Simulation";
   /// Save path
@@ -92,6 +91,7 @@ class Simulation : public QObject {
 
   /// Simulation time
   QTimer* m_timer = nullptr;
+  int m_step_time = 100; // in milliseconds
   int m_current_time = 0.0;
   int m_time_steps = 100;
   bool m_is_running = false;

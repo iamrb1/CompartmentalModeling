@@ -68,7 +68,7 @@ void Simulation::start() {
     m_timer = new QTimer(this);
   }
   auto connection = connect(m_timer, &QTimer::timeout, [this]() { take_time_step(); });
-  m_timer->start(DEFAULT_TIME_STEP_MS);
+  m_timer->start(m_step_time);
 }
 
 void Simulation::pause() {
