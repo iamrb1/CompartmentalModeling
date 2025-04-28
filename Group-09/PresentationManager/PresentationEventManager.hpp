@@ -224,9 +224,13 @@ class PresentationEventManager {
 				_queues[origin].add(event);
 			}
 
-			_id_to_slide[target] = origin; // Map ID to slide num
 			const auto event = Event(target, time, function, _presentation_manager, parseID(target));
-			_queues[origin].add(event);
+			try {
+				_queues[origin].add(event);
+				_id_to_slide[target] = origin; // Map ID to slide num
+			} catch (const std::invalid_argument &e) {
+				std::cout << "Event " << target << " already has an event." << std::endl;
+			}
 			_active_queue = _queues[_current_slide]; // Re-copy the active queue
 		}
 
