@@ -585,20 +585,20 @@ class BasicRichText {
         : format(format), rule(rule), iter(begin), end(end) {}
 
     bool operator<(const FormatSerializeTracker& rhs) const {
-    dbg_assert(iter != end,
-               "FormatSerializeTracker compare failed: invalid iterator.");
+      dbg_assert(iter != end,
+                "FormatSerializeTracker compare failed: invalid iterator.");
 
-    const auto& a = *iter;        // this tracker’s current range
-    const auto& b = *rhs.iter;    // other tracker’s current range
+      const auto& a = *iter;        // this tracker’s current range
+      const auto& b = *rhs.iter;    // other tracker’s current range
 
-    // 1. Earlier start index sorts first
-    if (a.start != b.start) return a.start < b.start;
+      // 1. Earlier start index sorts first
+      if (a.start != b.start) return a.start < b.start;
 
-    // 2. If starts match, shorter (earlier-ending) range sorts first
-    if (a.end != b.end) return a.end < b.end;
+      // 2. If starts match, shorter (earlier-ending) range sorts first
+      if (a.end != b.end) return a.end < b.end;
 
-    // 3. Exact same range → fall back to the format itself
-    return format < rhs.format;   // TextFormat already defines operator<
+      // 3. Exact same range → fall back to the format itself
+      return format < rhs.format;   // TextFormat already defines operator<
     }
   };
 
