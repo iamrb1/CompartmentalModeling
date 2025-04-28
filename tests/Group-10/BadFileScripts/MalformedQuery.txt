@@ -1,0 +1,7 @@
+brut-force ../../Group-10/Application/data_points.txt -capacity=5.0 -compare
+q brute-force ../../Group-10/Application/data_points.txt -capacity=5.0 -compare
+set-capacity
+set-capacity 17 17 17
+set-capacity balls
+brute-force
+brute-force ../../Group-10/Application/data_points.txt -compare
