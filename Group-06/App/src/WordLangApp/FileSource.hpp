@@ -21,18 +21,35 @@
 #ifndef CSE_FILE_SOURCE_HPP
 #define CSE_FILE_SOURCE_HPP
 /**
- * @brief A namespace that will save
+ * @brief A class that will save
  * and load words from and to a file
  *
  */
-namespace FileSource {
+class FileSource {
+private:
+/**
+ * @brief relative path for word files
+ * 
+ */
+    static inline std::string mRelativePath = "../database/";
+
+public:
+
+/**
+ * @brief Set the Relative Path object
+ * 
+ * @param path Path to set
+ */
+static void set_relative_path(const std::string& path) {
+    mRelativePath = path;
+}
 /**
  * @brief Loads words from a file into a StringSet
  *
  * @param filename Name of a file to load words from
  * @return cse::StringSet set of words loaded from a file
  */
-cse::StringSet<cse::StaticString<30>> load_file(const std::string& filename);
+static cse::StringSet<cse::StaticString<30>> load_file(const std::string& filename);
 
 /**
  * @brief Saves words into a file from a list
@@ -41,7 +58,7 @@ cse::StringSet<cse::StaticString<30>> load_file(const std::string& filename);
  * @param set The set that will be saved
  * @return True if successful, false otherwise
  */
-bool save_file(const std::string& filename,
+static bool save_file(const std::string& filename,
                cse::StringSet<cse::StaticString<30>> set);
 };  // namespace FileSource
 

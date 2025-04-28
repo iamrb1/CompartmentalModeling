@@ -18,9 +18,8 @@
 
 #include "../../../StaticString/StaticString.hpp"
 
-namespace FileSource {
-cse::StringSet<cse::StaticString<30>> load_file(const std::string& filename) {
-  std::ifstream file("../database/" + filename);
+cse::StringSet<cse::StaticString<30>> FileSource::load_file(const std::string& filename) {
+  std::ifstream file(mRelativePath + filename);
   cse::StringSet<cse::StaticString<30>> set;
   std::string line;
 
@@ -32,9 +31,9 @@ cse::StringSet<cse::StaticString<30>> load_file(const std::string& filename) {
   return set;
 }
 
-bool save_file(const std::string& filename,
+bool FileSource::save_file(const std::string& filename,
                cse::StringSet<cse::StaticString<30>> set) {
-  std::ofstream file("../database/" + filename);
+  std::ofstream file(mRelativePath + filename);
   for (const auto& word : set) {
     file << word << "\n";
   }
@@ -42,4 +41,3 @@ bool save_file(const std::string& filename,
   file.close();
   return true;
 }
-}  // namespace FileSource

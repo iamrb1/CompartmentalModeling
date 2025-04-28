@@ -16,6 +16,7 @@ const static bool DEBUG_MODE = false;
 
 void test_function(const std::vector<std::string>& input, const std::vector<std::string>& output_result) {
   cse::WordLang wordLang;
+  FileSource::set_relative_path("WordLangWordFiles/");
 
   for (size_t i = 0; i < input.size(); ++i) {
     std::ostringstream oss;
@@ -62,10 +63,6 @@ TEST_CASE("Fundamental WordLang Tests", "[WordLang]") {
 
 
 TEST_CASE("Length restriction Tests", "[WordLang]") {
-  // changing path to text files from "database" folder in "App"
-  std::filesystem::path current = std::filesystem::current_path();
-  std::filesystem::path target = current.parent_path().parent_path() / "Group-06" / "App" / "src";
-  std::filesystem::current_path(target);
 
   std::vector<std::string> input = {
     "LIST list1 = LOAD \"top_5000.txt\"\n",
