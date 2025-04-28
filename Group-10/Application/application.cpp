@@ -153,15 +153,35 @@ cse::ArgManager CreateArgManager(std::vector<std::string> &args) {
   return mgr;
 }
 
+bool isDigit(const std::string& str) {
+  std::istringstream iss(str);
+  float f;
+  iss >> std::noskipws >> f;
+  return iss.eof() && !iss.fail();
+}
+
 std::vector<cse::Item> ConstructItems(std::ifstream &textFile) {
   std::vector<cse::Item> Items{};
 
   std::string line;
   std::getline(textFile, line);
+  int lineNumber = 2;
   while (std::getline(textFile, line)) {
     std::vector<std::string> itemData = split(line, ',');
+    if (itemData.size() != 3) {
+      throw std::length_error("CSV parse error on line " + std::to_string(lineNumber) + " expected 3 fields, got: " +
+        std::to_string(itemData.size()));
+    }
+    if (!isDigit(itemData[1])) {
+      throw std::invalid_argument("CSV parse error on line " + std::to_string(lineNumber) + " invalid argument.");
+    }
+    if (!isDigit(itemData[2])) {
+      throw std::invalid_argument("CSV parse error on line " + std::to_string(lineNumber) + " invalid argument.");
+    }
+    
     cse::Item item(itemData[0], std::stod(itemData[1]), std::stod(itemData[2]));
     Items.push_back(item);
+    ++lineNumber;
   }
 
   return Items;
@@ -314,7 +334,18 @@ int application(std::istream &in) {
       }
       std::ifstream textFile(settings.filename);
       if (textFile.is_open()) {
-        settings.itemList = ConstructItems(textFile);
+        try {
+          settings.itemList = ConstructItems(textFile);
+        } catch (std::length_error e) {
+          std::cout << RedError(e.what());
+          PrintTerminal();
+          continue;
+        } catch (std::invalid_argument e) {
+          std::cout << RedError(e.what());
+          PrintTerminal();
+          continue;
+        }
+        
       } else {
         std::cout << RedError("** \""+settings.filename+"\" is not a valid file path");
         PrintTerminal();
