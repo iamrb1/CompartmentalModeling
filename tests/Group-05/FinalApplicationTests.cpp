@@ -1501,3 +1501,496 @@ TEST_CASE("ResizeSubmenu()", "[resize_submenu]") {
   CHECK(os.str().find("Invalid choice. Cannot be a string. Try again.") !=
       std::string::npos);
 }
+
+TEST_CASE("AddSubmenu()", "[add_submenu]") {
+  std::vector<std::vector<cse::Datum>> test_grid(5, std::vector<cse::Datum>(2));
+
+  test_grid[0][0] = cse::Datum(10.25);
+  test_grid[1][0] = cse::Datum("test1");
+  test_grid[2][0] = cse::Datum(150.50);
+  test_grid[3][0] = cse::Datum("test2");
+  test_grid[4][0] = cse::Datum(20.25);
+
+  test_grid[0][1] = cse::Datum(10.25);
+  test_grid[1][1] = cse::Datum(-123.123);
+  test_grid[2][1] = cse::Datum(150.50);
+  test_grid[3][1] = cse::Datum(69.420);
+  test_grid[4][1] = cse::Datum(20.25);
+
+  cse::DataGrid grid(test_grid);
+  FinalApplication final_application;
+
+  std::istringstream is;
+  std::ostringstream os;
+
+
+  // *** Rows ***
+
+
+  // ** Add Default Row **
+
+  SECTION("Valid default add row (double/int)") {
+    is.str("1\nd\n123.123\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Default row added") != std::string::npos);
+  }
+
+  SECTION("Valid default add row (string)") {
+    is.str("1\nd\nHello\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Default row added") != std::string::npos);
+  }
+
+
+  // ** Add Manual Row **
+
+  SECTION("Valid add manual row (double/int)") {
+    is.str("1\nm\n123.123\n69.420\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Row added") != std::string::npos);
+  }
+
+  SECTION("Valid add manual row (string)") {
+    is.str("1\nm\nHello\ntest\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Row added") != std::string::npos);
+  }
+
+  SECTION("Valid add manual row (both)") {
+    is.str("1\nm\nHello\n69.420\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Row added") != std::string::npos);
+  }
+
+
+  // ** Custom Row **
+
+  SECTION("Valid row addition") {
+    is.str("1\ne\n{0} + {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Row Added") != std::string::npos);
+  }
+
+  SECTION("Valid row subtraction") {
+    is.str("1\ne\n{0} - {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Row Added") != std::string::npos);
+  }
+
+  SECTION("Valid row multiplication") {
+    is.str("1\ne\n{0} * {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Row Added") != std::string::npos);
+  }
+
+  SECTION("Valid row division") {
+    is.str("1\ne\n{0} / {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Row Added") != std::string::npos);
+  }
+
+  SECTION("Valid row power") {
+    is.str("1\ne\n{0} ^ {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Row Added") != std::string::npos);
+  }
+
+  SECTION("Valid row multiple") {
+    is.str("1\ne\n{0} + {1} - {1} / {1} * {1} ^ {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Row Added") != std::string::npos);
+  }
+
+  SECTION("Valid row solo") {
+    is.str("1\ne\n{0}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Row Added") != std::string::npos);
+  }
+
+  SECTION("Invalid row - numbers not surrounded with {}") {
+    is.str("1\ne\n0 + 1\n{0} + {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid equation. Try again.") != std::string::npos);
+  }
+
+  SECTION("Invalid row - invalid operation") {
+    is.str("1\ne\n0 $ 1\n{0} + {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid equation. Try again.") != std::string::npos);
+  }
+
+  SECTION("Invalid row - out of range index") {
+    is.str("1\ne\n{99} + {1}\n{0} + {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid equation. Try again.") != std::string::npos);
+  }
+
+  SECTION("Invalid row - negative index") {
+    is.str("1\ne\n{-1} + {1}\n{0} + {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid equation. Try again.") != std::string::npos);
+  }
+
+  SECTION("Invalid row - contains words in the {}") {
+    is.str("1\ne\n{abc} + {1}\n{0} + {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid equation. Try again.") != std::string::npos);
+  }
+
+  SECTION("Invalid row - contains words") {
+    is.str("1\ne\n{0} + {1} + asda\n{0} + {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid equation. Try again.") != std::string::npos);
+  }
+
+  SECTION("Invalid row - ends with operation") {
+    is.str("1\ne\n{0} + {1} +\n{0} + {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid equation. Try again.") != std::string::npos);
+  }
+
+
+  // ** Invalid default, manual, or custom row selection **
+
+  SECTION("Invalid selection - int") {
+    is.str("1\n1\ne\n{0} + {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid option. Must be 'd', 'e', or 'm'.") != std::string::npos);
+  }
+
+  SECTION("Invalid selection - double") {
+    is.str("1\n123.123\ne\n{0} + {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid option. Must be 'd', 'e', or 'm'.") != std::string::npos);
+  }
+
+  SECTION("Invalid selection - string") {
+    is.str("1\nhello\ne\n{0} + {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid option. Must be 'd', 'e', or 'm'.") != std::string::npos);
+  }
+
+  // ** Row merge **
+
+  SECTION("Valid row merge - numbers") {
+    is.str("3\n1\n1\n2\n123.123\n69.420\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Grids merged.") != std::string::npos);
+  }
+
+  SECTION("Valid row merge - strings") {
+    is.str("3\n1\n1\n2\nhello\ntest\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Grids merged.") != std::string::npos);
+  }
+
+  SECTION("Valid row merge - both") {
+    is.str("3\n1\n1\n2\n123.123\ntest\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Grids merged.") != std::string::npos);
+  }
+
+  SECTION("Invalid row merge - column size") {
+    is.str("3\n1\n1\n10\n2\n123.123\ntest\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid column size") != std::string::npos);
+  }
+
+  SECTION("Invalid rows - negative value") {
+    is.str("3\n1\n-1\n1\n2\n123.123\ntest\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid input. Must be an valid int") != std::string::npos);
+  }
+
+  SECTION("Invalid rows - double") {
+    is.str("3\n1\n123.123\n1\n2\n123.123\ntest\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid input. Must be an valid int") != std::string::npos);
+  }
+
+  SECTION("Invalid rows - string") {
+    is.str("3\n1\ntest\n1\n2\n123.123\ntest\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid input. Must be an valid int") != std::string::npos);
+  }
+
+
+
+  // *** Columns ****
+
+
+  // ** Add Default Column
+
+  SECTION("Valid default add column (double/int)") {
+    is.str("2\nd\n123.123\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Default column added") != std::string::npos);
+  }
+
+  SECTION("Valid default add column (string)") {
+    is.str("2\nd\nHello\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Default column added") != std::string::npos);
+  }
+
+  // ** Add Manual Column **
+
+  SECTION("Valid add manual column (double/int)") {
+    is.str("2\nm\n123.123\n69.420\n123.123\n123\n-62.234\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Column added") != std::string::npos);
+  }
+
+  SECTION("Valid add manualcolumn (string)") {
+    is.str("2\nm\nHello\ntest\nHI\nAPPLES\n123test\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Column added") != std::string::npos);
+  }
+
+  SECTION("Valid add manual column (both)") {
+    is.str("2\nm\nHello\n69.420\n-69.420\n-amazing\nkewl dude\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Column added") != std::string::npos);
+  }
+
+  // ** Custom Column **
+
+  SECTION("Valid column addition") {
+    is.str("2\ne\n{0} + {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Column Added") != std::string::npos);
+  }
+
+  SECTION("Valid column subtraction") {
+    is.str("2\ne\n{0} - {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Column Added") != std::string::npos);
+  }
+
+  SECTION("Valid column multiplication") {
+    is.str("2\ne\n{0} * {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Column Added") != std::string::npos);
+  }
+
+  SECTION("Valid column division") {
+    is.str("2\ne\n{0} / {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Column Added") != std::string::npos);
+  }
+
+  SECTION("Valid column power") {
+    is.str("2\ne\n{0} ^ {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Column Added") != std::string::npos);
+  }
+
+  SECTION("Valid column multiple") {
+    is.str("2\ne\n{0} + {1} - {1} / {1} * {1} ^ {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Column Added") != std::string::npos);
+  }
+
+  SECTION("Valid column solo") {
+    is.str("2\ne\n{0}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Column Added") != std::string::npos);
+  }
+
+  SECTION("Invalid column - numbers not surrounded with {}") {
+    is.str("2\ne\n0 + 1\n{0} + {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid equation. Try again.") != std::string::npos);
+  }
+
+  SECTION("Invalid column - invalid operation") {
+    is.str("2\ne\n0 $ 1\n{0} + {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid equation. Try again.") != std::string::npos);
+  }
+
+  SECTION("Invalid column - out of range index") {
+    is.str("2\ne\n{99} + {1}\n{0} + {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid equation. Try again.") != std::string::npos);
+  }
+
+  SECTION("Invalid column - negative index") {
+    is.str("2\ne\n{-1} + {1}\n{0} + {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid equation. Try again.") != std::string::npos);
+  }
+
+  SECTION("Invalid column - contains words in the {}") {
+    is.str("2\ne\n{abc} + {1}\n{0} + {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid equation. Try again.") != std::string::npos);
+  }
+
+  SECTION("Invalid column - contains words") {
+    is.str("2\ne\n{0} + {1} + asda\n{0} + {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid equation. Try again.") != std::string::npos);
+  }
+
+  SECTION("Invalid column - ends with operation") {
+    is.str("2\ne\n{0} + {1} +\n{0} + {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid equation. Try again.") != std::string::npos);
+  }
+
+
+  // ** Invalid default, manual, or custom column selection **
+
+  SECTION("Invalid selection - int") {
+    is.str("2\n1\ne\n{0} + {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid option. Must be 'd', 'e', or 'm'.") != std::string::npos);
+  }
+
+  SECTION("Invalid selection - double") {
+    is.str("2\n123.123\ne\n{0} + {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid option. Must be 'd', 'e', or 'm'.") != std::string::npos);
+  }
+
+  SECTION("Invalid selection - string") {
+    is.str("2\nhello\ne\n{0} + {1}\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid option. Must be 'd', 'e', or 'm'.") != std::string::npos);
+  }
+
+
+  // ** Column merge **
+
+  SECTION("Valid column merge - numbers") {
+    is.str("3\n0\n5\n1\n123.123\n69.420\n51\n-823.12\n-100\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Grids merged.") != std::string::npos);
+  }
+
+  SECTION("Valid column merge - strings") {
+    is.str("3\n0\n5\n1\nhello\ntest\namazing\nwow\ncool\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Grids merged.") != std::string::npos);
+  }
+
+  SECTION("Valid column merge - both") {
+    is.str("3\n0\n5\n1\n123.123\ntest\namazing\n-823.12\ncool\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Grids merged.") != std::string::npos);
+  }
+
+  SECTION("Invalid column merge - wrong row size") {
+    is.str("3\n0\n10\n5\n1\n123.123\ntest\namazing\n-823.12\ncool\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid row size") != std::string::npos);
+  }
+
+  SECTION("Invalid column - negative value") {
+    is.str("3\n0\n5\n-1\n1\n123.123\ntest\namazing\n-823.12\ncool\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid input. Must be an valid int") != std::string::npos);
+  }
+
+  SECTION("Invalid column - double") {
+    is.str("3\n0\n5\n123.123\n1\n123.123\ntest\namazing\n-823.12\ncool\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid input. Must be an valid int") != std::string::npos);
+  }
+
+  SECTION("Invalid column - string") {
+    is.str("3\n0\n5\nhello\n1\n123.123\ntest\namazing\n-823.12\ncool\n0\n");
+    os.clear();
+    final_application.AddSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid input. Must be an valid int") != std::string::npos);
+  }
+
+  // ** Extra **
+
+  // Invalid input (number - int)
+  is.str("99\n0\n");
+  os.clear();
+  final_application.AddSubmenu(grid, os, is);
+  CHECK(os.str().find("Invalid choice. Input must be between 0-3. Try again.") !=
+      std::string::npos);
+
+  // Invalid input (number - negative)
+  is.str("-99\n0\n");
+  os.clear();
+  final_application.AddSubmenu(grid, os, is);
+  CHECK(os.str().find("Invalid choice. Input must be between 0-3. Try again.") !=
+      std::string::npos);
+
+  // Invalid input (number - double)
+  is.str("123.123\n0\n");
+  os.clear();
+  final_application.AddSubmenu(grid, os, is);
+  CHECK(os.str().find("Invalid choice. Cannot be a string. Try again.") !=
+      std::string::npos);
+
+  // Invalid string
+  is.str("Hello!\n0\n");
+  os.clear();
+  final_application.AddSubmenu(grid, os, is);
+  CHECK(os.str().find("Invalid choice. Cannot be a string. Try again.") !=
+      std::string::npos);
+
+}
