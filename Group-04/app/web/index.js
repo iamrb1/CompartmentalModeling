@@ -42,7 +42,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const app = new instance.RichTextState();
 
     // Output elements
-    const outputContainer = document.getElementsByTagName("output")[0];
+    const outputContainer = document.getElementsByTagName("o")[0];
     const buttonContainer = document.getElementById("tab-buttons");
     const editorContainer = document.getElementById("text-editor");
 
@@ -61,8 +61,24 @@ window.addEventListener("DOMContentLoaded", () => {
     // A swapping function that lets us easily
     // change between tabs with minimal overhead
     let swap_to = (next) => {
+      // Remove active class from previous tab and button
       outputs[last_active].classList.remove("active");
+      // Find and remove active class from previous button
+      const buttons = buttonContainer.querySelectorAll('button');
+      buttons.forEach(btn => {
+        if (btn.dataset.tabId === last_active) {
+          btn.classList.remove('active');
+        }
+      });
+      
+      // Add active class to new tab and button
       outputs[next].classList.add("active");
+      buttons.forEach(btn => {
+        if (btn.dataset.tabId === next) {
+          btn.classList.add('active');
+        }
+      });
+      
       last_active = next;
     };
 
@@ -71,9 +87,12 @@ window.addEventListener("DOMContentLoaded", () => {
       // Tab to show output text
       let tab = document.createElement("div");
       tab.classList.add("tab-content");
+      tab.id = i[0]; // Set ID to match format key
+      
       // Button to swap to this output
       let button = document.createElement("button");
       button.innerText = i[1];
+      button.dataset.tabId = i[0]; // Store tab ID in data attribute
       button.addEventListener("click", swap_to.bind(null, i[0]));
 
       outputs[i[0]] = tab;
@@ -82,9 +101,15 @@ window.addEventListener("DOMContentLoaded", () => {
       buttonContainer.appendChild(button);
     }
 
-    // Show the first avalable output format
+    // Show the first available output format
     last_active = formats[0][0];
     outputs[last_active].classList.add("active");
+    
+    // Also add active class to the first button
+    const firstButton = buttonContainer.querySelector(`button[data-tab-id="${last_active}"]`);
+    if (firstButton) {
+      firstButton.classList.add('active');
+    }
 
     // Function to update serialized outputs based on current state
     const updateOutputs = () => {
