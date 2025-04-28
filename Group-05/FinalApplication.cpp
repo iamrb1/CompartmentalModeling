@@ -71,13 +71,14 @@ std::optional<double> FinalApplication::IsValidDouble(
  */
 std::optional<int> FinalApplication::IsValidInt(
     const std::string &test_string) {
-  try {
-    std::size_t pos;
-    int value = std::stoi(test_string, &pos);
-    if (pos == test_string.length()) {
-      return value;
-    }
-  } catch (std::invalid_argument &) {
+  if (test_string.size() <= 9) {
+    try {
+      std::size_t pos;
+      int value = std::stoi(test_string, &pos);
+      if (pos == test_string.length()) {
+        return value;
+      }
+    } catch (std::invalid_argument & ) {}
   }
   return std::nullopt;
 }
@@ -1242,34 +1243,34 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid,
 
             std::string merge_rows;
             while (true) {
-              os << "Enter number of rows for merging grid: ";
+              os << "\nEnter number of rows for merging grid: ";
               std::getline(is, merge_rows);
               std::optional<int> rows_int = IsValidInt(merge_rows);
-              if (rows_int.has_value()) {
+              if (rows_int.has_value() && rows_int.value() > 0) {
                 if (merge_type == "1" || rows_int.value() == static_cast<int>(std::get<0>(grid.Shape()))) {
                   break;
                 } else {
                   os << "Invalid row size. The row must equal your current grid's row size:" << std::get<0>(grid.Shape()) << "\n" << std::endl;
                 }
               } else {
-                os << "Invalid input. Must be an int \n" << std::endl;
+                os << "Invalid input. Must be an valid int \n" << std::endl;
               }
             }
             int merge_rows_int = std::stoi(merge_rows);
 
             std::string merge_cols;
             while (true) {
-              os << "Enter number of columns for merging grid: ";
+              os << "\nEnter number of columns for merging grid: ";
               std::getline(is, merge_cols);
               std::optional<int> col_int = IsValidInt(merge_cols);
-              if (col_int.has_value()) {
+              if (col_int.has_value() && col_int.value() > 0) {
                 if (merge_type == "0" || col_int.value() == static_cast<int>(std::get<1>(grid.Shape()))) {
                   break;
                 } else {
-                  os << "Invalid col size. The row must equal the current grid's column size:" << std::get<1>(grid.Shape()) << "\n" << std::endl;
+                  os << "Invalid column size. The row must equal the current grid's column size:" << std::get<1>(grid.Shape()) << "\n" << std::endl;
                 }
               } else {
-                os << "Invalid input. Must be an int \n" << std::endl;
+                os << "Invalid input. Must be an valid int \n" << std::endl;
               }
             }
             int merge_col_int = std::stoi(merge_cols);
@@ -1301,7 +1302,7 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid,
             break;
 
           default:
-            os << "Invalid choice. Try again." << std::endl;
+            os << "Invalid choice. Input must be between 0-3. Try again." << std::endl;
         }
       } catch (const std::exception &e) {
         std::cerr << "Error: " << e.what() << std::endl;
