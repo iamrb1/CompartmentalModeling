@@ -3,8 +3,10 @@ SOURCE	= main.cpp
 HEADER	= ../Classes/BruteForceOptimizer.hpp ../Classes/ComboManager.hpp 
 ifeq ($(OS),Windows_NT)
 	OUT	= bellman.exe
+	CLEAN = del /Q $(OBJS) $(OUT)
 else
 	OUT = bellman.out
+	CLEAN = rm -f $(OBJS) $(OUT)
 endif
 
 FLAGS	= -std=c++23 -g3 -c -Wall -Wextra
@@ -23,7 +25,7 @@ main.o: main.cpp
 	$(CC) $(FLAGS) main.cpp 
 
 clean:
-	rm -f $(OBJS) $(OUT)
+	$(CLEAN)
 
 valgrind: $(OUT)
 	valgrind $(OUT)
