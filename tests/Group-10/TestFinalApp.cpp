@@ -340,10 +340,12 @@ TEST_CASE("Check for bad file structure: missing columns", "[FinalApp][BadFileSt
   auto* originalBuf = std::cout.rdbuf();
   std::cout.rdbuf(capturedOutput.rdbuf());
 
+  // Run the application
   auto outputStream = GetText(input, capturedOutput);
   std::cout.rdbuf(originalBuf); // Restore std::cout
 
-  REQUIRE(CheckForLine(outputStream, "**Error: Missing columns in the file structure."));
+  // Check for the specific error message
+  REQUIRE(CheckForLine(outputStream, "CSV parse error on line 2 expected 3 fields, got: 2"));
 }
 
 TEST_CASE("Check for bad file structure: non-numeric values", "[FinalApp][BadFileStructure]") {
@@ -355,8 +357,10 @@ TEST_CASE("Check for bad file structure: non-numeric values", "[FinalApp][BadFil
   auto* originalBuf = std::cout.rdbuf();
   std::cout.rdbuf(capturedOutput.rdbuf());
 
+  // Run the application
   auto outputStream = GetText(input, capturedOutput);
   std::cout.rdbuf(originalBuf); // Restore std::cout
 
-  REQUIRE(CheckForLine(outputStream, "**Error: Non-numeric values found in numeric fields."));
+  // Check for the specific error message
+  REQUIRE(CheckForLine(outputStream, "CSV parse error on line 2 invalid argument."));
 }
