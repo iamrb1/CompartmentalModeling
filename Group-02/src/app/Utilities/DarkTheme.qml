@@ -21,5 +21,7 @@ QtObject {
         window: "#222"
         windowText: "#fff"
         property color danger: "#ff1919"
+        property color info: "#3498db"
+        property color warning: "#f39c12"
     }
 }

@@ -51,14 +51,14 @@ class Simulation : public QObject {
   Q_PROPERTY(bool isRunning MEMBER m_is_running NOTIFY isRunningChanged FINAL)
 
  public:
-  enum PromptMode {
+  enum class PromptMode {
     TOAST,
-    MODAL,
+    DIALOG,
     LOG_ONLY,
   };
   Q_ENUM(PromptMode);
 
-  enum PromptType {
+  enum class PromptType {
     INFO,
     WARNING,
     ERR,
@@ -80,7 +80,7 @@ class Simulation : public QObject {
   void timeStepsChanged();
   void isRunningChanged();
   void addGraphingValues(double time, QVariant new_compartment_amounts);
-  void promptMessage(Simulation::PromptType type, const QString& message, Simulation::PromptMode mode = TOAST);
+  void promptMessage(const QString& message, Simulation::PromptType type, Simulation::PromptMode mode);
 
  private:
   static constexpr int DEFAULT_TIME_STEP_MS = 100;
@@ -146,7 +146,7 @@ class Simulation : public QObject {
   [[nodiscard]] QVector<Compartment*> get_compartments() const;
   Q_INVOKABLE void add_compartment();
   void set_sidebar_compartment(Compartment* compartment);
-  void update_compartment_symbol(const QString& symbol, const QString& new_symbol);
+  bool update_compartment_symbol(const QString& symbol, const QString& new_symbol);
   Q_INVOKABLE void remove_compartment(const QString& symbol);
 
   // Connections stuff
@@ -162,8 +162,11 @@ class Simulation : public QObject {
   // Variable stuff
   [[nodiscard]] QVariantMap get_variables() const;
   Q_INVOKABLE void add_variable(const QString& name = QString(), double value = 0.0);
-  Q_INVOKABLE void update_variable(const QString& name, const QString& new_name, double value);
+  Q_INVOKABLE bool update_variable(const QString& name, const QString& new_name, double value);
   Q_INVOKABLE void remove_variable(const QString& name);
+
+  // Message module
+  Q_INVOKABLE void prompt(const QString& message, PromptType type = PromptType::INFO, PromptMode mode = PromptMode::TOAST);
 
  public slots:
   void take_time_step();

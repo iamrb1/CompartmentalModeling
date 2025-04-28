@@ -64,8 +64,10 @@ void Connection::set_name(const QString& name) {
   static QRegularExpression regex("^[a-zA-Z0-9 ]+$");
   if (!name.isEmpty() && regex.match(name).hasMatch()) {
     m_name = name;
-    emit nameChanged();
+  } else {
+    m_simulation->prompt("Connection name is not alpha numeric", Simulation::PromptType::ERR, Simulation::PromptMode::TOAST);
   }
+  emit nameChanged();
 }
 
 /**
@@ -73,6 +75,14 @@ void Connection::set_name(const QString& name) {
  * @param source The source compartment
  */
 void Connection::set_source(Compartment* source) {
+  for (auto& connection : m_simulation->get_connections()) {
+    if (connection->get_source() == source && connection->get_target() == m_target && connection != this) {
+      m_simulation->prompt("Connection already exists", Simulation::PromptType::ERR, Simulation::PromptMode::TOAST);
+      emit sourceChanged();
+      return;
+    }
+  }
+
   m_source = source;
   emit sourceChanged();
 }
@@ -82,6 +92,14 @@ void Connection::set_source(Compartment* source) {
  * @param target The target compartment
  */
 void Connection::set_target(Compartment* target) {
+  for (auto& connection : m_simulation->get_connections()) {
+    if (connection->get_source() == m_source && connection->get_target() == target && connection != this) {
+      m_simulation->prompt("Connection already exists", Simulation::PromptType::ERR, Simulation::PromptMode::TOAST);
+      emit sourceChanged();
+      return;
+    }
+  }
+
   m_target = target;
   emit targetChanged();
 }

@@ -80,8 +80,10 @@ void Compartment::set_name(const QString& name) {
   if (!name.isEmpty() && regex.match(name).hasMatch()) {
     // Alpha numeric non empty with spaces
     m_name = name;
-    emit nameChanged();
+  } else {
+    m_simulation->prompt("Name is not alpha numeric", Simulation::PromptType::ERR, Simulation::PromptMode::TOAST);
   }
+  emit nameChanged();
 }
 
 /**
@@ -89,15 +91,12 @@ void Compartment::set_name(const QString& name) {
  * @param symbol
  */
 void Compartment::set_symbol(const QString& symbol) {
-  static QRegularExpression regex("^[a-zA-Z0-9]+$");
-  if (!symbol.isEmpty() && regex.match(symbol).hasMatch()) {
-    // Alpha numeric non empty
-
-    // Change the hashmap in simulation
-    m_simulation->update_compartment_symbol(m_symbol, symbol);
+  // Change the hashmap in simulation
+  if(m_simulation->update_compartment_symbol(m_symbol, symbol)) {
     m_symbol = symbol;
-    emit symbolChanged();
   }
+
+  emit symbolChanged();
 }
 
 /**

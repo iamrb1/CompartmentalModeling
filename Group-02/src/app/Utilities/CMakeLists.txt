@@ -12,8 +12,17 @@ set(
     MessageModule.qml
 )
 
+set(
+    SINGLETON_QMLS
+    ThemeManager.qml
+    LightTheme.qml
+    DarkTheme.qml
+    Constants.qml
+)
+
+
 set_source_files_properties(
-    ${MODULE_QML_FILES} PROPERTIES QT_QML_SINGLETON_TYPE TRUE
+    ${SINGLETON_QMLS} PROPERTIES QT_QML_SINGLETON_TYPE TRUE
 )
 
 qt_add_qml_module(

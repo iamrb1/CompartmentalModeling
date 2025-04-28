@@ -44,7 +44,6 @@ Item {
                 compartment.name)
         })
         legendRepeater.model = Object.keys(seriesData)
-        console.log("Series Properties: ", legendRepeater.model)
     }
 
 

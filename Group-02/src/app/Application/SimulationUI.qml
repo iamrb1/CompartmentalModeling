@@ -1,3 +1,4 @@
+
 /**
  @file SimulationUI
  @author Nitish Maindoliya
@@ -16,14 +17,15 @@ import Components
 
 /// Main window for the entire application, contains every single other UI component and holds logic
 ApplicationWindow {
+    id: simulationUI
     Simulation {
         id: simulation
     }
 
-    ///CALL THIS LINE TO GO TO ERROR MODULE. TRUE FOR MODAL FALSE FOR POPUP
-    Component.onCompleted: {
-        simulation.promptMessage(simulation.INFO, "Simulation loaded",
-            simulation.TOAST)
+    MessageModule {
+        id: errorModule
+        container: simulationCanvas
+        parentSimulation: simulation
     }
 
     property var graphWindow: null
@@ -31,11 +33,9 @@ ApplicationWindow {
     /// component for creating graph window
     Component {
         id: graphWindowComponent
-        GraphWindowUI {
-        }
+        GraphWindowUI {}
     }
 
-    id: simulationUI
     width: 800
     height: 600
     title: simulation.name + " - Compartmental Modelling System"
@@ -84,8 +84,7 @@ ApplicationWindow {
                         onTriggered: saveFileDialog.open()
                     }
 
-                    MenuSeparator {
-                    }
+                    MenuSeparator {}
                     Menu {
                         title: "Theme"
                         Repeater {
@@ -95,12 +94,11 @@ ApplicationWindow {
                                 checkable: true
                                 checked: modelData.value === ThemeManager.theme
                                 onTriggered: ThemeManager.setTheme(
-                                    modelData.value)
+                                                 modelData.value)
                             }
                         }
                     }
-                    MenuSeparator {
-                    }
+                    MenuSeparator {}
                     Action {
                         text: "Exit"
                         onTriggered: Qt.quit()
@@ -111,7 +109,6 @@ ApplicationWindow {
                     title: "Help"
                     Action {
                         text: "About"
-                        onTriggered: console.log("About clicked")
                     }
                 }
             }
@@ -146,10 +143,10 @@ ApplicationWindow {
                     border.color: ThemeManager.palette.mid
                     // color: "transparent"
                     color: simulation.isRunning ? Qt.rgba(
-                        ThemeManager.palette.mid.r,
-                        ThemeManager.palette.mid.g,
-                        ThemeManager.palette.mid.b,
-                        0.3) : "transparent"
+                                                      ThemeManager.palette.mid.r,
+                                                      ThemeManager.palette.mid.g,
+                                                      ThemeManager.palette.mid.b,
+                                                      0.3) : "transparent"
 
                     TextInput {
                         anchors.fill: parent
@@ -284,44 +281,7 @@ ApplicationWindow {
                         simulation.connectionMode = !simulation.connectionMode
                         checked = simulation.connectionMode
                         if (simulation.connectionMode) {
-                            connectionMessagePopup.open()
-                        }
-                    }
-
-                    Popup {
-                        id: connectionMessagePopup
-                        x: (simulationUI.width - width) / 2
-                        y: 0
-                        width: 500
-                        height: 30
-
-                        contentItem: Rectangle {
-                            anchors.fill: parent
-                            color: ThemeManager.palette.base
-
-                            Text {
-                                anchors.fill: parent
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
-                                text: "Select source and target components to form a connection"
-                            }
-                        }
-
-                        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
-
-                        /// Timer to auto-close the popup
-                        Timer {
-                            id: autoCloseTimer
-                            interval: 2000 // 2 seconds
-                            running: false
-                            repeat: false
-                            onTriggered: connectionMessagePopup.close()
-                        }
-
-                        onVisibleChanged: {
-                            if (visible) {
-                                autoCloseTimer.restart()
-                            }
+                            simulation.prompt("Select source and target compartments to make a connection", Simulation.INFO, Simulation.TOAST)
                         }
                     }
 

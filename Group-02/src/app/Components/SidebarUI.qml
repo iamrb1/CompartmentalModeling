@@ -137,9 +137,7 @@ Rectangle {
                             anchors.fill: parent
                             enabled: !simulation.isRunning
                             onClicked: {
-                                // console.log(Object.keys(simulation.variables))
                                 simulation.add_variable()
-                                // console.log(Object.keys(simulation.variables))
                             }
                         }
                     }
@@ -245,6 +243,8 @@ Rectangle {
         // Override the open function to check if we can open
         function open() {
             if (canOpen) {
+                newNameField.text = oldName
+                valueField.text = currentValue.toString()
                 visible = true
             }
         }
@@ -260,31 +260,6 @@ Rectangle {
 
         property string oldName: ""
         property double currentValue: 0.0
-
-
-        /*
-            Updates the variable selected to edit to its new name and new value
-            Calls the Q_INVOKABLE update_variable function
-         */
-        function updateVariable(oldName, newName, newValue) {
-            if (oldName === newName) {
-                simulation.update_variable(oldName, newName, newValue)
-                return
-            }
-
-            const variables = simulation.variables
-            /// check if the new name is already a name of another variable
-            /// if so, then give an error
-            for (let name in variables) {
-                if (name === newName) {
-                    errorDialog.message = "A variable with name '" + newName + "' already exists."
-                    errorDialog.open()
-                    return
-                }
-            }
-
-            simulation.update_variable(oldName, newName, newValue)
-        }
 
         ColumnLayout {
             anchors.fill: parent
@@ -305,6 +280,11 @@ Rectangle {
                     Layout.fillWidth: true
                     text: editDialog.oldName
                     selectByMouse: true
+
+                    // Alpha numeric non empty
+                    validator: RegularExpressionValidator {
+                        regularExpression: /^[a-zA-Z0-9]+$/
+                    }
                 }
             }
 
@@ -359,42 +339,19 @@ Rectangle {
                         const newName = newNameField.text.trim()
                         const newValue = parseFloat(valueField.text)
 
-                        if (newName !== "" && !isNaN(newValue)) {
-                            editDialog.updateVariable(editDialog.oldName,
-                                newName, newValue)
-                        }
 
-                        /// Updates the variable as long as there is a new value
+                        /*
+                            Updates the variable selected to edit to its new name and new value
+                            Calls the Q_INVOKABLE update_variable function
+                         */
+                        simulation.update_variable(editDialog.oldName, newName, newValue)
+
                         editDialog.accept()
                     }
                 }
 
                 alignment: Qt.AlignLeft
             }
-        }
-    }
-
-    /// Error Dialog box for when the name is same
-    Dialog {
-        id: errorDialog
-        title: "Error"
-        standardButtons: Dialog.Ok
-        modal: true
-        closePolicy: Popup.CloseOnEscape
-
-        parent: Overlay.overlay
-        x: (parent.width - width) / 2
-        y: (parent.height - height) / 2
-
-        width: 300
-
-        property string message: ""
-
-        Label {
-            anchors.fill: parent
-            text: errorDialog.message
-            wrapMode: Text.WordWrap
-            color: ThemeManager.palette.text
         }
     }
 }

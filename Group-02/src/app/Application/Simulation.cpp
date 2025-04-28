@@ -97,7 +97,7 @@ void Simulation::save_xml(const QString& filename) {
   QFile file(fileUrl.toLocalFile());
 
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    qWarning() << "Could not open file:" << filename << "Error:" << file.errorString();
+    prompt("Could not open/save file", PromptType::ERR, PromptMode::TOAST);
     return;
   }
 
@@ -155,7 +155,7 @@ void Simulation::load_xml(const QString& filename) {
   QFile file(fileUrl.toLocalFile());
 
   if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    qWarning() << "Could not open file:" << filename << "Error:" << file.errorString();
+    prompt("Could not open file", PromptType::ERR, PromptMode::TOAST);
     return;
   }
 
@@ -246,7 +246,8 @@ void Simulation::load_xml(const QString& filename) {
   }
 
   if (xml.hasError()) {
-    qWarning() << "XML Error:" << xml.errorString();
+    prompt("XML Error: File is not valid", PromptType::ERR, PromptMode::TOAST);
+    clear();
   } else {
     emit compartmentsChanged();
     emit connectionsChanged();
@@ -273,6 +274,10 @@ void Simulation::add_compartment() {
   /// Generate a new compartment with a unique symbol
   QString symbol =
       QString("%1%2").arg(static_cast<char>('A' + (compartment_number % 26))).arg((compartment_number / 26) + 1);
+  while (m_compartments.contains(symbol)) {
+    compartment_number++;
+    symbol = QString("%1%2").arg(static_cast<char>('A' + (compartment_number % 26))).arg((compartment_number / 26) + 1);
+  }
   auto name = QString("Compartment %1").arg(symbol);
 
   auto compartment = std::make_shared<Compartment>(name, symbol, 0, this);
@@ -298,17 +303,34 @@ void Simulation::set_sidebar_compartment(Compartment* compartment) {
   emit sidebarConnectionChanged();
 }
 
-void Simulation::update_compartment_symbol(const QString& symbol, const QString& new_symbol) {
-  if (m_compartments.contains(symbol)) {
-    if (symbol != new_symbol) {
-      auto node_handler = m_compartments.extract(symbol);
-      node_handler.key() = new_symbol;
-      m_compartments.insert(std::move(node_handler));
-
-      unbind_variable(symbol);
-      bind_variable(new_symbol, m_compartments[new_symbol]->get_current_amount());
-    }
+bool Simulation::update_compartment_symbol(const QString& symbol, const QString& new_symbol) {
+  static QRegularExpression regex("^[a-zA-Z0-9]+$");
+  if (new_symbol.isEmpty() || !regex.match(new_symbol).hasMatch()) {
+    prompt("Non alpha-numeric symbol is invalid", PromptType::WARNING, PromptMode::TOAST);
+    return false;
   }
+
+  if (!m_compartments.contains(symbol)) {
+    prompt("Compartment does not exist", PromptType::WARNING, PromptMode::TOAST);
+    return false;
+  }
+
+  if (symbol == new_symbol) {
+    return false;
+  }
+
+  if (m_compartments.contains(new_symbol)) {
+    prompt("Compartment with this symbol already exists", PromptType::WARNING, PromptMode::TOAST);
+    return false;
+  }
+
+  auto node_handler = m_compartments.extract(symbol);
+  node_handler.key() = new_symbol;
+  m_compartments.insert(std::move(node_handler));
+
+  unbind_variable(symbol);
+  bind_variable(new_symbol, m_compartments[new_symbol]->get_current_amount());
+  return true;
 }
 
 /**
@@ -316,31 +338,34 @@ void Simulation::update_compartment_symbol(const QString& symbol, const QString&
  * @param symbol Compartment symbol
  */
 void Simulation::remove_compartment(const QString& symbol) {
-  if (m_compartments.contains(symbol)) {
-    // Remove connections associated with the compartment
-    bool connection_deleted = false;
-    for (auto it = m_connections.begin(); it != m_connections.end();) {
-      if (const auto connection = *it;
-          connection->get_source()->get_symbol() == symbol || connection->get_target()->get_symbol() == symbol) {
-        it = m_connections.erase(it);
-        connection_deleted = true;
-      } else {
-        ++it;
-      }
-    }
-
-    if (connection_deleted) {
-      emit connectionsChanged();
-    }
-
-    // Remove the compartment
-    unbind_variable(symbol);
-    m_compartments.erase(symbol);
-    m_sidebar_compartment = nullptr;
-
-    emit compartmentsChanged();
-    emit sidebarCompartmentChanged();
+  if (!m_compartments.contains(symbol)) {
+    prompt("Compartment does not exist", PromptType::WARNING, PromptMode::TOAST);
+    return;
   }
+
+  // Remove connections associated with the compartment
+  bool connection_deleted = false;
+  for (auto it = m_connections.begin(); it != m_connections.end();) {
+    if (const auto connection = *it;
+        connection->get_source()->get_symbol() == symbol || connection->get_target()->get_symbol() == symbol) {
+      it = m_connections.erase(it);
+      connection_deleted = true;
+    } else {
+      ++it;
+    }
+  }
+
+  if (connection_deleted) {
+    emit connectionsChanged();
+  }
+
+  // Remove the compartment
+  unbind_variable(symbol);
+  m_compartments.erase(symbol);
+  m_sidebar_compartment = nullptr;
+
+  emit compartmentsChanged();
+  emit sidebarCompartmentChanged();
 }
 
 /**
@@ -409,8 +434,11 @@ void Simulation::add_connection() {
     auto connection =
         std::make_shared<Connection>(connection_name, m_source_compartment, m_target_compartment, "0", this);
     m_connections.push_back(std::move(connection));
-    emit connectionsChanged();
+  } else {
+    prompt("Connection already exists", PromptType::WARNING, PromptMode::TOAST);
   }
+
+  emit connectionsChanged();
 
   set_source_compartment(nullptr);
   set_target_compartment(nullptr);
@@ -433,8 +461,8 @@ void Simulation::set_sidebar_connection(Connection* connection) {
  * @param connection Connection to be removed
  */
 void Simulation::remove_connection(const Connection* connection) {
-  if (auto it = std::find_if(m_connections.begin(), m_connections.end(),
-                             [connection](const auto& conn) { return conn.get() == connection; });
+  if (const auto it =
+          std::ranges::find_if(m_connections, [connection](const auto& conn) { return conn.get() == connection; });
       it != m_connections.end()) {
     m_connections.erase(it);
   }
@@ -466,6 +494,13 @@ void Simulation::add_variable(const QString& name, double value) {
   if (name.isEmpty()) {
     final_name = QString("k%1").arg(variable_number++);
   }
+
+  if (m_variables.contains(final_name)) {
+    prompt("Variable with this name already exists", PromptType::WARNING, PromptMode::TOAST);
+    emit variablesChanged();
+    return;
+  }
+
   m_variables.emplace(final_name, value);
   bind_variable(final_name, m_variables[final_name]);
 
@@ -478,13 +513,32 @@ void Simulation::add_variable(const QString& name, double value) {
  * @param new_name Possible new variable name
  * @param value New variable value
  */
-void Simulation::update_variable(const QString& name, const QString& new_name, const double value) {
-  if (!m_variables.contains(name))
-    return;
+bool Simulation::update_variable(const QString& name, const QString& new_name, const double value) {
+  if (!m_variables.contains(name)) {
+    prompt("Variable does not exist", PromptType::WARNING, PromptMode::TOAST);
+    return false;
+  }
+
+  static QRegularExpression regex("^[a-zA-Z0-9]+$");
+  if (new_name.isEmpty() || !regex.match(new_name).hasMatch()) {
+    prompt("Non alpha-numeric variable is invalid", PromptType::WARNING, PromptMode::TOAST);
+    return false;
+  }
+
+  if (new_name.isEmpty()) {
+    prompt("Variable name cannot be empty", PromptType::WARNING, PromptMode::TOAST);
+    return false;
+  }
 
   if (name == new_name) {
     m_variables[name] = value;
   } else {
+
+    if (m_variables.contains(new_name)) {
+      prompt("Variable with this name already exists", PromptType::WARNING, PromptMode::TOAST);
+      return false;
+    }
+
     // Extract node
     auto node_handler = m_variables.extract(name);
     node_handler.key() = new_name;
@@ -496,6 +550,7 @@ void Simulation::update_variable(const QString& name, const QString& new_name, c
   bind_variable(new_name, m_variables[new_name]);
 
   emit variablesChanged();
+  return true;
 }
 
 /**
@@ -529,14 +584,10 @@ double Simulation::evaluate_expression(const QString& expression_string) {
   std::vector<std::string> variable_list;
   m_symbol_table.get_variable_list(variable_list);
 
-  //  qDebug() << "Symbol Table Variables:\n";
-  // for (const auto& name : variable_list) {
-  //   const double value = m_symbol_table.get_variable(name)->value();
-  //      qDebug() << "  " << name << " = " << value << '\n';
-  // }
-
   if (parser_t parser; !parser.compile(expression_string.toStdString(), expression)) {
-       qDebug() << "Parser error: " << expression_string;
+    prompt("Expression parsing error. Check if your rate expressions are well formed", PromptType::ERR,
+           PromptMode::TOAST);
+    pause();
     return 0;
   }
 
@@ -557,9 +608,6 @@ void Simulation::take_time_step() {
     Compartment* source = connection->get_source();
     const Compartment* target = connection->get_target();
     const QString& rate = connection->get_rate_expression();
-
-    // qDebug() << "Evaluated expression from " << source->get_symbol() << " -> " << target->get_symbol() << " : "
-             // << evaluate_expression(rate);
 
     const double transfer_amount = evaluate_expression(rate) * source->get_current_amount();
 
@@ -582,4 +630,20 @@ void Simulation::take_time_step() {
 
   m_current_time++;
   emit currentTimeChanged();
+}
+
+void Simulation::prompt(const QString& message, PromptType type, PromptMode mode) {
+  if (type == PromptType::ERR) {
+    qDebug() << "Error: " << message;
+  } else if (type == PromptType::WARNING) {
+    qDebug() << "Warning: " << message;
+  } else if (type == PromptType::INFO) {
+    qDebug() << "Info: " << message;
+  }
+
+  if (PromptMode::LOG_ONLY == mode) {
+    return;
+  }
+
+  emit promptMessage(message, type, mode);
 }

@@ -1,3 +1,4 @@
+
 /**
  @file ConnectionEditUI
  @author Nitish Maindoliya, Rahul Baragur
@@ -87,6 +88,39 @@ Rectangle {
         RowLayout {
             Layout.fillWidth: true
             Text {
+                text: "Connection Name"
+                color: ThemeManager.palette.text
+                Layout.preferredWidth: 100
+            }
+            Rectangle {
+                Layout.fillWidth: true
+                height: 30
+                border.width: 1
+                border.color: ThemeManager.palette.mid
+                color: "transparent"
+                TextInput {
+                    anchors.fill: parent
+                    anchors.margins: 5
+                    verticalAlignment: TextInput.AlignVCenter
+                    text: selectedConnection ? selectedConnection.name : null
+                    color: ThemeManager.palette.text
+                    enabled: !simulation.isRunning
+
+                    validator: RegularExpressionValidator {
+                        regularExpression: /^[a-zA-Z0-9 ]+$/
+                    }
+                    onEditingFinished: {
+                        if (selectedConnection){
+                            selectedConnection.name = text
+                        }
+                    }
+                }
+            }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            Text {
                 text: "Start"
                 color: ThemeManager.palette.text
                 Layout.preferredWidth: 40
@@ -94,8 +128,8 @@ Rectangle {
             ComboBox {
                 id: sourceComboBox
                 model: simulation.compartments.map(
-                        (compartment, index) => compartment.name + " ("
-                        + compartment.symbol + ")")
+                           (compartment, index) => compartment.name + " ("
+                           + compartment.symbol + ")")
 
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -127,8 +161,8 @@ Rectangle {
             ComboBox {
                 id: targetComboBox
                 model: simulation.compartments.map(
-                        (compartment, index) => compartment.name + " ("
-                        + compartment.symbol + ")")
+                           (compartment, index) => compartment.name + " ("
+                           + compartment.symbol + ")")
 
                 Layout.fillWidth: true
                 Layout.fillHeight: true
