@@ -121,10 +121,23 @@ window.addEventListener("DOMContentLoaded", () => {
     
     // utility function to toggle monostate formatting
     const toggle_monostate = (name) => {
-      if (!app.has_format(name))
-        app.set_monostate(name);
-      else
-        app.unset_format(name);
+      try {
+        // try to use has_format if available
+        if (typeof app.has_format === 'function' && !app.has_format(name)) {
+          app.set_monostate(name);
+        } else {
+          // fallback to just call unset_format
+          app.unset_format(name);
+        }
+      } catch (e) {
+        console.error(`Error in toggle_monostate for "${name}":`, e);
+        // fallback to just apply the format
+        try {
+          app.set_monostate(name);
+        } catch (innerError) {
+          console.error(`Failed to apply format "${name}":`, innerError);
+        }
+      }
     };
 
     // Bold button
