@@ -328,4 +328,5 @@ TEST_CASE("Check for bad formed inputs", "[FinalApp][MalformedQuery]") {
   REQUIRE(CheckForLine(outputStream, "**Invalid value given for the capacity"));
   REQUIRE(CheckForLine(outputStream, "**Please specify a filename as the second argument."));
   REQUIRE(CheckForLine(outputStream, "**Specify capacity=\033[32m<capacity>\033[0m."));
+  REQUIRE(CheckForLine(outputStream, "**Capacity must be a numeric value."));
 }
