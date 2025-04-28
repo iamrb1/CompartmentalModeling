@@ -90,14 +90,10 @@ class WebLayout {
   void toggleImage(const ImageLayout &image);
   ImageLayout getImageFromID(const std::string& id) const;
   TextBoxLayout getTextboxFromID(const std::string& id) const;
-
   static std::string generateID();
   const std::string getID() { return id; }
-
-  // TODO: Future Implement Clear Layout Function
   void activateLayout();
   void deactivateLayout();
-
   void setPosition(std::string id, int x, int y);
   void setSize(std::string id, int width, int height);
   bool contains(std::string id) const;
