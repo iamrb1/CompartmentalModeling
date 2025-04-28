@@ -154,14 +154,28 @@ cse::ArgManager CreateArgManager(std::vector<std::string> &args) {
 }
 
 std::vector<cse::Item> ConstructItems(std::ifstream &textFile) {
-  std::vector<cse::Item> Items{};
-
+  std::vector<cse::Item> Items;
   std::string line;
-  std::getline(textFile, line);
+
+  std::getline(textFile, line); // Skip header
   while (std::getline(textFile, line)) {
     std::vector<std::string> itemData = split(line, ',');
-    cse::Item item(itemData[0], std::stod(itemData[1]), std::stod(itemData[2]));
-    Items.push_back(item);
+    if (itemData.size() != 3) {
+      std::cout << RedError(
+        "**Error: Missing columns in the file structure.");
+      PrintTerminal();
+      continue;
+    }
+    try {
+      cse::Item item(itemData[0], std::stod(itemData[1]), std::stod(itemData[2]));
+      Items.push_back(item);
+    } catch (const std::exception &e) {
+      //std::cerr << "**Error: Invalid data in the file: " << e.what() << " Line: " << line << std::endl;
+      std::cout << RedError(
+        "**Error: Non-numeric values found in numeric fields.");
+      PrintTerminal();
+      continue;
+    }
   }
 
   return Items;

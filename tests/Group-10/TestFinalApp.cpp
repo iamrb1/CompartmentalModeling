@@ -330,3 +330,33 @@ TEST_CASE("Check for bad formed inputs", "[FinalApp][MalformedQuery]") {
   REQUIRE(CheckForLine(outputStream, "**Specify capacity=\033[32m<capacity>\033[0m."));
   REQUIRE(CheckForLine(outputStream, "**Capacity must be a numeric value."));
 }
+
+TEST_CASE("Check for bad file structure: missing columns", "[FinalApp][BadFileStructure]") {
+  std::string fileRead = "BadFileScripts/MissingColumnsScript.txt";
+  std::ifstream input(fileRead);
+  std::ostringstream capturedOutput;
+
+  // Redirect std::cout
+  auto* originalBuf = std::cout.rdbuf();
+  std::cout.rdbuf(capturedOutput.rdbuf());
+
+  auto outputStream = GetText(input, capturedOutput);
+  std::cout.rdbuf(originalBuf); // Restore std::cout
+
+  REQUIRE(CheckForLine(outputStream, "**Error: Missing columns in the file structure."));
+}
+
+TEST_CASE("Check for bad file structure: non-numeric values", "[FinalApp][BadFileStructure]") {
+  std::string fileRead = "BadFileScripts/NonNumericValuesScript.txt";
+  std::ifstream input(fileRead);
+  std::ostringstream capturedOutput;
+
+  // Redirect std::cout
+  auto* originalBuf = std::cout.rdbuf();
+  std::cout.rdbuf(capturedOutput.rdbuf());
+
+  auto outputStream = GetText(input, capturedOutput);
+  std::cout.rdbuf(originalBuf); // Restore std::cout
+
+  REQUIRE(CheckForLine(outputStream, "**Error: Non-numeric values found in numeric fields."));
+}

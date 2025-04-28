@@ -1,0 +1,5 @@
+Name,Weight,Value
+A,2.0,hello
+B,2.0,2.0
+C,6.0,yes
+D,two,8.0
