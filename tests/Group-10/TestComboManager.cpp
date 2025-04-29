@@ -90,7 +90,25 @@ TEST_CASE("ComboManager: std::array<double, 5> with combination size 3",
   REQUIRE(count == expectedTotal);
 }
 
-// Test 4: Combination size 0 (should yield one empty combination).
+// Test 4: Using ComboManager with negative numbers
+TEST_CASE("ComboManager: std::vector<int> with negative numbers",
+          "[ComboManager]") {
+  std::vector<int> numbers = {-1, -2, -3, -4};
+  // There are C(4,2) = 6 combinations.
+  cse::ComboManager<std::vector<int>> cm(numbers, 2);
+  const std::size_t expectedTotal = 6;
+  REQUIRE(cm.TotalCombinations() == expectedTotal);
+
+  int count = 0;
+  do {
+    std::vector<int> combo = cm.GetCurrentCombo();
+    INFO("Forward Combo " << count << ": " << (combo.empty() ? "(empty)" : ""));
+    count++;
+  } while (cm.NextCombo());
+  REQUIRE(count == expectedTotal);
+}
+
+// Test 5: Combination size 0 (should yield one empty combination).
 TEST_CASE("ComboManager: Combination size 0", "[ComboManager]") {
   std::vector<int> numbers = {1, 2, 3, 4};
   // There is exactly 1 combination when k == 0.
@@ -105,7 +123,7 @@ TEST_CASE("ComboManager: Combination size 0", "[ComboManager]") {
   REQUIRE_FALSE(cm.NextCombo());
 }
 
-// Test 5: Combination size equal to container size.
+// Test 6: Combination size equal to container size.
 TEST_CASE("ComboManager: Combination size equal to container size",
           "[ComboManager]") {
   std::vector<char> letters = {'a', 'b', 'c'};
@@ -124,7 +142,23 @@ TEST_CASE("ComboManager: Combination size equal to container size",
   REQUIRE_FALSE(cm.NextCombo());
 }
 
-// Test 6: Reset functionality
+// Test 7: Combination size greater than container size.
+TEST_CASE("ComboManager: Combination size greater than container size", "[ComboManager]") {
+  std::vector<int> numbers = {1, 2, 3};
+  // Invalid case: combination size greater than container size.
+  cse::ComboManager<std::vector<int>> cm(numbers, 4);
+
+  // Total combinations should be 0
+  REQUIRE(cm.TotalCombinations() == 0);
+
+  // No next combination should exist
+  REQUIRE_FALSE(cm.NextCombo());
+
+  // No previous combination should exist
+  REQUIRE_FALSE(cm.PrevCombo());
+}
+
+// Test 8: Reset functionality
 TEST_CASE("ComboManager: Reset functionality returns to first combination",
           "[ComboManager]") {
   std::vector<int> numbers = {10, 20, 30, 40};
@@ -143,7 +177,7 @@ TEST_CASE("ComboManager: Reset functionality returns to first combination",
   REQUIRE(firstCombo[1] == numbers[1]);
 }
 
-// Test 7: Current indices correctness
+// Test 9: Current indices correctness
 TEST_CASE("ComboManager: GetCurrentIndices returns increasing indices",
           "[ComboManager]") {
   std::vector<char> letters = {'x', 'y', 'z', 'w'};
@@ -167,7 +201,7 @@ TEST_CASE("ComboManager: GetCurrentIndices returns increasing indices",
   }
 }
 
-// Test 8: Single element container
+// Test 10: Single element container
 TEST_CASE("ComboManager: Single element container produces one combination",
           "[ComboManager]") {
   std::vector<int> single = {42};
@@ -182,7 +216,7 @@ TEST_CASE("ComboManager: Single element container produces one combination",
   REQUIRE_FALSE(cm.NextCombo());
 }
 
-// Test 9: Empty container with combination size 0
+// Test 11: Empty container with combination size 0
 TEST_CASE("ComboManager: Empty container with combination size 0",
           "[ComboManager]") {
   std::vector<int> empty;
@@ -195,7 +229,7 @@ TEST_CASE("ComboManager: Empty container with combination size 0",
   REQUIRE_FALSE(cm.NextCombo());
 }
 
-// Test 10: Repeated calls to NextCombo after exhaustion
+// Test 12: Repeated calls to NextCombo after exhaustion
 TEST_CASE(
     "ComboManager: Repeated calls to NextCombo after last combination always "
     "return false",
@@ -212,7 +246,7 @@ TEST_CASE(
   }
 }
 
-// Test 11: Repeated calls to PrevCombo on first combination always return
+// Test 13: Repeated calls to PrevCombo on first combination always return
 // false.
 TEST_CASE(
     "ComboManager: Repeated calls to PrevCombo on first combination always "
@@ -226,7 +260,7 @@ TEST_CASE(
   }
 }
 
-// Test 12: Alternate NextCombo and PrevCombo consistency
+// Test 14: Alternate NextCombo and PrevCombo consistency
 TEST_CASE(
     "ComboManager: Alternating NextCombo and PrevCombo yields consistent "
     "results",
@@ -251,7 +285,7 @@ TEST_CASE(
   REQUIRE(first == firstAgain);
 }
 
-// Test 13: Lexicographical order of generated combinations
+// Test 15: Lexicographical order of generated combinations
 TEST_CASE("ComboManager: Generated combinations are in lexicographical order",
           "[ComboManager]") {
   std::vector<int> numbers = {0, 1, 2, 3};
@@ -268,7 +302,7 @@ TEST_CASE("ComboManager: Generated combinations are in lexicographical order",
   }
 }
 
-// Test 14: Container with duplicate elements
+// Test 16: Container with duplicate elements
 TEST_CASE("ComboManager: Container with duplicate elements", "[ComboManager]") {
   std::vector<int> numbers = {1, 2, 2, 3};
   // With 4 items, choosing 2 gives C(4,2) = 6 index combinations,
@@ -287,7 +321,7 @@ TEST_CASE("ComboManager: Container with duplicate elements", "[ComboManager]") {
   REQUIRE(count == 6);
 }
 
-// Test 15: Larger container test for TotalCombinations correctness
+// Test 17: Larger container test for TotalCombinations correctness
 TEST_CASE("ComboManager: Larger container total combinations test",
           "[ComboManager]") {
   std::vector<int> numbers(10);

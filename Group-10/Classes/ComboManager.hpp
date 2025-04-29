@@ -68,11 +68,12 @@ class ComboManager {
         comboSize_(combinationSize),
         allowRepeats_(allowRepeats),
         isRequired_((indexRequired != std::nullopt)),
-
         totalCombinations_(0) {
-    assert(comboSize_ <= numItems_ &&
-           "Combination size cannot be greater than the number of items in "
-           "the container when repeats are disallowed.");
+
+    if (comboSize_ > numItems_) {
+      totalCombinations_ = 0;
+      return;
+    }
 
     if (isRequired_) {
       if (*indexRequired >= items_.size()) {
@@ -309,6 +310,9 @@ class ComboManager {
    * combination exists.
    */
   bool NextCombo() {
+    if (totalCombinations_ == 0) {
+      return false; // No combinations to generate
+    }
     if (allowRepeats_) {
       // For repeating combinations, the elements must be non-decreasing.
       // Start from the rightmost index for repeating combinations.
@@ -354,6 +358,10 @@ class ComboManager {
    * the first combination.
    */
   bool PrevCombo() {
+    if (totalCombinations_ == 0) {
+      return false; // No combinations to generate
+    }
+    // If the current combination is the first one, return false.
     if (IsFirstCombo_()) {
       return false;
     }
