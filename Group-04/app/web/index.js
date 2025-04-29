@@ -5,6 +5,8 @@ var outputs = {};
 // Track whether we are selecting text
 var selecting = false;
 
+const monostate_formats = ["bold", "italic", "underline", "strikethrough"];
+
 // Convert an emscripten vector to a JS array
 function convert_vector(v) {
   let out = [];
@@ -20,10 +22,14 @@ function convert_vector(v) {
 function calculate_offset(container, child, offset = 0) {
   let sum = 0;
   for (let i of container.childNodes) {
+    if (i.nodeName.toLowerCase() == 'img')
+      sum += i.alt.length;
+
     if (i == child)
       return sum + offset;
     else if (i.contains(child))
       return sum + calculate_offset(i, child, offset);
+
     sum += i.textContent.length;
   }
 
@@ -36,7 +42,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const app = new instance.RichTextState();
 
     // Output elements
-    const outputContainer = document.getElementsByTagName("output")[0];
+    const outputContainer = document.getElementsByTagName("o")[0];
     const buttonContainer = document.getElementById("tab-buttons");
     const editorContainer = document.getElementById("text-editor");
 
@@ -55,8 +61,24 @@ window.addEventListener("DOMContentLoaded", () => {
     // A swapping function that lets us easily
     // change between tabs with minimal overhead
     let swap_to = (next) => {
+      // Remove active class from previous tab and button
       outputs[last_active].classList.remove("active");
+      // Find and remove active class from previous button
+      const buttons = buttonContainer.querySelectorAll('button');
+      buttons.forEach(btn => {
+        if (btn.dataset.tabId === last_active) {
+          btn.classList.remove('active');
+        }
+      });
+      
+      // Add active class to new tab and button
       outputs[next].classList.add("active");
+      buttons.forEach(btn => {
+        if (btn.dataset.tabId === next) {
+          btn.classList.add('active');
+        }
+      });
+      
       last_active = next;
     };
 
@@ -65,9 +87,12 @@ window.addEventListener("DOMContentLoaded", () => {
       // Tab to show output text
       let tab = document.createElement("div");
       tab.classList.add("tab-content");
+      tab.id = i[0]; // Set ID to match format key
+      
       // Button to swap to this output
       let button = document.createElement("button");
       button.innerText = i[1];
+      button.dataset.tabId = i[0]; // Store tab ID in data attribute
       button.addEventListener("click", swap_to.bind(null, i[0]));
 
       outputs[i[0]] = tab;
@@ -76,9 +101,15 @@ window.addEventListener("DOMContentLoaded", () => {
       buttonContainer.appendChild(button);
     }
 
-    // Show the first avalable output format
+    // Show the first available output format
     last_active = formats[0][0];
     outputs[last_active].classList.add("active");
+    
+    // Also add active class to the first button
+    const firstButton = buttonContainer.querySelector(`button[data-tab-id="${last_active}"]`);
+    if (firstButton) {
+      firstButton.classList.add('active');
+    }
 
     // Function to update serialized outputs based on current state
     const updateOutputs = () => {
@@ -113,12 +144,33 @@ window.addEventListener("DOMContentLoaded", () => {
     const formatButtonsContainer = document.createElement("div");
     formatButtonsContainer.className = "format-buttons";
     
+    // utility function to toggle monostate formatting
+    const toggle_monostate = (name) => {
+      try {
+        // try to use has_format if available
+        if (typeof app.has_format === 'function' && !app.has_format(name)) {
+          app.set_monostate(name);
+        } else {
+          // fallback to just call unset_format
+          app.unset_format(name);
+        }
+      } catch (e) {
+        console.error(`Error in toggle_monostate for "${name}":`, e);
+        // fallback to just apply the format
+        try {
+          app.set_monostate(name);
+        } catch (innerError) {
+          console.error(`Failed to apply format "${name}":`, innerError);
+        }
+      }
+    };
+
     // Bold button
     const boldButton = document.createElement("button");
     boldButton.textContent = "B";
     boldButton.className = "format-button bold-button";
     boldButton.addEventListener("click", () => {
-      app.applyBold();
+      toggle_monostate("bold");
       updateOutputs();
     });
     
@@ -127,7 +179,7 @@ window.addEventListener("DOMContentLoaded", () => {
     italicButton.textContent = "I";
     italicButton.className = "format-button italic-button";
     italicButton.addEventListener("click", () => {
-      app.applyItalic();
+      toggle_monostate("italic");
       updateOutputs();
     });
     
@@ -136,7 +188,7 @@ window.addEventListener("DOMContentLoaded", () => {
     underlineButton.textContent = "U";
     underlineButton.className = "format-button underline-button";
     underlineButton.addEventListener("click", () => {
-      app.applyUnderline();
+      toggle_monostate("underline");
       updateOutputs();
     });
     
@@ -259,62 +311,16 @@ window.addEventListener("DOMContentLoaded", () => {
       
       try {
         // Handle different format types
-        if (formatName === "bold") {
-          app.applyBold();
-        } 
-        else if (formatName === "italic") {
-          app.applyItalic();
-        } 
-        else if (formatName === "underline") {
-          app.applyUnderline();
-        } 
-        else if (formatName === "strikethrough") {
-          app.applyStrikethrough();
-        } 
-        else if (formatName === "color" && formatValue) {
-          app.applyColor(formatValue);
-        } 
-        else if (formatName === "link" && formatValue) {
-          app.applyLink(formatValue);
-        } 
-        else if (formatName === "header" && formatValue && !isNaN(parseInt(formatValue))) {
-          app.applyHeader(parseInt(formatValue));
+        if (formatName in monostate_formats) {
+          app.set_monostate(formatName);
         } 
         else {
           // Attempt to apply a custom format with the given name and value
           // This allows for future extensibility even if we don't have a specific method
           console.log(`Applying custom format "${formatName}" with value "${formatValue}"`);
-          
-          // Here we need to infer the type based on the format name and value
-          // For now, if value is empty, use monostate, otherwise use the string as is
-          let success = false;
-          
-          if (!formatValue) {
-            // No value, apply as a boolean flag format (like bold, italic)
-            app.update_format(formatName, {});
-            success = true;
-          } else if (!isNaN(parseInt(formatValue))) {
-            // Numeric value - try to apply as integer
-            try {
-              const numValue = parseInt(formatValue);
-              app.update_format(formatName, numValue);
-              success = true;
-            } catch (e) {
-              console.error("Failed to apply numeric format:", e);
-              // Fall back to string format
-              app.update_format(formatName, formatValue);
-              success = true;
-            }
-          } else {
-            // String value
-            app.update_format(formatName, formatValue);
-            success = true;
-          }
-          
-          if (!success) {
-            throw new Error(`Unknown format type: ${formatName}`);
-          }
-        }
+          // We are going to assume this is a string for now, might add numbers later.
+          app.set_string(formatName, formatValue);
+        } 
         
         updateOutputs();
         
@@ -346,6 +352,42 @@ window.addEventListener("DOMContentLoaded", () => {
       }
     });
     
+    const show_error = (msg) => {
+      const errorMessage = document.createElement("div");
+      errorMessage.textContent = msg;
+      errorMessage.className = "operation-message error-message";
+      bar.appendChild(errorMessage);
+      
+      setTimeout(() => {
+        if (errorMessage.parentNode) {
+          errorMessage.parentNode.removeChild(errorMessage);
+        }
+      }, 2000);
+    };
+
+    const clearFormatButton = document.createElement("button");
+    clearFormatButton.textContent = "Clear";
+    clearFormatButton.className = "apply-format-button";
+    clearFormatButton.addEventListener("click", () => {
+      const formatName = formatNameInput.value.trim().toLowerCase();
+      let error = "";
+      
+      console.log("Clearing custom format:", formatName);
+      
+      if (!formatName) {
+        error = "Format name is required";
+      } else if (!app.has_format(formatName)) {
+        error = "Format does not exist within range";
+      }
+
+      if (error != "")
+        show_error(error);
+      else {
+        app.unset_format(formatName);
+        updateOutputs();
+      }
+    });
+
     // Append format elements to container
     const formatNameContainer = document.createElement("div");
     formatNameContainer.style.marginBottom = "10px";
@@ -355,6 +397,7 @@ window.addEventListener("DOMContentLoaded", () => {
     customFormatContainer.appendChild(formatNameContainer);
     customFormatContainer.appendChild(formatValueContainer);
     customFormatContainer.appendChild(applyFormatButton);
+    customFormatContainer.appendChild(clearFormatButton);
 
     formatButtonsContainer.appendChild(customFormatContainer);
     

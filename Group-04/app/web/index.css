@@ -15,13 +15,16 @@ content {
 
 content > .rich-input {
     flex: 2;
-    background-color: lightsteelblue;
-    overflow: scroll;
+    background: linear-gradient(120deg, #f0f4f8 0%, #d0e1f9 100%);
+    overflow: auto;
     z-index: 1;
-    padding: 15px;
+    padding: 20px;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.05);
+    color: #2c3e50;
+    border-radius: 0 0 0 8px;
 }
 
-content > output {
+content > output, content > o {
     flex: 1;
     background-color: #555;
     max-width: 50%;
@@ -32,7 +35,7 @@ content > output {
         flex-direction: column;
     }
 
-    content > output {
+    content > output, content > o {
         max-height: 50%;
         max-width: 100%;
     }
@@ -47,14 +50,22 @@ content > output {
 .format-button {
     width: 40px;
     height: 40px;
-    border: 1px solid #ccc;
-    background-color: #f5f5f5;
-    border-radius: 4px;
+    border: 1px solid #bfd2e9;
+    background-color: #f0f7ff;
+    border-radius: 6px;
     font-weight: bold;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.format-button:hover {
+    background-color: #e0eeff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 .bold-button {
@@ -97,10 +108,12 @@ content > output {
     gap: 15px;
     align-items: center;
     padding: 15px;
-    background-color: #eee;
-    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
     position: relative;
     max-width: 95%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e0e0e0;
 }
 
 .custom-format-container label {
@@ -171,17 +184,19 @@ content > output {
 
 .apply-format-button {
     padding: 8px 16px;
-    background-color: #666;
+    background-color: #4f8cff;
     color: #fff;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
     font-size: 14px;
-    transition: background-color 0.2s;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(79, 140, 255, 0.3);
 }
 
 .apply-format-button:hover {
-    background-color: #777;
+    background-color: #3a7ce8;
+    transform: translateY(-1px);
 }
 
 /* Format success message */
@@ -197,17 +212,21 @@ content > output {
 /* Toolbar Button Styling */
 #toolbar button.toolbar-button {
     margin-left: 10px;
-    padding: 8px 12px;
-    font-size: 1rem;
-    background-color: #666;
+    padding: 8px 16px;
+    font-size: 14px;
+    background-color: #5d6d7e;
     color: #fff;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 #toolbar button.toolbar-button:hover {
-    background-color: #777;
+    background-color: #34495e;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
 }
 
 /* 
@@ -248,17 +267,26 @@ content > output {
   }
   
 #text-editor {
+    margin-top: 15px;
     padding: 15px;
-    white-space: pre;
+    background-color: white;
+    border-radius: 8px;
+    min-height: 200px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    line-height: 1.6;
 }
 
 #toolbar {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
     gap: 15px;
-    padding: 10px;
-    position: sticky;
-
+    margin-bottom: 20px;
+    padding: 18px;
+    background-color: rgba(232, 244, 255, 0.85);
+    border-radius: 12px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+    border: 1px solid #c9dff3;
 }
 
 /* Format text input style */
@@ -272,21 +300,24 @@ content > output {
 
 /* Operation success messages */
 .operation-message {
-    margin: 10px 0;
-    padding: 10px;
-    border-radius: 4px;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    border-radius: 8px;
     color: white;
-    text-align: center;
-    font-weight: bold;
-    animation: fadeIn 0.3s, fadeOut 0.5s 1.5s;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: fadeIn 0.3s, fadeOut 0.3s 1.7s;
+    z-index: 1000;
 }
 
 .undo-message {
-    background-color: #4CAF50; /* Green */
+    background-color: #5d6d7e;
 }
 
 .redo-message {
-    background-color: #2196F3; /* Blue */
+    background-color: #5d6d7e;
 }
 
 @keyframes fadeIn {
@@ -297,6 +328,13 @@ content > output {
 @keyframes fadeOut {
     from { opacity: 1; }
     to { opacity: 0; }
+}
+
+.color-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 15px;
 }
 
 
