@@ -44,10 +44,10 @@ TEST_CASE("CreateGridMenu: invalid inputs", "[CreateGridMenu]") {
   CHECK(grid.GetValue(2, 3).AsDouble() == Approx(1.2345678901234568e+19));
 
   const auto out = os.str();
-  CHECK(out.find("Invalid input. Please enter a positive integer.") !=
+  CHECK(out.find("Invalid option. Try again") !=
         std::string::npos);
   CHECK(
-      out.find("Invalid input. Please enter an integer between 1 and 1000.") !=
+      out.find("Invalid option. Try again") !=
       std::string::npos);
   CHECK(out.find("Invalid input. Please enter a valid number.") !=
         std::string::npos);
