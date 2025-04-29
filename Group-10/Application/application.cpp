@@ -324,8 +324,8 @@ int application(std::istream &in) {
       }
       settings.filename = arguments[1];
 
-      if (!settings.filename.contains(".txt") &&
-          !settings.filename.contains(".csv")) {
+      if (!settings.filename.ends_with(".txt") &&
+          !settings.filename.ends_with(".csv")) {
         std::cout << RedError(
             "**The file must be of a valid type (.txt or .csv)");
         PrintTerminal();
