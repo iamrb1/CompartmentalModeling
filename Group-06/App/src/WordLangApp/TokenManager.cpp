@@ -28,26 +28,26 @@ TokenManager::TokenManager() : mToken_id(0) {}
 
 TokenManager::~TokenManager() { Clean(); }
 
-void TokenManager::Load(const std::string& input) {
+void TokenManager::Load(const std::string& input) noexcept {
   Clean();
   mTokens = mLexer.Tokenize(input);
 }
 
-const emplex::Token& TokenManager::Peek() const {
+const emplex::Token& TokenManager::Peek() const noexcept {
   if (mToken_id < mTokens.size()) {
     return mTokens[mToken_id];
   }
   return eof_token;
 }
 
-const emplex::Token& TokenManager::Use() {
+const emplex::Token& TokenManager::Use() noexcept {
   if (mToken_id < mTokens.size()) {
     return mTokens[mToken_id++];
   }
   return eof_token;
 }
 
-const emplex::Token& TokenManager::Use_if(int expectedId) {
+const emplex::Token& TokenManager::Use_if(int expectedId) noexcept {
   if (mToken_id < mTokens.size() && mTokens[mToken_id].id == expectedId) {
     return mTokens[mToken_id++];
   }

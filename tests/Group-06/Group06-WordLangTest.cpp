@@ -14,15 +14,22 @@ using namespace cse;
 
 const static bool DEBUG_MODE = false;
 
-void test_function(const std::vector<std::string>& input, const std::vector<std::string>& output_result) {
+/**
+ * @brief Tests the provided user inputs with the expected output by 
+ * running the application and collection the outputs.
+ * 
+ * @param input User inputs wanted to test  
+ * @param output_result Expected program output
+ */
+void wordlangTester(const std::vector<std::string>& input, const std::vector<std::string>& output_result) {
   cse::WordLang wordLang;
   FileSource::set_relative_path("WordLangWordFiles/");
 
   for (size_t i = 0; i < input.size(); ++i) {
     std::ostringstream oss;
     std::streambuf* oldCoutBuf = std::cout.rdbuf();
-    std::cout.rdbuf(oss.rdbuf());
-
+    std::cout.rdbuf(oss.rdbuf());  // Collect the output from cout
+    // Run the input in wordlang app 
     wordLang.parse(input[i]);
 
     std::cout.rdbuf(oldCoutBuf);
@@ -74,7 +81,7 @@ TEST_CASE("Length restriction Tests", "[WordLang]") {
     "Words before filter: 5000, after filter: 752\n",
   };
 
-  test_function(input, output_result);
+  wordlangTester(input, output_result);
 
 }
 
@@ -92,7 +99,7 @@ TEST_CASE("Reset unit test", "[Reset]") {
     "[Info]: Succesfully reset all current lists to the original state.\n\n  l: 100000 words\n\n"
   };
 
-  test_function(input, output_result);
+  wordlangTester(input, output_result);
 }
 
 
@@ -124,7 +131,7 @@ TEST_CASE("WordLang Tests", "[WordLang]") {
     "[books]\n"
   };
 
-  test_function(input, output_result);
+  wordlangTester(input, output_result);
 
 }
 
@@ -154,7 +161,7 @@ TEST_CASE("WordLang Tests 2", "[WordLang]") {
     "[aware]\n"
   };
 
-  test_function(input, output_result);
+  wordlangTester(input, output_result);
 
 }
 
@@ -183,7 +190,7 @@ TEST_CASE("WordLang Tests 3", "[WordLang]") {
     "[apple]\n"
   };
 
-  test_function(input, output_result);
+  wordlangTester(input, output_result);
 }
 
 TEST_CASE("WordLang Tests 4", "[WordLang]") {
@@ -208,7 +215,7 @@ TEST_CASE("WordLang Tests 4", "[WordLang]") {
     "[moral, coral, royal]\n"
   };
 
-  test_function(input, output_result);
+  wordlangTester(input, output_result);
 }
 
 TEST_CASE("Intersection and Filter Tests", "[WordLang]") {
@@ -219,6 +226,10 @@ TEST_CASE("Intersection and Filter Tests", "[WordLang]") {
     "LIST c = INTERSECTION a b\n",
     "SET_CURRENT c\n",
     "NOT_CONTAINS \"n\"\n",
+    "PRINT ALL\n",
+    "CONTAINS_ALL \"abel\"\n",
+    "PRINT ALL\n",
+    "CONTAINS_ANY \"tkfrs\"\n",
     "PRINT ALL\n"
   };
     
@@ -228,10 +239,32 @@ TEST_CASE("Intersection and Filter Tests", "[WordLang]") {
     "Number of words to search: 4\n",
     "",
     "Number of words to search: 4\n",
-    "[table, fable, label, stable]\n"
+    "[table, fable, label, stable]\n",
+    "Number of words to search: 4\n",
+    "[stable, label, fable, table]\n",
+    "Number of words to search: 3\n",
+    "[table, fable, stable]\n"
   };
 
-  test_function(input, output_result);
+  wordlangTester(input, output_result);
+}
+
+TEST_CASE("Difference, Combine fake list Tests", "[WordLang]") {
+
+  std::vector<std::string> input = {
+    "LIST list1 = LOAD \"wordle_file.txt\"\n",
+    "LIST list2 = DIFFERENCE list1 fakelist\n",
+    "LIST list2 = COMBINED list1 fakelist\n"
+  };
+
+  std::vector<std::string> output_result = {
+    "Loaded \"wordle_file.txt\". Word count in a list: 7\n",
+    "[Info]: Invalid List Name: List \"fakelist\" does not exist.\n",
+    "[Info]: Invalid List Name: List \"fakelist\" does not exist.\n"
+  };
+
+
+  wordlangTester(input, output_result);
 }
 
 TEST_CASE("Copy and Reset Tests", "[WordLang]") {
@@ -244,7 +277,8 @@ TEST_CASE("Copy and Reset Tests", "[WordLang]") {
     "GET \"_a__e\"\n",
     "PRINT ALL\n",
     "RESET original\n",
-    "PRINT ALL"
+    "PRINT ALL",
+    "LIST temp = COPY nonexisting\n"
   };
     
   std::vector<std::string> output_result = {
@@ -256,10 +290,11 @@ TEST_CASE("Copy and Reset Tests", "[WordLang]") {
     "Number of words to search: 1\n",
     "[rathe]\n",
     "[Info]: Successfully reset original to the original state with 5 words.\n",
-    "[eater, rathe, hater, earth, heart]\n"
+    "[eater, rathe, hater, earth, heart]\n",
+    "[Info]: Invalid List Name: List \"nonexisting\" does not exist.\n"
   };
 
-  test_function(input, output_result);
+  wordlangTester(input, output_result);
 }
 
 TEST_CASE("Wordle Command Tests", "[WordLang]") {
@@ -277,7 +312,29 @@ TEST_CASE("Wordle Command Tests", "[WordLang]") {
   };
 
 
-  test_function(input, output_result);
+  wordlangTester(input, output_result);
+}
+
+TEST_CASE("Wordle Command Tests 2", "[WordLang]") {
+
+  std::vector<std::string> input = {
+    "LIST list1 = LOAD \"top_1000_wordle.txt\"\n",
+    "SET_CURRENT list1\n",
+    "WORDLE(\"toast\", \"ybggg\")\n",
+    "WORDLE(\"toast\", \"ybgggbgbgbgbyybybygg\")\n",
+    "WORDLE(\"toasttt\", \"ybgggyb\")\n"
+  };
+
+  std::vector<std::string> output_result = {
+    "Loaded \"top_1000_wordle.txt\". Word count in a list: 1000\n",
+    "",
+    "[beast, blast, least]\n",
+    "[Info]: Error : Word and matched pattern size must be same.\n",
+    "[Info]: Error : Word and matched pattern size must be equal to 5.\n"
+  };
+
+
+  wordlangTester(input, output_result);
 }
 
 TEST_CASE("LOAD and PRINT tests", "[WordLang]") {
@@ -301,7 +358,7 @@ TEST_CASE("LOAD and PRINT tests", "[WordLang]") {
       "[Test, key, fork, word, hello]\n"
     };
 
-    test_function(input, output_result);
+    wordlangTester(input, output_result);
   }
 }
 
@@ -533,7 +590,7 @@ TEST_CASE("setCurrent Tests", "[WordLang]") {
     "[Info]: Incorrect Syntax: There must be list type to set as current.\n"
   };
 
-  test_function(input, output_result);
+  wordlangTester(input, output_result);
 }
 
 TEST_CASE("save Tests", "[WordLang]") {
@@ -549,7 +606,7 @@ TEST_CASE("save Tests", "[WordLang]") {
       "[Info]: List 'nonexistent' does not exist\n"
   };
 
-  test_function(input, output_result);
+  wordlangTester(input, output_result);
 }
 
 TEST_CASE("add Tests", "[WordLang]") {
@@ -557,17 +614,21 @@ TEST_CASE("add Tests", "[WordLang]") {
       "LIST list1 = LOAD \"file1.txt\"\n",
       "ADD list1 \"word1 word2 word3\"\n",
       "ADD nonexistent \"word1 word2 word3\"\n",
-      "ADD list1 \"\"\n"
+      "PRINT ALL\n",
+      "ADD list1 \"\"\n",
+      "PRINT ALL\n"
   };
 
   std::vector<std::string> output_result = {
       "Loaded \"file1.txt\". Word count in a list: 11\n",
       "[Info]: Words added to list 'list1'\n",
       "[Info]: List 'nonexistent' does not exist\n",
-      "[Info]: Words added to list 'list1'\n"
+      "[books, boost, chain, who, where, why, hello, word, fork, key, Test]\n",
+      "[Info]: Words added to list 'list1'\n",
+      "[books, boost, chain, who, where, why, hello, word, fork, key, Test]\n"
   };
 
-  test_function(input, output_result);
+  wordlangTester(input, output_result);
 }
 
 TEST_CASE("setLengthRestriction: No current lists and star restore", "[WordLang]") {
@@ -692,7 +753,7 @@ TEST_CASE("Contains ANY tests", "[WordLang]")
     "[hello, cost, host, best, cucumber, dump, kitchen, toast, chain, boats, key]\n"
   };
 
-  test_function(input, output_result);
+  wordlangTester(input, output_result);
 }
 
 TEST_CASE("Contains ALL tests", "[WordLang]") 
@@ -734,7 +795,7 @@ TEST_CASE("Contains ALL tests", "[WordLang]")
 
   };
 
-  test_function(input, output_result);
+  wordlangTester(input, output_result);
 }
 TEST_CASE("Not Contains tests", "[WordLang]") 
 {
@@ -780,7 +841,7 @@ TEST_CASE("Not Contains tests", "[WordLang]")
     "[]\n",
   };
 
-  test_function(input, output_result);
+  wordlangTester(input, output_result);
 }
 
 TEST_CASE("Get tests", "[WordLang]") 
@@ -851,7 +912,7 @@ TEST_CASE("Get tests", "[WordLang]")
     "[slate, plate]\n"
   };
 
-  test_function(input, output_result);
+  wordlangTester(input, output_result);
 }
 
 TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
@@ -880,7 +941,7 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Error : File can not be loaded.\n"
     };
 
-    test_function(input, output_result);
+    wordlangTester(input, output_result);
   }
 
   SECTION("Parse LIST COMBINE command") {
@@ -902,7 +963,7 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Incorrect Syntax: There must be lists to be combined.\n"
     };
 
-    test_function(input, output_result);
+    wordlangTester(input, output_result);
   }
 
   SECTION("Parse LIST DIFFERENCE command") {
@@ -926,7 +987,7 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Incorrect Syntax: There must be lists to find differences.\n"
     };
 
-    test_function(input, output_result);
+    wordlangTester(input, output_result);
   }
 
   SECTION("Parse LIST INTERSECTION command") {
@@ -949,7 +1010,7 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Incorrect Syntax: There must be lists to find intersections.\n"
     };
 
-    test_function(input, output_result);
+    wordlangTester(input, output_result);
   }
 
   SECTION("Parse LIST COPY command") {
@@ -967,7 +1028,7 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Incorrect Syntax: Missing list name to copy.\n"
     };
 
-    test_function(input, output_result);
+    wordlangTester(input, output_result);
   }
 
   SECTION("Parse PRINT command") {
@@ -987,7 +1048,7 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Incorrect Syntax: Incorrect identifier type, must be a number or \"ALL\"\n"
     };
 
-    test_function(input, output_result);
+    wordlangTester(input, output_result);
   }
 
   SECTION("Parse SET_CURRENT command") {
@@ -1005,7 +1066,7 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Incorrect Syntax: There must be list type to set as current.\n"
     };
 
-    test_function(input, output_result);
+    wordlangTester(input, output_result);
   };
 
   SECTION("Parse ADD command") {
@@ -1013,17 +1074,19 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "add\n",
       "ADD \"test words list\"\n",
       "ADD list1 test words list\n",
-      "ADD \"list1\" \"test words list\"\n"
+      "ADD \"list1\" \"test words list\"\n",
+      "ADD list1\n"
     };
       
     std::vector<std::string> output_result = {
       "[Info]: Incorrect Syntax: Check syntax, keyword is not found.\n",
       "[Info]: Incorrect Syntax: Missing listname identifier.\n",
       "[Info]: Incorrect Syntax: Missing words to add.\n",
-      "[Info]: Incorrect Syntax: Missing listname identifier.\n"
+      "[Info]: Incorrect Syntax: Missing listname identifier.\n",
+      "[Info]: Incorrect Syntax: Missing words to add.\n"
     };
 
-    test_function(input, output_result);
+    wordlangTester(input, output_result);
   }
 
   SECTION("Parse SAVE command") {
@@ -1032,17 +1095,19 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "save\n",
       "SAVE \"file1\"\n",
       "SAVE list1 test\n",
-      "SAVE \"list1\" \"file1\"\n"
+      "SAVE \"list1\" \"file1\"\n",
+      "SAVE list1\n"
     };
       
     std::vector<std::string> output_result = {
       "[Info]: Incorrect Syntax: Check syntax, keyword is not found.\n",
       "[Info]: Incorrect Syntax: Missing listname identifier.\n",
       "[Info]: Incorrect Syntax: Missing filename to save.\n",
-      "[Info]: Incorrect Syntax: Missing listname identifier.\n"
+      "[Info]: Incorrect Syntax: Missing listname identifier.\n",
+      "[Info]: Incorrect Syntax: Missing filename to save.\n"
     };
 
-    test_function(input, output_result);
+    wordlangTester(input, output_result);
   }
 
   SECTION("Parse LENGTH command") {
@@ -1066,7 +1131,7 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Incorrect Syntax: Length value must be number or \"*\"\n"
     };
 
-    test_function(input, output_result);
+    wordlangTester(input, output_result);
   };
 
   SECTION("Parse CONTAINS_ANY command") {
@@ -1082,7 +1147,7 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Incorrect Syntax: CONTAINS_ANY must have string of letters.\n"
     };
 
-    test_function(input, output_result);
+    wordlangTester(input, output_result);
   }
 
   SECTION("Parse CONTAINS_ALL command") {
@@ -1098,7 +1163,7 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Incorrect Syntax: CONTAINS_ALL must have string of letters.\n"
     };
 
-    test_function(input, output_result);
+    wordlangTester(input, output_result);
   }
 
   SECTION("Parse NOT_CONTAINS command") {
@@ -1114,7 +1179,7 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Incorrect Syntax: NOT_CONTAINS must have string of letters.\n"
     };
 
-    test_function(input, output_result);
+    wordlangTester(input, output_result);
   }
 
   SECTION("Parse GET command") {
@@ -1132,7 +1197,7 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Incorrect Syntax: GET must have string of letters or wildcards.\n"
     };
 
-    test_function(input, output_result);
+    wordlangTester(input, output_result);
   }
 
   SECTION("Parse RESET command") {
@@ -1152,7 +1217,7 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: List list2 does not exist\n"
     };
 
-    test_function(input, output_result);
+    wordlangTester(input, output_result);
   }
 
   SECTION("Parse WORDLE command") {
@@ -1163,7 +1228,8 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "WORDLE (\"print\" \"bbgyb\")\n",
       "WORDLE (\"print\", bbgyb)\n",
       "WORDLE (\"print\",\"bbgyb\"\n",
-      "WORDLE (\"print\",\"bbgyb\") LOAD\n"
+      "WORDLE (\"print\",\"bbgyb\") LOAD\n",
+      "WORDLE (\"print\",\"abcde\")\n"
     };
 
     std::vector<std::string> output_result = {
@@ -1173,10 +1239,11 @@ TEST_CASE("WordLang Tests: Parsing", "[WordLang]") {
       "[Info]: Incorrect Syntax: Missing \',\' between two strings.\n",
       "[Info]: Incorrect Syntax: Missing result string from wordle.\n",
       "[Info]: Incorrect Syntax: Wordle command must have \')\' at the end.\n",
-      "[Info]: Incorrect Syntax: Encountered unknown symbols after \"WORDLE\" token.\n"
+      "[Info]: Incorrect Syntax: Encountered unknown symbols after \"WORDLE\" token.\n",
+      "[Info]: Error : Invalid letter identifier used for wordle. You must use one of the yellow 'y', black 'b', green 'g' identifiers.\n"
     };
 
-    test_function(input, output_result);
+    wordlangTester(input, output_result);
   }
 }
 

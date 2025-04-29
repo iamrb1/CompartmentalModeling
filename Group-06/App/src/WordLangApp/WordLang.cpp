@@ -113,7 +113,7 @@ void cse::WordLang::parseList() {
   mTokenManager.Use();
 
   // List name for the list created
-  auto listname = mTokenManager.Use();
+  emplex::Token listname = mTokenManager.Use();
 
   // Check if a listname provided
   if (listname == mTokenManager.eof_token ||
@@ -134,7 +134,7 @@ void cse::WordLang::parseList() {
   auto listIdentifier = mTokenManager.Use();
 
   if (listIdentifier.id == 253) {  // Load the list
-    auto filename = mTokenManager.Use();
+    emplex::Token filename = mTokenManager.Use();
 
     if (filename == mTokenManager.eof_token ||
         filename != emplex::Lexer::ID_STRING) {  // Check file name
@@ -248,7 +248,7 @@ void cse::WordLang::parseList() {
     }
 
   } else if (listIdentifier.id == 249) {  // Copy the list
-    auto listnameToCopy = mTokenManager.Use();
+    emplex::Token listnameToCopy = mTokenManager.Use();
 
     if (listnameToCopy == mTokenManager.eof_token ||
         listnameToCopy != emplex::Lexer::ID_LISTNAME) {
@@ -277,7 +277,7 @@ void cse::WordLang::parseList() {
   }
 }
 
-std::vector<std::string> cse::WordLang::parseMultipleLists() {
+[[nodiscard]] std::vector<std::string> cse::WordLang::parseMultipleLists() {
   std::vector<std::string> lists_to_combine;
 
   while (mTokenManager.Peek() != mTokenManager.eof_token) {
@@ -297,7 +297,7 @@ std::vector<std::string> cse::WordLang::parseMultipleLists() {
 void cse::WordLang::parsePrint() {
   mTokenManager.Use();
 
-  auto identifier = mTokenManager.Use();
+  emplex::Token identifier = mTokenManager.Use();
 
   if (identifier.id == 236) {  // PRINT ALL
     if (!mWordListManager.print(0, true)) return;
@@ -349,7 +349,7 @@ void cse::WordLang::parseSetCurrent() {
 void cse::WordLang::parseAdd() {
   mTokenManager.Use();
 
-  auto listname = mTokenManager.Use();
+  emplex::Token listname = mTokenManager.Use();
 
   // Check if a listname provided
   if (listname == mTokenManager.eof_token ||
@@ -359,7 +359,7 @@ void cse::WordLang::parseAdd() {
     return;
   }
 
-  auto words = mTokenManager.Use();
+  emplex::Token words = mTokenManager.Use();
   if (words == mTokenManager.eof_token || words != emplex::Lexer::ID_STRING) {
     // Missing file name to open
     mErrorManager.printInfo("Incorrect Syntax: Missing words to add.");
@@ -387,7 +387,7 @@ void cse::WordLang::parseAdd() {
 void cse::WordLang::parseSave() {
   mTokenManager.Use();
 
-  auto listname = mTokenManager.Use();
+  emplex::Token listname = mTokenManager.Use();
 
   // Check if a listname provided
   if (listname == mTokenManager.eof_token ||
@@ -397,7 +397,7 @@ void cse::WordLang::parseSave() {
     return;
   }
 
-  auto filename = mTokenManager.Use();
+  emplex::Token filename = mTokenManager.Use();
   if (filename == mTokenManager.eof_token ||
       filename != emplex::Lexer::ID_STRING) {
     // Missing file name to open
@@ -431,7 +431,7 @@ void cse::WordLang::parseLength() {
     return;
   }
 
-  auto length = mTokenManager.Use();
+  emplex::Token length = mTokenManager.Use();
 
   if (length == mTokenManager.eof_token ||
       (length != emplex::Lexer::ID_NUMBER &&
@@ -456,7 +456,7 @@ void cse::WordLang::parseLength() {
 void cse::WordLang::parseContainsAny() {
   mTokenManager.Use();
 
-  auto letters = mTokenManager.Use();
+  emplex::Token letters = mTokenManager.Use();
 
   if (letters == mTokenManager.eof_token ||
       letters != emplex::Lexer::ID_STRING) {
@@ -485,7 +485,7 @@ void cse::WordLang::parseContainsAny() {
 void cse::WordLang::parseContainsAll() {
   mTokenManager.Use();  // use current token
 
-  auto letters = mTokenManager.Use();
+  emplex::Token letters = mTokenManager.Use();
   if (letters == mTokenManager.eof_token ||
       letters != emplex::Lexer::ID_STRING) {
     // Print error and return
@@ -512,7 +512,7 @@ void cse::WordLang::parseContainsAll() {
 void cse::WordLang::parseNotContains() {
   mTokenManager.Use();
 
-  auto letters = mTokenManager.Use();
+  emplex::Token letters = mTokenManager.Use();
   if (letters == mTokenManager.eof_token ||
       letters != emplex::Lexer::ID_STRING) {
     // Print error and return
@@ -540,7 +540,7 @@ void cse::WordLang::parseNotContains() {
 void cse::WordLang::parseGet() {
   mTokenManager.Use();  // use keywords "GET"
 
-  auto letters = mTokenManager.Use();
+  emplex::Token letters = mTokenManager.Use();
   if (letters == mTokenManager.eof_token ||
       letters != emplex::Lexer::ID_STRING) {
     // Print error and return
@@ -567,7 +567,7 @@ void cse::WordLang::parseGet() {
 void cse::WordLang::parseReset() {
   mTokenManager.Use();  // use keyword "RESET"
 
-  auto listname = mTokenManager.Use();
+  emplex::Token listname = mTokenManager.Use();
   if (listname.id == mTokenManager.eof_token) {
     // if we don't have any listnames - reset all current listnames
     mWordListManager.reset();
@@ -593,7 +593,7 @@ void cse::WordLang::parseWordle() {
     return;
   }
 
-  auto word = mTokenManager.Use();
+  emplex::Token word = mTokenManager.Use();
 
   if (word == mTokenManager.eof_token || word != emplex::Lexer::ID_STRING) {
     mErrorManager.printInfo(
@@ -607,7 +607,7 @@ void cse::WordLang::parseWordle() {
     return;
   }
 
-  auto result = mTokenManager.Use();
+  emplex::Token result = mTokenManager.Use();
 
   if (result == mTokenManager.eof_token || result != emplex::Lexer::ID_STRING) {
     mErrorManager.printInfo(

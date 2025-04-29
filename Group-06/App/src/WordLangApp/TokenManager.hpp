@@ -49,21 +49,21 @@ class TokenManager {
    *
    * @param input String users terminal input
    */
-  void Load(const std::string& input);
+  void Load(const std::string& input) noexcept;
 
   /**
    * @brief Get the next token but do not use it
    *
    * @return const emplex::Token& Next token in the queue
    */
-  const emplex::Token& Peek() const;
+  const emplex::Token& Peek() const noexcept;
 
   /**
    * @brief Use the current token and skip to the next
    *
    * @return const emplex::Token& Current token that used
    */
-  const emplex::Token& Use();
+  const emplex::Token& Use() noexcept;
 
   /**
    * @brief Use token if id matched.
@@ -71,7 +71,7 @@ class TokenManager {
    * @param expectedId Int id of token
    * @return const emplex::Token& used token.
    */
-  const emplex::Token& Use_if(int expectedId);
+  const emplex::Token& Use_if(int expectedId) noexcept;
 
  private:
   /// @brief Lexer which handles tokenization

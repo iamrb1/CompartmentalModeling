@@ -83,7 +83,7 @@ bool cse::WordListManager::print(int number, bool isAll) {
 
 bool cse::WordListManager::combine(
     const std::string& newListName,
-    const std::vector<std::string>& listsToCombine) {
+    const std::vector<std::string>& listsToCombine) noexcept {
   // check if newListName is unique
   if (mWordLists.find(newListName) != mWordLists.end()) {
     mErrorManager.printInfo("Invalid List Name: \"" + newListName +
@@ -118,7 +118,7 @@ bool cse::WordListManager::combine(
 
 bool cse::WordListManager::difference(
     const std::string& newListName,
-    const std::vector<std::string>& listsToDiff) {
+    const std::vector<std::string>& listsToDiff) noexcept {
   // check if newListName is unique
   if (mWordLists.find(newListName) != mWordLists.end()) {
     mErrorManager.printInfo("Invalid list Name: \"" + newListName +
@@ -160,7 +160,7 @@ bool cse::WordListManager::difference(
 
 bool cse::WordListManager::intersection(
     const std::string& newListName,
-    const std::vector<std::string>& listsToIntersect) {
+    const std::vector<std::string>& listsToIntersect) noexcept {
   // check if newListName is unique
   if (mWordLists.find(newListName) != mWordLists.end()) {
     mErrorManager.printInfo("Invalid List Name: \"" + newListName +
@@ -200,7 +200,7 @@ bool cse::WordListManager::intersection(
 }
 
 bool cse::WordListManager::copy(const std::string& newListName,
-                                const std::string& copyList) {
+                                const std::string& copyList) noexcept {
   // check if newListName is unique
   if (mWordLists.find(newListName) != mWordLists.end()) {
     mErrorManager.printInfo("Invalid List Name: \"" + newListName +
@@ -225,7 +225,7 @@ bool cse::WordListManager::copy(const std::string& newListName,
 }
 
 bool cse::WordListManager::setCurrent(
-    const std::vector<std::string>& listNames) {
+    const std::vector<std::string>& listNames) noexcept {
   cse::StringSet<cse::StaticString<30>> combinedSet;
 
   for (const auto& listName : listNames) {
@@ -243,7 +243,7 @@ bool cse::WordListManager::setCurrent(
 }
 
 bool cse::WordListManager::add(const std::string& listName,
-                               const std::string& wordsToAdd) {
+                               const std::string& wordsToAdd) noexcept {
   // check if list exists
   if (mWordLists.find(listName) == mWordLists.end()) {
     mErrorManager.printInfo("List '" + listName + "' does not exist");
@@ -261,7 +261,7 @@ bool cse::WordListManager::add(const std::string& listName,
 }
 
 bool cse::WordListManager::save(const std::string& fileName,
-                                const std::string& listName) {
+                                const std::string& listName) noexcept {
   // check if list exists
   if (mWordLists.find(listName) == mWordLists.end()) {
     mErrorManager.printInfo("List '" + listName + "' does not exist");
@@ -275,12 +275,14 @@ bool cse::WordListManager::save(const std::string& fileName,
                             fileName + "'");
     return true;
   } else {
+    mErrorManager.printInfo("List '" + listName + "' can not saved to " + +"'" +
+      fileName + "'");
     return false;
   }
 }
 
 bool cse::WordListManager::setLengthRestriction(
-    const std::string& lengthRestriction) {
+    const std::string& lengthRestriction) noexcept {
   // we are guaranteed by the parser to have either a star
   // or a string that will be converted to a positive integer
 
@@ -347,7 +349,7 @@ void cse::WordListManager::reset(const std::string& listname) {
       std::to_string(mWordLists[listname].size()) + " words.");
 }
 
-bool cse::WordListManager::ContainsAny(const std::string& lettersToCheck) {
+bool cse::WordListManager::ContainsAny(const std::string& lettersToCheck) noexcept {
   // If there aren't any letters being checked, print an error message
   if (lettersToCheck.length() == 0) {
     mErrorManager.printInfo("Incorrect Syntax: no letters given.");
@@ -379,7 +381,7 @@ bool cse::WordListManager::ContainsAny(const std::string& lettersToCheck) {
   return result.size() > 0;
 }
 
-bool cse::WordListManager::ContainsAll(const std::string& lettersToCheck) {
+bool cse::WordListManager::ContainsAll(const std::string& lettersToCheck) noexcept {
   // If there aren't any letters being checked, print an error message
   if (lettersToCheck.length() == 0) {
     mErrorManager.printInfo("Incorrect Syntax: no letters given.");
@@ -419,7 +421,7 @@ bool cse::WordListManager::ContainsAll(const std::string& lettersToCheck) {
   return result.size() > 0;
 }
 
-bool cse::WordListManager::NotContains(const std::string& lettersToCheck) {
+bool cse::WordListManager::NotContains(const std::string& lettersToCheck) noexcept {
   // If there aren't any letters being checked, print an error message
   if (lettersToCheck.length() == 0) {
     mErrorManager.printInfo(
@@ -450,7 +452,7 @@ bool cse::WordListManager::NotContains(const std::string& lettersToCheck) {
   return result.size() > 0;
 }
 
-bool cse::WordListManager::Get(const std::string& patternToCheck) {
+bool cse::WordListManager::Get(const std::string& patternToCheck) noexcept {
   // If there aren't any patterns being checked, print an error message
   if (patternToCheck.length() == 0) {
     mErrorManager.printInfo(
@@ -499,7 +501,7 @@ bool cse::WordListManager::Get(const std::string& patternToCheck) {
 }
 
 bool cse::WordListManager::wordle(const std::string& word,
-                                  const std::string& result) {
+                                  const std::string& result) noexcept {
   if (word.size() != result.size()) {
     mErrorManager.printInfo(
         "Error : Word and matched pattern size must be same.");
@@ -538,6 +540,12 @@ bool cse::WordListManager::wordle(const std::string& word,
 
     if (result[i] == 'y') {
       lettersIndexes[word[i]] = i;
+    }
+
+    if (result[i] != 'y' && result[i] != 'b' && result[i] != 'g') {
+      mErrorManager.printInfo(
+        "Error : Invalid letter identifier used for wordle. You must use one of the yellow 'y', black 'b', green 'g' identifiers.");
+        return false;
     }
   }
 

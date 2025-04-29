@@ -70,7 +70,7 @@ class WordListManager {
    * exist and all listsToCombine exist, false otherwise
    */
   bool combine(const std::string& newListName,
-               const std::vector<std::string>& listsToCombine);
+               const std::vector<std::string>& listsToCombine) noexcept;
 
   /**
    * @brief Difference between first and other lists
@@ -80,7 +80,7 @@ class WordListManager {
    * not already exist and all listToDiff exist, false otherwise
    */
   bool difference(const std::string& newListName,
-                  const std::vector<std::string>& listsToDiff);
+                  const std::vector<std::string>& listsToDiff) noexcept;
 
   /**
    * @brief Intersection of lists
@@ -91,7 +91,7 @@ class WordListManager {
    * otherwise
    */
   bool intersection(const std::string& newListName,
-                    const std::vector<std::string>& listsToIntersect);
+                    const std::vector<std::string>& listsToIntersect) noexcept;
 
   /**
    * @brief Creates a copy of a list
@@ -100,7 +100,7 @@ class WordListManager {
    * @return True and copies copyList to newListName if newListName does not
    * already exist and copyList exists, false otherwise
    */
-  bool copy(const std::string& newListName, const std::string& copyList);
+  bool copy(const std::string& newListName, const std::string& copyList) noexcept;
 
   /**
    * @brief Sets the current list to the specified list names.
@@ -119,7 +119,7 @@ class WordListManager {
    * @param listNames A vector of list names to set as the current lists.
    * @return true If the list was set successfully, false otherwise.
    */
-  bool setCurrent(const std::vector<std::string>& listNames);
+  bool setCurrent(const std::vector<std::string>& listNames) noexcept;
 
   /**
    * @brief Adds words to the specified list.
@@ -127,7 +127,7 @@ class WordListManager {
    * @param wordsToAdd The words to add, separated by spaces.
    * @return true If the words were added successfully, false otherwise.
    */
-  bool add(const std::string& listName, const std::string& wordsToAdd);
+  bool add(const std::string& listName, const std::string& wordsToAdd) noexcept;
 
   /**
    * @brief Saves the specified list to a file.
@@ -135,7 +135,7 @@ class WordListManager {
    * @param listName The name of the list to save.
    * @return true If the list was saved successfully, false otherwise.
    */
-  bool save(const std::string& fileName, const std::string& listName);
+  bool save(const std::string& fileName, const std::string& listName) noexcept;
 
   /**
    * @brief Updates the current list to the restriction
@@ -150,7 +150,7 @@ class WordListManager {
    * @param lettersToCheck The letters to check in the word list.
    * @return True if operation is successful, false otherwise.
    */
-  bool ContainsAny(const std::string& lettersToCheck);
+  bool ContainsAny(const std::string& lettersToCheck) noexcept;
 
   /**
    * @brief Updates the curernt list to the restriction
@@ -165,7 +165,7 @@ class WordListManager {
    * @param lettersToCheck The letters to check in the word list.
    * @return True if operation is successful, false otherwise.
    */
-  bool ContainsAll(const std::string& lettersToCheck);
+  bool ContainsAll(const std::string& lettersToCheck) noexcept;
 
   /**
    * @brief Not Contains update the current list to the restriction
@@ -180,7 +180,7 @@ class WordListManager {
    * @param lettersToCheck The letters to check in the word list.
    * @return True if operation is successful, false otherwise.
    */
-  bool NotContains(const std::string& lettersToCheck);
+  bool NotContains(const std::string& lettersToCheck) noexcept;
 
   /**
    * @brief Get searches based on pattern load found words into current set to
@@ -198,7 +198,7 @@ class WordListManager {
    * @param patternToCheck The pattern to check
    * @return True if operation is successful, false otherwise.
    */
-  bool Get(const std::string& patternToCheck);
+  bool Get(const std::string& patternToCheck) noexcept;
 
   /**
    * @brief Resets the lists into original state
@@ -219,7 +219,7 @@ class WordListManager {
    * @return true Operation was successful
    * @return false Error with lengthRestriction value
    */
-  bool setLengthRestriction(const std::string& lengthRestriction);
+  bool setLengthRestriction(const std::string& lengthRestriction) noexcept;
 
   /**
    * @brief Prints the current values
@@ -260,7 +260,7 @@ class WordListManager {
    * @return true If operation is successful
    * @return false otherwise.
    */
-  bool wordle(const std::string& word, const std::string& result);
+  bool wordle(const std::string& word, const std::string& result) noexcept;
 
  private:
   /// @brief A map of StringSet represents different files
