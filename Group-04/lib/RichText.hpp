@@ -401,19 +401,29 @@ class BasicRichText {
    * @param begin Beginning of range to apply format to
    * @param end End (exclusive) of range to apply format to
    */
-  void apply_format(const TextFormat& format, const IndexSet& indices) {
-    // Need to clear the formatting with the same name but different value for
-    // this index set
-    for (auto& [fmt, iset] : m_formatting) {
-      if (format.name == fmt.name) iset -= indices;
+  void apply_format(const TextFormat& format, const IndexSet& indices)
+{
+    // 1. Remove / trim only *different* metadata with the same name
+    for (auto it = m_formatting.begin(); it != m_formatting.end(); ) {
+        if (format.name == it->first.name &&
+            format.metadata != it->first.metadata)       // <-- KEY CHANGE
+        {
+            it->second -= indices;
+            if (it->second.size() == 0) {                // drop empty sets
+                it = m_formatting.erase(it);
+                continue;
+            }
+        }
+        ++it;
     }
 
+    // 2. Add (or merge with) the new format
     auto [item, inserted] = m_formatting.insert({format, indices});
-    if (!inserted) {
-      item->second |= indices;
-      item->second.clamp(0, m_text.size());
+    if (!inserted) {                      // identical metadata ⇒ merge ranges
+        item->second |= indices;
+        item->second.clamp(0, m_text.size());
     }
-  }
+}
 
   /**
    * @brief Applies a format to the range [start, end)

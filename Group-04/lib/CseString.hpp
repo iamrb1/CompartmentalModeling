@@ -8,6 +8,7 @@
 
 #include <sstream>  // for std::ostringstream
 #include <string>
+#include <concepts>
 
 #include "CseAssert.hpp"
 
@@ -117,18 +118,28 @@ class String : public std::string {
   }
 
   /**
-   * @brief Insert a string into this String at the specified position, with
-   * debug checks.
+   * Insert a string at a numeric position or through an iterator,
+   * with the appropriate debug check for each form.
    *
-   * @param pos The position at which the content should be inserted.
-   * @param str The string to insert.
-   * @return Reference to this String after insertion.
+   *   • Index + string     → s.insert(6, "MID-")
+   *   • Iterator + string  → s.insert(s.begin() + 3, "-")
    */
-  String &insert(std::size_t pos, const String &str) {
-    dbg_assert(pos <= size(),
-               build_error_msg("cse::String insert() position out of range",
-                               pos, size()));
-    std::string::insert(pos, str);
+  template <typename PosOrIter, typename StrT>
+    requires std::convertible_to<StrT, std::basic_string_view<char>>
+  String& insert(PosOrIter iter_or_pos, const StrT& str) {
+    if constexpr (std::forward_iterator<PosOrIter>) {
+      // --- iterator overload ---
+      dbg_assert(iter_or_pos <= end(),
+                "cse::String insert() iterator out of range");
+      std::string::insert(iter_or_pos, str);
+    } else {
+      // --- numeric-position overload ---
+      auto pos = static_cast<std::size_t>(iter_or_pos);
+      dbg_assert(pos <= size(),
+                build_error_msg("cse::String insert() position out of range",
+                                pos, size()));
+      std::string::insert(pos, str);
+    }
     return *this;
   }
 
