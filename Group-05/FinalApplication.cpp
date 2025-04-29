@@ -32,7 +32,6 @@
 #include "FinalApplication.h"
 
 #include <iostream>
-#include <limits>
 #include <optional>
 #include <regex>
 #include <stdexcept>
@@ -95,6 +94,7 @@ int FinalApplication::GetIndex(int max_index,
                                std::ostream &os,
                                std::istream &is,
                                const std::string &label) noexcept {
+  // Continue to prompt user until valid input
   while (true) {
     os << "Please enter " << label << " index: ";
     std::string index_str;
@@ -206,6 +206,7 @@ bool FinalApplication::IsValidCustomEquation(const std::string& input, int max_n
 void FinalApplication::MathMenu(const cse::DataGrid &grid,
                                 std::ostream &os,
                                 std::istream &is) noexcept {
+  // Continue to prompt user until 'b' is input
   while (true) {
     os << "\nMath Menu:" << std::endl;
     os << "cmean: Calculate the mean of a column" << std::endl;
@@ -223,29 +224,28 @@ void FinalApplication::MathMenu(const cse::DataGrid &grid,
     if (option == "cmean") {
       MathMenuMean(grid, os, is);
       return;
-    } else if (option == "cmed") {
+    } if (option == "cmed") {
       MathMenuMedian(grid, os, is);
       return;
-    } else if (option == "csd") {
+    } if (option == "csd") {
       MathMenuStandardDeviation(grid, os, is);
       return;
-    } else if (option == "cmin") {
+    } if (option == "cmin") {
       MathMenuMin(grid, os, is);
       return;
-    } else if (option == "cmax") {
+    } if (option == "cmax") {
       MathMenuMax(grid, os, is);
       return;
-    } else if (option == "cmode") {
+    } if (option == "cmode") {
       MathMenuMode(grid, os, is);
       return;
-    } else if (option == "sum") {
+    } if (option == "sum") {
       MathMenuSummary(grid, os);
       return;
-    } else if (option == "b") {
+    } if (option == "b") {
       return;
-    } else {
-      os << "Invalid option. Try again." << std::endl;
     }
+    os << "Invalid option. Try again." << std::endl;
   }
 }
 
@@ -389,6 +389,7 @@ void FinalApplication::MathMenuSummary(const cse::DataGrid &grid,
 void FinalApplication::ComparisonMenu(cse::DataGrid &grid,
                                       std::ostream &os,
                                       std::istream &is) noexcept {
+  // Continue to prompt user until 'b' is input
   while (true) {
     os << "\nComparison Menu:" << std::endl;
     os << "clt: Find values less than a given value for a column" << std::endl;
@@ -405,26 +406,25 @@ void FinalApplication::ComparisonMenu(cse::DataGrid &grid,
     if (option == "clt") {
       ComparisonMenuLessThan(grid, os, is);
       return;
-    } else if (option == "clte") {
+    } if (option == "clte") {
       ComparisonMenuLessThanEqual(grid, os, is);
       return;
-    } else if (option == "cgt") {
+    } if (option == "cgt") {
       ComparisonMenuGreaterThan(grid, os, is);
       return;
-    } else if (option == "cgte") {
+    } if (option == "cgte") {
       ComparisonMenuGreaterThanEqual(grid, os, is);
       return;
-    } else if (option == "ce") {
+    } if (option == "ce") {
       ComparisonMenuEqual(grid, os, is);
       return;
-    } else if (option == "cne") {
+    } if (option == "cne") {
       ComparisonMenuNotEqual(grid, os, is);
       return;
-    } else if (option == "b") {
+    } if (option == "b") {
       return;
-    } else {
-      os << "Invalid option. Try again." << std::endl;
     }
+    os << "Invalid option. Try again." << std::endl;
   }
 }
 
@@ -556,6 +556,7 @@ void FinalApplication::ComparisonMenuNotEqual(cse::DataGrid &grid,
  */
 cse::DataGrid FinalApplication::GridMenu(std::ostream &os,
                                          std::istream &is) noexcept {
+  // Continue to prompt user until valid input
   std::string line;
   while (true) {
     os << "Menu Option:\n"
@@ -664,6 +665,7 @@ cse::DataGrid FinalApplication::CreateGridMenu(std::ostream &os,
 
   std::string line;
   // Choose default value type
+  // Continue to prompt user until valid input
   while (true) {
     os << "\nWould you like your default values to be numerical or strings? [n/s]: ";
     if (!std::getline(is, line)) {
@@ -673,6 +675,7 @@ cse::DataGrid FinalApplication::CreateGridMenu(std::ostream &os,
 
     if (line == "n") {
       // numeric default
+      // Continue to prompt user until valid input
       while (true) {
         os << "Enter a numeric default value for the DataGrid: ";
         if (!std::getline(is, line)) {
@@ -695,8 +698,9 @@ cse::DataGrid FinalApplication::CreateGridMenu(std::ostream &os,
 
         return cse::DataGrid(num_rows, num_columns, d);
       }
-    } else if (line == "s") {
+    } if (line == "s") {
       // string default
+      // Continue to prompt user until valid input
       while (true) {
         os << "Enter a string default value for the DataGrid (1-"
            << MAX_DEFAULT_STR_LEN << " chars): ";
@@ -716,10 +720,9 @@ cse::DataGrid FinalApplication::CreateGridMenu(std::ostream &os,
         }
         return {num_rows, num_columns, line};
       }
-    } else {
-      os << "\nInvalid selection. Type 'n' for numeric or 's' for string."
-         << std::endl;
     }
+    os << "\nInvalid selection. Type 'n' for numeric or 's' for string."
+    << std::endl;
   }
 }
 
@@ -732,6 +735,7 @@ cse::DataGrid FinalApplication::CreateGridMenu(std::ostream &os,
  */
 int FinalApplication::CreateGridMenuGetValue(const std::string &type,
                                              std::ostream &os,std::istream &is) noexcept {
+  // Continue to prompt user until valid input
   while (true) {
     constexpr int min_index = 1;
     constexpr int max_index = 1000;
@@ -817,6 +821,7 @@ void FinalApplication::ManipulateGridMenu(cse::DataGrid &grid,
 void FinalApplication::PrintSubmenu(const cse::DataGrid &grid,
                                     std::ostream &os,
                                     std::istream &is) noexcept {
+  // Continue to prompt user until valid input
   while (true) {
     os << "\n--- Print Options ---" << std::endl;
     os << "1. Print a cell value" << std::endl;
@@ -968,6 +973,7 @@ std::optional<int> FinalApplication::PrintAndEditSubmenuGetIndex(const int max_i
 void FinalApplication::EditSubmenu(cse::DataGrid &grid,
                                    std::ostream &os,
                                    std::istream &is) noexcept {
+  // Continue to prompt user until valid input
   while (true) {
     os << "\n--- Edit Options ---" << std::endl;
     os << "1. Edit a cell value" << std::endl;
@@ -1178,6 +1184,7 @@ void FinalApplication::SortSubmenuColumnOrGrid(cse::DataGrid &grid,
   }
 
   std::string order;
+  // Continue to prompt user until valid input
   while (true) {
     os << "Enter 1 for ascending, 0 for descending: ";
     std::getline(is, order);
@@ -1194,9 +1201,8 @@ void FinalApplication::SortSubmenuColumnOrGrid(cse::DataGrid &grid,
       os << "The Grid is now:" << std::endl;
       grid.Print(os);
       break;
-    } else {
-      os << "Invalid input. The input must be 0 or 1" << std::endl;
     }
+    os << "Invalid input. The input must be 0 or 1" << std::endl;
   }
 }
 
@@ -1235,14 +1241,15 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid,
             std::size_t num_cols = std::get<1>(grid.Shape());
 
             std::string method;
+
+            // Continue to prompt user until valid input
             while(true) {
               os << "Add default row (d), with an equation (e), or enter manually (m)? ";
               std::getline(is, method);
               if (method == "d" || method == "e" || method == "m") {
                 break;
-              } else {
-                os << "Invalid option. Must be 'd', 'e', or 'm'.\n" << std::endl;
               }
+              os << "Invalid option. Must be 'd', 'e', or 'm'.\n" << std::endl;
             }
 
             if (method == "d") {
@@ -1281,6 +1288,7 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid,
             } else if (method == "e") {
               std::vector<cse::Datum> new_row;
 
+              // Continue to prompt user until valid input
               std::string equation;
               while (true) {
                 os << "\nEnter equation:" << std::endl;
@@ -1291,9 +1299,8 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid,
                 std::getline(is, equation);
                 if (IsValidCustomEquation(equation, static_cast<int>(std::get<0>(grid.Shape())))) {
                   break;
-                } else {
-                  os << "Invalid equation. Try again. \n";
                 }
+                os << "Invalid equation. Try again. \n";
               }
 
               cse::ExpressionParser<cse::ReferenceVector<Datum>> parser;
@@ -1318,15 +1325,15 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid,
           case 2: {
             std::size_t num_rows = std::get<0>(grid.Shape());
 
+            // Continue to prompt user until valid input
             std::string method;
             while(true) {
               os << "Add default row (d), with an equation (e), or enter manually (m)? ";
               std::getline(is, method);
               if (method == "d" || method == "e" || method == "m") {
                 break;
-              } else {
-                os << "Invalid option. Must be 'd', 'e', or 'm'.\n" << std::endl;
               }
+              os << "Invalid option. Must be 'd', 'e', or 'm'.\n" << std::endl;
             }
 
             // Add a default column
@@ -1367,6 +1374,7 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid,
             } else if (method == "e") {
               std::vector<cse::Datum> new_col;
 
+              // Continue to prompt user until valid input
               std::string equation;
               while (true) {
                 os << "\nEnter equation:" << std::endl;
@@ -1377,9 +1385,8 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid,
                 std::getline(is, equation);
                 if (IsValidCustomEquation(equation, static_cast<int>(std::get<1>(grid.Shape())))) {
                   break;
-                } else {
-                  os << "Invalid equation. Try again. \n";
                 }
+                os << "Invalid equation. Try again. \n";
               }
 
               cse::ExpressionParser<std::vector<cse::Datum>> parser;
@@ -1402,29 +1409,28 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid,
           }
             // Merge DataGrids
           case 3: {
+            // Continue to prompt user until valid input
             std::string merge_type;
             while (true) {
               os << "Enter merge type (1 for row append, 0 for column append): ";
               std::getline(is, merge_type);
               if (merge_type == "1" || merge_type == "0") {
                 break;
-              } else {
-                os << "Invalid input. Must be 0 or 1 \n" << std::endl;
               }
+              os << "Invalid input. Must be 0 or 1 \n" << std::endl;
             }
             int merge_type_int = std::stoi(merge_type);
 
             std::string merge_rows;
+            // Continue to prompt user until valid input
             while (true) {
               os << "\nEnter number of rows for merging grid: ";
               std::getline(is, merge_rows);
-              std::optional<int> rows_int = IsValidInt(merge_rows);
-              if (rows_int.has_value() && rows_int.value() > 0) {
+              if (std::optional<int> rows_int = IsValidInt(merge_rows); rows_int.has_value() && rows_int.value() > 0) {
                 if (merge_type == "1" || rows_int.value() == static_cast<int>(std::get<0>(grid.Shape()))) {
                   break;
-                } else {
-                  os << "Invalid row size. The row must equal your current grid's row size:" << std::get<0>(grid.Shape()) << "\n" << std::endl;
                 }
+                os << "Invalid row size. The row must equal your current grid's row size:" << std::get<0>(grid.Shape()) << "\n" << std::endl;
               } else {
                 os << "Invalid input. Must be an valid int \n" << std::endl;
               }
@@ -1432,16 +1438,15 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid,
             int merge_rows_int = std::stoi(merge_rows);
 
             std::string merge_cols;
+            // Continue to prompt user until valid input
             while (true) {
               os << "\nEnter number of columns for merging grid: ";
               std::getline(is, merge_cols);
-              std::optional<int> col_int = IsValidInt(merge_cols);
-              if (col_int.has_value() && col_int.value() > 0) {
+              if (std::optional<int> col_int = IsValidInt(merge_cols); col_int.has_value() && col_int.value() > 0) {
                 if (merge_type == "0" || col_int.value() == static_cast<int>(std::get<1>(grid.Shape()))) {
                   break;
-                } else {
-                  os << "Invalid column size. The row must equal the current grid's column size:" << std::get<1>(grid.Shape()) << "\n" << std::endl;
                 }
+                os << "Invalid column size. The row must equal the current grid's column size:" << std::get<1>(grid.Shape()) << "\n" << std::endl;
               } else {
                 os << "Invalid input. Must be an valid int \n" << std::endl;
               }
@@ -1675,6 +1680,7 @@ int FinalApplication::ResizeSubmenuGetValidInput(const std::string& type,
   static constexpr int MAX_VALUE = 1000;
   static constexpr int MIN_VALUE = 1;
 
+  // Continue to prompt user until valid input
   std::string input;
   while (true) {
     os << "Enter new number of " << type << " (" << MIN_VALUE << "-" << MAX_VALUE << "):";
@@ -1683,9 +1689,8 @@ int FinalApplication::ResizeSubmenuGetValidInput(const std::string& type,
     std::optional new_rows_int = IsValidInt(input);
     if (new_rows_int.has_value() && new_rows_int.value() >= MIN_VALUE && new_rows_int.value() <= MAX_VALUE) {
       return new_rows_int.value();
-    } else {
-      os << "Invalid input. Please enter a number between " << MIN_VALUE << " and " << MAX_VALUE << ".\n";
     }
+    os << "Invalid input. Please enter a number between " << MIN_VALUE << " and " << MAX_VALUE << ".\n";
   }
 }
 
@@ -1711,6 +1716,7 @@ void FinalApplication::MainMenu(std::ostream &os,
 
   cse::DataGrid grid = GridMenu(os, is);
 
+  // User must select 'q' to stop
   while (true) {
     os << "\nMenu Option:" << std::endl;
     os << "x: Export to a CSV file" << std::endl;
@@ -1748,15 +1754,15 @@ void FinalApplication::MainMenu(std::ostream &os,
 void FinalApplication::MainMenuExport(const cse::DataGrid &grid,
                                       std::ostream &os,
                                       std::istream &is) {
+  // Continue to prompt user until valid file name
   std::string filename;
   while (true) {
     os << "Enter CSV filename to export: ";
     std::getline(is, filename);
     if (filename.ends_with(".csv")) {
       break;
-    } else {
-      os << "Invalid filename. The file must end with .csv" << "\n";
     }
+    os << "Invalid filename. The file must end with .csv" << "\n";
   }
   try {
     if (!cse::CSVFile::ExportCsv(filename, grid)) {
