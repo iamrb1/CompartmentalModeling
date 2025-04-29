@@ -14,7 +14,6 @@
  * @brief main (Program Entry Point)
  */
 int main() {
-  FinalApplication final_application;
-  final_application.MainMenu(std::cout, std::cin);
+  FinalApplication::MainMenu(std::cout, std::cin);
   return 0;
 }

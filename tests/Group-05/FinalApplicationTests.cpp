@@ -44,11 +44,8 @@ TEST_CASE("CreateGridMenu: invalid inputs", "[CreateGridMenu]") {
   CHECK(grid.GetValue(2, 3).AsDouble() == Approx(1.2345678901234568e+19));
 
   const auto out = os.str();
-  CHECK(out.find("Invalid option. Try again") !=
-        std::string::npos);
-  CHECK(
-      out.find("Invalid option. Try again") !=
-      std::string::npos);
+  CHECK(out.find("Invalid option. Try again") != std::string::npos);
+  CHECK(out.find("Invalid option. Try again") != std::string::npos);
   CHECK(out.find("Invalid input. Please enter a valid number.") !=
         std::string::npos);
   CHECK(out.find("Please enter a number between") != std::string::npos);
@@ -766,7 +763,6 @@ TEST_CASE("SortSubmenu()", "[sort_submenu]") {
   cse::DataGrid grid(test_grid);
   FinalApplication final_application;
 
-
   // ** Sort Grid by Column **
 
   // Print Option
@@ -810,20 +806,22 @@ TEST_CASE("SortSubmenu()", "[sort_submenu]") {
   is.str("1\n0\n99\n1\n0\n");
   os.clear();
   final_application.SortSubmenu(grid, os, is);
-  CHECK(os.str().find("Invalid input. The input must be 0 or 1") != std::string::npos);
+  CHECK(os.str().find("Invalid input. The input must be 0 or 1") !=
+        std::string::npos);
 
   // Invalid input ascending/descending - negative
   is.str("1\n0\n-99\n1\n0\n");
   os.clear();
   final_application.SortSubmenu(grid, os, is);
-  CHECK(os.str().find("Invalid input. The input must be 0 or 1") != std::string::npos);
+  CHECK(os.str().find("Invalid input. The input must be 0 or 1") !=
+        std::string::npos);
 
   // Invalid input ascending/descending - string
   is.str("1\n0\ntester\n1\n0\n");
   os.clear();
   final_application.SortSubmenu(grid, os, is);
-  CHECK(os.str().find("Invalid input. The input must be 0 or 1") != std::string::npos);
-
+  CHECK(os.str().find("Invalid input. The input must be 0 or 1") !=
+        std::string::npos);
 
   // ** Sort entire grid **
 
@@ -843,20 +841,22 @@ TEST_CASE("SortSubmenu()", "[sort_submenu]") {
   is.str("2\n1\n99\n0\n");
   os.clear();
   final_application.SortSubmenu(grid, os, is);
-  CHECK(os.str().find("Invalid input. The input must be 0 or 1") != std::string::npos);
+  CHECK(os.str().find("Invalid input. The input must be 0 or 1") !=
+        std::string::npos);
 
   // Invalid input ascending/descending - negative
   is.str("2\n1\n-99\n0\n");
   os.clear();
   final_application.SortSubmenu(grid, os, is);
-  CHECK(os.str().find("Invalid input. The input must be 0 or 1") != std::string::npos);
+  CHECK(os.str().find("Invalid input. The input must be 0 or 1") !=
+        std::string::npos);
 
   // Invalid input ascending/descending - string
   is.str("2\n1\nHello\n0\n");
   os.clear();
   final_application.SortSubmenu(grid, os, is);
-  CHECK(os.str().find("Invalid input. The input must be 0 or 1") != std::string::npos);
-
+  CHECK(os.str().find("Invalid input. The input must be 0 or 1") !=
+        std::string::npos);
 
   // Extra
 
@@ -865,63 +865,63 @@ TEST_CASE("SortSubmenu()", "[sort_submenu]") {
   os.clear();
   final_application.SortSubmenu(grid, os, is);
   CHECK(os.str().find("Invalid choice. Input must be between 0-2.") !=
-      std::string::npos);
+        std::string::npos);
 
   // Invalid input (number - negative)
   is.str("-99\n1\n0\n0\n0\n");
   os.clear();
   final_application.SortSubmenu(grid, os, is);
   CHECK(os.str().find("Invalid choice. Input must be between 0-2.") !=
-      std::string::npos);
+        std::string::npos);
 
   // Invalid input (number - double)
   is.str("123.123\n1\n0\n0\n0\n");
   os.clear();
   final_application.SortSubmenu(grid, os, is);
   CHECK(os.str().find("Invalid choice. Input must be between 0-2.") !=
-      std::string::npos);
+        std::string::npos);
 
   // Invalid string
   is.str("Hello!\n1\n0\n0\n0\n");
   os.clear();
   final_application.SortSubmenu(grid, os, is);
   CHECK(os.str().find("Invalid choice. Cannot be a string. Try again.") !=
-      std::string::npos);
+        std::string::npos);
 }
 
 TEST_CASE("PrintSubmenu handles bad then good input", "[PrintSubmenu]") {
   // reusing the 2×2 zero grid
   cse::DataGrid grid(2, 2, 0.0);
 
-  SECTION("bad menu choice then exit") {           // invalid menu
+  SECTION("bad menu choice then exit") {  // invalid menu
     std::istringstream is("9\n0\n");
     std::ostringstream os;
     FinalApplication::PrintSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid choice") != std::string::npos);
   }
 
-  SECTION("print whole grid then exit") {          // full grid
+  SECTION("print whole grid then exit") {  // full grid
     std::istringstream is("4\n0\n");
     std::ostringstream os;
     FinalApplication::PrintSubmenu(grid, os, is);
     REQUIRE(os.str().find("0 ") != std::string::npos);
   }
 
-  SECTION("print single cell") {                   // one cell
+  SECTION("print single cell") {  // one cell
     std::istringstream is("1\n0\n1\n0\n");
     std::ostringstream os;
     FinalApplication::PrintSubmenu(grid, os, is);
     REQUIRE(os.str().find("Cell (0, 1): 0") != std::string::npos);
   }
-  
-  SECTION("print row") {                           // single row
+
+  SECTION("print row") {  // single row
     std::istringstream is("2\n1\n0\n");
     std::ostringstream os;
     FinalApplication::PrintSubmenu(grid, os, is);
     REQUIRE(os.str().find("Row 1: 0 0") != std::string::npos);
   }
-  
-  SECTION("print column") {                        // single col
+
+  SECTION("print column") {  // single col
     std::istringstream is("3\n1\n0\n");
     std::ostringstream os;
     FinalApplication::PrintSubmenu(grid, os, is);
@@ -930,64 +930,71 @@ TEST_CASE("PrintSubmenu handles bad then good input", "[PrintSubmenu]") {
 }
 
 TEST_CASE("PrintSubmenu rejects invalid choice formats", "[PrintSubmenu]") {
-  cse::DataGrid grid(2,2,0.0);
+  cse::DataGrid grid(2, 2, 0.0);
   std::ostringstream os;
 
-  SECTION("non-numeric menu choice") {             // text input
+  SECTION("non-numeric menu choice") {  // text input
     std::istringstream is("foo\n0\n");
     FinalApplication::PrintSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid choice") != std::string::npos);
   }
-  SECTION("decimal menu choice") {                 // decimal input
+  SECTION("decimal menu choice") {  // decimal input
     std::istringstream is("1.5\n0\n");
-    os.str(""); os.clear();
+    os.str("");
+    os.clear();
     FinalApplication::PrintSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid choice") != std::string::npos);
   }
-  SECTION("negative menu choice") {                // negative input
+  SECTION("negative menu choice") {  // negative input
     std::istringstream is("-1\n0\n");
-    os.str(""); os.clear();
+    os.str("");
+    os.clear();
     FinalApplication::PrintSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid choice") != std::string::npos);
   }
 }
 
 TEST_CASE("PrintSubmenu rejects out-of-bounds indices", "[PrintSubmenu]") {
-  cse::DataGrid grid(2,2,0.0);
+  cse::DataGrid grid(2, 2, 0.0);
   std::ostringstream os;
 
-  SECTION("print cell with negative row") {        // row < 0
+  SECTION("print cell with negative row") {  // row < 0
     std::istringstream is("1\n-1\n0\n0\n");
     FinalApplication::PrintSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid") != std::string::npos);
   }
-  SECTION("print cell with too-large col") {       // col ≥ size
+  SECTION("print cell with too-large col") {  // col ≥ size
     std::istringstream is("1\n0\n99\n0\n");
-    os.str(""); os.clear();
+    os.str("");
+    os.clear();
     FinalApplication::PrintSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid") != std::string::npos);
   }
-  SECTION("print row with negative index") {       // row < 0
+  SECTION("print row with negative index") {  // row < 0
     std::istringstream is("2\n-1\n");
-    os.str(""); os.clear();
+    os.str("");
+    os.clear();
     FinalApplication::PrintSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid") != std::string::npos);
   }
-  SECTION("print row with too-large index") {      // row ≥ size
+  SECTION("print row with too-large index") {  // row ≥ size
     std::istringstream is("2\n5\n");
-    os.str(""); os.clear();
+    os.str("");
+    os.clear();
     FinalApplication::PrintSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid") != std::string::npos);
   }
-  SECTION("print column with negative index") {    // col < 0
+  SECTION("print column with negative index") {  // col < 0
     std::istringstream is("3\n-1\n");
-    os.str(""); os.clear();
+    os.str("");
+    os.clear();
     FinalApplication::PrintSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid") != std::string::npos);
   }
-  SECTION("print column with too-large index") {   // col ≥ size
+  SECTION("print column with too-large index") {  // col ≥ size
     std::istringstream is("3\n3\n");
-    os.str(""); os.clear();
+    os.str("");
+    os.clear();
     FinalApplication::PrintSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid") != std::string::npos);
   }
@@ -997,32 +1004,36 @@ TEST_CASE("PrintSubmenu rejects invalid row/column formats", "[PrintSubmenu]") {
   cse::DataGrid grid(2, 2, 0.0);
   std::ostringstream os;
 
-  SECTION("print cell rejects string row index") { // text row
+  SECTION("print cell rejects string row index") {  // text row
     std::istringstream is("1\nfoo\n0\n0\n0\n");
     FinalApplication::PrintSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid row.") != std::string::npos);
   }
-  SECTION("print cell rejects decimal column index") { // decimal col
+  SECTION("print cell rejects decimal column index") {  // decimal col
     std::istringstream is("1\n0\n1.5\n0\n0\n");
-    os.str(""); os.clear();
+    os.str("");
+    os.clear();
     FinalApplication::PrintSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid column.") != std::string::npos);
   }
-  SECTION("print row rejects non-numeric index") { // text row index
+  SECTION("print row rejects non-numeric index") {  // text row index
     std::istringstream is("2\nfoo\n0\n");
-    os.str(""); os.clear();
+    os.str("");
+    os.clear();
     FinalApplication::PrintSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid row.") != std::string::npos);
   }
-  SECTION("print column rejects too-large index") { // col ≥ size
+  SECTION("print column rejects too-large index") {  // col ≥ size
     std::istringstream is("3\n99\n0\n");
-    os.str(""); os.clear();
+    os.str("");
+    os.clear();
     FinalApplication::PrintSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid column") != std::string::npos);
   }
 }
 
-TEST_CASE("EditSubmenu handles bad then all three edit modes", "[EditSubmenu]") {
+TEST_CASE("EditSubmenu handles bad then all three edit modes",
+          "[EditSubmenu]") {
   cse::DataGrid grid(2, 2, 0.0);
 
   SECTION("invalid menu choice then exit") {
@@ -1037,7 +1048,7 @@ TEST_CASE("EditSubmenu handles bad then all three edit modes", "[EditSubmenu]") 
     std::istringstream is("1\n1\n1\n3.14\n0\n");
     std::ostringstream os;
     FinalApplication::EditSubmenu(grid, os, is);
-    CHECK(grid.GetValue(1,1).AsDouble() == Approx(3.14));
+    CHECK(grid.GetValue(1, 1).AsDouble() == Approx(3.14));
     REQUIRE(os.str().find("Cell updated") != std::string::npos);
   }
 
@@ -1046,8 +1057,8 @@ TEST_CASE("EditSubmenu handles bad then all three edit modes", "[EditSubmenu]") 
     std::istringstream is("2\n0\n7\n8\n0\n");
     std::ostringstream os;
     FinalApplication::EditSubmenu(grid, os, is);
-    CHECK(grid.GetValue(0,0).AsDouble() == Approx(7.0));
-    CHECK(grid.GetValue(0,1).AsDouble() == Approx(8.0));
+    CHECK(grid.GetValue(0, 0).AsDouble() == Approx(7.0));
+    CHECK(grid.GetValue(0, 1).AsDouble() == Approx(8.0));
     REQUIRE(os.str().find("Row updated") != std::string::npos);
   }
 
@@ -1056,18 +1067,19 @@ TEST_CASE("EditSubmenu handles bad then all three edit modes", "[EditSubmenu]") 
     std::istringstream is("3\n1\n9\n10\n0\n");
     std::ostringstream os;
     FinalApplication::EditSubmenu(grid, os, is);
-    CHECK(grid.GetValue(0,1).AsDouble() == Approx(9.0));
-    CHECK(grid.GetValue(1,1).AsDouble() == Approx(10.0));
+    CHECK(grid.GetValue(0, 1).AsDouble() == Approx(9.0));
+    CHECK(grid.GetValue(1, 1).AsDouble() == Approx(10.0));
     REQUIRE(os.str().find("Column updated") != std::string::npos);
   }
 
   SECTION("edit single cell with non-numeric value") {
-    // 1 = cell edit; row=0,col=0; bad value, leaves default 0.0; and then it will exit
+    // 1 = cell edit; row=0,col=0; bad value, leaves default 0.0; and then it
+    // will exit
     std::istringstream is("1\n0\n0\nfoo\n0\n");
     std::ostringstream os;
     FinalApplication::EditSubmenu(grid, os, is);
     // still 0.0, but with no crash
-    CHECK(grid.GetValue(0,0).AsString() == "foo");
+    CHECK(grid.GetValue(0, 0).AsString() == "foo");
     REQUIRE(os.str().find("Cell updated") != std::string::npos);
   }
 }
@@ -1076,20 +1088,22 @@ TEST_CASE("EditSubmenu rejects invalid menu choices", "[EditSubmenu]") {
   cse::DataGrid grid(2, 2, 0.0);
   std::ostringstream os;
 
-  SECTION("non-numeric choice") {                // text choice
+  SECTION("non-numeric choice") {  // text choice
     std::istringstream is("foo\n0\n");
     FinalApplication::EditSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid choice") != std::string::npos);
   }
-  SECTION("decimal choice") {                    // decimal choice
+  SECTION("decimal choice") {  // decimal choice
     std::istringstream is("1.5\n0\n");
-    os.str(""); os.clear();
+    os.str("");
+    os.clear();
     FinalApplication::EditSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid choice") != std::string::npos);
   }
-  SECTION("negative choice") {                   // negative choice
+  SECTION("negative choice") {  // negative choice
     std::istringstream is("-1\n0\n");
-    os.str(""); os.clear();
+    os.str("");
+    os.clear();
     FinalApplication::EditSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid choice") != std::string::npos);
   }
@@ -1099,38 +1113,43 @@ TEST_CASE("EditSubmenu rejects out-of-bounds indices", "[EditSubmenu]") {
   cse::DataGrid grid(2, 2, 0.0);
   std::ostringstream os;
 
-  SECTION("cell edit negative row") {            // row < 0
+  SECTION("cell edit negative row") {  // row < 0
     std::istringstream is("1\n-1\n0\n3.14\n0\n");
     FinalApplication::EditSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid row.") != std::string::npos);
   }
-  SECTION("cell edit too-large col") {           // col ≥ size
+  SECTION("cell edit too-large col") {  // col ≥ size
     std::istringstream is("1\n0\n99\n3.14\n0\n");
-    os.str(""); os.clear();
+    os.str("");
+    os.clear();
     FinalApplication::EditSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid choice") != std::string::npos);
   }
-  SECTION("row edit negative index") {           // row < 0
+  SECTION("row edit negative index") {  // row < 0
     std::istringstream is("2\n-1\n0 0\n0\n");
-    os.str(""); os.clear();
+    os.str("");
+    os.clear();
     FinalApplication::EditSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid choice") != std::string::npos);
   }
-  SECTION("row edit too-large index") {          // row ≥ size
+  SECTION("row edit too-large index") {  // row ≥ size
     std::istringstream is("2\n5\n7 8\n0\n");
-    os.str(""); os.clear();
+    os.str("");
+    os.clear();
     FinalApplication::EditSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid choice") != std::string::npos);
   }
-  SECTION("column edit negative index") {        // col < 0
+  SECTION("column edit negative index") {  // col < 0
     std::istringstream is("3\n-1\n1 2\n0\n");
-    os.str(""); os.clear();
+    os.str("");
+    os.clear();
     FinalApplication::EditSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid choice") != std::string::npos);
   }
-  SECTION("column edit too-large index") {       // col ≥ size
+  SECTION("column edit too-large index") {  // col ≥ size
     std::istringstream is("3\n3\n1 2\n0\n");
-    os.str(""); os.clear();
+    os.str("");
+    os.clear();
     FinalApplication::EditSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid choice") != std::string::npos);
   }
@@ -1140,26 +1159,29 @@ TEST_CASE("EditSubmenu rejects invalid index formats", "[EditSubmenu]") {
   cse::DataGrid grid(2, 2, 0.0);
   std::ostringstream os;
 
-  SECTION("cell edit rejects string row") {      // text row
+  SECTION("cell edit rejects string row") {  // text row
     std::istringstream is("1\nfoo\n0\n3.14\n0\n");
     FinalApplication::EditSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid row.") != std::string::npos);
   }
-  SECTION("cell edit rejects decimal col") {     // decimal col
+  SECTION("cell edit rejects decimal col") {  // decimal col
     std::istringstream is("1\n0\n1.5\n3.14\n0\n");
-    os.str(""); os.clear();
+    os.str("");
+    os.clear();
     FinalApplication::EditSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid choice") != std::string::npos);
   }
-  SECTION("row edit rejects non-numeric") {      // text row index
+  SECTION("row edit rejects non-numeric") {  // text row index
     std::istringstream is("2\nfoo\n7 8\n0\n");
-    os.str(""); os.clear();
+    os.str("");
+    os.clear();
     FinalApplication::EditSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid choice") != std::string::npos);
   }
-  SECTION("column edit rejects non-numeric") {   // text col index
+  SECTION("column edit rejects non-numeric") {  // text col index
     std::istringstream is("3\nfoo\n1 2\n0\n");
-    os.str(""); os.clear();
+    os.str("");
+    os.clear();
     FinalApplication::EditSubmenu(grid, os, is);
     REQUIRE(os.str().find("Invalid choice") != std::string::npos);
   }
@@ -1169,24 +1191,24 @@ TEST_CASE("EditSubmenu accepts string values", "[EditSubmenu]") {
   cse::DataGrid grid(2, 2, 0.0);
   std::ostringstream os;
 
-  SECTION("edit cell to string") {               // string cell
+  SECTION("edit cell to string") {  // string cell
     std::istringstream is("1\n0\n1\nhello\n0\n");
     FinalApplication::EditSubmenu(grid, os, is);
-    CHECK(grid.GetValue(0,1).AsString() == "hello");
+    CHECK(grid.GetValue(0, 1).AsString() == "hello");
     REQUIRE(os.str().find("Cell updated") != std::string::npos);
   }
-  SECTION("edit row to strings") {               // string row
+  SECTION("edit row to strings") {  // string row
     std::istringstream is("2\n1\nfoo\nbar\n0\n");
     FinalApplication::EditSubmenu(grid, os, is);
-    CHECK(grid.GetValue(1,0).AsString() == "foo");
-    CHECK(grid.GetValue(1,1).AsString() == "bar");
+    CHECK(grid.GetValue(1, 0).AsString() == "foo");
+    CHECK(grid.GetValue(1, 1).AsString() == "bar");
     REQUIRE(os.str().find("Row updated") != std::string::npos);
   }
-  SECTION("edit column to strings") {            // string col
+  SECTION("edit column to strings") {  // string col
     std::istringstream is("3\n0\none\ntwo\n0\n");
     FinalApplication::EditSubmenu(grid, os, is);
-    CHECK(grid.GetValue(0,0).AsString() == "one");
-    CHECK(grid.GetValue(1,0).AsString() == "two");
+    CHECK(grid.GetValue(0, 0).AsString() == "one");
+    CHECK(grid.GetValue(1, 0).AsString() == "two");
     REQUIRE(os.str().find("Column updated") != std::string::npos);
   }
 }
@@ -1206,7 +1228,8 @@ TEST_CASE("MainMenu()", "[main_menu]") {
   is.str("t\nx\ntest\ntest.csv\nq\n");
   os.clear();
   final_application.MainMenu(os, is);
-  CHECK(os.str().find("Invalid filename. The file must end with .csv") != std::string::npos);
+  CHECK(os.str().find("Invalid filename. The file must end with .csv") !=
+        std::string::npos);
 
   // Valid input (Edit/Manipulation)
   is.str("t\ne\n0\nq\n");
@@ -1226,36 +1249,31 @@ TEST_CASE("MainMenu()", "[main_menu]") {
   final_application.MainMenu(os, is);
   CHECK(os.str().find("Comparison Menu") != std::string::npos);
 
-
   // Extra
 
   // Invalid input (number - int)
   is.str("t\n99\nq\n");
   os.clear();
   final_application.MainMenu(os, is);
-  CHECK(os.str().find("Invalid option. Try again") !=
-      std::string::npos);
+  CHECK(os.str().find("Invalid option. Try again") != std::string::npos);
 
   // Invalid input (number - negative)
   is.str("t\n-99\nq\n");
   os.clear();
   final_application.MainMenu(os, is);
-  CHECK(os.str().find("Invalid option. Try again") !=
-      std::string::npos);
+  CHECK(os.str().find("Invalid option. Try again") != std::string::npos);
 
   // Invalid input (number - double)
   is.str("t\n99.123\nq\n");
   os.clear();
   final_application.MainMenu(os, is);
-  CHECK(os.str().find("Invalid option. Try again") !=
-      std::string::npos);
+  CHECK(os.str().find("Invalid option. Try again") != std::string::npos);
 
   // Invalid string
   is.str("t\nHello!\nq\n");
   os.clear();
   final_application.MainMenu(os, is);
-  CHECK(os.str().find("Invalid option. Try again.") !=
-      std::string::npos);
+  CHECK(os.str().find("Invalid option. Try again.") != std::string::npos);
 }
 
 TEST_CASE("DeleteSubmenu()", "[delete_submenu]") {
@@ -1310,7 +1328,6 @@ TEST_CASE("DeleteSubmenu()", "[delete_submenu]") {
     CHECK(os.str().find("Row deleted.") != std::string::npos);
   }
 
-
   // Delete Column
 
   SECTION("Invalid input - number (double)") {
@@ -1319,7 +1336,6 @@ TEST_CASE("DeleteSubmenu()", "[delete_submenu]") {
     final_application.DeleteSubmenu(grid, os, is);
     CHECK(os.str().find("Invalid option. Try again") != std::string::npos);
   }
-
 
   SECTION("Invalid input - number (negative)") {
     is.str("2\n-1\n0\n0\n");
@@ -1336,12 +1352,11 @@ TEST_CASE("DeleteSubmenu()", "[delete_submenu]") {
   }
 
   SECTION("Invalid input - out of range") {
-      is.str("2\n99\n0\n0\n");
-      os.clear();
-      final_application.DeleteSubmenu(grid, os, is);
-      CHECK(os.str().find("Invalid option. Try again") != std::string::npos);
+    is.str("2\n99\n0\n0\n");
+    os.clear();
+    final_application.DeleteSubmenu(grid, os, is);
+    CHECK(os.str().find("Invalid option. Try again") != std::string::npos);
   }
-
 
   SECTION("Valid Input") {
     is.str("2\n0\n0\n");
@@ -1349,7 +1364,6 @@ TEST_CASE("DeleteSubmenu()", "[delete_submenu]") {
     final_application.DeleteSubmenu(grid, os, is);
     CHECK(os.str().find("Column deleted.") != std::string::npos);
   }
-
 
   // ** Clear **
 
@@ -1360,7 +1374,6 @@ TEST_CASE("DeleteSubmenu()", "[delete_submenu]") {
     CHECK(os.str().find("Grid cleared") != std::string::npos);
   }
 
-
   //** Extra **
 
   // Invalid input (number - int)
@@ -1368,28 +1381,28 @@ TEST_CASE("DeleteSubmenu()", "[delete_submenu]") {
   os.clear();
   final_application.DeleteSubmenu(grid, os, is);
   CHECK(os.str().find("Invalid choice. The value must be between 0-3.") !=
-      std::string::npos);
+        std::string::npos);
 
   // Invalid input (number - negative)
   is.str("-99\n0\n");
   os.clear();
   final_application.DeleteSubmenu(grid, os, is);
   CHECK(os.str().find("Invalid choice. The value must be between 0-3.") !=
-      std::string::npos);
+        std::string::npos);
 
   // Invalid input (number - double)
   is.str("123.123\n0\n");
   os.clear();
   final_application.DeleteSubmenu(grid, os, is);
   CHECK(os.str().find("Invalid choice. Cannot be a string. Try again.") !=
-      std::string::npos);
+        std::string::npos);
 
   // Invalid string
   is.str("Hello!\n0\n");
   os.clear();
   final_application.DeleteSubmenu(grid, os, is);
   CHECK(os.str().find("Invalid choice. Cannot be a string. Try again.") !=
-      std::string::npos);
+        std::string::npos);
 }
 
 TEST_CASE("ResizeSubmenu()", "[resize_submenu]") {
@@ -1416,33 +1429,39 @@ TEST_CASE("ResizeSubmenu()", "[resize_submenu]") {
   final_application.ResizeSubmenu(grid, os, is);
   CHECK(os.str().find("Grid resized.") != std::string::npos);
 
-
   // ** Row Input **
 
   // Invalid row Input - value too large
   is.str("1\n100000\n10\n10\ntest\n0\n");
   os.clear();
   final_application.ResizeSubmenu(grid, os, is);
-  CHECK(os.str().find("Invalid input. Please enter a number between 1 and 1000.") != std::string::npos);
+  CHECK(os.str().find(
+            "Invalid input. Please enter a number between 1 and 1000.") !=
+        std::string::npos);
 
   // Invalid row Input - value negative
   is.str("1\n-10\n10\n10\ntest\n0\n");
   os.clear();
   final_application.ResizeSubmenu(grid, os, is);
-  CHECK(os.str().find("Invalid input. Please enter a number between 1 and 1000.") != std::string::npos);
+  CHECK(os.str().find(
+            "Invalid input. Please enter a number between 1 and 1000.") !=
+        std::string::npos);
 
   // Invalid row Input - double
   is.str("1\n123.123\n10\n10\ntest\n0\n");
   os.clear();
   final_application.ResizeSubmenu(grid, os, is);
-  CHECK(os.str().find("Invalid input. Please enter a number between 1 and 1000.") != std::string::npos);
+  CHECK(os.str().find(
+            "Invalid input. Please enter a number between 1 and 1000.") !=
+        std::string::npos);
 
   // Invalid row Input - string
   is.str("1\nhello\n10\n10\ntest\n0\n");
   os.clear();
   final_application.ResizeSubmenu(grid, os, is);
-  CHECK(os.str().find("Invalid input. Please enter a number between 1 and 1000.") != std::string::npos);
-
+  CHECK(os.str().find(
+            "Invalid input. Please enter a number between 1 and 1000.") !=
+        std::string::npos);
 
   // ** Column Input **
 
@@ -1450,26 +1469,33 @@ TEST_CASE("ResizeSubmenu()", "[resize_submenu]") {
   is.str("1\n10\n100000\n10\ntest\n0\n");
   os.clear();
   final_application.ResizeSubmenu(grid, os, is);
-  CHECK(os.str().find("Invalid input. Please enter a number between 1 and 1000.") != std::string::npos);
+  CHECK(os.str().find(
+            "Invalid input. Please enter a number between 1 and 1000.") !=
+        std::string::npos);
 
   // Invalid column Input - value negative
   is.str("1\n10\n-10\n10\ntest\n0\n");
   os.clear();
   final_application.ResizeSubmenu(grid, os, is);
-  CHECK(os.str().find("Invalid input. Please enter a number between 1 and 1000.") != std::string::npos);
+  CHECK(os.str().find(
+            "Invalid input. Please enter a number between 1 and 1000.") !=
+        std::string::npos);
 
   // Invalid column Input - double
   is.str("1\n10\n123.123\n10\ntest\n0\n");
   os.clear();
   final_application.ResizeSubmenu(grid, os, is);
-  CHECK(os.str().find("Invalid input. Please enter a number between 1 and 1000.") != std::string::npos);
+  CHECK(os.str().find(
+            "Invalid input. Please enter a number between 1 and 1000.") !=
+        std::string::npos);
 
   // Invalid column Input - string
   is.str("1\n10\nhello\n10\ntest\n0\n");
   os.clear();
   final_application.ResizeSubmenu(grid, os, is);
-  CHECK(os.str().find("Invalid input. Please enter a number between 1 and 1000.") != std::string::npos);
-
+  CHECK(os.str().find(
+            "Invalid input. Please enter a number between 1 and 1000.") !=
+        std::string::npos);
 
   //** Extra **
 
@@ -1477,14 +1503,16 @@ TEST_CASE("ResizeSubmenu()", "[resize_submenu]") {
   is.str("99\n0\n");
   os.clear();
   final_application.ResizeSubmenu(grid, os, is);
-  CHECK(os.str().find("Invalid resize option. Must be between 0-2. Try again.") !=
+  CHECK(
+      os.str().find("Invalid resize option. Must be between 0-2. Try again.") !=
       std::string::npos);
 
   // Invalid input (number - negative)
   is.str("-99\n0\n");
   os.clear();
   final_application.ResizeSubmenu(grid, os, is);
-  CHECK(os.str().find("Invalid resize option. Must be between 0-2. Try again.") !=
+  CHECK(
+      os.str().find("Invalid resize option. Must be between 0-2. Try again.") !=
       std::string::npos);
 
   // Invalid input (number - double)
@@ -1492,14 +1520,14 @@ TEST_CASE("ResizeSubmenu()", "[resize_submenu]") {
   os.clear();
   final_application.ResizeSubmenu(grid, os, is);
   CHECK(os.str().find("Invalid choice. Cannot be a string. Try again.") !=
-      std::string::npos);
+        std::string::npos);
 
   // Invalid string
   is.str("Hello!\n0\n");
   os.clear();
   final_application.ResizeSubmenu(grid, os, is);
   CHECK(os.str().find("Invalid choice. Cannot be a string. Try again.") !=
-      std::string::npos);
+        std::string::npos);
 }
 
 TEST_CASE("AddSubmenu()", "[add_submenu]") {
@@ -1523,9 +1551,7 @@ TEST_CASE("AddSubmenu()", "[add_submenu]") {
   std::istringstream is;
   std::ostringstream os;
 
-
   // *** Rows ***
-
 
   // ** Add Default Row **
 
@@ -1542,7 +1568,6 @@ TEST_CASE("AddSubmenu()", "[add_submenu]") {
     final_application.AddSubmenu(grid, os, is);
     CHECK(os.str().find("Default row added") != std::string::npos);
   }
-
 
   // ** Add Manual Row **
 
@@ -1566,7 +1591,6 @@ TEST_CASE("AddSubmenu()", "[add_submenu]") {
     final_application.AddSubmenu(grid, os, is);
     CHECK(os.str().find("Row added") != std::string::npos);
   }
-
 
   // ** Custom Row **
 
@@ -1668,28 +1692,30 @@ TEST_CASE("AddSubmenu()", "[add_submenu]") {
     CHECK(os.str().find("Invalid equation. Try again.") != std::string::npos);
   }
 
-
   // ** Invalid default, manual, or custom row selection **
 
   SECTION("Invalid selection - int") {
     is.str("1\n1\ne\n{0} + {1}\n0\n");
     os.clear();
     final_application.AddSubmenu(grid, os, is);
-    CHECK(os.str().find("Invalid option. Must be 'd', 'e', or 'm'.") != std::string::npos);
+    CHECK(os.str().find("Invalid option. Must be 'd', 'e', or 'm'.") !=
+          std::string::npos);
   }
 
   SECTION("Invalid selection - double") {
     is.str("1\n123.123\ne\n{0} + {1}\n0\n");
     os.clear();
     final_application.AddSubmenu(grid, os, is);
-    CHECK(os.str().find("Invalid option. Must be 'd', 'e', or 'm'.") != std::string::npos);
+    CHECK(os.str().find("Invalid option. Must be 'd', 'e', or 'm'.") !=
+          std::string::npos);
   }
 
   SECTION("Invalid selection - string") {
     is.str("1\nhello\ne\n{0} + {1}\n0\n");
     os.clear();
     final_application.AddSubmenu(grid, os, is);
-    CHECK(os.str().find("Invalid option. Must be 'd', 'e', or 'm'.") != std::string::npos);
+    CHECK(os.str().find("Invalid option. Must be 'd', 'e', or 'm'.") !=
+          std::string::npos);
   }
 
   // ** Row merge **
@@ -1726,27 +1752,27 @@ TEST_CASE("AddSubmenu()", "[add_submenu]") {
     is.str("3\n1\n-1\n1\n2\n123.123\ntest\n0\n");
     os.clear();
     final_application.AddSubmenu(grid, os, is);
-    CHECK(os.str().find("Invalid input. Must be an valid int") != std::string::npos);
+    CHECK(os.str().find("Invalid input. Must be an valid int") !=
+          std::string::npos);
   }
 
   SECTION("Invalid rows - double") {
     is.str("3\n1\n123.123\n1\n2\n123.123\ntest\n0\n");
     os.clear();
     final_application.AddSubmenu(grid, os, is);
-    CHECK(os.str().find("Invalid input. Must be an valid int") != std::string::npos);
+    CHECK(os.str().find("Invalid input. Must be an valid int") !=
+          std::string::npos);
   }
 
   SECTION("Invalid rows - string") {
     is.str("3\n1\ntest\n1\n2\n123.123\ntest\n0\n");
     os.clear();
     final_application.AddSubmenu(grid, os, is);
-    CHECK(os.str().find("Invalid input. Must be an valid int") != std::string::npos);
+    CHECK(os.str().find("Invalid input. Must be an valid int") !=
+          std::string::npos);
   }
 
-
-
   // *** Columns ****
-
 
   // ** Add Default Column
 
@@ -1887,30 +1913,31 @@ TEST_CASE("AddSubmenu()", "[add_submenu]") {
     CHECK(os.str().find("Invalid equation. Try again.") != std::string::npos);
   }
 
-
   // ** Invalid default, manual, or custom column selection **
 
   SECTION("Invalid selection - int") {
     is.str("2\n1\ne\n{0} + {1}\n0\n");
     os.clear();
     final_application.AddSubmenu(grid, os, is);
-    CHECK(os.str().find("Invalid option. Must be 'd', 'e', or 'm'.") != std::string::npos);
+    CHECK(os.str().find("Invalid option. Must be 'd', 'e', or 'm'.") !=
+          std::string::npos);
   }
 
   SECTION("Invalid selection - double") {
     is.str("2\n123.123\ne\n{0} + {1}\n0\n");
     os.clear();
     final_application.AddSubmenu(grid, os, is);
-    CHECK(os.str().find("Invalid option. Must be 'd', 'e', or 'm'.") != std::string::npos);
+    CHECK(os.str().find("Invalid option. Must be 'd', 'e', or 'm'.") !=
+          std::string::npos);
   }
 
   SECTION("Invalid selection - string") {
     is.str("2\nhello\ne\n{0} + {1}\n0\n");
     os.clear();
     final_application.AddSubmenu(grid, os, is);
-    CHECK(os.str().find("Invalid option. Must be 'd', 'e', or 'm'.") != std::string::npos);
+    CHECK(os.str().find("Invalid option. Must be 'd', 'e', or 'm'.") !=
+          std::string::npos);
   }
-
 
   // ** Column merge **
 
@@ -1946,21 +1973,24 @@ TEST_CASE("AddSubmenu()", "[add_submenu]") {
     is.str("3\n0\n5\n-1\n1\n123.123\ntest\namazing\n-823.12\ncool\n0\n");
     os.clear();
     final_application.AddSubmenu(grid, os, is);
-    CHECK(os.str().find("Invalid input. Must be an valid int") != std::string::npos);
+    CHECK(os.str().find("Invalid input. Must be an valid int") !=
+          std::string::npos);
   }
 
   SECTION("Invalid column - double") {
     is.str("3\n0\n5\n123.123\n1\n123.123\ntest\namazing\n-823.12\ncool\n0\n");
     os.clear();
     final_application.AddSubmenu(grid, os, is);
-    CHECK(os.str().find("Invalid input. Must be an valid int") != std::string::npos);
+    CHECK(os.str().find("Invalid input. Must be an valid int") !=
+          std::string::npos);
   }
 
   SECTION("Invalid column - string") {
     is.str("3\n0\n5\nhello\n1\n123.123\ntest\namazing\n-823.12\ncool\n0\n");
     os.clear();
     final_application.AddSubmenu(grid, os, is);
-    CHECK(os.str().find("Invalid input. Must be an valid int") != std::string::npos);
+    CHECK(os.str().find("Invalid input. Must be an valid int") !=
+          std::string::npos);
   }
 
   // ** Extra **
@@ -1969,14 +1999,16 @@ TEST_CASE("AddSubmenu()", "[add_submenu]") {
   is.str("99\n0\n");
   os.clear();
   final_application.AddSubmenu(grid, os, is);
-  CHECK(os.str().find("Invalid choice. Input must be between 0-3. Try again.") !=
+  CHECK(
+      os.str().find("Invalid choice. Input must be between 0-3. Try again.") !=
       std::string::npos);
 
   // Invalid input (number - negative)
   is.str("-99\n0\n");
   os.clear();
   final_application.AddSubmenu(grid, os, is);
-  CHECK(os.str().find("Invalid choice. Input must be between 0-3. Try again.") !=
+  CHECK(
+      os.str().find("Invalid choice. Input must be between 0-3. Try again.") !=
       std::string::npos);
 
   // Invalid input (number - double)
@@ -1984,13 +2016,12 @@ TEST_CASE("AddSubmenu()", "[add_submenu]") {
   os.clear();
   final_application.AddSubmenu(grid, os, is);
   CHECK(os.str().find("Invalid choice. Cannot be a string. Try again.") !=
-      std::string::npos);
+        std::string::npos);
 
   // Invalid string
   is.str("Hello!\n0\n");
   os.clear();
   final_application.AddSubmenu(grid, os, is);
   CHECK(os.str().find("Invalid choice. Cannot be a string. Try again.") !=
-      std::string::npos);
-
+        std::string::npos);
 }

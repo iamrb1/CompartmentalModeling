@@ -33,41 +33,50 @@
 class FinalApplication {
  private:
   // Common helper functions
-  [[nodiscard]] static std::optional<double> IsValidDouble(
+  [[nodiscard]] static std::optional<double> ValidDouble(
       const std::string &input) noexcept;
-  [[nodiscard]] static std::optional<int> IsValidInt(const std::string &input) noexcept;
-  [[nodiscard]] static bool IsValidCustomEquation(const std::string &input,
-                                                  int max_number_value) noexcept;
 
-  [[nodiscard]] static int GetIndex(int grid_size, std::ostream &os = std::cout,
-                                    std::istream &is = std::cin,
-                                    const std::string &label = "column") noexcept;
-  [[nodiscard]] static cse::Datum GetDataValue(std::ostream &os = std::cout,
-                                               std::istream &is = std::cin) noexcept;
+  [[nodiscard]] static std::optional<int> ValidInt(
+      const std::string &input) noexcept;
+
+  [[nodiscard]] static bool IsValidCustomEquation(
+      const std::string &input, int max_number_value) noexcept;
+
+  [[nodiscard]] static int GetIndex(
+      int grid_size, std::ostream &os = std::cout, std::istream &is = std::cin,
+      const std::string &label = "column") noexcept;
+
+  [[nodiscard]] static cse::Datum GetDataValue(
+      std::ostream &os = std::cout, std::istream &is = std::cin) noexcept;
 
   static void PrintColumn(const cse::ReferenceVector<cse::Datum> &column,
                           std::ostream &os) noexcept;
-
 
   // MathMenu helper functions
   void static MathMenuMean(const cse::DataGrid &grid,
                            std::ostream &os = std::cout,
                            std::istream &is = std::cin) noexcept;
+
   void static MathMenuMedian(const cse::DataGrid &grid,
                              std::ostream &os = std::cout,
                              std::istream &is = std::cin) noexcept;
+
   void static MathMenuStandardDeviation(const cse::DataGrid &grid,
                                         std::ostream &os = std::cout,
                                         std::istream &is = std::cin) noexcept;
+
   void static MathMenuMin(const cse::DataGrid &grid,
                           std::ostream &os = std::cout,
                           std::istream &is = std::cin) noexcept;
+
   void static MathMenuMax(const cse::DataGrid &grid,
                           std::ostream &os = std::cout,
                           std::istream &is = std::cin) noexcept;
+
   void static MathMenuMode(const cse::DataGrid &grid,
                            std::ostream &os = std::cout,
                            std::istream &is = std::cin) noexcept;
+
   void static MathMenuSummary(const cse::DataGrid &grid,
                               std::ostream &os = std::cout) noexcept;
 
@@ -75,18 +84,23 @@ class FinalApplication {
   void static ComparisonMenuLessThan(cse::DataGrid &grid,
                                      std::ostream &os = std::cout,
                                      std::istream &is = std::cin) noexcept;
+
   void static ComparisonMenuLessThanEqual(cse::DataGrid &grid,
                                           std::ostream &os = std::cout,
                                           std::istream &is = std::cin) noexcept;
+
   void static ComparisonMenuGreaterThan(cse::DataGrid &grid,
                                         std::ostream &os = std::cout,
                                         std::istream &is = std::cin) noexcept;
-  void static ComparisonMenuGreaterThanEqual(cse::DataGrid &grid,
-                                             std::ostream &os = std::cout,
-                                             std::istream &is = std::cin) noexcept;
+
+  void static ComparisonMenuGreaterThanEqual(
+      cse::DataGrid &grid, std::ostream &os = std::cout,
+      std::istream &is = std::cin) noexcept;
+
   void static ComparisonMenuEqual(cse::DataGrid &grid,
                                   std::ostream &os = std::cout,
                                   std::istream &is = std::cin) noexcept;
+
   void static ComparisonMenuNotEqual(cse::DataGrid &grid,
                                      std::ostream &os = std::cout,
                                      std::istream &is = std::cin) noexcept;
@@ -99,18 +113,23 @@ class FinalApplication {
   // GridMenu helper functions
   std::optional<cse::DataGrid> static GridMenuImport(
       std::ostream &os = std::cout, std::istream &is = std::cin);
-  cse::DataGrid static GridMenuPreMadeGrid(std::ostream &os = std::cout) noexcept;
+
+  cse::DataGrid static GridMenuPreMadeGrid(
+      std::ostream &os = std::cout) noexcept;
 
   // PrintMenu helper functions
   void static PrintSubmenuCell(const cse::DataGrid &grid,
                                std::ostream &os = std::cout,
                                std::istream &is = std::cin) noexcept;
+
   void static PrintSubmenuRow(const cse::DataGrid &grid,
                               std::ostream &os = std::cout,
                               std::istream &is = std::cin) noexcept;
+
   void static PrintSubmenuColumn(const cse::DataGrid &grid,
                                  std::ostream &os = std::cout,
                                  std::istream &is = std::cin) noexcept;
+
   std::optional<int> static PrintAndEditSubmenuGetIndex(
       int max_index, std::ostream &os = std::cout, std::istream &is = std::cin,
       const std::string &type = "column") noexcept;
@@ -118,8 +137,10 @@ class FinalApplication {
   // EditSubMenu helper functions
   void static EditSubmenuCell(cse::DataGrid &grid, std::ostream &os = std::cout,
                               std::istream &is = std::cin) noexcept;
+
   void static EditSubmenuRow(cse::DataGrid &grid, std::ostream &os = std::cout,
                              std::istream &is = std::cin) noexcept;
+
   void static EditSubmenuColumn(cse::DataGrid &grid,
                                 std::ostream &os = std::cout,
                                 std::istream &is = std::cin) noexcept;
@@ -128,9 +149,11 @@ class FinalApplication {
   void static DeleteSubmenuRow(cse::DataGrid &grid,
                                std::ostream &os = std::cout,
                                std::istream &is = std::cin) noexcept;
+
   void static DeleteSubmenuColumn(cse::DataGrid &grid,
                                   std::ostream &os = std::cout,
                                   std::istream &is = std::cin) noexcept;
+
   void static DeleteSubmenuGrid(cse::DataGrid &grid,
                                 std::ostream &os = std::cout) noexcept;
 
@@ -144,6 +167,7 @@ class FinalApplication {
   void static ResizeSubmenuResizeGrid(cse::DataGrid &grid,
                                       std::ostream &os = std::cout,
                                       std::istream &is = std::cin) noexcept;
+
   int static ResizeSubmenuGetValidInput(const std::string &type,
                                         std::ostream &os = std::cout,
                                         std::istream &is = std::cin) noexcept;
@@ -159,28 +183,36 @@ class FinalApplication {
 
   static cse::DataGrid GridMenu(std::ostream &os = std::cout,
                                 std::istream &is = std::cin) noexcept;
+
   static cse::DataGrid CreateGridMenu(std::ostream &os = std::cout,
                                       std::istream &is = std::cin) noexcept;
 
   static void ManipulateGridMenu(cse::DataGrid &grid,
                                  std::ostream &os = std::cout,
                                  std::istream &is = std::cin) noexcept;
+
   static void MathMenu(const cse::DataGrid &grid, std::ostream &os = std::cout,
                        std::istream &is = std::cin) noexcept;
+
   static void ComparisonMenu(cse::DataGrid &grid, std::ostream &os = std::cout,
                              std::istream &is = std::cin) noexcept;
 
   static void PrintSubmenu(const cse::DataGrid &grid,
                            std::ostream &os = std::cout,
                            std::istream &is = std::cin) noexcept;
+
   static void EditSubmenu(cse::DataGrid &grid, std::ostream &os = std::cout,
                           std::istream &is = std::cin) noexcept;
+
   static void SortSubmenu(cse::DataGrid &grid, std::ostream &os = std::cout,
                           std::istream &is = std::cin) noexcept;
+
   static void AddSubmenu(cse::DataGrid &grid, std::ostream &os = std::cout,
                          std::istream &is = std::cin);
+
   static void DeleteSubmenu(cse::DataGrid &grid, std::ostream &os = std::cout,
                             std::istream &is = std::cin);
+
   static void ResizeSubmenu(cse::DataGrid &grid, std::ostream &os = std::cout,
                             std::istream &is = std::cin) noexcept;
 };
