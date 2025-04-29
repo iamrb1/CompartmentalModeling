@@ -458,7 +458,8 @@ void WebLayout::setSize(const std::string& id, int newWidth, int newHeight) {
 
   for (auto& imgl : images) {
     if (imgl.image->getID() == id) {
-      imgl.image->resize(newWidth, newHeight);
+      // resize image while disregarding aspect ratio
+      imgl.image->resize(newWidth, newHeight, false);
     }
   }
 }
