@@ -18,7 +18,7 @@ constexpr int MAX_HEIGHT_PERCENT = 95;
 constexpr int MIN_PERCENT = 0;
 
 /**
- * Adds an image to the web layout
+ * @brief Adds an image to the web layout
  * @param image to be added
  */
 void WebLayout::addImage(const ImageLayout &image) {
@@ -36,7 +36,7 @@ void WebLayout::addImage(const ImageLayout &image) {
 }
 
 /**
- * Removes a specific image from the web layout
+ * @brief Removes a specific image from the web layout
  * @param image to be removed
  */
 void WebLayout::removeImage(const ImageLayout &image) {
@@ -47,7 +47,7 @@ void WebLayout::removeImage(const ImageLayout &image) {
 }
 
 /**
- * Adds a textbox to the web layout
+ * @brief Adds a textbox to the web layout
  * @param textBox to be added
  */
 void WebLayout::addTextBox(const TextBoxLayout &textBox) {
@@ -65,7 +65,7 @@ void WebLayout::addTextBox(const TextBoxLayout &textBox) {
 }
 
 /**
- * Removes a textbox from the web layout
+ * @brief Removes a textbox from the web layout
  * @param textBox to be removed
  */
 void WebLayout::removeTextBox(const TextBoxLayout &textBox) {
@@ -78,13 +78,13 @@ void WebLayout::removeTextBox(const TextBoxLayout &textBox) {
 }
 
 /**
- * Gets images vector of web layout
+ * @brief Gets images vector of web layout
  * @return images that are connected
  */
 const std::vector<ImageLayout> &WebLayout::getImages() { return images; }
 
 /**
- * Gets text boxes vector of web layout
+ * @brief Gets text boxes vector of web layout
  * @return textBoxes that are connected
  */
 const std::vector<TextBoxLayout> &WebLayout::getTextBoxes() {
@@ -92,12 +92,16 @@ const std::vector<TextBoxLayout> &WebLayout::getTextBoxes() {
 }
 
 /**
- * Converts textbox attributes into html
- * @param msg text of the textbox
+ * @brief Converts textbox attributes into html
+ * @param layoutID of layout to add image to
+ * @param formattedText of the textbox
  * @param width width of the textbox
  * @param height height of the textbox
+ * @param x coordinate of the textbox
+ * @param y coordinate of the textbox
+ * @param textboxID of the textbox
  */
-const void WebLayout::renderTextBox(const std::string &layoutID,
+void WebLayout::renderTextBox(const std::string &layoutID,
                                     const FormattedText &formattedText,
                                     const int &width, const int &height,
                                     const int &x, const int &y,
@@ -198,14 +202,16 @@ const void WebLayout::renderTextBox(const std::string &layoutID,
 }
 
 /**
- * Converts image attributes into html
+ * @brief Converts image attributes into html
+ * @param layoutID of layout to add image to
  * @param url of image source
  * @param width of image
  * @param height of images
- * @param xLoc of image
- * @param yLoc of image
+ * @param x coordinate of image
+ * @param y coordinate of image
+ * @param imageID id of image
  */
-void const WebLayout::renderImage(const std::string &layoutID,
+void WebLayout::renderImage(const std::string &layoutID,
                                   const std::string &url, const int &width,
                                   const int &height, const int &x, const int &y,
                                   const std::string &imageID) {
@@ -288,7 +294,7 @@ void const WebLayout::renderImage(const std::string &layoutID,
 }
 
 /**
- * Generates ID of layout
+ * @brief Generates ID of layout
  * @return unique ID
  */
 std::string WebLayout::generateID() {
@@ -297,7 +303,7 @@ std::string WebLayout::generateID() {
 }
 
 /**
- * Activates layout on html
+ * @brief Activates layout on html
  */
 void WebLayout::activateLayout() {
   auto layoutID = getID();
@@ -317,7 +323,7 @@ void WebLayout::activateLayout() {
 }
 
 /**
- * Deactivates layout on html
+ * @brief Deactivates layout on html
  */
 void WebLayout::deactivateLayout() {
   auto layoutID = getID();
@@ -335,6 +341,10 @@ void WebLayout::deactivateLayout() {
       layoutID.c_str());
 }
 
+/**
+ * @brief toggles a specific image on a layout
+ * @param image to switch visibility
+ */
 void WebLayout::toggleImage(const cse::ImageLayout &image) {
   auto imageID = image.image->getID();
 
@@ -357,6 +367,12 @@ void WebLayout::toggleImage(const cse::ImageLayout &image) {
       },
       imageID.c_str());
 }
+
+/**
+ * @brief get a image from an ID
+ * @param id to fetch
+ * @return image associated with id
+ */
 ImageLayout WebLayout::getImageFromID(const std::string& id) const {
   if (const auto image = std::ranges::find_if(images,[id](const ImageLayout& im) { return im.image->getID() == id; }); image != images.end()) {
     return *image;
@@ -364,6 +380,11 @@ ImageLayout WebLayout::getImageFromID(const std::string& id) const {
   throw std::runtime_error("Image not found");
 }
 
+/**
+ * @brief get a textbox from an ID
+ * @param id to fetch
+ * @return textbox associated with id
+ */
 TextBoxLayout WebLayout::getTextboxFromID(const std::string& id) const {
   if (const auto textbox = std::ranges::find_if(textBoxes,[id](const TextBoxLayout& tb) { return tb.textBox->getID() == id; }); textbox != textBoxes.end()) {
     return *textbox;
@@ -371,7 +392,10 @@ TextBoxLayout WebLayout::getTextboxFromID(const std::string& id) const {
   throw std::runtime_error("Textbox not found");
 }
 
-
+/**
+ * @brief toggles a specific textbox on a layout
+ * @param textBox to switch visibility
+ */
 void WebLayout::toggleTextBox(const cse::TextBoxLayout &textBox) {
   auto textBoxID = textBox.textBox->getID();
 
@@ -399,14 +423,13 @@ void WebLayout::toggleTextBox(const cse::TextBoxLayout &textBox) {
       textBoxID.c_str());
 }
 
-
 /**
- * Converts image attributes into html
+ * @brief Converts image attributes into html
  * @param id : Object id
  * @param newX : New x value location for object to be set at
  * @param newY : New y value location for object to be set at
  */
-void WebLayout::setPosition(std::string id, int newX, int newY) {
+void WebLayout::setPosition(const std::string& id, int newX, int newY) {
   for (auto& tbl : textBoxes) {
     if (tbl.textBox->getID() == id) {
       tbl.setPosition(newX, newY);
@@ -426,7 +449,7 @@ void WebLayout::setPosition(std::string id, int newX, int newY) {
  * @param newWidth : New width for object
  * @param newHeight : New height for object
  */
-void WebLayout::setSize(std::string id, int newWidth, int newHeight) {
+void WebLayout::setSize(const std::string& id, int newWidth, int newHeight) {
   for (auto& tbl : textBoxes) {
     if (tbl.textBox->getID() == id) {
       tbl.textBox->resize(newWidth, newHeight);
@@ -460,6 +483,5 @@ bool WebLayout::contains(std::string id) const {
 
   return false;
 }
-
 
 }  // namespace cse

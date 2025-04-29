@@ -70,10 +70,10 @@ class WebLayout {
   std::vector<ImageLayout> images;
   std::string id;
 
-  const void renderTextBox(const std::string &layoutID, const FormattedText &msg,
+  void renderTextBox(const std::string &layoutID, const FormattedText &msg,
                            const int &width, const int &height, const int &x,
                            const int &y, const std::string &textboxID);
-  void const renderImage(const std::string &layoutID, const std::string &url,
+  void renderImage(const std::string &layoutID, const std::string &url,
                          const int &width, const int &height, const int &x,
                          const int &y, const std::string &imageID);
 
@@ -94,8 +94,8 @@ class WebLayout {
   const std::string getID() { return id; }
   void activateLayout();
   void deactivateLayout();
-  void setPosition(std::string id, int x, int y);
-  void setSize(std::string id, int width, int height);
+  void setPosition(const std::string& id, int x, int y);
+  void setSize(const std::string& id, int width, int height);
   bool contains(std::string id) const;
 };
 }  // namespace cse
