@@ -163,7 +163,8 @@ void createDemoCircles()
 // Update all circles and game state
 void update()
 {
-
+    double cType1 = 0.0;
+    double cType2 = 0.0;
     for (auto& circle : gCircles) {
         if (!circle) continue;
 
