@@ -29,10 +29,7 @@ struct TextBoxLayout {
       : textBox(std::move(textBox)), xPos(x), yPos(y) {}
 
   bool operator==(const TextBoxLayout &textboxLayout) const {
-    return ((textboxLayout.textBox->getFormattedText().getText() ==
-             textBox->getFormattedText().getText()) &&
-            (textboxLayout.textBox->getWidth() == textBox->getWidth()) &&
-            (textboxLayout.textBox->getHeight() == textBox->getHeight()));
+    return ((textboxLayout.textBox->getID() == textBox->getID()));
   }
 
   void setPosition(int x, int y) {
@@ -53,9 +50,7 @@ struct ImageLayout {
       : image(std::move(image)), yPos(y), xPos(x) {}
 
   bool operator==(const ImageLayout &imageLayout) const {
-    return ((imageLayout.image->getURL() == image->getURL()) &&
-            (imageLayout.image->getWidth() == image->getWidth()) &&
-            (imageLayout.image->getHeight() == image->getHeight()));
+    return ((imageLayout.image->getID() == image->getID()));
   }
 
     void setPosition(int x, int y) {
