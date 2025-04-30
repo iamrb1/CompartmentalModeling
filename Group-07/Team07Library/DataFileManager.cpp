@@ -1,6 +1,5 @@
 #include "DataFileManager.hpp"
 
-using std::cerr;
 using std::cout;
 using std::endl;
 using std::function;
@@ -9,8 +8,11 @@ using std::ifstream;
 using std::ofstream;
 using std::string;
 using std::stringstream;
+using std::ostringstream;
+using std::ostream_iterator;
 using std::unordered_map;
 using std::vector;
+using std::copy;
 
 namespace cse {
 
@@ -19,13 +21,14 @@ namespace cse {
  */
 void DataFileManager::writeRowsToCSV(ofstream &file, const vector<vector<string>> &data) {
   for (const auto &row : data) {
-    for (size_t i = 0; i < row.size(); ++i) {
-      file << row[i];
-      if (i < row.size() - 1) {
-        file << ",";
-      }
+    ostringstream rowStream;
+    copy(row.begin(), row.end(),
+              std::ostream_iterator<string>(rowStream, ","));
+    string rowStr = rowStream.str();
+    if (!rowStr.empty() && rowStr.back() == ',') {
+        rowStr.pop_back(); // Remove trailing comma
     }
-    file << "\n";
+    file << rowStr << "\n";
   }
 }
 
@@ -36,22 +39,21 @@ void DataFileManager::writeRowsToCSV(ofstream &file, const vector<vector<string>
 void DataFileManager::openCSV(const string &path) {
   // Check if a file is already open
   if (!fileLocation.empty()) {
-    cerr << "Please close the current file before attempting to open a new one." << endl;
+    cout << "Please close the current file before attempting to open a new one." << endl;
     return;
   }
 
   // Handles CSV Case,
   // https://en.cppreference.com/w/cpp/string/basic_string/find_last_of
   if (path.substr(path.find_last_of(".") + 1) != "csv") {
-    // https://en.cppreference.com/w/cpp/io/cerr
-    cerr << "File extension is not valid." << endl;
+    cout << "File extension is not valid." << endl;
     return;
   }
 
   // Check if the file can be opened
   ifstream file(path);
   if (!file.is_open()) {
-    cerr << "Error opening file: " << path << endl;
+    cout << "Error opening file: " << path << endl;
     return;
   }
 
@@ -80,7 +82,7 @@ void DataFileManager::openCSV(const string &path) {
  */
 void DataFileManager::updateCSV() {
   if (fileLocation.empty() or fileLocation.substr(fileLocation.find_last_of(".") + 1) != "csv") {
-    cerr << "No valid file is currently open." << endl;
+    cout << "No valid file is currently open." << endl;
     return;
   }
 
@@ -120,7 +122,7 @@ void DataFileManager::closeCSV() {
 
   ofstream file(fileLocation, std::ios::trunc); // Open file in truncate mode to overwrite
   if (!file.is_open()) {
-    cerr << "Error opening file" << endl;
+    cout << "Error opening file" << endl;
     return;
   }
 
@@ -147,20 +149,20 @@ void DataFileManager::closeCSV() {
 void DataFileManager::openJSON(const string &path) {
   // Check if a file is already open
   if (!fileLocation.empty()) {
-    cerr << "Please close the current file before attempting to open a new one." << endl;
+    cout << "Please close the current file before attempting to open a new one." << endl;
     return;
   }
 
   // Handles Error Case
   if (path.substr(path.find_last_of(".") + 1) != "json") {
-    cerr << "File extension is not valid." << endl;
+    cout << "File extension is not valid." << endl;
     return;
   }
 
   // Check if the file can be opened
   ifstream file(path);
   if (!file.is_open()) {
-    cerr << "Error opening file: " << path << endl;
+    cout << "Error opening file: " << path << endl;
     return;
   }
 
@@ -177,14 +179,14 @@ void DataFileManager::openJSON(const string &path) {
   }
 
   catch (const std::exception& e) {
-    std::cerr << "Error: " << e.what() << std::endl;
+    cout << "Error: " << endl;
   }
 
 }
 
 void DataFileManager::updateJSON() {
   if (fileLocation.empty() or fileLocation.substr(fileLocation.find_last_of(".") + 1) != "json") {
-    cerr << "No valid file is currently open." << endl;
+    cout << "No valid file is currently open." << endl;
     return;
   }
 
@@ -201,8 +203,9 @@ void DataFileManager::updateJSON() {
       // Traverse the property tree to find and update the corresponding key
       try {
         pt.put(key, func()); // Update the value with the result of the lambda function
-      } catch (const boost::property_tree::ptree_bad_path& e) {
-        cerr << "Key not found in JSON: " << key << endl;
+      }
+      catch (const boost::property_tree::ptree_bad_path& e) {
+        cout << "Key not found in JSON: " << key << endl;
       }
     }
 
@@ -215,7 +218,7 @@ void DataFileManager::updateJSON() {
   }
 
   catch (const std::exception& e) {
-    cerr << "Error updating JSON: " << e.what() << endl;
+    cout << "Error updating JSON: " << endl;
   }
 }
 
