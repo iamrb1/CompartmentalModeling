@@ -80,6 +80,105 @@ class WordLang {
   void parseList();
 
   /**
+   * @brief Parses LIST LOAD command
+   *
+   * Checks syntax and returns error messages to the terminal if syntax
+   * is wrong.
+   *
+   * Creates and loads list to make operations.
+   *
+   * If syntax is correct, class WordListManager to conduct operations
+   * over the lists.
+   *
+   * Valid Commands:
+   *
+   * LIST listname = LOAD "filename"
+   * 
+   * @param listname emplex Token that contains the list name given by user.
+   */
+  void parseListLoad(const emplex::Token& listname);
+
+  /**
+   * @brief Parses LIST COMBINED command
+   *
+   * Checks syntax and returns error messages to the terminal if syntax
+   * is wrong.
+   *
+   * Creates and loads list to make operations. Combines the given existing
+   * list to the new list created.
+   *
+   * If syntax is correct, class WordListManager to conduct operations
+   * over the lists.
+   *
+   * Valid Commands:
+   *
+   * LIST listname = COMBINED listname ... listname
+   * 
+   * @param listname emplex Token that contains the list name given by user.
+   */
+  void parseListCombine(const emplex::Token& listname);
+
+  /**
+   * @brief Parses LIST Difference command
+   *
+   * Checks syntax and returns error messages to the terminal if syntax
+   * is wrong.
+   *
+   * Creates and loads list to make operations. Differences the given lists 
+   * to the new list created.
+   *
+   * If syntax is correct, class WordListManager to conduct operations
+   * over the lists.
+   *
+   * Valid Commands:
+   *
+   * LIST listname = DIFFERENCE listname ... listname
+   * 
+   * @param listname emplex Token that contains the list name given by user.
+   */
+  void parseListDifference(const emplex::Token& listname);
+
+  /**
+   * @brief Parses LIST INTERSECTION command
+   *
+   * Checks syntax and returns error messages to the terminal if syntax
+   * is wrong.
+   *
+   * Creates and loads list to make operations.Intersection the given lists 
+   * to the new list created.
+   *
+   * If syntax is correct, class WordListManager to conduct operations
+   * over the lists.
+   *
+   * Valid Commands:
+   *
+   * LIST listname = INTERSECTION listname ... listname
+   * 
+   * @param listname emplex Token that contains the list name given by user.
+   */
+  void parseListIntersection(const emplex::Token& listname);
+
+  /**
+   * @brief Parses LIST COPY command
+   *
+   * Checks syntax and returns error messages to the terminal if syntax
+   * is wrong.
+   *
+   * Creates and loads list to make operations. Copies the given list to 
+   * the new created list.
+   *
+   * If syntax is correct, class WordListManager to conduct operations
+   * over the lists.
+   *
+   * Valid Commands:
+   *
+   * LIST listname = COPY listname
+   * 
+   * @param listname emplex Token that contains the list name given by user.
+   */
+  void parseListCopy(const emplex::Token& listname);
+
+  /**
    * @brief Parses input for multiple list name inputted
    *
    * @return std::vector<std::string> Vector of multiple lists requested

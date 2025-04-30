@@ -135,145 +135,160 @@ void cse::WordLang::parseList() {
   auto listIdentifier = mTokenManager.Use();
 
   if (listIdentifier.id == emplex::Lexer::ID_LOAD) {  // Load the list
-    emplex::Token filename = mTokenManager.Use();
-
-    if (filename == mTokenManager.EOF_TOKEN ||
-        filename != emplex::Lexer::ID_STRING) {  // Check file name
-      // Missing file name to open
-      mErrorManager.printInfo("Incorrect Syntax: Missing filename to open.");
-      return;
-    }
-
-    if (mTokenManager.Peek() != mTokenManager.EOF_TOKEN) {
-      // check if we don't have anything else apart from LOAD
-      mErrorManager.printInfo(
-          "Incorrect Syntax: Encountered unknown symbols after \"LOAD\" "
-          "token.");
-      return;
-    }
-
-    // Syntax is correct, call WordListManager to handle. With file name and
-    // list name to load
-    std::string cut_name =
-        filename.lexeme.substr(1, filename.lexeme.length() - 2);
-    if (!mWordListManager.loadList(listname.lexeme, cut_name)) {
-      return;
-    }
-
+    parseListLoad(listname);
   } else if (listIdentifier.id == emplex::Lexer::ID_COMBINED) {  // Combine the list
-    std::vector<std::string> listsToCombine = parseMultipleLists();
-
-    // Error occured, syntax is wrong
-    if (listsToCombine.size() == 0) {
-      mErrorManager.printInfo(
-          "Incorrect Syntax: There must be lists to be combined.");
-      return;
-
-    } else if (listsToCombine.size() == 1) {
-      mErrorManager.printInfo(
-          "Incorrect Syntax: There must be at least two lists to be combined.");
-      return;
-    }
-
-    if (mTokenManager.Peek() != mTokenManager.EOF_TOKEN) {
-      // check if we don't have anything else apart from COMBINE
-      mErrorManager.printInfo(
-          "Incorrect Syntax: Encountered unknown symbols after \"COMBINE\" "
-          "token.");
-      return;
-    }
-
-    // Call WordListManager to handle with listname, listsToCombine to combine
-    if (!mWordListManager.combine(listname.lexeme, listsToCombine)) {
-      return;
-    }
-
+    parseListCombine(listname);
   } else if (listIdentifier.id == emplex::Lexer::ID_DIFFERENCE) {  // Difference the lists
-    std::vector<std::string> listsToDifference = parseMultipleLists();
-
-    // Error occured, syntax is wrong
-    if (listsToDifference.size() == 0) {
-      mErrorManager.printInfo(
-          "Incorrect Syntax: There must be lists to find differences.");
-      return;
-
-    } else if (listsToDifference.size() == 1) {
-      mErrorManager.printInfo(
-          "Incorrect Syntax: There must be at least two lists to find "
-          "differences.");
-      return;
-    }
-
-    if (mTokenManager.Peek() != mTokenManager.EOF_TOKEN) {
-      // check if we don't have anything else apart from DIFFERENCE
-      mErrorManager.printInfo(
-          "Incorrect Syntax: Encountered unknown symbols after \"DIFFERENCE\" "
-          "token.");
-      return;
-    }
-
-    // Call WordListManager to handle with listname, listsToDifference to
-    // difference
-    if (!mWordListManager.difference(listname.lexeme, listsToDifference)) {
-      return;
-    }
-
+    parseListDifference(listname);
   } else if (listIdentifier.id == emplex::Lexer::ID_INTERSECTION) {  // Intersection the lists
-    std::vector<std::string> listsToIntersection = parseMultipleLists();
-
-    // Error occured, syntax is wrong
-    if (listsToIntersection.size() == 0) {
-      mErrorManager.printInfo(
-          "Incorrect Syntax: There must be lists to find intersections.");
-      return;
-
-    } else if (listsToIntersection.size() == 1) {
-      mErrorManager.printInfo(
-          "Incorrect Syntax: There must be at least two lists to find "
-          "intersections.");
-      return;
-    }
-
-    if (mTokenManager.Peek() != mTokenManager.EOF_TOKEN) {
-      // check if we don't have anything else apart from INTERSECTION
-      mErrorManager.printInfo(
-          "Incorrect Syntax: Encountered unknown symbols after "
-          "\"INTERSECTION\" token.");
-      return;
-    }
-
-    // Call WordListManager to handle with listname, listsToIntersection to
-    // intersection
-    if (!mWordListManager.intersection(listname.lexeme, listsToIntersection)) {
-      return;
-    }
-
+    parseListIntersection(listname);
   } else if (listIdentifier.id == emplex::Lexer::ID_COPY) {  // Copy the list
-    emplex::Token listnameToCopy = mTokenManager.Use();
-
-    if (listnameToCopy == mTokenManager.EOF_TOKEN ||
-        listnameToCopy != emplex::Lexer::ID_LISTNAME) {
-      // Missing listname to copy
-      mErrorManager.printInfo("Incorrect Syntax: Missing list name to copy.");
-      return;
-    }
-
-    if (mTokenManager.Peek() != mTokenManager.EOF_TOKEN) {
-      // check if we don't have anything else apart from COPY
-      mErrorManager.printInfo(
-          "Incorrect Syntax: Encountered unknown symbols after \"COPY\" "
-          "token.");
-      return;
-    }
-
-    // Call WordListManager to handle with listname, listnameToCopy to copy
-    if (!mWordListManager.copy(listname.lexeme, listnameToCopy.lexeme)) {
-      return;
-    }
-
+    parseListCopy(listname);
   } else {
     // Syntax Error
     mErrorManager.printInfo("Incorrect Syntax: Use of invalid syntax.");
+    return;
+  }
+}
+
+void cse::WordLang::parseListLoad(const emplex::Token& listname) {
+  emplex::Token filename = mTokenManager.Use();
+
+  if (filename == mTokenManager.EOF_TOKEN ||
+      filename != emplex::Lexer::ID_STRING) {  // Check file name
+    // Missing file name to open
+    mErrorManager.printInfo("Incorrect Syntax: Missing filename to open.");
+    return;
+  }
+
+  if (mTokenManager.Peek() != mTokenManager.EOF_TOKEN) {
+    // check if we don't have anything else apart from LOAD
+    mErrorManager.printInfo(
+        "Incorrect Syntax: Encountered unknown symbols after \"LOAD\" "
+        "token.");
+    return;
+  }
+
+  // Syntax is correct, call WordListManager to handle. With file name and
+  // list name to load
+  std::string cut_name =
+      filename.lexeme.substr(1, filename.lexeme.length() - 2);
+  if (!mWordListManager.loadList(listname.lexeme, cut_name)) {
+    return;
+  }
+}
+
+void cse::WordLang::parseListCombine(const emplex::Token& listname) {
+  std::vector<std::string> listsToCombine = parseMultipleLists();
+
+  // Error occured, syntax is wrong
+  if (listsToCombine.size() == 0) {
+    mErrorManager.printInfo(
+        "Incorrect Syntax: There must be lists to be combined.");
+    return;
+
+  } else if (listsToCombine.size() == 1) {
+    mErrorManager.printInfo(
+        "Incorrect Syntax: There must be at least two lists to be combined.");
+    return;
+  }
+
+  if (mTokenManager.Peek() != mTokenManager.EOF_TOKEN) {
+    // check if we don't have anything else apart from COMBINE
+    mErrorManager.printInfo(
+        "Incorrect Syntax: Encountered unknown symbols after \"COMBINE\" "
+        "token.");
+    return;
+  }
+
+  // Call WordListManager to handle with listname, listsToCombine to combine
+  if (!mWordListManager.combine(listname.lexeme, listsToCombine)) {
+    return;
+  }
+}
+
+void cse::WordLang::parseListDifference(const emplex::Token& listname) {
+  std::vector<std::string> listsToDifference = parseMultipleLists();
+
+  // Error occured, syntax is wrong
+  if (listsToDifference.size() == 0) {
+    mErrorManager.printInfo(
+        "Incorrect Syntax: There must be lists to find differences.");
+    return;
+
+  } else if (listsToDifference.size() == 1) {
+    mErrorManager.printInfo(
+        "Incorrect Syntax: There must be at least two lists to find "
+        "differences.");
+    return;
+  }
+
+  if (mTokenManager.Peek() != mTokenManager.EOF_TOKEN) {
+    // check if we don't have anything else apart from DIFFERENCE
+    mErrorManager.printInfo(
+        "Incorrect Syntax: Encountered unknown symbols after \"DIFFERENCE\" "
+        "token.");
+    return;
+  }
+
+  // Call WordListManager to handle with listname, listsToDifference to
+  // difference
+  if (!mWordListManager.difference(listname.lexeme, listsToDifference)) {
+    return;
+  }
+}
+
+void cse::WordLang::parseListIntersection(const emplex::Token& listname) {
+  std::vector<std::string> listsToIntersection = parseMultipleLists();
+
+  // Error occured, syntax is wrong
+  if (listsToIntersection.size() == 0) {
+    mErrorManager.printInfo(
+        "Incorrect Syntax: There must be lists to find intersections.");
+    return;
+
+  } else if (listsToIntersection.size() == 1) {
+    mErrorManager.printInfo(
+        "Incorrect Syntax: There must be at least two lists to find "
+        "intersections.");
+    return;
+  }
+
+  if (mTokenManager.Peek() != mTokenManager.EOF_TOKEN) {
+    // check if we don't have anything else apart from INTERSECTION
+    mErrorManager.printInfo(
+        "Incorrect Syntax: Encountered unknown symbols after "
+        "\"INTERSECTION\" token.");
+    return;
+  }
+
+  // Call WordListManager to handle with listname, listsToIntersection to
+  // intersection
+  if (!mWordListManager.intersection(listname.lexeme, listsToIntersection)) {
+    return;
+  }
+}
+
+void cse::WordLang::parseListCopy(const emplex::Token& listname) {
+  emplex::Token listnameToCopy = mTokenManager.Use();
+
+  if (listnameToCopy == mTokenManager.EOF_TOKEN ||
+      listnameToCopy != emplex::Lexer::ID_LISTNAME) {
+    // Missing listname to copy
+    mErrorManager.printInfo("Incorrect Syntax: Missing list name to copy.");
+    return;
+  }
+
+  if (mTokenManager.Peek() != mTokenManager.EOF_TOKEN) {
+    // check if we don't have anything else apart from COPY
+    mErrorManager.printInfo(
+        "Incorrect Syntax: Encountered unknown symbols after \"COPY\" "
+        "token.");
+    return;
+  }
+
+  // Call WordListManager to handle with listname, listnameToCopy to copy
+  if (!mWordListManager.copy(listname.lexeme, listnameToCopy.lexeme)) {
     return;
   }
 }
