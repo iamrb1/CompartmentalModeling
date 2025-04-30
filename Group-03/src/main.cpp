@@ -20,7 +20,6 @@
 #include "Circle.h"
 #include "Surface.h"
 
-namespace cse {
 
 // Globals
 static constexpr int WINDOW_WIDTH  = 800;
@@ -31,7 +30,7 @@ static SDL_Window*   gWindow   = nullptr;
 static SDL_Renderer* gRenderer = nullptr;
 
 static std::unique_ptr<cse::Surface>      gSurface;
-static std::vector<std::shared_ptr<Circle>> gCircles;
+static std::vector<std::shared_ptr<cse::Circle>> gCircles;
 
 static bool isRunning = true;
 
@@ -72,7 +71,7 @@ static const uint8_t LETTER[26][5] = {//chatgpt
 };
 
 // Count circles of a given type
-int countCircles(CircleType type)
+int countCircles(cse::CircleType type)
 {
     return std::count_if(gCircles.begin(), gCircles.end(),
                          [=](const auto& c){
@@ -151,10 +150,10 @@ void createDemoCircles()
         double y = rand() % WINDOW_HEIGHT;
         double r = 15.0;
         double s = 3.0;
-        CircleType type = (i % 2 == 0)
-            ? CircleType::Predator
-            : CircleType::Prey;
-        auto c = std::make_shared<Circle>(x, y, r, s, type);
+        cse::CircleType type = (i % 3 == 0)
+            ? cse::CircleType::Predator
+            : cse::CircleType::Prey;
+        auto c = std::make_shared<cse::Circle>(x, y, r, s, type);
         gCircles.push_back(c);
         gSurface->add_circle(c);
     }
@@ -165,10 +164,11 @@ void update()
 {
     double cType1 = 0.0;
     double cType2 = 0.0;
+
     for (auto& circle : gCircles) {
         if (!circle) continue;
 
-        if (circle->getType() == CircleType::Predator) {
+        if (circle->getType() == cse::CircleType::Predator) {
             // if regenerating, let it tick up and skip movement/energy drain
             if (circle->isRegenerating()) {
                 circle->regenerateEnergy(10);
@@ -190,8 +190,8 @@ void update()
         gSurface->move_circle(circle, newX, newY);
 
         // Count types
-        if (circle->getType() == CircleType::Predator) cType1 += 1;
-        if (circle->getType() == CircleType::Prey)    cType2 += 1;
+        if (circle->getType() == cse::CircleType::Predator) cType1 += 1;
+        if (circle->getType() == cse::CircleType::Prey)    cType2 += 1;
     }
 
     gSurface->update();
@@ -202,18 +202,18 @@ void update()
         gCircles.erase(std::remove(gCircles.begin(), gCircles.end(), vic), gCircles.end());
         gSurface->remove_circle(vic);
     } else if (act == "add" &&
-        vic && vic->getType() == CircleType::Prey) {
+        vic && vic->getType() == cse::CircleType::Prey) {
         static Uint32 last = 0;
         if (SDL_GetTicks() - last >= 1000) {
-            auto b = std::make_shared<Circle>(*vic);
+            auto b = std::make_shared<cse::Circle>(*vic);
             gCircles.push_back(b);
             gSurface->add_circle(b);
             last = SDL_GetTicks();
         }
     }
 
-    int numRed  = countCircles(CircleType::Predator);
-    int numBlue = countCircles(CircleType::Prey);
+    int numRed  = countCircles(cse::CircleType::Predator);
+    int numBlue = countCircles(cse::CircleType::Prey);
     int total = numRed + numBlue;
     
     if (total > 0) {
@@ -240,9 +240,9 @@ void draw()
     for (auto& c : gCircles) {
         if (!c) continue;
         SDL_SetRenderDrawColor(gRenderer,
-                               c->getType() == CircleType::Predator ? 255 : 0,
+                               c->getType() == cse::CircleType::Predator ? 255 : 0,
                                0,
-                               c->getType() == CircleType::Prey    ? 255 : 0,
+                               c->getType() == cse::CircleType::Prey    ? 255 : 0,
                                255);
         int cx = (int)c->getX(), cy = (int)c->getY(), r = (int)c->getRadius();
         for (int dx = -r; dx <= r; ++dx)
@@ -252,8 +252,8 @@ void draw()
     }
 
     // Draw labels and counts
-    int preds = countCircles(CircleType::Predator);
-    int prey  = countCircles(CircleType::Prey);
+    int preds = countCircles(cse::CircleType::Predator);
+    int prey  = countCircles(cse::CircleType::Prey);
 
     SDL_Color white = {255,255,255,255};
     SDL_Color red   = {255,0,0,255};
@@ -305,7 +305,7 @@ void mainLoop()
 }
 
 // Entry point
-int main()
+int main(int argc, char* argv[])
 {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cerr << "SDL init failed: " << SDL_GetError() << '\n';
@@ -344,6 +344,4 @@ int main()
     SDL_DestroyWindow(gWindow);
     SDL_Quit();
     return 0;
-}
-
 }
