@@ -344,7 +344,7 @@ class PresentationManager {
           const currentSlide = $0;
           const totalSlides = $1;
           document.getElementById("slideNumberDisplay").textContent =
-				`${currentSlide} of $ {
+    `${currentSlide} of $ {
             totalSlides
           }
           `;
