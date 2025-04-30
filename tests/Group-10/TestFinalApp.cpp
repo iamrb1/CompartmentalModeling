@@ -364,3 +364,45 @@ TEST_CASE("Check for bad file structure: non-numeric values", "[FinalApp][BadFil
   // Check for the specific error message
   REQUIRE(CheckForLine(outputStream, "CSV parse error on line 2 invalid argument."));
 }
+
+TEST_CASE("Check for multiple flags", "[FinalApp][MultipleFlags]") {
+  // will not test optimize as that's non-deterministic behavior
+  std::string fileRead = "MultipleFlagScripts/multipleflags.txt";
+  std::ifstream input(fileRead);
+  std::ostringstream capturedOutput;
+
+  // Redirect std::cout 
+  auto* originalBuf = std::cout.rdbuf();
+  std::cout.rdbuf(capturedOutput.rdbuf());
+
+  auto outputStream = GetText(input, capturedOutput);
+  std::cout.rdbuf(originalBuf); // Restore std::cout
+
+  //check for specific messages
+  REQUIRE(CheckForLine(outputStream, "Optimal Value Calculated: 52"));
+  REQUIRE(CheckForLine(outputStream, "Total Capacity used: (8/8.8)"));
+  REQUIRE(CheckForLine(outputStream, "H(8x)"));
+
+  REQUIRE(CheckForLine(outputStream, "Optimal Value Calculated: 41"));
+  REQUIRE(CheckForLine(outputStream, "Total Capacity used: (8.8/8.8)"));
+
+  
+
+}
+
+TEST_CASE("Reject file that does not end with csv or txt", "[FinalApp][InvalidExtension]"){
+  std::ifstream input("BadFileScripts/InvalidExtension.txt");
+  std::ostringstream capturedOutput;
+
+  auto* originalBuf = std::cout.rdbuf();
+  std::cout.rdbuf(capturedOutput.rdbuf());
+
+  auto outputStream = GetText(input, capturedOutput);
+
+  std::cout.rdbuf(originalBuf);
+
+  std::string output = capturedOutput.str();
+
+  REQUIRE(CheckForLine(outputStream, "**The file must be of a valid type (.txt or .csv)"));
+  REQUIRE(output.find("**The file must be of a valid type (.txt or .csv)") != std::string::npos);
+}

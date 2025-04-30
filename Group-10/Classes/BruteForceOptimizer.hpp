@@ -79,6 +79,8 @@ class BruteForceOptimizer {
    */
   void SetItems(const std::vector<Item>& newItems) {
     items_ = newItems;
+    currentSelection_.clear();
+    bestSelection_.clear();
     if (optimizeEnabled_) OptimizationPreprocessing_();
   }
 
@@ -105,6 +107,7 @@ class BruteForceOptimizer {
   std::pair<double, std::vector<Item>> FindOptimalSolution() {
     bestScore_ = std::numeric_limits<double>::lowest();
     currentSelection_.clear();
+    bestSelection_.clear();
     ExploreCombinations(0, 0.0, 0.0);
     return {bestScore_, bestSelection_};
   }
@@ -120,16 +123,11 @@ class BruteForceOptimizer {
                            double currentValue) {
     assert(currentWeight >= 0 && currentValue >= 0);
 
-    auto updateScore = [this](double currentValue) {
-      bestScore_ = currentValue;
-      bestSelection_ = currentSelection_;
-    };
-
-    auto scoreCheck = [this, currentWeight, currentValue,
-                       updateScore]() mutable {
+    auto scoreCheck = [this, currentWeight, currentValue]() {
       if (currentWeight <= capacity_ + MARGIN_OF_ERROR &&
           currentValue > bestScore_) {
-        updateScore(currentValue);
+        bestScore_ = currentValue;
+        bestSelection_ = currentSelection_;
       }
     };
     scoreCheck();
@@ -173,8 +171,6 @@ class BruteForceOptimizer {
    */
   void AverageCaseCombinations_(std::size_t index, double currentWeight,
                                 double currentValue) {
-
-    
     // Include the current item if it does not exceed capacity.
     const Item& item = (optimizeEnabled_) ? sortedItems_[index] : items_[index];
     if (currentWeight + item.weight <= capacity_ + MARGIN_OF_ERROR) {
@@ -207,10 +203,10 @@ class BruteForceOptimizer {
     for (auto iter = sortedItems_.rbegin(); iter != sortedItems_.rend();
          ++iter) {
       if (repeating_) {
-        int maxItemAmount = capacity_ / (*iter).weight;
-        totalValue += (maxItemAmount * (*iter).value);
+        int maxItemAmount = capacity_ / iter->weight;
+        totalValue += (maxItemAmount * iter->value);
       } else {
-        totalValue += (*iter).value;
+        totalValue += iter->value;
       }
       scoreTracker_.push_back(totalValue);
     }

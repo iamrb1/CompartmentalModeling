@@ -37,16 +37,12 @@ static constexpr double SPEEDUP_ADJUSTMENT_CONSTANT = 100;
  */
 
 void ResetGlobalVariables() {
-  settings.filename = "";
-  settings.itemList = {};
-  settings.capacity = (settings.defaultCapacity.has_value())
-                          ? settings.defaultCapacity.value()
-                          : 0.0;
-  settings.multipleRepeats = false;
-  settings.weightless = false;
-  settings.compare = false;
-  settings.optimized = false;
-  settings.timeSearch = false;
+  std::optional<double> currDefault = settings.defaultCapacity;
+  settings = cse::OptimizerSettings();
+  settings.defaultCapacity = currDefault;
+  if (currDefault.has_value()) {
+    settings.capacity = *currDefault;
+  }
 }
 
 /**
@@ -93,12 +89,13 @@ std::string RedError(std::string &&message) {
 
 [[noreturn]] void EndProgram() { std::exit(0); }
 
-void PrintOptimizerResults(std::pair<double, std::vector<cse::Item>> solution) {
-  std::cout << "Optimal Value Calculated: " << solution.first << std::endl;
+void PrintOptimizerResults(double &optimalScore,
+                           std::vector<cse::Item> &optimalSolution) {
+  std::cout << "Optimal Value Calculated: " << optimalScore << std::endl;
   std::unordered_map<std::string, int> chosenItems;
   double capacityUsed = 0.0;
 
-  for (const auto &item : solution.second) {
+  for (const auto &item : optimalSolution) {
     if (chosenItems.contains(item.name)) {
       chosenItems.at(item.name) += 1;
     } else {
@@ -131,7 +128,8 @@ void PrintTiming(double timingInMilliseconds) {
   } else {
     std::cout << std::setprecision(4)
               << "Total time to compute: " << timingInMilliseconds
-              << " milliseconds\n" << std::endl;
+              << " milliseconds\n"
+              << std::endl;
   }
 }
 
@@ -153,7 +151,7 @@ cse::ArgManager CreateArgManager(std::vector<std::string> &args) {
   return mgr;
 }
 
-bool isDigit(const std::string& str) {
+bool isDigit(const std::string &str) {
   std::istringstream iss(str);
   float f;
   iss >> std::noskipws >> f;
@@ -168,19 +166,20 @@ std::vector<cse::Item> ConstructItems(std::ifstream &textFile) {
   while (std::getline(textFile, line)) {
     std::vector<std::string> itemData = split(line, ',');
     if (itemData.size() != 3) {
-      throw std::length_error("CSV parse error on line " + std::to_string(lineNumber) + " expected 3 fields, got: " +
-        std::to_string(itemData.size()));
+      throw std::length_error(
+          "CSV parse error on line " + std::to_string(lineNumber) +
+          " expected 3 fields, got: " + std::to_string(itemData.size()));
     }
-    if (!isDigit(itemData[1])) {
-      throw std::invalid_argument("CSV parse error on line " + std::to_string(lineNumber) + " invalid argument.");
+    try {
+      cse::Item item(itemData[0], std::stod(itemData[1]),
+                     std::stod(itemData[2]));
+      Items.push_back(item);
+      ++lineNumber;
+    } catch (std::invalid_argument &e) {
+      throw std::invalid_argument("CSV parse error on line " +
+                                  std::to_string(lineNumber) +
+                                  " invalid argument.");
     }
-    if (!isDigit(itemData[2])) {
-      throw std::invalid_argument("CSV parse error on line " + std::to_string(lineNumber) + " invalid argument.");
-    }
-    
-    cse::Item item(itemData[0], std::stod(itemData[1]), std::stod(itemData[2]));
-    Items.push_back(item);
-    ++lineNumber;
   }
 
   return Items;
@@ -194,15 +193,15 @@ void CallBruteForceOptimizer() {
 
   double unoptimizedTime = 0.0;
   double optimizedTime = 0.0;
+  std::pair<double, std::vector<cse::Item>> solutionPair;
 
   if (!settings.optimized || settings.compare) {
     // Unoptimized brute force
     optimizer.SetOptimizer(false);
     std::cout << "Computing Unoptimized Search...\n";
-    unoptimizedTime = MeasureTime([&]() {
-      auto solutionPair = optimizer.FindOptimalSolution();
-      PrintOptimizerResults(solutionPair);
-    });
+    unoptimizedTime =
+        MeasureTime([&]() { solutionPair = optimizer.FindOptimalSolution(); });
+    PrintOptimizerResults(solutionPair.first, solutionPair.second);
     if (settings.timeSearch || settings.compare) PrintTiming(unoptimizedTime);
   }
 
@@ -210,15 +209,16 @@ void CallBruteForceOptimizer() {
     // Optimized brute force
     optimizer.SetOptimizer(true);
     std::cout << "Computing Optimized Search...\n";
-    optimizedTime = MeasureTime([&]() {
-      auto solutionPair = optimizer.FindOptimalSolution();
-      PrintOptimizerResults(solutionPair);
-    });
+    optimizedTime =
+        MeasureTime([&]() { solutionPair = optimizer.FindOptimalSolution(); });
+    PrintOptimizerResults(solutionPair.first, solutionPair.second);
     if (settings.timeSearch || settings.compare) PrintTiming(optimizedTime);
   }
 
   if (settings.compare) {
     // Print comparison results
+    assert(optimizedTime != 0 &&
+           "Cannot divide by zero");  // TODO: Better message
     std::cout << "Speedup: "
               << ((unoptimizedTime / optimizedTime) *
                   SPEEDUP_ADJUSTMENT_CONSTANT) -
@@ -255,8 +255,11 @@ int application(std::istream &in) {
     if (!arguments.size()) {
       PrintTerminal();
       continue;
-    } else if ((arguments.at(0) == "q" || arguments.at(0) == "Q" ||
-                arguments.at(0) == "quit" || arguments.at(0) == "exit")) {
+    }
+    const std::string &commandName = arguments[0];
+
+    if ((commandName == "q" || commandName == "Q" || commandName == "quit" ||
+         commandName == "exit")) {
       if (arguments.size() > 1) {
         std::cout << RedError(
             "**Error: the quit command cannot be run with additional "
@@ -268,11 +271,11 @@ int application(std::istream &in) {
       }
     }
 
-    else if (arguments.at(0) == "help") {
+    else if (commandName == "help") {
       std::cout << "All commands:\n" << messages.commandListMessage;
     }
 
-    else if (arguments[0] == "set-capacity") {
+    else if (commandName == "set-capacity") {
       if (arguments.size() == 1) {
         std::cout << RedError(
             "**Must specify a default capacity\n (use -h flag for more "
@@ -294,21 +297,23 @@ int application(std::istream &in) {
           settings.capacity = givenCapacity;
           std::cout << settings.defaultCapacity.value()
                     << " set as default capacity.\n";
-        } catch (const std::exception &e) {
+        } catch (const std::invalid_argument &e) {
           std::cout << RedError("**Invalid value given for the capacity");
         }
       }
     }
 
-    else if (arguments[0] == "show-capacity") {
-      (settings.defaultCapacity.has_value())
-          ? std::cout << "Default value set to: "
-                      << settings.defaultCapacity.value()
-          : std::cout << "No default value set.";
+    else if (commandName == "show-capacity") {
+      if (settings.defaultCapacity.has_value()) {
+        std::cout << "Default value set to: "
+                  << settings.defaultCapacity.value();
+      } else {
+        std::cout << "No default value set.";
+      }
       std::cout << '\n';
     }
 
-    else if (arguments[0] == "brute-force") {
+    else if (commandName == "brute-force") {
       if (argMgr.HasArg("-help") || argMgr.HasArg("-h")) {
         // do something to optimize
         std::cout << messages.optimizerHelpMessage;
@@ -324,8 +329,8 @@ int application(std::istream &in) {
       }
       settings.filename = arguments[1];
 
-      if (!settings.filename.contains(".txt") &&
-          !settings.filename.contains(".csv")) {
+      if (!settings.filename.ends_with(".txt") &&
+          !settings.filename.ends_with(".csv")) {
         std::cout << RedError(
             "**The file must be of a valid type (.txt or .csv)");
         PrintTerminal();
@@ -335,33 +340,34 @@ int application(std::istream &in) {
       if (textFile.is_open()) {
         try {
           settings.itemList = ConstructItems(textFile);
-        } catch (std::length_error e) {
+        } catch (std::length_error& e) {
           std::cout << RedError(e.what());
           PrintTerminal();
           continue;
-        } catch (std::invalid_argument e) {
+        } catch (std::invalid_argument& e) {
           std::cout << RedError(e.what());
           PrintTerminal();
           continue;
         }
-        
+
       } else {
-        std::cout << RedError("** \""+settings.filename+"\" is not a valid file path");
+        std::cout << RedError("** \"" + settings.filename +
+                              "\" is not a valid file path");
         PrintTerminal();
         continue;
       }
       std::string valString;
       std::string toFind = "-capacity=";
-      auto capacityArg = std::find_if(
-          arguments.begin(), arguments.end(),
-          [=](auto str) { return str.find(toFind) != std::string::npos; });
+      auto capacityArg =
+          std::find_if(arguments.begin(), arguments.end(),
+                       [=](auto& str) { return str.starts_with(toFind); });
 
       // If -capacity=<value> is not present
       if (capacityArg == arguments.end()) {
         // no default capacity either, throw error
         if (!settings.defaultCapacity.has_value()) {
           std::cout << RedError(
-              "**Specify capacity=\033[32m<capacity>\033[0m.");
+              "**Specify -capacity=\033[32m<capacity>\033[0m.");
           PrintTerminal();
           continue;
         }
@@ -401,7 +407,7 @@ int application(std::istream &in) {
       if (argMgr.HasArg("-t") || argMgr.HasArg("-T")) {
         settings.timeSearch = true;
       }
-      mainCommand.executeCommand(arguments[0]);
+      mainCommand.executeCommand(commandName);
     }
 
     else {
