@@ -1,5 +1,4 @@
-
-// Anand
+// Anand and Bao
 #include "../Team07Library/DataFileManager.hpp"
 #include "../Team07Library/OutputLog.hpp"
 #include "Animals.hpp"
@@ -51,8 +50,13 @@ SimulationState loadStateFromJSON(const pt::ptree& pt) {
 // Locate root directory
 string getProjectRoot() {
     std::filesystem::path currentPath = std::filesystem::current_path();
-    while (!currentPath.empty() && currentPath.filename() != "CSE498-Spring2025") {
-        currentPath = currentPath.parent_path();
+    try {
+        while (!currentPath.empty() && currentPath.filename() != "CSE498-Spring2025"){
+                currentPath = currentPath.parent_path();
+            }
+    }
+    catch (const std::exception& e) {
+        cout << "Couldn't find valid path" << endl;
     }
     return currentPath.string();
 }
