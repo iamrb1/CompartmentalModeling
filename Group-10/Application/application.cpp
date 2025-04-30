@@ -131,7 +131,8 @@ void PrintTiming(double timingInMilliseconds) {
   } else {
     std::cout << std::setprecision(4)
               << "Total time to compute: " << timingInMilliseconds
-              << " milliseconds\n" << std::endl;
+              << " milliseconds\n"
+              << std::endl;
   }
 }
 
@@ -153,7 +154,7 @@ cse::ArgManager CreateArgManager(std::vector<std::string> &args) {
   return mgr;
 }
 
-bool isDigit(const std::string& str) {
+bool isDigit(const std::string &str) {
   std::istringstream iss(str);
   float f;
   iss >> std::noskipws >> f;
@@ -168,19 +169,20 @@ std::vector<cse::Item> ConstructItems(std::ifstream &textFile) {
   while (std::getline(textFile, line)) {
     std::vector<std::string> itemData = split(line, ',');
     if (itemData.size() != 3) {
-      throw std::length_error("CSV parse error on line " + std::to_string(lineNumber) + " expected 3 fields, got: " +
-        std::to_string(itemData.size()));
+      throw std::length_error(
+          "CSV parse error on line " + std::to_string(lineNumber) +
+          " expected 3 fields, got: " + std::to_string(itemData.size()));
     }
-    if (!isDigit(itemData[1])) {
-      throw std::invalid_argument("CSV parse error on line " + std::to_string(lineNumber) + " invalid argument.");
+    try {
+      cse::Item item(itemData[0], std::stod(itemData[1]),
+                     std::stod(itemData[2]));
+      Items.push_back(item);
+      ++lineNumber;
+    } catch (std::invalid_argument &e) {
+      throw std::invalid_argument("CSV parse error on line " +
+                                  std::to_string(lineNumber) +
+                                  " invalid argument.");
     }
-    if (!isDigit(itemData[2])) {
-      throw std::invalid_argument("CSV parse error on line " + std::to_string(lineNumber) + " invalid argument.");
-    }
-    
-    cse::Item item(itemData[0], std::stod(itemData[1]), std::stod(itemData[2]));
-    Items.push_back(item);
-    ++lineNumber;
   }
 
   return Items;
@@ -344,9 +346,10 @@ int application(std::istream &in) {
           PrintTerminal();
           continue;
         }
-        
+
       } else {
-        std::cout << RedError("** \""+settings.filename+"\" is not a valid file path");
+        std::cout << RedError("** \"" + settings.filename +
+                              "\" is not a valid file path");
         PrintTerminal();
         continue;
       }
