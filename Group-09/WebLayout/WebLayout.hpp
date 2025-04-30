@@ -23,7 +23,7 @@ struct TextBoxLayout {
   int yPos;
   int xPos;
 
-  TextBoxLayout() : textBox(), xPos(0), yPos(0){};
+  constexpr TextBoxLayout() : textBox(), xPos(0), yPos(0){};
 
   TextBoxLayout(std::shared_ptr<TextBox> textBox, int x, int y)
       : textBox(std::move(textBox)), xPos(x), yPos(y) {}
@@ -88,6 +88,7 @@ class WebLayout {
   const std::vector<TextBoxLayout> &getTextBoxes();
   void toggleTextBox(const TextBoxLayout &textBox);
   void toggleImage(const ImageLayout &image);
+  void toggleImage(const std::string &imageID); //Overloaded function
   ImageLayout getImageFromID(const std::string& id) const;
   TextBoxLayout getTextboxFromID(const std::string& id) const;
   static std::string generateID();

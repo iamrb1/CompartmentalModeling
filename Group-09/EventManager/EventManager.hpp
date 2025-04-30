@@ -55,9 +55,11 @@ class EventManager {
    * @brief Checks for and triggers events
    */
   void TriggerEvents() {
+
     while (event_queue_.size() && event_queue_.peek().getTime() <= getTime()) {  // Events to be popped
       auto e = event_queue_.peek();
-      if (paused_events_.find(e.getID()) != paused_events_.end()) {
+
+      if (paused_events_.find(std::stoi(e.getID())) != paused_events_.end()) {
         event_queue_.pop();  // Skip over paused events
         continue;
       }
@@ -65,20 +67,25 @@ class EventManager {
       e.execute();
 
       //Handle repeating events
-      if (repeat_events_.find(e.getID()) != repeat_events_.end()) {
+      if (repeat_events_.find(std::stoi(e.getID())) != repeat_events_.end()) {
         e.setTime(e.getTime() +
-                  repeat_events_[e.getID()]);  // Readd repeats to the queue
+                  repeat_events_[std::stoi(e.getID())]);  // Readd repeats to the queue
         event_queue_.update(e);
       } else {
-        running_events_.erase(e.getID());
+        running_events_.erase(std::stoi(e.getID()));
         event_queue_.pop();
       }
+
+      // Add a wait time to reduce CPU strain
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
     }
 
     //Check for empty queue
     if (event_queue_.size() == 0) {
       running_ = false;
     }
+
   }
 
   /**
@@ -123,10 +130,10 @@ class EventManager {
     if (time < 0) {
       throw std::invalid_argument("Time must be positive");
     }
-    Event<Args...> event(next_id_, time, func, std::forward<Args>(args)...);
+    Event<Args...> event(std::to_string(next_id_), time, func, std::forward<Args>(args)...);
     ++next_id_;
     event_queue_.add(event);
-    running_events_.insert(event.getID());
+    running_events_.insert(std::stoi(event.getID()));
     return event;
   }
 
@@ -136,7 +143,7 @@ class EventManager {
    * @return true if successful, false if event does not exist in queue
    */
   bool PauseEvent(const Event<Args...> &event) {
-    int id = event.getID();
+    int id = std::stoi(event.getID());
     assert(((paused_events_.find(id) != paused_events_.end()) ||
             (running_events_.count(id) > 0)) &&
            "Event ID must be a managed ID.");
@@ -157,7 +164,7 @@ class EventManager {
    * paused
    */
   bool ResumeEvent(Event<Args...> &event) {
-    int event_id = event.getID();
+    int event_id = std::stoi(event.getID());
     assert(((paused_events_.find(event_id) != paused_events_.end()) ||
             running_events_.count(event_id)) &&
            "Event ID must be a managed ID.");
@@ -181,9 +188,9 @@ class EventManager {
    */
   bool RepeatEvent(const cse::Event<Args...> &event, int time_interval) {
     assert(time_interval > 0);
-    if (time_interval > 0 && (paused_events_.count(event.getID()) +
-                              running_events_.count(event.getID()))) {
-      repeat_events_.insert({event.getID(), time_interval});
+    if (time_interval > 0 && (paused_events_.count(std::stoi(event.getID())) +
+                              running_events_.count(std::stoi(event.getID())))) {
+      repeat_events_.insert({std::stoi(event.getID()), time_interval});
       return true;
     }
     return false;
@@ -221,13 +228,13 @@ class EventManager {
    * @brief Get the set of running events
    * @return A copy of the running events set
    */
-  std::set<int> getRunningEvents() const noexcept{ return running_events_; };
+  const std::set<int>& getRunningEvents() const noexcept{ return running_events_; };
 
   /**
    * @brief Get the map of paused Events
    * @return A copy of the paused events map
    */
-  std::unordered_map<int, Event<Args...>> getPausedEvents() const noexcept{
+  const std::unordered_map<int, Event<Args...>>& getPausedEvents() const noexcept{
     return paused_events_;
   };
 };
