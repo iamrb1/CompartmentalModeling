@@ -811,7 +811,7 @@ void FinalApplication::ManipulateGridMenu(cse::DataGrid &grid, std::ostream &os,
     os << "4. Adding options" << std::endl;
     os << "5. Deleting options" << std::endl;
     os << "6. Resizing options" << std::endl;
-    os << "0. Return to main menu" << std::endl;
+    os << "0. Return to manipulation menu" << std::endl;
     os << "Enter your choice: ";
     std::string input;
     std::getline(is, input);
@@ -865,7 +865,7 @@ void FinalApplication::PrintSubmenu(const cse::DataGrid &grid, std::ostream &os,
     os << "2. Print a row" << std::endl;
     os << "3. Print a column" << std::endl;
     os << "4. Print entire grid" << std::endl;
-    os << "0. Return to the main menu" << std::endl;
+    os << "0. Return to the manipulation menu" << std::endl;
     os << "Enter your choice: ";
 
     std::string raw;
@@ -1022,7 +1022,7 @@ void FinalApplication::EditSubmenu(cse::DataGrid &grid, std::ostream &os,
     os << "1. Edit a cell value" << std::endl;
     os << "2. Edit an entire row's values" << std::endl;
     os << "3. Edit an entire column's values" << std::endl;
-    os << "0. Return to main menu" << std::endl;
+    os << "0. Return to manipulation menu" << std::endl;
     os << "Enter your choice: ";
 
     // read and validate menu choice
@@ -1138,7 +1138,7 @@ void FinalApplication::EditSubmenuColumn(cse::DataGrid &grid, std::ostream &os,
       static_cast<int>(std::get<1>(grid.Shape())), os, is);
   if (!column) return;
 
-  std::size_t column_size = static_cast<int>(std::get<1>(grid.Shape()));
+  std::size_t column_size = static_cast<int>(std::get<0>(grid.Shape()));
   os << "Enter " << column_size << " new values one at a time: \n";
   for (std::size_t i = 0; i < column_size; ++i) {
     os << "Value " << i + 1 << ":" << std::endl;
@@ -1174,7 +1174,7 @@ void FinalApplication::SortSubmenu(cse::DataGrid &grid, std::ostream &os,
     os << "\n--- Sort Options ---" << std::endl;
     os << "1. Sort grid rows by a specified column" << std::endl;
     os << "2. Sort entire grid (using left-most columns as keys)" << std::endl;
-    os << "0. Return to main menu" << std::endl;
+    os << "0. Return to manipulation menu" << std::endl;
     os << "Enter your choice: ";
     std::string input;
     std::getline(is, input);
@@ -1263,7 +1263,7 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os,
     os << "1. Add row" << std::endl;
     os << "2. Add column" << std::endl;
     os << "3. Merge another grid" << std::endl;
-    os << "0. Return to main menu" << std::endl;
+    os << "0. Return to manipulation menu" << std::endl;
     os << "Enter your choice: ";
     std::string main_input;
     std::getline(is, main_input);
@@ -1589,7 +1589,7 @@ void FinalApplication::DeleteSubmenu(cse::DataGrid &grid, std::ostream &os,
     os << "1. Delete a row" << std::endl;
     os << "2. Delete a column" << std::endl;
     os << "3. Clear the entire grid" << std::endl;
-    os << "0. Return to main menu" << std::endl;
+    os << "0. Return to manipulation menu" << std::endl;
     os << "Enter your choice: ";
     std::string input;
     std::getline(is, input);
@@ -1691,7 +1691,7 @@ void FinalApplication::ResizeSubmenu(cse::DataGrid &grid, std::ostream &os,
   do {
     os << "\n--- Resizing Options ---" << std::endl;
     os << "1. Resize grid" << std::endl;
-    os << "0. Return to main menu" << std::endl;
+    os << "0. Return to manipulation menu" << std::endl;
     os << "Enter your choice: ";
     std::string input;
     std::getline(is, input);
