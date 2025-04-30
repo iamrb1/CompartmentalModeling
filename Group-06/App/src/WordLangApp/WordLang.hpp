@@ -38,12 +38,6 @@ class WordLang {
   WordLang();
 
   /**
-   * @brief Destroy the Word Lang object
-   *
-   */
-  ~WordLang();
-
-  /**
    * @brief Starts the app
    *
    * Continuosly takes input from the user until EXIT keyword is entered
@@ -299,7 +293,16 @@ class WordLang {
    */
   void parseWordle();
 
+  /**
+   * @brief Chnages the class mode to test to disable color codes.
+   * 
+   */
+  void testingMode();
+
  private:
+  /// @brief Bool to enable disable color codes for UI.
+  bool mTesting = true;
+
   /// @brief Bool to check if program is still active
   bool mIsActive = false;
 

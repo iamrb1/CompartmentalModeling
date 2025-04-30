@@ -30,7 +30,7 @@ namespace cse {
 class TokenManager {
  public:
   /// @brief Static end of file token
-  const emplex::Token eof_token{0, "_EOF_", 0, 0};
+  const emplex::Token EOF_TOKEN{0, "_EOF_", 0, 0};
 
   /**
    * @brief Construct a new Token Manager object

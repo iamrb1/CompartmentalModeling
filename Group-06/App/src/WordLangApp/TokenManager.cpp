@@ -17,7 +17,7 @@
 namespace cse {
 
 void TokenManager::Clean() {
-  if (mToken_id) {
+  if (mToken_id > 0) {
     mTokens.clear();
     // mTokens.erase(mTokens.begin(), mTokens.end());
     mToken_id = 0;
@@ -37,21 +37,21 @@ const emplex::Token& TokenManager::Peek() const noexcept {
   if (mToken_id < mTokens.size()) {
     return mTokens[mToken_id];
   }
-  return eof_token;
+  return EOF_TOKEN;
 }
 
 const emplex::Token& TokenManager::Use() noexcept {
   if (mToken_id < mTokens.size()) {
     return mTokens[mToken_id++];
   }
-  return eof_token;
+  return EOF_TOKEN;
 }
 
 const emplex::Token& TokenManager::Use_if(int expectedId) noexcept {
   if (mToken_id < mTokens.size() && mTokens[mToken_id].id == expectedId) {
     return mTokens[mToken_id++];
   }
-  return eof_token;
+  return EOF_TOKEN;
 }
 
 }  // namespace cse

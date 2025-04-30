@@ -23,6 +23,7 @@ const static bool DEBUG_MODE = false;
  */
 void wordlangTester(const std::vector<std::string>& input, const std::vector<std::string>& output_result) {
   cse::WordLang wordLang;
+  wordLang.testingMode();
   FileSource::set_relative_path("WordLangWordFiles/");
 
   for (size_t i = 0; i < input.size(); ++i) {
@@ -367,6 +368,7 @@ TEST_CASE("Combine lists and print result", "[Combine]") {
     cse::ErrorManager errorManager;
     cse::WordListManager manager(errorManager);
     cse::WordLang wordLang;
+    wordLang.testingMode();
 
     wordLang.parse("LIST a = LOAD \"FileA.txt\"\n");
     wordLang.parse("LIST b = LOAD \"FileB.txt\"\n");
@@ -389,6 +391,7 @@ TEST_CASE("Large input combine lists and print result", "[CombineLarge]") {
     cse::ErrorManager errorManager;
     cse::WordListManager manager(errorManager);
     cse::WordLang wordLang;
+    wordLang.testingMode();
 
     wordLang.parse("LIST d = LOAD \"FileD.txt\"\n");
     wordLang.parse("LIST e = LOAD \"FileE.txt\"\n");
@@ -411,6 +414,7 @@ TEST_CASE("Difference between lists", "[Difference]") {
     cse::ErrorManager errorManager;
     cse::WordListManager manager(errorManager);
     cse::WordLang wordLang;
+    wordLang.testingMode();
 
     wordLang.parse("LIST a = LOAD \"FileA.txt\"\n");
     wordLang.parse("LIST b = LOAD \"FileB.txt\"\n");
@@ -433,6 +437,7 @@ TEST_CASE("Large input Difference between lists", "[DifferenceLarge]") {
     cse::ErrorManager errorManager;
     cse::WordListManager manager(errorManager);
     cse::WordLang wordLang;
+    wordLang.testingMode();
 
     wordLang.parse("LIST d = LOAD \"FileD.txt\"\n");
     wordLang.parse("LIST e = LOAD \"FileE.txt\"\n");
@@ -455,6 +460,7 @@ TEST_CASE("Intersection of lists", "[Intersection]") {
     cse::ErrorManager errorManager;
     cse::WordListManager manager(errorManager);
     cse::WordLang wordLang;
+    wordLang.testingMode();
 
     wordLang.parse("LIST a = LOAD \"FileA.txt\"\n");
     wordLang.parse("LIST b = LOAD \"FileC.txt\"\n");
@@ -477,6 +483,7 @@ TEST_CASE("Large Input Intersection of lists", "[IntersectionLarge]") {
     cse::ErrorManager errorManager;
     cse::WordListManager manager(errorManager);
     cse::WordLang wordLang;
+    wordLang.testingMode();
 
     wordLang.parse("LIST d = LOAD \"FileD.txt\"\n");
     wordLang.parse("LIST e = LOAD \"FileE.txt\"\n");
@@ -500,6 +507,7 @@ TEST_CASE("Copy list", "[Copy]") {
     cse::ErrorManager errorManager;
     cse::WordListManager manager(errorManager);
     cse::WordLang wordLang;
+    wordLang.testingMode();
 
     wordLang.parse("LIST a = LOAD \"FileA.txt\"\n");
     wordLang.parse("LIST b = COPY a\n");
@@ -522,6 +530,7 @@ TEST_CASE("Large input Copy list", "[CopyLarge]") {
     cse::ErrorManager errorManager;
     cse::WordListManager manager(errorManager);
     cse::WordLang wordLang;
+    wordLang.testingMode();
 
     wordLang.parse("LIST d = LOAD \"FileD.txt\"\n");
     wordLang.parse("LIST b = COPY d\n");
@@ -556,20 +565,21 @@ TEST_CASE("setLengthRestriction Tests", "[WordLang]") {
       ""
   };
 
-  for (size_t i = 0; i < input.size(); ++i) {
-      std::ostringstream oss;
-      std::streambuf* oldCoutBuf = std::cout.rdbuf();
-      std::cout.rdbuf(oss.rdbuf());
+  wordlangTester(input, output_result);
+//   for (size_t i = 0; i < input.size(); ++i) {
+//       std::ostringstream oss;
+//       std::streambuf* oldCoutBuf = std::cout.rdbuf();
+//       std::cout.rdbuf(oss.rdbuf());
 
-      wordLang.parse(input[i]);
+//       wordLang.parse(input[i]);
 
-      std::cout.rdbuf(oldCoutBuf);
+//       std::cout.rdbuf(oldCoutBuf);
 
-      std::string actualOutput = oss.str();
-      std::string expected = output_result[i];
+//       std::string actualOutput = oss.str();
+//       std::string expected = output_result[i];
 
-      CHECK(actualOutput == expected);
-  }
+//       CHECK(actualOutput == expected);
+//   }
 }
 
 TEST_CASE("setCurrent Tests", "[WordLang]") {
@@ -633,6 +643,7 @@ TEST_CASE("add Tests", "[WordLang]") {
 
 TEST_CASE("setLengthRestriction: No current lists and star restore", "[WordLang]") {
   cse::WordLang wordLang;
+  wordLang.testingMode();
 
   // No lists loaded, should print 0 before/after
   std::ostringstream oss;
@@ -654,6 +665,7 @@ TEST_CASE("setLengthRestriction: No current lists and star restore", "[WordLang]
 
 TEST_CASE("setCurrent: Multiple lists and non-existent list", "[WordLang]") {
   cse::WordLang wordLang;
+  wordLang.testingMode();
 
   wordLang.parse("LIST l1 = LOAD \"file1.txt\"\n");
   wordLang.parse("LIST l2 = LOAD \"file2.txt\"\n");
@@ -675,6 +687,7 @@ TEST_CASE("setCurrent: Multiple lists and non-existent list", "[WordLang]") {
 
 TEST_CASE("save: Overwrite, empty list, and invalid file", "[WordLang]") {
   cse::WordLang wordLang;
+  wordLang.testingMode();
 
   // Save before loading any list
   std::ostringstream oss;
@@ -696,6 +709,7 @@ TEST_CASE("save: Overwrite, empty list, and invalid file", "[WordLang]") {
 
 TEST_CASE("add: Add to empty, duplicate, and empty string", "[WordLang]") {
   cse::WordLang wordLang;
+  wordLang.testingMode();
 
   // Add to non-existent list
   std::ostringstream oss;

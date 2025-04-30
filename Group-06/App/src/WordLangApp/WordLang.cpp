@@ -42,14 +42,15 @@ void cse::WordLang::start() {
 
 cse::WordLang::WordLang() : mErrorManager(), mWordListManager(mErrorManager) {}
 
-cse::WordLang::~WordLang() {}
+void cse::WordLang::testingMode () {
+  mTesting = false;
+} 
 
 void cse::WordLang::parse(const std::string& input) {
   // Utility class that handles tokenization
   mTokenManager.Load(input);
 
-  // IF TESTS ARE RUNNING TURN THIS FALSE, OTHERWISE TESTS WILL FAIL
-  mErrorManager.enableColors(false);
+  mErrorManager.enableColors(mTesting);
 
   switch (mTokenManager.Peek()) {
     using namespace emplex;
@@ -116,7 +117,7 @@ void cse::WordLang::parseList() {
   emplex::Token listname = mTokenManager.Use();
 
   // Check if a listname provided
-  if (listname == mTokenManager.eof_token ||
+  if (listname == mTokenManager.EOF_TOKEN ||
       listname != emplex::Lexer::ID_LISTNAME) {
     // Print syntax error
     mErrorManager.printInfo("Incorrect Syntax: Missing listname identifier.");
@@ -124,7 +125,7 @@ void cse::WordLang::parseList() {
   }
 
   // Check if = is used
-  if (mTokenManager.Use_if(232) == mTokenManager.eof_token) {
+  if (mTokenManager.Use_if(emplex::Lexer::ID_ASSIGN) == mTokenManager.EOF_TOKEN) {
     // Print syntax error
     mErrorManager.printInfo("Incorrect Syntax: Missing assign(=) operator.");
     return;
@@ -133,17 +134,17 @@ void cse::WordLang::parseList() {
   // List identifier such as LOAD, COMBINED, COPY, INTERSECTION, DIFFERENCE
   auto listIdentifier = mTokenManager.Use();
 
-  if (listIdentifier.id == 253) {  // Load the list
+  if (listIdentifier.id == emplex::Lexer::ID_LOAD) {  // Load the list
     emplex::Token filename = mTokenManager.Use();
 
-    if (filename == mTokenManager.eof_token ||
+    if (filename == mTokenManager.EOF_TOKEN ||
         filename != emplex::Lexer::ID_STRING) {  // Check file name
       // Missing file name to open
       mErrorManager.printInfo("Incorrect Syntax: Missing filename to open.");
       return;
     }
 
-    if (mTokenManager.Peek() != mTokenManager.eof_token) {
+    if (mTokenManager.Peek() != mTokenManager.EOF_TOKEN) {
       // check if we don't have anything else apart from LOAD
       mErrorManager.printInfo(
           "Incorrect Syntax: Encountered unknown symbols after \"LOAD\" "
@@ -159,7 +160,7 @@ void cse::WordLang::parseList() {
       return;
     }
 
-  } else if (listIdentifier.id == 252) {  // Combine the list
+  } else if (listIdentifier.id == emplex::Lexer::ID_COMBINED) {  // Combine the list
     std::vector<std::string> listsToCombine = parseMultipleLists();
 
     // Error occured, syntax is wrong
@@ -174,7 +175,7 @@ void cse::WordLang::parseList() {
       return;
     }
 
-    if (mTokenManager.Peek() != mTokenManager.eof_token) {
+    if (mTokenManager.Peek() != mTokenManager.EOF_TOKEN) {
       // check if we don't have anything else apart from COMBINE
       mErrorManager.printInfo(
           "Incorrect Syntax: Encountered unknown symbols after \"COMBINE\" "
@@ -187,7 +188,7 @@ void cse::WordLang::parseList() {
       return;
     }
 
-  } else if (listIdentifier.id == 251) {  // Difference the lists
+  } else if (listIdentifier.id == emplex::Lexer::ID_DIFFERENCE) {  // Difference the lists
     std::vector<std::string> listsToDifference = parseMultipleLists();
 
     // Error occured, syntax is wrong
@@ -203,7 +204,7 @@ void cse::WordLang::parseList() {
       return;
     }
 
-    if (mTokenManager.Peek() != mTokenManager.eof_token) {
+    if (mTokenManager.Peek() != mTokenManager.EOF_TOKEN) {
       // check if we don't have anything else apart from DIFFERENCE
       mErrorManager.printInfo(
           "Incorrect Syntax: Encountered unknown symbols after \"DIFFERENCE\" "
@@ -217,7 +218,7 @@ void cse::WordLang::parseList() {
       return;
     }
 
-  } else if (listIdentifier.id == 250) {  // Intersection the lists
+  } else if (listIdentifier.id == emplex::Lexer::ID_INTERSECTION) {  // Intersection the lists
     std::vector<std::string> listsToIntersection = parseMultipleLists();
 
     // Error occured, syntax is wrong
@@ -233,7 +234,7 @@ void cse::WordLang::parseList() {
       return;
     }
 
-    if (mTokenManager.Peek() != mTokenManager.eof_token) {
+    if (mTokenManager.Peek() != mTokenManager.EOF_TOKEN) {
       // check if we don't have anything else apart from INTERSECTION
       mErrorManager.printInfo(
           "Incorrect Syntax: Encountered unknown symbols after "
@@ -247,17 +248,17 @@ void cse::WordLang::parseList() {
       return;
     }
 
-  } else if (listIdentifier.id == 249) {  // Copy the list
+  } else if (listIdentifier.id == emplex::Lexer::ID_COPY) {  // Copy the list
     emplex::Token listnameToCopy = mTokenManager.Use();
 
-    if (listnameToCopy == mTokenManager.eof_token ||
+    if (listnameToCopy == mTokenManager.EOF_TOKEN ||
         listnameToCopy != emplex::Lexer::ID_LISTNAME) {
       // Missing listname to copy
       mErrorManager.printInfo("Incorrect Syntax: Missing list name to copy.");
       return;
     }
 
-    if (mTokenManager.Peek() != mTokenManager.eof_token) {
+    if (mTokenManager.Peek() != mTokenManager.EOF_TOKEN) {
       // check if we don't have anything else apart from COPY
       mErrorManager.printInfo(
           "Incorrect Syntax: Encountered unknown symbols after \"COPY\" "
@@ -280,7 +281,7 @@ void cse::WordLang::parseList() {
 [[nodiscard]] std::vector<std::string> cse::WordLang::parseMultipleLists() {
   std::vector<std::string> lists_to_combine;
 
-  while (mTokenManager.Peek() != mTokenManager.eof_token) {
+  while (mTokenManager.Peek() != mTokenManager.EOF_TOKEN) {
     if (mTokenManager.Peek() == emplex::Lexer::ID_LISTNAME) {
       auto list = mTokenManager.Use();
       lists_to_combine.push_back(list.lexeme);  // Add list name to collection
@@ -299,10 +300,10 @@ void cse::WordLang::parsePrint() {
 
   emplex::Token identifier = mTokenManager.Use();
 
-  if (identifier.id == 236) {  // PRINT ALL
+  if (identifier.id == emplex::Lexer::ID_ALL) {  // PRINT ALL
     if (!mWordListManager.print(0, true)) return;
 
-  } else if (identifier.id == 235) {  // PRINT X number
+  } else if (identifier.id == emplex::Lexer::ID_NUMBER) {  // PRINT X number
     if (!mWordListManager.print(std::stoi(identifier.lexeme))) return;
 
   } else {
@@ -312,7 +313,7 @@ void cse::WordLang::parsePrint() {
     return;
   }
 
-  if (mTokenManager.Peek() != mTokenManager.eof_token) {
+  if (mTokenManager.Peek() != mTokenManager.EOF_TOKEN) {
     // check if we don't have anything else apart from PRINT
     mErrorManager.printInfo(
         "Incorrect Syntax: Encountered unknown symbols after \"PRINT\" token.");
@@ -332,7 +333,7 @@ void cse::WordLang::parseSetCurrent() {
     return;
   }
 
-  if (mTokenManager.Peek() != mTokenManager.eof_token) {
+  if (mTokenManager.Peek() != mTokenManager.EOF_TOKEN) {
     // check if we don't have anything else apart from SET_CURRENT
     mErrorManager.printInfo(
         "Incorrect Syntax: Encountered unknown symbols after \"SET_CURRENT\" "
@@ -352,7 +353,7 @@ void cse::WordLang::parseAdd() {
   emplex::Token listname = mTokenManager.Use();
 
   // Check if a listname provided
-  if (listname == mTokenManager.eof_token ||
+  if (listname == mTokenManager.EOF_TOKEN ||
       listname != emplex::Lexer::ID_LISTNAME) {
     // Print syntax error
     mErrorManager.printInfo("Incorrect Syntax: Missing listname identifier.");
@@ -360,13 +361,13 @@ void cse::WordLang::parseAdd() {
   }
 
   emplex::Token words = mTokenManager.Use();
-  if (words == mTokenManager.eof_token || words != emplex::Lexer::ID_STRING) {
+  if (words == mTokenManager.EOF_TOKEN || words != emplex::Lexer::ID_STRING) {
     // Missing file name to open
     mErrorManager.printInfo("Incorrect Syntax: Missing words to add.");
     return;
   }
 
-  if (mTokenManager.Peek() != mTokenManager.eof_token) {
+  if (mTokenManager.Peek() != mTokenManager.EOF_TOKEN) {
     // check if we don't have anything else apart from ADD
     mErrorManager.printInfo(
         "Incorrect Syntax: Encountered unknown symbols after \"ADD\" token.");
@@ -390,7 +391,7 @@ void cse::WordLang::parseSave() {
   emplex::Token listname = mTokenManager.Use();
 
   // Check if a listname provided
-  if (listname == mTokenManager.eof_token ||
+  if (listname == mTokenManager.EOF_TOKEN ||
       listname != emplex::Lexer::ID_LISTNAME) {
     // Print syntax error
     mErrorManager.printInfo("Incorrect Syntax: Missing listname identifier.");
@@ -398,14 +399,14 @@ void cse::WordLang::parseSave() {
   }
 
   emplex::Token filename = mTokenManager.Use();
-  if (filename == mTokenManager.eof_token ||
+  if (filename == mTokenManager.EOF_TOKEN ||
       filename != emplex::Lexer::ID_STRING) {
     // Missing file name to open
     mErrorManager.printInfo("Incorrect Syntax: Missing filename to save.");
     return;
   }
 
-  if (mTokenManager.Peek() != mTokenManager.eof_token) {
+  if (mTokenManager.Peek() != mTokenManager.EOF_TOKEN) {
     // check if we don't have anything else apart from SAVE
     mErrorManager.printInfo(
         "Incorrect Syntax: Encountered unknown symbols after \"SAVE\" token.");
@@ -425,7 +426,7 @@ void cse::WordLang::parseLength() {
   mTokenManager.Use();
 
   // Check if = is used
-  if (mTokenManager.Use_if(232) == mTokenManager.eof_token) {
+  if (mTokenManager.Use_if(emplex::Lexer::ID_ASSIGN) == mTokenManager.EOF_TOKEN) {
     // Print syntax error
     mErrorManager.printInfo("Incorrect Syntax: Missing assign(=) operator.");
     return;
@@ -433,7 +434,7 @@ void cse::WordLang::parseLength() {
 
   emplex::Token length = mTokenManager.Use();
 
-  if (length == mTokenManager.eof_token ||
+  if (length == mTokenManager.EOF_TOKEN ||
       (length != emplex::Lexer::ID_NUMBER &&
        length != emplex::Lexer::ID_STAR)) {
     // Print syntax error
@@ -442,7 +443,7 @@ void cse::WordLang::parseLength() {
     return;
   }
 
-  if (mTokenManager.Peek() != mTokenManager.eof_token) {
+  if (mTokenManager.Peek() != mTokenManager.EOF_TOKEN) {
     // check if we don't have anything else apart from LENGTH
     mErrorManager.printInfo(
         "Incorrect Syntax: Encountered unknown symbols after \"LENGTH\" "
@@ -458,7 +459,7 @@ void cse::WordLang::parseContainsAny() {
 
   emplex::Token letters = mTokenManager.Use();
 
-  if (letters == mTokenManager.eof_token ||
+  if (letters == mTokenManager.EOF_TOKEN ||
       letters != emplex::Lexer::ID_STRING) {
     // Print syntax error
     mErrorManager.printInfo(
@@ -466,7 +467,7 @@ void cse::WordLang::parseContainsAny() {
     return;
   }
 
-  if (mTokenManager.Peek() != mTokenManager.eof_token) {
+  if (mTokenManager.Peek() != mTokenManager.EOF_TOKEN) {
     // check if we don't have anything else apart from CONTAINS_ANY
     mErrorManager.printInfo(
         "Incorrect Syntax: Encountered unknown symbols after \"CONTAINS_ANY\" "
@@ -486,7 +487,7 @@ void cse::WordLang::parseContainsAll() {
   mTokenManager.Use();  // use current token
 
   emplex::Token letters = mTokenManager.Use();
-  if (letters == mTokenManager.eof_token ||
+  if (letters == mTokenManager.EOF_TOKEN ||
       letters != emplex::Lexer::ID_STRING) {
     // Print error and return
     mErrorManager.printInfo(
@@ -494,7 +495,7 @@ void cse::WordLang::parseContainsAll() {
     return;
   }
 
-  if (mTokenManager.Peek() != mTokenManager.eof_token) {
+  if (mTokenManager.Peek() != mTokenManager.EOF_TOKEN) {
     // check if we don't have anything else apart from CONTAINS_ALL
     mErrorManager.printInfo(
         "Incorrect Syntax: Encountered unknown symbols after \"CONTAINS_ALL\" "
@@ -513,7 +514,7 @@ void cse::WordLang::parseNotContains() {
   mTokenManager.Use();
 
   emplex::Token letters = mTokenManager.Use();
-  if (letters == mTokenManager.eof_token ||
+  if (letters == mTokenManager.EOF_TOKEN ||
       letters != emplex::Lexer::ID_STRING) {
     // Print error and return
     mErrorManager.printInfo(
@@ -521,7 +522,7 @@ void cse::WordLang::parseNotContains() {
     return;
   }
 
-  if (mTokenManager.Peek() != mTokenManager.eof_token) {
+  if (mTokenManager.Peek() != mTokenManager.EOF_TOKEN) {
     // check if we don't have anything else apart from NOT_CONTAINS
     mErrorManager.printInfo(
         "Incorrect Syntax: Encountered unknown symbols after \"NOT_CONTAINS\" "
@@ -541,7 +542,7 @@ void cse::WordLang::parseGet() {
   mTokenManager.Use();  // use keywords "GET"
 
   emplex::Token letters = mTokenManager.Use();
-  if (letters == mTokenManager.eof_token ||
+  if (letters == mTokenManager.EOF_TOKEN ||
       letters != emplex::Lexer::ID_STRING) {
     // Print error and return
     mErrorManager.printInfo(
@@ -549,7 +550,7 @@ void cse::WordLang::parseGet() {
     return;
   }
 
-  if (mTokenManager.Peek() != mTokenManager.eof_token) {
+  if (mTokenManager.Peek() != mTokenManager.EOF_TOKEN) {
     // check if we don't have anything else apart from GET
     mErrorManager.printInfo(
         "Incorrect Syntax: Encountered unknown symbols after \"GET\" token.");
@@ -568,7 +569,7 @@ void cse::WordLang::parseReset() {
   mTokenManager.Use();  // use keyword "RESET"
 
   emplex::Token listname = mTokenManager.Use();
-  if (listname.id == mTokenManager.eof_token) {
+  if (listname.id == mTokenManager.EOF_TOKEN) {
     // if we don't have any listnames - reset all current listnames
     mWordListManager.reset();
     return;
@@ -587,7 +588,7 @@ void cse::WordLang::parseReset() {
 void cse::WordLang::parseWordle() {
   mTokenManager.Use();  // use keyword "WORDLE"
 
-  if (mTokenManager.Use_if(230) == mTokenManager.eof_token) {  // Use '('
+  if (mTokenManager.Use_if(emplex::Lexer::ID_OPEN_PARANTHESIS) == mTokenManager.EOF_TOKEN) {  // Use '('
     mErrorManager.printInfo(
         "Incorrect Syntax: Wordle command must have \'(\'.");
     return;
@@ -595,13 +596,13 @@ void cse::WordLang::parseWordle() {
 
   emplex::Token word = mTokenManager.Use();
 
-  if (word == mTokenManager.eof_token || word != emplex::Lexer::ID_STRING) {
+  if (word == mTokenManager.EOF_TOKEN || word != emplex::Lexer::ID_STRING) {
     mErrorManager.printInfo(
         "Incorrect Syntax: Missing word inputted to the wordle.");
     return;
   }
 
-  if (mTokenManager.Use_if(231) == mTokenManager.eof_token) {  // Use ','
+  if (mTokenManager.Use_if(emplex::Lexer::ID_COMMA) == mTokenManager.EOF_TOKEN) {  // Use ','
     mErrorManager.printInfo(
         "Incorrect Syntax: Missing \',\' between two strings.");
     return;
@@ -609,19 +610,19 @@ void cse::WordLang::parseWordle() {
 
   emplex::Token result = mTokenManager.Use();
 
-  if (result == mTokenManager.eof_token || result != emplex::Lexer::ID_STRING) {
+  if (result == mTokenManager.EOF_TOKEN || result != emplex::Lexer::ID_STRING) {
     mErrorManager.printInfo(
         "Incorrect Syntax: Missing result string from wordle.");
     return;
   }
 
-  if (mTokenManager.Use_if(229) == mTokenManager.eof_token) {  // Use ')'
+  if (mTokenManager.Use_if(emplex::Lexer::ID_CLOSE_PARANTHESIS) == mTokenManager.EOF_TOKEN) {  // Use ')'
     mErrorManager.printInfo(
         "Incorrect Syntax: Wordle command must have \')\' at the end.");
     return;
   }
 
-  if (mTokenManager.Peek() != mTokenManager.eof_token) {
+  if (mTokenManager.Peek() != mTokenManager.EOF_TOKEN) {
     // check if we don't have anything else apart from WORDLE
     mErrorManager.printInfo(
         "Incorrect Syntax: Encountered unknown symbols after \"WORDLE\" "
