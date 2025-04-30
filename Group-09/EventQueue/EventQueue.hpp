@@ -97,8 +97,10 @@ class EventQueue {
    * @return The event at the top of the EventQueue
    */
   Event<Args...> pop() {
-    assert(eventCount_ >
-           0);  // Ensure there is an event to pop (heap is not empty)
+    //assert(eventCount_ >
+    //       0);  // Ensure there is an event to pop (heap is not empty)
+    if (eventCount_ == 0)
+      throw std::underflow_error("Empty EventQueue cannot pop");
     auto e = heap_.top();
     heap_.pop();
     eventCount_--;
@@ -111,8 +113,10 @@ class EventQueue {
    * @return The event at the top of the EventQueue
    */
   Event<Args...> peek() const {
-    assert(eventCount_ >
-           0);  // Ensure there is an event to pop (heap is not empty)
+    //assert(eventCount_ >
+    //       0);  // Ensure there is an event to pop (heap is not empty)
+    if (eventCount_ == 0)
+      throw std::underflow_error("Empty EventQueue cannot peek");
     return heap_.top();
   }
 
