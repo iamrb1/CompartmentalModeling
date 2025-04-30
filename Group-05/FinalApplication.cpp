@@ -1292,11 +1292,13 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os,
             }
 
             if (method == "d") {
+              //default value for entire row
               os << "\nEnter default value (number or string): ";
               std::string input;
               std::getline(is, input);
               auto num = ValidDouble(input);
-
+              //check if input can be converted to double
+              //if not, default value is a string
               if (num.has_value()) {
                 grid.InsertDefaultRow(cse::kNoIndex, num.value());
               } else {
@@ -1312,12 +1314,13 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os,
               std::vector<Datum> new_row;
               os << "\nEnter " << num_cols
                  << " values for the new row one at a time: \n";
-
               for (std::size_t i = 0; i < num_cols; ++i) {
+                //prompt each value
                 os << "Value " << i + 1 << ":" << std::endl;
                 std::string val;
                 std::getline(is, val);
                 auto num = ValidDouble(val);
+                // Convert the input to a Datum: use numeric value if valid, otherwise store as string
                 new_row.emplace_back(num.has_value() ? Datum(num.value())
                                                      : Datum(val));
               }
@@ -1342,6 +1345,7 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os,
                 os << "Examples: \n1) {0} + {1}  \n2) {0} * {0} / {1} \n3) {0} "
                       "^ {0} - {1} \n";
                 std::getline(is, equation);
+                //validate custom equation
                 if (IsValidCustomEquation(
                         equation,
                         static_cast<int>(std::get<0>(grid.Shape())))) {
@@ -1349,14 +1353,17 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os,
                 }
                 os << "Invalid equation. Try again. \n";
               }
-
+              //create equation parser
               cse::ExpressionParser<cse::ReferenceVector<Datum>> parser;
               cse::ReferenceVector<Datum> col;
               size_t index = 0;
+              //create function to be run on each column to create new value for row
               auto func = parser.MakeFunc(equation, 0, index);
 
+              //call equation for each index
               for (size_t i = 0; i < num_cols; ++i) {
                 col = grid.GetColumn(i);
+                //Call lambda on column to generate result for new row, add it to the row
                 new_row.push_back(func(col));
               }
               grid.InsertRow(new_row);
@@ -1393,7 +1400,8 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os,
               std::string input;
               std::getline(is, input);
               auto num = ValidDouble(input);
-
+              //check if input can be converted to double
+              //if not, default value is a string
               if (num.has_value()) {
                 grid.InsertDefaultColumn(cse::kNoIndex, num.value());
               } else {
@@ -1410,11 +1418,13 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os,
                  << " values for the new column one at a time: \n";
 
               for (std::size_t i = 0; i < num_rows; ++i) {
+                //prompt for each value
                 os << "Value " << i + 1 << ":" << std::endl;
                 std::string val;
                 std::getline(is, val);
 
                 auto num = ValidDouble(val);
+                // Convert the input to a Datum: use numeric value if valid, otherwise store as string
                 new_column.emplace_back(num.has_value() ? Datum(num.value())
                                                         : Datum(val));
               }
@@ -1441,7 +1451,7 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os,
                 os << "Examples: \n1) {0} + {1}  \n2) {0} * {0} / {1} \n3) {0} "
                       "^ {0} - {1} \n";
                 std::getline(is, equation);
-
+                //validate equation
                 if (IsValidCustomEquation(
                         equation,
                         static_cast<int>(std::get<1>(grid.Shape())))) {
@@ -1449,17 +1459,18 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os,
                 }
                 os << "Invalid equation. Try again. \n";
               }
-
+              //create parser
               cse::ExpressionParser<std::vector<Datum>> parser;
               std::vector<Datum> row;
               size_t index = 0;
+              //Make lambda function to calculate new column
               auto func = parser.MakeFunc(equation, 0, index);
-
+              //run equation function for each index to create new column
               for (size_t i = 0; i < num_rows; ++i) {
                 row = grid.GetRow(i);
                 new_col.push_back(func(row));
               }
-
+              //Add new column
               grid.InsertColumn(new_col);
               os << "Column Added." << std::endl;
 
@@ -1490,6 +1501,7 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os,
             while (true) {
               os << "\nEnter number of rows for merging grid: ";
               std::getline(is, merge_rows);
+              //Iterate throguh rows for merge
               if (std::optional<int> rows_int = ValidInt(merge_rows);
                   rows_int.has_value() && rows_int.value() > 0) {
                 if (merge_type == "1" ||
@@ -1528,7 +1540,7 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os,
               }
             }
             int merge_col_int = std::stoi(merge_cols);
-
+            //Perform merge
             std::vector merge_data(merge_rows_int,
                                    std::vector<Datum>(merge_col_int));
             os << "Enter " << merge_rows_int * merge_col_int
@@ -1546,7 +1558,6 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os,
                 counter += 1;
               }
             }
-
             cse::DataGrid other_grid(merge_data);
             grid = grid.Merge(other_grid, merge_type_int == 1);
             os << "Grids merged." << std::endl;
