@@ -154,6 +154,13 @@ class EventQueue {
   }
 
   [[nodiscard]] size_t size() const { return eventCount_; }
+
+  /**
+   * @brief Checks if an event with given ID exists
+   * @param id to check
+   * @return true if exists
+   */
+  bool contains(const std::string &id) { return ids_.contains(id); }
 };
 
 }  // namespace cse

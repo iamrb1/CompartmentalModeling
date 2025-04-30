@@ -223,24 +223,20 @@ class PresentationEventManager {
 			} else if (parseType(target) == EventType::Image || parseType(target) == EventType::Textbox) {
 				// Add an event to toggle initially toggle the object off
 				const auto event = Event(target + "-rm", 0, function, _presentation_manager, parseID(target));
-                try {
-                  _queues[origin].add(event);
-                } catch (const std::invalid_argument &) {
-                  // Catch if event already exists
+                if(_queues[origin].contains(event.getID())) {
                   _queues[origin].remove(event.getID());
-                  _queues[origin].add(event);
                 }
+                _queues[origin].add(event);
 			}
 
 			_id_to_slide[target] = origin; // Map ID to slide num
 			const auto event = Event(target, time, function, _presentation_manager, parseID(target));
-			try {
-              _queues[origin].add(event);
-            } catch (const std::invalid_argument &) {
-              // Catch if event already exists
+
+            // If event already exists, delete and rewrite
+			if(_queues[origin].contains(event.getID())) {
               _queues[origin].remove(event.getID());
-              _queues[origin].add(event);
             }
+            _queues[origin].add(event);
 			_active_queue = _queues[_current_slide]; // Re-copy the active queue
 		}
 
