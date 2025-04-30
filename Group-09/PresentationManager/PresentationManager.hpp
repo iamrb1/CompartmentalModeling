@@ -399,14 +399,19 @@ class PresentationManager {
 			slide->toggleTextBox(textBoxLayout);
 		}
 
-
+        /**
+         * Updates an image size
+         * @param id of image
+         * @param newWidth of image
+         * @param newHeight of image
+         */
         void updateImageSize(const std::string& id, int newWidth, int newHeight) {
 		  if (_slide_deck.empty() || _current_pos >= _slide_deck.size()) return;
 		  auto& layout = _slide_deck.at(_current_pos);
 
 		  for (auto& img : layout->getImages()) {
 		    if (img.image->getID() == id) {
-		      img.image->resize(newWidth, newHeight);
+		      img.image->resize(newWidth, newHeight, false);
 		      break;
 		    }
 		  }

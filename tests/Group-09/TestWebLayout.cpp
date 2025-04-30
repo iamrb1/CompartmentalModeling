@@ -3,7 +3,10 @@
  *
  * @author Mary Holt
  *
- * Compile with: emcc TestWebLayout.cpp ../../Group-09/Image/Image.cpp ../../Group-09/WebLayout/WebLayout.cpp -o TestWebLayout.html
+ * Compile with: emcc -std=c++20 TestWebLayout.cpp ../../Group-09/Image/Image.cpp ../../Group-09/WebLayout/WebLayout.cpp -o TestWebLayout.html  --shell-file testingIndex.html
+ * Then run: python -m http.server
+ * Navigate to: http://localhost:8000/TestWebLayout.html
+ * Check console for error messages and check elements for created test layouts
  */
 
 #include <iostream>
@@ -45,9 +48,11 @@ void testCase2() {
 
   FormattedText ft;
   ft.setText("CSE498");
-  std::shared_ptr<TextBox> tb = std::make_shared<TextBox>();
-  tb->setFormattedText(ft);
-  tb->resize(100, 100);
+  TextBoxConfig tbc;
+  tbc.width = 100;
+  tbc.height = 100;
+  tbc.content = ft;
+  std::shared_ptr<TextBox> tb = std::make_shared<TextBox>("", tbc);
   TextBoxLayout tbl(tb, 12, 12);
   wb.addTextBox(tbl);
 
@@ -84,9 +89,11 @@ void testCase3() {
 
   FormattedText ft;
   ft.setText("CSE498");
-  std::shared_ptr<TextBox> tb = std::make_shared<TextBox>();
-  tb->setFormattedText(ft);
-  tb->resize(100, 100);
+  TextBoxConfig tbc;
+  tbc.width = 100;
+  tbc.height = 100;
+  tbc.content = ft;
+  std::shared_ptr<TextBox> tb = std::make_shared<TextBox>("", tbc);
   TextBoxLayout tbl(tb, 12, 12);
   wb.addTextBox(tbl);
 
@@ -121,9 +128,11 @@ void testCase4() {
 
   FormattedText ft;
   ft.setText("CSE498");
-  std::shared_ptr<TextBox> tb = std::make_shared<TextBox>();
-  tb->setFormattedText(ft);
-  tb->resize(100, 100);
+  TextBoxConfig tbc;
+  tbc.width = 100;
+  tbc.height = 100;
+  tbc.content = ft;
+  std::shared_ptr<TextBox> tb = std::make_shared<TextBox>("", tbc);
   TextBoxLayout tbl(tb, 12, 12);
   wb.addTextBox(tbl);
 
@@ -132,37 +141,17 @@ void testCase4() {
 
   FormattedText ft2;
   ft.setText("CSE498-Capstone");
-  std::shared_ptr<TextBox> tbb = std::make_shared<TextBox>();
-  tbb->setFormattedText(ft2);
-  tbb->resize(200, 200);
+  TextBoxConfig tbc2;
+  tbc2.width = 200;
+  tbc2.height = 200;
+  tbc2.content = ft2;
+  std::shared_ptr<TextBox> tbb = std::make_shared<TextBox>("", tbc2);
   TextBoxLayout tbl2(tbb, 14, 14);
   wb.removeTextBox(tbl2);
   //Check size of text boxes vector
   if (wb.getTextBoxes().size() != 1) { std::cout << "Text box Invalid Removal failure\n"; }
 
   std::cout << "Ending Test Case 4\n";
-}
-
-void testCase5() {
-  // loadPage Function
-  std::cout << "Beginning Test Case 5 (Loading Page)\n";
-
-  WebLayout wb;
-  std::shared_ptr<Image> i = std::make_shared<Image>("https://msu_logo.png", 50, 50);
-  ImageLayout il(i, 10, 10);
-  wb.addImage(il);
-
-  FormattedText ft;
-  ft.setText("CSE498");
-  std::shared_ptr<TextBox> tb = std::make_shared<TextBox>();
-  tb->setFormattedText(ft);
-  tb->resize(100, 100);
-  TextBoxLayout tbl(tb, 12, 12);
-  wb.addTextBox(tbl);
-
-  wb.loadPage();
-  std::cout << "Loaded Page: Please open TestWebLayout.html to inspect correctness\n";
-  std::cout << "Ending Test Case 5 (Loading Page)\n";
 }
 
 void testCase6() {
@@ -209,15 +198,207 @@ void testCase7() {
   std::cout << "Ending Test Case 7 (ID)\n";
 }
 
+void testCase8() {
+  // Testing Get Items from IDs
+  std::cout << "Beginning Test Case 8 (Get Item from ID)\n";
+
+  WebLayout wb;
+
+  std::shared_ptr<Image> i = std::make_shared<Image>("https://msu_logo.png", 50, 50);
+  ImageLayout il(i, 10, 10);
+  wb.addImage(il);
+  //Check size of images vector (ensure added correctly)
+  if (wb.getImages().size() != 1) { std::cout << "Image adding failure\n"; }
+  std::string testID = il.image->getID();
+  auto retrievedImage = wb.getImageFromID(testID);
+  if(retrievedImage.image != il.image) { std::cout << "Get Image from ID Error!\n"; }
+
+  FormattedText ft;
+  ft.setText("CSE498");
+  TextBoxConfig tbc;
+  tbc.width = 100;
+  tbc.height = 100;
+  tbc.content = ft;
+  std::shared_ptr<TextBox> tb = std::make_shared<TextBox>("", tbc);
+  TextBoxLayout tbl(tb, 12, 12);
+  wb.addTextBox(tbl);
+
+  //Check size of textbox vector (ensure added correctly)
+  if (wb.getTextBoxes().size() != 1) { std::cout << "Textbox adding failure\n"; }
+  testID = tbl.textBox->getID();
+  auto retrievedTextBox = wb.getTextboxFromID(testID);
+  if(retrievedTextBox.textBox != tbl.textBox) { std::cout << "Get Image from ID Error!\n"; }
+
+  std::cout << "Ending Test Case 8 (Get Item from ID)\n";
+}
+
+void testCase9() {
+  // Testing modifying of image (setPosition, setSize, contains)
+  std::cout << "Beginning Test Case 9 (Modifying Image)\n";
+
+  WebLayout wb;
+
+  std::shared_ptr<Image> i = std::make_shared<Image>("https://msu_logo.png", 50, 50);
+  ImageLayout il(i, 10, 10);
+  wb.addImage(il);
+  //Check size of images vector (ensure added correctly)
+  if (wb.getImages().size() != 1) { std::cout << "Image adding failure\n"; }
+  std::string testID = il.image->getID();
+
+  // Change position of image
+  wb.setPosition(testID, 50, 50);
+  auto retrievedImage = wb.getImageFromID(testID);
+  if(retrievedImage.xPos != 50 || retrievedImage.yPos != 50) { std::cout << "Change position of Image Error!\n"; }
+
+  // Change size
+  wb.setSize(testID, 100, 100);
+  retrievedImage = wb.getImageFromID(testID);
+  if(retrievedImage.image->getHeight() != 100 || retrievedImage.image->getWidth() != 100) { std::cout << "Change size of Image Error!\n"; }
+
+  // Check if contains
+  if(!wb.contains(testID)) { std::cout << "Checking layout contains image error!\n"; }
+  // Check wrong contains works
+  std::shared_ptr<Image> i2 = std::make_shared<Image>("https://msu_logo.png", 5, 5);
+  ImageLayout il2(i2, 40, 40);
+  std::string wrongID = il2.image->getID();
+  if(wb.contains(wrongID)) { std::cout << "Web Layout contains error! (Wrongfully detected image)\n"; }
+
+  std::cout << "Ending Test Case 9 (Modifying Image)\n";
+
+}
+
+void testCase10() {
+  // Testing modifying of textbox (setPosition, setSize, contains)
+  std::cout << "Beginning Test Case 10 (Modifying TextBox)\n";
+
+  WebLayout wb;
+
+  FormattedText ft;
+  ft.setText("CSE498");
+  TextBoxConfig tbc;
+  tbc.width = 100;
+  tbc.height = 100;
+  tbc.content = ft;
+  std::shared_ptr<TextBox> tb = std::make_shared<TextBox>("", tbc);
+  TextBoxLayout tbl(tb, 12, 12);
+  wb.addTextBox(tbl);
+
+  std::string testID = tbl.textBox->getID();
+
+  // Change position of image
+  wb.setPosition(testID, 50, 50);
+  auto retrievedTextBox = wb.getTextboxFromID(testID);
+  if(retrievedTextBox.xPos != 50 || retrievedTextBox.yPos != 50) { std::cout << "Change position of TextBox Error!\n"; }
+
+  // Change size
+  wb.setSize(testID, 50, 50);
+  retrievedTextBox = wb.getTextboxFromID(testID);
+  if(retrievedTextBox.textBox->getHeight() != 50 || retrievedTextBox.textBox->getWidth() != 50) { std::cout << "Change size of TextBox Error!\n"; }
+
+  // Check if contains
+  if(!wb.contains(testID)) { std::cout << "Checking layout contains textbox error!\n"; }
+  // Check wrong contains works
+  FormattedText ft2;
+  ft2.setText("CSE498 RULES");
+  TextBoxConfig tbc2;
+  tbc2.width = 10;
+  tbc2.height = 10;
+  tbc2.content = ft2;
+  std::shared_ptr<TextBox> tb2 = std::make_shared<TextBox>("", tbc2);
+  TextBoxLayout tbl2(tb2, 20, 20);
+
+  std::string wrongID = tbl2.textBox->getID();
+  if(wb.contains(wrongID)) { std::cout << "Web Layout contains error! (Wrongfully detected textbox)\n"; }
+
+  std::cout << "Ending Test Case 10 (Modifying TextBox)\n";
+
+}
+
+void testCase11() {
+  // Testing toggling text boxes and items (fully UI testing)
+  std::cout << "Beginning Test Case 11 (Toggling Items)\n";
+
+  WebLayout wb;
+
+  FormattedText ft;
+  ft.setText("CSE498");
+  TextBoxConfig tbc;
+  tbc.width = 45;
+  tbc.height = 45;
+  tbc.content = ft;
+  std::shared_ptr<TextBox> tb = std::make_shared<TextBox>("", tbc);
+  TextBoxLayout tbl(tb, 12, 12);
+  wb.addTextBox(tbl);
+
+  FormattedText ft2;
+  ft2.setText("CSE498-Capstone");
+  TextBoxConfig tbc2;
+  tbc2.width = 20;
+  tbc2.height = 20;
+  tbc2.content = ft2;
+  std::shared_ptr<TextBox> tbb = std::make_shared<TextBox>("", tbc2);
+  TextBoxLayout tbl2(tbb, 30, 30);
+  wb.addTextBox(tbl2);
+
+  std::shared_ptr<Image> i = std::make_shared<Image>("https://upload.wikimedia.org/wikipedia/en/thumb/a/a7/Michigan_State_Athletics_logo.svg/1200px-Michigan_State_Athletics_logo.svg.png", 50, 50);
+  ImageLayout il(i, 10, 10);
+  wb.addImage(il);
+
+  std::shared_ptr<Image> i2 = std::make_shared<Image>("https://upload.wikimedia.org/wikipedia/en/thumb/a/a7/Michigan_State_Athletics_logo.svg/1200px-Michigan_State_Athletics_logo.svg.png", 10, 30);
+  ImageLayout il2(i2, 70, 15);
+  wb.addImage(il2);
+
+  // Activate whole layout
+  wb.activateLayout();
+
+  // Toggle specific item (should turn off)
+  wb.toggleTextBox(tbl);
+  wb.toggleImage(il);
+
+  // Expected behavior on UI side is second textbox/image still visible, while first is not
+
+  std::cout << "Ending Test Case 11 (Toggling Items)\n";
+}
+
+void testCase12() {
+  // Testing toggling layouts (fully UI testing)
+  std::cout << "Beginning Test Case 11 (Toggling Layout)\n";
+
+  WebLayout wb;
+
+  FormattedText ft;
+  ft.setText("YOU SHOULDN'T SEE THIS TEXT");
+  TextBoxConfig tbc;
+  tbc.width = 100;
+  tbc.height = 100;
+  tbc.content = ft;
+  std::shared_ptr<TextBox> tb = std::make_shared<TextBox>("", tbc);
+  TextBoxLayout tbl(tb, 12, 12);
+  wb.addTextBox(tbl);
+
+  // Activate whole layout
+  wb.activateLayout();
+
+  // Deactivate layout (should not show on UI)
+  wb.deactivateLayout();
+
+  std::cout << "Ending Test Case 11 (Toggling Layout)\n";
+}
+
 int main() {
 
   testCase1();
   testCase2();
   testCase3();
   testCase4();
-  testCase5();
+  // testCase5(); -- Was removed load page function --
   testCase6();
   testCase7();
+  testCase8();
+  testCase9();
+  testCase10();
+  testCase11();
+  testCase12();
 
   return 0;
 }
