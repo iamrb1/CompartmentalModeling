@@ -18,6 +18,9 @@
 #include <algorithm>
 #include <string>
 #include <array>
+#include <cctype>
+#include <ranges>
+#include <string_view>
 #include "Circle.h"
 #include "Surface.h"
 
@@ -130,18 +133,24 @@ void drawLetter(char ch, int x, int y, SDL_Color col)
 int textWidth(int len) { return len*CHAR_W + (len-1)*CHAR_SPACING; }
 
 // Draw a string of uppercase letters
-void drawString(const std::string& s, int x, int y, SDL_Color col)
+void drawString(std::string_view s, int x, int y, SDL_Color col)
 {
+    constexpr int ADVANCE = CHAR_W + CHAR_SPACING;
+
+    auto upper = std::views::transform([](char c) {
+        return static_cast<char>(
+            std::toupper(static_cast<unsigned char>(c)));
+    });
+
     int cx = x;
-    for (size_t i = 0; i < s.size(); ++i) {
-        char ch = std::toupper(static_cast<unsigned char>(s[i]));
-        if (ch >= 'A' && ch <= 'Z') {
+    for (char ch : s | upper)
+    {
+        if (ch >= 'A' && ch <= 'Z')
             drawLetter(ch, cx, y, col);
-        }
-        cx += CHAR_W + CHAR_SPACING;
+
+        cx += ADVANCE;
     }
 }
-
 // Draw a number (0–99), left-aligned
 void drawNumber(int n, int x, int y, SDL_Color col)
 {
@@ -175,73 +184,74 @@ void createDemoCircles()
 }
 
 // Update all circles and game state
+#include <algorithm>   // std::ranges::count_if
+#include <ranges>      // std::views, std::ranges
+
 void update()
 {
-    double cType1 = 0.0;
-    double cType2 = 0.0;
+  	gCircles.erase(
+        std::remove_if(gCircles.begin(), gCircles.end(),
+                       [](auto const& p){ return p == nullptr; }),
+        gCircles.end());
 
     for (auto& circle : gCircles) {
         if (!circle) continue;
 
         if (circle->getType() == cse::CircleType::Predator) {
-            // if regenerating, let it tick up and skip movement/energy drain
             if (circle->isRegenerating()) {
                 circle->regenerateEnergy(10);
                 continue;
             }
-            // otherwise drain
+
             circle->decreaseEnergy(5);
-            // note: once energy<=0, decreaseEnergy() automatically
-            // puts you into regenerating state, so no manual setResting needed
         }
 
-        // Random movement
-        double dirX = (rand() % 3) - 1;
-        double dirY = (rand() % 3) - 1;
+        const double dirX = (rand() % 3) - 1;
+        const double dirY = (rand() % 3) - 1;
         double newX = circle->getX() + dirX * circle->getSpeed();
         double newY = circle->getY() + dirY * circle->getSpeed();
+
         newX = std::clamp(newX, 0.0, WINDOW_WIDTH  - circle->getRadius());
         newY = std::clamp(newY, 0.0, WINDOW_HEIGHT - circle->getRadius());
         gSurface->move_circle(circle, newX, newY);
-
-        // Count types
-        if (circle->getType() == cse::CircleType::Predator) cType1 += 1;
-        if (circle->getType() == cse::CircleType::Prey)    cType2 += 1;
     }
 
     gSurface->update();
 
-    // Handle collisions
-    auto [act, vic] = gSurface->check_collision();
-    if (act == "delete" && vic) {
-        gCircles.erase(std::remove(gCircles.begin(), gCircles.end(), vic), gCircles.end());
+    if (auto [act, vic] = gSurface->check_collision(); act == "delete" && vic) {
+        gCircles.erase(std::remove(gCircles.begin(), gCircles.end(), vic),
+                       gCircles.end());
         gSurface->remove_circle(vic);
-    } else if (act == "add" &&
-        vic && vic->getType() == cse::CircleType::Prey) {
+    }
+    else if (act == "add" &&
+             vic && vic->getType() == cse::CircleType::Prey)
+    {
         static Uint32 last = 0;
         if (SDL_GetTicks() - last >= 1000) {
-            auto b = std::make_shared<cse::Circle>(*vic);
-            gCircles.push_back(b);
-            gSurface->add_circle(b);
+            auto clone = std::make_shared<cse::Circle>(*vic);
+            gCircles.push_back(clone);
+            gSurface->add_circle(clone);
             last = SDL_GetTicks();
         }
     }
 
-    int numRed  = countCircles(cse::CircleType::Predator);
-    int numBlue = countCircles(cse::CircleType::Prey);
-    int total = numRed + numBlue;
-    
+    auto is_pred = [](auto const& p) {
+        return p && p->getType() == cse::CircleType::Predator;
+    };
+    auto is_prey = [](auto const& p) {
+        return p && p->getType() == cse::CircleType::Prey;
+    };
+
+    const int numRed  = std::ranges::count_if(gCircles, is_pred);
+    const int numBlue = std::ranges::count_if(gCircles, is_prey);
+    const int total   = numRed + numBlue;
+
     if (total > 0) {
-        double redPercent = static_cast<double>(numRed) / total;
-        double bluePercent = static_cast<double>(numBlue) / total;
-    
-        if (redPercent >= WIN_THRESHOLD) {
-            std::cout << "Winner: Red" << std::endl;
-            isRunning = false;
-        } else if (bluePercent >= WIN_THRESHOLD) {
-            std::cout << "Winner: Blue" << std::endl;
-            isRunning = false;
-        }
+        const double redPct  = static_cast<double>(numRed)  / total;
+        const double bluePct = static_cast<double>(numBlue) / total;
+
+        if (redPct  >= WIN_THRESHOLD) { std::cout << "Winner: Red\n";  isRunning = false; }
+        if (bluePct >= WIN_THRESHOLD) { std::cout << "Winner: Blue\n"; isRunning = false; }
     }
 }
 
