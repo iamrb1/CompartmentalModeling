@@ -341,13 +341,10 @@ class PresentationManager {
   void onSlideChangedJS() {
     EM_ASM(
         {
-          const currentSlide = $0;
-          const totalSlides = $1;
-          document.getElementById("slideNumberDisplay").textContent =
-    `${currentSlide} of $ {
-            totalSlides
-          }
-          `;
+            const currentSlide = $0;
+            const totalSlides = $1;
+            document.getElementById("slideNumberDisplay").textContent =
+            `${currentSlide} of ${totalSlides}`;
         },
         getCurrentPos() + 1, getNumSlides());
   }
