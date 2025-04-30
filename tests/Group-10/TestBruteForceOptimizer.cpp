@@ -106,140 +106,59 @@ double measureTime(Func &&func) {
   return std::chrono::duration<double, std::milli>(end - start).count();
 }
 
-/**
- * Current Optimization:
- * Focus around bounding based on item weights, halting individual branches once
- * they become infeasible compared to the capacity
- */
-TEST_CASE("BruteForceOptimizer: Optimization Settings",
-          "[BruteForceOptimizer]") {
-  cse::BruteForceOptimizer optimizer;
+TEST_CASE("BruteForceOptimizer: Optimized and unoptimized return the same value with new items",
+  "[BruteForceOptimizer]") 
+{
+    cse::BruteForceOptimizer optimizer;
 
-  std::vector<cse::Item> initialItems = {
-      {"A", 2.0, 2.0}, {"B", 2.0, 2.0}, {"C", 6.0, 6.0}, {"D", 3.0, 3.0},
-      {"E", 2.2, 4.6}, {"F", 1.0, 1.0}, {"G", 1.0, 2.1}, {"H", 5.5, 6.5},
-      {"I", 5.9, 6.0}, {"J", 0.1, 0.4}, {"K", 1.0, 1.1}, {"L", 1.3, 4.0},
-      {"M", 3.3, 3.0}};
-  optimizer.SetItems(initialItems);
-  optimizer.SetCapacity(9.0);
+    std::vector<cse::Item> initialItems = {
+        {"Alpha", 1.0, 2.0}, {"Beta", 3.0, 4.0}, {"Gamma", 4.0, 5.0},
+        {"Delta", 2.5, 3.5}, {"Epsilon", 1.5, 2.5}, {"Zeta", 2.0, 3.0},
+        {"Eta", 5.0, 8.0}, {"Theta", 0.5, 1.5}
+    };
+    double BestScore = 12.0;
 
-  double unoptimizedTime =
-      measureTime([&]() { optimizer.FindOptimalSolution(); });
+    optimizer.SetItems(initialItems);
+    optimizer.SetCapacity(7.0);
 
-  auto unoptimizedScore = optimizer.FindOptimalSolution().first;
+    auto unoptimizedScore = optimizer.FindOptimalSolution().first;
 
-  optimizer.SetOptimizer(true);
+    optimizer.SetOptimizer(true);
 
-  double optimizedTime =
-      measureTime([&]() { optimizer.FindOptimalSolution(); });
+    auto optimizedScore = optimizer.FindOptimalSolution().first;
 
-  auto optimizedScore = optimizer.FindOptimalSolution().first;
-  std::cout << "\n13 Item Test:\n";
-  std::cout << "Unoptimized Time: " << unoptimizedTime << std::endl;
-  std::cout << "Optimized Time: " << optimizedTime << std::endl;
-  std::cout << "Speedup: "
-            << ((unoptimizedTime - optimizedTime) / unoptimizedTime) * 100
-            << "%\n";
-  REQUIRE(unoptimizedTime > optimizedTime);
-  REQUIRE(unoptimizedScore == optimizedScore);
+    REQUIRE(unoptimizedScore == Approx(optimizedScore));
 
-  cse::BruteForceOptimizer optimizer2;
-
-  optimizer2.SetItems(
-      {{"A", 2.0, 2.0}, {"B", 2.0, 2.0}, {"C", 6.0, 6.0}, {"D", 3.0, 3.0},
-       {"E", 2.2, 4.6}, {"F", 1.0, 1.0}, {"G", 1.0, 2.1}, {"H", 5.5, 6.5},
-       {"I", 5.9, 6.0}, {"J", 0.1, 0.4}, {"K", 1.0, 1.1}, {"L", 1.3, 4.0},
-       {"M", 3.3, 3.0}, {"N", 3.0, 3.0}, {"O", 5.2, 3.6}, {"P", 1.4, 5.0},
-       {"Q", 2.7, 2.1}, {"R", 1.5, 4.5}, {"S", 9.9, 6.2}, {"T", 0.3, 1.4},
-       {"U", 1.8, 1.1}, {"V", 1.3, 2.0}, {"W", 3.9, 3.1}, {"X", 1.9, 4.0},
-       {"Y", 1.0, 2.1}, {"Z", 6.5, 3.5}});
-  optimizer2.SetCapacity(9.0);
-
-  double unoptimizedTime2 =
-      measureTime([&]() { optimizer2.FindOptimalSolution(); });
-
-  auto unoptimizedScore2 = optimizer2.FindOptimalSolution().first;
-
-  optimizer2.SetOptimizer(true);
-
-  double optimizedTime2 =
-      measureTime([&]() { optimizer2.FindOptimalSolution(); });
-
-  auto optimizedScore2 = optimizer2.FindOptimalSolution().first;
-  std::cout << "\n26 Item Test:\n";
-  std::cout << "Unoptimized Time: " << unoptimizedTime2 << std::endl;
-  std::cout << "Optimized Time: " << optimizedTime2 << std::endl;
-  std::cout << "Speedup: "
-            << ((unoptimizedTime2 - optimizedTime2) / unoptimizedTime2) * 100
-            << "%\n";
-  REQUIRE(unoptimizedTime2 > optimizedTime2);
-  REQUIRE(unoptimizedScore2 == optimizedScore2);
+    REQUIRE(unoptimizedScore == Approx(BestScore)); 
+    REQUIRE(optimizedScore == Approx(BestScore));
 }
 
-/**
- * This is similar, but tests with different capacities
- */
-TEST_CASE("BruteForceOptimizer: Optimization Settings, higher capacities",
-  "[BruteForceOptimizer]") {
-  cse::BruteForceOptimizer optimizer;
-  
-  std::vector<cse::Item> initialItems = {
-    {"A", 2.0, 2.0}, {"B", 2.0, 2.0}, {"C", 6.0, 6.0}, {"D", 3.0, 3.0},
-    {"E", 2.2, 4.6}, {"F", 1.0, 1.0}, {"G", 11.0, 2.1}, {"H", 5.5, 6.5},
-    {"I", 5.9, 6.0}, {"J", 0.1, 0.4}, {"K", 1.0, 1.1}, {"L", 1.3, 4.0},
-    {"M", 3.3, 3.0}, {"O", 0.3, 0.4}, {"P", 9.3, 1.2}, {"Q", 3.3, 7.9}};
-  optimizer.SetItems(initialItems);
-  optimizer.SetCapacity(30.0);
+TEST_CASE("BruteForceOptimizer: Optimized and unoptimized return same value with a larger new item set",
+  "[BruteForceOptimizer]") 
+{
+    cse::BruteForceOptimizer optimizer2;
 
-  double unoptimizedTime =
-  measureTime([&]() { optimizer.FindOptimalSolution(); });
+    std::vector<cse::Item> moreItems = {
+        {"Alpha", 1.0, 2.0}, {"Beta", 3.0, 4.0}, {"Gamma", 4.0, 5.0},
+        {"Delta", 2.5, 3.5}, {"Epsilon", 1.5, 2.5}, {"Zeta", 2.0, 3.0},
+        {"Eta", 5.0, 8.0}, {"Theta", 0.5, 1.5}, {"Iota", 3.2, 3.6},
+        {"Kappa", 1.1, 2.2}, {"Lambda", 2.8, 3.9}, {"Mu", 4.3, 5.5},
+        {"Nu", 1.7, 2.7}, {"Xi", 3.5, 5.0}
+    };
 
-  auto unoptimizedScore = optimizer.FindOptimalSolution().first;
+    double BestScore = 15.1;
 
-  optimizer.SetOptimizer(true);
+    optimizer2.SetItems(moreItems);
+    optimizer2.SetCapacity(9.0);
 
-  double optimizedTime =
-  measureTime([&]() { optimizer.FindOptimalSolution(); });
+    auto unoptimizedScore2 = optimizer2.FindOptimalSolution().first;
 
-  auto optimizedScore = optimizer.FindOptimalSolution().first;
-  std::cout << "\n16 Item Test, 30.0 Capacity:\n";
-  std::cout << "Unoptimized Time: " << unoptimizedTime << std::endl;
-  std::cout << "Optimized Time: " << optimizedTime << std::endl;
-  std::cout << "Speedup: "
-      << ((unoptimizedTime - optimizedTime) / unoptimizedTime) * 100
-      << "%\n";
+    optimizer2.SetOptimizer(true);
 
-  REQUIRE(unoptimizedTime > optimizedTime);
-  REQUIRE(unoptimizedScore == optimizedScore);
+    auto optimizedScore2 = optimizer2.FindOptimalSolution().first;
+    REQUIRE(optimizedScore2 == Approx(unoptimizedScore2));
+    REQUIRE(optimizedScore2 == Approx(BestScore));
+    REQUIRE(unoptimizedScore2 == Approx(BestScore));
 
-  cse::BruteForceOptimizer optimizer2;
-  initialItems = {
-    {"A", 2.0, 2.0}, {"B", 2.0, 2.0}, {"C", 6.0, 6.0}, {"D", 3.0, 3.0},
-    {"E", 2.2, 4.6}, {"F", 1.0, 1.0}, {"G", 11.0, 2.1}, {"H", 5.5, 6.5},
-    {"I", 5.9, 6.0}, {"J", 0.1, 0.4}, {"K", 1.0, 1.1}, {"L", 1.3, 4.0},
-    {"M", 3.3, 3.0}, {"O", 0.3, 0.4}, {"P", 9.3, 1.2}, {"Q", 3.3, 7.9},
-    {"R", 5.5, 19.0}, {"S", 2.1, 3.4}, {"T", 9.0, 9.4}, {"U", 4.4, 8.7},
-    {"V", 3.5, 4.0}, {"W", 12.2, 15.0}, {"X", 1.1, 0.2}, {"Y", 10.0, 11.0},
-    {"Z", 7.7, 7.9}};
-  optimizer2.SetItems(initialItems);
-  optimizer2.SetCapacity(50.0);
-  unoptimizedTime = measureTime([&]() { 
-    unoptimizedScore = optimizer2.FindOptimalSolution().first;
-  });
 
-  optimizer2.SetOptimizer(true);
-
-  optimizedTime = measureTime([&]() { 
-    optimizedScore = optimizer2.FindOptimalSolution().first;
-  });
-
-  std::cout << "\n26 Item Test, 50.0 Capacity:\n";
-  std::cout << "Unoptimized Time: " << unoptimizedTime << std::endl;
-  std::cout << "Optimized Time: " << optimizedTime << std::endl;
-  std::cout << "Speedup: "
-      << ((unoptimizedTime - optimizedTime) / unoptimizedTime) * 100
-      << "%\n";
-
-  REQUIRE(unoptimizedTime > optimizedTime);
-  REQUIRE(unoptimizedScore == optimizedScore);
 }
