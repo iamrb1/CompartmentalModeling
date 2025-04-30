@@ -35,7 +35,7 @@ class StaticVector {
   /// @brief Adds param value to next open slot of StaticVector
   /// @param value value to be added to StaticVector
   void push_back(const T& value) {
-    if (currentSize_ >= MAX_SIZE) {
+    if (currentSize_ > MAX_SIZE) {
       throw std::out_of_range("Attempt to exceed static vector capacity.");
     }
     data_[currentSize_++] = value;

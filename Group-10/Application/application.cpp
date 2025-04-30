@@ -2,40 +2,31 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
+#include <map>
 #include <optional>
 #include <sstream>
 #include <string>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
-#include "../../Group-06/ArgManager/ArgManager.cpp"
-#include "../../Group-06/CommandLine/CommandLine.cpp"
-#include "../Classes/BruteForceOptimizer.hpp"
-#include "../Classes/ComboManager.hpp"
-#include "../Classes/StaticVector.hpp"
 #include "ApplicationTools.hpp"
+#include "ArgManager.cpp"
+#include "BruteForceOptimizer.hpp"
+#include "ComboManager.hpp"
+#include "CommandLine.cpp"
+#include "StaticVector.hpp"
+namespace PresetMessages = cse::PresetMessages;
 
 static cse::OptimizerSettings settings;
-static const cse::PresetMessages messages;
 static constexpr std::size_t CAPACITY_ARGLENGTH = 10;
 static constexpr double THRESHOLD_TO_SECONDS = 500;
 static constexpr double MILLISECONDS_IN_SECONDS = 1000;
 static constexpr double SPEEDUP_ADJUSTMENT_CONSTANT = 100;
 
 /**
- * Utility Functions:
- *  - ResetGlobalVariables - clears data for nnext command
- *  - split - used for separating strings according to delimiters
- *  - MeasureTime - used for speed/time checks
- *  - printVector - basic function to handle the printing of a vector to the
- * console
- *  - PrintTerminal - prints a basic terminal to the screen for user experience
- *  - RedError - Handles the red coloring for all error messages
- *  - EndProgram - Helper function to terminate the application
- *  - CreateArgManager - Interface function for the ArgManager class constructor
+ * Returns all General Settings to their default state
+ * - Only exception is if defaultCapacity is set, as that needs to persist
  */
-
 void ResetGlobalVariables() {
   std::optional<double> currDefault = settings.defaultCapacity;
   settings = cse::OptimizerSettings();
@@ -63,7 +54,11 @@ std::vector<std::string> split(const std::string &str, char delimiter) {
   return sections;
 }
 
-// Utility function to measure execution time
+/**
+ * @brief records the time taken for a function to execute
+ *
+ * @return double with the amount of time in milliseconds
+ */
 template <typename Func>
 double MeasureTime(Func &&func) {
   auto start = std::chrono::high_resolution_clock::now();
@@ -72,29 +67,38 @@ double MeasureTime(Func &&func) {
   return std::chrono::duration<double, std::milli>(end - start).count();
 }
 
-template <typename T>
-void PrintVector(std::vector<T> vector) {
-  std::cout << std::endl;
-  for (const auto &item : vector) {
-    std::cout << item << "," << std::endl;
-  }
-  std::cout << std::endl;
+/**
+ *  Basic output used to simulate a terminal interface
+ */
+void PrintTerminal() {
+  std::cout << cse::Color::GREEN << "\nBellman-Application> "
+            << cse::Color::RESET;
 }
 
-void PrintTerminal() { std::cout << "\033[32m\nBellman-Application> \033[0m"; }
-
+/**
+ * Helper function for outputting errors
+ */
 std::string RedError(std::string &&message) {
-  return "\033[31m" + message + "\033[0m\n";
+  return cse::Color::RED + message + cse::Color::RESET;
 }
 
+/**
+ * Terminates the program
+ */
 [[noreturn]] void EndProgram() { std::exit(0); }
 
+/**
+ * Prints the solution of any Optimizer run
+ * @param optimalScore The score the optimizer returns
+ * @param optimalSolution a Vector containing the items used in the score
+ */
 void PrintOptimizerResults(double &optimalScore,
                            std::vector<cse::Item> &optimalSolution) {
   std::cout << "Optimal Value Calculated: " << optimalScore << std::endl;
-  std::unordered_map<std::string, int> chosenItems;
+  std::map<std::string, int> chosenItems;
   double capacityUsed = 0.0;
 
+  // Combines repeated items and keeps a count for readability
   for (const auto &item : optimalSolution) {
     if (chosenItems.contains(item.name)) {
       chosenItems.at(item.name) += 1;
@@ -106,16 +110,16 @@ void PrintOptimizerResults(double &optimalScore,
 
   std::cout << "Total Capacity used: (" << capacityUsed << '/'
             << settings.capacity << ")\nThe Items selected for the solution:\n";
-  auto itemIter = chosenItems.begin();
-  while (itemIter != chosenItems.end()) {
-    auto item = (*itemIter).first;
-    auto itemCount = (*itemIter).second;
-    std::cout << item;
-    if (itemCount > 1) {
-      std::cout << '(' << itemCount << "x)";
+
+  for (const auto &pair : chosenItems) {
+    auto [name, count] = pair;
+    std::cout << name;
+    if (count > 1) {
+      std::cout << '(' << count << "x)";
     }
-    std::cout << std::endl;
-    ++itemIter;
+    if (pair != *(chosenItems.rbegin())) {
+      std::cout << ", ";
+    }
   }
   std::cout << std::endl;
 }
@@ -151,13 +155,12 @@ cse::ArgManager CreateArgManager(std::vector<std::string> &args) {
   return mgr;
 }
 
-bool isDigit(const std::string &str) {
-  std::istringstream iss(str);
-  float f;
-  iss >> std::noskipws >> f;
-  return iss.eof() && !iss.fail();
-}
-
+/**
+ * Constructs items based on the input of a file
+ *
+ * @param textFile filestream to read in items
+ * @return A vector of constructed items
+ */
 std::vector<cse::Item> ConstructItems(std::ifstream &textFile) {
   std::vector<cse::Item> Items;
   std::string line;
@@ -171,9 +174,17 @@ std::vector<cse::Item> ConstructItems(std::ifstream &textFile) {
           " expected 3 fields, got: " + std::to_string(itemData.size()));
     }
     try {
-      cse::Item item(itemData[0], std::stod(itemData[1]),
-                     std::stod(itemData[2]));
-      Items.push_back(item);
+      auto weight = std::stod(itemData[1]);
+      auto value = std::stod(itemData[2]);
+      try {
+        cse::Item item(itemData[0], weight, value);
+        Items.push_back(item);
+
+      } catch (std::invalid_argument &e) {
+        throw std::invalid_argument(
+            "Item input error on line " + std::to_string(lineNumber) +
+            " invalid input, weights and values must be positive.");
+      }
       ++lineNumber;
     } catch (std::invalid_argument &e) {
       throw std::invalid_argument("CSV parse error on line " +
@@ -185,6 +196,11 @@ std::vector<cse::Item> ConstructItems(std::ifstream &textFile) {
   return Items;
 }
 
+/**
+ * Driver function for the brute-force command
+ * Uses the global settings to program BruteForceOptimizer and retrieve the
+ * output
+ */
 void CallBruteForceOptimizer() {
   cse::BruteForceOptimizer optimizer;
   optimizer.SetItems(settings.itemList);
@@ -218,7 +234,7 @@ void CallBruteForceOptimizer() {
   if (settings.compare) {
     // Print comparison results
     assert(optimizedTime != 0 &&
-           "Cannot divide by zero");  // TODO: Better message
+           "Optimizer time has evaluated to 0, speedup is extreme.");
     std::cout << "Speedup: "
               << ((unoptimizedTime / optimizedTime) *
                   SPEEDUP_ADJUSTMENT_CONSTANT) -
@@ -237,8 +253,13 @@ void AdjustWeights() {
   }
 }
 
+/**
+ * Main Application Function
+ * Handles all command inputs and reroutes as appropriate
+ */
 int application(std::istream &in) {
-  std::cout << messages.welcomeMessage << messages.commandListMessage;
+  std::cout << PresetMessages::welcomeMessage
+            << PresetMessages::commandListMessage;
   PrintTerminal();
   cse::CommandLine mainCommand;
   mainCommand.addCommand(
@@ -272,7 +293,7 @@ int application(std::istream &in) {
     }
 
     else if (commandName == "help") {
-      std::cout << "All commands:\n" << messages.commandListMessage;
+      std::cout << "All commands:\n" << PresetMessages::commandListMessage;
     }
 
     else if (commandName == "set-capacity") {
@@ -288,7 +309,7 @@ int application(std::istream &in) {
         try {
           if (argMgr.HasArg("-help") || argMgr.HasArg("-h")) {
             // do something to optimize
-            std::cout << messages.capacityHelp;
+            std::cout << PresetMessages::capacityHelp;
             PrintTerminal();
             continue;
           }
@@ -305,8 +326,7 @@ int application(std::istream &in) {
 
     else if (commandName == "show-capacity") {
       if (settings.defaultCapacity.has_value()) {
-        std::cout << "Default value set to: "
-                  << settings.defaultCapacity.value();
+        std::cout << "Default value set to: " << *settings.defaultCapacity;
       } else {
         std::cout << "No default value set.";
       }
@@ -316,7 +336,7 @@ int application(std::istream &in) {
     else if (commandName == "brute-force") {
       if (argMgr.HasArg("-help") || argMgr.HasArg("-h")) {
         // do something to optimize
-        std::cout << messages.optimizerHelpMessage;
+        std::cout << PresetMessages::optimizerHelpMessage;
         PrintTerminal();
         continue;
       }
@@ -340,11 +360,11 @@ int application(std::istream &in) {
       if (textFile.is_open()) {
         try {
           settings.itemList = ConstructItems(textFile);
-        } catch (std::length_error& e) {
+        } catch (std::length_error &e) {
           std::cout << RedError(e.what());
           PrintTerminal();
           continue;
-        } catch (std::invalid_argument& e) {
+        } catch (std::invalid_argument &e) {
           std::cout << RedError(e.what());
           PrintTerminal();
           continue;
@@ -360,14 +380,14 @@ int application(std::istream &in) {
       std::string toFind = "-capacity=";
       auto capacityArg =
           std::find_if(arguments.begin(), arguments.end(),
-                       [=](auto& str) { return str.starts_with(toFind); });
+                       [=](auto &str) { return str.starts_with(toFind); });
 
       // If -capacity=<value> is not present
       if (capacityArg == arguments.end()) {
         // no default capacity either, throw error
         if (!settings.defaultCapacity.has_value()) {
-          std::cout << RedError(
-              "**Specify -capacity=\033[32m<capacity>\033[0m.");
+          std::cout << RedError("**Specify -capacity=" + cse::Color::GREEN +
+                                "<capacity>");
           PrintTerminal();
           continue;
         }

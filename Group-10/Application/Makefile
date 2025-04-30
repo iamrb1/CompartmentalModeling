@@ -9,7 +9,7 @@ else
 	CLEAN = rm -f $(OBJS) $(OUT)
 endif
 
-FLAGS	= -std=c++23 -g3 -c -Wall -Wextra
+FLAGS	= -std=c++23 -g3 -c -Wall -Wextra -I../Classes -I../../Group-06/CommandLine/ -I../../Group-06/ArgManager/
 LFLAGS	= 
 CC	= g++
 

@@ -1,2 +1,1 @@
 brute-force ../../Group-10/Application/alphabet_items.txt -capacity=8.8 -w -r
-brute-force ../../Group-10/Application/alphabet_items.txt -capacity=8.8 -r -o

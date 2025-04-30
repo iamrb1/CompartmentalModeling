@@ -1,6 +1,6 @@
 TEST_NAMES = TestComboManager TestPermutationManager TestStaticVector TestMemoFunction TestBruteForceOptimizer TestMemoryFactory TestFinalApp
 # -O3	  -Wl,--stack,8388608 -ftrack-macro-expansion=0
-FLAGS = -std=c++23 -g -pthread -Wall -Wextra -I../../ -DCATCH_CONFIG_MAIN
+FLAGS = -std=c++23 -g -pthread -Wall -Wextra -I../../ -I../../Group-10/Application/ -I../../Group-10/Classes/ -I../../Group-06/ArgManager/ -I../../Group-06/CommandLine/ -DCATCH_CONFIG_MAIN
 
 default: test
 

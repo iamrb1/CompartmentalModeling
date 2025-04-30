@@ -1,62 +1,71 @@
 #include <optional>
+#include <string_view>
 #include <string>
 #include <vector>
 
 #include "../Classes/BruteForceOptimizer.hpp"
 
 namespace cse {
-struct PresetMessages {
-  const std::string welcomeMessage =
-      "\n\nWelcome to Knapsack Solver.\n"
-      "This solver can process any text or CSV file containing items with "
-      "names, "
-      "weights, and values and return what the best selection of items are for "
-      "the "
-      "space you have.\n"
-      "When using this solver, here are the command options:\n";
+namespace Color {
+  // Needs to be strings as you can't concat string_views & strings
+const std::string RED = "\033[31m";
+const std::string GREEN = "\033[32m";
+const std::string BLUE = "\033[34m";
+const std::string RESET = "\033[0m";
+}  // namespace Color
 
-  const std::string commandListMessage =
-      "\033[34mhelp\033[0m - Prints a list of all available commands\n"
-      "\033[34mset-capacity \033[32m<value>\033[34m\033[0m - Sets a default "
-      "capacity for future brute-force commands to use (unless specified "
-      "otherwise)\n"
-      "\033[34mshow-capacity\033[0m - Shows the default capacity (if one is "
-      "set)\n"
-      "\033[34mbrute-force \033[32m<filepath>\033[34m "
-      "-capacity=\033[32m<value>\033[0m - This will run the Knapsack Solver on "
-      "the provided data file and return the results.\n"
-      "\033[34mquit\033[0m - Closes the application. Other completions include "
-      "\'q\', \'Q\', and \'exit\'\nBoth set-capacity and brute-force have "
-      "individual flag options that can be viewed by typing the command "
-      "followed by '-h'\n";
+namespace PresetMessages {
+constexpr std::string_view welcomeMessage =
+    "\n\nWelcome to Knapsack Solver.\n"
+    "This solver can process any text or CSV file containing items with "
+    "names, "
+    "weights, and values and return what the best selection of items are for "
+    "the "
+    "space you have.\n"
+    "When using this solver, here are the command options:\n";
 
-  const std::string capacityHelp =
-      "\033[34mset-capacity \033[32m<value>\033[34m\033[0m\n"
-      "Other flags available:\n\033[32m-help\033[0m (\033[32m-h\033[0m) = "
-      "Prints this message\n";
+constexpr std::string_view commandListMessage =
+    "\033[34mhelp\033[0m - Prints a list of all available commands\n"
+    "\033[34mset-capacity \033[32m<value>\033[34m\033[0m - Sets a default "
+    "capacity for future brute-force commands to use (unless specified "
+    "otherwise)\n"
+    "\033[34mshow-capacity\033[0m - Shows the default capacity (if one is "
+    "set)\n"
+    "\033[34mbrute-force \033[32m<filepath>\033[34m "
+    "-capacity=\033[32m<value>\033[0m - This will run the Knapsack Solver on "
+    "the provided data file and return the results.\n"
+    "\033[34mquit\033[0m - Closes the application. Other completions include "
+    "\'q\', \'Q\', and \'exit\'\nBoth set-capacity and brute-force have "
+    "individual flag options that can be viewed by typing the command "
+    "followed by '-h'\n";
 
-  const std::string optimizerHelpMessage =
-      "\033[34mbrute-force \033[32m<filepath>\033[34m "
-      "-capacity=\033[32m<value>\033[0m\n\n"
-      "All files must either be .csv, or .txt formatted in the CSV "
-      "style.\n(\033[34m-capacity=\033[0m) command may be omitted if "
-      "\033[34mset-capacity\033[0m has been run.\n"
-      "Other flags available:\n"
-      "\033[32m-help\033[0m (\033[32m-h\033[0m) = Prints this message\n"
-      "\033[32m-optimize\033[0m (\033[32m-o\033[0m) = Turns on all "
-      "optimization "
-      "flags for the problem\n"
-      "\033[32m-compare\033[0m (\033[32m-c\033[0m) = Solves the problem both "
-      "unoptimized and optimized, then "
-      "compares the results to see the speedup\n"
-      "\033[32m-no-weight\033[0m (\033[32m-w\033[0m) = Removes weight "
-      "considerations. The algorithm will only "
-      "consider the number of items in respect to the capacity\n"
-      "\033[32m-repeats\033[0m (\033[32m-r\033[0m) = Allows for items to be "
-      "used "
-      "multiple times in the "
-      "solution. (WARNING: May drastically increase solving time)\n";
-};
+constexpr std::string_view capacityHelp =
+    "\033[34mset-capacity \033[32m<value>\033[34m\033[0m\n"
+    "Other flags available:\n\033[32m-help\033[0m (\033[32m-h\033[0m) = "
+    "Prints this message\n";
+
+constexpr std::string_view optimizerHelpMessage =
+    "\033[34mbrute-force \033[32m<filepath>\033[34m "
+    "-capacity=\033[32m<value>\033[0m\n\n"
+    "All files must either be .csv, or .txt formatted in the CSV "
+    "style.\n(\033[34m-capacity=\033[0m) command may be omitted if "
+    "\033[34mset-capacity\033[0m has been run.\n"
+    "Other flags available:\n"
+    "\033[32m-help\033[0m (\033[32m-h\033[0m) = Prints this message\n"
+    "\033[32m-optimize\033[0m (\033[32m-o\033[0m) = Turns on all "
+    "optimization "
+    "flags for the problem\n"
+    "\033[32m-compare\033[0m (\033[32m-c\033[0m) = Solves the problem both "
+    "unoptimized and optimized, then "
+    "compares the results to see the speedup\n"
+    "\033[32m-no-weight\033[0m (\033[32m-w\033[0m) = Removes weight "
+    "considerations. The algorithm will only "
+    "consider the number of items in respect to the capacity\n"
+    "\033[32m-repeats\033[0m (\033[32m-r\033[0m) = Allows for items to be "
+    "used "
+    "multiple times in the "
+    "solution. (WARNING: May drastically increase solving time)\n";
+};  // namespace PresetMessages
 
 struct OptimizerSettings {
   std::string filename = "";

@@ -30,7 +30,11 @@ struct Item {
 
   Item() = default;
   Item(std::string newName, double newWeight, double newValue)
-      : value(newValue), weight(newWeight), name(newName) {};
+      : value(newValue), weight(newWeight), name(newName) {        
+          if (weight <= 0.0 || value <= 0.0) {
+          throw std::invalid_argument("Item cannot have negative weight or value");
+          }
+      };
   ~Item() = default;
 
   /**
