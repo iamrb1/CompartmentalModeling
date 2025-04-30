@@ -62,7 +62,7 @@ inline size_t parseID(const std::string &object_id) {
 	return stoi(id);
 }
 
-using namespace cse;
+using cse::EventQueue, cse::Event;
 using PresentationFunction = std::function<void(PresentationManager *, size_t)>;
 
 /**
@@ -78,8 +78,8 @@ class PresentationEventManager {
 		size_t _current_slide = 0; ///< Current slide being presented
 		std::vector<EventQueue<PresentationManager *, size_t> > _queues;
 		///< Vector of EventQueues where _queues[x] corresponds to slide x
+	    ///< Copy of queue currently active, this is where events are popped and executed from
 		EventQueue<PresentationManager *, size_t> _active_queue;
-		///< Copy of queue currently active, this is where events are popped and executed from
 		std::map<std::string, size_t> _id_to_slide; ///< EventID to Slide Num map, should speed up remove
 
 		/**
@@ -100,6 +100,7 @@ class PresentationEventManager {
 				if (const auto type = parseType(e.getID());
 					type == EventType::Image || type == EventType::Textbox) e.execute();
 			}
+
 		}
 
 	public:
@@ -189,6 +190,7 @@ class PresentationEventManager {
 			while (_queues[slide_num].size() > 0) {
 				auto e = _active_queue.pop();
 				_id_to_slide.erase(e.getID());
+				_queues[slide_num].pop();
 			}
 			_queues.erase(_queues.begin() + slide_num);
 		}
@@ -206,10 +208,10 @@ class PresentationEventManager {
 
 		/**
 		 * Add an event to the manager
-		 * @param function
-		 * @param origin
-		 * @param target
-		 * @param time
+		 * @param function : The event handler
+		 * @param origin : The slide that event is linked to
+		 * @param target : The id of the object the event acts upon
+		 * @param time : The time to execute the event
 		 */
 		void addEvent(const PresentationFunction &function,
 		              const size_t origin,

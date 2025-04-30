@@ -16,32 +16,7 @@ using namespace cse;
 using json = nlohmann::json;
 using Slide = std::shared_ptr<MockWebLayout>;
 
-enum class ObjectType {
-	Image,
-	Textbox
-};
 
-inline ObjectType parseType(const std::string& object_id) {
-	size_t dashpos = object_id.find('-');
-
-	if (dashpos == std::string::npos) {
-		throw std::invalid_argument("Invalid object ID");
-	}
-	const std::string prefix = object_id.substr(0, dashpos);
-	const ObjectType type = prefix == "textbox" ? ObjectType::Textbox : ObjectType::Image;
-	return type;
-}
-
-inline int parseID(const std::string& object_id) {
-	size_t dashpos = object_id.find('-');
-
-	if (dashpos == std::string::npos) {
-		throw std::invalid_argument("Invalid object ID");
-	}
-
-	const std::string id = object_id.substr(dashpos + 1);
-	return stoi(id);
-}
 
 
 /**
@@ -50,14 +25,10 @@ inline int parseID(const std::string& object_id) {
  */
 class MockPresentationManager {
 	private:
-		PresentationEventManager _event_manager;
+		MockPresentationEventManager _event_manager;
 		bool _running = false;
 		int _current_pos = 0;
 		std::vector<Slide> _slide_deck;
-
-		/// Store events for json output
-		std::map<std::string, int> _object_events; ///< object id -> time
-		std::map<int, std::tuple<int, int>> _transition_events; ///< slideNum -> (time, destination)
 
 	public:
 
@@ -69,11 +40,9 @@ class MockPresentationManager {
 		/**
 		 * Go to the first slide, stop events, and set the eventmanager size
 		 */
-		void initialize() {
-			goTo(0);
-			stop();
-			_event_manager.resize(_slide_deck.size());
-			onSlideChangedJS();
+		void initialize(const size_t size) {
+			_slide_deck.reserve(size);
+			_event_manager.resize(size, true);
 		}
 
 		/**
@@ -86,8 +55,6 @@ class MockPresentationManager {
 			}
 			_slide_deck.clear();
 			_event_manager.clear();
-			_object_events.clear();
-			_transition_events.clear();
 			_current_pos = 0;
 			_event_manager.onSlideChanged(_current_pos);
 			onSlideChangedJS();
@@ -102,6 +69,7 @@ class MockPresentationManager {
 			std::cout << "Starting Events" << std::endl;
             // Toggle bottom bar
             toggleBottomNav(true);
+			toggleBorders(true);
 		}
 
 		/**
@@ -130,16 +98,27 @@ class MockPresentationManager {
 			onSlideChangedJS();
 		}
 
-		/**
-		 * Removes a slide
-		 * @param slide
-		 */
-		void deleteSlide(const Slide& slide) {
-			slide->deactivateLayout();
-			std::erase(_slide_deck, slide);
-			_event_manager.resize(_slide_deck.size());
-			std::cout << "Added new slide. ID: " << slide->getID() << std::endl;
-			onSlideChangedJS();
+	/**
+	 * Removes a slide
+	 * @param slide
+	 */
+	void deleteSlide(const Slide& slide) {
+
+			const auto it = std::ranges::find(_slide_deck, slide);
+			if (it == _slide_deck.end()) {
+				return; //Invalid slide
+			}
+			int slide_num = it - _slide_deck.begin();
+
+			auto new_pos = _current_pos;
+			if (slide_num <= _current_pos){ //If slide is current or previous slide move back one
+				new_pos = _current_pos != 0 ? _current_pos - 1 : _current_pos;
+			}
+
+			auto deck = json::parse(exportSlideDeckToJson(this));
+			deck["slides"].erase(deck["slides"].begin() + slide_num);
+			loadSlideDeckFromJson(deck.dump(2).c_str(), this);
+			goTo(new_pos);
 		}
 
 		/**
@@ -152,10 +131,6 @@ class MockPresentationManager {
 			onSlideChangedJS();
 		}
 
-		[[nodiscard]] auto getObjectEvents() const { return _object_events; }
-
-		[[nodiscard]] auto getTransitionEvents() const { return _transition_events; }
-
 		/**
 		 * Advances to the next slide
 		 */
@@ -165,6 +140,14 @@ class MockPresentationManager {
 		 * Rewinds to the previous slide
 		 */
 		void rewind() { goTo(_current_pos - 1); }
+
+		/**
+		 * Advances to the next event, or next slide if no events remain
+		 */
+		void next() {
+				if (_event_manager.next()) return;
+				advance();
+		}
 
 		/**
 		 * Add a new text box to the current slide
@@ -229,7 +212,6 @@ class MockPresentationManager {
               currentLayout->deactivateLayout();
               toggleEndScreen(true);
 
-              //			_current_pos = slide_num;
             }
 
 			if (slide_num < 0 || slide_num >= _slide_deck.size()) {
@@ -286,6 +268,28 @@ class MockPresentationManager {
 		}
 
 		/**
+		 * Removes object from slides if moveable object
+		 */
+		bool deleteItem(std::string id){
+				if (isMoveableObject(id)) {
+					auto slide = _slide_deck.at(_current_pos);
+					const std::vector<ImageLayout> images = slide->getImages();
+					const auto imageCheck = std::ranges::find_if(images, [id](const ImageLayout& im) { return im.image->getID() == id; });
+					if (imageCheck != images.end()) {
+						_event_manager.removeEvent(id);
+						slide->removeImage(slide->getImageFromID(id));
+					}
+					else {
+						_event_manager.removeEvent(id);
+						slide->removeTextBox(slide->getTextboxFromID(id));
+					}
+					std::cout << "Removed object: " << id << std::endl;
+					return true;
+				}
+				return false;
+		}
+
+		/**
 		 * Getter for slides
 		 * @return slides in the deck
 		 */
@@ -298,6 +302,12 @@ class MockPresentationManager {
 		 * @return int current position in the slide vector
 		 */
 		int getCurrentPos() const { return _current_pos; }
+
+		/**
+		 * This handles the edge case where a slide transition occurs while there are remaining object events
+		 * The objects still needs to reappear in the layout
+		 */
+		void resetObjects() { _event_manager.resetObjects(); }
 
 		/**
 		 * @brief Get the Current Position of the manager
@@ -317,16 +327,15 @@ class MockPresentationManager {
 		 * @param destination Destination slide
 		 */
 		void addSlideChangeEvent(const int time, const int origin, const int destination) {
-            // Check if destination slide exists (destination count is 1 off for user readability on UI)
-            if (destination > getNumSlides() - 1 || getNumSlides() == 0) {
-              std::cout << "WARNING: Destination slide " << (destination + 1) << " doesn't exist." << std::endl;
-              return;
-            }
+				// Check if destination slide exists (destination count is 1 off for user readability on UI)
+				if (destination > getNumSlides() - 1 || getNumSlides() == 0) {
+					std::cout << "WARNING: Destination slide " << (destination + 1) << " doesn't exist." << std::endl;
+					return;
+				}
 
-			std::cout << "Added slide transition: Go from slide " << (origin + 1)
-			<< " to slide " << (destination + 1) << " after " << time << " seconds." << std::endl;
-			_event_manager.addEvent(changeSlide, origin, destination, time);
-			_transition_events[origin] = std::tuple{time, destination};
+				std::cout << "Added slide transition: Go from slide " << (origin + 1)
+				<< " to slide " << (destination + 1) << " after " << time << " seconds." << std::endl;
+				_event_manager.addEvent(changeSlide, origin, std::to_string(destination), time);
 		}
 
 		/**
@@ -337,21 +346,14 @@ class MockPresentationManager {
 		 * @param id
 		 */
 		void addObjectEvent(const int timing, const int slideNum, const std::string& id) {
-			_object_events[id] = timing;
-			if (parseType(id) == ObjectType::Image) { // Image
-				std::cout << "Added image event: ID " << id << " appearing after " << timing << " seconds." << std::endl;
-				// This will make it initially disappear in presentation mode
-				_event_manager.addEvent(imageToggle, slideNum, parseID(id), 0);
-				// This will make it reappear after "timing" seconds
-				_event_manager.addEvent(imageToggle, slideNum, parseID(id), timing);
-			}
-			else { // Textbox
-				std::cout << "Added textbox event: ID " << id << " appearing after " << timing << " seconds." << std::endl;
-				// This will make it initially disappear in presentation mode
-				_event_manager.addEvent(textBoxToggle, slideNum, parseID(id), 0);
-				// This will make it reappear after "timing" seconds
-				_event_manager.addEvent(textBoxToggle, slideNum, parseID(id), timing);
-			}
+				if (parseType(id) == EventType::Image) { // Image
+					std::cout << "Added image event: ID " << id << " appearing after " << timing << " seconds." << std::endl;
+					_event_manager.addEvent(imageToggle, slideNum, id, timing);
+				}
+				else { // Textbox
+					std::cout << "Added textbox event: ID " << id << " appearing after " << timing << " seconds." << std::endl;
+					_event_manager.addEvent(textBoxToggle, slideNum, id, timing);
+				}
 		}
 
 		/**
@@ -388,6 +390,21 @@ class MockPresentationManager {
 		}
 
         void toggleBottomNav(bool hidden) {}
+
+		/**
+		* Toggles borders of textboxes/images during presentations
+		* @param hidden
+		*/
+		void toggleBorders(bool hidden) {}
+
+		/**
+		 * Return event info on a given slide
+		 * @param slideNum
+		 * @return map of IDs to timings
+		 */
+		std::unordered_map<std::string, int> getSlideEventInfo(const int slideNum) const {
+				return _event_manager.getSlideEventInfo(slideNum);
+		}
 
         bool isRunning() const { return _running; }
 
@@ -444,6 +461,122 @@ class MockPresentationManager {
 		static void textBoxToggle(MockPresentationManager *presentation_manager, const int id) {
 			presentation_manager->toggleTextbox("textbox-" + std::to_string(id));
 		}
+
+
+		////////////////////
+		/// JSON
+		////////////////////
+		static void loadSlideDeckFromJson(const char *jsonStr, MockPresentationManager *presentation_manager) {
+
+			json deck = json::parse(jsonStr);
+			presentation_manager->clear(); // Clear the deck before loading new slides
+			presentation_manager->initialize(deck["slides"].size()); // Initialize
+			std::vector<std::tuple<int, int, int>> transitionBuffer; // Buffer so we can add transitions after all slides pushed
+			int slide_num = 0;
+			for (const auto &slide : deck["slides"]) {
+
+				auto layout = std::make_shared<MockWebLayout>();
+
+				// Load all text boxes
+				if (slide.contains("textBoxes")) {
+					for (const auto &tbJson : slide["textBoxes"]) {
+						FormattedTextConfig ftConfig{
+							tbJson["text"], TextType::Raw,
+							tbJson["font"], tbJson["fontSize"],
+							tbJson["color"]
+						};
+						TextBoxConfig tbConfig{
+							FormattedText(ftConfig), tbJson["width"],
+							tbJson["height"]
+						};
+						auto textbox = std::make_shared<TextBox>("", tbConfig);
+						layout->addTextBox(TextBoxLayout(textbox, tbJson["x"], tbJson["y"]));
+						if (tbJson.contains("event")) {
+							presentation_manager->addObjectEvent(tbJson["event"]["time"], slide_num, textbox->getID());
+						}
+					}
+				}
+
+				// Load all images
+				if (slide.contains("images")) {
+					for (const auto &imgJson : slide["images"]) {
+						auto image = std::make_shared<MockImage>(imgJson["url"],
+															 imgJson["width"],
+															 imgJson["height"]);
+						layout->addImage(ImageLayout(image, imgJson["x"], imgJson["y"]));
+						if (imgJson.contains("event")) {
+							presentation_manager->addObjectEvent(imgJson["event"]["time"], slide_num, image->getID());
+						}
+					}
+				}
+				presentation_manager->pushBackSlide(layout); // Add to the global manager
+				if (slide.contains("event")) {
+					transitionBuffer.emplace_back(slide["event"]["time"], slide_num, slide_num + 1);
+				}
+				slide_num++;
+			}
+			for (auto t : transitionBuffer) {
+				auto [time, origin, dest] = t;
+				presentation_manager->addSlideChangeEvent(time, origin, dest);
+			}
+			presentation_manager->goTo(0); // Show the first slide
+		}
+
+		static const char *exportSlideDeckToJson(const MockPresentationManager *presentation_manager) {
+			static std::string exportedJson;
+			json deck;
+			deck["slides"] = json::array();
+			int slide_num = 0;
+			for (const auto &layout : presentation_manager->getSlides()) {
+				json slide;
+				const auto events = presentation_manager->getSlideEventInfo(slide_num);
+				if (events.contains(std::to_string(slide_num + 1))) {
+					slide["event"]["time"] = events.at(std::to_string(slide_num + 1));
+					slide["event"]["dest"] = slide_num + 1;
+				}
+
+				slide["textBoxes"] = json::array();
+				for (const auto &tb : layout->getTextBoxes()) {
+					const auto &text = tb.textBox->getFormattedText();
+					json tbJson = {
+						{"text", text.getText()},
+						{"font", text.getFont()},
+						{"fontSize", text.getFontSize()},
+						{"color", text.getColor()},
+						{"width", tb.textBox->getWidth()},
+						{"height", tb.textBox->getHeight()},
+						{"x", tb.xPos},
+						{"y", tb.yPos}
+					};
+					if (events.contains(tb.textBox->getID())) {
+						tbJson["event"]["time"] = events.at(tb.textBox->getID());
+					}
+					slide["textBoxes"].push_back(tbJson);
+				}
+
+				slide["images"] = json::array();
+				for (const auto &img : layout->getImages()) {
+					json imgJson = {
+						{"url", img.image->getURL()},
+						{"width", img.image->getWidth()},
+						{"height", img.image->getHeight()},
+						{"x", img.xPos},
+						{"y", img.yPos}
+					};
+					if (events.contains(img.image->getID())) {
+						imgJson["event"]["time"] = events.at(img.image->getID());
+					}
+					slide["images"].push_back(imgJson);
+				}
+
+				deck["slides"].push_back(slide);
+				slide_num += 1;
+			}
+
+			exportedJson = deck.dump(2); // pretty print
+			return exportedJson.c_str();
+		}
+
 };
 
 MockPresentationManager MOCK_PRESENTATION_MANAGER; ///< Global presentation manager
@@ -480,6 +613,66 @@ void call_updateTextBoxContent(const char* textboxId, const char* newText) {
 		}
 	}
 }
+void call_updateTextBoxFont(const char* textboxId, const char* newFont) {
+  if (MOCK_PRESENTATION_MANAGER.getSlides().empty() ||
+      MOCK_PRESENTATION_MANAGER.getCurrentPos() >=
+          MOCK_PRESENTATION_MANAGER.getSlides().size()) {
+    std::cout << "ERROR: updateTextBoxContent(): layout index out of range.\n";
+    return;
+  }
+
+  auto& layout =
+      MOCK_PRESENTATION_MANAGER.getSlides().at(MOCK_PRESENTATION_MANAGER.getCurrentPos());
+  auto& textBoxes = layout->getTextBoxes();
+
+  for (auto& tb : textBoxes) {
+    if (tb.textBox->getID() == textboxId) {
+      tb.textBox->getFormattedText().setFont(newFont);
+      break;
+    }
+  }
+}
+
+void call_updateTextBoxFontSize(const char* textboxId, int fontSize) {
+  if (MOCK_PRESENTATION_MANAGER.getSlides().empty() ||
+      MOCK_PRESENTATION_MANAGER.getCurrentPos() >=
+          MOCK_PRESENTATION_MANAGER.getSlides().size()) {
+    std::cout << "ERROR: updateTextBoxContent(): layout index out of range.\n";
+    return;
+  }
+
+  auto& layout =
+      MOCK_PRESENTATION_MANAGER.getSlides().at(MOCK_PRESENTATION_MANAGER.getCurrentPos());
+  auto& textBoxes = layout->getTextBoxes();
+
+  for (auto& tb : textBoxes) {
+    if (tb.textBox->getID() == textboxId) {
+      tb.textBox->getFormattedText().setFontSize(fontSize);
+      break;
+    }
+  }
+}
+
+void call_updateTextBoxColor(const char* textboxId, const char* newColor) {
+  if (MOCK_PRESENTATION_MANAGER.getSlides().empty() ||
+      MOCK_PRESENTATION_MANAGER.getCurrentPos() >=
+          MOCK_PRESENTATION_MANAGER.getSlides().size()) {
+    std::cout << "ERROR: updateTextBoxContent(): layout index out of range.\n";
+    return;
+  }
+
+  auto& layout =
+      MOCK_PRESENTATION_MANAGER.getSlides().at(MOCK_PRESENTATION_MANAGER.getCurrentPos());
+  auto& textBoxes = layout->getTextBoxes();
+
+  for (auto& tb : textBoxes) {
+    if (tb.textBox->getID() == textboxId) {
+      tb.textBox->getFormattedText().setColor(newColor);
+      break;
+    }
+  }
+}
+
 void call_updatePosition(const char* id, int newX, int newY) {
 	std::string cppId(id);
 	MOCK_PRESENTATION_MANAGER.updatePosition(cppId, newX, newY);
@@ -494,136 +687,26 @@ bool call_isMoveableObject(const char* id) {
 	std::string cppId(id);
 	return MOCK_PRESENTATION_MANAGER.isMoveableObject(id);
 }
-void loadSlideDeckFromJson(const char *jsonStr) {
-	std::cout << "clearing" << std::endl;
-	MOCK_PRESENTATION_MANAGER.clear(); // Clear the deck before loading new slides
-	std::cout << "done" << std::endl;
+void call_loadSlideDeckFromJson(const char *jsonStr) { MockPresentationManager::loadSlideDeckFromJson(jsonStr, &MOCK_PRESENTATION_MANAGER); }
+const char *call_exportSlideDeckToJson() { return MockPresentationManager::exportSlideDeckToJson(&MOCK_PRESENTATION_MANAGER); }
 
-	std::vector<std::tuple<int, int, int>> transitionBuffer; // We dont know how many slides there are until done loading
-	json deck = json::parse(jsonStr);
-	int slide_num = 0;
-	for (const auto &slide : deck["slides"]) {
-
-		auto layout = std::make_shared<MockWebLayout>();
-
-		// Load all text boxes
-		if (slide.contains("textBoxes")) {
-			for (const auto &tbJson : slide["textBoxes"]) {
-				FormattedTextConfig ftConfig{
-					tbJson["text"], TextType::Raw,
-					tbJson["font"], tbJson["fontSize"],
-					tbJson["color"]
-				};
-				TextBoxConfig tbConfig{
-					FormattedText(ftConfig), tbJson["width"],
-					tbJson["height"]
-				};
-				auto textbox = std::make_shared<TextBox>("", tbConfig);
-				layout->addTextBox(TextBoxLayout(textbox, tbJson["x"], tbJson["y"]));
-				if (tbJson.contains("event")) {
-					MOCK_PRESENTATION_MANAGER.addObjectEvent(tbJson["event"]["time"], slide_num, textbox->getID());
-				}
-			}
-		}
-
-		// Load all images
-		if (slide.contains("images")) {
-			for (const auto &imgJson : slide["images"]) {
-				auto image = std::make_shared<MockImage>(imgJson["url"],
-				                                     imgJson["width"],
-				                                     imgJson["height"]);
-				layout->addImage(ImageLayout(image, imgJson["x"], imgJson["y"]));
-				if (imgJson.contains("event")) {
-					MOCK_PRESENTATION_MANAGER.addObjectEvent(imgJson["event"]["time"], slide_num, image->getID());
-				}
-			}
-		}
-		MOCK_PRESENTATION_MANAGER.pushBackSlide(layout); // Add to the global manager
-		if (slide.contains("event")) {
-			transitionBuffer.emplace_back(slide["event"]["time"], slide_num, slide["event"]["dest"]);
-		}
-		slide_num++;
-	}
-	for (auto t : transitionBuffer) {
-		auto [time, origin, dest] = t;
-		MOCK_PRESENTATION_MANAGER.addSlideChangeEvent(time, origin, dest);
-	}
-	MOCK_PRESENTATION_MANAGER.initialize(); // Show the first slide
-}
-const char *exportSlideDeckToJson() {
-	static std::string exportedJson;
-	json deck;
-	deck["slides"] = json::array();
-	auto transitionEvents = MOCK_PRESENTATION_MANAGER.getTransitionEvents();
-	auto objectEvents = MOCK_PRESENTATION_MANAGER.getObjectEvents();
-	int slide_num = 0;
-	for (const auto &layout : MOCK_PRESENTATION_MANAGER.getSlides()) {
-		json slide;
-
-		if (transitionEvents.contains(slide_num)) {
-			auto [time, dest] = transitionEvents[slide_num];
-			slide["event"]["time"] = time;
-			slide["event"]["dest"] = dest;
-		}
-
-		slide["textBoxes"] = json::array();
-		for (const auto &tb : layout->getTextBoxes()) {
-			const auto &text = tb.textBox->getFormattedText();
-			json tbJson = {
-				{"text", text.getText()},
-				{"font", text.getFont()},
-				{"fontSize", text.getFontSize()},
-				{"color", text.getColor()},
-				{"width", tb.textBox->getWidth()},
-				{"height", tb.textBox->getHeight()},
-				{"x", tb.xPos},
-				{"y", tb.yPos}
-			};
-			if (objectEvents.contains(tb.textBox->getID())) {
-				tbJson["event"]["time"] = objectEvents[tb.textBox->getID()];
-			}
-			slide["textBoxes"].push_back(tbJson);
-		}
-
-		slide["images"] = json::array();
-		for (const auto &img : layout->getImages()) {
-			json imgJson = {
-				{"url", img.image->getURL()},
-				{"width", img.image->getWidth()},
-				{"height", img.image->getHeight()},
-				{"x", img.xPos},
-				{"y", img.yPos}
-			};
-			if (objectEvents.contains(img.image->getID())) {
-				imgJson["event"]["time"] = objectEvents[img.image->getID()];
-			}
-			slide["images"].push_back(imgJson);
-		}
-
-		deck["slides"].push_back(slide);
-		slide_num += 1;
-	}
-
-	exportedJson = deck.dump(2); // pretty print
-	return exportedJson.c_str();
-}
 void call_addSlideChangeEvent(const int time) { MOCK_PRESENTATION_MANAGER.addSlideChangeEvent(time, MOCK_PRESENTATION_MANAGER.getCurrentPos(), MOCK_PRESENTATION_MANAGER.getCurrentPos()+1); }
 
 void call_updateImageSize(const char* id, int width, int height) { std::string cppId(id); MOCK_PRESENTATION_MANAGER.updateImageSize(cppId, width, height);}
 
 void call_leavePresentation() {
   MOCK_PRESENTATION_MANAGER.toggleBottomNav(false);
+  MOCK_PRESENTATION_MANAGER.toggleBorders(false);
 
   // Ensure end screen is disabled
   MOCK_PRESENTATION_MANAGER.toggleEndScreen(false);
-  MOCK_PRESENTATION_MANAGER.goTo(MOCK_PRESENTATION_MANAGER.getCurrentPos());
-
   MOCK_PRESENTATION_MANAGER.stop();
+  MOCK_PRESENTATION_MANAGER.goTo(MOCK_PRESENTATION_MANAGER.getCurrentPos());
 }
 
 void call_nextEvent() {
-  if(MOCK_PRESENTATION_MANAGER.isRunning()) {
-     MOCK_PRESENTATION_MANAGER.advance();
+  if (MOCK_PRESENTATION_MANAGER.isRunning()) {
+     MOCK_PRESENTATION_MANAGER.next();
   }
 }
 
@@ -633,6 +716,27 @@ void call_addObjectEvent(const int timing, const int slideNum, const char *id) {
 	MOCK_PRESENTATION_MANAGER.addObjectEvent(timing, slideNum, id);
 }
 int call_getCurrentPos() { return MOCK_PRESENTATION_MANAGER.getCurrentPos(); }
-}
+bool call_deleteItem(const char* id) { std::string cppId(id); return MOCK_PRESENTATION_MANAGER.deleteItem(cppId);}
+void call_deleteSlide() {
+	// Delete only if more than 1 slide
+	if (MOCK_PRESENTATION_MANAGER.getSlides().empty() ||
+		MOCK_PRESENTATION_MANAGER.getCurrentPos() >= MOCK_PRESENTATION_MANAGER.getSlides().size()) {
+		std::cout << "ERROR: call_deleteSlide(): layout index out of range.\n";
+		return;
+		}
 
+	if(MOCK_PRESENTATION_MANAGER.getNumSlides() <= 1 ) {
+		std::cout << "ERROR: call_deleteSlide(): can't delete only slide.\n";
+		return;
+	}
+
+	auto layout = MOCK_PRESENTATION_MANAGER.getSlides().at(MOCK_PRESENTATION_MANAGER.getCurrentPos());
+
+	MOCK_PRESENTATION_MANAGER.getCurrentPos() == 0 ? MOCK_PRESENTATION_MANAGER.advance() : MOCK_PRESENTATION_MANAGER.rewind();
+
+	MOCK_PRESENTATION_MANAGER.deleteSlide(layout);
+	MOCK_PRESENTATION_MANAGER.onSlideChangedJS();
+
+}
+}
 

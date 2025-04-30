@@ -154,7 +154,7 @@ void WebLayout::renderTextBox(const std::string &layoutID,
 
         // Finds div with presentation-zone id, where all boxes and images will
         // be placed
-        var textBoxDiv = document.getElementById("presentation-zone");
+        var presentationDiv = document.getElementById("presentation-zone");
 
         var layoutDiv = document.getElementById(layoutID);
         if (!layoutDiv) {
@@ -162,12 +162,12 @@ void WebLayout::renderTextBox(const std::string &layoutID,
           layoutDiv = document.createElement("div");
           layoutDiv.style.visibility = "hidden";
           layoutDiv.id = layoutID;
-          textBoxDiv.appendChild(layoutDiv);
+          presentationDiv.appendChild(layoutDiv);
         }
 
         // position: absolute; left: x px; top: y px;
 
-        if (layoutDiv) {
+
           // Check if textbox already exists in layout
           var currentTextBox = document.getElementById(textboxID);
           if (!currentTextBox) {
@@ -194,7 +194,7 @@ void WebLayout::renderTextBox(const std::string &layoutID,
 
             layoutDiv.appendChild(p);
           }
-        }
+
       },
       layoutID.c_str(), text.c_str(), width, height, x, y, textboxID.c_str(),
       MAX_WIDTH_PERCENT, MAX_HEIGHT_PERCENT, color.c_str(), font.c_str(),
@@ -247,7 +247,7 @@ void WebLayout::renderImage(const std::string &layoutID,
 
         // Finds div with presentation-zone id, where all boxes and images will
         // be placed
-        var imageBoxDiv = document.getElementById("presentation-zone");
+        var presentationDiv = document.getElementById("presentation-zone");
 
         var layoutDiv = document.getElementById(layoutID);
         if (!layoutDiv) {
@@ -255,7 +255,7 @@ void WebLayout::renderImage(const std::string &layoutID,
           layoutDiv = document.createElement("div");
           layoutDiv.style.visibility = "hidden";
           layoutDiv.id = layoutID;
-          imageBoxDiv.appendChild(layoutDiv);
+          presentationDiv.appendChild(layoutDiv);
         }
 
         if (layoutDiv) {
@@ -347,6 +347,32 @@ void WebLayout::deactivateLayout() {
  */
 void WebLayout::toggleImage(const cse::ImageLayout &image) {
   auto imageID = image.image->getID();
+
+  EM_ASM(
+      {
+        var imageID = UTF8ToString($0);
+        var imageDiv = document.getElementById(imageID);
+        if (imageDiv) {
+          // flip current visibility
+          var visibility = window.getComputedStyle(imageDiv).visibility;
+
+          //console.log(visibility);
+          if(visibility == "hidden") {
+            imageDiv.style.visibility = "inherit";
+          } else {
+            imageDiv.style.visibility = "hidden";
+          }
+        }
+        //console.log(imageID);
+      },
+      imageID.c_str());
+}
+
+  /**
+   * @brief toggles a specific image on a layout, overloaded to work with string
+   * @param imageId to switch visibility
+   */
+  void WebLayout::toggleImage(const std::string &imageID) {
 
   EM_ASM(
       {

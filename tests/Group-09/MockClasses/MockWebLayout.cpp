@@ -158,6 +158,7 @@ void MockWebLayout::deactivateLayout() {
 
 }
 
+
 void MockWebLayout::toggleImage(const cse::ImageLayout &image) {
   auto imageID = image.image->getID();
 

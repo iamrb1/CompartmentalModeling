@@ -25,7 +25,7 @@ TEST_CASE("Check empty EventManager", "[EventManager]")
 TEST_CASE("Check getTime in EventManager", "[EventManager]")
 {
   EventManager<int> eM;
-  Event<int> e1(0, 10, printEvent, 1);
+  Event<int> e1("0", 10, printEvent, 1);
   CHECK(eM.AddEvent(1, printEvent, 1).value() == e1);
   std::set<int> runningEvents;
   runningEvents.insert(0);
@@ -58,21 +58,21 @@ TEST_CASE("Add event to EventManager", "[EventManager]")
 {
   EventManager<int> eM;
 
-  Event<int> e1(0, 1, printEvent, 1);
+  Event<int> e1("0", 1, printEvent, 1);
   CHECK(eM.AddEvent(1, printEvent, 1).value() == e1);
   std::set<int> runningEvents;
   runningEvents.insert(0);
   CHECK(eM.getRunningEvents() == runningEvents);
   CHECK(eM.getNumEvents() == 1);
 
-  Event<int> e2(1, 3, printEvent, 2);
+  Event<int> e2("1", 3, printEvent, 2);
 
   CHECK(eM.AddEvent(3, printEvent, 2).value() == e2);
   runningEvents.insert(1);
   CHECK(eM.getRunningEvents() == runningEvents);
   CHECK(eM.getNumEvents() == 2);
 
-  Event<int> e3(2, 3, printEvent, 2);
+  Event<int> e3("2", 3, printEvent, 2);
   CHECK(eM.AddEvent(3, printEvent, 2).value() == e3);
   runningEvents.insert(2);
   CHECK(eM.getRunningEvents() == runningEvents);
@@ -97,22 +97,22 @@ TEST_CASE("Pause EventManager event - valid", "[EventManager]")
 
   std::unordered_map<int, Event<int>> pausedEvents;
   CHECK(eM.PauseEvent(e1) == true);
-  pausedEvents.insert({e1.getID(), e1});
+  pausedEvents.insert({std::stoi(e1.getID()), e1});
   CHECK(eM.getPausedEvents() == pausedEvents);
-  runningEvents.erase(e1.getID());
+  runningEvents.erase(std::stoi(e1.getID()));
   CHECK(eM.getRunningEvents() == runningEvents);
   CHECK(eM.getNumPaused() == 1);
 
   CHECK(eM.PauseEvent(e3) == true);
-  pausedEvents.insert({e3.getID(), e3});
+  pausedEvents.insert({std::stoi(e3.getID()), e3});
   CHECK(eM.getPausedEvents() == pausedEvents);
-  runningEvents.erase(e3.getID());
+  runningEvents.erase(std::stoi(e3.getID()));
   CHECK(eM.getRunningEvents() == runningEvents);
   CHECK(eM.getNumPaused() == 2);
 
   CHECK(eM.PauseEvent(e3) == true);
   CHECK(eM.getPausedEvents() == pausedEvents);
-  runningEvents.erase(e3.getID());
+  runningEvents.erase(std::stoi(e3.getID()));
   CHECK(eM.getRunningEvents() == runningEvents);
   CHECK(eM.getNumPaused() == 2);
 
@@ -139,22 +139,22 @@ TEST_CASE("Resume EventManager event", "[EventManager]")
   REQUIRE(eM.getNumEvents() == 5);
   CHECK(eM.getRunningEvents() == runningEvents);
   eM.PauseEvent(e1);
-  runningEvents.erase(e1.getID());
+  runningEvents.erase(std::stoi(e1.getID()));
   CHECK(eM.getRunningEvents() == runningEvents);
-  pausedEvents.insert({e1.getID(), e1});
+  pausedEvents.insert({std::stoi(e1.getID()), e1});
   CHECK(eM.getPausedEvents() == pausedEvents);
 
   eM.PauseEvent(e3);
-  runningEvents.erase(e3.getID());
+  runningEvents.erase(std::stoi(e3.getID()));
   CHECK(eM.getRunningEvents() == runningEvents);
-  pausedEvents.insert({e3.getID(), e3});
+  pausedEvents.insert({std::stoi(e3.getID()), e3});
   CHECK(eM.getPausedEvents() == pausedEvents);
 
   CHECK(eM.ResumeEvent(e1) == true);
   CHECK(eM.getNumPaused() == 1);
-  runningEvents.insert(e1.getID());
+  runningEvents.insert(std::stoi(e1.getID()));
   CHECK(eM.getRunningEvents() == runningEvents);
-  pausedEvents.erase(e1.getID());
+  pausedEvents.erase(std::stoi(e1.getID()));
   CHECK(eM.getPausedEvents() == pausedEvents);
 
   CHECK(eM.ResumeEvent(e3) == true);
@@ -202,7 +202,7 @@ TEST_CASE("Trigger Events with Repeat Events", "[EventManager]")
   CHECK(e2.has_value());
   std::optional<Event<int>> e3 = eM.AddEvent(5, printEvent, 3);
   CHECK(e3.has_value());
-  Event<int> e4(4, 10, printEvent, 4);
+  Event<int> e4("4", 10, printEvent, 4);
   CHECK(eM.RepeatEvent(e1.value(), 4) == true);
   CHECK(eM.RepeatEvent(e4, 10) == false);
 

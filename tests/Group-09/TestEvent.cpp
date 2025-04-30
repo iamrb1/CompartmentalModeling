@@ -31,8 +31,8 @@ TEST_CASE("Test Event Int arg", "[base]")
   globInt = 0;
   globStr = "";
   // Create an event that calls funcInt with 5
-  Event<int> e(0, 1, funcInt, 5);
-  CHECK(e.getID() == 0);
+  Event<int> e("0", 1, funcInt, 5);
+  CHECK(e.getID() == "0");
   CHECK(e.getTime() == 1);
   CHECK(globInt == 0);
   e.execute(); // Execute
@@ -45,8 +45,8 @@ TEST_CASE("Test Event String arg", "[base]")
   globInt = 0;
   globStr = "";
   // Create an event that calls funcString with "hello"
-  Event<std::string> e(0, 1, funcString, std::string("hello"));
-  CHECK(e.getID() == 0);
+  Event<std::string> e("0", 1, funcString, std::string("hello"));
+  CHECK(e.getID() == "0");
   CHECK(e.getTime() == 1);
   CHECK(globStr == std::string(""));
   e.execute(); // Execute
@@ -59,8 +59,8 @@ TEST_CASE("Test Event multiple args", "[base]")
   globInt = 0;
   globStr = "";
   // Create an event that calls multipleArgs with 1 and "goodbye"
-  Event<int, std::string> e(0, 1, multipleArgs, 1, std::string("goodbye"));
-  CHECK(e.getID() == 0);
+  Event<int, std::string> e("0", 1, multipleArgs, 1, std::string("goodbye"));
+  CHECK(e.getID() == "0");
   CHECK(e.getTime() == 1);
   CHECK(globInt == 0);
   CHECK(globStr == std::string(""));

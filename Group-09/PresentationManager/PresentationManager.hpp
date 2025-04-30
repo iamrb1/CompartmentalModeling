@@ -103,8 +103,15 @@ class PresentationManager {
 		void deleteSlide(const Slide& slide) {
 
 			const auto it = std::ranges::find(_slide_deck, slide);
+            if (it == _slide_deck.end()) {
+              return; //Invalid slide
+            }
 			int slide_num = it - _slide_deck.begin();
-			auto const new_pos = _current_pos != 0 ? _current_pos - 1 : _current_pos;
+
+			auto new_pos = _current_pos;
+			if (slide_num <= _current_pos){ //If slide is current or previous slide move back one
+				new_pos = _current_pos != 0 ? _current_pos - 1 : _current_pos;
+			}
 
 			auto deck = json::parse(exportSlideDeckToJson(this));
 			deck["slides"].erase(deck["slides"].begin() + slide_num);
@@ -220,7 +227,6 @@ class PresentationManager {
               currentLayout->deactivateLayout();
               toggleEndScreen(true);
 
-              //			_current_pos = slide_num;
             }
 
 			if (slide_num < 0 || slide_num >= _slide_deck.size()) {
@@ -326,8 +332,7 @@ class PresentationManager {
 		void resetObjects() { _event_manager.resetObjects(); }
 
 		/**
-		 * @brief Get the Current Position of the manager
-		 * @return int current position in the slide vector
+		 * @brief Get the numbers of slides within the presentation
 		 */
 		int getNumSlides() const { return static_cast<int>(_slide_deck.size()); }
 
