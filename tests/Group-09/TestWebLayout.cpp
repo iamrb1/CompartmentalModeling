@@ -424,7 +424,7 @@ void testCase13() {
   // Deactivate layout (should not show on UI)
   wb.deactivateLayout();
 
-  std::cout << "Ending Test Case 13 (Toggling Layout)\n"  << std::endl;
+  std::cout << "Ending Test Case 13 (Toggling Layout)\n";
 }
 
 int main() {
