@@ -155,9 +155,15 @@ class TextBox {
    * @param newHeight
    */
   void resize(int newWidth, int newHeight) {
-    auto clampToZero = [](int value) { return std::max(0, value); };
-    width = clampToZero(newWidth);
-    height = clampToZero(newHeight);
+    constexpr int MAX_WIDTH = 500;
+    constexpr int MAX_HEIGHT = 300;
+
+    auto clamp = [](int value, int min, int max) {
+      return std::max(min, std::min(value, max));
+    };
+
+    width = clamp(newWidth, 0, MAX_WIDTH);
+    height = clamp(newHeight, 0, MAX_HEIGHT);
   }
 
   /**
