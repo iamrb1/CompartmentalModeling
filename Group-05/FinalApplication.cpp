@@ -1383,7 +1383,7 @@ void FinalApplication::AddSubmenu(cse::DataGrid &grid, std::ostream &os,
             // Continue to prompt user until valid input (d, e, or m)
             std::string method;
             while (true) {
-              os << "Add default row (d), with an equation (e), or enter "
+              os << "Add default column (d), with an equation (e), or enter "
                     "manually (m)? ";
               std::getline(is, method);
               if (method == "d" || method == "e" || method == "m") {
