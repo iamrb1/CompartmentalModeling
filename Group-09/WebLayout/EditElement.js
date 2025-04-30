@@ -125,32 +125,22 @@ document.addEventListener("DOMContentLoaded", () => {
     currentTextboxId = null;
   }
 
-  // Resize Image Logic
-  const resizeBtn = document.getElementById("resizeImageButton");
-  if (resizeBtn) {
-    resizeBtn.addEventListener("click", () => {
-      const imageID = prompt("Enter image ID to resize:");
-      const newWidth = parseInt(prompt("Enter new width:"));
-      const newHeight = parseInt(prompt("Enter new height:"));
-
-      if (!imageID || isNaN(newWidth) || isNaN(newHeight)) {
-        alert("Invalid input.");
-        return;
+  // Handle image resizing
+  const observer = new ResizeObserver(entries => {
+    for (let entry of entries) {
+      const el = entry.target;
+      const widthVW = (parseFloat(el.style.width) || el.offsetWidth) / window.innerWidth * 100;
+      const heightVH = (parseFloat(el.style.height) || el.offsetHeight) / window.innerHeight * 100;
+  
+      if (!isNaN(widthVW) && !isNaN(heightVH)) {
+        const updateImageSizeInCpp = Module.cwrap("call_updateImageSize", null, ["string", "number", "number"]);
+        updateImageSizeInCpp(el.id, Math.round(widthVW), Math.round(heightVH));
       }
-
-      const imageEl = document.getElementById(imageID);
-      if (!imageEl) {
-        alert("Image not found!");
-        return;
-      }
-
-      imageEl.style.width = `${newWidth}vw`;
-      imageEl.style.height = `${newHeight}vh`;
-
-      const updateImageSizeInCpp = Module.cwrap("call_updateImageSize", null, ["string", "number", "number"]);
-      updateImageSizeInCpp(imageID, newWidth, newHeight);
-    });
-  }
+    }
+  });
+  
+  document.querySelectorAll('.image').forEach(el => observer.observe(el));
+  
 
   // Export functions
   window.showFormattingMenu = showFormattingMenu;

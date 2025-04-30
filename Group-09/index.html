@@ -5,8 +5,8 @@
   <meta charset="UTF-8">
   <title>Presentation App</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css"
-        integrity="sha512-1sCRPdkRXhBV2PBLUdRb4tMg1w2YPf37qatUFeS7zlBy7jJI8Lf4VHwWfZZfpXtYSLy85pkm9GaYVYMfw5BC1A=="
-        crossorigin="anonymous" referrerpolicy="no-referrer">
+    integrity="sha512-1sCRPdkRXhBV2PBLUdRb4tMg1w2YPf37qatUFeS7zlBy7jJI8Lf4VHwWfZZfpXtYSLy85pkm9GaYVYMfw5BC1A=="
+    crossorigin="anonymous" referrerpolicy="no-referrer">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600&display=swap" rel="stylesheet">
 
@@ -21,7 +21,8 @@
     .presentation-zone {
       background-color: white;
       width: 100vw;
-      height: 93vh; /* adjusted to make room for taller nav */
+      height: 93vh;
+      /* adjusted to make room for taller nav */
       overflow: hidden;
       box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
       z-index: 1;
@@ -34,7 +35,8 @@
       background-color: #C1D8FF;
       border-top: 1px solid #ccc;
       width: 100%;
-      height: 7vh; /* increased height to prevent crowding */
+      height: 7vh;
+      /* increased height to prevent crowding */
       padding: 0 20px;
       box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
       z-index: 10;
@@ -69,7 +71,8 @@
 
     /*Button styling from https://codepen.io/t_afif/pen/abKyJNJ*/
     button {
-      --c: #229091; /* default color */
+      --c: #229091;
+      /* default color */
       font-family: inherit;
       font-size: 14px;
       font-weight: bold;
@@ -82,11 +85,11 @@
       box-shadow: 0 0 0 .1em inset var(--c);
       --_g: linear-gradient(var(--c) 0 0) no-repeat;
       background:
-              var(--_g) calc(var(--_p,0%) - 100%) 0%,
-              var(--_g) calc(200% - var(--_p,0%)) 0%,
-              var(--_g) calc(var(--_p,0%) - 100%) 100%,
-              var(--_g) calc(200% - var(--_p,0%)) 100%;
-      background-size: 50.5% calc(var(--_p,0%)/2 + .5%);
+        var(--_g) calc(var(--_p, 0%) - 100%) 0%,
+        var(--_g) calc(200% - var(--_p, 0%)) 0%,
+        var(--_g) calc(var(--_p, 0%) - 100%) 100%,
+        var(--_g) calc(200% - var(--_p, 0%)) 100%;
+      background-size: 50.5% calc(var(--_p, 0%)/2 + .5%);
       outline-offset: .1em;
       transition: background-size .4s, background-position 0s .4s;
     }
@@ -168,10 +171,10 @@
       --_g: linear-gradient(to right, var(--c, #ccc), var(--c, #ccc)) no-repeat;
 
       background:
-              var(--_g) calc(var(--_p, 0%) - 100%) 0%,
-              var(--_g) calc(200% - var(--_p, 0%)) 0%,
-              var(--_g) calc(var(--_p, 0%) - 100%) 100%,
-              var(--_g) calc(200% - var(--_p, 0%)) 100%;
+        var(--_g) calc(var(--_p, 0%) - 100%) 0%,
+        var(--_g) calc(200% - var(--_p, 0%)) 0%,
+        var(--_g) calc(var(--_p, 0%) - 100%) 100%,
+        var(--_g) calc(200% - var(--_p, 0%)) 100%;
       background-size: 50.5% calc(var(--_p, 0%)/2 + 0.5%);
       transition: background-size 0.4s, background-position 0s 0.4s;
     }
@@ -203,10 +206,10 @@
       box-shadow: 0 0 0 .1em inset var(--c);
       --_g: linear-gradient(to right, var(--c), var(--c)) no-repeat;
       background:
-              var(--_g) calc(var(--_p, 0%) - 100%) 0%,
-              var(--_g) calc(200% - var(--_p, 0%)) 0%,
-              var(--_g) calc(var(--_p, 0%) - 100%) 100%,
-              var(--_g) calc(200% - var(--_p, 0%)) 100%;
+        var(--_g) calc(var(--_p, 0%) - 100%) 0%,
+        var(--_g) calc(200% - var(--_p, 0%)) 0%,
+        var(--_g) calc(var(--_p, 0%) - 100%) 100%,
+        var(--_g) calc(200% - var(--_p, 0%)) 100%;
       background-size: 50.5% calc(var(--_p, 0%)/2 + .5%);
       transition: background-size .4s, background-position 0s .4s;
     }
@@ -243,7 +246,7 @@
     /*  font-weight: bold;*/
     /*  user-select: none;*/
     /*}*/
-    
+
     #formatting-menu {
       position: absolute;
       z-index: 9999;
@@ -257,8 +260,47 @@
 
 
     .textbox {
-      user-select: none;
+      position: relative;
       cursor: pointer;
+      user-select: none;
+      overflow: visible !important;
+    }
+
+    /* Enable scrolling only when editing */
+    .textbox[contenteditable="true"] {
+      overflow: auto !important;
+    }
+
+    .textbox::after {
+      content: "Double-click to edit text";
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      color: #666;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 4px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 9999;
+    }
+
+    .textbox:hover::after {
+      opacity: 1;
+    }
+
+    .image {
+      resize: both;
+      overflow: auto;
+      cursor: grab;
+      border: 1px solid black;
+      border-radius: 5px;
+      background-size: cover;
+      background-position: center;
     }
   </style>
 
@@ -267,13 +309,13 @@
 
 <body>
 
-<div class="presentation-zone" id="presentation-zone">
-  <div id="end-slide">
-    <p>El Fin.</p>
+  <div class="presentation-zone" id="presentation-zone">
+    <div id="end-slide">
+      <p>El Fin.</p>
+    </div>
   </div>
-</div>
-  
-<div id="formatting-menu">
+
+  <div id="formatting-menu">
     <label>Font:
       <select id="font-select">
         <option>Arial</option>
@@ -293,164 +335,165 @@
     <button id="cancel-formatting-btn">Cancel</button>
   </div>
 
-<div style="visibility: visible" id="bottom-nav" class="bottom-nav">
-  <div class="nav-left">
-    <label for="fileInput" class="custom-file-btn">📂 Load Deck</label>
-    <input type="file" id="fileInput" accept=".json" style="display: none;">
-  </div>
-  <div class="nav-center">
-    <button id="saveDeck">Save Deck</button>
-    <!-- <button id="resizeImageButton">Resize Image</button> -->
-<!--    <select id="imageSelectDropdown"></select>-->
-    <input type="file" id="imageInput" accept="image/*" style="display: none;" />
+  <div style="visibility: visible" id="bottom-nav" class="bottom-nav">
+    <div class="nav-left">
+      <label for="fileInput" class="custom-file-btn">📂 Load Deck</label>
+      <input type="file" id="fileInput" accept=".json" style="display: none;">
+    </div>
+    <div class="nav-center">
+      <button id="saveDeck">Save Deck</button>
+      <!-- <button id="resizeImageButton">Resize Image</button> -->
+      <!--    <select id="imageSelectDropdown"></select>-->
+      <input type="file" id="imageInput" accept="image/*" style="display: none;" />
 
-    <button id="stopButton" style="--c:#FF5722">Stop</button>
-    <button id="startButton" style="--c:#4CAF50">Start</button>
-    <button id="deleteSlideButton">Delete Slide</button>
+      <button id="stopButton" style="--c:#FF5722">Stop</button>
+      <button id="startButton" style="--c:#4CAF50">Start</button>
+      <button id="deleteSlideButton">Delete Slide</button>
 
-    <div class="btn-group dropup">
-      <button class="btn btn-light border dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        +
-      </button>
-      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <button id="addTextBoxButton" style="--c:#3F51B5">📝 Add Text</button>
-        <button id="addImageButton" style="--c: #55efc4;">🖼️ Add Image</button>
-        <button id="addNewSlideButton" style="--c: #74b9ff;">📄 New Slide</button>
-        <button id="addTransition" style="--c: #ffeaa7;">🎬 Add Transition</button>
+      <div class="btn-group dropup">
+        <button class="btn btn-light border dropdown-toggle" type="button" id="dropdownMenuButton"
+          data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          +
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <button id="addTextBoxButton" style="--c:#3F51B5">📝 Add Text</button>
+          <button id="addImageButton" style="--c: #55efc4;">🖼️ Add Image</button>
+          <button id="addNewSlideButton" style="--c: #74b9ff;">📄 New Slide</button>
+          <button id="addTransition" style="--c: #ffeaa7;">🎬 Add Transition</button>
 
+        </div>
       </div>
     </div>
+
+    <div class="nav-right">
+      <button id="moveBackButton" style="--c:#ccc;">Swap<i class="fa-solid fa-angles-left"></i></button>
+      <button id="reverseButton">Last Slide<i class="fa-solid fa-angles-left"></i></button>
+      <span id="slideNumberDisplay">0 of 0</span>
+      <button id="advanceButton" style="--c:#1E90FF;">Next Slide<i class="fa-solid fa-angles-right"></i></button>
+      <button id="moveForwardButton" style="--c:#ccc;">Swap<i class="fa-solid fa-angles-right"></i></button>
+    </div>
   </div>
-  
-  <div class="nav-right">
-    <button id="moveBackButton">Swap<i class="fa-solid fa-angles-left"></i></button>
-    <button id="reverseButton">Last Slide<i class="fa-solid fa-angles-left"></i></button>
-    <span id="slideNumberDisplay">0 of 0</span>
-    <button id="advanceButton">Next Slide<i class="fa-solid fa-angles-right"></i></button>
-    <button id="moveForwardButton">Swap<i class="fa-solid fa-angles-right"></i></button>
-  </div>
-</div>
 
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-<script src="output.js"></script>
-<script src="WebLayout/EditElement.js"></script>
+  <script src="output.js"></script>
+  <script src="WebLayout/EditElement.js"></script>
 
-<script>
-  const saveDeck = Module.cwrap('call_exportSlideDeckToJson', 'string', []);
+  <script>
+    const saveDeck = Module.cwrap('call_exportSlideDeckToJson', 'string', []);
 
-  document.getElementById("fileInput").addEventListener("change", function (e) {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function (event) {
-      const jsonStr = event.target.result;
-      // I have to do this for large files to prevent stack overflow (did not know that was a real thing)
-      const lengthBytes = lengthBytesUTF8(jsonStr) + 1;
-      const buffer = Module._malloc(lengthBytes);
-      if (!buffer) {
-        alert("Failed to allocate mem.");
-        return;
-      }
-      try {
-        stringToUTF8(jsonStr, buffer, lengthBytes);
-        Module.ccall("call_loadSlideDeckFromJson", null, ["number"], [buffer]);
-      } catch (err) {
-        alert("Failed to load deck: " + err);
-      } finally {
-        Module._free(buffer);
-      }
-    };
-    reader.readAsText(file);
-  });
-
-  document.getElementById("saveDeck").addEventListener("click", function () {
-    const exported = saveDeck();
-    const blob = new Blob([exported], { type: 'application/json' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = "slides.json";
-    link.click();
-  });
-
-  // for adding images
-  document.addEventListener("DOMContentLoaded", function () {
-    const addImageBtn = document.getElementById("addImageButton");
-    const imageInput = document.getElementById("imageInput");
-
-    function toUTF8(str) {
-      const len = Module.lengthBytesUTF8(str) + 1;
-      const ptr = Module._malloc(len);
-      Module.stringToUTF8(str, ptr, len);
-      return ptr;
-    }
-
-    addImageBtn.addEventListener("click", () => {
-      imageInput.click();
-    });
-
-    imageInput.addEventListener("change", (e) => {
+    document.getElementById("fileInput").addEventListener("change", function (e) {
       const file = e.target.files[0];
       if (!file) return;
 
       const reader = new FileReader();
       reader.onload = function (event) {
-        const dataUrl = event.target.result;
-
-        const urlPtr = toUTF8(dataUrl);
-        const altPtr = toUTF8("User Image");
-
-        Module.ccall("call_addImage", null,
-                ["number", "number", "number", "number"],
-                [urlPtr, 300, 200, altPtr]
-        );
-
-        _free(urlPtr);
-        _free(altPtr);
+        const jsonStr = event.target.result;
+        // I have to do this for large files to prevent stack overflow (did not know that was a real thing)
+        const lengthBytes = lengthBytesUTF8(jsonStr) + 1;
+        const buffer = Module._malloc(lengthBytes);
+        if (!buffer) {
+          alert("Failed to allocate mem.");
+          return;
+        }
+        try {
+          stringToUTF8(jsonStr, buffer, lengthBytes);
+          Module.ccall("call_loadSlideDeckFromJson", null, ["number"], [buffer]);
+        } catch (err) {
+          alert("Failed to load deck: " + err);
+        } finally {
+          Module._free(buffer);
+        }
       };
-
-      reader.readAsDataURL(file);
+      reader.readAsText(file);
     });
 
-  });
-/*
-  // BELOW IS CODE FOR DELETE CONFIRMATION
-  let timeout;
+    document.getElementById("saveDeck").addEventListener("click", function () {
+      const exported = saveDeck();
+      const blob = new Blob([exported], { type: 'application/json' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = "slides.json";
+      link.click();
+    });
 
-  function resetConfirmButton() {
-    doubleConfirmInner.classList.remove('-translate-x-full');
-  }
+    // for adding images
+    document.addEventListener("DOMContentLoaded", function () {
+      const addImageBtn = document.getElementById("addImageButton");
+      const imageInput = document.getElementById("imageInput");
 
-  // grab buttons for delete slide
-  const doubleConfirm = document.querySelector('.double-confirm');
-  const doubleConfirmInner = document.querySelector('.double-confirm-inner');
+      function toUTF8(str) {
+        const len = Module.lengthBytesUTF8(str) + 1;
+        const ptr = Module._malloc(len);
+        Module.stringToUTF8(str, ptr, len);
+        return ptr;
+      }
 
-  // add button event listener
-  doubleConfirm.addEventListener('click', (e) => {
-    e.stopPropagation(); // From ChatGPT: stops clicks inside group triggering reset
+      addImageBtn.addEventListener("click", () => {
+        imageInput.click();
+      });
 
-    doubleConfirmInner.classList.add('-translate-x-full');
+      imageInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
 
-    // https://www.w3schools.com/jsref/met_win_settimeout.asp
-    if(timeout) clearTimeout(timeout);
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          const dataUrl = event.target.result;
 
-    timeout = setTimeout(() => {
-      resetConfirmButton();
-    }, 3000);
+          const urlPtr = toUTF8(dataUrl);
+          const altPtr = toUTF8("User Image");
 
-  });
+          Module.ccall("call_addImage", null,
+            ["number", "number", "number", "number"],
+            [urlPtr, 300, 200, altPtr]
+          );
 
-  // If click elsewhere, reset confirm button
-  document.addEventListener('click', (e) => {
-    if (doubleConfirmInner.classList.contains('-translate-x-full')) {
-      resetConfirmButton();
-    }
-  });
-*/
-</script>
+          _free(urlPtr);
+          _free(altPtr);
+        };
+
+        reader.readAsDataURL(file);
+      });
+
+    });
+    /*
+      // BELOW IS CODE FOR DELETE CONFIRMATION
+      let timeout;
+    
+      function resetConfirmButton() {
+        doubleConfirmInner.classList.remove('-translate-x-full');
+      }
+    
+      // grab buttons for delete slide
+      const doubleConfirm = document.querySelector('.double-confirm');
+      const doubleConfirmInner = document.querySelector('.double-confirm-inner');
+    
+      // add button event listener
+      doubleConfirm.addEventListener('click', (e) => {
+        e.stopPropagation(); // From ChatGPT: stops clicks inside group triggering reset
+    
+        doubleConfirmInner.classList.add('-translate-x-full');
+    
+        // https://www.w3schools.com/jsref/met_win_settimeout.asp
+        if(timeout) clearTimeout(timeout);
+    
+        timeout = setTimeout(() => {
+          resetConfirmButton();
+        }, 3000);
+    
+      });
+    
+      // If click elsewhere, reset confirm button
+      document.addEventListener('click', (e) => {
+        if (doubleConfirmInner.classList.contains('-translate-x-full')) {
+          resetConfirmButton();
+        }
+      });
+    */
+  </script>
 
 </body>
 
