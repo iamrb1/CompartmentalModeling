@@ -17,6 +17,7 @@
 #include <ctime>
 #include <algorithm>
 #include <string>
+#include <array>
 #include "Circle.h"
 #include "Surface.h"
 
@@ -41,34 +42,48 @@ static constexpr int CHAR_H       = 5 * FONT_SCALE;
 static constexpr int CHAR_SPACING = FONT_SCALE;
 
 // Digits
-static const uint8_t DIGIT[10][5] = {//chatgpt
- {0b111,0b101,0b101,0b101,0b111},  // 0
- {0b010,0b110,0b010,0b010,0b111},  // 1
- {0b111,0b001,0b111,0b100,0b111},  // 2
- {0b111,0b001,0b111,0b001,0b111},  // 3
- {0b101,0b101,0b111,0b001,0b001},  // 4
- {0b111,0b100,0b111,0b001,0b111},  // 5
- {0b111,0b100,0b111,0b101,0b111},  // 6
- {0b111,0b001,0b010,0b010,0b010},  // 7
- {0b111,0b101,0b111,0b101,0b111},  // 8
- {0b111,0b101,0b111,0b001,0b111}   // 9
-};
+constexpr std::array<std::array<uint8_t, 5>, 10> DIGIT = {{
+    {{0b111, 0b101, 0b101, 0b101, 0b111}},  // 0
+    {{0b010, 0b110, 0b010, 0b010, 0b111}},  // 1
+    {{0b111, 0b001, 0b111, 0b100, 0b111}},  // 2
+    {{0b111, 0b001, 0b111, 0b001, 0b111}},  // 3
+    {{0b101, 0b101, 0b111, 0b001, 0b001}},  // 4
+    {{0b111, 0b100, 0b111, 0b001, 0b111}},  // 5
+    {{0b111, 0b100, 0b111, 0b101, 0b111}},  // 6
+    {{0b111, 0b001, 0b010, 0b010, 0b010}},  // 7
+    {{0b111, 0b101, 0b111, 0b101, 0b111}},  // 8
+    {{0b111, 0b101, 0b111, 0b001, 0b111}}   // 9
+}};
 
-// Letters A, D, E, O, P, R, S, T, Y 
-static const uint8_t LETTER[26][5] = {//chatgpt
-{0b111,0b101,0b111,0b101,0b101}, // A
-{0}, {0}, {0b110,0b101,0b101,0b101,0b110}, // D
-{0b111,0b100,0b111,0b100,0b111}, // E
-{0},{0},{0}, {0},{0},{0},{0},{0},{0},
-{0b111,0b101,0b101,0b101,0b111}, // O
-{0b111,0b101,0b111,0b100,0b100}, // P
-{0}, {0b111,0b101,0b111,0b101,0b101}, // R
-{0b111,0b100,0b111,0b001,0b111}, // S
-{0b111,0b010,0b010,0b010,0b010}, // T
-{0},{0},{0},{0},
-{0b101,0b101,0b010,0b010,0b010}, // Y
-{0}
-};
+// Used chat for all the letters
+constexpr std::array<std::array<uint8_t, 5>, 26> LETTER = {{
+    {{0b111,0b101,0b111,0b101,0b101}}, // A
+    {{0b110,0b101,0b110,0b101,0b110}}, // B
+    {{0b111,0b100,0b100,0b100,0b111}}, // C
+    {{0b110,0b101,0b101,0b101,0b110}}, // D
+    {{0b111,0b100,0b111,0b100,0b111}}, // E
+    {{0b111,0b100,0b111,0b100,0b100}}, // F
+    {{0b111,0b100,0b101,0b101,0b111}}, // G
+    {{0b101,0b101,0b111,0b101,0b101}}, // H
+    {{0b111,0b010,0b010,0b010,0b111}}, // I
+    {{0b001,0b001,0b001,0b101,0b111}}, // J
+    {{0b101,0b101,0b110,0b101,0b101}}, // K
+    {{0b100,0b100,0b100,0b100,0b111}}, // L
+    {{0b101,0b111,0b111,0b101,0b101}}, // M
+    {{0b101,0b111,0b111,0b111,0b101}}, // N
+    {{0b111,0b101,0b101,0b101,0b111}}, // O
+    {{0b111,0b101,0b111,0b100,0b100}}, // P
+    {{0b111,0b101,0b101,0b111,0b001}}, // Q
+    {{0b111,0b101,0b111,0b110,0b101}}, // R
+    {{0b111,0b100,0b111,0b001,0b111}}, // S
+    {{0b111,0b010,0b010,0b010,0b010}}, // T
+    {{0b101,0b101,0b101,0b101,0b111}}, // U
+    {{0b101,0b101,0b101,0b101,0b010}}, // V
+    {{0b101,0b101,0b111,0b111,0b101}}, // W
+    {{0b101,0b101,0b010,0b101,0b101}}, // X
+    {{0b101,0b101,0b010,0b010,0b010}}, // Y
+    {{0b111,0b001,0b010,0b100,0b111}}  // Z
+}};
 
 // Count circles of a given type
 int countCircles(cse::CircleType type)
@@ -80,10 +95,10 @@ int countCircles(cse::CircleType type)
 }
 
 // Draw a digit or letter
-void drawGlyph(const uint8_t rows[5], int x, int y, SDL_Color col)
+void drawGlyph(const std::array<uint8_t, 5>& rows, int x, int y, SDL_Color col)
 {
     SDL_SetRenderDrawColor(gRenderer, col.r, col.g, col.b, 255);
-    for (int r = 0; r < 5; ++r) { //chatgpt
+    for (int r = 0; r < 5; ++r) {
         uint8_t bits = rows[r];
         for (int c = 0; c < 3; ++c) {
             if (bits & (1 << (2 - c))) {
@@ -103,13 +118,12 @@ void drawDigit(int d, int x, int y, SDL_Color col)
     drawGlyph(DIGIT[d], x, y, col);
 }
 
-// Draw an uppercase letter (A–Z) if available
 void drawLetter(char ch, int x, int y, SDL_Color col)
 {
     if (ch < 'A' || ch > 'Z') return;
-    const uint8_t* rows = LETTER[ch - 'A'];
-    if (rows[0] == 0) return;
-    drawGlyph(rows, x, y, col);
+    const auto& glyph = LETTER[ch - 'A'];
+    if (glyph[0] == 0) return;
+    drawGlyph(glyph, x, y, col);
 }
 
 // Calculate width in pixels of an n-character string
@@ -121,8 +135,9 @@ void drawString(const std::string& s, int x, int y, SDL_Color col)
     int cx = x;
     for (size_t i = 0; i < s.size(); ++i) {
         char ch = std::toupper(static_cast<unsigned char>(s[i]));
-        if (ch >= 'A' && ch <= 'Z')
+        if (ch >= 'A' && ch <= 'Z') {
             drawLetter(ch, cx, y, col);
+        }
         cx += CHAR_W + CHAR_SPACING;
     }
 }
