@@ -12,7 +12,6 @@ set(
     TestSimulation.h
 )
 
-qt_policy(SET QTP0001 NEW)
 qt_add_executable(tests ${TEST_FILES})
 qt_add_qml_module(tests
     URI tests

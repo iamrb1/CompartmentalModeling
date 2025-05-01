@@ -45,6 +45,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
+qt_policy(SET QTP0001 NEW)
 
 # Add extern lib (expertk)
 add_subdirectory(extern/exprtk)

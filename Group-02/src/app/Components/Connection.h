@@ -54,8 +54,7 @@ class Connection : public QObject {
   /// Delete copy assignment operator
   Connection& operator=(const Connection&) = delete;
 
-  Connection(QString name, Compartment* source, Compartment* target, QString rate_expression,
-             Simulation* parent = nullptr);
+  Connection(QString name, Compartment* source, Compartment* target, QString rate_expression, Simulation* parent);
 
   [[nodiscard]] const QString& get_name() const;
   [[nodiscard]] Compartment* get_source() const;

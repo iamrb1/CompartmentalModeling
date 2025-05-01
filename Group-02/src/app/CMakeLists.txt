@@ -8,6 +8,11 @@ set(
     Application
 )
 
+# Set the WIN32 flag to create a Windows GUI application (no console)
+if(WIN32)
+  set(CMAKE_WIN32_EXECUTABLE ON)
+endif()
+
 # Add the executable target
 qt_add_executable(
     ${EXECUTABLE_NAME}
@@ -46,5 +51,37 @@ include(GNUInstallDirs)
 install(
     TARGETS ${EXECUTABLE_NAME}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    BUNDLE DESTINATION .
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
+# Release build
+if(WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Release")
+  # Add windeployqt command
+  include(InstallRequiredSystemLibraries)
+  get_target_property(_qmake_executable Qt6::qmake IMPORTED_LOCATION)
+  get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
+  find_program(WINDEPLOYQT_EXECUTABLE windeployqt HINTS "${_qt_bin_dir}")
+
+  add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
+      COMMAND "${CMAKE_COMMAND}" -E env PATH="${_qt_bin_dir}" "${WINDEPLOYQT_EXECUTABLE}"
+      --qmldir "${CMAKE_SOURCE_DIR}"
+      --plugindir "$<TARGET_FILE_DIR:${EXECUTABLE_NAME}>/plugins"
+      --no-translations
+      --no-opengl-sw
+      "$<TARGET_FILE:${EXECUTABLE_NAME}>"
+      COMMENT "Running windeployqt..."
+  )
+elseif(APPLE AND CMAKE_BUILD_TYPE STREQUAL "Release")
+  # Add macdeployqt command for macOS
+  get_target_property(_qmake_executable Qt6::qmake IMPORTED_LOCATION)
+  get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
+  find_program(MACDEPLOYQT_EXECUTABLE macdeployqt HINTS "${_qt_bin_dir}")
+
+  add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
+      COMMAND "${MACDEPLOYQT_EXECUTABLE}"
+      "$<TARGET_FILE_DIR:${EXECUTABLE_NAME}>/../.."
+      -qmldir="${CMAKE_SOURCE_DIR}"
+      COMMENT "Running macdeployqt..."
+  )
+endif()

@@ -69,7 +69,7 @@ class Compartment : public QObject {
   /// Delete copy assignment operator
   Compartment& operator=(const Compartment&) = delete;
 
-  Compartment(QString name, QString symbol, double initial_amount, Simulation* parent = nullptr);
+  Compartment(QString name, QString symbol, double initial_amount, Simulation* parent);
 
   [[nodiscard]] const QString& get_name() const;
   [[nodiscard]] const QString& get_symbol() const;

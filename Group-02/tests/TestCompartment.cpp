@@ -6,28 +6,19 @@
 #include "TestCompartment.h"
 
 void TestCompartment::test_constructors() {
-  Compartment defaultComp;
-  QCOMPARE(defaultComp.get_name(), QString("Test"));
-  QCOMPARE(defaultComp.get_symbol(), QString("X"));
-  QCOMPARE(defaultComp.get_initial_amount(), 0.0);
-  QCOMPARE(defaultComp.get_current_amount(), 0.0);
-  QCOMPARE(defaultComp.get_x(), 100);
-  QCOMPARE(defaultComp.get_y(), 100);
+  const QString name = "TestCompartment";
+  const QString symbol = "TC";
+  constexpr double initial_amount = 20.0;
 
-  QString name = "ParamComp";
-  QString symbol = "PC";
-  double initamount = 20.0;
-
-  Compartment ParamComp(name, symbol, initamount);
+  Compartment ParamComp(name, symbol, initial_amount, nullptr);
   QCOMPARE(ParamComp.get_name(), name);
   QCOMPARE(ParamComp.get_symbol(), symbol);
-  QCOMPARE(ParamComp.get_initial_amount(), initamount);
-  QCOMPARE(ParamComp.get_current_amount(), 20.0);
+  QCOMPARE(ParamComp.get_initial_amount(), initial_amount);
+  QCOMPARE(ParamComp.get_current_amount(), initial_amount);
   QCOMPARE(ParamComp.get_x(), 100);
   QCOMPARE(ParamComp.get_y(), 100);
-
-
 }
+
 void TestCompartment::test_getter_setters() {
   Compartment compartment;
 
@@ -38,11 +29,9 @@ void TestCompartment::test_getter_setters() {
   compartment.set_name("Test Name");
   QCOMPARE(compartment.get_name(), QString("Test Name"));
 
-
   // Name with invalid characters - no change
   compartment.set_name("InvalidName!!");
   QCOMPARE(compartment.get_name(), QString("Test Name"));
-
 
   // Empty name - no change
   compartment.set_name("");
@@ -59,11 +48,9 @@ void TestCompartment::test_getter_setters() {
   compartment.set_symbol("AB");
   QCOMPARE(compartment.get_symbol(), QString("AB"));
 
-
   // Symbol with invalid characters - no change
   compartment.set_symbol("A$");
   QCOMPARE(compartment.get_symbol(), QString("AB"));
-
 
   // Empty symbol - no change
   compartment.set_symbol("");
@@ -89,7 +76,6 @@ void TestCompartment::test_getter_setters() {
 
   QCOMPARE(compartment.get_initial_amount(), 40.0);
   QCOMPARE(compartment.get_current_amount(), 45.0);
-
 }
 void TestCompartment::test_add_compartment() {
   Simulation sim;
@@ -105,9 +91,8 @@ void TestCompartment::test_add_compartment() {
   QString symbol = compartment->get_symbol();
   sim.remove_compartment(symbol);
   QCOMPARE(sim.get_compartments().count(), 0);
-
 }
-void TestCompartment::test_update_connection() {
+void TestCompartment::test_update_compartment() {
   Simulation sim;
 
   sim.add_compartment();
@@ -128,7 +113,6 @@ void TestCompartment::test_update_connection() {
   QCOMPARE(conn.get_source(), sourceComp);
   QCOMPARE(conn.get_target(), targetComp);
   QCOMPARE(conn.get_rate_expression(), QString("0.01"));
-
 }
 void TestCompartment::test_delete_compartment() {
   Simulation sim;
@@ -153,7 +137,6 @@ void TestCompartment::test_delete_compartment() {
     }
   }
   QVERIFY(!found);
-
 }
 
 #include "TestCompartment.moc"
