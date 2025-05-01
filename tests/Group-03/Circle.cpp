@@ -13,6 +13,8 @@ constexpr int    kSurfW     = 100;
 constexpr int    kSurfH     = 100;
 constexpr int    kSectorSz  = 10;
 
+
+
 TEST_CASE("Circle Initialization", "[Circle]") {
     Circle circle(5.0, 10.0, 3.0, 2.0, CircleType::Predator);
     CHECK(circle.getX()      == Approx(5.0));
@@ -132,7 +134,10 @@ TEST_CASE("Circle: move & bounce inside bounds", "[Circle][Move]") {
     CHECK(c.getY() <= c.getRadius());
 
     c.setPosition(kSurfW - c.getRadius() - 0.1, c.getY());
+
     c.move(kSurfW, kSurfH);
+    c.move(kSurfW, kSurfH);
+
     CHECK(c.getX() <= kSurfW - c.getRadius());
 }
 
@@ -195,6 +200,7 @@ TEST_CASE("Surface: store, move & report collisions", "[Surface]") {
     auto res2 = surf.check_collision();
     CHECK(res2.first  == "add");
 
+
 }
 
 TEST_CASE("Surface: edge coordinates land in correct sector", "[Surface][Edge]") {
@@ -205,10 +211,19 @@ TEST_CASE("Surface: edge coordinates land in correct sector", "[Surface][Edge]")
     CHECK(c->getX() >= c->getRadius());
 }
 
-TEST_CASE("Surface: extreme bottom-right corner safe", "[Surface][Edge]") {
+TEST_CASE("Surface: extreme corner safe", "[Surface][Edge]") {
     cse::Surface surf(kSurfW, kSurfH, kSectorSz);
     auto c = std::make_shared<Circle>(99.0, 99.0, 1.0, 2.0, CircleType::Prey);
     REQUIRE_NOTHROW(surf.add_circle(c));
+
+    auto c1 = std::make_shared<Circle>(1.0, 2.0, 99.0, 99.0, CircleType::Prey);
+    REQUIRE_NOTHROW(surf.add_circle(c1));
+
+    auto c2 = std::make_shared<Circle>(99.0, 1.0, 2.0,  99.0, CircleType::Prey);
+    REQUIRE_NOTHROW(surf.add_circle(c2));
+
+    auto c3 = std::make_shared<Circle>(1.0, 99.0, 99.0, 2.0, CircleType::Prey);
+    REQUIRE_NOTHROW(surf.add_circle(c3));
 }
 
 TEST_CASE("Surface: two distinct pointers same coords", "[Surface][Edge]") {
@@ -232,4 +247,44 @@ TEST_CASE("Circle: no speed boost exactly at proximity radius", "[Circle][Edge]"
     Circle b(a.getRadius()*2, 0.0, 3.0, 2.0, CircleType::Predator);
     a.checkProximity(b);
     CHECK_FALSE(a.hasSpeedBoost());
+}
+
+
+TEST_CASE("Surface: remove never-added circle is harmless", "[Surface]") {
+    cse::Surface surf(kSurfW, kSurfH, kSectorSz);
+
+    auto ghost = std::make_shared<Circle>(10.0, 10.0,
+                                          3.0, 2.0, CircleType::Prey);
+
+    REQUIRE_NOTHROW(surf.remove_circle(ghost));
+}
+
+TEST_CASE("Surface: removing twice in a row is safe", "[Surface]") {
+    cse::Surface surf(kSurfW, kSurfH, kSectorSz);
+
+    auto c = std::make_shared<Circle>(25.0, 25.0,
+                                      3.0, 2.0, CircleType::Prey);
+
+    surf.add_circle(c);
+    REQUIRE_NOTHROW(surf.remove_circle(c));
+    REQUIRE_NOTHROW(surf.remove_circle(c));
+}
+
+TEST_CASE("Surface: simulation stays healthy after ghost removal", "[Surface]") {
+    cse::Surface surf(kSurfW, kSurfH, kSectorSz);
+
+    auto live  = std::make_shared<Circle>(50.0, 50.0,
+                                          3.0, 2.0, CircleType::Prey);
+    auto ghost = std::make_shared<Circle>(15.0, 15.0,
+                                          3.0, 2.0, CircleType::Prey);
+
+    surf.add_circle(live);
+    REQUIRE_NOTHROW(surf.remove_circle(ghost));
+
+    auto live2 = std::make_shared<Circle>(50.0, 50.0,
+                                          3.0, 2.0, CircleType::Prey);
+    REQUIRE_NOTHROW(surf.add_circle(live2));
+
+    auto res = surf.check_collision();
+    CHECK(res.first == "add");
 }
