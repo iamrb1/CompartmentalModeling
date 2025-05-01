@@ -7,7 +7,7 @@
  */
 #pragma once
 
-#include <map>
+#include <unordered_map>
 #include <optional>
 #include <string>
 #include <vector>
@@ -237,8 +237,8 @@ class RichTextState {
 
  private:
   Text m_text{"Hello World!"};
-  std::map<cse::TextFormat::FormatID, cse::TextFormat::FormatData> m_format_map;
-  std::map<std::string, std::pair<std::string, Text::Serializer>> m_output_map;
+  std::unordered_map<cse::TextFormat::FormatID, cse::TextFormat::FormatData> m_format_map;
+  std::unordered_map<std::string, std::pair<std::string, Text::Serializer>> m_output_map;
   std::pair<size_t, size_t> m_edit{0, 0};
   std::vector<Text> undo_stack, redo_stack;
 

@@ -13,7 +13,7 @@ namespace {
 // Generate an underlying from a character string
 template <typename CharT, typename Underlying>
   requires std::derived_from<Underlying, std::basic_string<CharT>>
-Underlying str_to_underlying(std::string str) {
+Underlying str_to_underlying(const std::string_view & str) {
   Underlying out;
   for (const auto c : str) {
     out.insert(out.end(), static_cast<CharT>(c));
