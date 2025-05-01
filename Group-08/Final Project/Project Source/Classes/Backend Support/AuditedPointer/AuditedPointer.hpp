@@ -246,6 +246,12 @@ public:
      * @brief Copy assignment operator - creates a deep copy of the managed object
      * @param other Aptr to copy from
      * @return Reference to this Aptr
+     * 
+     *
+     * Design Note:
+     * The original tracking ID (mID) is preserved across copies to maintain consistency
+     * for tests and debugging. This ensures that even if the underlying object changes,
+     * the Aptr instance is still tracked under the same ID.
      */
     Aptr& operator=(const Aptr& other)
     {
@@ -290,6 +296,12 @@ public:
             delete mPtr;
             mPtr = other.mPtr;
             mID = other.mID;
+
+            if (mPtr)
+            {
+                leakChecker.AddAptr(mID, mPtr);
+            }
+    
             other.mPtr = nullptr;
             other.mID = 0;
         }

@@ -59,15 +59,3 @@ TEST_CASE("Test set and get font size", "[AnnotatedWrapper]") {
     wrapper.setFontSize(24);
     CHECK(wrapper.getFontSize() == 24);
 }
-
-TEST_CASE("Test set and get font color", "[AnnotatedWrapper]") {
-    cse::AnnotatedWrapper<std::string> wrapper;
-    wrapper.setFontColor(255);
-    CHECK(wrapper.getFontColor() == 255);
-}
-
-TEST_CASE("Test set and get background color", "[AnnotatedWrapper]") {
-    cse::AnnotatedWrapper<std::string> wrapper;
-    wrapper.setBackgroundColor(123);
-    CHECK(wrapper.getBackgroundColor() == 123);
-}

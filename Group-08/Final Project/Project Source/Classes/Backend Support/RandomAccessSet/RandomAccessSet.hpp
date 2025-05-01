@@ -1,5 +1,5 @@
-#ifndef CSE_RANDOM_ACCESS_SET_H
-#define CSE_RANDOM_ACCESS_SET_H
+#ifndef CSE_RANDOM_ACCESS_SET_HPP
+#define CSE_RANDOM_ACCESS_SET_HPP
 
 #include <vector>
 #include <unordered_map>
@@ -64,7 +64,7 @@ class RandomAccessSet {
          * @return A copy of the element at the specified index.
          * @throw std::out_of_range If the index is greater than or equal to the number of elements.
          */
-        T get(size_t index) const;
+        const T get(size_t index) const;
 
         /**
          * @brief Removes an element from the set if it exists.

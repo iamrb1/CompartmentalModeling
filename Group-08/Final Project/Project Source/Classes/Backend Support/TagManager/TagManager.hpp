@@ -95,11 +95,9 @@ public:
          * @return tags --> retrun empty set if no
          */
         std::vector<std::string> getTags(const std::string& task) const {
-            auto it = mTaskToTag.find(task);
-            if (it != mTaskToTag.end()) {
-                return it->second;
-            }
-            return {};
+            static const std::unordered_set<std::string> emptySet; // fallback for missing keys
+            auto it = mTags.find(id);
+            return it != mTags.end() ? it->second : emptySet;
         }
 
         /**
@@ -161,11 +159,8 @@ public:
          * @return bool 
          */
         bool hasTag(const std::string& task, const std::string& tag) const {
-            auto it = mTaskToTag.find(task);
-            if (it != mTaskToTag.end()) {
-                return std::find(it->second.begin(), it->second.end(), tag) != it->second.end();
-            }
-            return false;
+            auto it = mTags.find(id);
+            return it != mTags.end() && it->second.count(tag);
         }
     };
 
