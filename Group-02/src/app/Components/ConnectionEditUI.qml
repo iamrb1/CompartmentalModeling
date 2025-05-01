@@ -92,6 +92,10 @@ Rectangle {
                 color: ThemeManager.palette.text
                 Layout.preferredWidth: 100
             }
+            Item {
+                width: 7
+                height: 1
+            }
             Rectangle {
                 Layout.fillWidth: true
                 height: 30
@@ -218,7 +222,7 @@ Rectangle {
             enabled: !simulation.isRunning
 
             icon.name: "Delete connection"
-            icon.source: "qrc:/resources/icons/delete.svg"
+            icon.source: "/icons/delete.svg"
             icon.color: enabled ? ThemeManager.palette.danger : ThemeManager.palette.mid
             icon.height: 20
             icon.width: 20

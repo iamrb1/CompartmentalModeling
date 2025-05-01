@@ -160,7 +160,7 @@ Rectangle {
             enabled: !simulation.isRunning
 
             icon.name: "Delete compartment"
-            icon.source: "qrc:/resources/icons/delete.svg"
+            icon.source: "/icons/delete.svg"
             icon.color: enabled ? ThemeManager.palette.danger : ThemeManager.palette.mid
             icon.height: 20
             icon.width: 20

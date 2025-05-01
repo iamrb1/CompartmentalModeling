@@ -133,11 +133,14 @@ ApplicationWindow {
                 Layout.fillWidth: false
 
                 Text {
-                    text: "Step time(ms):"
+                    text: "Step Time(ms):"
                     color: ThemeManager.palette.text
                     Layout.preferredWidth: 80
                 }
-
+                Item {
+                    width: 7
+                    height: 1
+                }
                 Rectangle {
                     Layout.preferredWidth: 60
                     height: 25
@@ -211,7 +214,7 @@ ApplicationWindow {
             ToolButton {
                 id: playButton
                 icon.name: "Play Simulation"
-                icon.source: "qrc:/resources/icons/play_arrow.svg"
+                icon.source: "/icons/play_arrow.svg"
                 icon.color: ThemeManager.palette.text
                 icon.height: 20
                 icon.width: 20
@@ -230,7 +233,7 @@ ApplicationWindow {
             ToolButton {
                 id: pauseButton
                 icon.name: "Pause Simulation"
-                icon.source: "qrc:/resources/icons/pause.svg"
+                icon.source: "/icons/pause.svg"
                 icon.color: ThemeManager.palette.text
                 icon.height: 20
                 icon.width: 20
@@ -249,7 +252,7 @@ ApplicationWindow {
             ToolButton {
                 id: resetButton
                 icon.name: "Reset Simulation"
-                icon.source: "qrc:/resources/icons/reset.svg"
+                icon.source: "/icons/reset.svg"
                 icon.color: ThemeManager.palette.text
                 icon.height: 20
                 icon.width: 20
@@ -288,7 +291,7 @@ ApplicationWindow {
 
                 ToolButton {
                     icon.name: "Add compartment"
-                    icon.source: "qrc:/resources/icons/plus.svg"
+                    icon.source: "/icons/plus.svg"
                     icon.color: enabled ? ThemeManager.palette.text : ThemeManager.palette.mid
                     icon.height: 20
                     icon.width: 20
@@ -305,7 +308,7 @@ ApplicationWindow {
                 }
                 ToolButton {
                     icon.name: "Add connection"
-                    icon.source: "qrc:/resources/icons/arrow-right.svg"
+                    icon.source: "/icons/arrow-right.svg"
                     icon.color: enabled ? ThemeManager.palette.text : ThemeManager.palette.mid
                     icon.height: 20
                     icon.width: 20
@@ -330,7 +333,7 @@ ApplicationWindow {
                 /// Graph button to open graphwindowUI
                 ToolButton {
                     icon.name: "Show Graphs"
-                    icon.source: "qrc:/resources/icons/graph.svg"
+                    icon.source: "/icons/graph.svg"
                     icon.color: ThemeManager.palette.text
                     icon.height: 20
                     icon.width: 20

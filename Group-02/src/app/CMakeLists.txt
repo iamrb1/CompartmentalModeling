@@ -13,6 +13,7 @@ set(
 qt_add_executable(
     ${EXECUTABLE_NAME}
     main.cpp
+    Resources/resources.qrc
 )
 
 # Set the C++ standard to C++20

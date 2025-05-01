@@ -199,7 +199,7 @@ Rectangle {
                             ToolButton {
                                 id: editToolButton
                                 icon.name: "Edit Variable"
-                                icon.source: "qrc:/resources/icons/edit.svg"
+                                icon.source: "/icons/edit.svg"
                                 icon.color: enabled ? ThemeManager.palette.text : ThemeManager.palette.mid
                                 icon.height: 16
                                 icon.width: 16

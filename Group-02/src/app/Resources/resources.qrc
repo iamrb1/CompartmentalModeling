@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/resources/">
+    <qresource prefix="/">
         <file>examples/SIR.sim</file>
         <file>icons/arrow-right.svg</file>
         <file>icons/plus.svg</file>
