@@ -11,7 +11,6 @@
 /**
  * @class   Card
  * @file    Card.hpp
- * @author  Joanna Rodriguez
  * @brief   Represents a task or note on the board, with unique ID, editable content,
  *          and optional tags. Inherits annotation support from AnnotatedWrapper.
  *
@@ -39,6 +38,17 @@ class Card : public AnnotatedWrapper<std::string> {
      */
     Card() = default;
 
+    /**
+     * @brief Copy constructor.
+     * @param other The card to copy from
+     */
+    Card(const Card& other) : mId(other.mId), mContent(new DynamicString(*other.mContent)), mTags(other.mTags) {}
+
+    /**
+     * @brief Move constructor.
+     * @param other The card to move from
+     */
+    Card(Card&& other) noexcept : mId(other.mId), mContent(std::move(other.mContent)), mTags(std::move(other.mTags)) {}
     
     /**
      * @brief Destructor.
@@ -66,9 +76,9 @@ class Card : public AnnotatedWrapper<std::string> {
 
     /**
      * @brief Retrieves the current content of the card.
-     * @return A string representing the card's content
+     * @return A string_view representing the card's content
      */
-    std::string getContent() const {
+    std::string_view getContent() const {
         return mContent->ToString();
     }
 

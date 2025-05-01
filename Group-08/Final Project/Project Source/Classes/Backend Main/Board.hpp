@@ -12,7 +12,6 @@ namespace cse {
     /**
      * @class   Board
      * @file    Board.hpp
-     * @author  Joanna Rodriguez Zamarron
      * @brief   Represents a board that manages a set of unique Card objects with random access.
      * 
      * This class acts as the container for all cards on the task board. It allows
@@ -39,7 +38,7 @@ class Board {
          * @param card The Card to be added.
          * @return True if the card was successfully added; false if it already exists.
          */
-        bool addCard(const Card& card) {
+        [[nodiscard]] bool addCard(const Card& card) {
             return cards.add(card);
         }
     
@@ -49,7 +48,7 @@ class Board {
          * @param card The Card to be removed.
          * @return True if the card was successfully removed; false if it was not found.
          */
-        bool removeCard(const Card& card) {
+        [[nodiscard]] bool removeCard(const Card& card) {
             return cards.remove(card);
         }
     
