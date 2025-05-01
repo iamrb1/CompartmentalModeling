@@ -1,7 +1,7 @@
 /**
  * @file EventQueue.h
  *
- * @author Owen Haiar
+ * @author Owen Haiar, Mary Holt
  * @brief Contains EventQueue class
  */
 

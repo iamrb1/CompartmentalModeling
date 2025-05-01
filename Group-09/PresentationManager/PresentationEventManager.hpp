@@ -1,7 +1,7 @@
 /**
  * @file PresentationEventManager.hpp
  *
- * @author Owen Haiar
+ * @author Owen Haiar, Mary Holt
  */
 
 #pragma once
