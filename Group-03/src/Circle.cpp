@@ -2,6 +2,8 @@
 #include "Circle.h"
 #include <cstdlib>
 #include <ctime>
+#include <cassert>
+#include <cmath>
 
 namespace cse {
     
@@ -42,7 +44,15 @@ bool   Circle::isRegenerating() const noexcept { return regenerating_; }
 bool   Circle::hasSpeedBoost() const noexcept { return speedBoost_; }
 bool   Circle::canRepopulate() const noexcept { return eatingCounter_ >= reproduceThreshold_; }
 
-void Circle::setPosition(double x, double y) noexcept { x_ = x; y_ = y; }
+void Circle::setPosition(double x, double y) noexcept { if (std::isnan(x) || std::isnan(y) || std::isinf(x) || std::isinf(y))
+{
+    x_ = 0.0;
+    y_ = 0.0;
+    assert(false && "Circle::setPosition received invalid coordinates");
+    return;
+}
+x_ = x; y_ = y;
+}
 
 void Circle::setRadius(double radius) {
     if (radius <= 0) {
@@ -64,6 +74,9 @@ void Circle::move(double width, double height) {
 }
 
 void Circle::decreaseEnergy(int amount) {
+    if (amount < 0) {
+        throw std::invalid_argument("Cannot decrease energy by negative amount");
+    }
     if (!regenerating_ && energy_ > 0) {
         energy_ -= amount;
         if (energy_ <= 0) {

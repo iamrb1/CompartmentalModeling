@@ -1,5 +1,7 @@
 #include "Sector.h"
 #include <algorithm>  // Include this for std::remove
+#include <cassert>
+#include <cmath>
 
 namespace cse {
 Sector::Sector(int x, int y)
@@ -10,6 +12,10 @@ void Sector::add_circle(std::shared_ptr<Circle> circle) {
 }
 
 void Sector::remove_circle(std::shared_ptr<Circle> circle) {
+    if (!circle) {
+        assert(false && "Sector::add_circle received nullptr");
+        return;
+    }
     circles.erase(std::remove(circles.begin(), circles.end(), circle), circles.end());
 }
 
