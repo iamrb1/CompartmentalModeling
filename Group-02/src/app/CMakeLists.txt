@@ -1,5 +1,4 @@
 message(STATUS "Building Executable: ${EXECUTABLE_NAME}")
-qt_standard_project_setup(REQUIRES 6.8)
 
 # Set the QML modules
 set(

@@ -24,7 +24,8 @@ class Connection : public QObject {
   Q_PROPERTY(QString name READ get_name WRITE set_name NOTIFY nameChanged FINAL)
   Q_PROPERTY(Compartment* source READ get_source WRITE set_source NOTIFY sourceChanged FINAL)
   Q_PROPERTY(Compartment* target READ get_target WRITE set_target NOTIFY targetChanged FINAL)
-  Q_PROPERTY(QString rateExpression READ get_rate_expression WRITE set_rate_expression NOTIFY rateExpressionChanged FINAL)
+  Q_PROPERTY(
+      QString rateExpression READ get_rate_expression WRITE set_rate_expression NOTIFY rateExpressionChanged FINAL)
 
  signals:
   /// Signals to notify QML of changes
@@ -37,16 +38,21 @@ class Connection : public QObject {
   ///The parent simulation
   Simulation* m_simulation = nullptr;
   ///Name of connection
-  QString m_name = "Test";
+  QString m_name;
   ///Source compartment
   Compartment* m_source = nullptr;
   ///Target compartment
   Compartment* m_target = nullptr;
   ///Rate of transfer expression
-  QString m_rate_expression = "0";
+  QString m_rate_expression;
 
  public:
-  explicit Connection(QObject* parent = nullptr) : QObject(parent) {}
+  /// Delete default constructor
+  Connection() = delete;
+  /// Delete copy constructor
+  Connection(const Connection&) = delete;
+  /// Delete copy assignment operator
+  Connection& operator=(const Connection&) = delete;
 
   Connection(QString name, Compartment* source, Compartment* target, QString rate_expression,
              Simulation* parent = nullptr);

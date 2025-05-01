@@ -18,7 +18,7 @@ void TestCompartment::test_constructors() {
   QString symbol = "PC";
   double initamount = 20.0;
 
-  Compartment ParamComp(name,symbol,initamount);
+  Compartment ParamComp(name, symbol, initamount);
   QCOMPARE(ParamComp.get_name(), name);
   QCOMPARE(ParamComp.get_symbol(), symbol);
   QCOMPARE(ParamComp.get_initial_amount(), initamount);

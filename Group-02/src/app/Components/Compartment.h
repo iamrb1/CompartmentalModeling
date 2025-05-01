@@ -41,23 +41,33 @@ class Compartment : public QObject {
   void currentAmountChanged();
 
  private:
+  /// Default x
+  static constexpr int DEFAULT_X = 100;
+  /// Default y
+  static constexpr int DEFAULT_Y = 100;
+
   /// The parent simulation
   Simulation* m_simulation = nullptr;
   /// The name of the compartment
-  QString m_name = "Test";
+  QString m_name;
   /// The symbol of the compartment (used for variable names)
-  QString m_symbol = "X";
+  QString m_symbol;
   /// The initial amount of the compartment
   double m_initial_amount = 0.0;
   /// The current amount of the compartment
   double m_current_amount = 0.0;
   /// The x position of the compartment
-  int m_x = 100;
+  int m_x = DEFAULT_X;
   /// The y position of the compartment
-  int m_y = 100;
+  int m_y = DEFAULT_Y;
 
  public:
-  explicit Compartment(QObject* parent = nullptr) : QObject(parent) {}
+  /// Delete default constructor
+  Compartment() = delete;
+  /// Delete copy constructor
+  Compartment(const Compartment&) = delete;
+  /// Delete copy assignment operator
+  Compartment& operator=(const Compartment&) = delete;
 
   Compartment(QString name, QString symbol, double initial_amount, Simulation* parent = nullptr);
 

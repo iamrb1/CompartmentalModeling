@@ -14,6 +14,9 @@
 
 Simulation::Simulation(QObject* parent) : QObject(parent) {}
 
+/**
+ * @brief Completely resets the simulation and clears all relevant values
+ */
 void Simulation::clear() {
   m_is_running = false;
 
@@ -67,7 +70,7 @@ void Simulation::start() {
   if (!m_timer) {
     m_timer = new QTimer(this);
   }
-  auto connection = connect(m_timer, &QTimer::timeout, [this]() { take_time_step(); });
+  auto connection = connect(m_timer, &QTimer::timeout, this, &Simulation::take_time_step);
   m_timer->start(m_step_time);
 }
 
@@ -271,12 +274,15 @@ QVector<Compartment*> Simulation::get_compartments() const {
  */
 void Simulation::add_compartment() {
   static size_t compartment_number = m_compartments.size();
-  /// Generate a new compartment with a unique symbol
-  QString symbol =
-      QString("%1%2").arg(static_cast<char>('A' + (compartment_number % 26))).arg((compartment_number / 26) + 1);
+  /// Generate a new compartment with a unique symbol and name
+  QString symbol = QString("%1%2")
+                       .arg(static_cast<char>(BASE_CHAR + (compartment_number % ALPHABET_SIZE)))
+                       .arg((compartment_number / ALPHABET_SIZE) + 1);
   while (m_compartments.contains(symbol)) {
     compartment_number++;
-    symbol = QString("%1%2").arg(static_cast<char>('A' + (compartment_number % 26))).arg((compartment_number / 26) + 1);
+    symbol = QString("%1%2")
+                 .arg(static_cast<char>('A' + (compartment_number % ALPHABET_SIZE)))
+                 .arg((compartment_number / ALPHABET_SIZE) + 1);
   }
   auto name = QString("Compartment %1").arg(symbol);
 
@@ -303,6 +309,11 @@ void Simulation::set_sidebar_compartment(Compartment* compartment) {
   emit sidebarConnectionChanged();
 }
 
+/**
+ * @brief Updates compartment with new name/symbol
+ * @param symbol Current compartment symbol
+ * @param new_symbol Possible new compartment symbol
+ */
 bool Simulation::update_compartment_symbol(const QString& symbol, const QString& new_symbol) {
   static QRegularExpression regex("^[a-zA-Z0-9]+$");
   if (new_symbol.isEmpty() || !regex.match(new_symbol).hasMatch()) {
@@ -380,6 +391,10 @@ QVector<Connection*> Simulation::get_connections() const {
   return connections;
 }
 
+/**
+ * @brief Sets the connection mode for the simulation
+ * @param connection_mode The connection mode
+ */
 void Simulation::set_connection_mode(const bool connection_mode) {
   if (!connection_mode) {
     set_source_compartment(nullptr);
@@ -390,6 +405,10 @@ void Simulation::set_connection_mode(const bool connection_mode) {
   emit connectionModeChanged();
 }
 
+/**
+ * Set the source component and make the connection
+ * @param compartment The source compartment
+ */
 void Simulation::set_source_compartment(Compartment* compartment) {
   if (!m_connection_mode) {
     return;
@@ -410,6 +429,9 @@ void Simulation::set_target_compartment(Compartment* target) {
   emit targetCompartmentChanged();
 }
 
+/**
+ * @brief Adds a connection to the simulation
+ */
 void Simulation::add_connection() {
   if (!m_connection_mode || !m_source_compartment || !m_target_compartment) {
     set_source_compartment(nullptr);
@@ -525,11 +547,6 @@ bool Simulation::update_variable(const QString& name, const QString& new_name, c
     return false;
   }
 
-  if (new_name.isEmpty()) {
-    prompt("Variable name cannot be empty", PromptType::WARNING, PromptMode::TOAST);
-    return false;
-  }
-
   if (name == new_name) {
     m_variables[name] = value;
   } else {
@@ -565,17 +582,31 @@ void Simulation::remove_variable(const QString& name) {
   }
 }
 
+/**
+ * @brief Unbinds a variable from the symbol table
+ * @param key variable name
+ */
 void Simulation::unbind_variable(const QString& key) {
   if (const auto std_key = key.toStdString(); m_symbol_table.symbol_exists(std_key)) {
     m_symbol_table.remove_variable(std_key);
   }
 }
 
+/**
+ * @brief Binds a variable to the symbol table
+ * @param key variable name
+ * @param ref variable reference
+ */
 void Simulation::bind_variable(const QString& key, double& ref) {
   unbind_variable(key);
   m_symbol_table.add_variable(key.toStdString(), ref);
 }
 
+/**
+ * @brief Evaluates an expression string and returns the result
+ * @param expression_string The expression to evaluate
+ * @return The result of the evaluation
+ */
 double Simulation::evaluate_expression(const QString& expression_string) {
   expression_t expression;
   expression.register_symbol_table(m_symbol_table);
@@ -594,6 +625,9 @@ double Simulation::evaluate_expression(const QString& expression_string) {
   return expression.value();
 }
 
+/**
+ * @brief Takes a time step in the simulation
+ */
 void Simulation::take_time_step() {
   if (m_current_time >= m_time_steps && m_timer) {
     disconnect(m_timer, nullptr, this, nullptr);
@@ -632,7 +666,13 @@ void Simulation::take_time_step() {
   emit currentTimeChanged();
 }
 
-void Simulation::prompt(const QString& message, PromptType type, PromptMode mode) {
+/**
+ * @brief Displays a prompt message
+ * @param message The message to display
+ * @param type The type of prompt (error, warning, info)
+ * @param mode The mode of the prompt (toast, dialog, log only)
+ */
+void Simulation::prompt(const QString& message, const Simulation::PromptType type, const Simulation::PromptMode mode) {
   if (type == PromptType::ERR) {
     qDebug() << "Error: " << message;
   } else if (type == PromptType::WARNING) {

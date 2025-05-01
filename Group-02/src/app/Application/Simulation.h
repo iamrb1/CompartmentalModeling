@@ -84,6 +84,11 @@ class Simulation : public QObject {
   void promptMessage(const QString& message, Simulation::PromptType type, Simulation::PromptMode mode);
 
  private:
+  static constexpr int DEFAULT_STEP_TIME_MS = 100;  // Default step time in milliseconds
+  static constexpr int DEFAULT_TIME_STEPS = 100;    // Default number of time steps
+  static constexpr int ALPHABET_SIZE = 26;
+  static constexpr char BASE_CHAR = 'A';
+
   /// Simulation name
   QString m_name = "New Simulation";
   /// Save path
@@ -91,9 +96,9 @@ class Simulation : public QObject {
 
   /// Simulation time
   QTimer* m_timer = nullptr;
-  int m_step_time = 100; // in milliseconds
+  int m_step_time = DEFAULT_STEP_TIME_MS;
   int m_current_time = 0.0;
-  int m_time_steps = 100;
+  int m_time_steps = DEFAULT_TIME_STEPS;
   bool m_is_running = false;
 
   /// Unordered map of compartments with their symbols as keys
@@ -131,9 +136,6 @@ class Simulation : public QObject {
   explicit Simulation(QObject* parent = nullptr);
 
   // Simulation controls
-  /**
-   * @brief Completely resets the simulation and clears all relevant values
-   */
   Q_INVOKABLE void clear();
   Q_INVOKABLE void reset();
   Q_INVOKABLE void start();
@@ -157,7 +159,9 @@ class Simulation : public QObject {
   Q_INVOKABLE void add_connection();
   void set_sidebar_connection(Connection* connection);
   Q_INVOKABLE void remove_connection(const Connection* connection);
-  void clear_connections() { m_connections.clear(); };
+  void clear_connections() {
+    m_connections.clear();
+  };
 
   // Variable stuff
   [[nodiscard]] QVariantMap get_variables() const;
@@ -166,7 +170,8 @@ class Simulation : public QObject {
   Q_INVOKABLE void remove_variable(const QString& name);
 
   // Message module
-  Q_INVOKABLE void prompt(const QString& message, PromptType type = PromptType::INFO, PromptMode mode = PromptMode::TOAST);
+  Q_INVOKABLE void prompt(const QString& message, Simulation::PromptType type = Simulation::PromptType::INFO,
+                          Simulation::PromptMode mode = Simulation::PromptMode::TOAST);
 
  public slots:
   void take_time_step();
