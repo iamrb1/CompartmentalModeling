@@ -15,11 +15,12 @@
 #include "FileSource.hpp"
 
 #include <fstream>
-
+#include <filesystem>
 #include "../../../StaticString/StaticString.hpp"
 
 cse::StringSet<cse::StaticString<30>> FileSource::load_file(const std::string& filename) {
-  std::ifstream file(mRelativePath + filename);
+  std::filesystem::path path = std::filesystem::path(mRelativePath) / filename;
+  std::ifstream file(path);
   cse::StringSet<cse::StaticString<30>> set;
   std::string line;
 
@@ -33,7 +34,8 @@ cse::StringSet<cse::StaticString<30>> FileSource::load_file(const std::string& f
 
 bool FileSource::save_file(const std::string& filename,
                cse::StringSet<cse::StaticString<30>> set) {
-  std::ofstream file(mRelativePath + filename);
+  std::filesystem::path path = std::filesystem::path(mRelativePath) / filename;
+  std::ofstream file(path);
   for (const auto& word : set) {
     file << word << "\n";
   }

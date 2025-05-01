@@ -398,6 +398,12 @@ class WordLang {
    */
   void testingMode();
 
+  /**
+   * @brief Destroy the Word Lang object
+   * 
+   */
+  ~WordLang() = default;
+
  private:
   /// @brief Bool to enable disable color codes for UI.
   bool mTesting = true;
