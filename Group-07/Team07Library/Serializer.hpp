@@ -30,6 +30,7 @@
 #include <vector>
 #include <concepts>
 #include <cassert>
+#include <filesystem>
 
 /**
  * @brief Trait to mark custom user-defined types as serializable
@@ -126,12 +127,13 @@ namespace cse
 	class Serializer
 	{
 	private:
-		Mode mode_;				   ///< Current operating mode (SAVE or LOAD).
-		std::ifstream inFile;	   ///< Input file stream.
-		std::ofstream outFile;	   ///< Output file stream.
-		std::string currType = ""; ///< Type name read from file (for verification).
-		bool setType = false;	   ///< Whether type info has been written yet.
-		std::string filename = ""; ///< Path to the file used for serialization.
+		std::ifstream inFile;					   ///< Input file stream.
+		std::ofstream outFile;					   ///< Output file stream.
+		std::string currType = "";				   ///< Type name read from file (for verification).
+		bool setType = false;					   ///< Whether type info has been written yet.
+		std::filesystem::path baseDirectory = "."; ///< Base directory for file path
+		std::string filename = "";				   ///< Path to the file used for serialization.
+		Mode mode_;								   ///< Current operating mode (SAVE or LOAD).
 
 		/**
 		 * @brief Opens the file stream based on the current mode
@@ -139,18 +141,20 @@ namespace cse
 		 */
 		void InitFile()
 		{
+			std::filesystem::path fullfile = baseDirectory / filename;
 			if (filename.empty())
 				throw SerializationError("Filename not set.");
 
 			if (mode_ == Mode::SAVE)
 			{
-				outFile.open(filename, std::ios::binary | std::ios::trunc);
+				std::filesystem::create_directories(fullfile.parent_path());
+				outFile.open(fullfile, std::ios::binary | std::ios::trunc);
 				if (!outFile)
 					throw SerializationError("Cannot open file for writing.");
 			}
 			else
 			{
-				inFile.open(filename, std::ios::binary);
+				inFile.open(fullfile, std::ios::binary);
 				if (!inFile)
 					throw SerializationError("Cannot open file for reading.");
 			}
@@ -189,7 +193,19 @@ namespace cse
 		 * @param mode SAVE or LOAD
 		 */
 		explicit Serializer(const std::string &filename, Mode mode = Mode::SAVE)
-			: mode_(mode), filename(filename)
+			: filename(filename), mode_(mode)
+		{
+			InitFile();
+		}
+
+		/**
+		 * @brief Constructs a serializer given a base directory, filename and I/O mode
+		 * @param baseDir Directory to prepend to the filename
+		 * @param filename File name (relative to baseDir)
+		 * @param mode SAVE or LOAD
+		 */
+		explicit Serializer(const std::string &baseDir, const std::string &filename, Mode mode)
+			: baseDirectory(baseDir), filename(filename), mode_(mode)
 		{
 			InitFile();
 		}
@@ -230,6 +246,16 @@ namespace cse
 		void ChangeName(const std::string &newname)
 		{
 			filename = newname;
+			ResetFileStream();
+		}
+
+		/**
+		 * @brief Changes the base directory (does not reopen file until ChangeName is called)
+		 * @param newDir New base directory path
+		 */
+		void ChangeDirectory(const std::string &newDir)
+		{
+			baseDirectory = newDir;
 			ResetFileStream();
 		}
 

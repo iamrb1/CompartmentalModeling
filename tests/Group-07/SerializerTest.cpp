@@ -994,3 +994,21 @@ TEST_CASE("Ultimate Test: Nested Struct/Class and STLs", "[Serializer]")
 	}
 	std::filesystem::remove(filename);
 }
+
+TEST_CASE("Test Different Directory", "[Serializer]")
+{
+	cse::Serializer Saver("./New Folder", filename, cse::Mode::SAVE);
+	cse::Serializer Loader("./New Folder", filename, cse::Mode::LOAD);
+	int x = 4000, y = 1000;
+	Saver.Serialize(x);
+	Loader.Serialize(y);
+	REQUIRE(x == y);
+	Saver.ChangeDirectory("./New Folder 2");
+	Loader.ChangeDirectory("./New Folder 2");
+	x = 3000;
+	Saver.Serialize(x);
+	Loader.Serialize(y);
+	REQUIRE(x == y);
+	std::filesystem::remove_all("./New Folder");
+	std::filesystem::remove_all("./New Folder 2");
+}
