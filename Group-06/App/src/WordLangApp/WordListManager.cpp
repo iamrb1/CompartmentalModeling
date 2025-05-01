@@ -100,7 +100,9 @@ bool cse::WordListManager::combine(
       return false;
     }
 
-    result = result.Union(mWordLists[list]);
+    for (const auto& word: mWordLists[list]) {
+      result.insert(word);
+    }
   }
 
   // update the current set

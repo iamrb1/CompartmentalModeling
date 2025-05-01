@@ -212,7 +212,7 @@ TEST_CASE("WordLang Tests 4", "[WordLang]") {
     "Number of words to search: 5248\n",
     "Words before filter: 5248, after filter: 1000\n",
     "[smile, porno, north, shoot, rapid, pizza, boxes, storm, blend, sides, pulse, quote, rough, adult, swiss, shelf, omaha, carry, worst, aside]\n",
-    "[total, final, rural, vocal, lamps, atlas, laura, malta, valid, larry]\n",
+    "[islam, total, solar, ultra, final, lands, salad, coral, moral, salon]\n",
     "[moral, coral, royal]\n"
   };
 
@@ -384,7 +384,7 @@ TEST_CASE("Combine lists and print result", "[Combine]") {
     std::cout.rdbuf(oldCoutBuf);
     std::string output = oss.str();
 
-    CHECK(output == "[table, computer, blue, yellow]\n");
+    CHECK(output == "[computer, table, blue, yellow]\n");
 }
 
 TEST_CASE("Large input combine lists and print result", "[CombineLarge]") {
@@ -407,7 +407,7 @@ TEST_CASE("Large input combine lists and print result", "[CombineLarge]") {
     std::cout.rdbuf(oldCoutBuf);
     std::string output = oss.str();
 
-    CHECK(output == "[our, can, to, us, with, was, home, in, the, free, you, other, it, for, or, an, search, your, are, page, if, we, this, more, by, a, that, is, at, from, but, i, not, on, as, my, and, has, do, about, new, will, one, have, of, information, time, no, be, they, all]\n");
+    CHECK(output == "[and, my, as, on, not, i, at, is, more, from, but, a, by, that, has, do, about, of, information, time, no, this, be, they, new, all, have, one, will, we, if, page, are, your, search, an, or, for, it, other, you, free, the, in, home, was, with, us, to, can, our]\n");
 }
 
 TEST_CASE("Difference between lists", "[Difference]") {
