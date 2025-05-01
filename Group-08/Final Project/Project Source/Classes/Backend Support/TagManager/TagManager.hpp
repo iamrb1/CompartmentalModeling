@@ -158,7 +158,7 @@ public:
          * @param task
          * @return bool 
          */
-        bool hasTag(const std::string& task, const std::string& tag) const {
+        [[nodiscard]] bool hasTag(const std::string& task, const std::string& tag) const {
             auto it = mTags.find(id);
             return it != mTags.end() && it->second.count(tag);
         }
