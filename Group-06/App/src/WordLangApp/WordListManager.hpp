@@ -277,9 +277,6 @@ class WordListManager {
   /// @brief A StringSet represents current Get command
   cse::StringSet<cse::StaticString<30>> mCurrentSet;
 
-  /// @brief Length restriction
-  int mlengthRestriction;
-
   /// @brief ErrorManager that handles error prompting to the user
   cse::ErrorManager& mErrorManager;
 
