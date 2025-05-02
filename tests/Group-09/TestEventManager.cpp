@@ -246,6 +246,39 @@ TEST_CASE("Trigger Events with Pause/Resume", "[EventManager]")
   CHECK(eM.getNumEvents() == 0);
 }
 
+//TEST_CASE("Pause non-existent event", "[EventManager]")
+//{
+//  EventManager<int> eM;
+//
+//  Event<int> e1("5", 1, printEvent, 1);
+//  eM.AddEvent(1, printEvent, 1);
+//
+//  // Trying to pause a non-existent event (Event with ID 99 does not exist)
+//  CHECK(eM.PauseEvent(e1) == false); //Assertion will faile
+//  CHECK(eM.getNumPaused() == 0);
+//  CHECK(eM.getRunningEvents().size() == 1);
+//}
+//
+//TEST_CASE("Resume non-existent event", "[EventManager]")
+//{
+//  EventManager<int> eM;
+//
+//  Event<int> e1("0", 1, printEvent, 1);
+//  eM.AddEvent(1, printEvent, 1);
+//
+//  // Trying to resume a non-existent event (Event with ID 99 does not exist)
+//  CHECK(eM.ResumeEvent(e1) == false); //Assertion will fail
+//  CHECK(eM.getNumPaused() == 0);
+//  CHECK(eM.getRunningEvents().size() == 1);
+//}
+
+TEST_CASE("Call Trigger Events with no events", "[EventManager]")
+{
+  EventManager<int> eM;
+
+  eM.TriggerEvents(); //Should not throw any exceptions/errors
+}
+
 
 
 

@@ -124,13 +124,14 @@ class EventManager {
    * @param args The arguments to be passed to the function
    * @return added Event
    */
+  template <typename FUN_T>
   std::optional<Event<Args...>> AddEvent(int time,
-                                         std::function<void(Args...)> func,
-                                         Args... args) {
+                                       FUN_T && func,
+                                       Args... args) {
     if (time < 0) {
       throw std::invalid_argument("Time must be positive");
     }
-    Event<Args...> event(std::to_string(next_id_), time, func, std::forward<Args>(args)...);
+    Event<Args...> event(std::to_string(next_id_), time, std::forward<FUN_T>(func), std::forward<Args>(args)...);
     ++next_id_;
     event_queue_.add(event);
     running_events_.insert(std::stoi(event.getID()));
@@ -149,11 +150,12 @@ class EventManager {
            "Event ID must be a managed ID.");
     if (paused_events_.count(id) > 0) {
       return true;
-    } else if (running_events_.count(id)) {
+    } else if (running_events_.count(id) > 0) {
       paused_events_.insert({id, event});
       running_events_.erase(id);
       return true;
     }
+    std::cerr << "Warning: Event ID not found in paused or running events.\n";
     return false;
   }
 
@@ -178,6 +180,7 @@ class EventManager {
       running_events_.insert(event_id);
       return true;
     }
+    std::cerr << "Warning: Event ID not found in paused or running events.\n";
     return false;
   }
 
