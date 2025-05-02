@@ -373,10 +373,12 @@ input.panel-card-text{
     cursor:text;
 }
 
-.todoList.panel.armed{
-  outline: 3px solid #22c55e;   /* green border */
-  outline-offset: 2px;          /* little gap so the shadow still shows */
+.todoList.panel.armed {
+  outline: none; 
+  box-shadow:
+    0 0 0 4px #000000
 }
+
 
 
 .draggable-item.being-dragged {
