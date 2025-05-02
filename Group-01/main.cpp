@@ -1124,24 +1124,29 @@ public:
     bool success = graphJson.ImportFromJson(jsonStr);
     if (success) {
       RedrawCanvas();
+    } else {
+      EM_ASM({ 
+        alert("Import Failed"); 
+        console.error("Import Failed");
+      });
     }
     return success;
   }
 
   // Toggle vertex IDs
   void ToggleShowVertexIds(bool show) {
-    auto vertices = currentGraph.GetVertices();
+    auto vertices = currentGraph.GetMutableVertices();
     for (auto v : vertices) {
-      const_cast<cse::Vertex<std::string> &>(*v).SetShowId(show);
+      v->SetShowId(show);
     }
     RedrawCanvas();
   }
 
   // Toggle edge weights
   void ToggleShowEdgeWeights(bool show) {
-    auto edges = currentGraph.GetEdges();
+    auto edges = currentGraph.GetMutableEdges();
     for (auto e : edges) {
-      const_cast<cse::Edge<std::string> &>(*e).SetShowWeight(show);
+      e->SetShowWeight(show);
     }
     RedrawCanvas();
   }

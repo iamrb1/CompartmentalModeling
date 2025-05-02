@@ -51,6 +51,8 @@ class Graph : public StreamSerializable {
   Vertex<VERTEX_DATA_T> &GetVertex(std::string const &id) const;
   std::vector<Vertex<VERTEX_DATA_T> const *> GetVertices() const;
   std::vector<Edge<VERTEX_DATA_T> const *> GetEdges() const;
+  std::vector<Vertex<VERTEX_DATA_T> *> GetMutableVertices();
+  std::vector<Edge<VERTEX_DATA_T> *> GetMutableEdges();
 
   void RemoveVertex(std::string const id);
   bool HasVertex(std::string id) const {
@@ -150,6 +152,24 @@ template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
 std::vector<Edge<VERTEX_DATA_T> const *>
 Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::GetEdges() const {
   std::vector<Edge<VERTEX_DATA_T> const *> e;
+  std::transform(edges.begin(), edges.end(), std::back_inserter(e),
+                 [](auto item) { return item.second.get(); });
+  return e;
+}
+
+template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
+std::vector<Vertex<VERTEX_DATA_T> *>
+Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::GetMutableVertices() {
+  std::vector<Vertex<VERTEX_DATA_T> *> v;
+  std::transform(vertices.begin(), vertices.end(), std::back_inserter(v),
+                 [](auto item) { return item.second.get(); });
+  return v;
+}
+
+template <typename VERTEX_DATA_T, bool IS_BIDIRECTIONAL>
+std::vector<Edge<VERTEX_DATA_T> *>
+Graph<VERTEX_DATA_T, IS_BIDIRECTIONAL>::GetMutableEdges() {
+  std::vector<Edge<VERTEX_DATA_T> *> e;
   std::transform(edges.begin(), edges.end(), std::back_inserter(e),
                  [](auto item) { return item.second.get(); });
   return e;
