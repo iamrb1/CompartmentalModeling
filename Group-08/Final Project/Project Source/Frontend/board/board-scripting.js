@@ -301,6 +301,11 @@ function setupBoard() {
                           </div>
     `;
   
+    const titleEl = newColumn.querySelector('.todo-text');
+    if (titleEl) {
+      titleEl.textContent = "Card Name"; 
+    }
+
     const allStacks = document.querySelectorAll('.todoList.panel');
     const newStackIndex = allStacks.length;
     slider.appendChild(newColumn);
@@ -474,6 +479,12 @@ function setupBoard() {
       alert('Double‑click the task you want to delete, then press “Remove a Task”.');
       return;
     }
+
+    // 🔧 Clear saved localStorage title/desc for this stack
+    const idx = Array.from(document.querySelectorAll('.todoList.panel')).indexOf(armedColumn);
+    localStorage.removeItem(`stack-${idx}-title`);
+    localStorage.removeItem(`stack-${idx}-desc`);
+    
     armedColumn.remove();
     armedColumn = null;
   });
