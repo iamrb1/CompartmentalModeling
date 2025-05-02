@@ -13,6 +13,14 @@
 
 using namespace cse;
 
+MockPresentationManager createMockManager() {
+ MockPresentationManager mockManager;
+ for(int i = 0; i < 10; i++) {
+  mockManager.addNewSlide();
+ }
+ return mockManager;
+}
+
 TEST_CASE("Initial state is correct","[PresentationManager]") {
  MockPresentationManager mockManager;
  REQUIRE(mockManager.getNumSlides() == 0);
@@ -49,10 +57,7 @@ TEST_CASE("Add multiple","[PresentationManager]") {
 }
 
 TEST_CASE("Clear slides","[PresentationManager]") {
- MockPresentationManager mockManager;
- for(int i = 0; i < 10; i++) {
-  mockManager.addNewSlide();
- }
+ MockPresentationManager mockManager = createMockManager();
  REQUIRE(mockManager.getNumSlides() == 10);
  REQUIRE(mockManager.getCurrentPos() == 9);
  REQUIRE(mockManager.isRunning() == false);
@@ -64,10 +69,7 @@ TEST_CASE("Clear slides","[PresentationManager]") {
 }
 
 TEST_CASE("Start and Stop Events","[PresentationManager]") {
- MockPresentationManager mockManager;
- for(int i = 0; i < 10; i++) {
-  mockManager.addNewSlide();
- }
+ MockPresentationManager mockManager = createMockManager();
  REQUIRE(mockManager.isRunning() == false);
  mockManager.start();
  REQUIRE(mockManager.isRunning() == true);
@@ -87,10 +89,7 @@ TEST_CASE("Pushing and deleting a slide","[PresentationManager]") {
 }
 
 TEST_CASE("Change slides","[PresentationManager]") {
- MockPresentationManager mockManager;
- for(int i = 0; i < 10; i++) {
-  mockManager.addNewSlide();
- }
+ MockPresentationManager mockManager = createMockManager();
  mockManager.goTo(9); //Valid
  REQUIRE(mockManager.getCurrentPos() == 9);
  mockManager.goTo(11); //Invalid
@@ -99,10 +98,7 @@ TEST_CASE("Change slides","[PresentationManager]") {
 }
 
 TEST_CASE("Advance slides","[PresentationManager]") {
- MockPresentationManager mockManager;
- for(int i = 0; i < 10; i++) {
-  mockManager.addNewSlide();
- }
+ MockPresentationManager mockManager = createMockManager();
  REQUIRE(mockManager.getNumSlides() == 10);
  mockManager.goTo(0);
  for(int i = 0; i < 10; i++) {
@@ -241,4 +237,22 @@ TEST_CASE("deleteSlide correctly removes events from the specified slide", "[Pre
  // The event from what was originally slide 1 should still exist
  auto infoSlide1 = manager.getSlideEventInfo(0);
  REQUIRE(infoSlide1.find("textbox-2") != infoSlide1.end());
+}
+
+TEST_CASE("GoTo with invalid index", "[PresentationManager]") {
+ MockPresentationManager mockManager;
+ mockManager.addNewSlide();
+ REQUIRE(mockManager.getCurrentPos() == 0);
+
+ mockManager.goTo(-1);  // Invalid index
+ REQUIRE(mockManager.getCurrentPos() == 0);  // Should not change
+}
+
+TEST_CASE("Adding an image with invalid URL or dimensions", "[PresentationManager]") {
+ MockPresentationManager mockManager;
+ mockManager.addNewSlide();
+ std::string emptyUrl = "";
+ REQUIRE_THROWS_WITH(mockManager.addImage(emptyUrl, 100, 100, "image"), "URL must not be empty");
+ auto slide = mockManager.getSlides().at(mockManager.getCurrentPos());
+ REQUIRE(slide->getImages().size() == 0);  // Invalid URL should result in no image added
 }

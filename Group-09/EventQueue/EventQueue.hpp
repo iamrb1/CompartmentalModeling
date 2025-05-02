@@ -112,7 +112,7 @@ class EventQueue {
    * @brief Returns the event at the top of the EventQueue, without removing
    * @return The event at the top of the EventQueue
    */
-  Event<Args...> peek() const {
+  const Event<Args...>& peek() const {
     //assert(eventCount_ >
     //       0);  // Ensure there is an event to pop (heap is not empty)
     if (eventCount_ == 0)
