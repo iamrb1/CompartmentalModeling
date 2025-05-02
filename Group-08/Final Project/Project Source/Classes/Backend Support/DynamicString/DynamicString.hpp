@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 #include <variant>
+#include <cassert>
+
 
 /**
  * @class DynamicString
@@ -65,40 +67,43 @@ inline DynamicString::DynamicString(str_fun_t f) {
 }
 
 inline std::string DynamicString::ToString() const {
- std::string result;
- for (auto &segment : mSegments) {
-     std::visit([&result](auto &segValue) {
-         using segType = std::decay_t<decltype(segValue)>;
-         if constexpr (std::is_same_v<segType, std::string>) {
-             result += segValue;
-         } else {
-             result += segValue();
-         }
-     }, segment);
- }
- return result;
+    assert(!mSegments.empty() && "ToString() called on empty DynamicString");
+    std::string result;
+    for (auto &segment : mSegments) {
+        std::visit([&result](auto &segValue) {
+            using segType = std::decay_t<decltype(segValue)>;
+            if constexpr (std::is_same_v<segType, std::string>) {
+                result += segValue;
+            } else {
+                result += segValue();
+            }
+        }, segment);
+    }
+    return result;
 }
 
 inline DynamicString &DynamicString::Append(const std::string &staticStr) {
- mSegments.emplace_back(staticStr);
- return *this;
+    mSegments.emplace_back(staticStr);
+    assert(!staticStr.empty() && "Attempted to append an empty static string");
+    return *this;
 }
 
 inline DynamicString &DynamicString::Append(str_fun_t func) {
- mSegments.emplace_back(func);
- return *this;
+    mSegments.emplace_back(func);
+    assert(func && "Attempted to append a null function");
+    return *this;
 }
 
 inline DynamicString operator+(const DynamicString &lhs, const std::string &rhs) {
- DynamicString result = lhs;
- result.Append(rhs);
- return result;
+    DynamicString result = lhs;
+    result.Append(rhs);
+    return result;
 }
 
 inline DynamicString operator+(const DynamicString &lhs, DynamicString::str_fun_t rhs) {
- DynamicString result = lhs;
- result.Append(rhs);
- return result;
+    DynamicString result = lhs;
+    result.Append(rhs);
+    return result;
 }
 
 inline void DynamicString::Clear() {

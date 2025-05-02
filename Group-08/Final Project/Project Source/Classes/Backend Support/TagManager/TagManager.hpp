@@ -60,6 +60,7 @@ public:
          * @param tag
          */
         void addTag(const std::string& task, const std::string& tag) {
+            assert(!task.empty() && !tag.empty() && "Task or tag cannot be empty");
             addUnique(mTaskToTag[task], tag);
             addUnique(mTagToTask[tag], task);
         }
@@ -71,6 +72,7 @@ public:
          * @param tag
          */
         void removeTag(const std::string& task, const std::string& tag) {
+            assert(!task.empty() && !tag.empty());
             auto taskIt = mTaskToTag.find(task);
             if (taskIt != mTaskToTag.end()) {
                 removeItem(taskIt->second, tag);
@@ -120,6 +122,7 @@ public:
          * @param task
          */
         void clearTagsForTask(const std::string& task) {
+            assert(!task.empty());
             auto it = mTaskToTag.find(task);
             if (it != mTaskToTag.end()) {
                 for (const auto& tag : it->second) {
@@ -139,6 +142,7 @@ public:
          * @param tag
          */
         void clearTags(const std::string& tag) {
+            assert(!tag.empty());
             auto it = mTagToTask.find(tag);
             if (it != mTagToTask.end()) {
                 for (const auto& task : it->second) {

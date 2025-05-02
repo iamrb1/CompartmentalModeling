@@ -5,6 +5,8 @@
 #include <iostream>
 #include <functional>
 #include <optional>
+#include <cassert>
+
 
 namespace cse {
 
@@ -35,6 +37,7 @@ namespace cse {
          * @param value
          */
         void addAnnotation(const std::string& key, const T& value) {
+            assert(!key.empty() && "Annotation key cannot be empty");
             mAnnotations[key] = value;
         }
 
