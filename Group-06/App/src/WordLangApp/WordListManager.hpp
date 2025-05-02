@@ -232,7 +232,7 @@ class WordListManager {
    * @return true If print is successful
    * @return false If print is unsuccessful
    */
-  bool print(int number = 0, bool isAll = false);
+  bool print(int number = 0, bool isAll = false) const;
 
   /**
    * @brief Gets the top 10 possible options for the Wordle game
@@ -282,6 +282,9 @@ class WordListManager {
 
   /// @brief Boolean used to indicate program state for word count printing
   bool mPrintNumberOfWords = true;
+
+  /// @brief The static StaticString size.
+  static const int mStringSize = 30;
 };
 
 }  // namespace cse

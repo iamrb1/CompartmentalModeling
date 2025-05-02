@@ -30,7 +30,7 @@ bool cse::WordListManager::loadList(const std::string& listName,
     return false;
   }
 
-  cse::StringSet<cse::StaticString<30>> set = FileSource::load_file(fileName);
+  cse::StringSet<cse::StaticString<mStringSize>> set = FileSource::load_file(fileName);
   if (set.size() == 0) {
     mErrorManager.printInfo("Error : File can not be loaded.");
     return false;
@@ -50,7 +50,7 @@ bool cse::WordListManager::loadList(const std::string& listName,
   return true;
 }
 
-bool cse::WordListManager::print(int number, bool isAll) {
+bool cse::WordListManager::print(int number, bool isAll) const {
   if (mCurrentLists.size() == 0) {
     mErrorManager.printInfo("Error : There is no file exist to be printed.");
     return false;
@@ -90,7 +90,7 @@ bool cse::WordListManager::combine(
                             "\" already exists.");
     return false;
   }
-  cse::StringSet<cse::StaticString<30>> result;
+  cse::StringSet<cse::StaticString<mStringSize>> result;
 
   // loop through listsTocombine and call Union on result
   for (const auto& list : listsToCombine) {
@@ -135,7 +135,7 @@ bool cse::WordListManager::difference(
                             "\" does not exist.");
     return false;
   }
-  cse::StringSet<cse::StaticString<30>> result = mWordLists[firstList];
+  cse::StringSet<cse::StaticString<mStringSize>> result = mWordLists[firstList];
 
   // take difference from appropriate lists and store it in the result
   for (std::size_t i = 1; i < listsToDiff.size(); i++) {
@@ -177,7 +177,7 @@ bool cse::WordListManager::intersection(
                             "\" does not exist.");
     return false;
   }
-  cse::StringSet<cse::StaticString<30>> result = mWordLists[firstList];
+  cse::StringSet<cse::StaticString<mStringSize>> result = mWordLists[firstList];
 
   // intersect lists accordingly
   for (std::size_t i = 1; i < listsToIntersect.size(); i++) {
@@ -228,7 +228,7 @@ bool cse::WordListManager::copy(const std::string& newListName,
 
 bool cse::WordListManager::setCurrent(
     const std::vector<std::string>& listNames) noexcept {
-  cse::StringSet<cse::StaticString<30>> combinedSet;
+  cse::StringSet<cse::StaticString<mStringSize>> combinedSet;
 
   for (const auto& listName : listNames) {
     if (mWordLists.find(listName) == mWordLists.end()) {
@@ -293,7 +293,7 @@ bool cse::WordListManager::setLengthRestriction(
     int num = std::stoi(lengthRestriction);
     int count_before = 0, count_after = 0;
 
-    cse::StringSet<cse::StaticString<30>> result;
+    cse::StringSet<cse::StaticString<mStringSize>> result;
 
     for (const auto& listname : mCurrentLists) {
       count_before += mWordLists[listname].size();
@@ -366,7 +366,7 @@ bool cse::WordListManager::ContainsAny(const std::string& lettersToCheck) noexce
     return false;
   }
 
-  cse::StringSet<cse::StaticString<30>> result;
+  cse::StringSet<cse::StaticString<mStringSize>> result;
 
   for (auto list : mCurrentLists) {
     // Update each set individually based on restriction.
@@ -407,7 +407,7 @@ bool cse::WordListManager::ContainsAll(const std::string& lettersToCheck) noexce
   }
   regexPattern += ".*";
 
-  cse::StringSet<cse::StaticString<30>> result;
+  cse::StringSet<cse::StaticString<mStringSize>> result;
 
   for (auto list : mCurrentLists) {
     // Update each set individually based on restriction.
@@ -438,7 +438,7 @@ bool cse::WordListManager::NotContains(const std::string& lettersToCheck) noexce
     return false;
   }
 
-  cse::StringSet<cse::StaticString<30>> result;
+  cse::StringSet<cse::StaticString<mStringSize>> result;
 
   for (auto list : mCurrentLists) {
     // Update each set individually based on restriction.
@@ -485,7 +485,7 @@ bool cse::WordListManager::Get(const std::string& patternToCheck) noexcept {
   // End Position of the pattern
   regexPattern += "$";
 
-  cse::StringSet<cse::StaticString<30>> result;
+  cse::StringSet<cse::StaticString<mStringSize>> result;
 
   for (auto list : mCurrentLists) {
     // Update each set individually based on restriction.
@@ -584,7 +584,7 @@ bool cse::WordListManager::wordle(const std::string& word,
   // Create a result set that where green mark is in the same index for all
   // words and words doesn't contain black marked letters, also, yellow marked
   // letters are not in the wrong indexes.
-  cse::StringSet<cse::StaticString<30>> possibleOptions;
+  cse::StringSet<cse::StaticString<mStringSize>> possibleOptions;
 
   for (auto word : mCurrentSet) {
     bool valid = true;
