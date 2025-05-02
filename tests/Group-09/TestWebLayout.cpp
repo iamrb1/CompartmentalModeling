@@ -315,8 +315,50 @@ void testCase10() {
 }
 
 void testCase11() {
+  // Testing textBoxLayout + imageLayout
+  std::cout << "Beginning Test Case 11 (textBoxLayout + imageLayout)\n";
+
+  FormattedText ft;
+  ft.setText("YOU SHOULDN'T SEE THIS TEXT");
+  TextBoxConfig tbc;
+  tbc.width = 100;
+  tbc.height = 100;
+  tbc.content = ft;
+  std::shared_ptr<TextBox> tb = std::make_shared<TextBox>("", tbc);
+  TextBoxLayout tbl(tb, 12, 12);
+  TextBoxLayout tblCopy = tbl;
+
+  std::shared_ptr<Image> i = std::make_shared<Image>("https://upload.wikimedia.org/wikipedia/en/thumb/a/a7/Michigan_State_Athletics_logo.svg/1200px-Michigan_State_Athletics_logo.svg.png", 50, 50);
+  ImageLayout il(i, 10, 10);
+  ImageLayout ilCopy = il;
+
+  // Test == operator works
+  if(tblCopy != tbl) { std::cout << "Layout == operator Error!\n"; }
+  if(ilCopy != il) { std::cout << "Layout == operator Error!\n"; }
+
+  FormattedText ft2;
+  ft2.setText("THIS IS DIFFERENT TEXT");
+  TextBoxConfig tbc2;
+  tbc2.width = 10;
+  tbc2.height = 50;
+  tbc2.content = ft2;
+  std::shared_ptr<TextBox> tb2 = std::make_shared<TextBox>("", tbc2);
+  TextBoxLayout tbl2(tb2, 12, 12);
+
+  std::shared_ptr<Image> i2 = std::make_shared<Image>("https://upload.wikimedia.org/wikipedia/en/thumb/a/a7/Michigan_State_Athletics_logo.svg/1200px-Michigan_State_Athletics_logo.svg.png", 10, 30);
+  ImageLayout il2(i2, 70, 15);
+
+  // Test != operator
+  if(tbl == tbl2) { std::cout << "Layout == operator can't detect different ids\n"; }
+  if(il == il2) { std::cout << "Layout == operator can't detect different ids\n"; }
+
+  std::cout << "Ending Test Case 11 (textBoxLayout + imageLayout)\n";
+}
+
+
+void testCase12() {
   // Testing toggling text boxes and items (fully UI testing)
-  std::cout << "Beginning Test Case 11 (Toggling Items)\n";
+  std::cout << "Beginning Test Case 12 (Toggling Items)\n";
 
   WebLayout wb;
 
@@ -357,12 +399,12 @@ void testCase11() {
 
   // Expected behavior on UI side is second textbox/image still visible, while first is not
 
-  std::cout << "Ending Test Case 11 (Toggling Items)\n";
+  std::cout << "Ending Test Case 12 (Toggling Items)\n";
 }
 
-void testCase12() {
+void testCase13() {
   // Testing toggling layouts (fully UI testing)
-  std::cout << "Beginning Test Case 11 (Toggling Layout)\n";
+  std::cout << "Beginning Test Case 13 (Toggling Layout)\n";
 
   WebLayout wb;
 
@@ -382,7 +424,7 @@ void testCase12() {
   // Deactivate layout (should not show on UI)
   wb.deactivateLayout();
 
-  std::cout << "Ending Test Case 11 (Toggling Layout)\n";
+  std::cout << "Ending Test Case 13 (Toggling Layout)\n";
 }
 
 int main() {
@@ -399,6 +441,7 @@ int main() {
   testCase10();
   testCase11();
   testCase12();
+  testCase13();  //Do this case last because of UI
 
   return 0;
 }
