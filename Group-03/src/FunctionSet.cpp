@@ -14,28 +14,27 @@ namespace cse {
 /**
  * Constructor
  */
-template <typename R, typename... Args>
-cse::FunctionSet<R, Args...>::FunctionSet() = default;
+template <typename ReturnType, typename... FunctionParams>
+cse::FunctionSet<ReturnType, FunctionParams...>::FunctionSet() = default;
 
 /**
  * Destructor
  */
-template <typename R, typename... Args>
-cse::FunctionSet<R, Args...>::~FunctionSet() = default;
+template <typename ReturnType, typename... FunctionParams>
+cse::FunctionSet<ReturnType, FunctionParams...>::~FunctionSet() = default;
 
 /**
  * addFunction
  */
-template <typename R, typename... Args>
-void cse::FunctionSet<R, Args...>::AddFunction(const FunctionType& func)
+template <typename ReturnType, typename... FunctionParams>
+void cse::FunctionSet<ReturnType, FunctionParams...>::AddFunction(const FunctionType& func)
 {
     // Check if the function object is valid.
-    if (func == nullptr)
-{
-    throw std::invalid_argument("AddFunction: Function target is null.");
-}
+    if (func == nullptr) {
+        throw std::invalid_argument("AddFunction: Function target is null.");
+    }
 
-    using PointerType = R(*)(Args...); //chatgpt
+    using PointerType = ReturnType(*)(FunctionParams...); // chatgpt
 
     if (func.target_type() == typeid(PointerType)) {
         const PointerType* fp = func.template target<PointerType>();
@@ -52,14 +51,13 @@ void cse::FunctionSet<R, Args...>::AddFunction(const FunctionType& func)
 /**
  * Find the index of the function
  */
-template <typename R, typename... Args>
-int cse::FunctionSet<R, Args...>::FindFunctionIndex(const FunctionType& func) const
-{
-        if (func == nullptr)
-{
-    throw std::invalid_argument("FindFunctionIndex: Function target is null.");
-}
-    using PointerType = R(*)(Args...);
+template <typename ReturnType, typename... FunctionParams>
+int cse::FunctionSet<ReturnType, FunctionParams...>::FindFunctionIndex(const FunctionType& func) const {
+    if (func == nullptr) {
+        throw std::invalid_argument("FindFunctionIndex: Function target is null.");
+    }
+
+    using PointerType = ReturnType(*)(FunctionParams...);
 
     assert(func.target_type() == typeid(PointerType));
 
@@ -81,18 +79,16 @@ int cse::FunctionSet<R, Args...>::FindFunctionIndex(const FunctionType& func) co
     return -1;
 }
 
-
-
 /**
  * removeFunction
  */
-template <typename R, typename... Args>
-bool cse::FunctionSet<R, Args...>::RemoveFunction( const FunctionType& func)
+template <typename ReturnType, typename... FunctionParams>
+bool cse::FunctionSet<ReturnType, FunctionParams...>::RemoveFunction(const FunctionType& func)
 {
-        if (func == nullptr)
-{
-    throw std::invalid_argument("RemoveFunction: Function target is null.");
-}
+    if (func == nullptr)
+    {
+        throw std::invalid_argument("RemoveFunction: Function target is null.");
+    }
     int index = FindFunctionIndex(func);
     if (index >= 0)
     {
@@ -101,6 +97,8 @@ bool cse::FunctionSet<R, Args...>::RemoveFunction( const FunctionType& func)
     }
     return false;
 }
+
+// Explicit template instantiations
 template class cse::FunctionSet<int, int>;
 template class cse::FunctionSet<double, double>;
 template class cse::FunctionSet<void, const std::string&>;
