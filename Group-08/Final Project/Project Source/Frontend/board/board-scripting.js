@@ -291,7 +291,7 @@ function setupBoard() {
                             </div>
                             <label class="status-label">
                                 
-                              <select class="task-status unstarted">
+                              <select class="task-status unstarted" >
                                 <option>Not Started</option>
                                 <option>In Progress</option>
                                 <option>Complete</option>
@@ -300,6 +300,25 @@ function setupBoard() {
                             
                           </div>
     `;
+
+    // Append the new column to the DOM
+slider.appendChild(newColumn);
+
+// Then attach the event listener manually
+const selectEl = newColumn.querySelector('.task-status');
+selectEl.addEventListener('change', function () {
+  selectEl.classList.remove('unstarted', 'inprogress', 'completed');
+  const selectedValue = selectEl.value.toLowerCase().replace(" ", "");
+
+  if (selectedValue === "notstarted") {
+    selectEl.classList.add('unstarted');
+  } else if (selectedValue === "inprogress") {
+    selectEl.classList.add('inprogress');
+  } else if (selectedValue === "complete") {
+    selectEl.classList.add('completed');
+  }
+  console.log("Changed to:", selectedValue);
+});
   
     const allStacks = document.querySelectorAll('.todoList.panel');
     const newStackIndex = allStacks.length;
@@ -631,7 +650,7 @@ function loadBoardState() {
           </button>
         </div>
         <label class="status-label">
-          <select class="task-status">
+          <select class="task-status unstarted">
             <option ${colData.status === "Not Started" ? "selected" : ""}>Not Started</option>
             <option ${colData.status === "In Progress" ? "selected" : ""}>In Progress</option>
             <option ${colData.status === "Complete" ? "selected" : ""}>Complete</option>
@@ -639,6 +658,25 @@ function loadBoardState() {
         </label>
       </div>
     `;
+
+    // Append the new column to the DOM
+slider.appendChild(newColumn);
+
+// Then attach the event listener manually
+const selectEl = newColumn.querySelector('.task-status');
+selectEl.addEventListener('change', function () {
+  selectEl.classList.remove('unstarted', 'inprogress', 'completed');
+  const selectedValue = selectEl.value.toLowerCase().replace(" ", "");
+
+  if (selectedValue === "notstarted") {
+    selectEl.classList.add('unstarted');
+  } else if (selectedValue === "inprogress") {
+    selectEl.classList.add('inprogress');
+  } else if (selectedValue === "complete") {
+    selectEl.classList.add('completed');
+  }
+  console.log("Changed to:", selectedValue);
+});
 
     const panelCards = newColumn.querySelector(".panel-cards");
 
@@ -727,3 +765,4 @@ document.addEventListener("click", (e) => {
     setTimeout(saveBoardState, 100); 
   }
 });
+
