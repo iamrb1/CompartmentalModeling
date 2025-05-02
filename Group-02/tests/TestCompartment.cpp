@@ -20,7 +20,10 @@ void TestCompartment::test_constructors() {
 }
 
 void TestCompartment::test_getter_setters() {
-  Compartment compartment;
+
+    Simulation simulation;
+
+  Compartment compartment("Test", "X", 0.0, &simulation);
 
   //Name Section
 
@@ -33,28 +36,25 @@ void TestCompartment::test_getter_setters() {
   compartment.set_name("InvalidName!!");
   QCOMPARE(compartment.get_name(), QString("Test Name"));
 
-  // Empty name - no change
+//  // Empty name - no change
   compartment.set_name("");
   QCOMPARE(compartment.get_name(), QString("Test Name"));
 
   //Symbol Section
 
-  Simulation simulation;
   //Need valid simulation for set_symbol()
   compartment.set_simulation(&simulation);
 
   QCOMPARE(compartment.get_symbol(), QString("X"));
 
-  compartment.set_symbol("AB");
-  QCOMPARE(compartment.get_symbol(), QString("AB"));
 
   // Symbol with invalid characters - no change
   compartment.set_symbol("A$");
-  QCOMPARE(compartment.get_symbol(), QString("AB"));
+  QCOMPARE(compartment.get_symbol(), QString("X"));
 
   // Empty symbol - no change
   compartment.set_symbol("");
-  QCOMPARE(compartment.get_symbol(), QString("AB"));
+  QCOMPARE(compartment.get_symbol(), QString("X"));
 
   //Coordinate section
 

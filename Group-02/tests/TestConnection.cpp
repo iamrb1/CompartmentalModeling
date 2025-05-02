@@ -7,7 +7,8 @@
 
 void TestConnection::test_constructors() {
   //default constructor
-  Connection defaultConn;
+  Simulation *simulation;
+  Connection defaultConn("Test", nullptr, nullptr, "0", nullptr);
   QCOMPARE(defaultConn.get_source(), nullptr);
   QCOMPARE(defaultConn.get_target(), nullptr);
   QCOMPARE(defaultConn.get_simulation(), nullptr);
@@ -15,12 +16,15 @@ void TestConnection::test_constructors() {
   QCOMPARE(defaultConn.get_rate_expression(), QString("0"));
 
   //variable constructor
-  Compartment sourcecomp;
-  Compartment targetcomp;
+    Compartment sourcecomp("Test", "X", 100, nullptr);
+    Compartment targetcomp("Test", "X", 100, nullptr);
+
+//    Compartment sourcecomp;
+//  Compartment targetcomp;
   QString name = "TestName";
   QString rateexp = "0.01";
 
-  Connection paramconn(name, &sourcecomp, &targetcomp, rateexp);
+  Connection paramconn(name, &sourcecomp, &targetcomp, rateexp, nullptr);
   QCOMPARE(paramconn.get_source(), &sourcecomp);
   QCOMPARE(paramconn.get_target(), &targetcomp);
   QCOMPARE(paramconn.get_name(), name);
@@ -29,7 +33,8 @@ void TestConnection::test_constructors() {
 
 void TestConnection::test_getter_setters() {
 
-  Connection defaultconn;
+    Simulation simulation;
+    Connection defaultconn("Test", nullptr, nullptr, "0", &simulation);
 
   //Name Section
   QCOMPARE(defaultconn.get_name(), QString("Test"));
@@ -46,7 +51,7 @@ void TestConnection::test_getter_setters() {
   QCOMPARE(defaultconn.get_name(), QString("Test Name"));
 
   //more name set/get
-  Connection connection;
+    Connection connection("Test", nullptr, nullptr, "0", &simulation);
 
   connection.set_name("tested");
   QCOMPARE(connection.get_name(), QString("tested"));
@@ -57,8 +62,9 @@ void TestConnection::test_getter_setters() {
 
   //Source/Target Section
 
-  Compartment SourceComp;
-  Compartment TargetComp;
+  Compartment SourceComp("Test", "X", 100, &simulation);
+  Compartment TargetComp("Test", "X", 100, &simulation);
+
 
   QCOMPARE(defaultconn.get_source(), nullptr);
   QCOMPARE(defaultconn.get_target(), nullptr);
@@ -73,15 +79,17 @@ void TestConnection::test_getter_setters() {
   QCOMPARE(defaultconn.get_target(), &SourceComp);
 
   // more set/get targets and sources
-  Compartment compartment1;
-  Compartment compartment2;
+  Compartment compartment1("Test", "X", 100, &simulation);
+  Compartment compartment2("Test", "X", 100, &simulation);
+
 
   connection.set_source(&compartment1);
   connection.set_target(&compartment2);
   QCOMPARE(connection.get_source(), &compartment1);
   QCOMPARE(connection.get_target(), &compartment2);
 
-  Compartment compartment3;
+    Compartment compartment3("Test", "X", 100, &simulation);
+
   connection.set_source(&compartment3);
   connection.set_target(&compartment1);
   QCOMPARE(connection.get_source(), &compartment3);
@@ -109,19 +117,8 @@ void TestConnection::test_getter_setters() {
   QCOMPARE(connection.get_rate_expression(), " ");
 
   //Simulation Section
-  //    QCOMPARE(defaultconn.get_simulation(), nullptr);
-  //    Simulation sim;
-  //    defaultconn.set_simulation(&sim);
-  //    QCOMPARE(defaultconn.get_simulation(), &sim);
-  //
-  //    // more set/get simulation
-  //    Simulation* simulation1;
-  //    Simulation* simulation2;
-  //    connection.set_simulation(simulation1);
-  //    QCOMPARE(connection.get_simulation(), simulation1);
-  //
-  //    connection.set_simulation(simulation2);
-  //    QCOMPARE(connection.get_simulation(), simulation2);
+  QCOMPARE(defaultconn.get_simulation(), &simulation);
+  Simulation sim;
 }
 void TestConnection::test_add_connection() {
   Simulation sim;
