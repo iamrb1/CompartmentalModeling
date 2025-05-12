@@ -18,33 +18,44 @@ set(BUILD_SHARED_LIBS OFF)
 # Only do these if this is the main project, and not if it is included through add_subdirectory
 if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   set(CMAKE_CXX_STANDARD 20)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
   # -std=c++xx instead of -std=g++xx
   set(CMAKE_CXX_EXTENSIONS OFF)
 
-  # Set Wall, Wextra and Wpedantic flags
-  if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    add_compile_options(-Wall -Wextra -Wpedantic)
+  # Set build-type-specific optimization flags
+  if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    add_compile_options(-Wall -Wextra)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG")
+  elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Od /Zi")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2 /DNDEBUG")
   endif ()
 
-  find_package(Doxygen)
-  if (DOXYGEN_FOUND)
-    find_package(Doxygen)
-
-    doxygen_add_docs(
-        docs
-        ${PROJECT_SOURCE_DIR}
-        ALL
-        COMMENT "Generate HTML documentation"
-        CONFIG_FILE ${PROJECT_SOURCE_DIR}/Doxyfile
-    )
-
-  else ()
-    message(STATUS "Doxygen not found, not adding docs target")
-  endif ()
+  message(STATUS "CMake build type: ${CMAKE_BUILD_TYPE}")
+  message(STATUS "CMake compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
+  message(STATUS "CMake compiler flags: ${CMAKE_CXX_FLAGS}")
 
 endif ()
+
+# Qt setup
+find_package(Qt6 REQUIRED COMPONENTS Quick Charts Test Widgets)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+qt_policy(SET QTP0001 NEW)
+
+# Add extern lib (expertk)
+add_subdirectory(extern/exprtk)
 
 # Add the subdirectories (libraries and executables)
 add_subdirectory(src/cse)
 add_subdirectory(src/app)
+
+# Optional: Make tests optional with a CMake option
+option(BUILD_TESTS "Build the tests" ON)
+if (BUILD_TESTS)
+  add_subdirectory(tests)
+endif ()

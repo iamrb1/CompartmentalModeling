@@ -2,94 +2,193 @@
  * @file AdvStateGridTest.cpp
  * @author Dominik Leisinger
  */
-#include <catch2/catch.hpp>
+
 #include <cse/StateGrid.h>
+#include <cse/StateGridPosition.h>
+#include <algorithm>
+#include <catch2/catch.hpp>
 #include <stdexcept>
+#include <string>
+#include <vector>
 
-TEST_CASE("Testing load_map returns a valid map")
-{
-    ///This test is assuming we have implemented a file manager
-    ///that loads pre-built files from a CSV in load-map()
-
-    cse::StateGrid grid("hard");
-
-    ///Test if m_grid has been set through load_map
-    REQUIRE(grid.m_grid);
-
-    ///If test map was loaded, there was an error
-    REQUIRE_FALSE(grid.get_state(1,2) != 'P');
-
-    ///Test if correct map has been loaded
-    /// ('hard' would load a larger and more challenging map)
-    REQUIRE(grid.get_state(1,6) == 'P');
-    REQUIRE(grid.get_state(11,10) == '0');
-
-    ///Possible new state (boulder that can be pushed)
-    REQUIRE(grid.get_state(2,6) == 'o')
-    ///Want to implement a liquid type (water,lava)
-    for(int i=0; i<6; i++)
-    {
-        REQUIRE(grid.get_state(6,i) == 'w');
-    }
-
+// Helper: Convert AuditedVector<string> to std::vector<string>
+std::vector<std::string> toStdVector(const cse::AuditedVector<std::string>& av) {
+  return std::vector<std::string>(av.begin(), av.end());
 }
 
+TEST_CASE("Testing load_map returns a valid map") {
+  cse::StateGrid grid("test");
 
-TEST_CASE("Testing find_properties returns correct values")
-{
-    ///For now, and clarity of purpose, assuming find_properties returns
-    ///a map with the direction from agent as key, and a list of properties
-    ///of the state in that direction as the value
-    ///Using map info from above as context for testing
+  // Agent 'P' should be at row 1, col 2.
+  REQUIRE(grid.get_state(cse::Point(1, 2)) == 'P');
 
-    cse::StateGrid grid("hard");
-    SECTION("Testing initial position")
-    {
-        ///Current agent location will be a member variable
-        auto props = grid.find_properties();
+  // Exit '0' is at row 4, col 1.
+  REQUIRE(grid.get_state(cse::Point(4, 1)) == '0');
 
-        REQUIRE(props.at("DOWN") == {"Boulder", "Open", "Pushable"});
-        REQUIRE(props.at("LEFT")) == {"EmptySpace", "Open"});
-        REQUIRE(props.at("RIGHT")) == {"EmptySpace", "Open"});
-        REQUIRE(props.at("UP")) == {"Wall", "Closed"});
-    }
+  // Enemy 'X' is at row 2, col 2.
+  REQUIRE(grid.get_state(cse::Point(2, 2)) == 'X');
 
-    SECTION("Testing after movement")
-    {
-        grid.set_state(2,6);
-
-        auto props = grid.find_properties();
-        REQUIRE(props.at("DOWN") == {"Boulder", "Open", "Pushable"});
-        REQUIRE(props.at("LEFT")) == {"Wall", "Closed"});
-        REQUIRE(props.at("RIGHT")) == {"Wall", "Closed"});
-        REQUIRE(props.at("UP") == {"EmptySpace", "Open"});
-
-    }
+  // Row 0 is "#####"
+  std::string row0;
+  for (int col = 0; col < 5; col++) {
+    row0.push_back(grid.get_state(cse::Point(0, col)));
+  }
+  REQUIRE(row0 == "#####");
 }
 
-TEST_CASE("Testing set_condition and remove_condition functioning correctly")
-{
-    cse::StateGrid grid("hard");
+TEST_CASE("Testing find_properties returns correct values") {
+  cse::StateGrid grid("test");
 
-    auto props = grid.define_state('w');
-    REQUIRE(props.find("Deadly") != props.end());
+  SECTION("Testing initial position") {
+    auto props = grid.find_properties();
+    REQUIRE(props.find("Down") != props.end());
+    REQUIRE(props.find("Left") != props.end());
+    REQUIRE(props.find("Right") != props.end());
+    REQUIRE(props.find("Up") == props.end());
 
-    ///In this example, the agent would have just picked up
-    ///a possible power-up called "Lava Shoes"
-    grid.remove_condition({'w',"Deadly");
-    auto props = grid.define_state('w');
+    REQUIRE(toStdVector(props.at("Down")) == std::vector<std::string>{"Enemy", "Open"});
+    REQUIRE(toStdVector(props.at("Left")) == std::vector<std::string>{"EmptySpace", "Open"});
+    REQUIRE(toStdVector(props.at("Right")) == std::vector<std::string>{"EmptySpace", "Open"});
+  }
 
-    ///Definition for Lava throughout the grid is now changed
-    REQUIRE(props.find("Deadly") == props.end());
+  SECTION("Testing after movement") {
+    REQUIRE(grid.set_state(cse::Point(2, 2)) == true);
+    auto props = grid.find_properties();
+    REQUIRE(props.find("Up") != props.end());
+    REQUIRE(props.find("Down") != props.end());
+    REQUIRE(props.find("Left") == props.end());
+    REQUIRE(props.find("Right") == props.end());
 
-    ///Another example where a possible Agent just became
-    ///low on health, and considered 'weakened'
-    grid.set_condition({'o',"Immovable"});
-    auto props = grid.define_state('o');
+    REQUIRE(toStdVector(props.at("Up")) == std::vector<std::string>{"EmptySpace", "Open"});
+    REQUIRE(toStdVector(props.at("Down")) == std::vector<std::string>{"EmptySpace", "Open"});
+  }
+}
 
-    ///Function would analyze differing properties like:
-    ///Pushable and Immovable,not allowing both to be active at once
-    REQUIRE(props.find("Pushable") == props.end());
-    REQUIRE(props.find("Immovable") != props.end());
+TEST_CASE("Testing set_condition and remove_condition functioning correctly") {
+  cse::StateGrid grid("test");
 
+  auto props_space = grid.define_state(' ');
+  REQUIRE(std::find(props_space.begin(), props_space.end(), "Open") != props_space.end());
+
+  grid.remove_condition(' ', "Open");
+  auto new_props_space = grid.define_state(' ');
+  REQUIRE(std::find(new_props_space.begin(), new_props_space.end(), "Open") == new_props_space.end());
+
+  grid.set_condition('X', "Open", "Closed");
+  auto props_enemy = grid.define_state('X');
+  REQUIRE(std::find(props_enemy.begin(), props_enemy.end(), "Open") == props_enemy.end());
+  REQUIRE(std::find(props_enemy.begin(), props_enemy.end(), "Closed") != props_enemy.end());
+}
+
+TEST_CASE("Testing validate_position at boundaries") {
+  cse::StateGrid grid("test");
+
+  REQUIRE_FALSE(grid.validate_position({0, 0}));
+
+  REQUIRE(grid.validate_position({1, 1}));
+
+  REQUIRE_FALSE(grid.validate_position({5, 4}));
+}
+
+TEST_CASE("Testing modify_all_cells modifies all cells") {
+  cse::StateGrid grid("test");
+  // Modify all '#' to 'W'
+  grid.modify_all_cells([](int, int, char& cell) {
+    if (cell == '#') {
+      cell = 'W';
+    }
+  });
+  // Check that no '#' remain in the grid.
+  for (int row = 0; row < 6; ++row) {
+    for (int col = 0; col < 5; ++col) {
+      REQUIRE(grid.get_state(cse::Point(row, col)) != '#');
+    }
+  }
+}
+
+TEST_CASE("Testing find_moves near boundaries") {
+  cse::StateGrid grid("test");
+  std::vector<cse::Point> moves = grid.find_moves();
+  std::vector<cse::Point> expectedMoves = {cse::Point(1, 1), cse::Point(1, 3), cse::Point(2, 2)};
+  REQUIRE(moves.size() == expectedMoves.size());
+  for (auto& expected : expectedMoves) {
+    auto it = std::find(moves.begin(), moves.end(), expected);
+    REQUIRE(it != moves.end());
+  }
+}
+
+TEST_CASE("Testing set_state on invalid position") {
+  cse::StateGrid grid("test");
+  bool moved = grid.set_state(cse::Point(0, 0));
+  REQUIRE_FALSE(moved);
+  REQUIRE(grid.get_state(cse::Point(1, 2)) == 'P');
+}
+
+TEST_CASE("Testing multiple sequential moves") {
+  cse::StateGrid grid("test");
+  // Initially, agent is at (1,2)
+  // Attempt to move the agent to (1,3) (valid) and then try to move further.
+  bool moved = grid.set_state(cse::Point(1, 3));
+  REQUIRE(moved == true);
+  // Now, (1,2) should be empty and (1,3) should hold 'P'
+  REQUIRE(grid.get_state(cse::Point(1, 2)) == ' ');
+  REQUIRE(grid.get_state(cse::Point(1, 3)) == 'P');
+
+  // Attempt a second move from (1,3) to (2,3). In the test grid, row 2 ("##X##")
+  // at column 3 is '#', so the move should fail.
+  moved = grid.set_state(cse::Point(2, 3));
+  REQUIRE(moved == false);
+  // The agent stays at (1,3)
+  REQUIRE(grid.get_state(cse::Point(1, 3)) == 'P');
+}
+
+TEST_CASE("Testing find_moves returns empty when all neighbors are blocked") {
+  cse::StateGrid grid("test");
+  // Agent is initially at (1,2). Convert its neighboring traversable cells to walls.
+  grid.modify_all_cells([](int row, int col, char& cell) {
+    if ((row == 1 && (col == 1 || col == 3)) || (row == 2 && col == 2)) {
+      cell = '#';
+    }
+  });
+  auto moves = grid.find_moves();
+  // Now no valid moves should be available.
+  REQUIRE(moves.empty());
+}
+
+TEST_CASE("Testing copy constructor of StateGrid") {
+  cse::StateGrid grid1("test");
+
+  cse::StateGrid grid2 = grid1;
+
+  REQUIRE(grid2.get_state(cse::Point(1, 2)) == grid1.get_state(cse::Point(1, 2)));
+  REQUIRE(grid2.get_state(cse::Point(4, 1)) == grid1.get_state(cse::Point(4, 1)));
+
+  grid1.set_state(cse::Point(1, 3));
+
+  REQUIRE(grid2.get_state(cse::Point(1, 2)) == 'P');
+  REQUIRE(grid2.get_state(cse::Point(1, 3)) != 'P');
+}
+
+TEST_CASE("Testing assignment operator of StateGrid") {
+  cse::StateGrid grid1("test");
+  cse::StateGrid grid2("test");
+
+  grid2 = grid1;
+
+  REQUIRE(grid2.get_state(cse::Point(1, 2)) == grid1.get_state(cse::Point(1, 2)));
+
+  grid1.set_state(cse::Point(1, 3));
+
+  REQUIRE(grid2.get_state(cse::Point(1, 2)) == 'P');
+}
+
+TEST_CASE("Testing validate_position on edge cells") {
+  cse::StateGrid grid("test");
+
+  // (0,0) is a wall so not traversable.
+  REQUIRE_FALSE(grid.validate_position({0, 0}));
+  // (5,4) is also a wall.
+  REQUIRE_FALSE(grid.validate_position({5, 4}));
+  // (1,1) is an empty space so should be traversable.
+  REQUIRE(grid.validate_position({1, 1}));
 }
